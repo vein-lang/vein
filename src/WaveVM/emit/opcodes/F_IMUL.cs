@@ -1,4 +1,4 @@
-﻿namespace wave
+﻿namespace wave.emit.opcodes
 {
     public class F_IMUL : F_MV
     {

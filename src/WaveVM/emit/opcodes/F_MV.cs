@@ -1,4 +1,4 @@
-﻿namespace wave
+﻿namespace wave.emit.opcodes
 {
     using runtime.emit.@unsafe;
 
