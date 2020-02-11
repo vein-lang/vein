@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "version.h": "c",
+        "arduino.h": "c",
+        "*.tcc": "cpp",
+        "algorithm": "cpp"
+    }
+}
