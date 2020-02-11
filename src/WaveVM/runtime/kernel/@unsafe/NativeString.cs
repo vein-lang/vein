@@ -1,4 +1,4 @@
-﻿namespace wave.runtime.kernel
+﻿namespace wave.runtime.kernel.@unsafe
 {
     using System;
     using System.Collections.Generic;
@@ -59,7 +59,7 @@
         /// <param name="free">free memory after unwraping string? </param>
         /// <exception cref="AccessViolationException">point has disposed</exception>
         [SecurityCritical]
-        public static void Unwrap(in NativeString p, out string str, bool free, bool suppressFail = false)
+        public static void Unwrap(NativeString p, out string str, bool free, bool suppressFail = false)
         {
             if (p.@ref == null)
             {
