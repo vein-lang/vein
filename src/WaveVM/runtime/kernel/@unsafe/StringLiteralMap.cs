@@ -1,7 +1,8 @@
-﻿namespace wave.runtime.kernel
+﻿namespace wave.runtime.kernel.@unsafe
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Security;
 
     /*
@@ -28,6 +29,7 @@
         public static void Clear() => literalStorage.Clear();
 
         public static bool Has(int index) => literalStorage.Any(x => x.GetHashCode() == index);
+
 
         #region private
 
