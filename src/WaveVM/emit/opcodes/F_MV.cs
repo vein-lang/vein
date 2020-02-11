@@ -11,7 +11,7 @@
             : this(Storage.GetRegisterByLabel(register), Storage.GetSlotByLabel(slot))
         { }
 
-        public F_MV(byte register, byte slot) : base(0xAD)
+        public F_MV(byte register, byte slot) : base(OpCodeValues.mv)
         {
             _register = register;
             _slot = slot;
