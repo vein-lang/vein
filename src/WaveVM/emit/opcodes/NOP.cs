@@ -2,7 +2,7 @@
 {
     public class NOP : Fragment
     {
-        public NOP() : base(0x0)
+        public NOP() : base(OpCodeValues.nop)
         {
         }
 
