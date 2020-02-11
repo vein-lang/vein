@@ -29,7 +29,7 @@
         /// </summary>
         ldloc = 0x8,
         /// <summary>
-        /// 
+        /// Load given int value into stack
         /// </summary>
         ldc_iX = 0x9,
 
