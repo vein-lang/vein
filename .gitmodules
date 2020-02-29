@@ -1,0 +1,3 @@
+[submodule "src/bootloader/lib/arduino-pin-api"]
+	path = src/bootloader/lib/arduino-pin-api
+	url = https://github.com/0xF6/arduino-pin-api.git

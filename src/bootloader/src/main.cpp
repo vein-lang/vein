@@ -1,5 +1,9 @@
 #include <Arduino.h>
+#include "pin-api.h"
 #pragma message "Arduino Wave bootloader"
+
+#define CONFIG_IN D1
+#define CONFIG_OUT D2
 
 bool ready = false;
 void setup()
@@ -12,7 +16,7 @@ String readBlock()
 {
     String timeOutResult;
     auto result = Serial.readStringUntil('\n');
-    if(timeOutResult == result)
+    if (timeOutResult == result)
         return readBlock();
     return result;
 }
@@ -25,27 +29,28 @@ void handleFirmware()
     log("start download firmware...");
     auto bl = readBlock();
     log(bl);
-    if(!(bl == F("~#UP"))) 
+    if (!(bl == F("~#UP")))
     {
         ready = true;
         return;
     }
-    if (serialEventRun) serialEventRun();
-    float* firmwareBlocks = nullptr;
+    if (serialEventRun)
+        serialEventRun();
+    float *firmwareBlocks = nullptr;
     int index = 0;
     for (;;)
     {
         auto block = readBlock();
         log("readed block: " + block);
-        if(block == F("~#DOWN")) 
+        if (block == F("~#DOWN"))
             break;
-        if(block == F("~#SIZE"))
+        if (block == F("~#SIZE"))
         {
             block = readBlock();
             auto size = 0;
             size = block.toInt();
             log("size: " + String(size));
-            firmwareBlocks = (float*)new float[size];
+            firmwareBlocks = (float *)new float[size];
             continue;
         }
         log("result: " + String(block.toFloat()));
@@ -57,18 +62,18 @@ void handleFirmware()
 void loop()
 {
 
-    for(int i = 255; i >= 0; i--) 
+    for (int i = 255; i >= 0; i--)
     {
         analogWrite(13, i);
         delay(10);
     }
-    for(int i = 0; i <= 255; i++) 
+    for (int i = 0; i <= 255; i++)
     {
         analogWrite(13, i);
         delay(10);
     }
     //asm volatile("nop\n\t");
-    if(!ready)
+    if (!ready)
         handleFirmware();
 }
 /*
