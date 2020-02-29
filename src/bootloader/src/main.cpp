@@ -8,10 +8,6 @@ void setup()
     Serial.begin(9600);
     Serial.setTimeout(150000);
 }
-
-
-int emuXuy = 0;
-#define EMULATE_SERIAL 
 String readBlock()
 {
     String timeOutResult;
