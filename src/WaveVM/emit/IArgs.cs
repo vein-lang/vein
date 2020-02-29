@@ -1,7 +1,7 @@
 ﻿namespace wave
 {
-    public interface IArgs<out I>
+    public interface IArgs
     {
-        I[] Get();
+        byte[] Get();
     }
 }

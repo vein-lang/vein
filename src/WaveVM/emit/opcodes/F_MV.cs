@@ -2,7 +2,7 @@
 {
     using runtime.emit.@unsafe;
 
-    public class F_MV : Fragment, IArg<byte>
+    public class F_MV : Fragment, IArg
     {
         protected readonly byte _register;
         protected readonly byte _slot;

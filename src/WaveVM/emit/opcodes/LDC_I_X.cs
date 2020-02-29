@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
-    public unsafe class LDC_I_X<TIntValue> : Fragment, IArgs<byte> where TIntValue : unmanaged, IFormattable, IConvertible, IComparable
+    public unsafe class LDC_I_X<TIntValue> : Fragment, IArgs where TIntValue : unmanaged, IFormattable, IConvertible, IComparable
     {
         private readonly TIntValue _value;
 

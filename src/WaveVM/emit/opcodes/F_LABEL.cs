@@ -3,7 +3,7 @@
     using System;
     using runtime.kernel.@unsafe;
 
-    public class F_LABEL : Fragment, IInterningProvider, IArgs<byte>
+    public class F_LABEL : Fragment, IInterningProvider, IArgs
     {
         private readonly string _labelId;
 
