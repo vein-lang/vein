@@ -1,5 +1,7 @@
 ﻿namespace wave
 {
+    using System;
+    using System.Linq;
     using emit.opcodes;
     using runtime.emit.@unsafe;
 
@@ -12,9 +14,18 @@
         public static implicit operator byte(Fragment f) => (byte)f._code;
 
         protected abstract string ToTemplateString();
+
+        public static int SizeOf<T>(T t) where T : Fragment
+        {
+            if (t is IArg)
+                return 2;
+            if (t is IArgs args)
+                return args.Get().Length;
+            return 1;
+        }
     }
 
-    public abstract class FragmentWithRegisterSlot : Fragment, IArg<byte>
+    public abstract class FragmentWithRegisterSlot : Fragment, IArg
     {
         protected readonly byte _register;
         protected readonly byte _slot;
