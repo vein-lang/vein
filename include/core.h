@@ -5,9 +5,13 @@
 
 #ifdef DEBUG
 #define d_print(x) Serial.print(x)
+#define f_print(x) Serial.print(#x);Serial.print(" ");Serial.println(x)
+#define w_print(x) Serial.println(x)
 #define d_init() Serial.begin(9600)
 #else
 #define d_print(x)
+#define f_print(x)
+#define w_print(x)
 #define d_init()
 #endif
 
