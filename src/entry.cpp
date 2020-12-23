@@ -8,20 +8,22 @@
 
 void setup() {
     d_init();
-
-    const auto code_size = 5;
-    const auto code = new unsigned char[code_size];
-
-    code[0] = NOP;
-    code[1] = LDARG_0;
-    code[2] = LDARG_1;
-    code[3] = ADD;
-    code[4] = DUMP_0;
-
+    
+    unsigned char code[] =  {
+        NOP,
+        LDARG_0,
+        LDARG_1,
+        ADD,
+        DUMP_0,
+        LDC_I4_S,
+        228,
+        DUMP_0,
+        RET
+    };
     const auto meta = new MetaMethodHeader();
     meta->max_stack = 24;
-    meta->code_size = code_size;
-    meta->code = code;
+    meta->code_size = sizeof(code);
+    meta->code = &*code;
 
     auto* const args = new stackval[2];
     args[0].type = VAL_I32;
@@ -87,18 +89,28 @@ void exec_method(MetaMethodHeader* mh, stackval* args)
                 ++sp;
                 ++ip;
                 break;
-            CASE(LDC_I32_0)
+            CASE(LDC_I4_0)
                 ++ip;
                 sp->type = VAL_I32;
                 sp->data.i = -1;
                 ++sp;
                 break;
+            CASE(LDC_I4_S)
+                ++ip;
+                sp->type = VAL_I32;
+                sp->data.i = *ip; /* FIXME: signed? */
+                ++ip;
+                ++sp;
+                break;
             CASE(DUMP_0)
                 ++ip;
-                f_print(sp[-1].type);
-                f_print(sp[-1].data.i);
+                DUMP_STACK(sp, -1);
                 break;
-            CASE(HALT)
+            CASE(DUMP_1)
+                ++ip;
+                DUMP_STACK(sp, 0);
+                break;
+            CASE(RET)
                 ++ip;
                 return;
             CASE(CALL)
@@ -114,3 +126,4 @@ void exec_method(MetaMethodHeader* mh, stackval* args)
 
 
 }
+
