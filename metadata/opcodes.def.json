@@ -19,13 +19,37 @@
 },{
     "n": "LDARG.4"
 },{
-    "n": "LDC.I32.0"
+    "n": "LDC.I4.0"
+},{
+    "n": "LDC.I4.S"
 },{
     "n": "DUMP.0"
 },{
-    "n": "HALT"
+    "n": "DUMP.1"
+},{
+    "n": "RET"
 },{
     "n": "CALL"
 },{
-    "n": "LDLOC_S"
+    "n": "LDNULL"
+},{
+    "n": "LDLOC.0"
+},{
+    "n": "LDLOC.1"
+},{
+    "n": "LDLOC.2"
+},{
+    "n": "LDLOC.3"
+},{
+    "n": "LDLOC.4"
+},{
+    "n": "STLOC.0"
+},{
+    "n": "STLOC.1"
+},{
+    "n": "STLOC.2"
+},{
+    "n": "STLOC.3"
+},{
+    "n": "STLOC.4"
 }]
