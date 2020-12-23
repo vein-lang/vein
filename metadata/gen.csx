@@ -13,7 +13,7 @@ var ops = JsonConvert.DeserializeObject<OpCode[]>(content);
 var result = new StringBuilder();
 
 foreach(var i in ops)
-    result.AppendLine($"{i.n.Replace(".", "_")} = {i.v},");
+    result.AppendLine($"OP_DEF({i.n.Replace(".", "_")}, {i.v})");
 
 if (File.Exists("opcodes.def"))
     File.Delete("opcodes.def");

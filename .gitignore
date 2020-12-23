@@ -5,3 +5,6 @@
 .vscode/ipch
 
 metadata/opcodes.def
+
+.vs/
+x64/

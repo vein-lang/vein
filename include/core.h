@@ -1,6 +1,6 @@
 #pragma once
+#include "compatibility.h"
 #define __MISC_VISIBLE
-#include "Arduino.h"
 #define DEBUG 1
 
 #ifdef DEBUG
@@ -8,12 +8,28 @@
 #define f_print(x) Serial.print(#x);Serial.print(" ");Serial.println(x)
 #define w_print(x) Serial.println(x)
 #define d_init() Serial.begin(9600)
+
+#ifndef ARDUINO
+#include <iostream>
+#undef d_print
+#undef f_print
+#undef w_print
+#undef d_init
+#define d_init()
+#define d_print(x) std::cout << x;
+#define f_print(x)  std::cout << #x << " " << x << "\n";
+#define w_print(x)  std::cout << x << "\n";
+#endif
+
 #else
 #define d_print(x)
 #define f_print(x)
 #define w_print(x)
 #define d_init()
 #endif
+
+
+typedef void* wpoint;
 
 class Shifter 
 {
@@ -82,7 +98,7 @@ String longlongtoStr(int64_t l, int base)
 
 
 
-
+#if defined(ARDUINO)
 __uint16_t deconstruct(int64_t addr)
 {
     alloc_control_operator(32);
@@ -94,13 +110,11 @@ __uint16_t deconstruct(int64_t addr)
     bump_t((__uint16_t)((x1 << 4) | x2), "result");
     return (__uint16_t)((x2 << 4) | x1);
 }
+#endif
 
 
-typedef struct {
-	uint32_t                code_size;
-	unsigned char*          code;
-	short                   max_stack;
-	uint32_t                local_var_sig_tok;
-	unsigned int            init_locals : 1;
-	void*                   exception_handler_list;
-} MetaMethodHeader;
+
+
+
+
+

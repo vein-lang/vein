@@ -1,56 +1,54 @@
 #pragma once
 
 template<typename T>
-class Stack 
+class stack 
 {
     public:
-    Stack(int volume) {
-        _body = new T[volume]();
-        _pos = -1;
-        _size = volume;
+    explicit stack(const int volume) {
+        body_ = new T[volume]();
+        pos_ = -1;
+        size_ = volume;
     }
-    ~Stack() 
+    ~stack() 
     {
-        delete[] _body;
+        delete[] body_;
     }
-    bool isEmpty()
+    bool is_empty() const
     {
-        if(_pos == -1)
+        if(pos_ == -1)
             return true;
-        else
-            return false;
+        return false;
     }
-    bool isFull()
+    bool is_full() const
     {
-        if(_pos == _size-1)
+        if(pos_ == size_-1)
             return true;
-        else
-            return false;
+        return false;
     }
     bool push(const T &value)
     {
-        if(isFull())
+        if(is_full())
             return false;
         else 
-            _body[++_pos] = value;
+            body_[++pos_] = value;
         return true;
     }
     bool pop(T &value)
     {
-        if (!isEmpty()) 
+        if (!is_empty()) 
         {
-            value = _body[_pos--];
+            value = body_[pos_--];
             return true;
         }
         return false;
     }
-    int size()
+    int size() const
     {
-        return _pos+1;
+        return pos_+1;
     }
 
     private:
-        T* _body;
-        int _pos;
-        int _size;
+        T* body_;
+        int pos_;
+        int size_;
 };
