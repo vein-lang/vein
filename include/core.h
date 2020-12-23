@@ -16,9 +16,9 @@
 #undef w_print
 #undef d_init
 #define d_init()
-#define d_print(x) std::cout << x;
-#define f_print(x)  std::cout << #x << " " << x << "\n";
-#define w_print(x)  std::cout << x << "\n";
+#define d_print(x) std::cout << x
+#define f_print(x) std::cout << #x << " " << x << "\n"
+#define w_print(x) std::cout << x << "\n"
 #endif
 
 #else
