@@ -1,43 +1,31 @@
 [{
-    "n": "NOP",
-    "v": "0x00"
+    "n": "NOP"
 },{
-    "n": "ADD",
-    "v": "0x01"
+    "n": "ADD"
 },{
-    "n": "SUB",
-    "v": "0x02"
+    "n": "SUB"
 },{
-    "n": "DIV",
-    "v": "0x03"
+    "n": "DIV"
 },{
-    "n": "MUL",
-    "v": "0x04"
+    "n": "MUL"
 },{
-    "n": "LDARG.0",
-    "v": "0x05"
+    "n": "LDARG.0"
 },{
-    "n": "LDARG.1",
-    "v": "0x06"
+    "n": "LDARG.1"
 },{
-    "n": "LDARG.2",
-    "v": "0x07"
+    "n": "LDARG.2"
 },{
-    "n": "LDARG.3",
-    "v": "0x08"
+    "n": "LDARG.3"
 },{
-    "n": "LDARG.4",
-    "v": "0x09"
+    "n": "LDARG.4"
 },{
-    "n": "LDC.I32.0",
-    "v": "0x0A"
+    "n": "LDC.I32.0"
 },{
-    "n": "DUMP.0",
-    "v": "0x0B"
+    "n": "DUMP.0"
 },{
-    "n": "HALT",
-    "v": "0x0C"
+    "n": "HALT"
 },{
-    "n": "CALL",
-    "v": "0x10"
+    "n": "CALL"
+},{
+    "n": "LDLOC_S"
 }]
