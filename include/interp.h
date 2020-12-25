@@ -43,6 +43,16 @@ typedef struct {
 void exec_method(MetaMethodHeader* mh, stackval* args);
 
 
+void vm_shutdown()
+{
+	w_print("\t !! WM SHUTDOWN !!");
+    while (true)
+    {
+		sleep(200);
+    }
+}
+
+
 #define CASE(x) case x:
 
 
@@ -63,6 +73,13 @@ T cast_t(void* v)
 		sp[-1].data.f op sp[0].data.f; \
     else if (sp->type == VAL_FLOAT) \
 		sp[-1].data.f_r4 op sp[0].data.f_r4
+
+#define I_OPERATION(op) ++ip; \
+	--sp; \
+    if (sp->type == VAL_I32) \
+        sp[-1].data.i op sp[0].data.i; \
+	else if (sp->type == VAL_I64) \
+		sp[-1].data.l op sp[0].data.l
 
 #define DUMP_STACK(sp, idx) f_print(sp[idx].type); \
     if (sp[idx].type == VAL_I32) \

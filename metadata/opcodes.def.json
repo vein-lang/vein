@@ -52,4 +52,24 @@
     "n": "STLOC.3"
 },{
     "n": "STLOC.4"
+},{
+    "n": "LOC.INIT"
+},{
+    "n": "DUP"
+},{
+    "n": "XOR"
+},{
+    "n": "AND"
+},{
+    "n": "SHR"
+},{
+    "n": "SHL"
+},
+
+{
+    "n": "CONV.R4"
+},{
+    "n": "CONV.R8"
+},{
+    "n": "CONV.I4"
 }]

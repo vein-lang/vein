@@ -1,22 +1,19 @@
 // ReSharper disable CppDeprecatedRegisterStorageClassSpecifier
 #include "core.h"
-#include "stack.h"
 #include "interp.h"
 #include "object.h"
 
-
-
 void setup() {
     d_init();
-    
-    unsigned char code[] =  {
-        NOP,
-        LDARG_0,
-        LDARG_1,
-        ADD,
-        DUMP_0,
+    unsigned char code[] = {
         LDC_I4_S,
-        228,
+        4,
+        LDC_I4_S,
+        1,
+        ADD,
+        LDC_I4_S,
+        2,
+        XOR,
         DUMP_0,
         RET
     };
@@ -26,10 +23,12 @@ void setup() {
     meta->code = &*code;
 
     auto* const args = new stackval[2];
-    args[0].type = VAL_I32;
-    args[0].data.i = 12;
-    args[1].type = VAL_I32;
-    args[1].data.i = 14;
+    args[0].type = VAL_FLOAT;
+    args[0].data.f_r4 = 14.48f;
+
+    args[1].type = VAL_FLOAT;
+    args[1].data.f_r4 = static_cast<float>(1483);
+
     exec_method(meta, args);
 }
 
@@ -48,18 +47,23 @@ void exec_method(MetaMethodHeader* mh, stackval* args)
 
     auto* end = ip + mh->code_size;
 
-    stackval locals[16];
+    auto* locals = new stackval[0];
     while (1)
     {
-        #if defined(DEBUG) && !defined(ARDUINO)
+        if(*ip == *end)
+        {
+            w_print("unexpected end of executable memory.");
+            vm_shutdown();
+        }
+        #if !defined(DEBUG) && !defined(ARDUINO)
         {
             for (auto h = 0; h < level; ++h)
                 d_print("\t");
         }
-        printf("0x%04x %02x\n", ip - (unsigned char*)mh->code, *ip);
+        printf("0x%04x %02x\n", ip - static_cast<unsigned char*>(mh->code), *ip);
         if (sp != stack) {
-            printf("[%d] %d 0x%08x %0.5f\n", sp - stack, sp[-1].type,
-                sp[-1].data.i, sp[-1].data.f);
+            printf("[%d] %d 0x%08x %0.5f %0.5f\n", sp - stack, sp[-1].type,
+                sp[-1].data.i, sp[-1].data.f, sp[-1].data.f_r4);
         }
         #endif
         SWITCH(*ip)
@@ -69,16 +73,33 @@ void exec_method(MetaMethodHeader* mh, stackval* args)
                 ++ip;
                 break;
             CASE(ADD)
-                A_OPERATION(+= );
+                A_OPERATION(+=);
                 break;
             CASE(SUB)
-                A_OPERATION(-= );
+                A_OPERATION(-=);
                 break;
             CASE(MUL)
-                A_OPERATION(*= );
+                A_OPERATION(*=);
                 break;
             CASE(DIV)
-                A_OPERATION(/= );
+                A_OPERATION(/=);
+                break;
+            CASE(XOR)
+                I_OPERATION(^=);
+                break;
+            CASE(AND)
+                I_OPERATION(|=);
+                break;
+            CASE(SHR)
+                I_OPERATION(>>=);
+                break;
+            CASE(SHL)
+                I_OPERATION(<<=);
+                break;
+            CASE(DUP)
+                * sp = sp[-1];
+                ++sp;
+                ++ip;
                 break;
             CASE(LDARG_0)
             CASE(LDARG_1)
@@ -98,7 +119,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args)
             CASE(LDC_I4_S)
                 ++ip;
                 sp->type = VAL_I32;
-                sp->data.i = *ip; /* FIXME: signed? */
+                sp->data.i = static_cast<int32_t>(*ip);
                 ++ip;
                 ++sp;
                 break;
@@ -116,9 +137,38 @@ void exec_method(MetaMethodHeader* mh, stackval* args)
             CASE(CALL)
                 ++ip;
                 break;
+            CASE(LDLOC_0)
+            CASE(LDLOC_1)
+            CASE(LDLOC_2)
+            CASE(LDLOC_3)
+            CASE(LDLOC_4)
+                * sp = locals[(*ip) - LDLOC_0];
+                ++ip;
+                ++sp;
+                break
+            CASE(STLOC_0)
+            CASE(STLOC_1)
+            CASE(STLOC_2)
+            CASE(STLOC_3)
+            CASE(STLOC_4)
+                --sp;
+                locals[(*ip) - STLOC_0] = *sp;
+                ++ip;
+                break;
+            CASE(LOC_INIT)
+                ++ip;
+                locals = new stackval[args[*ip].data.i];
+                ++sp;
+                ++ip;
+                break;
+            CASE(CONV_R4)
+                ++ip;
+                sp[-1].data.i = static_cast<int>(sp[-1].data.f_r4);
+                sp[-1].type = VAL_I32;
+                break;
             default:
                 d_print("Unimplemented opcode: ");
-                d_print(*ip);
+                d_print(opcodes[*ip]);
                 d_print("\n");
                 return;
         }

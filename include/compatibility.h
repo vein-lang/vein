@@ -8,6 +8,7 @@
 #include <string>
 typedef std::string String;
 #define ASM(x)
+#define sleep(x) 
 void setup();
 void loop();
 int main(int argc, char* argv[])

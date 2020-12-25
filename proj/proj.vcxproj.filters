@@ -32,9 +32,6 @@
     <ClInclude Include="..\include\object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\stack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -72,6 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\git\wave_vm\include</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -148,7 +149,6 @@
     <ClInclude Include="..\include\core.h" />
     <ClInclude Include="..\include\interp.h" />
     <ClInclude Include="..\include\object.h" />
-    <ClInclude Include="..\include\stack.h" />
     <ClInclude Include="..\include\types.h" />
   </ItemGroup>
   <ItemGroup>
