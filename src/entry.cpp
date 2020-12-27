@@ -2,7 +2,6 @@
 #include "core.h"
 #include "interp.h"
 #include "object.h"
-
 void setup() {
     d_init();
     unsigned char code[] = {
@@ -68,100 +67,100 @@ void exec_method(MetaMethodHeader* mh, stackval* args)
         #endif
         SWITCH(*ip)
         {
-            CASE(NOP)
+            case NOP:
                 ASM("nop");
                 ++ip;
                 break;
-            CASE(ADD)
+            case ADD:
                 A_OPERATION(+=);
                 break;
-            CASE(SUB)
+            case SUB:
                 A_OPERATION(-=);
                 break;
-            CASE(MUL)
+            case MUL:
                 A_OPERATION(*=);
                 break;
-            CASE(DIV)
+            case DIV:
                 A_OPERATION(/=);
                 break;
-            CASE(XOR)
+            case XOR:
                 I_OPERATION(^=);
                 break;
-            CASE(AND)
+            case AND:
                 I_OPERATION(|=);
                 break;
-            CASE(SHR)
+            case SHR:
                 I_OPERATION(>>=);
                 break;
-            CASE(SHL)
+            case SHL:
                 I_OPERATION(<<=);
                 break;
-            CASE(DUP)
+            case DUP:
                 * sp = sp[-1];
                 ++sp;
                 ++ip;
                 break;
-            CASE(LDARG_0)
-            CASE(LDARG_1)
-            CASE(LDARG_2)
-            CASE(LDARG_3)
-            CASE(LDARG_4)
+            case LDARG_0:
+            case LDARG_1:
+            case LDARG_2:
+            case LDARG_3:
+            case LDARG_4:
                 *sp = args[(*ip) - LDARG_0];
                 ++sp;
                 ++ip;
                 break;
-            CASE(LDC_I4_0)
+            case LDC_I4_0:
                 ++ip;
                 sp->type = VAL_I32;
                 sp->data.i = -1;
                 ++sp;
                 break;
-            CASE(LDC_I4_S)
+            case LDC_I4_S:
                 ++ip;
                 sp->type = VAL_I32;
                 sp->data.i = static_cast<int32_t>(*ip);
                 ++ip;
                 ++sp;
                 break;
-            CASE(DUMP_0)
+            case DUMP_0:
                 ++ip;
                 DUMP_STACK(sp, -1);
                 break;
-            CASE(DUMP_1)
+            case DUMP_1:
                 ++ip;
                 DUMP_STACK(sp, 0);
                 break;
-            CASE(RET)
+            case RET:
                 ++ip;
                 return;
-            CASE(CALL)
+            case CALL:
                 ++ip;
                 break;
-            CASE(LDLOC_0)
-            CASE(LDLOC_1)
-            CASE(LDLOC_2)
-            CASE(LDLOC_3)
-            CASE(LDLOC_4)
+            case LDLOC_0:
+            case LDLOC_1:
+            case LDLOC_2:
+            case LDLOC_3:
+            case LDLOC_4:
                 * sp = locals[(*ip) - LDLOC_0];
                 ++ip;
                 ++sp;
-                break
-            CASE(STLOC_0)
-            CASE(STLOC_1)
-            CASE(STLOC_2)
-            CASE(STLOC_3)
-            CASE(STLOC_4)
+                break;
+            case STLOC_0:
+            case STLOC_1:
+            case STLOC_2:
+            case STLOC_3:
+            case STLOC_4:
                 --sp;
                 locals[(*ip) - STLOC_0] = *sp;
                 ++ip;
                 break;
-            CASE(LOC_INIT)
+            case LOC_INIT:
                 ++ip;
                 locals = new stackval[args[*ip].data.i];
                 ++sp;
                 ++ip;
                 break;
-            CASE(CONV_R4)
+            case CONV_R4:
                 ++ip;
                 sp[-1].data.i = static_cast<int>(sp[-1].data.f_r4);
                 sp[-1].type = VAL_I32;
