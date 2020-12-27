@@ -1,9 +1,10 @@
 #pragma once
 
-
+#include "api/EEPROM.h"
 #if defined(ARDUINO)
 #include "Arduino.h"
 #define ASM(x) __ASM volatile (x)
+#define sleep(x) delay(x)
 #else
 #include <string>
 typedef std::string String;
