@@ -1,11 +1,10 @@
 #pragma once
 #include "compatibility.h"
-#define __MISC_VISIBLE
 #define DEBUG 1
 
 #ifdef DEBUG
 #define d_print(x) Serial.print(x)
-#define f_print(x) Serial.print(#x);Serial.print(" ");Serial.println(x)
+#define f_print(x) do {  Serial.print(#x);Serial.print(" ");Serial.println(x); } while(0)
 #define w_print(x) Serial.println(x)
 #define d_init() Serial.begin(9600)
 
