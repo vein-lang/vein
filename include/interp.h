@@ -52,10 +52,6 @@ void vm_shutdown()
     }
 }
 
-
-#define CASE(x) case x:
-
-
 template<class T>
 T cast_t(void* v)
 {
