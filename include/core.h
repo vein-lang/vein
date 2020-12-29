@@ -1,5 +1,6 @@
 #pragma once
 #include "compatibility.h"
+#include "api/EEPROM.h"
 #define DEBUG 1
 
 #ifdef DEBUG

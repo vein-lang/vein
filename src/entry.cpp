@@ -3,6 +3,13 @@
 #include "interp.h"
 #include "object.h"
 void setup() {
+
+    auto fs = EEPROM();
+
+    auto a1 = fs.write(0x0, 0x0);
+    auto a2 = fs.write(0x1, 0x1);
+    auto a3 = fs.write(0x2, 0x2);
+
     d_init();
     unsigned char code[] = {
         LDC_I4_S,

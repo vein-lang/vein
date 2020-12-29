@@ -9,3 +9,5 @@ metadata/opcodes.def
 .vs/
 x64/
 Debug/
+
+proj/vm.fs
