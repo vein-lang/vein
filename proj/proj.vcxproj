@@ -90,6 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,11 +142,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\api\eeprom_windows.cpp" />
     <ClCompile Include="..\src\entry.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\api\EEPROM.h" />
+    <ClInclude Include="..\include\api\Windows\eeprom_windows.h" />
     <ClInclude Include="..\include\class.h" />
     <ClInclude Include="..\include\compatibility.h" />
+    <ClInclude Include="..\include\compatibility.types.h" />
     <ClInclude Include="..\include\core.h" />
     <ClInclude Include="..\include\interp.h" />
     <ClInclude Include="..\include\object.h" />
