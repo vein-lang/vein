@@ -22,3 +22,16 @@ static inline wpointer malloc0(const uintptr_t x)
 }
 
 #define new0(type,size)  ((type *) malloc0(sizeof (type)* (size)))
+
+
+#define UINT32_TO_LE(x) (x)
+#define UINT64_TO_LE(x) (x)
+#define UINT16_TO_LE(x) (x)
+
+#define UINT32_FROM_LE(x)  (UINT32_TO_LE (x))
+#define UINT64_FROM_LE(x)  (UINT64_TO_LE (x))
+#define UINT16_FROM_LE(x)  (UINT16_TO_LE (x))
+
+#define read16(x) UINT16_FROM_LE (*((const uint16_t *) (x)))
+#define read32(x) UINT32_FROM_LE (*((const uint32_t *) (x)))
+#define read64(x) UINT64_FROM_LE (*((const uint64_t *) (x)))
