@@ -12,3 +12,13 @@ typedef std::string String;
 void setup();
 void loop();
 #endif
+
+typedef void* wpointer;
+static inline wpointer malloc0(const uintptr_t x)
+{
+    if (x)
+        return calloc(1, x);
+    return nullptr;
+}
+
+#define new0(type,size)  ((type *) malloc0(sizeof (type)* (size)))
