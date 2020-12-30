@@ -1,6 +1,6 @@
 #pragma once
 #include "compatibility.types.h"
-
+#if defined(WIN32)
 class EEPROM {
 public:
 	EEPROM();
@@ -10,3 +10,4 @@ public:
     bool write(uint32_t address, byte value);
 	bool write(uint32_t address, byte* data, uint32_t dataLength);
 };
+#endif
