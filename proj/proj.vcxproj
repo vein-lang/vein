@@ -149,10 +149,15 @@
     <ClInclude Include="..\include\api\EEPROM.h" />
     <ClInclude Include="..\include\api\Windows\eeprom_windows.h" />
     <ClInclude Include="..\include\class.h" />
+    <ClInclude Include="..\include\collections\list.h" />
     <ClInclude Include="..\include\compatibility.h" />
     <ClInclude Include="..\include\compatibility.types.h" />
     <ClInclude Include="..\include\core.h" />
+    <ClInclude Include="..\include\eq.h" />
+    <ClInclude Include="..\include\hash.h" />
+    <ClInclude Include="..\include\hashtable.h" />
     <ClInclude Include="..\include\interp.h" />
+    <ClInclude Include="..\include\method.h" />
     <ClInclude Include="..\include\object.h" />
     <ClInclude Include="..\include\types.h" />
   </ItemGroup>

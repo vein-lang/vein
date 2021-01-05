@@ -13,13 +13,19 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\external">
+      <UniqueIdentifier>{5f18c492-e6d6-44fd-a8fd-c739038d8936}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\collections">
+      <UniqueIdentifier>{c2f1738d-d207-43a4-9792-9093e351eb27}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\api\eeprom_windows.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files\external</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -41,14 +47,29 @@
     <ClInclude Include="..\include\compatibility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\api\Windows\eeprom_windows.h">
+    <ClInclude Include="..\include\compatibility.types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\hashtable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\eq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\api\EEPROM.h">
+      <Filter>Header Files\external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\api\Windows\eeprom_windows.h">
+      <Filter>Header Files\external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\hash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\compatibility.types.h">
+    <ClInclude Include="..\include\method.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\collections\list.h">
+      <Filter>Header Files\collections</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

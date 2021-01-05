@@ -29,7 +29,6 @@
 #endif
 
 
-typedef void* wpoint;
 
 class Shifter 
 {
@@ -114,6 +113,23 @@ __uint16_t deconstruct(int64_t addr)
 
 
 
+/*
+ * Makes a token based on a table and an index
+ */
+#define wave_metadata_make_token(table,idx) (((table) << 24)| idx)
+
+/*
+ * Returns the table index that this token encodes.
+ */
+#define wave_metadata_token_table(token) ((token) >> 24)
+
+/*
+ * Returns the index that a token refers to
+ */
+#define wave_metadata_token_index(token) ((token & 0xffffff))
+
+
+#define wave_metadata_token_code(token) ((token & 0xff000000))
 
 
 

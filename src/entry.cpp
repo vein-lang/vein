@@ -2,15 +2,39 @@
 #include "core.h"
 #include "interp.h"
 #include "object.h"
-void setup() {
+#include "collections/list.h"
 
+void setup() {
+    d_init();
+    /*auto a = new List<int*>(10);
+
+    auto z1 = 1;
+    auto z2 = 2;
+
+    a->add(&z1);
+    a->add(&z2);
+
+    auto q1 = a->operator[](0);
+
+    a->removeAt(0);
+
+    auto q2 = a->operator[](0);*/
+
+    /*auto a1 = hash_table_new(w_hash_str, w_equal_str);
+    auto insertedKey = 0x1;
+    auto val = "foo_string";
+    hash_table_insert(a1, &insertedKey, static_cast<void*>(&val), false);
+
+    auto res = hash_table_find(a1, [](const wpointer key, wpointer _) { return *static_cast<int*>(key) == 0x1; });
+
+    const auto* res2 = static_cast<const char*>(res);*/
+    /*
     auto fs = EEPROM();
 
     auto a1 = fs.write(0x0, 0x0);
     auto a2 = fs.write(0x1, 0x1);
     auto a3 = fs.write(0x2, 0x2);
-
-    d_init();
+    */
     unsigned char code[] = {
         LDC_I4_S,
         4,
@@ -50,7 +74,6 @@ void exec_method(MetaMethodHeader* mh, stackval* args)
     register auto sp = stack;
     register auto ip = mh->code;
     register unsigned int level = 0;
-
     auto* end = ip + mh->code_size;
 
     auto* locals = new stackval[0];
