@@ -19,3 +19,9 @@ bool w_equal_direct(const wpointer v1, const wpointer v2)
 {
 	return v1 == v2;
 }
+
+
+template<class S>
+bool default_equal(S const& lhs, S const& rhs) {
+	return std::tie(lhs) == std::tie(rhs);
+}
