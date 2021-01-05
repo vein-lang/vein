@@ -35,3 +35,23 @@ static inline wpointer malloc0(const uintptr_t x)
 #define read16(x) UINT16_FROM_LE (*((const uint16_t *) (x)))
 #define read32(x) UINT32_FROM_LE (*((const uint32_t *) (x)))
 #define read64(x) UINT64_FROM_LE (*((const uint64_t *) (x)))
+
+
+
+template<typename T>
+using Comparer = int(T t1, T t2);
+
+template<typename T>
+using Predicate = bool(T t);
+
+template<typename T>
+using Action0 = void(T t);
+template<typename TSelf, typename T1>
+using Action1 = void(TSelf self, T1 t1);
+template<typename TSelf, typename T1, typename T2>
+using Action2 = void(TSelf self, T1 t1, T2 t2);
+
+template<typename T>
+using Func0 = T();
+template<typename T0, typename T1>
+using Func1 = T0(T1 arg1);
