@@ -1,7 +1,6 @@
 #pragma once
 #include "core.h"
 #include "image.h"
-#include "hashtable.h"
 
 struct WaveArray;
 struct _WaveClass;
@@ -217,10 +216,10 @@ struct _WaveImage {
 
 	/*
 	 * Indexed by method tokens and typedef tokens.
-	 */
+	 
 	hash_table* method_cache;
 	hash_table* class_cache;
-
+	*/
 	/*
 	 * user_info is a public field and is not touched by the
 	 * metadata engine
