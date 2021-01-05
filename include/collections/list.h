@@ -4,15 +4,6 @@
 
 constexpr auto MAX_ARRAY_LEN = 256;
 
-
-template<typename T>
-void array_copy(T* sourceArray, int sourceIndex, T* destinationArray, int destinationIndex, int length)
-{
-    std::copy(sourceArray + sourceIndex,
-        sourceArray + sourceIndex + length,
-        destinationArray + destinationIndex);
-}
-
 template<typename T>
 class List
 {

@@ -7,7 +7,7 @@
 
 void setup() {
     d_init();
-    auto a = new hashtable<const char*>();
+    /*auto a = new hashtable<const char*>();
     auto s1 = "xuy";
     auto s2 = "dick";
 
@@ -17,8 +17,8 @@ void setup() {
     a->add("1", z1);
     a->add("2", z2);
 
-    auto z = *static_cast<const char**>(a->get("2"));
-    /*auto a = new List<int*>(10);
+    auto z = *static_cast<const char**>(a->get("2"));*/
+    auto a = new List<int*>(1);
 
     auto z1 = 1;
     auto z2 = 2;
@@ -30,7 +30,7 @@ void setup() {
 
     a->removeAt(0);
 
-    auto q2 = a->operator[](0);*/
+    auto q2 = a->operator[](0);
 
     /*auto a1 = hash_table_new(w_hash_str, w_equal_str);
     auto insertedKey = 0x1;

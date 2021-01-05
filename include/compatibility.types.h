@@ -66,3 +66,24 @@ template<typename T>
 struct Nullable<T*> { inline static const T* Value = nullptr; };
 
 #define NULL_VALUE(T) Nullable<T>::Value
+
+#if defined(ARDUINO)
+namespace std
+{
+    template<class InputIt, class OutputIt>
+    OutputIt copy(InputIt first, InputIt last, OutputIt d_first)
+    {
+        while (first != last)
+            *d_first++ = *first++;
+        return d_first;
+    }
+
+}
+#endif
+template<typename T>
+void array_copy(T* sourceArray, int sourceIndex, T* destinationArray, int destinationIndex, int length)
+{
+    std::copy(sourceArray + sourceIndex,
+        sourceArray + sourceIndex + length,
+        destinationArray + destinationIndex);
+}
