@@ -68,6 +68,9 @@
     <ClInclude Include="..\include\collections\list.h">
       <Filter>Header Files\collections</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\collections\hashtable.h">
+      <Filter>Header Files\collections</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\metadata\opcodes.def">

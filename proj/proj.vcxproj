@@ -149,6 +149,7 @@
     <ClInclude Include="..\include\api\EEPROM.h" />
     <ClInclude Include="..\include\api\Windows\eeprom_windows.h" />
     <ClInclude Include="..\include\class.h" />
+    <ClInclude Include="..\include\collections\hashtable.h" />
     <ClInclude Include="..\include\collections\list.h" />
     <ClInclude Include="..\include\compatibility.h" />
     <ClInclude Include="..\include\compatibility.types.h" />

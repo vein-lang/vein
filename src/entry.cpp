@@ -2,10 +2,22 @@
 #include "core.h"
 #include "interp.h"
 #include "object.h"
+#include "collections/hashtable.h"
 #include "collections/list.h"
 
 void setup() {
     d_init();
+    auto a = new hashtable<const char*>();
+    auto s1 = "xuy";
+    auto s2 = "dick";
+
+    auto z1 = &s1;
+    auto z2 = &s2;
+
+    a->add("1", z1);
+    a->add("2", z2);
+
+    auto z = *static_cast<const char**>(a->get("2"));
     /*auto a = new List<int*>(10);
 
     auto z1 = 1;
