@@ -57,3 +57,12 @@ template<typename T>
 using Func0 = T();
 template<typename T0, typename T1>
 using Func1 = T0(T1 arg1);
+
+
+template<typename T>
+struct Nullable { inline static const T Value = NULL; };
+
+template<typename T>
+struct Nullable<T*> { inline static const T* Value = nullptr; };
+
+#define NULL_VALUE(T) Nullable<T>::Value

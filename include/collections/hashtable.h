@@ -10,48 +10,44 @@ struct bucket {
     int hash_coll;
 };
 
-
-template<typename T>
-struct ValueType { inline static const T NullValue = NULL; };
-
-template<typename T>
-struct ValueType<T*> { inline static const T* NullValue = nullptr; };
-
-
 template<typename TKey>
-class hashtable
+class hashtable final
 { 
 public:
     hashtable() : hashtable(0) { } 
     hashtable(int capacity) : hashtable(capacity, 1.0f) { } 
     hashtable(int capacity, float loadFactor) { 
-        this->loadFactor_ = 0.72f * loadFactor; 
+        this->load_factor_ = 0.72f * loadFactor; 
 
-        auto rawsize = capacity / this->loadFactor_; 
+        auto rawsize = capacity / this->load_factor_; 
         auto hashsize = (rawsize > 4) ? Hash::getPrime(static_cast<int>(rawsize)) : 4; 
         this->buckets_ = new bucket<TKey>[hashsize];
         for (auto i = 0; i != hashsize; i++) 
-        { 
+        {
             this->buckets_[i].hash_coll = 0; 
-            this->buckets_[i].key = ValueType<TKey>::NullValue;
+            this->buckets_[i].key = NULL_VALUE(TKey);
             this->buckets_[i].val = nullptr; 
         } 
-        this->loadsize_ = static_cast<int>(this->loadFactor_ * hashsize); 
+        this->loadsize_ = static_cast<int>(this->load_factor_ * hashsize); 
         this->buckets_size_ = hashsize; 
     } 
+    ~hashtable()
+    {
+        delete[] this->buckets_;
+        delete this;
+    }
 
-
-    virtual void add(TKey key, wpointer value)
+    void add(TKey key, wpointer value)
     { 
         insert(key, value, true); 
     } 
 
-    virtual wpointer get(TKey key)
+    wpointer get(TKey key)
     { 
         uint32_t seed; 
         uint32_t incr; 
         
-        auto hashcode = initHash(key, buckets_size_, &seed, &incr); 
+        auto hashcode = init_hash(key, buckets_size_, &seed, &incr); 
         auto ntry = 0; 
         bucket<TKey> b; 
         auto bucketNumber = static_cast<int>(seed % static_cast<uint32_t>(buckets_size_)); 
@@ -63,7 +59,7 @@ public:
                 b = buckets_[bucketNumber]; 
             } while ((currentversion != version_)); 
 
-            if (b.key == ValueType<TKey>::NullValue)
+            if (b.key == NULL_VALUE(TKey))
                 return nullptr; 
             if (((b.hash_coll & 0x7FFFFFFF) == hashcode) && 
                 default_equal(b.key, key)) 
@@ -72,7 +68,7 @@ public:
         } while (b.hash_coll < 0 && ++ntry < buckets_size_); 
         return nullptr; 
     } 
-    virtual void set(TKey key, wpointer value)
+    void set(TKey key, const wpointer value)
     { 
         insert(key, value, false); 
     } 
@@ -83,19 +79,19 @@ private:
     int count_ = 0; 
     int occupancy_ = 0; 
     int loadsize_ = 0; 
-    float loadFactor_ = 0; 
+    float load_factor_ = 0; 
     int version_ = 0;
 
 
-    uint32_t initHash(TKey key, int hashsize, uint32_t* seed, uint32_t* incr)
+    uint32_t init_hash(TKey key, const int hashsize, uint32_t* seed, uint32_t* incr)
     {
-        auto hashcode = static_cast<uint32_t>(hash_gen<TKey>::getHashCode(key)) & 0x7FFFFFFF; 
+        const auto hashcode = static_cast<uint32_t>(hash_gen<TKey>::getHashCode(key)) & 0x7FFFFFFF; 
         *seed = static_cast<uint32_t>(hashcode); 
         *incr = static_cast<uint32_t>(1 + ((*seed * HASH_PRIME) % (static_cast<uint32_t>(hashsize) - 1))); 
         return hashcode; 
     } 
 
-    void insert(TKey key, wpointer nvalue, bool add)
+    void insert(TKey key, wpointer nvalue, const bool add)
     { 
         if (count_ >= loadsize_)  
             expand(); 
@@ -104,56 +100,56 @@ private:
 
         uint32_t seed; 
         uint32_t incr; 
-        uint32_t hashcode = initHash(key, buckets_size_, &seed, &incr); 
-        int ntry = 0; 
-        int emptySlotNumber = -1; 
-        int bucketNumber = static_cast<int>(seed % static_cast<uint32_t>(buckets_size_)); 
+        uint32_t hashcode = init_hash(key, buckets_size_, &seed, &incr);
+        auto ntry = 0;
+        auto empty_slot_number = -1;
+        auto bucket_number = static_cast<int>(seed % static_cast<uint32_t>(buckets_size_)); 
 
         do 
         { 
-            if (emptySlotNumber == -1 && this->buckets_[bucketNumber].hash_coll < 0) 
-                emptySlotNumber = bucketNumber; 
+            if (empty_slot_number == -1 && this->buckets_[bucket_number].hash_coll < 0) 
+                empty_slot_number = bucket_number; 
 
-            if (this->buckets_[bucketNumber].key == ValueType<TKey>::NullValue)
+            if (this->buckets_[bucket_number].key == NULL_VALUE(TKey))
             { 
-                if (emptySlotNumber != -1) 
-                    bucketNumber = emptySlotNumber; 
+                if (empty_slot_number != -1) 
+                    bucket_number = empty_slot_number; 
                 
-                this->buckets_[bucketNumber].val = nvalue; 
-                this->buckets_[bucketNumber].key = key; 
-                this->buckets_[bucketNumber].hash_coll |= static_cast<int>(hashcode); 
+                this->buckets_[bucket_number].val = nvalue; 
+                this->buckets_[bucket_number].key = key; 
+                this->buckets_[bucket_number].hash_coll |= static_cast<int>(hashcode); 
                 count_++; 
                 version_++; 
                 return; 
             } 
 
-            if (((this->buckets_[bucketNumber].hash_coll & 0x7FFFFFFF) == hashcode) && 
-                default_equal(this->buckets_[bucketNumber].key, key)) 
+            if (((this->buckets_[bucket_number].hash_coll & 0x7FFFFFFF) == hashcode) && 
+                default_equal(this->buckets_[bucket_number].key, key)) 
             { 
                 if (add) 
                     return; 
-                this->buckets_[bucketNumber].val = nvalue; 
+                this->buckets_[bucket_number].val = nvalue; 
                 version_++; 
                 return; 
             } 
 
-            if (emptySlotNumber == -1)  
+            if (empty_slot_number == -1)  
             { 
-                if (this->buckets_[bucketNumber].hash_coll >= 0) { 
-                    this->buckets_[bucketNumber].hash_coll |= static_cast<int>(0x80000000); 
+                if (this->buckets_[bucket_number].hash_coll >= 0) { 
+                    this->buckets_[bucket_number].hash_coll |= static_cast<int>(0x80000000); 
                     occupancy_++; 
                 } 
             } 
 
-            bucketNumber = static_cast<int>((static_cast<long>(bucketNumber) + incr) % static_cast<uint32_t>(buckets_size_)); 
+            bucket_number = static_cast<int>((static_cast<long>(bucket_number) + incr) % static_cast<uint32_t>(buckets_size_)); 
         } 
         while (++ntry < buckets_size_); 
 
-        if (emptySlotNumber != -1) 
+        if (empty_slot_number != -1) 
         { 
-            this->buckets_[emptySlotNumber].val = nvalue; 
-            this->buckets_[emptySlotNumber].key = key; 
-            this->buckets_[emptySlotNumber].hash_coll |= static_cast<int>(hashcode); 
+            this->buckets_[empty_slot_number].val = nvalue; 
+            this->buckets_[empty_slot_number].key = key; 
+            this->buckets_[empty_slot_number].hash_coll |= static_cast<int>(hashcode); 
             count_++; 
             version_++; 
         } 
@@ -161,54 +157,55 @@ private:
 
 
     void expand() 
-    { 
-        auto rawsize = Hash::expandPrime(buckets_size_); 
+    {
+        const auto rawsize = Hash::expandPrime(buckets_size_); 
         rehash(rawsize, false); 
     } 
     void rehash() 
     { 
         rehash(buckets_size_, false); 
     } 
-    void rehash(int newsize, bool forceNewHashCode) 
+    void rehash(int newsize, bool force_new_hash_code) 
     { 
-        occupancy_ = 0; 
-        bucket<TKey>* newBuckets = new bucket<TKey>[newsize];
+        occupancy_ = 0;
+        auto* new_buckets = new bucket<TKey>[newsize];
 
         for (auto nb = 0; nb < buckets_size_; nb++)  
         { 
             auto oldb = this->buckets_[nb]; 
-            if (oldb.key != ValueType<TKey>::NullValue)
+            if (oldb.key != NULL_VALUE(TKey))
             { 
-                auto hashcode = ((forceNewHashCode ? hash_gen<TKey>::getHashCode(oldb.key) : oldb.hash_coll) & 0x7FFFFFFF);
-                putEntry(newBuckets, newsize, oldb.key, oldb.val, hashcode); 
+                auto hashcode = ((force_new_hash_code ? hash_gen<TKey>::getHashCode(oldb.key) : oldb.hash_coll) & 0x7FFFFFFF);
+                putEntry(new_buckets, newsize, oldb.key, oldb.val, hashcode); 
             } 
         } 
         delete[] this->buckets_; 
-        this->buckets_ = newBuckets; 
-        loadsize_ = static_cast<int>(loadFactor_ * newsize); 
+        this->buckets_ = new_buckets; 
+        loadsize_ = static_cast<int>(load_factor_ * static_cast<float>(newsize)); 
         version_++; 
     } 
 
-    void putEntry(bucket<TKey>* newBuckets, int newBucketsSize, TKey key, wpointer nvalue, int hashcode)
+    void putEntry(bucket<TKey>* new_buckets, const int new_buckets_size, TKey key, wpointer nvalue, int hashcode)
     { 
         auto seed = static_cast<uint32_t>(hashcode); 
-        auto incr = static_cast<uint32_t>(1 + ((seed * HASH_PRIME) % (static_cast<uint32_t>(newBucketsSize) - 1))); 
-        auto bucketNumber = static_cast<int>(seed % static_cast<uint32_t>(newBucketsSize)); 
+        auto incr = static_cast<uint32_t>(1 + seed * HASH_PRIME % (static_cast<uint32_t>(new_buckets_size) - 1)); 
+        auto bucketNumber = static_cast<int>(seed % static_cast<uint32_t>(new_buckets_size)); 
         do { 
 
-            if ((newBuckets[bucketNumber].key == ValueType<TKey>::NullValue))
+            if (new_buckets[bucketNumber].key == NULL_VALUE(TKey))
             { 
-                newBuckets[bucketNumber].val = nvalue; 
-                newBuckets[bucketNumber].key = key; 
-                newBuckets[bucketNumber].hash_coll |= hashcode; 
+                new_buckets[bucketNumber].val = nvalue; 
+                new_buckets[bucketNumber].key = key; 
+                new_buckets[bucketNumber].hash_coll |= hashcode; 
                 return; 
             } 
 
-            if (newBuckets[bucketNumber].hash_coll >= 0) { 
-                newBuckets[bucketNumber].hash_coll |= static_cast<int>(0x80000000); 
+            if (new_buckets[bucketNumber].hash_coll >= 0) 
+            { 
+                new_buckets[bucketNumber].hash_coll |= static_cast<int>(0x80000000); 
                 occupancy_++; 
             } 
-            bucketNumber = static_cast<int>((static_cast<long>(bucketNumber) + incr) % static_cast<uint32_t>(newBucketsSize)); 
+            bucketNumber = static_cast<int>((static_cast<long>(bucketNumber) + incr) % static_cast<uint32_t>(new_buckets_size)); 
         } while (true); 
     } 
 };
