@@ -50,9 +50,6 @@
     <ClInclude Include="..\include\compatibility.types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\hashtable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\eq.h">
       <Filter>Header Files</Filter>
     </ClInclude>

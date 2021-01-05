@@ -155,7 +155,6 @@
     <ClInclude Include="..\include\core.h" />
     <ClInclude Include="..\include\eq.h" />
     <ClInclude Include="..\include\hash.h" />
-    <ClInclude Include="..\include\hashtable.h" />
     <ClInclude Include="..\include\interp.h" />
     <ClInclude Include="..\include\method.h" />
     <ClInclude Include="..\include\object.h" />
