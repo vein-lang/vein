@@ -1,5 +1,5 @@
 #include "api/Windows/eeprom_windows.h"
-
+#if defined(WIN32)
 #include <cassert>
 #include <windows.h>
 #include <iostream>
@@ -85,3 +85,4 @@ bool EEPROM::write(uint32_t address, byte* data, uint32_t dataLength)
     fs_stream.flush();
     return true;
 }
+#endif
