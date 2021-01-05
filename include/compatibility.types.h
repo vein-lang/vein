@@ -13,7 +13,9 @@ void setup();
 void loop();
 #endif
 
+typedef const char* nativeString;
 typedef void* wpointer;
+
 static inline wpointer malloc0(const uintptr_t x)
 {
     if (x)
@@ -21,7 +23,7 @@ static inline wpointer malloc0(const uintptr_t x)
     return nullptr;
 }
 
-#define new0(type,size)  ((type *) malloc0(sizeof (type)* (size)))
+#define new0(type,size)  ((type *) malloc0(sizeof (type) * (size)))
 
 
 #define UINT32_TO_LE(x) (x)

@@ -114,7 +114,7 @@ private:
             if (emptySlotNumber == -1 && this->buckets_[bucketNumber].hash_coll < 0) 
                 emptySlotNumber = bucketNumber; 
 
-            if ((this->buckets_[bucketNumber].key == ValueType<TKey>::NullValue))
+            if (this->buckets_[bucketNumber].key == ValueType<TKey>::NullValue)
             { 
                 if (emptySlotNumber != -1) 
                     bucketNumber = emptySlotNumber; 
