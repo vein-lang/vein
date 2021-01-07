@@ -156,12 +156,14 @@
     <ClInclude Include="..\include\core.h" />
     <ClInclude Include="..\include\eq.h" />
     <ClInclude Include="..\include\hash.h" />
+    <ClInclude Include="..\include\internal.h" />
     <ClInclude Include="..\include\interp.h" />
     <ClInclude Include="..\include\method.h" />
     <ClInclude Include="..\include\object.h" />
     <ClInclude Include="..\include\types.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\metadata\internal.def" />
     <None Include="..\metadata\opcodes.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
