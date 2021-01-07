@@ -34,7 +34,7 @@ public:
     T operator[](int index)
     {
         if (static_cast<uint32_t>(index) >= static_cast<uint32_t>(size_))
-            return NULL;
+            return NULL_VALUE(T);
         return this->items_[index];
     }
     /*void operator[](int index, T* value)
@@ -72,7 +72,7 @@ public:
             array_copy(this->items_, 
                 index + 1, this->items_, 
                 index, size_ - index);
-        this->items_[size_] = NULL;
+        this->items_[size_] = NULL_VALUE(T);
         version_++;
     }
 
@@ -120,20 +120,3 @@ private:
         capacity_ = newCapacity;
     }
 };
-
-/*
- * public void RemoveAt(int index) {
-            if ((uint)index >= (uint)_size) {
-                ThrowHelper.ThrowArgumentOutOfRangeException();
-            }
-            Contract.EndContractBlock();
-            _size--;
-            if (index < _size) {
-                Array.Copy(_items, index + 1, _items, index, _size - index);
-            }
-            _items[_size] = default(T);
-            _version++;
-        }
- 
- *
- */

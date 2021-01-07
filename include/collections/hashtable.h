@@ -61,7 +61,7 @@ public:
 
             if (b.key == NULL_VALUE(TKey))
                 return nullptr; 
-            if (((b.hash_coll & 0x7FFFFFFF) == hashcode) && 
+            if ((b.hash_coll & 0x7FFFFFFF) == hashcode && 
                 default_equal(b.key, key)) 
                 return b.val; 
             bucketNumber = static_cast<int>((static_cast<long>(bucketNumber) + incr) % static_cast<uint32_t>(buckets_size_)); 
