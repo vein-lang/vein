@@ -16,7 +16,7 @@ enum {
 };
 #undef INTERNAL_CALL
 
-#define INTERNAL_CALL(id, func) id,
+#define INTERNAL_CALL(id, func) #id,
 
 
 static const char* internal_call_names[] = {
@@ -34,6 +34,8 @@ static const void* internal_call_functions[] = {
 };
 
 
+
+static hashtable<const char*>* internal_functions;
 
 
 class ICALL {
@@ -56,13 +58,4 @@ public:
     {
         return static_cast<function_pointer*>(internal_functions->get(name));
     }
-private:
-    static hashtable<const char*>* internal_functions;
 };
-
-
-
-#define INTERNAL_INVOKE(name) 
-
-
-INTERNAL_INVOKE("xuy")
