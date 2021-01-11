@@ -1,14 +1,21 @@
 #pragma once
 #include "compatibility.types.h"
-#include "collections/hashtable.h"
+#include "object.h"
+#include "types.h"
 
-struct function_pointer {
-    const void* pointer;
-    const char* name;
-    uint32_t hash;
+
+static WaveString* i_call_get_Platform()
+{
+    return alloc_string("wave_vm");
 };
 
-#define INTERNAL_CALL(id, func) internal_ ## id,
+static WaveObject* i_call_printf(WaveString* str)
+{
+    w_print(str->chars);
+    return getVoid();
+}
+
+#define INTERNAL_CALL(id, func, argsize) internal_ ## id,
 
 enum {
     #include "../metadata/internal.def"
@@ -16,7 +23,7 @@ enum {
 };
 #undef INTERNAL_CALL
 
-#define INTERNAL_CALL(id, func) #id,
+#define INTERNAL_CALL(id, func, argsize) #id,
 
 
 static const char* internal_call_names[] = {
@@ -26,36 +33,17 @@ static const char* internal_call_names[] = {
 
 #undef INTERNAL_CALL
 
-#define INTERNAL_CALL(id, func) &func,
+#define INTERNAL_CALL(id, func, argsize) &func,
 
-static const void* internal_call_functions[] = {
+static const wpointer internal_call_functions[] = {
     #include "../metadata/internal.def"
     nullptr
 };
+#undef INTERNAL_CALL
 
+#define INTERNAL_CALL(id, func, argsize) argsize,
 
-
-static hashtable<const char*>* internal_functions;
-
-
-class ICALL {
-public:
-    static void init()
-    {
-        internal_functions = new hashtable<const char*>();
-
-        for (auto i = 0; i < internal_last; i++)
-        {
-            auto* const f = new function_pointer();
-            f->name = internal_call_names[i];
-            f->pointer = internal_call_functions[i];
-            f->hash = hash_gen<const char*>::getHashCode(f->name);
-
-            internal_functions->add(f->name, f);
-        }
-    }
-    static function_pointer* get_method(const char* name)
-    {
-        return static_cast<function_pointer*>(internal_functions->get(name));
-    }
+static const byte internal_call_function_args_size[] = {
+    #include "../metadata/internal.def"
+    0
 };

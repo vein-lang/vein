@@ -1,1 +1,1 @@
-INTERNAL_CALL(get_Platform, i_call_get_Platform)
+INTERNAL_CALL(get_Platform, i_call_get_Platform, 0)

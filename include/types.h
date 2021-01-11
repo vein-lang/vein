@@ -48,8 +48,6 @@ typedef WaveReturnType WaveParam;
 typedef WaveReturnType WaveFieldType;
 
 struct WaveMethodSignature {
-	char hasthis;
-	char explicit_this;
 	char call_convention;
 	int param_count;
 	int sentinelpos;
@@ -57,15 +55,26 @@ struct WaveMethodSignature {
 	WaveParam** params;
 };
 
+
+typedef enum {
+	WAVE_CALL_DEFAULT,
+	WAVE_CALL_C,
+	WAVE_CALL_STDCALL,
+	WAVE_CALL_THISCALL,
+	WAVE_CALL_FASTCALL,
+	WAVE_CALL_VARARG
+} WaveCallConvention;
+
+
 typedef struct {
-	uint16_t iflags; /* method implementation flags */
+	uint16_t iflags;
 	wpointer addr;
 } WaveMethodPInvokeInfo;
 
 typedef struct {
+	const char*         name;
 	uint16_t            flags;
 	WaveMethodSignature*signature;
-	uint32_t            name_idx;
 	WaveImage*          image;
 	union {
 		MetaMethodHeader        *header;
@@ -142,80 +151,35 @@ struct _WaveClass {
 	 */
 };
 
-typedef struct {
+struct WaveObject {
 	WaveClass *clazz;
-} WaveObject;
+	WaveObject() { clazz = new WaveClass(); }
+	WaveObject(WaveClass* _) {
+		this->clazz = _;
+	}
+};
 
 typedef struct {
-	uint32_t  sh_offset;
-	uint32_t  sh_size;
-} stream_header_t;
-
-/*
- * This macro is used to extract the size of the table encoded in
- * the size_bitfield of metadata_tableinfo_t.
- */
-#define meta_table_size(bitfield,table) ((((bitfield) >> ((table)*2)) & 0x3) + 1)
-#define meta_table_count(bitfield) ((bitfield) >> 24)
-
-
-typedef struct {
-	uint32_t   rows, row_size;
-	char* base;
-
-	/*
-	 * Tables contain up to 9 rows and the possible sizes of the
-	 * fields in the documentation are 1, 2 and 4 bytes.  So we
-	 * can encode in 2 bits the size.
-	 *
-	 * A 32 bit value can encode the resulting size
-	 *
-	 * The top eight bits encode the number of columns in the table.
-	 * we only need 4, but 8 is aligned no shift required.
-	 */
-	uint32_t   size_bitfield;
-} metadata_tableinfo_t;
-
-typedef struct {
-	char* raw_metadata;
-
-	bool                 idx_string_wide, idx_guid_wide, idx_blob_wide;
-
-	stream_header_t      heap_strings;
-	stream_header_t      heap_us;
-	stream_header_t      heap_blob;
-	stream_header_t      heap_guid;
-	stream_header_t      heap_tables;
-
-	char* tables_base;
-
-	metadata_tableinfo_t tables[64];
-} metadata_t;
-
-
-typedef enum {
-	META_TABLE_TYPEREF,
-	META_TABLE_TYPEDEF,
-	META_TABLE_FIELD,
-	META_TABLE_METHOD,
-	META_TABLE_PARAM,
-	META_TABLE_CONSTANT,
-	META_TABLE_PROPERTY,
-	META_TABLE_METHODIMPL,
-	META_TABLE_NESTEDCLASS
-} MetaTableEnum;
-
-
+	WaveType* type;
+	wpointer  value;
+} WaveRef;
 
 struct _WaveImage {
-	int   ref_count;
 	char* name;
-	void* image_info;
-
-	metadata_t metadata;
 	
 	hashtable<nativeString>* method_cache;
 	hashtable<nativeString>* class_cache;
-
-	void* user_info;
 };
+
+typedef struct {
+	WaveObject object;
+	uint32_t length;
+	char* chars;
+} WaveString;
+
+
+
+typedef struct
+{
+    
+} WaveCore;
