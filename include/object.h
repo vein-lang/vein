@@ -17,3 +17,11 @@ static void* wave_object_allocate(size_t size)
 
 
 
+static WaveString* alloc_string(const char* str)
+{
+    auto* wstr = new WaveString();
+    wstr->length = strlen(str);
+    wstr->chars = _strdup(str);
+
+    return wstr;
+}
