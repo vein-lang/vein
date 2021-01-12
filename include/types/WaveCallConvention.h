@@ -1,0 +1,11 @@
+#pragma once
+
+
+typedef enum {
+	WAVE_CALL_DEFAULT,
+	WAVE_CALL_C,
+	WAVE_CALL_STDCALL,
+	WAVE_CALL_THISCALL,
+	WAVE_CALL_FASTCALL,
+	WAVE_CALL_VARARG
+} WaveCallConvention;

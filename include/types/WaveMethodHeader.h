@@ -1,0 +1,11 @@
+#pragma once
+#include "compatibility.types.h"
+
+typedef struct {
+	uint32_t                code_size;
+	unsigned char* code;
+	short                   max_stack;
+	uint32_t                local_var_sig_tok;
+	unsigned int            init_locals : 1;
+	void* exception_handler_list;
+} MetaMethodHeader;
