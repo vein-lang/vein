@@ -17,7 +17,7 @@ namespace __internal
         auto* t = new WaveClass();
 
         t->inited = true;
-        t->type_token = type_token_object;
+        t->type_token = TYPE_OBJECT;
         t->name = "Object";
         t->path = "wave/lang";
         t->parent = nullptr;
@@ -31,7 +31,7 @@ namespace __internal
         auto* t = new WaveClass();
 
         t->inited = true;
-        t->type_token = type_token_void;
+        t->type_token = TYPE_VOID;
         t->name = "Void";
         t->path = "wave/lang";
         t->parent = parent;
