@@ -1,7 +1,6 @@
 #pragma once
 #include "compatibility.types.h"
 #include "WaveClassField.h"
-#include "WaveImage.h"
 
 struct WaveClass {
 	nativeString name;
