@@ -1,5 +1,6 @@
 #pragma once
 #include "compatibility.types.h"
+#include "types/WaveString.h"
 
 template<class T> struct hash_gen {};
 
@@ -35,6 +36,11 @@ template<> struct hash_gen<String> {
 template<> struct hash_gen<const char*> {
     static size_t getHashCode(const char* s) {
         return hash_gen<char*>::getHashCode(s);
+    }
+};
+template<> struct hash_gen<WaveString> {
+    static size_t getHashCode(WaveString* s) {
+        return hash_gen<char*>::getHashCode(s->chars);
     }
 };
 
