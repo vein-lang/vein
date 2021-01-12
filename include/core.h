@@ -1,17 +1,57 @@
 #pragma once
 #include "compatibility.h"
 #include "internal.h"
-#include "collections/hashtable.h"
+#include "typetoken.h"
+#include "types/WaveCallConvention.h"
+#include "types/WaveCore.h"
+#include "types/WaveImage.h"
+#include "types/WaveMethod.h"
 
+#define root_namespace "wave/lang"
+#define class_name(namespace, class_name) "global::"#namespace#class_name
 
-static hashtable<const char*>* functions_table = new hashtable<const char*>();
-static hashtable<const char*>* internal_functions = new hashtable<const char*>();
+namespace __internal
+{
+    WaveClass* wave_create_object_class(WaveImage* core_image)
+    {
+        auto* t = new WaveClass();
 
+        t->inited = true;
+        t->type_token = type_token_object;
+        t->name = "Object";
+        t->path = "wave/lang";
+        t->parent = nullptr;
+
+        core_image->class_cache->add(class_name(root_namespace, "Object"), t);
+        return t;
+    }
+
+    WaveClass* wave_create_void_class(WaveImage* core_image, WaveClass* parent)
+    {
+        auto* t = new WaveClass();
+
+        t->inited = true;
+        t->type_token = type_token_void;
+        t->name = "Void";
+        t->path = "wave/lang";
+        t->parent = parent;
+
+        core_image->class_cache->add(class_name(root_namespace, "Void"), t);
+
+        return t;
+    }
+}
 
 
 void init_default()
 {
+    wave_core->corlib = new WaveImage();
+    wave_core->corlib->name = const_cast<char*>("wavecorlib");
+    wave_core->corlib->method_cache = new hashtable<nativeString>();
+    wave_core->corlib->class_cache = new hashtable<nativeString>();
     
+    wave_core->object_class = __internal::wave_create_object_class(wave_core->corlib);
+    wave_core->void_class = __internal::wave_create_void_class(wave_core->corlib, wave_core->object_class);
 }
 
 
@@ -29,6 +69,6 @@ void init_tables()
         f->flags = 0x0;
         f->data.piinfo = new WaveMethodPInvokeInfo();
         f->data.piinfo->addr = internal_call_functions[i];
-        internal_functions->add(f->name, f);
+        wave_core->corlib->method_cache->add(f->name, f);
     }
 }
