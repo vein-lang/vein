@@ -158,9 +158,24 @@
     <ClInclude Include="..\include\hash.h" />
     <ClInclude Include="..\include\internal.h" />
     <ClInclude Include="..\include\interp.h" />
-    <ClInclude Include="..\include\method.h" />
-    <ClInclude Include="..\include\object.h" />
-    <ClInclude Include="..\include\types.h" />
+    <ClInclude Include="..\include\types\WaveArray.h" />
+    <ClInclude Include="..\include\types\WaveCallConvention.h" />
+    <ClInclude Include="..\include\types\WaveClass.h" />
+    <ClInclude Include="..\include\types\WaveClassField.h" />
+    <ClInclude Include="..\include\types\WaveCore.h" />
+    <ClInclude Include="..\include\types\WaveImage.h" />
+    <ClInclude Include="..\include\types\WaveMethod.h" />
+    <ClInclude Include="..\include\types\WaveMethodHeader.h" />
+    <ClInclude Include="..\include\types\WaveMethodPInvokeInfo.h" />
+    <ClInclude Include="..\include\types\WaveMethodSignature.h" />
+    <ClInclude Include="..\include\types\WaveModificator.h" />
+    <ClInclude Include="..\include\types\WaveObject.h" />
+    <ClInclude Include="..\include\types\WaveRef.h" />
+    <ClInclude Include="..\include\types\WaveReturnType.h" />
+    <ClInclude Include="..\include\types\WaveRuntimeType.h" />
+    <ClInclude Include="..\include\types\WaveSignature.h" />
+    <ClInclude Include="..\include\types\WaveString.h" />
+    <ClInclude Include="..\include\typetoken.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\metadata\internal.def" />

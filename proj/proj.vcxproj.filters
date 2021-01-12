@@ -19,6 +19,9 @@
     <Filter Include="Header Files\collections">
       <UniqueIdentifier>{c2f1738d-d207-43a4-9792-9093e351eb27}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\types">
+      <UniqueIdentifier>{6350d79b-f3fd-4390-ac3d-3d305e0b2f97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\entry.cpp">
@@ -36,12 +39,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\interp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\compatibility.h">
@@ -62,9 +59,6 @@
     <ClInclude Include="..\include\hash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\method.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\collections\list.h">
       <Filter>Header Files\collections</Filter>
     </ClInclude>
@@ -72,6 +66,60 @@
       <Filter>Header Files\collections</Filter>
     </ClInclude>
     <ClInclude Include="..\include\internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveClass.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveClassField.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveMethod.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveMethodHeader.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveMethodPInvokeInfo.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveMethodSignature.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveModificator.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveObject.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveRef.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveReturnType.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveRuntimeType.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveSignature.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveString.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveArray.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveCallConvention.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveImage.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveCore.h">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\typetoken.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

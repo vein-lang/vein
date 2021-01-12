@@ -1,18 +1,18 @@
 #pragma once
 #include "compatibility.types.h"
-#include "object.h"
-#include "types.h"
+#include "types/WaveCore.h"
+#include "types/WaveObject.h"
 
 
 static WaveString* i_call_get_Platform()
 {
-    return alloc_string("wave_vm");
+    return new WaveString("wave_vm");
 };
 
 static WaveObject* i_call_printf(WaveString* str)
 {
     w_print(str->chars);
-    return getVoid();
+    return nullptr;
 }
 
 #define INTERNAL_CALL(id, func, argsize) internal_ ## id,

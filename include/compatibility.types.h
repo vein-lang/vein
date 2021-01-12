@@ -1,5 +1,15 @@
 #pragma once
+#define DEBUG 1
+
+
+
 #if defined(ARDUINO)
+#define AVR_PLATFORM
+#endif
+
+
+
+#if defined(AVR_PLATFORM)
 #include "Arduino.h"
 #define ASM(x) __ASM volatile (x)
 #define sleep(x) delay(x)
@@ -15,6 +25,7 @@ void loop();
 
 typedef const char* nativeString;
 typedef void* wpointer;
+typedef unsigned char uchar_t;
 
 static inline wpointer malloc0(const uintptr_t x)
 {
@@ -23,8 +34,9 @@ static inline wpointer malloc0(const uintptr_t x)
     return nullptr;
 }
 
-#define new0(type,size)  ((type *) malloc0(sizeof (type) * (size)))
+#define ZERO_ARRAY 1
 
+#define new0(type,size)  ((type *) malloc0(sizeof (type) * (size)))
 
 #define UINT32_TO_LE(x) (x)
 #define UINT64_TO_LE(x) (x)
@@ -37,6 +49,33 @@ static inline wpointer malloc0(const uintptr_t x)
 #define read16(x) UINT16_FROM_LE (*((const uint16_t *) (x)))
 #define read32(x) UINT32_FROM_LE (*((const uint32_t *) (x)))
 #define read64(x) UINT64_FROM_LE (*((const uint64_t *) (x)))
+
+
+
+#ifdef DEBUG
+#define d_print(x) Serial.print(x)
+#define f_print(x) do {  Serial.print(#x);Serial.print(" ");Serial.println(x); } while(0)
+#define w_print(x) Serial.println(x)
+#define init_serial() Serial.begin(9600)
+
+#ifndef AVR_PLATFORM
+#include <iostream>
+#undef d_print
+#undef f_print
+#undef w_print
+#undef init_serial
+#define init_serial()
+#define d_print(x) std::cout << x
+#define f_print(x) std::cout << #x << " " << x << "\n"
+#define w_print(x) std::cout << x << "\n"
+#endif
+
+#else
+#define d_print(x)
+#define f_print(x)
+#define w_print(x)
+#define init_serial()
+#endif
 
 
 
@@ -67,7 +106,7 @@ struct Nullable<T*> { inline static const T* Value = nullptr; };
 
 #define NULL_VALUE(T) Nullable<T>::Value
 
-#if defined(ARDUINO)
+#if defined(AVR_PLATFORM)
 namespace std
 {
     template<class InputIt, class OutputIt>
@@ -87,3 +126,40 @@ void array_copy(T* sourceArray, int sourceIndex, T* destinationArray, int destin
         sourceArray + sourceIndex + length,
         destinationArray + destinationIndex);
 }
+
+
+void throw_out_of_memory()
+{
+    static const char* text = "<<OUT OF MEMORY>>";
+    while (1)
+    {
+        w_print(text);
+        sleep(10);
+    }
+}
+
+#if defined(AVR_PLATFORM)
+#ifdef __arm__
+extern "C" char* sbrk(int incr);
+#else
+extern char* __brkval;
+#endif 
+
+int freeMemory() {
+    char top;
+#ifdef __arm__
+    return &top - reinterpret_cast<char*>(sbrk(0));
+#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
+    return &top - __brkval;
+#else
+    return __brkval ? &top - __brkval : &top - __malloc_heap_start;
+#endif
+}
+#endif
+#if defined(AVR_PLATFORM)
+#define MEM_CHECK(predicate) \
+    if ((freeMemory() <= 1024)) { throw_out_of_memory(); }
+#else
+#define MEM_CHECK(predicate) \
+    if (predicate) { throw_out_of_memory(); }
+#endif
