@@ -126,17 +126,22 @@ void array_copy(T* sourceArray, int sourceIndex, T* destinationArray, int destin
         sourceArray + sourceIndex + length,
         destinationArray + destinationIndex);
 }
+void vm_shutdown()
+{
+    w_print("\t !! WM SHUTDOWN !!");
+    while (true)
+    {
+        sleep(200);
+    }
+}
 
 
 void throw_out_of_memory()
 {
-    static const char* text = "<<OUT OF MEMORY>>";
-    while (1)
-    {
-        w_print(text);
-        sleep(10);
-    }
+    w_print("<<OUT OF MEMORY>>");
+    vm_shutdown();
 }
+
 
 #if defined(AVR_PLATFORM)
 #ifdef __arm__
@@ -163,3 +168,5 @@ int freeMemory() {
 #define MEM_CHECK(predicate) \
     if (predicate) { throw_out_of_memory(); }
 #endif
+
+

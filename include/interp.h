@@ -28,10 +28,6 @@ typedef struct {
 	union {
 		int i;
 		long l;
-		struct {
-			int lo;
-			int hi;
-		} pair;
 		float f_r4;
 		double f;
 		size_t p;
@@ -41,22 +37,6 @@ typedef struct {
 
 
 void exec_method(MetaMethodHeader* mh, stackval* args);
-
-
-void vm_shutdown()
-{
-	w_print("\t !! WM SHUTDOWN !!");
-    while (true)
-    {
-		sleep(200);
-    }
-}
-
-template<class T>
-T cast_t(void* v)
-{
-	return static_cast<T>(v);
-}
 
 
 #define A_OPERATION(op) ++ip; \
