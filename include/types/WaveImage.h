@@ -7,4 +7,5 @@ struct WaveImage {
 
 	hashtable<nativeString>* method_cache;
 	hashtable<nativeString>* class_cache;
+	hashtable<size_t>*       db_str_cache;
 };
