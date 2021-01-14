@@ -126,7 +126,7 @@ void array_copy(T* sourceArray, int sourceIndex, T* destinationArray, int destin
         sourceArray + sourceIndex + length,
         destinationArray + destinationIndex);
 }
-void vm_shutdown()
+inline void vm_shutdown()
 {
     w_print("\t !! WM SHUTDOWN !!");
     while (true)
@@ -136,7 +136,12 @@ void vm_shutdown()
 }
 
 
-void throw_out_of_memory()
+#if __cplusplus >= 201703L
+#define REGISTER 
+#else
+#define REGISTER register 
+#endif
+inline void throw_out_of_memory()
 {
     w_print("<<OUT OF MEMORY>>");
     vm_shutdown();
