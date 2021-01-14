@@ -5,9 +5,9 @@
 
 using PInvokeDelegate0 = WaveObject*();
 template<typename T1>
-using PInvokeDelegate1 = WaveObject*(T1 t1);
+using PInvokeDelegate1 = WaveObject*(T1* t1);
 template<typename T1, typename T2>
-using PInvokeDelegate2 = WaveObject*(T1 t1, T2 t2);
+using PInvokeDelegate2 = WaveObject*(T1* t1, T2* t2);
 
 
 static WaveObject* i_call_get_Platform()
