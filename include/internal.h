@@ -1,12 +1,26 @@
 #pragma once
 #include "compatibility.types.h"
-#include "types/WaveCore.h"
-#include "types/WaveObject.h"
+#include "proxy.h"
 
 
-static WaveString* i_call_get_Platform()
+using PInvokeDelegate0 = WaveObject*();
+template<typename T1>
+using PInvokeDelegate1 = WaveObject*(T1 t1);
+template<typename T1, typename T2>
+using PInvokeDelegate2 = WaveObject*(T1 t1, T2 t2);
+
+
+static WaveObject* i_call_get_Platform()
 {
-    return new WaveString("wave_vm");
+#if defined(AVR_PLATFORM)
+    return WaveConvert<WaveString>::box(new WaveString("WaveVM AVR"));
+#elif defined(_WIN32) || defined(WIN32) 
+    return WaveConvert<WaveString>::box(new WaveString("WaveVM Win32"));
+#elif defined(__unix__)
+    return WaveConvert<WaveString>::box(new WaveString("WaveVM Unix"));
+#elif defined(__APPLE__)
+    return WaveConvert<WaveString>::box(new WaveString("WaveVM Apple"));
+#endif
 };
 
 static WaveObject* i_call_printf(WaveString* str)
