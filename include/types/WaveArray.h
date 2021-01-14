@@ -1,6 +1,6 @@
 #pragma once
-#include "WaveRuntimeType.h"
 
+struct WaveRuntimeType;
 
 struct WaveArray {
 	WaveRuntimeType* type;
