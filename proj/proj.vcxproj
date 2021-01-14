@@ -158,6 +158,7 @@
     <ClInclude Include="..\include\hash.h" />
     <ClInclude Include="..\include\internal.h" />
     <ClInclude Include="..\include\interp.h" />
+    <ClInclude Include="..\include\proxy.h" />
     <ClInclude Include="..\include\types\WaveArray.h" />
     <ClInclude Include="..\include\types\WaveCallConvention.h" />
     <ClInclude Include="..\include\types\WaveClass.h" />

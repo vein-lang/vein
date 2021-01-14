@@ -6,6 +6,7 @@
 #include "types/WaveCore.h"
 #include "types/WaveImage.h"
 #include "types/WaveMethod.h"
+#include "proxy.h"
 
 #define root_namespace "wave/lang"
 #define class_name(namespace, class_name) "global::"#namespace#class_name

@@ -1,6 +1,7 @@
 #pragma once
-#include "compatibility.types.h"
+
 #if defined(WIN32)
+#include "compatibility.types.h"
 class EEPROM {
 public:
 	EEPROM();

@@ -122,6 +122,9 @@
     <ClInclude Include="..\include\typetoken.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\proxy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\metadata\opcodes.def">
