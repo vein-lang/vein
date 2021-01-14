@@ -3,9 +3,7 @@
 
 
 struct WaveObject {
-	WaveClass* clazz;
-	WaveObject() { clazz = new WaveClass(); }
-	WaveObject(WaveClass* _) {
-		this->clazz = _;
-	}
+	WaveClass*   clazz;
+	WaveTypeEnum type;
+	wpointer     data; /* to store static class data */
 };
