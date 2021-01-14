@@ -50,15 +50,15 @@ template<> struct hash_gen<wpointer> {
     }
 };
 
-template<> struct hash_gen<bool> {
-    static size_t getHashCode(const bool m) {
-        return m ? 1 + 0x52582B15 : 0x52587B55;
-    }
-};
-
 template<> struct hash_gen<int> {
     static size_t getHashCode(const int m) {
         return static_cast<uint32_t>(m);
+    }
+};
+
+template<> struct hash_gen<size_t> {
+    static size_t getHashCode(const size_t m) {
+        return m;
     }
 };
 
