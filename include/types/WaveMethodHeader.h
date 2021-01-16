@@ -3,7 +3,7 @@
 
 typedef struct {
 	uint32_t                code_size;
-	unsigned char* code;
+	uint32_t*               code;
 	short                   max_stack;
 	uint32_t                local_var_sig_tok;
 	unsigned int            init_locals : 1;
