@@ -15,7 +15,7 @@ template<typename TKey>
 class hashtable final
 { 
 public:
-    hashtable() : hashtable(0) { } 
+    hashtable() : hashtable(24) { } 
     hashtable(int capacity) : hashtable(capacity, 1.0f) { } 
     hashtable(int capacity, float loadFactor) { 
         this->load_factor_ = 0.72f * loadFactor; 
