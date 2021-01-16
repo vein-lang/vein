@@ -24,7 +24,7 @@ enum {
 	VAL_OBJ
 };
 
-typedef struct {
+struct stackval {
 	union {
 		int i;
 		long l;
@@ -33,10 +33,19 @@ typedef struct {
 		size_t p;
 	} data;
 	int type;
-} stackval;
+
+	stackval* operator<<(WaveObject* obj)
+	{
+		this->type = VAL_OBJ;
+		this->data.p = reinterpret_cast<size_t>(obj);
+		return this;
+	}
+	
+};
 
 
-void exec_method(MetaMethodHeader* mh, stackval* args);
+
+void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level = 0);
 
 
 #define A_OPERATION(op) ++ip; \

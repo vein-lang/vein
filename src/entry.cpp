@@ -5,9 +5,16 @@
 #include "internal.h"
 #include "types/WaveRuntimeType.h"
 
-WaveImage* main_image = new WaveImage();
+static WaveImage* main_image;
+enum class CALL_CONTEXT : unsigned char
+{
+    INTERNAL_CALL,
+    SELF_CALL,
+    OUTER_CALL
+};
 
 void setup() {
+    main_image = new WaveImage("main_image");
     init_serial();
     init_default();
     init_tables();
@@ -51,14 +58,23 @@ void setup() {
     auto a2 = fs.write(0x1, 0x1);
     auto a3 = fs.write(0x2, 0x2);
     */
-    main_image->method_cache = new hashtable<nativeString>();
+    
 
     auto* str_1 = new WaveString("get_Platform");
     auto calle_f = hash_gen<WaveString>::getHashCode(str_1);
 
-    main_image->db_str_cache->add(calle_f, str_1);
+    auto* str_2 = new WaveString("xuy_govno");
+    auto calle_f2 = hash_gen<WaveString>::getHashCode(str_2);
 
-    unsigned char code[] = {
+
+    auto* str_3 = new WaveString("Echo");
+    auto calle_f3 = hash_gen<WaveString>::getHashCode(str_3);
+
+    main_image->db_str_cache->add(calle_f, str_1);
+    main_image->db_str_cache->add(calle_f2, str_2);
+    main_image->db_str_cache->add(calle_f3, str_3);
+
+    uint32_t code[] = {
         LDC_I4_S, /* load i4 into stack                             */
         4,        /* i4                                             */
         LDC_I4_S, /* load i4 into stack                             */
@@ -70,9 +86,38 @@ void setup() {
         DUMP_0,   /* debug                                          */
         LDARG_2,  /* load from args by 2 index into stack           */
         CALL,     /* call function by next index                    */
-        static_cast<unsigned char>(calle_f),
+        static_cast<uint32_t>(CALL_CONTEXT::INTERNAL_CALL),
+        static_cast<uint32_t>(calle_f),
+        CALL,
+        static_cast<uint32_t>(CALL_CONTEXT::SELF_CALL),
+        static_cast<uint32_t>(calle_f2),
         RET       /* return                                         */
     };
+
+    auto* xuy_govno = new WaveMethod();
+
+    uint32_t code_xuy_govno[] = {
+        CALL,
+        static_cast<unsigned char>(CALL_CONTEXT::INTERNAL_CALL),
+        static_cast<unsigned char>(calle_f3),
+        RET
+
+    };
+    
+    xuy_govno->signature = new WaveMethodSignature();
+    xuy_govno->signature->call_convention = WAVE_CALL_DEFAULT;
+    xuy_govno->signature->param_count = 0;
+    xuy_govno->signature->ret = new WaveRuntimeType();
+    xuy_govno->signature->ret->type = TYPE_VOID;
+    xuy_govno->signature->ret->data.klass = wave_core->void_class;
+    xuy_govno->data.header = new MetaMethodHeader();
+    xuy_govno->data.header->max_stack = 0;
+    xuy_govno->data.header->code_size = sizeof(code);
+    xuy_govno->data.header->code = &*code_xuy_govno;
+
+    main_image->method_cache->add("xuy_govno", xuy_govno);
+
+
 
     auto* method = new WaveMethod();
 
@@ -105,7 +150,9 @@ void setup() {
 
     auto* str2 = static_cast<WaveString*>(reinterpret_cast<void*>(args[2].data.p));
 
-    exec_method(method->data.header, args);
+    REGISTER unsigned int level = 0;
+
+    exec_method(method->data.header, args, &level);
 }
 
 void loop() {
@@ -113,13 +160,24 @@ void loop() {
 
 #define SWITCH(x) d_print("@"); d_print(opcodes[x]); d_print("\n"); switch (x)
 
-void exec_method(MetaMethodHeader* mh, stackval* args)
+#define CASE(x) case x: {
+#define BREAK break; }
+
+
+WaveMethod* get_wave_method(uint32_t idx, WaveImage* targetImage)
+{
+    auto* method_name = static_cast<WaveString*>(main_image->db_str_cache->get(idx));
+    auto* method = static_cast<WaveMethod*>(targetImage->method_cache->get(method_name->chars));
+    return method;
+}
+
+void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
 {
     w_print("@exec::");
     auto* const stack = static_cast<stackval*>(calloc(mh->max_stack, sizeof(stackval)));
     REGISTER auto* sp = stack;
     REGISTER auto* ip = mh->code;
-    REGISTER unsigned int level = 0;
+    
     auto* end = ip + mh->code_size;
 
     auto* locals = new stackval[0];
@@ -208,23 +266,69 @@ void exec_method(MetaMethodHeader* mh, stackval* args)
                 break;
             case RET:
                 ++ip;
+                (*level)--;
                 return;
             case CALL:
+            {
                 ++ip;
-                auto* method_name = static_cast<WaveString*>(main_image->db_str_cache->get(static_cast<size_t>(*ip)));
-                auto* method = static_cast<WaveMethod*>(wave_core->corlib->method_cache->get(method_name->chars));
-                if(method->signature->call_convention == WAVE_CALL_C)
+                auto callctx = static_cast<CALL_CONTEXT>(static_cast<const char>(*ip));
+
+                if (callctx == CALL_CONTEXT::SELF_CALL)
                 {
+                    ++ip;
+                    auto* method = get_wave_method(*ip, main_image);
+
+                    (*level)++;
+                    exec_method(method->data.header, args, level);
+
+                    continue;
+                }
+
+                ++ip;
+                auto* method = get_wave_method(*ip, wave_core->corlib);
+                if (method->signature->call_convention == WAVE_CALL_C)
+                {
+                    WaveObject* f_result = nullptr;
                     auto* p_function = method->data.piinfo->addr;
                     switch (method->signature->param_count)
                     {
-                        case 0:
-                            p_function();
-                            break;
+                        CASE(0)
+                            auto* obj = static_cast<PInvokeDelegate0*>(p_function)();
+                        sp->type = VAL_OBJ;
+                        sp->data.p = reinterpret_cast<size_t>(obj);
+                        BREAK;
+                        CASE(1)
+                            if (sp[-1].type != VAL_OBJ)
+                                vm_shutdown();
+                        auto* arg1 = static_cast<WaveObject*>(reinterpret_cast<void*>(sp[-1].data.p));
+                        f_result =
+                            static_cast<PInvokeDelegate1<WaveObject>*>(p_function)(arg1);
+                        --sp;
+                        BREAK;
+                        CASE(2)
+                            if (sp[-1].type != VAL_OBJ && sp[-2].type != VAL_OBJ)
+                                vm_shutdown();
+
+                        auto* arg1 = static_cast<WaveObject*>(reinterpret_cast<void*>(sp[-1].data.p));
+                        auto* arg2 = static_cast<WaveObject*>(reinterpret_cast<void*>(sp[-2].data.p));
+                        f_result =
+                            static_cast<PInvokeDelegate2<WaveObject, WaveObject>*>(p_function)(arg1, arg2);
+                        --sp;
+                        --sp;
+                        BREAK;
+                    default:
+                        vm_shutdown();
+                        break;
+                    }
+                    if (f_result != nullptr)
+                    {
+                        sp->type = VAL_OBJ;
+                        sp->data.p = reinterpret_cast<size_t>(f_result);
                     }
                 }
                 ++ip;
-                break;
+            }
+            break;
             case LDLOC_0:
             case LDLOC_1:
             case LDLOC_2:
