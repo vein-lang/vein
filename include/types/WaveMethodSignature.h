@@ -6,4 +6,12 @@ struct WaveMethodSignature {
 	int sentinelpos;
 	WaveRuntimeType* ret;
 	WaveRuntimeType** params;
+
+    WaveMethodSignature() :
+        call_convention(WAVE_CALL_DEFAULT),
+        param_count(0),
+        sentinelpos(0),
+        ret(nullptr),
+        params(nullptr)
+    {  }
 };
