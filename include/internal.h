@@ -29,6 +29,13 @@ static WaveObject* i_call_printf(WaveString* str)
     return nullptr;
 }
 
+
+static WaveObject* i_call_Echo()
+{
+    w_print("echo");
+    return nullptr;
+}
+
 #define INTERNAL_CALL(id, func, argsize) internal_ ## id,
 
 enum {
