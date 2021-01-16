@@ -46,10 +46,7 @@ namespace __internal
 
 void init_default()
 {
-    wave_core->corlib = new WaveImage();
-    wave_core->corlib->name = const_cast<char*>("wavecorlib");
-    wave_core->corlib->method_cache = new hashtable<nativeString>();
-    wave_core->corlib->class_cache = new hashtable<nativeString>();
+    wave_core->corlib = new WaveImage("wavecorlib");
     
     wave_core->object_class = __internal::wave_create_object_class(wave_core->corlib);
     wave_core->void_class = __internal::wave_create_void_class(wave_core->corlib, wave_core->object_class);
