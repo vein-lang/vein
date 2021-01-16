@@ -8,6 +8,7 @@ struct bucket {
     TKey key;
     wpointer val;
     int hash_coll;
+    bucket() : key(NULL_VALUE(TKey)), val(nullptr), hash_coll(0) {}
 };
 
 template<typename TKey>
