@@ -20,7 +20,7 @@ public:
     hashtable(int capacity, float loadFactor) { 
         this->load_factor_ = 0.72f * loadFactor; 
 
-        auto rawsize = capacity / this->load_factor_; 
+        auto rawsize = static_cast<float>(capacity) / this->load_factor_; 
         auto hashsize = (rawsize > 4) ? Hash::getPrime(static_cast<int>(rawsize)) : 4; 
         this->buckets_ = new bucket<TKey>[hashsize];
         for (auto i = 0; i != hashsize; i++) 
@@ -29,7 +29,7 @@ public:
             this->buckets_[i].key = NULL_VALUE(TKey);
             this->buckets_[i].val = nullptr; 
         } 
-        this->loadsize_ = static_cast<int>(this->load_factor_ * hashsize); 
+        this->loadsize_ = static_cast<int>(this->load_factor_ * static_cast<float>(hashsize)); 
         this->buckets_size_ = hashsize; 
     } 
     ~hashtable()
@@ -170,7 +170,7 @@ private:
     { 
         occupancy_ = 0;
         auto* new_buckets = new bucket<TKey>[newsize];
-
+        
         for (auto nb = 0; nb < buckets_size_; nb++)  
         { 
             auto oldb = this->buckets_[nb]; 
