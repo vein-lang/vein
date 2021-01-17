@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "wc": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "WT_SESSION": "Value"
+      }
+    }
+  }
+}

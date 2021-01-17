@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Version>0.0.13</Version>
+    <AssemblyName>wc</AssemblyName>
+    <RootNamespace>wave</RootNamespace>
+	<OutputType>Exe</OutputType>
+	<Copyright>Yuuki Wesp (C) 2020</Copyright>
+	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<RuntimeIdentifiers>win10-x64;osx.10.14-x64;linux-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(Configuration) == 'Debug'">
+    <BumpPatch>true</BumpPatch>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Ivy.Versioning" Version="3.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="morelinq" Version="3.3.2" />
+    <PackageReference Include="Pastel" Version="2.1.0" />
+    <PackageReference Include="Sprache" Version="2.3.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
+    <PackageReference Include="System.CommandLine.Rendering" Version="0.3.0-alpha.20574.7" />
+  </ItemGroup>
+</Project>
