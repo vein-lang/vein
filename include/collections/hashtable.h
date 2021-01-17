@@ -63,7 +63,7 @@ public:
             if (b.key == NULL_VALUE(TKey))
                 return nullptr; 
             if ((b.hash_coll & 0x7FFFFFFF) == hashcode && 
-                default_equal(b.key, key)) 
+                equality<TKey>::equal(b.key, key)) 
                 return b.val; 
             bucketNumber = static_cast<int>((static_cast<long>(bucketNumber) + incr) % static_cast<uint32_t>(buckets_size_)); 
         } while (b.hash_coll < 0 && ++ntry < buckets_size_); 
@@ -125,7 +125,7 @@ private:
             } 
 
             if (((this->buckets_[bucket_number].hash_coll & 0x7FFFFFFF) == hashcode) && 
-                default_equal(this->buckets_[bucket_number].key, key)) 
+                equality<TKey>::equal(this->buckets_[bucket_number].key, key)) 
             { 
                 if (add) 
                     return; 

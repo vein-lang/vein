@@ -4,23 +4,40 @@
 #define INT_TO_PTR(x) reinterpret_cast<wpointer>(static_cast<intptr_t>(x))
 
 
-bool w_equal_str(const wpointer v1, const wpointer v2)
-{
-	return strcmp(static_cast<const char*>(v1), static_cast<const char*>(v2)) == 0;
-}
+template<class T> struct equality {};
 
+template<> struct equality<const char*> {
+	static bool equal(const char* l, const char* r) {
+		return strcmp(l, r) == 0;
+	}
+};
 
-bool w_equal_int(const wpointer v1, const wpointer v2)
-{
-	return PTR_TO_INT(v1) == PTR_TO_INT(v2);
-}
+template<> struct equality<size_t> {
+	static bool equal(const size_t l, const size_t r) {
+		return l == r;
+	}
+};
 
-bool w_equal_direct(const wpointer v1, const wpointer v2)
-{
-	return v1 == v2;
-}
+template<> struct equality<int32_t> {
+	static bool equal(const int32_t l, const int32_t r) {
+		return l == r;
+	}
+};
 
-template<class S>
-bool default_equal(S const& lhs, S const& rhs) {
-	return lhs == rhs;
-}
+template<> struct equality<int64_t> {
+	static bool equal(const int64_t l, const int64_t r) {
+		return l == r;
+	}
+};
+
+template<> struct equality<int16_t> {
+	static bool equal(const int16_t l, const int16_t r) {
+		return l == r;
+	}
+};
+
+template<> struct equality<WaveString> {
+	static bool equal(const WaveString* l, const WaveString* r) {
+		return equality<const char*>::equal(l->chars, r->chars);
+	}
+};
