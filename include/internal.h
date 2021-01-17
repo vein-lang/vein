@@ -25,6 +25,7 @@ static WaveObject* i_call_get_Platform()
 
 static WaveObject* i_call_printf(WaveString* str)
 {
+    d_print("i_call_printf:: ");
     w_print(str->chars);
     return nullptr;
 }
