@@ -24,6 +24,14 @@ enum {
 	VAL_OBJ
 };
 
+static const char* VAL_NAMES[] = {
+	"VAL_I32",
+	"VAL_I64",
+	"VAL_DOUBLE",
+	"VAL_FLOAT",
+	"VAL_OBJ"
+};
+
 struct stackval {
 	union {
 		int i;
