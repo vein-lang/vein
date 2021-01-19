@@ -7,8 +7,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Pastel;
 using System.Drawing;
-using System.Threading.Tasks;
+using System.Globalization;
+using Newtonsoft.Json;
 using wave;
+using static wave._term;
 using static System.Console;
 
 
@@ -26,7 +28,23 @@ if (Environment.GetEnvironmentVariable("WT_SESSION") == null && RuntimeInformati
 AppDomain.CurrentDomain.ProcessExit += (_, _) => { ConsoleExtensions.Disable(); };
 
 
+if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
+{
+    WriteLine("Platform is not supported.");
+    return -1;
+}
+var watch = Stopwatch.StartNew();
+
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+    OutputEncoding = Encoding.Unicode;
+JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
+{
+    NullValueHandling = NullValueHandling.Ignore,
+    Formatting = Formatting.Indented,
+    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+    Culture = CultureInfo.InvariantCulture
+};
 
 
 var rootCommand = new RootCommand
@@ -41,16 +59,23 @@ var rootCommand = new RootCommand
 
 rootCommand.Description = "Wave Compiler";
 
-var ver = FileVersionInfo.GetVersionInfo(typeof(Test).Assembly.Location).ProductVersion;
+var ver = FileVersionInfo.GetVersionInfo(typeof(_term).Assembly.Location).ProductVersion;
 WriteLine($"Wave compiler {ver}".Pastel(Color.Gray));
 WriteLine($"Copyright (C) 2020 Yuuki Wesp.\n\n".Pastel(Color.Gray));
 
 rootCommand.Handler = CommandHandler.Create<DirectoryInfo, FileInfo>((sourcePath, output) =>
 {
-    if (!sourcePath.Exists)
-    {
-        return Task.FromResult(-1);
-    }
+    if (sourcePath is null)
+        return Fail("'--source-dir' is null.");
+    if (output is null)
+        return Fail("'--out-file' is null.");
+    return Pipeline.StartAsync(sourcePath, output);
 });
 
-return rootCommand.InvokeAsync(args).Result;
+var result = rootCommand.InvokeAsync(args).Result;
+
+watch.Stop();
+
+WriteLine($"{":sparkles:".Emoji()} Done in {watch.Elapsed.TotalSeconds:00.000}s.");
+
+return result;
