@@ -1,0 +1,37 @@
+#use "stl.lib"
+
+
+#typedef Complex = (Real: Double, Imaginary: Double);
+
+#record Vector3D = (x: Float, y: Float, z: Float);
+
+public static class Program
+{
+    operation Main[args: array<string>] -> void
+    {
+        body
+        {
+            auto v = new Complex(12.4, .2);
+            Terminal.Println("Hello World");
+
+            if (v is { Real > 10.0 })
+                fail "bla bla xuy";
+        }
+        gc auto;
+    }
+
+    operation mul<~T>[predicate: (~T) -> bool] -> ~T
+    {
+        body 
+        {
+            auto** arr = stackalloc T[64];
+            random_fill(arr);
+
+            return arr.single(predicate);
+        }
+        gc
+        {
+            memory.free(&arr);
+        }
+    }
+}
