@@ -1,0 +1,69 @@
+{
+	"name": "wave-language",
+	"displayName": "Wave Language",
+	"description": "Wave developmemnt environment",
+	"version": "0.0.1",
+	"icon": "images/icon.png",
+	"galleryBanner": {
+		"color": "#18c7b1",
+		"theme": "dark"
+	},
+	"publisher": "rijndael",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/0xF6/wave_vm/issues"
+	},
+	"homepage": "https://github.com/0xF6/wave_vm/",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/0xF6/wave_vm.git"
+	},
+	"engines": {
+		"vscode": "^1.4.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"keywords": [
+		"virtual-machine",
+		"cli",
+		"intermediate-language",
+		"il",
+		"language"
+	],
+	"activationEvents": [
+		"onLanguage:wave",
+		"onCommand:extension.target.create",
+		"onCommand:extension.target.select",
+		"onCommand:extension.target.run",
+		"onCommand:extension.target.build"
+	],
+	"main": "./extension",
+	"contributes": {
+		"languages": [
+			{
+				"id": "wave",
+				"aliases": [
+					"wave"
+				],
+				"extensions": [
+					".wave"
+				],
+				"configuration": "./wave.configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "wave",
+				"scopeName": "source.wave.language",
+				"path": "./syntaxes/wave.tmLanguage"
+			}
+		]
+	},
+	"scripts": {
+		"postinstall": "node ./node_modules/vscode/bin/install"
+	},
+	"devDependencies": {
+		"vscode": "^0.11.0"
+	}
+}
