@@ -11,3 +11,6 @@ x64/
 Debug/
 
 proj/vm.fs
+
+node_modules/
+.bin/
