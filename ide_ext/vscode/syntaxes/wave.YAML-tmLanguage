@@ -10,12 +10,14 @@ patterns:
     - include: "#numbers"
     - include: "#keywords"
     - include: "#strings"
+    - include: "#interpolated-string"
     - include: "#storage-types"
     - include: "#storage-modifier"
     - include: "#backslash-escapes"
     - include: "#class-declaration"
     - include: "#typdef-declaration"
     - include: "#types"
+    - include: "#literal"
 repository:
     declarations:
         patterns:
@@ -120,7 +122,8 @@ repository:
               endCaptures:
                   "0": { name: punctuation.curlybrace.close.wave }
               patterns:
-                  - { include: "#punctuation-semicolon" }
+                  - include: "#class-or-struct-members"
+                  - include: "#comment"
     typdef-declaration:
         begin: (\#typedef)\s+
         beginCaptures:
@@ -140,6 +143,9 @@ repository:
                   "0": { name: punctuation.curlybrace.close.wave }
               patterns:
                   - { include: "#punctuation-semicolon" }
+    type-builtin:
+        patterns:
+          - include: "#types"
     types:
         patterns:
             - match: '(byte|float|double|bool|string|void|([ui|i](nt16|nt32|nt64)))\b'
@@ -218,3 +224,150 @@ repository:
               patterns:
                   - { include: "#string_escaped_char" }
                   - { include: "#line_continuation_character" }
+    interpolated-string:
+        name: string.quoted.double.wave
+        begin: '\$"'
+        beginCaptures:
+            "0":
+                name: punctuation.definition.string.begin.wave
+        end: '(")|((?:[^\\\n])$)'
+        endCaptures:
+            "1":
+                name: punctuation.definition.string.end.wave
+            "2":
+                name: invalid.illegal.newline.wave
+        patterns:
+            - include: "#string-character-escape"
+            - include: "#interpolation"   
+    interpolation:
+        name: meta.interpolation.wave
+        begin: '(?<=[^\{]|^)((?:\{\{)*)(\{)(?=[^\{])'
+        beginCaptures:
+            "1":
+                name: string.quoted.double.wave
+            "2":
+                name: punctuation.definition.interpolation.begin.wave
+        end: '\}'
+        endCaptures:
+            "0":
+                name: punctuation.definition.interpolation.end.wave
+        patterns:
+            - include: "#expression"
+    expression:
+        patterns:
+            - include: "#literal"
+            - include: "#identifier"
+    identifier:
+        name: variable.other.readwrite.wave
+        match: "@?[_[:alpha:]][_[:alnum:]]*"
+    literal:
+        patterns:
+            - include: "#boolean-literal"
+            - include: "#null-literal"
+            - include: "#numeric-literal"
+            - include: "#char-literal"
+            - include: "#string-literal"
+            - include: "#verbatim-string-literal"
+            - include: "#tuple-literal"
+    boolean-literal:
+        patterns:
+            - name: constant.language.boolean.true.wave
+              match: '(?<!\.)\btrue\b'
+            - name: constant.language.boolean.false.wave
+              match: '(?<!\.)\bfalse\b'
+    null-literal:
+        name: constant.language.null.wave
+        match: '(?<!\.)\bnull\b'
+    numeric-literal:
+        patterns:
+            - name: constant.numeric.hex.wave
+              match: '\b0(x|X)[0-9a-fA-F_]+(U|u|L|l|UL|Ul|uL|ul|LU|Lu|lU|lu)?\b'
+            - name: constant.numeric.binary.wave
+              match: '\b0(b|B)[01_]+(U|u|L|l|UL|Ul|uL|ul|LU|Lu|lU|lu)?\b'
+            - name: constant.numeric.decimal.wave
+              match: '\b([0-9_]+)?\.[0-9_]+((e|E)[0-9]+)?(F|f|D|d|M|m)?\b'
+            - name: constant.numeric.decimal.wave
+              match: '\b[0-9_]+(e|E)[0-9_]+(F|f|D|d|M|m)?\b'
+            - name: constant.numeric.decimal.wave
+              match: '\b[0-9_]+(F|f|D|d|M|m)\b'
+            - name: constant.numeric.decimal.wave
+              match: '\b[0-9_]+(U|u|L|l|UL|Ul|uL|ul|LU|Lu|lU|lu)?\b'
+    char-literal:
+        name: string.quoted.single.wave
+        begin: "'"
+        beginCaptures:
+            "0":
+                name: punctuation.definition.char.begin.wave
+        end: '(\'')|((?:[^\\\n])$)'
+        endCaptures:
+            "1":
+                name: punctuation.definition.char.end.wave
+            "2":
+                name: invalid.illegal.newline.wave
+        patterns:
+            - include: "#char-character-escape"
+    char-character-escape:
+        name: constant.character.escape.wave
+        match: '\\([''"\\0abfnrtv]|x[0-9a-fA-F]{1,4}|u[0-9a-fA-F]{4})'
+    string-literal:
+        name: string.quoted.double.wave
+        begin: '(?<!@)"'
+        beginCaptures:
+            "0":
+                name: punctuation.definition.string.begin.wave
+        end: '(")|((?:[^\\\n])$)'
+        endCaptures:
+            "1":
+                name: punctuation.definition.string.end.wave
+            "2":
+                name: invalid.illegal.newline.wave
+        patterns:
+            - include: "#string-character-escape"
+    string-character-escape:
+        name: constant.character.escape.wave
+        match: '\\([''"\\0abfnrtv]|x[0-9a-fA-F]{1,4}|U[0-9a-fA-F]{8}|u[0-9a-fA-F]{4})'
+    type:
+        name: meta.type.wave
+        patterns:
+            - include: "#comment"
+            - include: "#ref-modifier"
+            - include: "#readonly-modifier"
+            - include: "#type-builtin"
+            - include: "#type-name"
+            - include: "#type-arguments"
+            - include: "#type-array-suffix"
+    method-declaration:
+        begin: "(?x)(?<return_type>(?<type_name>(?:(?:ref\s+(?:readonly\s+)?)?(?:(?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?(?<name_and_type_args>\g<identifier>\s*(?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)?)(?:\s*\.\s*\g<name_and_type_args>)* |(?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)))(?:\s*\?\s*)?(?:\s*\[(?:\s*,\s*)*\]\s*)*))\s+)(?<interface_name>\g<type_name>\s*\.\s*)?(\g<identifier>)\s*(<([^<>]+)>)?\s*(?=\()"
+        beginCaptures:
+            "1":
+                patterns:
+                    - { include: "#type" }
+            "7":
+                patterns:
+                    - { include: "#type" }
+                    - { include: "#punctuation-accessor" }
+            "8":
+                name: entity.name.function.wave
+            "9":
+                patterns:
+                    - { include: "#type-parameter-list" }
+        end: '(?<=\})|(?=;)'
+        patterns:
+            - include: "#comment"
+            - include: "#parenthesized-parameter-list"
+            - include: "#generic-constraints"
+            - include: "#expression-body"
+            - include: "#block"
+    class-or-struct-members:
+        patterns:
+            - include: "#comment"
+            - include: "#storage-modifier"
+            - include: "#type-declarations"
+            - include: "#property-declaration"
+            - include: "#field-declaration"
+            - include: "#variable-initializer"
+            - include: "#constructor-declaration"
+            - include: "#destructor-declaration"
+            - include: "#operator-declaration"
+            - include: "#method-declaration"
+            - include: "#punctuation-semicolon"

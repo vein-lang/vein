@@ -11,6 +11,10 @@ global auto new_line = "\n";
 
 public class Program
 {
+    public static void main(int32 s)
+    {
+        return s;
+    }
     operation Main[args: array<string>] -> void
     {
         body
@@ -19,7 +23,7 @@ public class Program
             Terminal.Println("Hello World");
 
             if (v is { Real > 10.0 })
-                fail "bla bla xuy";
+                fail $"bla bla {asd} xuy";
 
             auto govno = obj 
                 |> get
@@ -54,14 +58,14 @@ public class Program
 
 public class Foo 
 {
-    public int w1;
+    public w1: int32;
+    public int32 w1;
     public union
     {
         x: float;
-        y: int;
+        y: int32;
         z: double;
     }
-    public int w1;
 
     public operation test[] -> void
     {
