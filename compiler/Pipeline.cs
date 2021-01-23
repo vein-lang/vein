@@ -7,7 +7,7 @@
     {
         public static async Task<int> StartAsync(DirectoryInfo sources, FileInfo output)
         {
-
+            return default;
         }
     }
 }
