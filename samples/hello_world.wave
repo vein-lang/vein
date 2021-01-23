@@ -1,11 +1,15 @@
 #use "stl.lib"
+#typedef Complex = {Real: double, Imaginary: double};
 
+/*
+ asdasd
+ asdasdasd
+ asdasdsddd
+*/
+// asdasd
+global auto new_line = "\n";
 
-#typedef Complex = (Real: Double, Imaginary: Double);
-
-#record Vector3D = (x: Float, y: Float, z: Float);
-
-public static class Program
+public class Program
 {
     operation Main[args: array<string>] -> void
     {
@@ -16,11 +20,23 @@ public static class Program
 
             if (v is { Real > 10.0 })
                 fail "bla bla xuy";
+
+            auto govno = obj 
+                |> get
+                |> xuy
+                |> govno;
         }
         gc auto;
     }
-
-    operation mul<~T>[predicate: (~T) -> bool] -> ~T
+    operation factorial[i: int] -> int
+    {
+        body
+        {
+            return (1..i < 1 ? 1 : i).aggregate([f: int32, x: int32] => f * x);
+        }
+        gc nocontrol;
+    }
+    operation mul<T>[predicate: (~T) -> bool] -> T
     {
         body 
         {
@@ -33,5 +49,51 @@ public static class Program
         {
             memory.free(&arr);
         }
+    }
+} 
+
+public class Foo 
+{
+    public int w1;
+    public union
+    {
+        x: float;
+        y: int;
+        z: double;
+    }
+    public int w1;
+
+    public operation test[] -> void
+    {
+        body as IL
+        {
+            .nop
+            .ldc.i4.0
+            .ldargs.1
+            .dup
+            .conv.r4
+            .call ${sys->test()}
+            .ret
+        }
+    }
+}
+
+public struct Vector<~T> where T is struct, IOperable
+{
+    public x: T;
+    public y: T;
+    public z: T;
+}
+
+public extensions Vector3D
+{
+    operation Dot[this v1: Vector3D, v2: Vector3D] -> float
+    {
+        body
+        {
+            
+            return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+        }
+        gc nocontrol;
     }
 }
