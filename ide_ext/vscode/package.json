@@ -19,7 +19,7 @@
 		"url": "https://github.com/0xF6/wave_vm.git"
 	},
 	"engines": {
-		"vscode": "^1.4.0"
+		"vscode": "^1.5.0"
 	},
 	"categories": [
 		"Programming Languages"
@@ -55,7 +55,7 @@
 		"grammars": [
 			{
 				"language": "wave",
-				"scopeName": "source.wave.language",
+				"scopeName": "source.wave",
 				"path": "./syntaxes/wave.tmLanguage"
 			}
 		]
@@ -65,5 +65,9 @@
 	},
 	"devDependencies": {
 		"vscode": "^0.11.0"
+	},
+	"dependencies": {
+		"vscode-jsonrpc": "^6.0.0",
+		"vscode-languageclient": "^7.0.0"
 	}
 }
