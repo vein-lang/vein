@@ -1,0 +1,18 @@
+(?<returntype>(?<typename>(?:(?:ref\s+(?:readonly\s+)?)?(?:
+        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?
+        (?<nameandtypeargs>
+          \g<identifier>\s*
+          (?<typeargs>\s*<(?:[^<>]|\g<typeargs>)+>\s*)?
+        )
+        (?:\s*\.\s*\g<nameandtypeargs>)* |
+        (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\))
+      )
+      (?:\s*\?\s*)?
+      (?:\s*\[(?:\s*,\s*)*\]\s*)*
+    )
+  )\s+
+)
+(?<interfacename>\g<typename>\s*\.\s*)?
+(\g<identifier>)\s*
+(<([^<>]+)>)?\s*
+(?=\()
