@@ -232,7 +232,7 @@ repository:
         begin: '(?=\bclass\b)'
         end: '(?<=\})'
         patterns:
-            - begin: "(?x)\r\n\\b(class)\\b\\s+\r\n(@?[_[:alpha:]][_[:alnum:]]*)\\s*"
+            - begin: "(?x)\\b(class)\\b\\s+(@?[_[:alpha:]][_[:alnum:]]*)\\s*"
               beginCaptures:
                   "1": { name: keyword.other.class.wave }
                   "2": { name: entity.name.type.class.wave }
@@ -253,7 +253,7 @@ repository:
             - include: "#preprocessor"
             - include: "#comment"
     delegate-declaration:
-        begin: "(?x)\r\n(?:\\b(delegate)\\b)\\s+\r\n(?<type-name>\r\n  (?:\r\n    (?:ref\\s+(?:readonly\\s+)?)?   # ref return\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s+\r\n(\\g<identifier>)\\s*\r\n(<([^<>]+)>)?\\s*\r\n(?=\\()"
+        begin: "(?x)(?:\\b(delegate)\\b)\\s+(?<type-name>  (?:    (?:ref\\s+(?:readonly\\s+)?)?   # ref return    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s+(\\g<identifier>)\\s*(<([^<>]+)>)?\\s*(?=\\()"
         beginCaptures:
             "1":
                 name: keyword.other.delegate.wave
@@ -326,7 +326,7 @@ repository:
         begin: '(?=\binterface\b)'
         end: '(?<=\})'
         patterns:
-            - begin: "(?x)\r\n(interface)\\b\\s+\r\n(@?[_[:alpha:]][_[:alnum:]]*)"
+            - begin: "(?x)(interface)\\b\\s+(@?[_[:alpha:]][_[:alnum:]]*)"
               beginCaptures:
                   "1": { name: keyword.other.interface.wave }
                   "2": { name: entity.name.type.interface.wave }
@@ -350,7 +350,7 @@ repository:
         begin: '(?=\bstruct\b)'
         end: '(?<=\})'
         patterns:
-            - begin: "(?x)\r\n(struct)\\b\\s+\r\n(@?[_[:alpha:]][_[:alnum:]]*)"
+            - begin: "(?x)(struct)\\b\\s+(@?[_[:alpha:]][_[:alnum:]]*)"
               beginCaptures:
                   "1": { name: keyword.other.struct.wave }
                   "2": { name: entity.name.type.struct.wave }
@@ -423,7 +423,7 @@ repository:
             - include: "#punctuation-comma"
             - include: "#generic-constraints"
     field-declaration:
-        begin: "(?x)\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s+\r\n(\\g<identifier>)\\s* # first field name\r\n(?!=>|==)(?=,|;|=|$)"
+        begin: "(?x)(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s+(\\g<identifier>)\\s* # first field name(?!=>|==)(?=,|;|=|$)"
         beginCaptures:
             "1":
                 patterns:
@@ -439,7 +439,7 @@ repository:
             - include: "#variable-initializer"
             - include: "#class-or-struct-members"
     property-declaration:
-        begin: "(?x)\r\n\r\n# The negative lookahead below ensures that we don't match nested types\r\n# or other declarations as properties.\r\n(?![[:word:][:space:]]*\\b(?:class|interface|struct|enum|event)\\b)\r\n\r\n(?<return-type>\r\n  (?<type-name>\r\n    (?:\r\n      (?:ref\\s+(?:readonly\\s+)?)?   # ref return\r\n      (?:\r\n        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n        (?<name-and-type-args> # identifier + type arguments (if any)\r\n          \\g<identifier>\\s*\r\n          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n        )\r\n        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n      )\r\n      (?:\\s*\\?\\s*)? # nullable suffix?\r\n      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n    )\r\n  )\\s+\r\n)\r\n(?<interface-name>\\g<type-name>\\s*\\.\\s*)?\r\n(?<property-name>\\g<identifier>)\\s*\r\n(?=\\{|=>|$)"
+        begin: "(?x)# The negative lookahead below ensures that we don't match nested types# or other declarations as properties.(?![[:word:][:space:]]*\\b(?:class|interface|struct|enum|event)\\b)(?<return-type>  (?<type-name>    (?:      (?:ref\\s+(?:readonly\\s+)?)?   # ref return      (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification        (?<name-and-type-args> # identifier + type arguments (if any)          \\g<identifier>\\s*          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?        )        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))      )      (?:\\s*\\?\\s*)? # nullable suffix?      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?    )  )\\s+)(?<interface-name>\\g<type-name>\\s*\\.\\s*)?(?<property-name>\\g<identifier>)\\s*(?=\\{|=>|$)"
         beginCaptures:
             "1":
                 patterns:
@@ -458,7 +458,7 @@ repository:
             - include: "#variable-initializer"
             - include: "#class-or-struct-members"
     indexer-declaration:
-        begin: "(?x)\r\n(?<return-type>\r\n  (?<type-name>\r\n    (?:\r\n      (?:ref\\s+(?:readonly\\s+)?)?   # ref return\r\n      (?:\r\n        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n        (?<name-and-type-args> # identifier + type arguments (if any)\r\n          \\g<identifier>\\s*\r\n          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n        )\r\n        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n      )\r\n      (?:\\s*\\?\\s*)? # nullable suffix?\r\n      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n    )\r\n  )\\s+\r\n)\r\n(?<interface-name>\\g<type-name>\\s*\\.\\s*)?\r\n(?<indexer-name>this)\\s*\r\n(?=\\[)"
+        begin: "(?x)(?<return-type>  (?<type-name>    (?:      (?:ref\\s+(?:readonly\\s+)?)?   # ref return      (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification        (?<name-and-type-args> # identifier + type arguments (if any)          \\g<identifier>\\s*          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?        )        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))      )      (?:\\s*\\?\\s*)? # nullable suffix?      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?    )  )\\s+)(?<interface-name>\\g<type-name>\\s*\\.\\s*)?(?<indexer-name>this)\\s*(?=\\[)"
         beginCaptures:
             "1":
                 patterns:
@@ -477,7 +477,7 @@ repository:
             - include: "#expression-body"
             - include: "#variable-initializer"
     event-declaration:
-        begin: "(?x)\r\n\\b(event)\\b\\s*\r\n(?<return-type>\r\n  (?<type-name>\r\n    (?:\r\n      (?:\r\n        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n        (?<name-and-type-args> # identifier + type arguments (if any)\r\n          \\g<identifier>\\s*\r\n          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n        )\r\n        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n      )\r\n      (?:\\s*\\?\\s*)? # nullable suffix?\r\n      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n    )\r\n  )\\s+\r\n)\r\n(?<interface-name>\\g<type-name>\\s*\\.\\s*)?\r\n(?<event-names>\\g<identifier>(?:\\s*,\\s*\\g<identifier>)*)\\s*\r\n(?=\\{|;|$)"
+        begin: "(?x)\\b(event)\\b\\s*(?<return-type>  (?<type-name>    (?:      (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification        (?<name-and-type-args> # identifier + type arguments (if any)          \\g<identifier>\\s*          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?        )        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))      )      (?:\\s*\\?\\s*)? # nullable suffix?      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?    )  )\\s+)(?<interface-name>\\g<type-name>\\s*\\.\\s*)?(?<event-names>\\g<identifier>(?:\\s*,\\s*\\g<identifier>)*)\\s*(?=\\{|;|$)"
         beginCaptures:
             "1":
                 name: keyword.other.event.wave
@@ -541,7 +541,7 @@ repository:
             - include: "#block"
             - include: "#punctuation-semicolon"
     method-declaration:
-        begin: "(?x)\r\n(?<return-type>\r\n  (?<type-name>\r\n    (?:\r\n      (?:ref\\s+(?:readonly\\s+)?)?   # ref return\r\n      (?:\r\n        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n        (?<name-and-type-args> # identifier + type arguments (if any)\r\n          \\g<identifier>\\s*\r\n          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n        )\r\n        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n      )\r\n      (?:\\s*\\?\\s*)? # nullable suffix?\r\n      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n    )\r\n  )\\s+\r\n)\r\n(?<interface-name>\\g<type-name>\\s*\\.\\s*)?\r\n(\\g<identifier>)\\s*\r\n(<([^<>]+)>)?\\s*\r\n(?=\\()"
+        begin: "(?x)(?<return-type>  (?<type-name>    (?:      (?:ref\\s+(?:readonly\\s+)?)?   # ref return      (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification        (?<name-and-type-args> # identifier + type arguments (if any)          \\g<identifier>\\s*          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?        )        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))      )      (?:\\s*\\?\\s*)? # nullable suffix?      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?    )  )\\s+)(?<interface-name>\\g<type-name>\\s*\\.\\s*)?(\\g<identifier>)\\s*(<([^<>]+)>)?\\s*(?=\\()"
         beginCaptures:
             "1":
                 patterns:
@@ -604,7 +604,7 @@ repository:
             - include: "#expression-body"
             - include: "#block"
     operator-declaration:
-        begin: "(?x)\r\n(?<type-name>\r\n  (?:\r\n    (?:ref\\s+(?:readonly\\s+)?)?   # ref return\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s*\r\n(?<operator-keyword>(?:\\b(?:operator)))\\s*\r\n(?<operator>(?:\\+|-|\\*|/|%|&|\\||\\^|\\<\\<|\\>\\>|==|!=|\\>|\\<|\\>=|\\<=|!|~|\\+\\+|--|true|false))\\s*\r\n(?=\\()"
+        begin: "(?x)(?<type-name>  (?:    (?:ref\\s+(?:readonly\\s+)?)?   # ref return    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s*(?<operator-keyword>(?:\\b(?:operator)))\\s*(?<operator>(?:\\+|-|\\*|/|%|&|\\||\\^|\\<\\<|\\>\\>|==|!=|\\>|\\<|\\>=|\\<=|!|~|\\+\\+|--|true|false))\\s*(?=\\()"
         beginCaptures:
             "1":
                 patterns:
@@ -620,7 +620,7 @@ repository:
             - include: "#expression-body"
             - include: "#block"
     conversion-operator-declaration:
-        begin: "(?x)\r\n(?<explicit-or-implicit-keyword>(?:\\b(?:explicit|implicit)))\\s*\r\n(?<operator-keyword>(?:\\b(?:operator)))\\s*\r\n(?<type-name>\r\n  (?:\r\n    (?:ref\\s+(?:readonly\\s+)?)?   # ref return\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s*\r\n(?=\\()"
+        begin: "(?x)(?<explicit-or-implicit-keyword>(?:\\b(?:explicit|implicit)))\\s*(?<operator-keyword>(?:\\b(?:operator)))\\s*(?<type-name>  (?:    (?:ref\\s+(?:readonly\\s+)?)?   # ref return    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s*(?=\\()"
         beginCaptures:
             "1":
                 patterns:
@@ -865,7 +865,7 @@ repository:
                   "0": { name: punctuation.parenthesis.close.wave }
               patterns:
                   - {
-                        match: "(?x)\r\n(?:\r\n  (\\bvar\\b)|\r\n  (?<type-name>\r\n    (?:\r\n      (?:\r\n        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n        (?<name-and-type-args> # identifier + type arguments (if any)\r\n          \\g<identifier>\\s*\r\n          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n        )\r\n        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n      )\r\n      (?:\\s*\\?\\s*)? # nullable suffix?\r\n      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n    )\r\n  )\r\n)\\s+\r\n(\\g<identifier>)\\s+\r\n\\b(in)\\b",
+                        match: "(?x)(?:  (\\bvar\\b)|  (?<type-name>    (?:      (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification        (?<name-and-type-args> # identifier + type arguments (if any)          \\g<identifier>\\s*          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?        )        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))      )      (?:\\s*\\?\\s*)? # nullable suffix?      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?    )  ))\\s+(\\g<identifier>)\\s+\\b(in)\\b",
                         captures:
                             {
                                 "1": { name: keyword.other.var.wave },
@@ -875,7 +875,7 @@ repository:
                             },
                     }
                   - {
-                        match: "(?x) # match foreach (var (x, y) in ...)\r\n(?:\\b(var)\\b\\s*)?\r\n(?<tuple>\\((?:[^\\(\\)]|\\g<tuple>)+\\))\\s+\r\n\\b(in)\\b",
+                        match: "(?x) # match foreach (var (x, y) in ...)(?:\\b(var)\\b\\s*)?(?<tuple>\\((?:[^\\(\\)]|\\g<tuple>)+\\))\\s+\\b(in)\\b",
                         captures:
                             {
                                 "1": { name: keyword.other.var.wave },
@@ -931,7 +931,7 @@ repository:
                   "0": { name: punctuation.parenthesis.close.wave }
               patterns:
                   - {
-                        match: "(?x)\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s*\r\n(?:(\\g<identifier>)\\b)?",
+                        match: "(?x)(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s*(?:(\\g<identifier>)\\b)?",
                         captures:
                             {
                                 "1": { patterns: [{ include: "#type" }] },
@@ -1012,7 +1012,7 @@ repository:
             - include: "#local-variable-declaration"
             - include: "#local-tuple-var-deconstruction"
     local-variable-declaration:
-        begin: "(?x)\r\n(?:\r\n  (?:(\\bref)\\s+(?:(\\breadonly)\\s+)?)?(\\bvar\\b)| # ref local\r\n  (?<type-name>\r\n    (?:\r\n      (?:ref\\s+(?:readonly\\s+)?)?   # ref local\r\n      (?:\r\n        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n        (?<name-and-type-args> # identifier + type arguments (if any)\r\n          \\g<identifier>\\s*\r\n          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n        )\r\n        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n      )\r\n      (?:\\s*\\?\\s*)? # nullable suffix?\r\n      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n    )\r\n  )\r\n)\\s+\r\n(\\g<identifier>)\\s*\r\n(?!=>)\r\n(?=,|;|=|\\))"
+        begin: "(?x)(?:  (?:(\\bref)\\s+(?:(\\breadonly)\\s+)?)?(\\bvar\\b)| # ref local  (?<type-name>    (?:      (?:ref\\s+(?:readonly\\s+)?)?   # ref local      (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification        (?<name-and-type-args> # identifier + type arguments (if any)          \\g<identifier>\\s*          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?        )        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))      )      (?:\\s*\\?\\s*)? # nullable suffix?      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?    )  ))\\s+(\\g<identifier>)\\s*(?!=>)(?=,|;|=|\\))"
         beginCaptures:
             "1":
                 name: storage.modifier.wave
@@ -1033,7 +1033,7 @@ repository:
             - include: "#comment"
             - include: "#variable-initializer"
     local-constant-declaration:
-        begin: "(?x)\r\n(?<const-keyword>\\b(?:const)\\b)\\s*\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s+\r\n(\\g<identifier>)\\s*\r\n(?=,|;|=)"
+        begin: "(?x)(?<const-keyword>\\b(?:const)\\b)\\s*(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s+(\\g<identifier>)\\s*(?=,|;|=)"
         beginCaptures:
             "1":
                 name: storage.modifier.wave
@@ -1050,7 +1050,7 @@ repository:
             - include: "#comment"
             - include: "#variable-initializer"
     local-tuple-var-deconstruction:
-        begin: "(?x) # e.g. var (x, y) = GetPoint();\r\n(?:\\b(var)\\b\\s*)\r\n(?<tuple>\\((?:[^\\(\\)]|\\g<tuple>)+\\))\\s*\r\n(?=;|=|\\))"
+        begin: "(?x) # e.g. var (x, y) = GetPoint();(?:\\b(var)\\b\\s*)(?<tuple>\\((?:[^\\(\\)]|\\g<tuple>)+\\))\\s*(?=;|=|\\))"
         beginCaptures:
             "1":
                 name: keyword.other.var.wave
@@ -1064,7 +1064,7 @@ repository:
             - include: "#comment"
             - include: "#variable-initializer"
     tuple-deconstruction-assignment:
-        match: "(?x)\r\n(?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\\s*\r\n(?!=>|==)(?==)"
+        match: "(?x)(?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\\s*(?!=>|==)(?==)"
         captures:
             "1":
                 patterns:
@@ -1083,7 +1083,7 @@ repository:
             - include: "#tuple-declaration-deconstruction-element-list"
             - include: "#declaration-expression-tuple"
             - include: "#punctuation-comma"
-            - match: "(?x) # e.g. x\r\n(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*\r\n(?=[,)])"
+            - match: "(?x) # e.g. x(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*(?=[,)])"
               captures:
                   "1": { name: entity.name.variable.tuple-element.wave }
     tuple-deconstruction-element-list:
@@ -1100,11 +1100,11 @@ repository:
             - include: "#tuple-deconstruction-element-list"
             - include: "#declaration-expression-tuple"
             - include: "#punctuation-comma"
-            - match: "(?x) # e.g. x\r\n(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*\r\n(?=[,)])"
+            - match: "(?x) # e.g. x(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*(?=[,)])"
               captures:
                   "1": { name: variable.other.readwrite.wave }
     declaration-expression-local:
-        match: "(?x) # e.g. int x OR var x\r\n(?:\r\n  \\b(var)\\b|\r\n  (?<type-name>\r\n    (?:\r\n      (?:\r\n        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n        (?<name-and-type-args> # identifier + type arguments (if any)\r\n          \\g<identifier>\\s*\r\n          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n        )\r\n        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n      )\r\n      (?:\\s*\\?\\s*)? # nullable suffix?\r\n      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n    )\r\n  )\r\n)\\s+\r\n(\\g<identifier>)\\b\\s*\r\n(?=[,)\\]])"
+        match: "(?x) # e.g. int x OR var x(?:  \\b(var)\\b|  (?<type-name>    (?:      (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification        (?<name-and-type-args> # identifier + type arguments (if any)          \\g<identifier>\\s*          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?        )        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))      )      (?:\\s*\\?\\s*)? # nullable suffix?      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?    )  ))\\s+(\\g<identifier>)\\b\\s*(?=[,)\\]])"
         captures:
             "1":
                 name: keyword.other.var.wave
@@ -1114,7 +1114,7 @@ repository:
             "7":
                 name: entity.name.variable.local.wave
     declaration-expression-tuple:
-        match: "(?x) # e.g. int x OR var x\r\n(?:\r\n  \\b(var)\\b|\r\n  (?<type-name>\r\n    (?:\r\n      (?:\r\n        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n        (?<name-and-type-args> # identifier + type arguments (if any)\r\n          \\g<identifier>\\s*\r\n          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n        )\r\n        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n      )\r\n      (?:\\s*\\?\\s*)? # nullable suffix?\r\n      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n    )\r\n  )\r\n)\\s+\r\n(\\g<identifier>)\\b\\s*\r\n(?=[,)])"
+        match: "(?x) # e.g. int x OR var x(?:  \\b(var)\\b|  (?<type-name>    (?:      (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification        (?<name-and-type-args> # identifier + type arguments (if any)          \\g<identifier>\\s*          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?        )        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))      )      (?:\\s*\\?\\s*)? # nullable suffix?      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?    )  ))\\s+(\\g<identifier>)\\b\\s*(?=[,)])"
         captures:
             "1":
                 name: keyword.other.var.wave
@@ -1308,7 +1308,7 @@ repository:
             - include: "#tuple-literal-element"
             - include: "#punctuation-comma"
     tuple-literal-element:
-        begin: "(?x)\r\n(?:(@?[_[:alpha:]][_[:alnum:]]*)\\s*(:)\\s*)?\r\n(?![,)])"
+        begin: "(?x)(?:(@?[_[:alpha:]][_[:alnum:]]*)\\s*(:)\\s*)?(?![,)])"
         beginCaptures:
             "0":
                 name: entity.name.variable.tuple-element.wave
@@ -1384,7 +1384,7 @@ repository:
         name: variable.other.readwrite.wave
         match: "@?[_[:alpha:]][_[:alnum:]]*"
     cast-expression:
-        match: "(?x)\r\n(\\()\\s*\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s*\r\n(\\))(?=\\s*@?[_[:alnum:]\\(])"
+        match: "(?x)(\\()\\s*(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s*(\\))(?=\\s*@?[_[:alnum:]\\(])"
         captures:
             "1":
                 name: punctuation.parenthesis.open.wave
@@ -1394,7 +1394,7 @@ repository:
             "7":
                 name: punctuation.parenthesis.close.wave
     as-expression:
-        match: "(?x)\r\n(?<!\\.)\\b(as)\\b\\s*\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)?"
+        match: "(?x)(?<!\\.)\\b(as)\\b\\s*(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))?"
         captures:
             "1":
                 name: keyword.other.as.wave
@@ -1402,7 +1402,7 @@ repository:
                 patterns:
                     - { include: "#type" }
     is-expression:
-        match: "(?x)\r\n(?<!\\.)\\b(is)\\b\\s*\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)?"
+        match: "(?x)(?<!\\.)\\b(is)\\b\\s*(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))?"
         captures:
             "1":
                 name: keyword.other.is.wave
@@ -1417,7 +1417,7 @@ repository:
             "2":
                 name: keyword.other.this.wave
     invocation-expression:
-        begin: "(?x)\r\n(?:(\\?)\\s*)?                                     # preceding null-conditional operator?\r\n(?:(\\.)\\s*)?                                     # preceding dot?\r\n(@?[_[:alpha:]][_[:alnum:]]*)\\s*                   # method name\r\n(?<type-args>\\s*<([^<>]|\\g<type-args>)+>\\s*)?\\s* # type arguments\r\n(?=\\()                                           # open paren of argument list"
+        begin: "(?x)(?:(\\?)\\s*)?                                     # preceding null-conditional operator?(?:(\\.)\\s*)?                                     # preceding dot?(@?[_[:alpha:]][_[:alnum:]]*)\\s*                   # method name(?<type-args>\\s*<([^<>]|\\g<type-args>)+>\\s*)?\\s* # type arguments(?=\\()                                           # open paren of argument list"
         beginCaptures:
             "1":
                 name: keyword.operator.null-conditional.wave
@@ -1432,7 +1432,7 @@ repository:
         patterns:
             - include: "#argument-list"
     element-access-expression:
-        begin: "(?x)\r\n(?:(\\?)\\s*)?                        # preceding null-conditional operator?\r\n(?:(\\.)\\s*)?                        # preceding dot?\r\n(?:(@?[_[:alpha:]][_[:alnum:]]*)\\s*)? # property name\r\n(?:(\\?)\\s*)?                        # null-conditional operator?\r\n(?=\\[)                              # open bracket of argument list"
+        begin: "(?x)(?:(\\?)\\s*)?                        # preceding null-conditional operator?(?:(\\.)\\s*)?                        # preceding dot?(?:(@?[_[:alpha:]][_[:alnum:]]*)\\s*)? # property name(?:(\\?)\\s*)?                        # null-conditional operator?(?=\\[)                              # open bracket of argument list"
         beginCaptures:
             "1":
                 name: keyword.operator.null-conditional.wave
@@ -1447,17 +1447,17 @@ repository:
             - include: "#bracketed-argument-list"
     member-access-expression:
         patterns:
-            - match: "(?x)\r\n(?:(\\?)\\s*)?                   # preceding null-conditional operator?\r\n(\\.)\\s*                        # preceding dot\r\n(@?[_[:alpha:]][_[:alnum:]]*)\\s* # property name\r\n(?![_[:alnum:]]|\\(|(\\?)?\\[|<)  # next character is not alpha-numeric, nor a (, [, or <. Also, test for ?["
+            - match: "(?x)(?:(\\?)\\s*)?                   # preceding null-conditional operator?(\\.)\\s*                        # preceding dot(@?[_[:alpha:]][_[:alnum:]]*)\\s* # property name(?![_[:alnum:]]|\\(|(\\?)?\\[|<)  # next character is not alpha-numeric, nor a (, [, or <. Also, test for ?["
               captures:
                   "1": { name: keyword.operator.null-conditional.wave }
                   "2": { name: punctuation.accessor.wave }
                   "3": { name: variable.other.object.property.wave }
-            - match: "(?x)\r\n(\\.)?\\s*\r\n(@?[_[:alpha:]][_[:alnum:]]*)\r\n(?<type-params>\\s*<([^<>]|\\g<type-params>)+>\\s*)\r\n(?=\r\n  (\\s*\\?)?\r\n  \\s*\\.\\s*@?[_[:alpha:]][_[:alnum:]]*\r\n)"
+            - match: "(?x)(\\.)?\\s*(@?[_[:alpha:]][_[:alnum:]]*)(?<type-params>\\s*<([^<>]|\\g<type-params>)+>\\s*)(?=  (\\s*\\?)?  \\s*\\.\\s*@?[_[:alpha:]][_[:alnum:]]*)"
               captures:
                   "1": { name: punctuation.accessor.wave }
                   "2": { name: variable.other.object.wave }
                   "3": { patterns: [{ include: "#type-arguments" }] }
-            - match: "(?x)\r\n(@?[_[:alpha:]][_[:alnum:]]*)\r\n(?=\r\n  (\\s*\\?)?\r\n  \\s*\\.\\s*@?[_[:alpha:]][_[:alnum:]]*\r\n)"
+            - match: "(?x)(@?[_[:alpha:]][_[:alnum:]]*)(?=  (\\s*\\?)?  \\s*\\.\\s*@?[_[:alpha:]][_[:alnum:]]*)"
               captures:
                   "1": { name: variable.other.object.wave }
     object-creation-expression:
@@ -1465,7 +1465,7 @@ repository:
             - include: "#object-creation-expression-with-parameters"
             - include: "#object-creation-expression-with-no-parameters"
     object-creation-expression-with-parameters:
-        begin: "(?x)\r\n(new)\\s+\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s*\r\n(?=\\()"
+        begin: "(?x)(new)\\s+(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s*(?=\\()"
         beginCaptures:
             "1":
                 name: keyword.other.new.wave
@@ -1476,7 +1476,7 @@ repository:
         patterns:
             - include: "#argument-list"
     object-creation-expression-with-no-parameters:
-        match: "(?x)\r\n(new)\\s+\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s*\r\n(?=\\{|$)"
+        match: "(?x)(new)\\s+(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s*(?=\\{|$)"
         captures:
             "1":
                 name: keyword.other.new.wave
@@ -1484,7 +1484,7 @@ repository:
                 patterns:
                     - { include: "#type" }
     array-creation-expression:
-        begin: "(?x)\r\n\\b(new|stackalloc)\\b\\s*\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)?\\s*\r\n(?=\\[)"
+        begin: "(?x)\\b(new|stackalloc)\\b\\s*(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))?\\s*(?=\\[)"
         beginCaptures:
             "1":
                 name: keyword.other.new.wave
@@ -1536,7 +1536,7 @@ repository:
             - include: "#punctuation-comma"
             - include: "#variable-initializer"
     parameter:
-        match: "(?x)\r\n(?:(?:\\b(ref|params|out|in|this)\\b)\\s+)?\r\n(?<type-name>\r\n  (?:\r\n    (?:ref\\s+)?   # ref return\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s+\r\n(\\g<identifier>)"
+        match: "(?x)(?:(?:\\b(ref|params|out|in|this)\\b)\\s+)?(?<type-name>  (?:    (?:ref\\s+)?   # ref return    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s+(\\g<identifier>)"
         captures:
             "1":
                 name: storage.modifier.wave
@@ -1588,7 +1588,7 @@ repository:
             - include: "#declaration-expression-local"
             - include: "#expression"
     query-expression:
-        begin: "(?x)\r\n\\b(from)\\b\\s*\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)?\r\n\\s+(\\g<identifier>)\\b\\s*\r\n\\b(in)\\b\\s*"
+        begin: "(?x)\\b(from)\\b\\s*(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))?\\s+(\\g<identifier>)\\b\\s*\\b(in)\\b\\s*"
         beginCaptures:
             "1":
                 name: keyword.query.from.wave
@@ -1612,7 +1612,7 @@ repository:
             - include: "#select-clause"
             - include: "#group-clause"
     let-clause:
-        begin: "(?x)\r\n\\b(let)\\b\\s*\r\n(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*\r\n(=)\\s*"
+        begin: "(?x)\\b(let)\\b\\s*(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*(=)\\s*"
         beginCaptures:
             "1":
                 name: keyword.query.let.wave
@@ -1625,7 +1625,7 @@ repository:
             - include: "#query-body"
             - include: "#expression"
     where-clause:
-        begin: "(?x)\r\n\\b(where)\\b\\s*"
+        begin: "(?x)\\b(where)\\b\\s*"
         beginCaptures:
             "1":
                 name: keyword.query.where.wave
@@ -1634,7 +1634,7 @@ repository:
             - include: "#query-body"
             - include: "#expression"
     join-clause:
-        begin: "(?x)\r\n\\b(join)\\b\\s*\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)?\r\n\\s+(\\g<identifier>)\\b\\s*\r\n\\b(in)\\b\\s*"
+        begin: "(?x)\\b(join)\\b\\s*(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))?\\s+(\\g<identifier>)\\b\\s*\\b(in)\\b\\s*"
         beginCaptures:
             "1":
                 name: keyword.query.join.wave
@@ -1663,7 +1663,7 @@ repository:
             "1":
                 name: keyword.query.equals.wave
     join-into:
-        match: "(?x)\r\n\\b(into)\\b\\s*\r\n(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*"
+        match: "(?x)\\b(into)\\b\\s*(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*"
         captures:
             "1":
                 name: keyword.query.into.wave
@@ -1713,7 +1713,7 @@ repository:
             "1":
                 name: keyword.query.by.wave
     group-into:
-        match: "(?x)\r\n\\b(into)\\b\\s*\r\n(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*"
+        match: "(?x)\\b(into)\\b\\s*(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*"
         captures:
             "1":
                 name: keyword.query.into.wave
@@ -1721,7 +1721,7 @@ repository:
                 name: entity.name.variable.range-variable.wave
     anonymous-method-expression:
         patterns:
-            - begin: "(?x)\r\n(?:\\b(async)\\b\\s*)?\r\n(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*\r\n(=>)"
+            - begin: "(?x)(?:\\b(async)\\b\\s*)?(@?[_[:alpha:]][_[:alnum:]]*)\\b\\s*(=>)"
               beginCaptures:
                   "1": { name: storage.modifier.wave }
                   "2": { name: entity.name.variable.parameter.wave }
@@ -1731,7 +1731,7 @@ repository:
                   - { include: "#block" }
                   - { include: "#ref-modifier" }
                   - { include: "#expression" }
-            - begin: "(?x)\r\n(?:\\b(async)\\b\\s*)?\r\n(\\(.*?\\))\\s*\r\n(=>)"
+            - begin: "(?x)(?:\\b(async)\\b\\s*)?(\\(.*?\\))\\s*(=>)"
               beginCaptures:
                   "1": { name: storage.modifier.wave }
                   "2": { patterns: [{ include: "#lambda-parameter-list" }] }
@@ -1741,7 +1741,7 @@ repository:
                   - { include: "#block" }
                   - { include: "#ref-modifier" }
                   - { include: "#expression" }
-            - begin: "(?x)\r\n(?:\\b(async)\\b\\s*)?\r\n(?:\\b(delegate)\\b\\s*)"
+            - begin: "(?x)(?:\\b(async)\\b\\s*)?(?:\\b(delegate)\\b\\s*)"
               beginCaptures:
                   "1": { name: storage.modifier.wave }
                   "2": { name: keyword.other.delegate.wave }
@@ -1765,7 +1765,7 @@ repository:
             - include: "#lambda-parameter"
             - include: "#punctuation-comma"
     lambda-parameter:
-        match: "(?x)\r\n(?:\\b(ref|out|in)\\b)?\\s*\r\n(?:(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\\s+)?\r\n(\\g<identifier>)\\b\\s*\r\n(?=[,)])"
+        match: "(?x)(?:\\b(ref|out|in)\\b)?\\s*(?:(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))\\s+)?(\\g<identifier>)\\b\\s*(?=[,)])"
         captures:
             "1":
                 name: storage.modifier.wave
@@ -1805,7 +1805,7 @@ repository:
             - include: "#tuple-element"
             - include: "#punctuation-comma"
     tuple-element:
-        match: "(?x)\r\n(?<type-name>\r\n  (?:\r\n    (?:\r\n      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification\r\n      (?<name-and-type-args> # identifier + type arguments (if any)\r\n        \\g<identifier>\\s*\r\n        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?\r\n      )\r\n      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?\r\n      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))\r\n    )\r\n    (?:\\s*\\?\\s*)? # nullable suffix?\r\n    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?\r\n  )\r\n)\r\n(?:(?<tuple-name>\\g<identifier>)\\b)?"
+        match: "(?x)(?<type-name>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification      (?<name-and-type-args> # identifier + type arguments (if any)        \\g<identifier>\\s*        (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?      )      (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?      (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))    )    (?:\\s*\\?\\s*)? # nullable suffix?    (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?  ))(?:(?<tuple-name>\\g<identifier>)\\b)?"
         captures:
             "1":
                 patterns:
@@ -2073,7 +2073,7 @@ repository:
             - include: "#xml-tag"
     xml-tag:
         name: meta.tag.wave
-        begin: "(?x)\r\n(</?)\r\n(\r\n  (?:\r\n    ([-_[:alnum:]]+)\r\n    (:)\r\n  )?\r\n  ([-_[:alnum:]]+)\r\n)"
+        begin: "(?x)(</?)(  (?:    ([-_[:alnum:]]+)    (:)  )?  ([-_[:alnum:]]+))"
         beginCaptures:
             "1":
                 name: punctuation.definition.tag.wave
@@ -2093,7 +2093,7 @@ repository:
             - include: "#xml-attribute"
     xml-attribute:
         patterns:
-            - match: "(?x)\r\n(?:^|\\s+)\r\n(\r\n  (?:\r\n    ([-_[:alnum:]]+)\r\n    (:)\r\n  )?\r\n  ([-_[:alnum:]]+)\r\n)\r\n(=)"
+            - match: "(?x)(?:^|\\s+)(  (?:    ([-_[:alnum:]]+)    (:)  )?  ([-_[:alnum:]]+))(=)"
               captures:
                   "1": { name: entity.other.attribute-name.wave }
                   "2": { name: entity.other.attribute-name.namespace.wave }
@@ -2134,7 +2134,7 @@ repository:
     xml-character-entity:
         patterns:
             - name: constant.character.entity.wave
-              match: "(?x)\r\n(&)\r\n(\r\n  (?:[[:alpha:]:_][[:alnum:]:_.-]*)|\r\n  (?:\\#[[:digit:]]+)|\r\n  (?:\\#x[[:xdigit:]]+)\r\n)\r\n(;)"
+              match: "(?x)(&)(  (?:[[:alpha:]:_][[:alnum:]:_.-]*)|  (?:\\#[[:digit:]]+)|  (?:\\#x[[:xdigit:]]+))(;)"
               captures:
                   "1": { name: punctuation.definition.constant.wave }
                   "3": { name: punctuation.definition.constant.wave }

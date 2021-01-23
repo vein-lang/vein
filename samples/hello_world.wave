@@ -11,9 +11,17 @@ global auto new_line = "\n";
 
 public class Program
 {
-    public static void main(int32 s)
+    public static main(int32 s) -> void
     {
         return s;
+    }
+    operation Xuy()
+    {
+
+    }
+    operation Xuy<W>()
+    {
+
     }
     operation Main[args: array<string>] -> void
     {
@@ -55,18 +63,7 @@ public class Program
         }
     }
 } 
-
-public class Foo 
-{
-    public w1: int32;
-    public int32 w1;
-    public union
-    {
-        x: float;
-        y: int32;
-        z: double;
-    }
-
+/*
     public operation test[] -> void
     {
         body as IL
@@ -80,13 +77,23 @@ public class Foo
             .ret
         }
     }
+*/
+public class Foo 
+{
+    public int32 w1;
+    public union SAD
+    {
+        float x;
+        float y;
+        float z;
+    }
 }
 
 public struct Vector<~T> where T is struct, IOperable
 {
-    public x: T;
-    public y: T;
-    public z: T;
+    public T x;
+    public T y;
+    public T z;
 }
 
 public extensions Vector3D

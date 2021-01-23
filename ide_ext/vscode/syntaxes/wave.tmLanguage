@@ -60,6 +60,10 @@
       </dict>
       <dict>
         <key>include</key>
+        <string>#union-declaration</string>
+      </dict>
+      <dict>
+        <key>include</key>
         <string>#typdef-declaration</string>
       </dict>
       <dict>
@@ -344,6 +348,83 @@
           </dict>
         </array>
       </dict>
+      <key>union-declaration</key>
+      <dict>
+        <key>begin</key>
+        <string>\b(union)\s+</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.other.union.wave</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?&lt;=\})</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#comment</string>
+          </dict>
+          <dict>
+            <key>name</key>
+            <string>entity.name.type.union.wave</string>
+            <key>match</key>
+            <string>@?[_[:alpha:]][_[:alnum:]]*</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#punctuation-accessor</string>
+          </dict>
+          <dict>
+            <key>begin</key>
+            <string>\{</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.curlybrace.open.wave</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>\}</string>
+            <key>endCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.curlybrace.close.wave</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#punctuation-semicolon</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#operation-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#field-declaration</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
       <key>class-declaration</key>
       <dict>
         <key>begin</key>
@@ -399,11 +480,27 @@
             <array>
               <dict>
                 <key>include</key>
-                <string>#class-or-struct-members</string>
+                <string>#comment</string>
               </dict>
               <dict>
                 <key>include</key>
-                <string>#comment</string>
+                <string>#punctuation-semicolon</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#operation-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#union-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#field-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#storage-modifier</string>
               </dict>
             </array>
           </dict>
@@ -1063,6 +1160,53 @@ U[a-fA-F0-9]{,8} )</string>
           </dict>
         </array>
       </dict>
+      <key>operation-declaration</key>
+      <dict>
+        <key>begin</key>
+        <string>(?x)
+operation\s
+(?:
+(?:(?&lt;identifier&gt;@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?
+(?&lt;nameandtypeargs&gt;\g&lt;identifier&gt;\s*
+(?&lt;typeargs&gt;\s*&lt;(?:[^&lt;&gt;]|\g&lt;typeargs&gt;)+&gt;\s*)?
+)
+(?:\s*\.\s*\g&lt;nameandtypeargs&gt;)*
+)
+(?=\()</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.function.wave</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?&lt;=\})|(?=;)</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#comment</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#parenthesized-parameter-list</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#generic-constraints</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#expression-body</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#block</string>
+          </dict>
+        </array>
+      </dict>
       <key>method-declaration</key>
       <dict>
         <key>begin</key>
@@ -1135,29 +1279,45 @@ U[a-fA-F0-9]{,8} )</string>
           </dict>
         </array>
       </dict>
-      <key>class-or-struct-members</key>
+      <key>field-declaration</key>
       <dict>
+        <key>begin</key>
+        <string>(?x)(?&lt;typename&gt;  (?:    (?:      (?:(?&lt;identifier&gt;@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?&lt;nameandtypeargs&gt;\g&lt;identifier&gt;\s*        (?&lt;typeargs&gt;\s*&lt;(?:[^&lt;&gt;]|\g&lt;typeargs&gt;)+&gt;\s*)?      )      (?:\s*\.\s*\g&lt;nameandtypeargs&gt;)* | (?&lt;tuple&gt;\s*\((?:[^\(\)]|\g&lt;tuple&gt;)+\)))(?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ))\s+(\g&lt;identifier&gt;)\s* (?!=&gt;|==)(?=,|;|=|$)</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#type</string>
+              </dict>
+            </array>
+          </dict>
+          <key>6</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.variable.field.wave</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?=;)</string>
         <key>patterns</key>
         <array>
           <dict>
+            <key>name</key>
+            <string>entity.name.variable.field.wave</string>
+            <key>match</key>
+            <string>@?[_[:alpha:]][_[:alnum:]]*</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#punctuation-comma</string>
+          </dict>
+          <dict>
             <key>include</key>
             <string>#comment</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#storage-modifier</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#type-declarations</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#property-declaration</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#field-declaration</string>
           </dict>
           <dict>
             <key>include</key>
@@ -1165,23 +1325,7 @@ U[a-fA-F0-9]{,8} )</string>
           </dict>
           <dict>
             <key>include</key>
-            <string>#constructor-declaration</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#destructor-declaration</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#operator-declaration</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#method-declaration</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#punctuation-semicolon</string>
+            <string>#class-or-struct-members</string>
           </dict>
         </array>
       </dict>

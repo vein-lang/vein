@@ -15,6 +15,7 @@ patterns:
     - include: "#storage-modifier"
     - include: "#backslash-escapes"
     - include: "#class-declaration"
+    - include: "#union-declaration"
     - include: "#typdef-declaration"
     - include: "#types"
     - include: "#literal"
@@ -104,6 +105,29 @@ repository:
         patterns:
             - name: storage.modifier
               match: '\b(gc|new|public|protected|internal|private|static|readonly|const|extern|auto|extensions)\b'
+    union-declaration:
+        begin: \b(union)\s+
+        beginCaptures:
+            "1":
+                name: keyword.other.union.wave
+        end: '(?<=\})'
+        patterns:
+            - include: "#comment"
+            - name: entity.name.type.union.wave
+              match: "@?[_[:alpha:]][_[:alnum:]]*"
+            - include: "#punctuation-accessor"
+            - begin: '\{'
+              beginCaptures:
+                  "0": { name: punctuation.curlybrace.open.wave }
+              end: '\}'
+              endCaptures:
+                  "0": { name: punctuation.curlybrace.close.wave }
+              patterns:
+                  - include: "#comment"
+                  - include: "#punctuation-semicolon"
+                  - include: "#operation-declaration"
+                  - include: "#comment"
+                  - include: "#field-declaration"
     class-declaration:
         begin: \b(class)\s+
         beginCaptures:
@@ -122,8 +146,12 @@ repository:
               endCaptures:
                   "0": { name: punctuation.curlybrace.close.wave }
               patterns:
-                  - include: "#class-or-struct-members"
                   - include: "#comment"
+                  - include: "#punctuation-semicolon"
+                  - include: "#operation-declaration"
+                  - include: "#union-declaration"
+                  - include: "#field-declaration"
+                  - include: "#storage-modifier"
     typdef-declaration:
         begin: (\#typedef)\s+
         beginCaptures:
@@ -336,6 +364,18 @@ repository:
             - include: "#type-name"
             - include: "#type-arguments"
             - include: "#type-array-suffix"
+    operation-declaration:
+        begin: "(?x)\noperation\s\n(?:\n(?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?\n(?<nameandtypeargs>\g<identifier>\s*\n(?<typeargs>\s*<(?:[^<>]|\g<typeargs>)+>\s*)?\n)\n(?:\s*\.\s*\g<nameandtypeargs>)*\n)\n(?=\()"
+        beginCaptures:
+            "1": 
+                name: entity.name.function.wave
+        end: '(?<=\})|(?=;)'
+        patterns:
+            - include: "#comment"
+            - include: "#parenthesized-parameter-list"
+            - include: "#generic-constraints"
+            - include: "#expression-body"
+            - include: "#block"
     method-declaration:
         begin: "(?x)(?<return_type>(?<type_name>(?:(?:ref\s+(?:readonly\s+)?)?(?:(?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?(?<name_and_type_args>\g<identifier>\s*(?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)?)(?:\s*\.\s*\g<name_and_type_args>)* |(?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)))(?:\s*\?\s*)?(?:\s*\[(?:\s*,\s*)*\]\s*)*))\s+)(?<interface_name>\g<type_name>\s*\.\s*)?(\g<identifier>)\s*(<([^<>]+)>)?\s*(?=\()"
         beginCaptures:
@@ -358,16 +398,19 @@ repository:
             - include: "#generic-constraints"
             - include: "#expression-body"
             - include: "#block"
-    class-or-struct-members:
+    field-declaration:
+        begin: "(?x)(?<typename>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?<nameandtypeargs>\g<identifier>\s*        (?<typeargs>\s*<(?:[^<>]|\g<typeargs>)+>\s*)?      )      (?:\s*\.\s*\g<nameandtypeargs>)* | (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)))(?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ))\s+(\g<identifier>)\s* (?!=>|==)(?=,|;|=|$)"
+        beginCaptures:
+            "1":
+                patterns:
+                    - { include: "#type" }
+            "6":
+                name: entity.name.variable.field.wave
+        end: "(?=;)"
         patterns:
+            - name: entity.name.variable.field.wave
+              match: "@?[_[:alpha:]][_[:alnum:]]*"
+            - include: "#punctuation-comma"
             - include: "#comment"
-            - include: "#storage-modifier"
-            - include: "#type-declarations"
-            - include: "#property-declaration"
-            - include: "#field-declaration"
             - include: "#variable-initializer"
-            - include: "#constructor-declaration"
-            - include: "#destructor-declaration"
-            - include: "#operator-declaration"
-            - include: "#method-declaration"
-            - include: "#punctuation-semicolon"
+            - include: "#class-or-struct-members"
