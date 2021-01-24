@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wc", "compiler\wc.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "langserver", "langserver\langserver.csproj", "{59AB67CC-A6CF-4957-9FC6-5128212FED8F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wc_test", "test\wc_test\wc_test.csproj", "{8759A35D-DA78-4577-ACE0-E575CC744652}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,18 @@ Global
 		{59AB67CC-A6CF-4957-9FC6-5128212FED8F}.Release|x64.Build.0 = Release|Any CPU
 		{59AB67CC-A6CF-4957-9FC6-5128212FED8F}.Release|x86.ActiveCfg = Release|Any CPU
 		{59AB67CC-A6CF-4957-9FC6-5128212FED8F}.Release|x86.Build.0 = Release|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Debug|x64.Build.0 = Debug|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Debug|x86.Build.0 = Debug|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Release|x64.ActiveCfg = Release|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Release|x64.Build.0 = Release|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Release|x86.ActiveCfg = Release|Any CPU
+		{8759A35D-DA78-4577-ACE0-E575CC744652}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -273,10 +273,11 @@
                 return Task.CompletedTask;
             }
             var param = Utils.TryJTokenAs<DidOpenTextDocumentParams>(arg);
-            return this.editorState.OpenFileAsync(
-                param.TextDocument,
-                this.ShowInWindow,
-                this.workspaceFolder != null ? this.LogToWindow : (Action<string, MessageType>?)null);
+            return Task.CompletedTask;
+            //return this.editorState.OpenFileAsync(
+            //    param.TextDocument,
+            //    this.ShowInWindow,
+            //    this.workspaceFolder != null ? this.LogToWindow : (Action<string, MessageType>?)null);
         }
 
         [JsonRpcMethod(Methods.TextDocumentDidCloseName)]
@@ -431,8 +432,26 @@
             {
                 Contents = new MarkupContent { Kind = format, Value = info },
             };
+            string getStr(string line, int pos)
+            {
+                List<char> f = new List<char>();
+                var res = line.Substring(pos, line.Length-1);
 
-            return GetHover("Morsic pidaras!!!");
+                foreach (var re in res)
+                {
+                    if(char.IsLetter(re))
+                        f.Add(re);
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                return string.Join("", f);
+            }
+            // fuck this
+            var a = Uri.UnescapeDataString(param.TextDocument.Uri.AbsolutePath).Remove(0, 1);
+            return GetHover(getStr(File.ReadAllLines(a)[param.Position.Line], param.Position.Character));
         }
         
 
