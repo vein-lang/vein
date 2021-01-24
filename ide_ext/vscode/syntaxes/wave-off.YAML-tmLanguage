@@ -541,7 +541,7 @@ repository:
             - include: "#block"
             - include: "#punctuation-semicolon"
     method-declaration:
-        begin: "(?x)(?<return-type>  (?<type-name>    (?:      (?:ref\\s+(?:readonly\\s+)?)?   # ref return      (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification        (?<name-and-type-args> # identifier + type arguments (if any)          \\g<identifier>\\s*          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?        )        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))      )      (?:\\s*\\?\\s*)? # nullable suffix?      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?    )  )\\s+)(?<interface-name>\\g<type-name>\\s*\\.\\s*)?(\\g<identifier>)\\s*(<([^<>]+)>)?\\s*(?=\\()"
+        begin: "(?x)(?<return_type>  (?<type_name>    (?:      (?:ref\s+(?:readonly\s+)?)?       (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?        (?<name_and_type_args>           \g<identifier>\s*          (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)?        )        (?:\s*\.\s*\g<name_and_type_args>)* |        (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\))      )      (?:\s*\?\s*)?       (?:\s*\[(?:\s*,\s*)*\]\s*)*     )  )\s+)(?<interface_name>\g<type_name>\s*\.\s*)?(\g<identifier>)\s*(<([^<>]+)>)?\s*(?=\()"
         beginCaptures:
             "1":
                 patterns:
@@ -1104,7 +1104,7 @@ repository:
               captures:
                   "1": { name: variable.other.readwrite.wave }
     declaration-expression-local:
-        match: "(?x) # e.g. int x OR var x(?:  \\b(var)\\b|  (?<type-name>    (?:      (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\\s*\\:\\:\\s*)? # alias-qualification        (?<name-and-type-args> # identifier + type arguments (if any)          \\g<identifier>\\s*          (?<type-args>\\s*<(?:[^<>]|\\g<type-args>)+>\\s*)?        )        (?:\\s*\\.\\s*\\g<name-and-type-args>)* | # Are there any more names being dotted into?        (?<tuple>\\s*\\((?:[^\\(\\)]|\\g<tuple>)+\\))      )      (?:\\s*\\?\\s*)? # nullable suffix?      (?:\\s*\\[(?:\\s*,\\s*)*\\]\\s*)* # array suffix?    )  ))\\s+(\\g<identifier>)\\b\\s*(?=[,)\\]])"
+        match: "(?x) (?: \b(var)\b| (?<type_name> (?: (?: (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?<name_and_type_args> \g<identifier>\s* (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)? ) (?:\s*\.\s*\g<name_and_type_args>)* | (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)) ) (?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ) ) )\s+ (\g<identifier>)\b\s* (?=[,)\]])"
         captures:
             "1":
                 name: keyword.other.var.wave

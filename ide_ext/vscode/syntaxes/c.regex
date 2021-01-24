@@ -16,3 +16,50 @@
 (\g<identifier>)\s*
 (<([^<>]+)>)?\s*
 (?=\()
+
+(?x) # e.g. int x OR var x
+(?:
+  \b(var)\b|
+  (?<type_name>
+    (?:
+      (?:
+        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? # alias_qualification
+        (?<name_and_type_args> # identifier + type arguments (if any)
+          \g<identifier>\s*
+          (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)?
+        )
+        (?:\s*\.\s*\g<name_and_type_args>)* | # Are there any more names being dotted into?
+        (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\))
+      )
+      (?:\s*\?\s*)? # nullable suffix?
+      (?:\s*\[(?:\s*,\s*)*\]\s*)* # array suffix?
+    )
+  )
+)\s+
+(\g<identifier>)\b\s*
+(?=[,)\]])
+
+
+(?x)
+(?<return_type>
+  (?<type_name>
+    (?:
+      (?:ref\s+(?:readonly\s+)?)?   # ref return
+      (?:
+        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? # alias_qualification
+        (?<name_and_type_args> # identifier + type arguments (if any)
+          \g<identifier>\s*
+          (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)?
+        )
+        (?:\s*\.\s*\g<name_and_type_args>)* | # Are there any more names being dotted into?
+        (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\))
+      )
+      (?:\s*\?\s*)? # nullable suffix?
+      (?:\s*\[(?:\s*,\s*)*\]\s*)* # array suffix?
+    )
+  )\s+
+)
+(?<interface_name>\g<type_name>\s*\.\s*)?
+(\g<identifier>)\s*
+(<([^<>]+)>)?\s*
+(?=\()

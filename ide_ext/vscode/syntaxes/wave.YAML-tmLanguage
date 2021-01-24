@@ -4,6 +4,7 @@ fileTypes:
     - wave
 name: "Wave Language"
 patterns:
+    - include: "#operation-declaration"
     - include: "#comments"
     - include: "#preprocessor"
     - include: "#operators"
@@ -98,7 +99,7 @@ repository:
     keywords:
         patterns:
             - name: keyword.control.wave
-              match: '(?<!\.)\b(nocontrol|global|using|auto|const|if|else|while|do|body|for|is|in|gc|return|fail|operation)\b'
+              match: '(?<!\.)\b(nocontrol|global|using|auto|const|if|else|while|do|body|for|is|in|gc|return|fail)\b'
             - name: keyword.control.core.wave
               match: '(?<!\.)\b(struct|record|union)\b'
     storage-modifier:
@@ -152,6 +153,7 @@ repository:
                   - include: "#union-declaration"
                   - include: "#field-declaration"
                   - include: "#storage-modifier"
+                  - include: "#method-declaration"
     typdef-declaration:
         begin: (\#typedef)\s+
         beginCaptures:
@@ -365,19 +367,23 @@ repository:
             - include: "#type-arguments"
             - include: "#type-array-suffix"
     operation-declaration:
-        begin: "(?x)\noperation\s\n(?:\n(?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?\n(?<nameandtypeargs>\g<identifier>\s*\n(?<typeargs>\s*<(?:[^<>]|\g<typeargs>)+>\s*)?\n)\n(?:\s*\.\s*\g<nameandtypeargs>)*\n)\n(?=\()"
+        begin: \b(operation)\s+(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)
         beginCaptures:
-            "1": 
+            "1":
+                name: keyword.control.wave
+            "2":
                 name: entity.name.function.wave
         end: '(?<=\})|(?=;)'
         patterns:
             - include: "#comment"
+            - include: "#punctuation-accessor"
             - include: "#parenthesized-parameter-list"
             - include: "#generic-constraints"
             - include: "#expression-body"
             - include: "#block"
+            - include: "#type"
     method-declaration:
-        begin: "(?x)(?<return_type>(?<type_name>(?:(?:ref\s+(?:readonly\s+)?)?(?:(?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?(?<name_and_type_args>\g<identifier>\s*(?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)?)(?:\s*\.\s*\g<name_and_type_args>)* |(?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)))(?:\s*\?\s*)?(?:\s*\[(?:\s*,\s*)*\]\s*)*))\s+)(?<interface_name>\g<type_name>\s*\.\s*)?(\g<identifier>)\s*(<([^<>]+)>)?\s*(?=\()"
+        begin: "(?x)(?<return_type>  (?<type_name>    (?:      (?:ref\s+(?:readonly\s+)?)?       (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?        (?<name_and_type_args>           \g<identifier>\s*          (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)?        )        (?:\s*\.\s*\g<name_and_type_args>)* |        (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\))      )      (?:\s*\?\s*)?       (?:\s*\[(?:\s*,\s*)*\]\s*)*     )  )\s+)(?<interface_name>\g<type_name>\s*\.\s*)?(\g<identifier>)\s*(<([^<>]+)>)?\s*(?=\()"
         beginCaptures:
             "1":
                 patterns:
@@ -399,7 +405,7 @@ repository:
             - include: "#expression-body"
             - include: "#block"
     field-declaration:
-        begin: "(?x)(?<typename>  (?:    (?:      (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?<nameandtypeargs>\g<identifier>\s*        (?<typeargs>\s*<(?:[^<>]|\g<typeargs>)+>\s*)?      )      (?:\s*\.\s*\g<nameandtypeargs>)* | (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)))(?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ))\s+(\g<identifier>)\s* (?!=>|==)(?=,|;|=|$)"
+        begin: "(?x)(?<typename>(?:(?:(?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?<nameandtypeargs>\g<identifier>\s*(?<typeargs>\s*<(?:[^<>]|\g<typeargs>)+>\s*)?      )      (?:\s*\.\s*\g<nameandtypeargs>)* | (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)))(?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ))\s+(\g<identifier>)\s* (?!=>|==)(?=,|;|=|$)"
         beginCaptures:
             "1":
                 patterns:
@@ -414,3 +420,45 @@ repository:
             - include: "#comment"
             - include: "#variable-initializer"
             - include: "#class-or-struct-members"
+    argument-list:
+        begin: \(
+        beginCaptures:
+            "0":
+                name: punctuation.parenthesis.open.wave
+        end: \)
+        endCaptures:
+            "0":
+                name: punctuation.parenthesis.close.wave
+        patterns:
+            - include: "#argument"
+            - include: "#punctuation-comma"
+    declaration-expression-local:
+        match: "(?x) (?: \b(auto)\b| (?<type_name> (?: (?: (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?<name_and_type_args> \g<identifier>\s* (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)? ) (?:\s*\.\s*\g<name_and_type_args>)* | (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)) ) (?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ) ) )\s+ (\g<identifier>)\b\s* (?=[,)\]])"
+        captures:
+            "1":
+                name: keyword.other.var.wave
+            "2":
+                patterns:
+                    - include: "#type"
+            "7":
+                name: entity.name.variable.local.wave
+    argument:
+        patterns:
+            - name: storage.modifier.wave
+              match: \b(ref|out|in)\b
+            - include: "#declaration-expression-local"
+    parenthesized-parameter-list:
+        begin: (\()
+        beginCaptures:
+            "0":
+                name: punctuation.parenthesis.open.wave
+        end: (\))
+        endCaptures:
+            "0":
+                name: punctuation.parenthesis.close.wave
+        patterns:
+            - include: "#comment"
+            - include: "#attribute-section"
+            - include: "#parameter"
+            - include: "#punctuation-comma"
+            - include: "#variable-initializer"

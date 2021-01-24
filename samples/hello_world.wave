@@ -1,6 +1,9 @@
 #use "stl.lib"
 #typedef Complex = {Real: double, Imaginary: double};
+operation Xuy()
+{
 
+}
 /*
  asdasd
  asdasdasd
@@ -15,14 +18,23 @@ public class Program
     {
         return s;
     }
-    operation Xuy()
+    operation Xuy[] -> void
     {
+        body
+        {
 
+        }
+        gc auto;
     }
-    operation Xuy<W>()
+    operation Xuy[args: array<string>] -> void
     {
-
+        body
+        {
+            
+        }
+        gc auto;
     }
+
     operation Main[args: array<string>] -> void
     {
         body
