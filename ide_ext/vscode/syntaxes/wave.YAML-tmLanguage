@@ -5,7 +5,7 @@ fileTypes:
 name: "Wave Language"
 patterns:
     - include: "#operation-declaration"
-    - include: "#comments"
+    - include: "#comment"
     - include: "#preprocessor"
     - include: "#operators"
     - include: "#numbers"
@@ -25,7 +25,7 @@ repository:
         patterns:
             - include: "#type-declarations"
             - include: "#punctuation-semicolon"
-    comments:
+    comment:
         patterns:
             - name: comment.line.double-slash.documentation.wave
               begin: '(?:^)(?>\s*)(\/\/[!\/]+)'
@@ -99,7 +99,7 @@ repository:
     keywords:
         patterns:
             - name: keyword.control.wave
-              match: '(?<!\.)\b(nocontrol|global|using|auto|const|if|else|while|do|body|for|is|in|gc|return|fail)\b'
+              match: '(?<!\.)\b(global|using|auto|const|if|else|while|do|body|for|is|in|return|fail)\b'
             - name: keyword.control.core.wave
               match: '(?<!\.)\b(struct|record|union)\b'
     storage-modifier:
@@ -151,7 +151,6 @@ repository:
                   - include: "#punctuation-semicolon"
                   - include: "#operation-declaration"
                   - include: "#union-declaration"
-                  - include: "#field-declaration"
                   - include: "#storage-modifier"
                   - include: "#method-declaration"
     typdef-declaration:
@@ -373,15 +372,12 @@ repository:
                 name: keyword.control.wave
             "2":
                 name: entity.name.function.wave
-        end: '(?<=\})|(?=;)'
+        end: '(?<=\})'
         patterns:
             - include: "#comment"
-            - include: "#punctuation-accessor"
-            - include: "#parenthesized-parameter-list"
-            - include: "#generic-constraints"
-            - include: "#expression-body"
-            - include: "#block"
-            - include: "#type"
+            - include: "#gc-modifier"
+            - include: "#sync-modifier"
+            - include: "#body-operation-statament"
     method-declaration:
         begin: "(?x)(?<return_type>  (?<type_name>    (?:      (?:ref\s+(?:readonly\s+)?)?       (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?        (?<name_and_type_args>           \g<identifier>\s*          (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)?        )        (?:\s*\.\s*\g<name_and_type_args>)* |        (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\))      )      (?:\s*\?\s*)?       (?:\s*\[(?:\s*,\s*)*\]\s*)*     )  )\s+)(?<interface_name>\g<type_name>\s*\.\s*)?(\g<identifier>)\s*(<([^<>]+)>)?\s*(?=\()"
         beginCaptures:
@@ -462,3 +458,43 @@ repository:
             - include: "#parameter"
             - include: "#punctuation-comma"
             - include: "#variable-initializer"
+    gc-modifier:
+        name: entity.operation.gc.wave
+        match: (?x)(gc)\s+(((nocontrol|auto)\;))
+        beginCaptures:
+            "1":
+                name: keyword.control.gc.wave
+            "4":
+                name: keyword.control.gc.wave
+    sync-modifier:
+        name: entity.operation.sync.wave
+        match: (?x)(sync)\s+(((nocontrol|auto|inheritable)\;)|\{)
+        beginCaptures:
+            "1":
+                name: keyword.control.sync.wave
+            "4":
+                name: keyword.control.sync.wave
+    body-operation-statament:
+        begin: \b(body)\s+
+        beginCaptures:
+            "1":
+                name: keyword.control.body.wave
+        end: '(?<=\})'
+        patterns:
+            - begin: '\{'
+              beginCaptures:
+                  "0": { name: punctuation.curlybrace.open.wave }
+              end: '\}'
+              endCaptures:
+                  "0": { name: punctuation.curlybrace.close.wave }
+              patterns:
+                - include: "#literal"
+                - include: "#interpolated-string"
+                - include: "#comment"
+                - include: "#punctuation-accessor"
+                - include: "#parenthesized-parameter-list"
+                - include: "#generic-constraints"
+                - include: "#expression-body"
+                - include: "#block"
+                - include: "#type"
+            

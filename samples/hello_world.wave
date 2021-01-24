@@ -1,9 +1,6 @@
 #use "stl.lib"
 #typedef Complex = {Real: double, Imaginary: double};
-operation Xuy()
-{
 
-}
 /*
  asdasd
  asdasdasd
@@ -14,36 +11,32 @@ global auto new_line = "\n";
 
 public class Program
 {
-    public static main(int32 s) -> void
-    {
-        return s;
-    }
     operation Xuy[] -> void
     {
         body
         {
-
-        }
+            auto* s;
+        };
         gc auto;
-    }
+    };
     operation Xuy[args: array<string>] -> void
     {
         body
         {
             
-        }
+        };
         gc auto;
-    }
+    };
 
-    operation Main[args: array<string>] -> void
+    operation Main(args: array<string>) -> void
     {
         body
         {
             auto v = new Complex(12.4, .2);
             Terminal.Println("Hello World");
 
-            if (v is { Real > 10.0 })
-                fail $"bla bla {asd} xuy";
+            //if (v is { Real > 10.0 })
+                fail $"bla bla {asd} xuy"
 
             auto govno = obj 
                 |> get
@@ -51,15 +44,15 @@ public class Program
                 |> govno;
         }
         gc auto;
-    }
+    };
     operation factorial[i: int] -> int
     {
         body
         {
             return (1..i < 1 ? 1 : i).aggregate([f: int32, x: int32] => f * x);
-        }
+        };
         gc nocontrol;
-    }
+    };
     operation mul<T>[predicate: (~T) -> bool] -> T
     {
         body 
@@ -68,13 +61,13 @@ public class Program
             random_fill(arr);
 
             return arr.single(predicate);
-        }
+        };
         gc
         {
             memory.free(&arr);
         }
-    }
-} 
+    };
+};
 /*
     public operation test[] -> void
     {
@@ -98,15 +91,16 @@ public class Foo
         float x;
         float y;
         float z;
+       
     }
-}
+};
 
 public struct Vector<~T> where T is struct, IOperable
 {
     public T x;
     public T y;
     public T z;
-}
+};
 
 public extensions Vector3D
 {
@@ -114,9 +108,8 @@ public extensions Vector3D
     {
         body
         {
-            
             return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
         }
         gc nocontrol;
     }
-}
+};

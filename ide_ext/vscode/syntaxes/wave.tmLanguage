@@ -20,7 +20,7 @@
       </dict>
       <dict>
         <key>include</key>
-        <string>#comments</string>
+        <string>#comment</string>
       </dict>
       <dict>
         <key>include</key>
@@ -95,7 +95,7 @@
           </dict>
         </array>
       </dict>
-      <key>comments</key>
+      <key>comment</key>
       <dict>
         <key>patterns</key>
         <array>
@@ -330,7 +330,7 @@
             <key>name</key>
             <string>keyword.control.wave</string>
             <key>match</key>
-            <string>(?&lt;!\.)\b(nocontrol|global|using|auto|const|if|else|while|do|body|for|is|in|gc|return|fail)\b</string>
+            <string>(?&lt;!\.)\b(global|using|auto|const|if|else|while|do|body|for|is|in|return|fail)\b</string>
           </dict>
           <dict>
             <key>name</key>
@@ -497,10 +497,6 @@
               <dict>
                 <key>include</key>
                 <string>#union-declaration</string>
-              </dict>
-              <dict>
-                <key>include</key>
-                <string>#field-declaration</string>
               </dict>
               <dict>
                 <key>include</key>
@@ -1186,7 +1182,7 @@ U[a-fA-F0-9]{,8} )</string>
           </dict>
         </dict>
         <key>end</key>
-        <string>(?&lt;=\})|(?=;)</string>
+        <string>(?&lt;=\})</string>
         <key>patterns</key>
         <array>
           <dict>
@@ -1195,27 +1191,15 @@ U[a-fA-F0-9]{,8} )</string>
           </dict>
           <dict>
             <key>include</key>
-            <string>#punctuation-accessor</string>
+            <string>#gc-modifier</string>
           </dict>
           <dict>
             <key>include</key>
-            <string>#parenthesized-parameter-list</string>
+            <string>#sync-modifier</string>
           </dict>
           <dict>
             <key>include</key>
-            <string>#generic-constraints</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#expression-body</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#block</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#type</string>
+            <string>#body-operation-statament</string>
           </dict>
         </array>
       </dict>
@@ -1462,6 +1446,125 @@ U[a-fA-F0-9]{,8} )</string>
           <dict>
             <key>include</key>
             <string>#variable-initializer</string>
+          </dict>
+        </array>
+      </dict>
+      <key>gc-modifier</key>
+      <dict>
+        <key>name</key>
+        <string>entity.operation.gc.wave</string>
+        <key>match</key>
+        <string>(?x)(gc)\s+(((nocontrol|auto)\;))</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.control.gc.wave</string>
+          </dict>
+          <key>4</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.control.gc.wave</string>
+          </dict>
+        </dict>
+      </dict>
+      <key>sync-modifier</key>
+      <dict>
+        <key>name</key>
+        <string>entity.operation.sync.wave</string>
+        <key>match</key>
+        <string>(?x)(sync)\s+(((nocontrol|auto|inheritable)\;)|\{)</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.control.sync.wave</string>
+          </dict>
+          <key>4</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.control.sync.wave</string>
+          </dict>
+        </dict>
+      </dict>
+      <key>body-operation-statament</key>
+      <dict>
+        <key>begin</key>
+        <string>\b(body)\s+</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.control.body.wave</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?&lt;=\})</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\{</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.curlybrace.open.wave</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>\}</string>
+            <key>endCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.curlybrace.close.wave</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#literal</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#interpolated-string</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#punctuation-accessor</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#parenthesized-parameter-list</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#generic-constraints</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#expression-body</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#block</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#type</string>
+              </dict>
+            </array>
           </dict>
         </array>
       </dict>
