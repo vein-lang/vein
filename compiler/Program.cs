@@ -8,11 +8,13 @@ using System.Text;
 using Pastel;
 using System.Drawing;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using wave;
 using static wave._term;
 using static System.Console;
 
+[assembly: InternalsVisibleTo("wc_test")]
 
 if (Environment.GetEnvironmentVariable("WT_SESSION") == null && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 {
