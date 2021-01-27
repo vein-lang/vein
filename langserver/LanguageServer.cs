@@ -187,7 +187,7 @@
                 return new InitializeError { Retry = true };
             }
             arg.SelectToken("capabilities.textDocument.publishDiagnostics.tagSupport")?.Replace(false);
-            arg.SelectToken("capabilities.textDocument.codeAction")?.Replace(null); // setting this to null for now, since we are not using it and the deserialization causes issues
+            arg.SelectToken("capabilities.textDocument.codeAction")?.Replace(null);
             var param = Utils.TryJTokenAs<InitializeParams>(arg);
             this.clientCapabilities = param.Capabilities;
 
@@ -622,39 +622,39 @@
         public void OnDidChangeWatchedFiles(JToken arg)
         {
             if (this.waitForInit != null)
-            {
                 return;
-            }
             var param = Utils.TryJTokenAs<DidChangeWatchedFilesParams>(arg);
 
             FileEvent[] PreprocessEvent(FileEvent fileEvent)
             {
                 var fileName = fileEvent.Uri.LocalPath;
-                var events = new FileEvent[] { fileEvent };
+                var events = new[] { fileEvent };
 
-                if (fileName.EndsWith(".csproj"))
+                if (fileName.EndsWith(".wproj"))
                 {
-                    if (fileEvent.FileChangeType == FileChangeType.Created)
+                    switch (fileEvent.FileChangeType)
                     {
-                        this.projectsInWorkspace.Add(fileEvent.Uri);
-                    }
-                    if (fileEvent.FileChangeType == FileChangeType.Deleted)
-                    {
-                        this.projectsInWorkspace.Remove(fileEvent.Uri);
+                        case FileChangeType.Created:
+                            this.projectsInWorkspace.Add(fileEvent.Uri);
+                            break;
+                        case FileChangeType.Deleted:
+                            this.projectsInWorkspace.Remove(fileEvent.Uri);
+                            break;
                     }
                 }
-                if (fileName.EndsWith(".qs") && fileEvent.FileChangeType != FileChangeType.Changed)
+
+                if (!fileName.EndsWith(".wave") || fileEvent.FileChangeType == FileChangeType.Changed) 
+                    return events;
+
+                bool FileIsWithinProjectDir(Uri projFile)
                 {
-                    bool FileIsWithinProjectDir(Uri projFile)
-                    {
-                        var projDir = Uri.TryCreate(Path.GetDirectoryName(projFile.LocalPath), UriKind.Absolute, out var uri) ? uri : null;
-                        QsCompilerError.Verify(projDir != null, "could not determine project directory");
-                        return fileName.StartsWith(projDir.LocalPath);
-                    }
-                    var projEvents = this.projectsInWorkspace.Where(FileIsWithinProjectDir)
-                        .Select(projFile => new FileEvent { Uri = projFile, FileChangeType = FileChangeType.Changed });
-                    events = projEvents.Concat(events).ToArray();
+                    var projDir = Uri.TryCreate(Path.GetDirectoryName(projFile.LocalPath), UriKind.Absolute, out var uri) ? uri : null;
+                    QsCompilerError.Verify(projDir != null, "could not determine project directory");
+                    return projDir is not null && fileName.StartsWith(projDir.LocalPath);
                 }
+                var projEvents = projectsInWorkspace.Where(FileIsWithinProjectDir)
+                    .Select(projFile => new FileEvent { Uri = projFile, FileChangeType = FileChangeType.Changed });
+                events = projEvents.Concat(events).ToArray();
                 return events;
             }
 
