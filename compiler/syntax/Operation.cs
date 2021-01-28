@@ -25,8 +25,8 @@
             from openBrace in Parse.Char('{').Token()
             from _ in Keyword("body")
             from methodBody in Block.Token()
-            from gc in GCDeclaration.Token()
-            from sync in SyncDeclaration.Token()
+            from gc in GCDeclaration.Token().Optional()
+            from sync in SyncDeclaration.Token().Optional()
             from closeBrace in Parse.Char('}').Commented(this)
             select new MethodDeclarationSyntax
             {
