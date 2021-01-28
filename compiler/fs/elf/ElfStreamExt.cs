@@ -1,8 +1,8 @@
-﻿using System.IO;
-
-namespace wave.fs.elf
+﻿namespace wave.fs.elf
 {
-    public static class ElfStreamExt
+    using System.IO;
+    
+    internal static class ElfStreamExt
     {
 
         public static ushort ReadElf32Half(this BinaryReader reader) 
