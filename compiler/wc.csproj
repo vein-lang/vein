@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.0.32</Version>
+    <Version>0.0.42</Version>
     <AssemblyName>wc</AssemblyName>
     <RootNamespace>wave</RootNamespace>
 	<OutputType>Exe</OutputType>
@@ -13,6 +13,7 @@
     <BumpPatch>true</BumpPatch>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="BinaryTools.Elf" Version="0.3.0" />
     <PackageReference Include="EmojiOne.NETStandard" Version="4.0.1" />
     <PackageReference Include="Ivy.Versioning" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>
@@ -24,5 +25,8 @@
     <PackageReference Include="Sprache" Version="2.3.1" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20574.7" />
     <PackageReference Include="System.CommandLine.Rendering" Version="0.3.0-alpha.20574.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="fs\elf\" />
   </ItemGroup>
 </Project>
