@@ -13,6 +13,7 @@
             "static",
             "readonly",
             "operation",
+            "class",
             "gc",
             "auto",
             "fail",
