@@ -142,6 +142,7 @@
             };
 
         protected internal virtual Parser<MemberDeclarationSyntax> CompilationUnit =>
+            from includes in UseSyntax.Many().Optional()
             from member in ClassDeclaration.Select(c => c as MemberDeclarationSyntax).Or(EnumDeclaration)
             from whiteSpace in Parse.WhiteSpace.Many()
             from trailingComments in CommentParser.AnyComment.Token().Many().End()
