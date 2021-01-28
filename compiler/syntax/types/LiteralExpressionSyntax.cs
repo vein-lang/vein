@@ -19,5 +19,8 @@
         public string Token { get; set; }
 
         public LiteralType LiteralType { get; set; }
+
+
+        public string UnwrapToken() => Token[1..^1];
     }
 }
