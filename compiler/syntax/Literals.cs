@@ -5,15 +5,18 @@
 
     public partial class WaveSyntax : ICommentParserProvider
     {
-        // examples: 'hello', '\'world\'\n'
+        /// <example>
+        /// "foo bar"
+        /// "the \n bar \" foo"
+        /// </example>
         protected internal virtual Parser<string> StringLiteral =>
             from leading in Parse.WhiteSpace.Many()
-            from openQuote in Parse.Char('\'')
+            from openQuote in Parse.Char('\"')
             from fragments in Parse.Char('\\').Then(_ => Parse.AnyChar.Select(c => $"\\{c}"))
-                .Or(Parse.CharExcept("\\'").Many().Text()).Many()
-            from closeQuote in Parse.Char('\'')
+                .Or(Parse.CharExcept("\\\"").Many().Text()).Many()
+            from closeQuote in Parse.Char('\"')
             from trailing in Parse.WhiteSpace.Many()
-            select $"'{string.Join(string.Empty, fragments)}'";
+            select $"\"{string.Join(string.Empty, fragments)}\"";
         
         /// <example>
         /// "str"
