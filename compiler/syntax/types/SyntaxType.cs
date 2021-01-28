@@ -60,6 +60,7 @@
         WhenTypeClause,
         WhileStatement,
         GCDeclaration,
-        SyncDeclaration
+        SyncDeclaration,
+        DirectiveDeclaration
     }
 }

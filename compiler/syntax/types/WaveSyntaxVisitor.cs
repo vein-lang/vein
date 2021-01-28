@@ -123,5 +123,10 @@
         {
             throw new NotImplementedException();
         }
+
+        public void VisitUseDirective(UseSyntax useSyntax)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
