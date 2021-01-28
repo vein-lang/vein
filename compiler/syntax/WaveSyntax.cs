@@ -77,8 +77,9 @@
         
         internal virtual Parser<ParameterSyntax> ParameterDeclaration =>
             from modifiers in Modifier.Token().Many().Commented(this)
-            from type in TypeReference.Commented(this)
             from name in Identifier.Commented(this)
+            from @as in Parse.Char(':').Token().Commented(this)
+            from type in TypeReference.Commented(this)
             select new ParameterSyntax(type.Value, name.Value)
             {
                 LeadingComments = modifiers.LeadingComments.Concat(type.LeadingComments).ToList(),
