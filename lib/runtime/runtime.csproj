@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>wave</RootNamespace>
+    <AssemblyName>wave.runtime</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\metadata\opcodes.def.cs" Link="emit\opcodes.def.cs" />
+    <Compile Include="..\..\metadata\opcodes.list.def.cs" Link="emit\opcodes.list.def.cs" />
+  </ItemGroup>
+</Project>
