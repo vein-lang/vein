@@ -99,13 +99,13 @@ repository:
     keywords:
         patterns:
             - name: keyword.control.wave
-              match: '(?<!\.)\b(global|using|auto|const|if|else|while|do|body|for|is|in|return|fail)\b'
+              match: '(?<!\.)\b(global|this|base|using|auto|const|if|else|while|do|body|for|is|in|return|fail)\b'
             - name: keyword.control.core.wave
               match: '(?<!\.)\b(struct|record|union)\b'
     storage-modifier:
         patterns:
             - name: storage.modifier
-              match: '\b(gc|new|public|protected|internal|private|static|readonly|const|extern|auto|extensions)\b'
+              match: '\b(gc|new|delete|public|protected|internal|private|static|readonly|const|extern|auto|extensions)\b'
     union-declaration:
         begin: \b(union)\s+
         beginCaptures:
