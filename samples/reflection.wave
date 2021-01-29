@@ -1,0 +1,11 @@
+#use "stl.lib"
+#use "reflection.lib"
+#use "metadata.lib"
+
+public class MethodBuilder
+{
+    new () 
+    {
+
+    }
+}

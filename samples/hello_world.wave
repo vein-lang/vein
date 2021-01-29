@@ -21,10 +21,7 @@ public class Program
     };
     operation Xuy[args: array<string>] -> void
     {
-        body
-        {
-            
-        };
+        body { };
         gc auto;
     };
 
@@ -42,6 +39,15 @@ public class Program
                 |> get
                 |> xuy
                 |> govno;
+
+            try
+            {
+
+            }
+            catch(e: ErrorType) when (e.Inner is not null)
+            {
+                
+            }
         }
         gc auto;
     };
@@ -67,6 +73,17 @@ public class Program
             memory.free(&arr);
         }
     };
+};
+public extensions Vector3D
+{
+    operation Dot[this v1: Vector3D, v2: Vector3D] -> float
+    {
+        body
+        {
+            return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+        }
+        gc nocontrol;
+    }
 };
 /*
     public operation test[] -> void
@@ -102,14 +119,3 @@ public struct Vector<~T> where T is struct, IOperable
     public T z;
 };
 
-public extensions Vector3D
-{
-    operation Dot[this v1: Vector3D, v2: Vector3D] -> float
-    {
-        body
-        {
-            return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-        }
-        gc nocontrol;
-    }
-};
