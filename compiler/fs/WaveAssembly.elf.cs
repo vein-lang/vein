@@ -39,7 +39,7 @@ namespace wave.fs
                     DataType = ElfDataType.Lsb,
                     Version = 1,
                 },
-                Type = ElfType.Executable,
+                Type = ElfType.SharedObject,
                 Machine = 0x0,
                 Version = 1,
                 Entry = 0x0,

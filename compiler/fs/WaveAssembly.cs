@@ -22,7 +22,7 @@
     {
         public string Name { get; init; }
         
-        protected List<(string name, byte[] data)> sections { get; set; } = new ();
+        public List<(string name, byte[] data)> sections { get; set; } = new ();
         
         public void AddSegment((string name, byte[] data) seg) => sections.Add(seg);
 
