@@ -1,6 +1,7 @@
 ﻿namespace wc_test
 {
     using System.Linq;
+    using Sprache;
     using wave.stl;
     using wave.syntax;
     using Xunit;
@@ -148,6 +149,30 @@
                 Assert.NotNull(expr);
                 Assert.Equal(result, expr.Token);
             }
+        }
+        [Fact]
+        public void ClassDeclarationCanDeclareMethods()
+        {
+            var cd = Wave.ClassDeclaration.Parse(" class Program { void main() {} }");
+            Assert.True(cd.Methods.Any());
+            Assert.Equal("Program", cd.Identifier);
+
+            var md = cd.Methods.Single();
+            Assert.Equal("void", md.ReturnType.Identifier);
+            Assert.Equal("main", md.Identifier);
+            Assert.False(md.Parameters.Any());
+            
+            Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave(" class Test { void Main }"));
+            Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave("class Apex { int main() }"));
+        }
+        
+        [Fact]
+        public void FooProgramTest()
+        {
+            var result = Wave.CompilationUnit.End().ParseWave("#use \"stl.lib\"\n" +
+                                           "public class Foo {" +
+                                           "void main() {}" +
+                                           "}");
         }
         
     }
