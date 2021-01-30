@@ -4,6 +4,9 @@
     <RootNamespace>wave</RootNamespace>
     <AssemblyName>wave.runtime</AssemblyName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\metadata\opcodes.def.cs" Link="emit\opcodes.def.cs" />
     <Compile Include="..\..\metadata\opcodes.list.def.cs" Link="emit\opcodes.list.def.cs" />
