@@ -24,3 +24,20 @@ public:
         return nullptr;
     }
 };
+
+template<> class WaveConvert<byte> {
+public:
+    static WaveObject* box(byte s) {
+        auto* obj = new WaveObject();
+        obj->data = reinterpret_cast<byte*>(s);
+        obj->clazz = wave_core->i2_class;
+        obj->type = TYPE_I2;
+        return obj;
+    }
+    static byte unbox(WaveObject* obj)
+    {
+        if(obj->type == TYPE_STRING)
+            return reinterpret_cast<byte>(obj->data);
+        return 0; // TODO new fail
+    }
+};
