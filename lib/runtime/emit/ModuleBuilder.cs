@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Security;
+    using System.Security.Cryptography;
     using System.Text;
     using extensions;
 
@@ -30,6 +31,9 @@
             var key = getHashCode(str);
             if (!strings.ContainsKey(key))
                 strings[key] = str;
+            if (strings[key] != str)
+                throw new Exception($"Detected collisions of string constant. '{str}' and '{strings[key]}'.\n " +
+                $"Please report this issue into https://github.com/0xF6/wave_lang/issues.");
             return key;
         }
         
