@@ -49,13 +49,15 @@
                     .Replace("_", "."));
             }
         }
+
+        public ushort Value => (ushort) this.value;
         
         
-        public ControlChain ControlChain => (ControlChain) (this.flags >> 0xC & 0x1F);
+        public ControlChain ControlChain => (ControlChain) (flags >> 0xC & 0x1F);
 
-        public FlowControl FlowControl => (FlowControl) (this.flags >> 0x11 & 0x1F);
+        public FlowControl FlowControl => (FlowControl) (flags >> 0x11 & 0x1F);
 
-        public int Size => this.flags >> 0x16 & 0x3;
+        public int Size => flags >> 0x16 & 0x3;
         
         internal static int CreateFlag(byte size, FlowControl flow, ControlChain chain) 
             => ((int) chain << 0xC) | 0x1F | ((int) flow << 0x11) | 0x1F | (size << 22) | 0x3;
