@@ -2,13 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Security;
     using System.Security.Cryptography;
     using System.Text;
     using extensions;
 
-    public class ModuleBuilder
+    public class ModuleBuilder : IBaker
     {
         private readonly string _name;
         private readonly Dictionary<int, string> strings = new();
@@ -36,8 +37,36 @@
                 $"Please report this issue into https://github.com/0xF6/wave_lang/issues.");
             return key;
         }
-        
-        internal string BakeDebugString()
+
+        public byte[] BakeByteArray()
+        {
+            using var mem = new MemoryStream();
+            using var binary = new BinaryWriter(mem);
+
+            var idx = GetStringConstant(_name);
+            var name = Encoding.UTF8.GetBytes(_name);
+            
+            binary.Write(idx);
+            binary.Write(name.Length);
+            binary.Write(name);
+            foreach (var (key, value) in strings)
+            {
+                binary.Write(key);
+                binary.Write(value.Length);
+                binary.Write(value);
+            }
+
+            foreach (var clazz in classList)
+            {
+                var body = clazz.BakeByteArray();
+                binary.Write(body.Length);
+                binary.Write(body);
+            }
+
+            return mem.ToArray();
+        }
+
+        public string BakeDebugString()
         {
             var str = new StringBuilder();
             str.AppendLine($".module {_name}");
