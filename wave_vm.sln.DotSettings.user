@@ -17,5 +17,6 @@
     &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.ClassDeclarationCanDeclareMethods&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.elf_test.ElfReadManul&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.Test&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.TestIL&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
