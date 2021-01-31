@@ -1,11 +1,13 @@
 ﻿namespace wave.emit
 {
+    using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Text;
     using extensions;
 
-    public class ClassBuilder
+    public class ClassBuilder : IBaker
     {
         private readonly string _name;
         private readonly string _ns;
@@ -29,7 +31,27 @@
             return method;
         }
 
-        internal string BakeDebugString()
+        public byte[] BakeByteArray()
+        {
+            if (methods.Count == 0)
+                return null;
+            using var mem = new MemoryStream();
+            using var binary = new BinaryWriter(mem);
+            var idx = moduleBuilder.GetStringConstant(_name);
+            var ns_idx = moduleBuilder.GetStringConstant(_ns);
+            binary.Write(idx);
+            binary.Write(ns_idx);
+            binary.Write((uint)_flags);
+            foreach (var method in methods)
+            {
+                var body = method.BakeByteArray();
+                binary.Write(body.Length);
+                binary.Write(body);
+            }
+            return mem.ToArray();
+        }
+
+        public string BakeDebugString()
         {
             var str = new StringBuilder();
             str.AppendLine($".namespace {_ns}");
