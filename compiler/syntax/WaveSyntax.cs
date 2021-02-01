@@ -141,11 +141,24 @@
                 Body = methodBody,
             };
 
-        protected internal virtual Parser<MemberDeclarationSyntax> CompilationUnit =>
+        public virtual Parser<DocumentDeclaration> CompilationUnit =>
             from includes in UseSyntax.Many().Optional()
-            from member in ClassDeclaration.Select(c => c as MemberDeclarationSyntax).Or(EnumDeclaration)
+            from members in ClassDeclaration.Select(c => c as MemberDeclarationSyntax).Or(EnumDeclaration).Many()
             from whiteSpace in Parse.WhiteSpace.Many()
             from trailingComments in CommentParser.AnyComment.Token().Many().End()
-            select member.WithTrailingComments(trailingComments);
+            select new DocumentDeclaration
+            {
+                Members = members.Select(x => x.WithTrailingComments(trailingComments)),
+                Uses = includes.GetOrElse(new List<UseSyntax>())
+            };
+        
+        
+    }
+    
+    public class DocumentDeclaration
+    {
+        public string Name { get; set; }
+        public IEnumerable<UseSyntax> Uses { get; set; }
+        public IEnumerable<MemberDeclarationSyntax> Members { get; set; }
     }
 }
