@@ -7,11 +7,11 @@
     {
         protected internal virtual Parser<StatementSyntax> Statement =>
             from statement in Block.Select(s => s as StatementSyntax)
-                //.Or(IfStatement)
+                .Or(IfStatement)
                 //.Or(DoStatement)
                 //.Or(ForEachStatement)
                 //.Or(ForStatement)
-                //.Or(WhileStatement)
+                .Or(WhileStatement)
                 //.Or(BreakStatement)
                 //.Or(ContinueStatement)
                 //.Or(TryCatchFinallyStatement)
