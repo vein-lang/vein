@@ -111,7 +111,7 @@
             var a = new WaveSyntax();
             var d = a.UseSyntax
                 .ParseWave("#use \"stl.lib\"");
-            Assert.Equal("stl.lib", d.Value.UnwrapToken());
+            Assert.Equal("stl.lib", d.Value.Token);
         }
         
         [Theory]
@@ -127,11 +127,20 @@
         [Theory]
         [InlineData("class", null, true)]
         [InlineData("true", "true", false)]
-        [InlineData("1.23", "1.23", false)]
+        [InlineData("1.23f", "1.23", false)]
+        [InlineData("1.23m", "1.23", false)]
+        [InlineData("1.23d", "1.23", false)]
+        [InlineData("+1.23d", "1.23", false)]
+        [InlineData("-1.23d", "-1.23", false)]
+        [InlineData("1.23w", null, true)]
+        [InlineData("144", "144", false)]
+        [InlineData("+144", "144", false)]
+        [InlineData("-144", "-144", false)]
+        [InlineData("2147483647", "2147483647", false)]
         [InlineData("FALSE", "false", false)]
         [InlineData("NULL", "null", false)]
-        [InlineData("\"foo\\rbar\\n\"", "\"foo\\rbar\\n\"", false)]
-        [InlineData("\"bla\"// the comment", "\"bla\"", false)]
+        [InlineData("\"foo\\rbar\\n\"", "foo\\rbar\\n", false)]
+        [InlineData("\"bla\"// the comment", "bla", false)]
         [InlineData("", null, true)]
         public void LiteralExpression(string parseStr, string result, bool needFail)
         {
@@ -140,12 +149,12 @@
             {
                 Assert.Throws<WaveParseException>(() =>
                 {
-                    expr = Wave.LiteralExpression.ParseWave(parseStr);
+                    expr = Wave.LiteralExpression.End().ParseWave(parseStr);
                 });
             }
             else
             {
-                expr = Wave.LiteralExpression.ParseWave(parseStr);
+                expr = Wave.LiteralExpression.End().ParseWave(parseStr);
                 Assert.NotNull(expr);
                 Assert.Equal(result, expr.Token);
             }
