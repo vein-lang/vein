@@ -48,7 +48,16 @@
             EnsureCapacity(5);
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt16LittleEndian(_ilBody.AsSpan(_length), arg);
-            _length += 2;
+            _length += sizeof(short);
+        }
+        
+        public virtual void Emit(OpCode opcode, int arg)
+        {
+            _debugBuilder.AppendLine($"{opcode.Name} 0x{arg:X8}.int");
+            EnsureCapacity(7);
+            InternalEmit(opcode);
+            BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_length), arg);
+            _length += sizeof(int);
         }
         public virtual void Emit(OpCode opcode, long arg)
         {
@@ -56,7 +65,7 @@
             EnsureCapacity(11);
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_length), arg);
-            _length += 8;
+            _length += sizeof(long);
         }
 
         public virtual void Emit(OpCode opcode, float arg)
@@ -65,7 +74,7 @@
             EnsureCapacity(7);
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_length), BitConverter.SingleToInt32Bits(arg));
-            _length += 4;
+            _length += sizeof(float);
         }
 
         public virtual void Emit(OpCode opcode, double arg)
@@ -74,7 +83,17 @@
             EnsureCapacity(11);
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_length), BitConverter.DoubleToInt64Bits(arg));
-            _length += 8;
+            _length += sizeof(double);
+        }
+        
+        public virtual void Emit(OpCode opcode, decimal arg)
+        {
+            _debugBuilder.AppendLine($"{opcode.Name} {arg}.decimal");
+            EnsureCapacity(17);
+            InternalEmit(opcode);
+            foreach (var i in decimal.GetBits(arg))
+                BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_length), i);
+            _length += sizeof(decimal);
         }
         
         public virtual void Emit(OpCode opcode, string str)
