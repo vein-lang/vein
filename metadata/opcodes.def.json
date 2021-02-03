@@ -93,6 +93,8 @@
 },{
     "n": "LDNULL"
 },{
+    "n": "LDF"
+},{
     "n": "LDLOC.0"
 },{
     "n": "LDLOC.1"
