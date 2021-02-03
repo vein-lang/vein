@@ -24,9 +24,9 @@
         public void SetFlags(ClassFlags flags)
             => _flags = flags; 
         
-        public MethodBuilder DefineMethod(string name)
+        public MethodBuilder DefineMethod(string name, params WaveArgumentRef[] args)
         {
-            var method = new MethodBuilder(this, name);
+            var method = new MethodBuilder(this, name, args);
             methods.Add(method);
             return method;
         }
@@ -61,6 +61,11 @@
                 str.AppendLine($"{method.Split("\n").Select(x => $"\t{x}").Join("\n")}");
             str.AppendLine("}");
             return str.ToString();
+        }
+
+        public ulong? FindMemberField(FieldName field)
+        {
+            return null;
         }
     }
 }
