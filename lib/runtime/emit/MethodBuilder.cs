@@ -54,8 +54,8 @@
                 return "<empty>";
             var body = _generator.BakeDebugString();
             var str = new StringBuilder();
-
-            str.AppendLine($".method {_name} {_flags.EnumerateFlags().Join(' ').ToLowerInvariant()}");
+            var args = _args.Select(x => $"{x.Name}: {x.Type.GetTypeName()}").Join(',');
+            str.AppendLine($".method {_name} ({args}) {_flags.EnumerateFlags().Join(' ').ToLowerInvariant()}");
             str.AppendLine("{");
             str.AppendLine($"\t.size {_generator.ILOffset}");
             str.AppendLine($"\t.maxstack 0x{64:X8}");

@@ -16,7 +16,7 @@
             var module = new ModuleBuilder("xuy");
             var clazz = module.DefineClass("svack_pidars", "wave/lang");
             clazz.SetFlags(ClassFlags.Public | ClassFlags.Static);
-            var method = clazz.DefineMethod("insert_dick_into_svack");
+            var method = clazz.DefineMethod("insert_dick_into_svack", ("x", WaveTypeCode.TYPE_STRING));
             method.SetFlags(MethodFlags.Public | MethodFlags.Static);
             var body = method.GetGenerator();
             
@@ -26,6 +26,7 @@
             body.Emit(OpCodes.LDC_I4_S, 2);
             body.Emit(OpCodes.XOR);
             body.Emit(OpCodes.DUMP_0);
+            body.Emit(OpCodes.LDF, new FieldName("x"));
             body.Emit(OpCodes.RET);
 
             method.BakeByteArray();
@@ -40,7 +41,7 @@
             var module = new ModuleBuilder("xuy");
             var clazz = module.DefineClass("svack_pidars", "wave/lang");
             clazz.SetFlags(ClassFlags.Public | ClassFlags.Static);
-            var method = clazz.DefineMethod("insert_dick_into_svack");
+            var method = clazz.DefineMethod("insert_dick_into_svack", ("x", WaveTypeCode.TYPE_STRING));
             method.SetFlags(MethodFlags.Public | MethodFlags.Static);
             var body = method.GetGenerator();
             
@@ -50,6 +51,7 @@
             body.Emit(OpCodes.LDC_I4_S, 2);
             body.Emit(OpCodes.XOR);
             body.Emit(OpCodes.DUMP_0);
+            body.Emit(OpCodes.LDF, "x");
             body.Emit(OpCodes.RET);
 
 

@@ -29,27 +29,27 @@
 
         public virtual void Emit(OpCode opcode)
         {
-            _debugBuilder.AppendLine(opcode.Name);
+            _debugBuilder.AppendLine($".{opcode.Name}");
             EnsureCapacity<OpCode>(sizeof(byte));
             InternalEmit(opcode);
         }
         public virtual void Emit(OpCode opcode, byte arg)
         {
-            _debugBuilder.AppendLine($"{opcode.Name} 0x{arg:X8}.byte");
+            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.byte");
             EnsureCapacity<OpCode>(sizeof(byte));
             InternalEmit(opcode);
             _ilBody[_length++] = arg;
         }
         public void Emit(OpCode opcode, sbyte arg)
         {
-            _debugBuilder.AppendLine($"{opcode.Name} 0x{arg:X8}.sbyte");
+            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.sbyte");
             EnsureCapacity<OpCode>(sizeof(sbyte));
             InternalEmit(opcode);
             _ilBody[_length++] = (byte) arg;
         }
         public virtual void Emit(OpCode opcode, short arg)
         {
-            _debugBuilder.AppendLine($"{opcode.Name} 0x{arg:X8}.short");
+            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.short");
             EnsureCapacity<OpCode>(sizeof(short));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt16LittleEndian(_ilBody.AsSpan(_length), arg);
@@ -58,7 +58,7 @@
         
         public virtual void Emit(OpCode opcode, int arg)
         {
-            _debugBuilder.AppendLine($"{opcode.Name} 0x{arg:X8}.int");
+            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.int");
             EnsureCapacity<OpCode>(sizeof(int));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_length), arg);
@@ -66,7 +66,7 @@
         }
         public virtual void Emit(OpCode opcode, long arg)
         {
-            _debugBuilder.AppendLine($"{opcode.Name} 0x{arg:X8}.long");
+            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.long");
             EnsureCapacity<OpCode>(sizeof(long));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_length), arg);
@@ -75,7 +75,7 @@
 
         public virtual void Emit(OpCode opcode, float arg)
         {
-            _debugBuilder.AppendLine($"{opcode.Name} {arg}.float");
+            _debugBuilder.AppendLine($".{opcode.Name} {arg}.float");
             EnsureCapacity<OpCode>(sizeof(float));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_length), BitConverter.SingleToInt32Bits(arg));
@@ -84,7 +84,7 @@
 
         public virtual void Emit(OpCode opcode, double arg)
         {
-            _debugBuilder.AppendLine($"{opcode.Name} {arg}.double");
+            _debugBuilder.AppendLine($".{opcode.Name} {arg}.double");
             EnsureCapacity<OpCode>(sizeof(double));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_length), BitConverter.DoubleToInt64Bits(arg));
@@ -93,7 +93,7 @@
         
         public virtual void Emit(OpCode opcode, decimal arg)
         {
-            _debugBuilder.AppendLine($"{opcode.Name} {arg}.decimal");
+            _debugBuilder.AppendLine($".{opcode.Name} {arg}.decimal");
             EnsureCapacity<OpCode>(sizeof(decimal));
             InternalEmit(opcode);
             foreach (var i in decimal.GetBits(arg))
@@ -110,7 +110,7 @@
             this.EnsureCapacity<OpCode>(sizeof(int));
             InternalEmit(opcode);
             PutInteger4(token);
-            _debugBuilder.AppendLine($"{opcode.Name} '{str}'.0x{token:X8}");
+            _debugBuilder.AppendLine($".{opcode.Name} '{str}'.0x{token:X8}");
         }
 
         public virtual void Emit(OpCode opcode, FieldName field)
@@ -145,6 +145,7 @@
             };
             this.EnsureCapacity<OpCode>();
             this.InternalEmit(opcode);
+            _debugBuilder.AppendLine($".{opcode.Name} {field.name}.{token:X8}");
         }
         
         public virtual void EmitCall(OpCode opcode, WaveClassMethod method)
