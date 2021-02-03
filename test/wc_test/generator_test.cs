@@ -4,6 +4,8 @@
     using wave;
     using wave.emit;
     using wave.fs;
+    using wave.stl;
+    using wave.syntax;
     using Xunit;
 
     public class generator_test
@@ -27,7 +29,6 @@
             body.Emit(OpCodes.RET);
 
             method.BakeByteArray();
-            
             
             File.WriteAllText(@"C:\Users\ls-mi\Desktop\wave.il", module.BakeDebugString());
 
@@ -61,5 +62,52 @@
             
             WaveAssembly.WriteToFile(asm, @"C:\Users\ls-mi\Desktop\wave.dll");
         }
+        [Fact]
+        public void AST2ILTest()
+        {
+            var w = new WaveSyntax();
+            var ast = w.CompilationUnit.ParseWave(
+                " class Program { void main() { return x; } }");
+
+            var module = new ModuleBuilder("foo");
+
+            foreach (var member in ast.Members)
+            {
+                if (member is ClassDeclarationSyntax classMember)
+                {
+                    var @class = module.DefineClass(classMember.Identifier, "wave/lang");
+
+                    foreach (var methodMember in classMember.Methods)
+                    {
+                        var method = @class.DefineMethod(methodMember.Identifier);
+                        var generator = method.GetGenerator();
+
+                        foreach (var statement in methodMember.Body.Statements)
+                        {
+                            var st = statement;
+                        }
+                    }
+                }
+            }
+        }
+        [Fact]
+        public void StatementCompilation()
+        {
+            var ret = new ReturnStatementSyntax
+            {
+                Expression = new SingleLiteralExpressionSyntax(14.3f)
+            };
+            
+            
+        }
     }
+    
+    public class ClassContext
+    {
+        private readonly ClassBuilder _builder;
+
+        public ClassContext(ClassBuilder builder) => _builder = builder;
+    }
+    
+   
 }
