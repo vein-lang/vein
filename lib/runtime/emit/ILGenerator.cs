@@ -1,10 +1,13 @@
-namespace wave.emit
+﻿namespace wave.emit
 {
     using System;
     using System.Buffers.Binary;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
+    using extensions;
     using runtime.emit;
+    using static OpCodeValue;
 
     public class ILGenerator
     {
@@ -21,6 +24,8 @@ namespace wave.emit
             _methodBuilder = method;
             _ilBody = new byte[Math.Max(size, 16)];
         }
+
+        public MethodBuilder GetMethodBuilder() => _methodBuilder;
 
         public virtual void Emit(OpCode opcode)
         {
@@ -108,6 +113,69 @@ namespace wave.emit
             _debugBuilder.AppendLine($"{opcode.Name} '{str}'.0x{token:X8}");
         }
 
+        public virtual void Emit(OpCode opcode, FieldName field)
+        {
+            if (opcode.Value != (int) LDF)
+                throw new Exception("invalid opcode");
+            
+            var (token, direction) = this.FindFieldToken(field);
+
+            opcode = direction switch
+            {
+                FieldDirection.Local => this._methodBuilder.GetLocalIndex(field) switch
+                {
+                    0 => OpCodes.LDLOC_0,
+                    1 => OpCodes.LDLOC_1,
+                    2 => OpCodes.LDLOC_2,
+                    3 => OpCodes.LDLOC_3,
+                    4 => OpCodes.LDLOC_4,
+                    _ => throw new Exception(/* todo */)
+                },
+                FieldDirection.Arg => this._methodBuilder.GetArgumentIndex(field) switch
+                {
+                    0 => OpCodes.LDARG_0,
+                    1 => OpCodes.LDARG_1,
+                    2 => OpCodes.LDARG_2,
+                    3 => OpCodes.LDARG_3,
+                    4 => OpCodes.LDARG_4,
+                    _ => throw new Exception(/* todo */)
+                },
+                FieldDirection.Member => throw new Exception(/* todo */),
+                _ => throw new Exception(/* todo */)
+            };
+            this.EnsureCapacity<OpCode>();
+            this.InternalEmit(opcode);
+        }
+        
+        public virtual void EmitCall(OpCode opcode, WaveClassMethod method)
+        {
+            if (method is null)
+                throw new ArgumentNullException(nameof (method));
+            var token = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
+            this.EnsureCapacity<OpCode>(sizeof(int));
+            this.InternalEmit(opcode);
+            this.PutInteger4(token);
+        }
+        
+        public enum FieldDirection
+        {
+            Arg,
+            Local,
+            Member
+        }
+        
+        
+        private (ulong, FieldDirection) FindFieldToken(FieldName field)
+        {
+            var token = (ulong?)0;
+            if ((token = this._methodBuilder.FindArgumentField(field)) != null)
+                return (token.Value, FieldDirection.Arg);
+            if ((token = this._methodBuilder.FindLocalField(field)) != null)
+                return (token.Value, FieldDirection.Local);
+            if ((token = this._methodBuilder.classBuilder.FindMemberField(field)) != null)
+                return (token.Value, FieldDirection.Member);
+            throw new Exception($"Field '{field}' is not declared."); // TODO custom exception
+        }
 
         internal byte[] BakeByteArray()
         {

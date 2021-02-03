@@ -10,6 +10,7 @@
         Internal = 1 << 2,
         Protected = 1 << 3,
         Private = 1 << 4,
-        Extern = 1 << 5
+        Extern = 1 << 5,
+        Virtual = 1 << 6
     }
 }

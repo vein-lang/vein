@@ -104,5 +104,10 @@
                 return num1 + num2 * 0x5D588B65;
             }
         }
+
+        public int GetMethodToken(WaveClassMethod method)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

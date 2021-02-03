@@ -1,5 +1,7 @@
 ﻿namespace wave.emit
 {
+    using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -11,12 +13,15 @@
         private readonly string _name;
         private MethodFlags _flags;
         private readonly ILGenerator _generator;
+        private readonly List<WaveArgumentRef> _args = new();
+        private readonly Dictionary<int, WaveArgumentRef> _locals = new();
 
-        internal MethodBuilder(ClassBuilder clazz, string name)
+        internal MethodBuilder(ClassBuilder clazz, string name, params WaveArgumentRef[] args)
         {
             classBuilder = clazz;
             _name = name;
             _generator = new ILGenerator(this);
+            this._args.AddRange(args);
         }
 
         public void SetFlags(MethodFlags flags) => _flags = flags;
@@ -60,5 +65,32 @@
             str.AppendLine("}");
             return str.ToString();
         }
+
+        #region Arg&Locals manage (NEED REFACTORING)
+
+        public ulong? FindArgumentField(FieldName @ref)
+            => getArg(@ref)?.type?.Token?.Value;
+        public int? GetArgumentIndex(FieldName @ref)
+            => getArg(@ref)?.idx;
+
+        public ulong? FindLocalField(FieldName @ref) =>
+            getLocal(@ref)?.arg?.Token?.Value;
+        public int? GetLocalIndex(FieldName @ref) 
+            => getLocal(@ref)?.idx;
+        private (int idx, WaveArgumentRef arg)? getLocal(FieldName @ref)
+        {
+            var (key, value) = _locals
+                .FirstOrDefault(x
+                    => x.Value.Name.Equals(@ref.name, StringComparison.CurrentCultureIgnoreCase));
+            return value != null ? (key, value) : default;
+        }
+        private (int idx, WaveArgumentRef type)? getArg(FieldName @ref)
+        {
+            var result = _args.Select((x, i) => (i, x)).FirstOrDefault(x => x.x.Name.Equals(@ref.name, StringComparison.CurrentCultureIgnoreCase));
+            if (result.x is null)
+                return default;
+            return result;
+        }
+        #endregion
     }
 }
