@@ -1,12 +1,19 @@
 ﻿namespace wc_test
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using wave;
     using wave.emit;
+    using wave.extensions;
     using wave.fs;
     using wave.stl;
     using wave.syntax;
     using Xunit;
+    using YamlDotNet.Serialization;
+    using YamlDotNet.Serialization.NamingConventions;
 
     public class generator_test
     {
@@ -92,24 +99,71 @@
                 }
             }
         }
+        
         [Fact]
-        public void StatementCompilation()
+        public void ReturnStatementCompilation1()
         {
             var ret = new ReturnStatementSyntax
             {
                 Expression = new SingleLiteralExpressionSyntax(14.3f)
             };
+
+
+            var actual = CreateGenerator();
+            
+            actual.EmitReturn(ret);
+            
+            var expected = CreateGenerator();
+
+            expected.Emit(OpCodes.LDC_F4, 14.3f);
+            expected.Emit(OpCodes.RET);
             
             
+            Assert.Equal(expected.BakeByteArray(), actual.BakeByteArray());
+        }
+        
+        [Fact]
+        public void ReturnStatementCompilation2()
+        {
+            var ret = new ReturnStatementSyntax
+            {
+                Expression = new ExpressionSyntax("x")
+            };
+
+
+            var actual = CreateGenerator(("x", WaveTypeCode.TYPE_STRING));
+            
+            actual.EmitReturn(ret);
+            
+            var expected = CreateGenerator(("x", WaveTypeCode.TYPE_STRING));
+
+            expected.Emit(OpCodes.LDF, new FieldName("x"));
+            expected.Emit(OpCodes.RET);
+            
+            
+            Assert.Equal(expected.BakeByteArray(), actual.BakeByteArray());
+        }
+        
+        [Fact]
+        public void ReturnStatementCompilation3()
+        {
+            var ret = new ReturnStatementSyntax
+            {
+                Expression = new ExpressionSyntax("x")
+            };
+            
+            var actual = CreateGenerator();
+            
+            Assert.Throws<FieldIsNotDeclaredException>(() => actual.EmitReturn(ret));
+        }
+        
+        
+        public static ILGenerator CreateGenerator(params WaveArgumentRef[] args)
+        {
+            var module = new ModuleBuilder(Guid.NewGuid().ToString());
+            var @class = new ClassBuilder(module, "foo", "bar");
+            var method = @class.DefineMethod("foo", args);
+            return method.GetGenerator();
         }
     }
-    
-    public class ClassContext
-    {
-        private readonly ClassBuilder _builder;
-
-        public ClassContext(ClassBuilder builder) => _builder = builder;
-    }
-    
-   
 }
