@@ -48,7 +48,7 @@ IEnumerable<OpCode> fillData(string name, IDictionary<object, object> kv)
         yield return new OpCode(name, size, desc, note);
     else if(bool.Parse(range_str))
     {
-        foreach (var i in Enumerable.Range(0, 5))
+        foreach (var i in Enumerable.Range(0, 6))
             yield return new OpCode($"{name}.{i}", 0, desc);
         yield return new OpCode($"{name}.S", size == 0 ? 1 : size, desc);
     }
@@ -62,6 +62,7 @@ foreach (var v in (IList)obj)
 
     
     var result = fillData(name, value).ToArray();
+    var hasSaved = getKeyAndRemove<string>(value, "use-root") == "true";
     
     ops.AddRange(result);
     
@@ -82,7 +83,7 @@ foreach (var v in (IList)obj)
             ops.AddRange(result);
         }
     }
-    
+    if (!hasSaved)
     if ((variations is { } && variations.Count() != 0) || value.Any())
         ops.Remove(ops.First(x => x.name.Equals(name)));
 }
