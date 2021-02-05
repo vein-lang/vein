@@ -3,66 +3,252 @@ namespace wave
 {
 	public enum OpCodeValue : ushort 
 	{
+		/// <summary>
+		/// Nope operation
+		/// </summary>
 		NOP = 0x00,
+		/// <summary>
+		/// Add operation
+		/// </summary>
 		ADD = 0x01,
+		/// <summary>
+		/// Substract operation
+		/// </summary>
 		SUB = 0x02,
+		/// <summary>
+		/// Divide operation
+		/// </summary>
 		DIV = 0x03,
+		/// <summary>
+		/// Multiple operation
+		/// </summary>
 		MUL = 0x04,
+		/// <summary>
+		/// Load into stack from argument
+		/// </summary>
 		LDARG_0 = 0x05,
+		/// <summary>
+		/// Load into stack from argument
+		/// </summary>
 		LDARG_1 = 0x06,
+		/// <summary>
+		/// Load into stack from argument
+		/// </summary>
 		LDARG_2 = 0x07,
+		/// <summary>
+		/// Load into stack from argument
+		/// </summary>
 		LDARG_3 = 0x08,
+		/// <summary>
+		/// Load into stack from argument
+		/// </summary>
 		LDARG_4 = 0x09,
-		LDC_F16 = 0x0A,
-		LDC_F8 = 0x0B,
-		LDC_F4 = 0x0C,
-		LDC_F2 = 0x0D,
-		LDC_STR = 0x0E,
-		LDC_I4_0 = 0x0F,
-		LDC_I4_1 = 0x10,
-		LDC_I4_2 = 0x11,
-		LDC_I4_3 = 0x12,
-		LDC_I4_4 = 0x13,
-		LDC_I4_5 = 0x14,
+		/// <summary>
+		/// Load into stack from argument
+		/// </summary>
+		LDARG_S = 0x0A,
+		/// <summary>
+		/// Load constant into stack
+		/// </summary>
+		LDC_F16 = 0x0B,
+		/// <summary>
+		/// Load constant into stack
+		/// </summary>
+		LDC_F8 = 0x0C,
+		/// <summary>
+		/// Load constant into stack
+		/// </summary>
+		LDC_F4 = 0x0D,
+		/// <summary>
+		/// Load constant into stack
+		/// </summary>
+		LDC_F2 = 0x0E,
+		/// <summary>
+		/// Load constant into stack
+		/// </summary>
+		LDC_STR = 0x0F,
+		/// <summary>
+		/// Load int32 constant into stack
+		/// </summary>
+		LDC_I4_0 = 0x10,
+		/// <summary>
+		/// Load int32 constant into stack
+		/// </summary>
+		LDC_I4_1 = 0x11,
+		/// <summary>
+		/// Load int32 constant into stack
+		/// </summary>
+		LDC_I4_2 = 0x12,
+		/// <summary>
+		/// Load int32 constant into stack
+		/// </summary>
+		LDC_I4_3 = 0x13,
+		/// <summary>
+		/// Load int32 constant into stack
+		/// </summary>
+		LDC_I4_4 = 0x14,
+		/// <summary>
+		/// Load int32 constant into stack
+		/// </summary>
 		LDC_I4_S = 0x15,
+		/// <summary>
+		/// Load int16 constant into stack
+		/// </summary>
 		LDC_I2_0 = 0x16,
+		/// <summary>
+		/// Load int16 constant into stack
+		/// </summary>
 		LDC_I2_1 = 0x17,
+		/// <summary>
+		/// Load int16 constant into stack
+		/// </summary>
 		LDC_I2_2 = 0x18,
+		/// <summary>
+		/// Load int16 constant into stack
+		/// </summary>
 		LDC_I2_3 = 0x19,
+		/// <summary>
+		/// Load int16 constant into stack
+		/// </summary>
 		LDC_I2_4 = 0x1A,
-		LDC_I2_5 = 0x1B,
-		LDC_I2_S = 0x1C,
-		LDC_I8_0 = 0x1D,
-		LDC_I8_1 = 0x1E,
-		LDC_I8_2 = 0x1F,
-		LDC_I8_3 = 0x20,
-		LDC_I8_4 = 0x21,
-		LDC_I8_5 = 0x22,
-		LDC_I8_S = 0x23,
-		DUMP_0 = 0x24,
-		DUMP_1 = 0x25,
-		RET = 0x26,
-		CALL = 0x27,
-		LDNULL = 0x28,
-		LDF = 0x29,
-		LDLOC_0 = 0x2A,
-		LDLOC_1 = 0x2B,
-		LDLOC_2 = 0x2C,
-		LDLOC_3 = 0x2D,
-		LDLOC_4 = 0x2E,
-		STLOC_0 = 0x2F,
-		STLOC_1 = 0x30,
-		STLOC_2 = 0x31,
-		STLOC_3 = 0x32,
-		STLOC_4 = 0x33,
+		/// <summary>
+		/// Load int16 constant into stack
+		/// </summary>
+		LDC_I2_S = 0x1B,
+		/// <summary>
+		/// Load in64 constant into stack
+		/// </summary>
+		LDC_I8_0 = 0x1C,
+		/// <summary>
+		/// Load in64 constant into stack
+		/// </summary>
+		LDC_I8_1 = 0x1D,
+		/// <summary>
+		/// Load in64 constant into stack
+		/// </summary>
+		LDC_I8_2 = 0x1E,
+		/// <summary>
+		/// Load in64 constant into stack
+		/// </summary>
+		LDC_I8_3 = 0x1F,
+		/// <summary>
+		/// Load in64 constant into stack
+		/// </summary>
+		LDC_I8_4 = 0x20,
+		/// <summary>
+		/// Load in64 constant into stack
+		/// </summary>
+		LDC_I8_S = 0x21,
+		/// <summary>
+		/// Debug operation
+		/// </summary>
+		DUMP_0 = 0x22,
+		/// <summary>
+		/// Debug operation
+		/// </summary>
+		DUMP_1 = 0x23,
+		/// <summary>
+		/// Return operation
+		/// </summary>
+		RET = 0x24,
+		/// <summary>
+		/// Call operation
+		/// </summary>
+		CALL = 0x25,
+		/// <summary>
+		/// Load NULL into stack
+		/// </summary>
+		LDNULL = 0x26,
+		/// <summary>
+		/// Load field into stack
+		/// </summary>
+		/// <remarks>
+		/// Not used directly
+		/// </remarks>
+		LDF = 0x27,
+		/// <summary>
+		/// Load from stack into locals
+		/// </summary>
+		LDLOC_0 = 0x28,
+		/// <summary>
+		/// Load from stack into locals
+		/// </summary>
+		LDLOC_1 = 0x29,
+		/// <summary>
+		/// Load from stack into locals
+		/// </summary>
+		LDLOC_2 = 0x2A,
+		/// <summary>
+		/// Load from stack into locals
+		/// </summary>
+		LDLOC_3 = 0x2B,
+		/// <summary>
+		/// Load from stack into locals
+		/// </summary>
+		LDLOC_4 = 0x2C,
+		/// <summary>
+		/// Load from stack into locals
+		/// </summary>
+		LDLOC_S = 0x2D,
+		/// <summary>
+		/// Load from locals into stack
+		/// </summary>
+		STLOC_0 = 0x2E,
+		/// <summary>
+		/// Load from locals into stack
+		/// </summary>
+		STLOC_1 = 0x2F,
+		/// <summary>
+		/// Load from locals into stack
+		/// </summary>
+		STLOC_2 = 0x30,
+		/// <summary>
+		/// Load from locals into stack
+		/// </summary>
+		STLOC_3 = 0x31,
+		/// <summary>
+		/// Load from locals into stack
+		/// </summary>
+		STLOC_4 = 0x32,
+		/// <summary>
+		/// Load from locals into stack
+		/// </summary>
+		STLOC_S = 0x33,
+		/// <summary>
+		/// Initialization locals stack
+		/// </summary>
 		LOC_INIT = 0x34,
+		/// <summary>
+		/// Duplicate memory from stack
+		/// </summary>
 		DUP = 0x35,
+		/// <summary>
+		/// XOR Operation
+		/// </summary>
 		XOR = 0x36,
+		/// <summary>
+		/// AND Operation
+		/// </summary>
 		AND = 0x37,
+		/// <summary>
+		/// Shift Right Operation
+		/// </summary>
 		SHR = 0x38,
+		/// <summary>
+		/// Shift Left Operation
+		/// </summary>
 		SHL = 0x39,
+		/// <summary>
+		/// Convertation operation
+		/// </summary>
 		CONV_R4 = 0x3A,
+		/// <summary>
+		/// Convertation operation
+		/// </summary>
 		CONV_R8 = 0x3B,
+		/// <summary>
+		/// Convertation operation
+		/// </summary>
 		CONV_I4 = 0x3C,
 	}
 }
