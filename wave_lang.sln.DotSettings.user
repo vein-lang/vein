@@ -21,5 +21,9 @@
     &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.AST2ILTest&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.S&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.StatementCompilation&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.ReturnStatementCompilation2&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.ReturnStatementCompilation3&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.TestYaml&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
