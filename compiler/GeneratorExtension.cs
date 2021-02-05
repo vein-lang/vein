@@ -77,7 +77,7 @@
         
         public static void EmitReturn(this ILGenerator generator, ReturnStatementSyntax statement)
         {
-            if (statement.IsEmpty)
+            if (statement is not { Expression: { } })
             {
                 generator.Emit(OpCodes.RET);
                 return;
@@ -92,6 +92,7 @@
             if (statement.Expression.Kind == SyntaxType.Expression)
             {
                 generator.Emit(OpCodes.LDF, new FieldName(statement.Expression.ExpressionString));
+                generator.Emit(OpCodes.RET);
                 return;
             }
         }

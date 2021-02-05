@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
-    using extensions;
     using runtime.emit;
     using static OpCodeValue;
 
@@ -175,7 +174,7 @@
                 return (token.Value, FieldDirection.Local);
             if ((token = this._methodBuilder.classBuilder.FindMemberField(field)) != null)
                 return (token.Value, FieldDirection.Member);
-            throw new Exception($"Field '{field}' is not declared."); // TODO custom exception
+            throw new FieldIsNotDeclaredException(field);
         }
 
         internal byte[] BakeByteArray()
@@ -234,6 +233,14 @@
             var numArray = new byte[Math.Max(_ilBody.Length * 2, _length + size)];
             Array.Copy(_ilBody, numArray, _ilBody.Length);
             _ilBody = numArray;
+        }
+    }
+    
+    public class FieldIsNotDeclaredException : Exception
+    {
+        public FieldIsNotDeclaredException(FieldName field) : base($"Field '{field.name}' is not declared.")
+        {
+            
         }
     }
 }
