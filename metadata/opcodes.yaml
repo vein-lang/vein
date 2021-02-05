@@ -61,3 +61,31 @@
 - CONV:
     description: Convertation operation
     variations: [R4, R8, I4]
+- JMP:
+    description: Control flow, jump onto label. (unconditional)
+    use-root: true
+    override-size: 1
+    LQ:
+      override-size: 1
+      description: Control flow, jump onto label when first value is less than or equal to second value.
+    L:
+      override-size: 1
+      description: Control flow, jump onto label when first value is less second value.
+    HQ:
+      override-size: 1
+      description: Control flow, jump onto label when first value is greater than or equal to second value.
+    H:
+      override-size: 1
+      description: Control flow, jump onto label when first value is greater second value.
+    NQ:
+      override-size: 1
+      description: Control flow, jump onto label when two integer/float is equal.
+    NN:
+      override-size: 1
+      description: Control flow, jump onto label when two integer/float is not equal.
+    F:
+      override-size: 1
+      description: Control flow, jump onto label when value has false, null or zero.
+    T:
+      override-size: 1
+      description: Control flow, jump onto label when value has true or either differs from null or from zero.
