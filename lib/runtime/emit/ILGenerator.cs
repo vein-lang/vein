@@ -11,11 +11,11 @@
     public class ILGenerator
     {
         private byte[] _ilBody;
-        private int _length;
+        private int _position;
         private readonly MethodBuilder _methodBuilder;
         private readonly StringBuilder _debugBuilder = new ();
         
-        public virtual int ILOffset => _length;
+        public virtual int ILOffset => _position;
 
         public ILGenerator(MethodBuilder method) : this(method, 64) { }
         public ILGenerator(MethodBuilder method, int size)
@@ -37,22 +37,22 @@
             _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.byte");
             EnsureCapacity<OpCode>(sizeof(byte));
             InternalEmit(opcode);
-            _ilBody[_length++] = arg;
+            _ilBody[_position++] = arg;
         }
         public void Emit(OpCode opcode, sbyte arg)
         {
             _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.sbyte");
             EnsureCapacity<OpCode>(sizeof(sbyte));
             InternalEmit(opcode);
-            _ilBody[_length++] = (byte) arg;
+            _ilBody[_position++] = (byte) arg;
         }
         public virtual void Emit(OpCode opcode, short arg)
         {
             _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.short");
             EnsureCapacity<OpCode>(sizeof(short));
             InternalEmit(opcode);
-            BinaryPrimitives.WriteInt16LittleEndian(_ilBody.AsSpan(_length), arg);
-            _length += sizeof(short);
+            BinaryPrimitives.WriteInt16LittleEndian(_ilBody.AsSpan(_position), arg);
+            _position += sizeof(short);
         }
         
         public virtual void Emit(OpCode opcode, int arg)
@@ -60,16 +60,16 @@
             _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.int");
             EnsureCapacity<OpCode>(sizeof(int));
             InternalEmit(opcode);
-            BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_length), arg);
-            _length += sizeof(int);
+            BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), arg);
+            _position += sizeof(int);
         }
         public virtual void Emit(OpCode opcode, long arg)
         {
             _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.long");
             EnsureCapacity<OpCode>(sizeof(long));
             InternalEmit(opcode);
-            BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_length), arg);
-            _length += sizeof(long);
+            BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), arg);
+            _position += sizeof(long);
         }
 
         public virtual void Emit(OpCode opcode, float arg)
@@ -77,8 +77,8 @@
             _debugBuilder.AppendLine($".{opcode.Name} {arg}.float");
             EnsureCapacity<OpCode>(sizeof(float));
             InternalEmit(opcode);
-            BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_length), BitConverter.SingleToInt32Bits(arg));
-            _length += sizeof(float);
+            BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), BitConverter.SingleToInt32Bits(arg));
+            _position += sizeof(float);
         }
 
         public virtual void Emit(OpCode opcode, double arg)
@@ -86,8 +86,8 @@
             _debugBuilder.AppendLine($".{opcode.Name} {arg}.double");
             EnsureCapacity<OpCode>(sizeof(double));
             InternalEmit(opcode);
-            BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_length), BitConverter.DoubleToInt64Bits(arg));
-            _length += sizeof(double);
+            BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), BitConverter.DoubleToInt64Bits(arg));
+            _position += sizeof(double);
         }
         
         public virtual void Emit(OpCode opcode, decimal arg)
@@ -96,8 +96,8 @@
             EnsureCapacity<OpCode>(sizeof(decimal));
             InternalEmit(opcode);
             foreach (var i in decimal.GetBits(arg))
-                BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_length), i);
-            _length += sizeof(decimal);
+                BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), i);
+            _position += sizeof(decimal);
         }
         
         public virtual void Emit(OpCode opcode, string str)
@@ -147,12 +147,18 @@
             _debugBuilder.AppendLine($".{opcode.Name} {field.name}.{token:X8}");
         }
         
+        public virtual void Emit(OpCode opcode, Label label)
+        {
+            
+        }
+
         public virtual void EmitCall(OpCode opcode, WaveClassMethod method)
         {
             if (method is null)
                 throw new ArgumentNullException(nameof (method));
             var token = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
             this.EnsureCapacity<OpCode>(sizeof(int));
+            // TODO
             this.InternalEmit(opcode);
             this.PutInteger4(token);
         }
@@ -163,8 +169,32 @@
             Local,
             Member
         }
+
+        private int[] _labels;
+        private int _labels_count;
         
+        public virtual Label DefineLabel()
+        {
+            _labels ??= new int[4];
+            if (_labels_count >= _labels.Length)
+                RepackArray(_labels);
+            _labels[_labels_count] = -1;
+            return new Label(_labels_count++);
+        }
         
+        public virtual Label[] DefineLabel(int size)
+            => Enumerable.Range(0, size).Select(_ => DefineLabel()).ToArray();
+        
+        public virtual void UseLabel(Label loc)
+        {
+            if (_labels is null || loc.Value < 0 || loc.Value >= _labels.Length)
+                throw new InvalidLabelException();
+            if (_labels[loc.Value] != -1)
+                throw new UndefinedLabelException();
+            _labels[loc.Value] = _position;
+        }
+
+
         private (ulong, FieldDirection) FindFieldToken(FieldName field)
         {
             var token = (ulong?)0;
@@ -179,14 +209,14 @@
 
         internal byte[] BakeByteArray()
         {
-            if (_length == 0)
+            if (_position == 0)
                 return null;
             return _ilBody;
         }
 
         internal string BakeDebugString()
         {
-            if (_length == 0)
+            if (_position == 0)
                 return "";
             return _debugBuilder.ToString();
         }
@@ -194,14 +224,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PutInteger4(int value)
         {
-            BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_length), value);
-            _length += sizeof(int);
+            BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), value);
+            _position += sizeof(int);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PutUInteger8(ulong value)
         {
-            BinaryPrimitives.WriteUInt64LittleEndian(_ilBody.AsSpan(_length), value);
-            _length += sizeof(ulong);
+            BinaryPrimitives.WriteUInt64LittleEndian(_ilBody.AsSpan(_position), value);
+            _position += sizeof(ulong);
         }
         
         internal void InternalEmit(OpCode opcode)
@@ -209,38 +239,41 @@
             var num = opcode.Value;
             if (opcode.Size != 1)
             {
-                BinaryPrimitives.WriteUInt16BigEndian(_ilBody.AsSpan(_length), num);
-                _length += 2;
+                BinaryPrimitives.WriteUInt16BigEndian(_ilBody.AsSpan(_position), num);
+                _position += 2;
             }
             else
-                _ilBody[_length++] = (byte) num;
+                _ilBody[_position++] = (byte) num;
             //this.UpdateStackSize(opcode, opcode.StackChange());
         }
-        internal void EnsureCapacity<T>(params int[] sizes) where T : struct
+        internal void EnsureCapacity<_>(params int[] sizes) where _ : struct
         {
             var sum = sizes.Sum() + sizeof(ushort);
             EnsureCapacity(sum);
         }
         internal void EnsureCapacity(int size)
         {
-            if (_length + size < _ilBody.Length)
+            if (_position + size < _ilBody.Length)
                 return;
             IncreaseCapacity(size);
         }
         
         private void IncreaseCapacity(int size)
         {
-            var numArray = new byte[Math.Max(_ilBody.Length * 2, _length + size)];
+            var numArray = new byte[Math.Max(_ilBody.Length * 2, _position + size)];
             Array.Copy(_ilBody, numArray, _ilBody.Length);
             _ilBody = numArray;
         }
-    }
-    
-    public class FieldIsNotDeclaredException : Exception
-    {
-        public FieldIsNotDeclaredException(FieldName field) : base($"Field '{field.name}' is not declared.")
+        
+        
+        
+        internal static T[] RepackArray<T>(T[] arr) => RepackArray<T>(arr, arr.Length * 2);
+
+        internal static T[] RepackArray<T>(T[] arr, int newSize)
         {
-            
+            var objArray = new T[newSize];
+            Array.Copy(arr, objArray, arr.Length);
+            return objArray;
         }
     }
 }
