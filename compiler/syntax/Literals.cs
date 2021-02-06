@@ -2,6 +2,7 @@
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using extensions;
     using Sprache;
     using stl;
@@ -80,11 +81,11 @@
             
             if (suffix is 'l' or 'L')
                 return new Int64LiteralExpressionSyntax(long.Parse(token));
-            if (token.Length <= 5)
+            if (token.Count(char.IsDigit) <= 5)
                 return new Int16LiteralExpressionSyntax(short.Parse(token));
-            if (token.Length <= 10)
+            if (token.Count(char.IsDigit) <= 10)
                 return new Int32LiteralExpressionSyntax(int.Parse(token));
-            if (token.Length <= 19)
+            if (token.Count(char.IsDigit) <= 19)
                 return new Int64LiteralExpressionSyntax(long.Parse(token));
             throw new ParseException($"too big number '{token}'"); // TODO custom exception
         }
