@@ -1,10 +1,15 @@
 ﻿namespace wave.stl
 {
     using System;
+    using System.Collections.Generic;
     using Sprache;
 
     public static class WaveParserExtensions
     {
+        
+        public static IEnumerable<T> GetOrEmpty<T>(this IOption<IEnumerable<T>> option) 
+            => option.GetOrElse(Array.Empty<T>());
+
         public static T ParseWave<T>(this Parser<T> parser, string input)
         {
             var result = parser.TryParse(input);
