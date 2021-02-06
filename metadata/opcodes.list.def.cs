@@ -276,40 +276,48 @@ namespace wave
 		/// </summary>
 		public static OpCode CONV_I4 = new (0x42, 0x00001F);
 		/// <summary>
+		/// Throw exception operation.
+		/// </summary>
+		public static OpCode THROW = new (0x43, 0x00001F);
+		/// <summary>
+		/// New object Operation.
+		/// </summary>
+		public static OpCode NEWOBJ = new (0x44, 0x80001F);
+		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// </summary>
-		public static OpCode JMP = new (0x43, 0x40001F);
+		public static OpCode JMP = new (0x45, 0x40001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value.
 		/// </summary>
-		public static OpCode JMP_LQ = new (0x44, 0x40001F);
+		public static OpCode JMP_LQ = new (0x46, 0x40001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value.
 		/// </summary>
-		public static OpCode JMP_L = new (0x45, 0x40001F);
+		public static OpCode JMP_L = new (0x47, 0x40001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value.
 		/// </summary>
-		public static OpCode JMP_HQ = new (0x46, 0x40001F);
+		public static OpCode JMP_HQ = new (0x48, 0x40001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value.
 		/// </summary>
-		public static OpCode JMP_H = new (0x47, 0x40001F);
+		public static OpCode JMP_H = new (0x49, 0x40001F);
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal.
 		/// </summary>
-		public static OpCode JMP_NQ = new (0x48, 0x40001F);
+		public static OpCode JMP_NQ = new (0x4A, 0x40001F);
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal.
 		/// </summary>
-		public static OpCode JMP_NN = new (0x49, 0x40001F);
+		public static OpCode JMP_NN = new (0x4B, 0x40001F);
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero.
 		/// </summary>
-		public static OpCode JMP_F = new (0x4A, 0x40001F);
+		public static OpCode JMP_F = new (0x4C, 0x40001F);
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero.
 		/// </summary>
-		public static OpCode JMP_T = new (0x4B, 0x40001F);
+		public static OpCode JMP_T = new (0x4D, 0x40001F);
 	}
 }

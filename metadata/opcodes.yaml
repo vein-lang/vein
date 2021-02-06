@@ -61,6 +61,11 @@
 - CONV:
     description: Convertation operation.
     variations: [R4, R8, I4]
+- THROW:
+    description: Throw exception operation.
+- NEWOBJ:
+    description: New object Operation.
+    override-size: 2
 - JMP:
     description: Control flow, jump onto label. (unconditional)
     use-root: true

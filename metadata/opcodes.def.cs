@@ -275,40 +275,48 @@ namespace wave
 		/// </summary>
 		CONV_I4 = 0x42,
 		/// <summary>
+		/// Throw exception operation.
+		/// </summary>
+		THROW = 0x43,
+		/// <summary>
+		/// New object Operation.
+		/// </summary>
+		NEWOBJ = 0x44,
+		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// </summary>
-		JMP = 0x43,
+		JMP = 0x45,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value.
 		/// </summary>
-		JMP_LQ = 0x44,
+		JMP_LQ = 0x46,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value.
 		/// </summary>
-		JMP_L = 0x45,
+		JMP_L = 0x47,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value.
 		/// </summary>
-		JMP_HQ = 0x46,
+		JMP_HQ = 0x48,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value.
 		/// </summary>
-		JMP_H = 0x47,
+		JMP_H = 0x49,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal.
 		/// </summary>
-		JMP_NQ = 0x48,
+		JMP_NQ = 0x4A,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal.
 		/// </summary>
-		JMP_NN = 0x49,
+		JMP_NN = 0x4B,
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero.
 		/// </summary>
-		JMP_F = 0x4A,
+		JMP_F = 0x4C,
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero.
 		/// </summary>
-		JMP_T = 0x4B,
+		JMP_T = 0x4D,
 	}
 }
