@@ -71,6 +71,15 @@
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(long);
         }
+        
+        public virtual void Emit(OpCode opcode, ulong arg)
+        {
+            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.ulong");
+            EnsureCapacity<OpCode>(sizeof(ulong));
+            InternalEmit(opcode);
+            BinaryPrimitives.WriteUInt64LittleEndian(_ilBody.AsSpan(_position), arg);
+            _position += sizeof(ulong);
+        }
 
         public virtual void Emit(OpCode opcode, float arg)
         {
