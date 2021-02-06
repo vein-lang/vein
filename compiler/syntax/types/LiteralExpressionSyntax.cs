@@ -15,13 +15,13 @@
 
         public override SyntaxType Kind => SyntaxType.LiteralExpression;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitLiteralExpression(this);
-
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
 
         public string Token { get; set; }
 
         public LiteralType LiteralType { get; set; }
+        
+        public override string ExpressionString => Token;
     }
     
     public sealed class StringLiteralExpressionSyntax : LiteralExpressionSyntax
