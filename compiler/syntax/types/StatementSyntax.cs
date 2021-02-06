@@ -8,8 +8,6 @@
 
         public override SyntaxType Kind => SyntaxType.Statement;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitStatement(this);
-
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
 
         public bool IsEmpty => string.IsNullOrWhiteSpace(Body);

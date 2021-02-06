@@ -1,6 +1,5 @@
 ﻿namespace wave.syntax
 {
-    using System;
     using System.Collections.Generic;
 
     public class MemberDeclarationSyntax : BaseSyntax
@@ -13,8 +12,6 @@
         public override SyntaxType Kind => SyntaxType.ClassMember;
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => throw new InvalidOperationException();
-        
 
         public List<string> Modifiers { get; set; } = new();
 

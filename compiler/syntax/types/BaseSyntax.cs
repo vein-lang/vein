@@ -19,9 +19,7 @@
         
         public List<string> LeadingComments { get; set; } = new();
         public List<string> TrailingComments { get; set; } = new();
-        
-        public abstract void Accept(WaveSyntaxVisitor visitor);
-        
+
         public IEnumerable<BaseSyntax> DescendantNodes(Func<BaseSyntax, bool> descendIntoChildren = null) =>
             DescendantNodesAndSelf(descendIntoChildren).Skip(1);
 

@@ -1,14 +1,11 @@
 ﻿namespace wave.syntax
 {
-    using System;
     using System.Collections.Generic;
 
     public class GCStatementSyntax : StatementSyntax
     {
         public override SyntaxType Kind => SyntaxType.GCDeclaration;
-        
-        public override void Accept(WaveSyntaxVisitor visitor) => throw new NotImplementedException();
-        
+
         public override IEnumerable<BaseSyntax> ChildNodes
         {
             get

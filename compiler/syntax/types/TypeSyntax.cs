@@ -31,8 +31,6 @@
 
         public override SyntaxType Kind => SyntaxType.Type;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitType(this);
-
         public override IEnumerable<BaseSyntax> ChildNodes =>
             TypeParameters.Where(n => n != null);
 

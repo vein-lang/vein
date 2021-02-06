@@ -17,8 +17,6 @@
 
         public override SyntaxType Kind => SyntaxType.Parameter;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitParameter(this);
-
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Type);
 
         public List<string> Modifiers { get; set; } = new();

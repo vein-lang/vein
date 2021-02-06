@@ -18,8 +18,6 @@
 
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitExpression(this);
-
-        public string ExpressionString { get; set; }
+        public virtual string ExpressionString { get; set; }
     }
 }

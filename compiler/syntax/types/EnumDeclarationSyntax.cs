@@ -12,8 +12,6 @@
 
         public override SyntaxType Kind => SyntaxType.EnumMember;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitEnumMember(this);
-
         public string Identifier { get; set; }
     }
     
@@ -25,8 +23,6 @@
         }
 
         public override SyntaxType Kind => SyntaxType.Enum;
-
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitEnum(this);
 
         public override IEnumerable<BaseSyntax> ChildNodes =>
             base.ChildNodes.Concat(Members).Where(n => n != null);

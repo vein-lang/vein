@@ -29,8 +29,6 @@
 
         public override SyntaxType Kind => SyntaxType.Class;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitClassDeclaration(this);
-
         public override IEnumerable<BaseSyntax> ChildNodes =>
             base.ChildNodes.Concat(GetNodes(BaseType)).Concat(Interfaces).Concat(Members).Where(n => n != null);
 

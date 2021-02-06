@@ -13,8 +13,6 @@
 
         public override SyntaxType Kind => SyntaxType.Field;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitFieldDeclaration(this);
-
         public override IEnumerable<BaseSyntax> ChildNodes =>
             base.ChildNodes.Concat(GetNodes(Type)).Concat(Fields).Where(n => n != null);
 
@@ -42,8 +40,6 @@
 
         public override SyntaxType Kind => SyntaxType.ClassInitializer;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitClassInitializer(this);
-
         public override IEnumerable<BaseSyntax> ChildNodes =>
             base.ChildNodes.Concat(GetNodes(Body));
 
@@ -65,8 +61,6 @@
 
         public override SyntaxType Kind => SyntaxType.Interface;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitInterfaceDeclaration(this);
-
         public override bool IsInterface => true;
     }
     public class PropertyDeclarationSyntax : MemberDeclarationSyntax
@@ -83,8 +77,6 @@
         }
 
         public override SyntaxType Kind => SyntaxType.Property;
-
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitPropertyDeclaration(this);
 
         public override IEnumerable<BaseSyntax> ChildNodes =>
             base.ChildNodes.Concat(GetNodes(Type, Getter, Setter));
@@ -115,8 +107,6 @@
 
         public override SyntaxType Kind => SyntaxType.Accessor;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitAccessor(this);
-
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Body);
 
         public bool IsGetter { get; set; }
@@ -131,8 +121,6 @@
     public class FieldDeclaratorSyntax : BaseSyntax
     {
         public override SyntaxType Kind => SyntaxType.FieldDeclarator;
-
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitFieldDeclarator(this);
 
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);
 

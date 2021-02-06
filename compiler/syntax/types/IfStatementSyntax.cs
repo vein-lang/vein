@@ -6,8 +6,6 @@
     {
         public override SyntaxType Kind => SyntaxType.IfStatement;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitIfStatement(this);
-
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression, ThenStatement, ElseStatement);
 
         public ExpressionSyntax Expression { get; set; }

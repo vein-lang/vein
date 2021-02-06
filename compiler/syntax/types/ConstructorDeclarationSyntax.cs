@@ -16,8 +16,6 @@
 
         public override SyntaxType Kind => SyntaxType.Constructor;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitConstructorDeclaration(this);
-
         public override MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName)
         {
             Identifier = typeAndName.Identifier ?? typeAndName.Type.Identifier;

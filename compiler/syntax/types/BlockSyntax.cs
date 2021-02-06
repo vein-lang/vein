@@ -17,8 +17,6 @@
 
         public override SyntaxType Kind => SyntaxType.Block;
 
-        public override void Accept(WaveSyntaxVisitor visitor) => visitor.VisitBlock(this);
-
         public override IEnumerable<BaseSyntax> ChildNodes => Statements;
 
         public List<StatementSyntax> Statements { get; set; } = new();
