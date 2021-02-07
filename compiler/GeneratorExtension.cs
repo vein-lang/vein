@@ -1,10 +1,46 @@
 ﻿namespace wave.extensions
 {
+    using System;
     using emit;
     using syntax;
 
     public static class GeneratorExtension
     {
+        public static void EmitThrow(this ILGenerator generator, TypeName type)
+        {
+            generator.Emit(OpCodes.NEWOBJ, type.Token.Value);
+            generator.EmitCall(OpCodes.CALL, GetDefaultCtor(type));
+            generator.Emit(OpCodes.THROW);
+        }
+        public static WaveClassMethod GetDefaultCtor(TypeName t) => throw new NotImplementedException();
+        public static void EmitIfElse(this ILGenerator generator, IfStatementSyntax ifStatement)
+        {
+            var elseLabel = generator.DefineLabel();
+            
+            if (ifStatement.Expression is BoolLiteralExpressionSyntax @bool)
+            {
+                if (@bool.Value)
+                    generator.EmitStatement(ifStatement.ThenStatement);
+                else
+                    generator.Emit(OpCodes.JMP, elseLabel);
+            }
+            
+            
+            
+            generator.UseLabel(elseLabel);
+            if (ifStatement.ElseStatement is ReturnStatementSyntax ret2)
+                generator.EmitReturn(ret2);
+            else
+                throw new NotImplementedException();
+        }
+
+        public static void EmitStatement(this ILGenerator generator, StatementSyntax statement)
+        {
+            if (statement is ReturnStatementSyntax ret1)
+                generator.EmitReturn(ret1);
+            else
+                throw new NotImplementedException();
+        }
         public static void EmitNumericLiteral(this ILGenerator generator, NumericLiteralExpressionSyntax literal)
         {
             switch (literal)
