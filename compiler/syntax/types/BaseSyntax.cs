@@ -4,9 +4,10 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using Sprache;
     using stl;
 
-    public abstract class BaseSyntax
+    public abstract class BaseSyntax : IPositionAware<BaseSyntax>
     {
         public abstract SyntaxType Kind { get; }
         
@@ -34,6 +35,14 @@
                 yield return desc;
         }
         
-        private static Regex WhitespaceRegex { get; } = new Regex(@"\s+", RegexOptions.Compiled);
+        public BaseSyntax SetPos(Position startPos, int length)
+        {
+            transform = new Transform(startPos, length);
+            return this;
+        }
+        
+        internal Transform transform { get; set; }
     }
+
+    public record Transform(Position pos, int len);
 }
