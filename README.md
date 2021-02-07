@@ -97,3 +97,11 @@
 | lang/std/win api           |    🚬   | lang/std/xml               |    🚬   |
 | lang/std/yaml              |    🚬   | lang/std/json              |    🚬   |
 | lang/std/lazy collections  |    🚬   | lang/std/async             |    🚬   |
+
+
+
+<p align="center">
+   <a href="https://ko-fi.com/P5P7YFY5">
+    <img src="https://www.ko-fi.com/img/githubbutton_sm.svg">
+  </a>
+</p>
