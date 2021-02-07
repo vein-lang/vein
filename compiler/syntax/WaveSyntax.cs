@@ -141,6 +141,30 @@
                 Body = methodBody,
             };
 
+        // foo.bar.zet
+        protected internal virtual Parser<MemberAccessSyntax> MemberAccessExpression =>
+            from identifier in QualifiedIdentifier
+            select new MemberAccessSyntax
+            {
+                MemberName = identifier.Last(),
+                MemberChain = identifier.SkipLast(1).ToArray()
+            };
+        
+        // foo.bar()
+        // foo.bar(1,24)
+        protected internal virtual Parser<InvocationExpressionSyntax> InvocationExpression =>
+            from identifier in QualifiedIdentifier
+            from open in Parse.Char('(')
+            from expression in Parse.Ref(() => QualifiedExpression).DelimitedBy(Parse.Char(',').Token()).Optional()
+            from close in Parse.Char(')')
+            select new InvocationExpressionSyntax
+            {
+                Arguments = expression.GetOrEmpty().ToList(),
+                FunctionName = identifier.Last(),
+                MemberChain = identifier.SkipLast(1).ToArray(),
+                ExpressionString = $"{identifier.Join('.')}(...)"
+            };
+
         public virtual Parser<DocumentDeclaration> CompilationUnit =>
             from includes in UseSyntax.Many().Optional()
             from members in ClassDeclaration.Select(c => c as MemberDeclarationSyntax).Or(EnumDeclaration).Many()
@@ -154,6 +178,8 @@
         
         
     }
+    
+    
     
     public class DocumentDeclaration
     {
