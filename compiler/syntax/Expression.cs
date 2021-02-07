@@ -1,4 +1,4 @@
-﻿namespace wave.syntax
+namespace wave.syntax
 {
     using System.Linq;
     using Sprache;
@@ -54,11 +54,11 @@
         protected internal virtual Parser<string> GenericExpression =>
             GenericExpressionCore(forbidden: ",;").Select(x => x.Trim());
         
-        protected internal virtual Parser<string> KeywordExpressionStatement(string keyword) =>
+        protected internal virtual Parser<IOption<ExpressionSyntax>> KeywordExpressionStatement(string keyword) =>
             from key in Keyword(keyword).Token()
-            from expr in GenericExpression.XOptional()
+            from expr in QualifiedExpression.XOptional()
             from semicolon in Parse.Char(';')
-            select expr.GetOrDefault();
+            select expr;
         
         // examples: new Map<string, string>
         protected internal virtual Parser<string> GenericNewExpression =>
