@@ -30,7 +30,7 @@
             from expression in KeywordExpressionStatement("return")
             select new ReturnStatementSyntax
             {
-                Expression = expression == null ? null : new ExpressionSyntax(expression),
+                Expression = expression.GetOrDefault()
             };
         /// <example>
         /// fail new Exception(); fail;
@@ -39,17 +39,16 @@
             from expression in KeywordExpressionStatement("fail")
             select new FailStatementSyntax
             {
-                Expression = expression == null ? null : new ExpressionSyntax(expression),
+                Expression = expression.GetOrDefault()
             };
         /// <example>
         /// delete variable;
         /// </example>
         protected internal virtual Parser<DeleteStatementSyntax> DeleteStatement =>
             from expression in KeywordExpressionStatement("delete")
-            where !string.IsNullOrWhiteSpace(expression)
             select new DeleteStatementSyntax
             {
-                Expression = new ExpressionSyntax(expression),
+                Expression = expression.GetOrDefault()
             };
         /// <example>
         /// while (foo) {}
