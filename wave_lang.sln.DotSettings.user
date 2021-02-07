@@ -1,29 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/Hierarchy/Build/SolBuilderDuo/UseMsbuildSolutionBuilder/@EntryValue">No</s:String>
+	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\ls-mi\AppData\Local\Temp\JetBrains\ReSharperPlatformVs16\vAny_ba758409\CoverageData\_wave_lang.460587392\Snapshot\snapshot.utdcvr</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=01685e47_002D4f5a_002D468f_002D8dbc_002D8e00ac734ba6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="FirstTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.ParameterDeclarationParseTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.ParameterDeclarationParseTestFail&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.MethodParametersTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.KeywordIsNotAnIdentifier&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.LiteralExpression&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.FactorExpression&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.KeywordIsNotIdentifier&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.UseDirectiveTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.MethodParametersAndBodyTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.IdentifierParseTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.CommentParseTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.elf_test.ElfReadTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.FooProgramTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.ClassDeclarationCanDeclareMethods&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.elf_test.ElfReadManul&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.Test&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.TestIL&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.AST2ILTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.S&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.StatementCompilation&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.ReturnStatementCompilation2&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.ReturnStatementCompilation3&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.TestYaml&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
+  &lt;Project Location="C:\git\wave_vm\test\wc_test" Presentation="&amp;lt;wc_test&amp;gt;" /&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
