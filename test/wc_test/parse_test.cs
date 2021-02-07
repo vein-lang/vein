@@ -1,13 +1,19 @@
 ﻿namespace wc_test
 {
+    using System;
     using System.Linq;
     using Sprache;
     using wave.stl;
     using wave.syntax;
     using Xunit;
+    using Xunit.Abstractions;
 
     public class parse_test
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public parse_test(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
+
         public static WaveSyntax Wave => new();
         
         [Fact]
@@ -174,6 +180,102 @@
             Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave(" class Test { void Main }"));
             Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave("class Apex { int main() }"));
         }
+        [Theory]
+        [InlineData("foo()")]
+        [InlineData("foo.bar()")]
+        [InlineData("foo.bar.zoo()")]
+        [InlineData("foo.bar.zoo(a, b)")]
+        [InlineData("foo.bar.zoo(a, b, 4)")]
+        [InlineData("foo.bar.zoo(a, b, 4, 4 + 4)")]
+        [InlineData("foo.bar.zoo(a, b, 4, woo())")]
+        [InlineData("foo.bar.zoo(a, b, 4, zak.woo())")]
+        [InlineData("foo.bar.zoo(a, b, 4, zak.woo(a, b, 4))")]
+        //[InlineData("global::foo.bar.zoo(a, b, 4, 4 + 4);")]
+        public void InvocationTest(string parseStr) 
+            => Wave.InvocationExpression.End().ParseWave(parseStr);
+        
+        [Theory]
+        [InlineData("foo);")]
+        [InlineData("foo.bar(")]
+        [InlineData("foo.bar-zoo()")]
+        [InlineData("foo@bar.zoo(a, b)")]
+        [InlineData("foo.bar.zoo(a b, 4)")]
+        [InlineData("foo.bar.zoo(a, b, 4, 4 $ 4)")]
+        public void InvocationTestFail(string parseStr) 
+            => Assert.Throws<WaveParseException>(() => Wave.InvocationExpression.End().ParseWave(parseStr));
+        
+        [Fact]
+        public void GenericExpressionTest()
+        {
+            var result = Wave.InvocationExpression.ParseWave("foo.bar.zoo(a, b, 4, zak.woo(a, b, 1 & 2 << 4 + 2))");
+        }
+        
+        [Theory]
+        [InlineData("2 ^ 4 + 2 - 2 * 2 % 2 ^^ 2 == foo()")]
+        [InlineData("!106 / ~27 ^^ !81 / ~38 ^^ ~65 - 202 ^^ ~214 & ~143")]
+        [InlineData("~16 ^ !243 && ~131 ^ 171 && 224 >> !67 && ~24 * ~235")]
+        [InlineData("~107 & 178 ^^ ~111 || ~113 ^^ ~222 >> !100 ^^ 65 || ~94")]
+        [InlineData("~119 ^^ ~161 ^^ ~89 * !241 ^^ ~131 && ~129 ^^ 83 ^^ 44")]
+        [InlineData("!210 && !96 + ~71 - 34 + ~14 << ~164 + !217 * ~147")]
+        [InlineData("222 ^ 78 + !138 & !192 + 211 / ~63 + ~168 ^^ !55")]
+        [InlineData("!160 & ~138 ^^ !248 % ~240 ^^ 68 + !206 ^^ !31 || 81")]
+        [InlineData("!173 / !120 ^^ 225 && 7 ^^ ~21 >> !238 ^^ ~197 ^^ !98")]
+        [InlineData("185 / ~102 / !152 ^ !202 / ~32 ^^ !130 / ~164 & !58")]
+        [InlineData("123 + 161 && ~96 * !138 && ~86 & ~158 && !83 ^^ 167")]
+        [InlineData("!136 && 144 || 252 * ~123 || ~185 && ~207 || !171 ^ 234")]
+        [InlineData("!226 / !79 / 105 * 28 / ~201 && ~205 / ~226 + 64")]
+        [InlineData("~164 & !138 && !50 & !212 && 194 >> 34 && 25 * 67")]
+        [InlineData("~176 / ~121 || 27 && 234 || 11 & 125 || 238 ^ 70")]
+        [InlineData("~189 && !103 || ~4 >> ~2 || 1 - ~195 || !200 && !234")]
+        [InlineData("~24 / ~39 / 241 >> 49 / ~127 + !172 / !1 >> ~30")]
+        [InlineData("!217 & ~98 && ~186 >> 233 && !42 + 161 && !54 << ~34")]
+        [InlineData("!230 / 80 || 18 + 163 || 154 || !192 || !70 && ~173")]
+        [InlineData("~242 && ~62 || ~139 ^^ ~23 || !224 >> ~224 || !221 + !228")]
+        [InlineData("!180 ^^ 121 % 118 % 85 % 163 / !2 % ~165 << ~73")]
+        [InlineData("!193 && ~104 % ~61 ^ !228 % 127 && 23 % 116 / ~236")]
+        [InlineData("~139 % !45 & ~130 ^^ 97 & 43 + !47 & 168 / ~84")]
+        [InlineData("~230 >> ~236 ^ ~112 * !145 ^ !80 & ~105 ^ 25 << ~173")]
+        [InlineData("~242 - !218 ^ ~89 % !168 ^ !112 & ~57 ^ ~14 & !154")]
+        [InlineData("~0 << !200 ^ !65 + 190 ^ 140 && ~143 ^ ~143 ^^ ~47")]
+        [InlineData("!193 % !5 & !10 % !118 & ~15 ^ !111 & !203 ^ ~28")]
+        [InlineData("!205 << ~242 && ~242 + !141 && ~46 ^ !64 && !192 % 9")]
+        [InlineData("218 ^ 224 && ~35 - 75 && !238 + !185 && ~137 & !117")]
+        [InlineData("!156 >> !28 * 164 / ~92 * !234 % ~204 * ~186 && ~126")]
+        [InlineData("!246 - 219 & ~169 << ~146 & !232 & ~238 & !17 << ~190")]
+        [InlineData("!4 << !201 && !123 && 162 && 26 % ~14 && ~59 + !83")]
+        [InlineData("~196 % 5 / ~15 - 68 / ~232 ^ 152 / !142 / !113")]
+        [InlineData("209 & 243 * !251 >> ~129 * ~76 ^^ ~201 * 200 * !153")]
+        [InlineData("!222 - ~225 * 21 ^^ ~135 * !250 || !203 * !219 / 101")]
+        [InlineData("~57 ^ !161 && ~3 << ~183 && ~236 / !123 && !165 ^ ~144")]
+        [InlineData("~250 - 220 * !82 ^ 203 * ~158 << ~119 * !142 << !53")]
+        [InlineData("7 << !202 * 196 + ~180 * ~2 ^ ~168 * !230 >> 119")]
+        [InlineData("~20 + 184 % !55 && !157 % !217 - !171 % ~185 || ~88")]
+        [InlineData("!213 << !243 >> ~102 >> !84 >> !43 ^ ~231 >> !34 << 145")]
+        [InlineData("!225 - 226 << !156 ^^ ~79 << 137 >> 74 << 142 - ~204")]
+        [InlineData("!163 >> ~30 - 24 / ~35 - !7 << 201 - !2 || !4")]
+        [InlineData("~1465335714 + 802595077 - ~1557282100 % ~1701421680")]
+        [InlineData("~1571318926 ^^ !654000949 - ~1505232535 * ~1937377465")]
+        [InlineData("~185449798 & 110682480 >> 1276287843 || 1353137228")]
+        [InlineData("1808804974 % !608506720 % 1161111307 & !891268492")]
+        [InlineData("!1914788186 + 459912586 - ~2123293822 << ~695079347")]
+        [InlineData("~1390659715 << ~957736826 << ~233210611 / !1322441515")]
+        [InlineData("!1496642927 + 809142698 ^ !822816154 % ~37021466")]
+        [InlineData("!1602626139 ^ ~660548570 ^ ~1988315968 + !1699505167")]
+        [InlineData("~1078497668 - ~1158372810 & 1526447232 || !1096150041")]
+        [InlineData("~1184480880 ^ !1009778682 & !1330258087 - !1284681867")]
+        [InlineData("~1946095399 + ~466460207 ^ 1178162780 << ~1687924343")]
+        [InlineData("2052078611 && !317866079 ^^ !203526744 * 981973635")]
+        [InlineData("666209483 >> !1922031251 - ~1107833619 ^^ !829878328")]
+        [InlineData("142081012 / !272371844 ^ ~992657083 / ~368009592")]
+        [InlineData("!248064224 & ~123777716 ^ !171820447 >> 1864875345")]
+        [InlineData("!1871419400 ^ 621601962 & !1839663062 && !1857435358")]
+        [InlineData("1977402612 % !473007828 & !654361930 ^ ~1661246213")]
+        [InlineData("!2083385824 ^^ ~324413706 && !1465057068 << 1638583869")]
+        [InlineData("~1559257353 + ~822237940 * 1003188332 - ~1035228745")]
+        [InlineData("!1665240565 ^ !673643812 * ~806999187 >> ~1223760571")]
+        [InlineData("-599501569 ^^ -1537610347 ^^ -1801974617 && !-943604673")]
+        public void OperatorTest(string parseKey) => 
+            _testOutputHelper.WriteLine(Wave.QualifiedExpression.End().ParseWave($"({parseKey})")?.ExpressionString);
         
         [Fact]
         public void FooProgramTest()
@@ -183,6 +285,22 @@
                                            "void main() {}" +
                                            "}");
         }
-        
+        string generate(int count)
+        {
+            var ops = new[] {"+", "-", "%", "*", "/", "^^", "^", "<<", ">>", "||", "&&", "&", "|"};
+            var cps = new[] {"!", "~", "-"};
+            var rnd = new System.Random();
+            
+            string getRandomOp() => 
+                ops[rnd.Next(0, ops.Length - 1)];
+            string getRandomCp() 
+                => rnd.Next(0, 100) % 4 == 0 ? "" : cps[rnd.Next(0, cps.Length - 1)];
+
+
+            return Enumerable.Range(0, count)
+                .Select(_ => (rnd.Next(0, Int32.MaxValue-1), rnd.Next(0, Int32.MaxValue-1)))
+                .Select(x => $"{getRandomCp()}{x.Item1 * 15} {getRandomOp()} {getRandomCp()}{x.Item2 * 15}")
+                .Join($" {getRandomOp()} ");
+        }
     }
 }

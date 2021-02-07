@@ -12,8 +12,6 @@
     using wave.stl;
     using wave.syntax;
     using Xunit;
-    using YamlDotNet.Serialization;
-    using YamlDotNet.Serialization.NamingConventions;
 
     public class generator_test
     {
@@ -76,7 +74,7 @@
         {
             var w = new WaveSyntax();
             var ast = w.CompilationUnit.ParseWave(
-                " class Program { void main() { return x; } }");
+                " class Program { void main() { if(ze()) return x; else { return d();  } } }");
 
             var module = new ModuleBuilder("foo");
 
