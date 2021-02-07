@@ -19,7 +19,7 @@
   <a href="#">
     <img src="http://img.shields.io/:license-MIT-blue.svg">
   </a>
-<a href="https://app.fossa.io/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang.svg?type=shield"/></a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang?ref=badge_small" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang.svg?type=small"/></a>
   <a href="https://github.com/0xF6/wave_lang/releases">
     <img src="https://img.shields.io/github/release/0xF6/wave_lang.svg?logo=github&style=flat">
   </a>
