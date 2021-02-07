@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using Sprache;
 
-    public class ExpressionSyntax : BaseSyntax
+    public class ExpressionSyntax : BaseSyntax, IPositionAware<ExpressionSyntax>
     {
         public ExpressionSyntax()
         {
@@ -19,5 +19,12 @@
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
 
         public virtual string ExpressionString { get; set; }
+        
+
+        public new ExpressionSyntax SetPos(Position startPos, int length)
+        {
+            this.transform = new Transform(startPos, length);
+            return this;
+        }
     }
 }
