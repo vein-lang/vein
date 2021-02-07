@@ -6,6 +6,20 @@
 
     public static class IEnumerableExtensions
     {
+        public static string Join(this IEnumerable<char> enumerable) 
+            => string.Join("", enumerable);
+        public static string Join(this IEnumerable<char> enumerable, string key) 
+            => string.Join(key, enumerable);
+        public static string Join(this IEnumerable<char> enumerable, char key) 
+            => string.Join(key, enumerable);
+        
+        public static string Join(this IEnumerable<string> enumerable) 
+            => string.Join("", enumerable);
+        public static string Join(this IEnumerable<string> enumerable, string key) 
+            => string.Join(key, enumerable);
+        public static string Join(this IEnumerable<string> enumerable, char key) 
+            => string.Join(key, enumerable);
+        
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable) 
             => enumerable == null || !enumerable.Any();
 
