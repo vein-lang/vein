@@ -251,72 +251,80 @@ namespace wave
 		/// </summary>
 		XOR = 0x3C,
 		/// <summary>
+		/// OR Operation.
+		/// </summary>
+		OR = 0x3D,
+		/// <summary>
 		/// AND Operation.
 		/// </summary>
-		AND = 0x3D,
+		AND = 0x3E,
 		/// <summary>
 		/// Shift Right Operation.
 		/// </summary>
-		SHR = 0x3E,
+		SHR = 0x3F,
 		/// <summary>
 		/// Shift Left Operation.
 		/// </summary>
-		SHL = 0x3F,
+		SHL = 0x40,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_R4 = 0x40,
+		CONV_R4 = 0x41,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_R8 = 0x41,
+		CONV_R8 = 0x42,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_I4 = 0x42,
+		CONV_I4 = 0x43,
 		/// <summary>
 		/// Throw exception operation.
 		/// </summary>
-		THROW = 0x43,
+		THROW = 0x44,
 		/// <summary>
 		/// New object Operation.
 		/// </summary>
-		NEWOBJ = 0x44,
+		NEWOBJ = 0x45,
+		/// <summary>
+		/// Compare two value, when values are equal 1 (int32) stage into stack, otherwise 0 (int32).
+		/// </summary>
+		EQL = 0x46,
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// </summary>
-		JMP = 0x45,
+		JMP = 0x47,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value.
 		/// </summary>
-		JMP_LQ = 0x46,
+		JMP_LQ = 0x48,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value.
 		/// </summary>
-		JMP_L = 0x47,
+		JMP_L = 0x49,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value.
 		/// </summary>
-		JMP_HQ = 0x48,
+		JMP_HQ = 0x4A,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value.
 		/// </summary>
-		JMP_H = 0x49,
+		JMP_H = 0x4B,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal.
 		/// </summary>
-		JMP_NQ = 0x4A,
+		JMP_NQ = 0x4C,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal.
 		/// </summary>
-		JMP_NN = 0x4B,
+		JMP_NN = 0x4D,
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero.
 		/// </summary>
-		JMP_F = 0x4C,
+		JMP_F = 0x4E,
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero.
 		/// </summary>
-		JMP_T = 0x4D,
+		JMP_T = 0x4F,
 	}
 }
