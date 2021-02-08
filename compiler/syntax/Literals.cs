@@ -36,7 +36,9 @@
             from polarity in Parse.Chars('-', '+').Optional()
             from token in Parse.DecimalInvariant
             from suffix in Parse.Chars('m', 'M').Except(Parse.Chars('f', 'F', 'd', 'D', 'l', 'L'))
-            select new DecimalLiteralExpressionSyntax(decimal.Parse($"{polarity.GetOrElse('+')}{token}", CultureInfo.InvariantCulture));
+            from e in Exponent.Optional()
+            select new DecimalLiteralExpressionSyntax(decimal.Parse($"{polarity.GetOrElse('+')}{token}{e.GetOrElse("")}", 
+                CultureInfo.InvariantCulture));
         
         /// <example>
         /// 1.23f
@@ -124,5 +126,20 @@
         protected internal virtual Parser<ExpressionSyntax> FactorExpression =>
             GenericExpressionInBraces().Select(expr => new ExpressionSyntax("(" + expr + ")"))
                 .XOr(LiteralExpression);
+        
+        
+        
+        protected internal virtual Parser<string> Exponent =>
+            Parse.Chars("Ee").Then(e => Parse.Number.Select(n => "e+" + n).XOr(
+                Parse.Chars("+-").Then(s => Parse.Number.Select(n => "e" + s + n))));
+        
+        
+        protected internal virtual Parser<string> Binary =>
+            Parse.IgnoreCase("0b").Then(x =>
+                Parse.Chars("01").AtLeastOnce().Text()).Token();
+
+        protected internal virtual Parser<string> Hexadecimal =>
+            Parse.IgnoreCase("0x").Then(x =>
+                Parse.Chars("0123456789ABCDEFabcdef").AtLeastOnce().Text()).Token();
     }
 }
