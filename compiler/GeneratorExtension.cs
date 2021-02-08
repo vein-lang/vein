@@ -77,6 +77,28 @@ namespace wave.extensions
                     throw new NotSupportedException($"{code}");
             }
         }
+        public static WaveTypeCode GetTypeCode(this ExpressionSyntax exp)
+        {
+            if (exp is NumericLiteralExpressionSyntax num)
+                return GetTypeCodeFromNumber(num);
+            return WaveTypeCode.TYPE_CLASS;
+        }
+
+        public static bool IsInteger(this WaveTypeCode code) =>
+            code == WaveTypeCode.TYPE_I1 ||
+            code == WaveTypeCode.TYPE_I2 ||
+            code == WaveTypeCode.TYPE_I4 ||
+            code == WaveTypeCode.TYPE_I8;
+        public static WaveTypeCode GetTypeCodeFromNumber(NumericLiteralExpressionSyntax number) =>
+        number switch
+        {
+            Int16LiteralExpressionSyntax => WaveTypeCode.TYPE_I2,
+            Int32LiteralExpressionSyntax => WaveTypeCode.TYPE_I4,
+            Int64LiteralExpressionSyntax => WaveTypeCode.TYPE_I8,
+            SingleLiteralExpressionSyntax => WaveTypeCode.TYPE_R4,
+            DoubleLiteralExpressionSyntax => WaveTypeCode.TYPE_R8,
+            _ => throw new NotSupportedException($"{number} is not support number.")
+        };
         public static void EmitThrow(this ILGenerator generator, TypeName type)
         {
             generator.Emit(OpCodes.NEWOBJ, type.Token.Value);
