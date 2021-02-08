@@ -6,6 +6,48 @@ namespace wave.extensions
 
     public static class GeneratorExtension
     {
+        
+        public static void EmitBinaryOperator(this ILGenerator gen, ExpressionType op, WaveTypeCode leftType, WaveTypeCode rightType, WaveTypeCode resultType)
+        {
+            switch (op)
+            {
+                case ExpressionType.Add:
+                    gen.Emit(OpCodes.ADD);
+                    break;
+                case ExpressionType.Subtract:
+                    gen.Emit(OpCodes.SUB);
+                    break;
+                case ExpressionType.Multiply:
+                    gen.Emit(OpCodes.MUL);
+                    break;
+                case ExpressionType.Divide:
+                    gen.Emit(OpCodes.DIV);
+                    break;
+                case ExpressionType.And:
+                case ExpressionType.AndAlso:
+                    gen.Emit(OpCodes.AND);
+                    return;
+                case ExpressionType.Or:
+                case ExpressionType.OrElse:
+                    gen.Emit(OpCodes.OR);
+                    return;
+                case ExpressionType.NotEqual:
+                    if (leftType == WaveTypeCode.TYPE_BOOLEAN)
+                        goto case ExpressionType.ExclusiveOr;
+                    gen.Emit(OpCodes.EQL);
+                    gen.Emit(OpCodes.LDC_I4_0);
+                    goto case ExpressionType.Equal;
+                case ExpressionType.Equal:
+                    gen.Emit(OpCodes.EQL);
+                    return;
+                case ExpressionType.ExclusiveOr:
+                    gen.Emit(OpCodes.XOR);
+                    return;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
         public static void EmitDefault(this ILGenerator gen, WaveTypeCode code)
         {
             switch (code)
