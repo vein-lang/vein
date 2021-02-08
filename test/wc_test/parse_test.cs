@@ -12,7 +12,11 @@
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public parse_test(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
+        public parse_test(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+            WaveParserExtensions._log = s => _testOutputHelper.WriteLine(s);
+        }
 
         public static WaveSyntax Wave => new();
         
@@ -274,9 +278,13 @@
         [InlineData("~1559257353 + ~822237940 * 1003188332 - ~1035228745")]
         [InlineData("!1665240565 ^ !673643812 * ~806999187 >> ~1223760571")]
         [InlineData("-599501569 ^^ -1537610347 ^^ -1801974617 && !-943604673")]
-        public void OperatorTest(string parseKey) => 
+        [InlineData("~-728565646 & ~-1896339527 && !-651565412 && ~-2116790075")]
+        public void OperatorTest(string parseKey)
+        {
             _testOutputHelper.WriteLine(Wave.QualifiedExpression.End().ParseWave($"({parseKey})")?.ExpressionString);
-        
+        }
+
+
         [Fact]
         public void FooProgramTest()
         {
@@ -284,23 +292,6 @@
                                            "public class Foo {" +
                                            "void main() {}" +
                                            "}");
-        }
-        string generate(int count)
-        {
-            var ops = new[] {"+", "-", "%", "*", "/", "^^", "^", "<<", ">>", "||", "&&", "&", "|"};
-            var cps = new[] {"!", "~", "-"};
-            var rnd = new System.Random();
-            
-            string getRandomOp() => 
-                ops[rnd.Next(0, ops.Length - 1)];
-            string getRandomCp() 
-                => rnd.Next(0, 100) % 4 == 0 ? "" : cps[rnd.Next(0, cps.Length - 1)];
-
-
-            return Enumerable.Range(0, count)
-                .Select(_ => (rnd.Next(0, Int32.MaxValue-1), rnd.Next(0, Int32.MaxValue-1)))
-                .Select(x => $"{getRandomCp()}{x.Item1 * 15} {getRandomOp()} {getRandomCp()}{x.Item2 * 15}")
-                .Join($" {getRandomOp()} ");
         }
     }
 }
