@@ -1,4 +1,4 @@
-﻿namespace wave.extensions
+namespace wave.extensions
 {
     using System;
     using emit;
@@ -6,6 +6,35 @@
 
     public static class GeneratorExtension
     {
+        public static void EmitDefault(this ILGenerator gen, WaveTypeCode code)
+        {
+            switch (code)
+            {
+                case WaveTypeCode.TYPE_OBJECT:
+                case WaveTypeCode.TYPE_STRING:
+                    gen.Emit(OpCodes.LDNULL);
+                    break;
+                case WaveTypeCode.TYPE_CHAR:
+                case WaveTypeCode.TYPE_I2:
+                case WaveTypeCode.TYPE_BOOLEAN:
+                    gen.Emit(OpCodes.LDC_I2_0);
+                    break;
+                case WaveTypeCode.TYPE_I4:
+                    gen.Emit(OpCodes.LDC_I4_0);
+                    break;
+                case WaveTypeCode.TYPE_I8:
+                    gen.Emit(OpCodes.LDC_I8_0);
+                    break;
+                case WaveTypeCode.TYPE_R4:
+                    gen.Emit(OpCodes.LDC_F4, .0f);
+                    break;
+                case WaveTypeCode.TYPE_R8:
+                    gen.Emit(OpCodes.LDC_F8, .0d);
+                    break;
+                default:
+                    throw new NotSupportedException($"{code}");
+            }
+        }
         public static void EmitThrow(this ILGenerator generator, TypeName type)
         {
             generator.Emit(OpCodes.NEWOBJ, type.Token.Value);
