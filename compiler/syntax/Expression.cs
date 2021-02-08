@@ -140,18 +140,25 @@
         protected internal virtual Parser<ExpressionSyntax> Not =>
             Operand('!', ExpressionType.Not);
         
+        
+        
+            
+        
         protected internal virtual Parser<ExpressionType> Operator(string op, ExpressionType opType) 
-            => Parse.String(op).Token().Return(opType);
+            => Parse.String(op).Token().Log("Operator").Return(opType);
         protected internal virtual Parser<ExpressionSyntax> Operand(char symbol, ExpressionType type) =>
         (   
             from sign in Parse.Char(symbol)
             from factor in RawExpression()
-            select new OperandExpressionSyntax()
+            select new UnaryExpressionSyntax()
             {
-                Right = factor,
+                Operand = factor,
                 OperatorType = type
             }
-        ).XOr(RawExpression()).Token();
+        ).XOr(RawExpression()).Log("Operand").Token();
+        
+        
+
 
         protected internal virtual Parser<ExpressionSyntax> New =>
         (
@@ -186,29 +193,37 @@
 
 
         protected internal virtual Parser<ExpressionSyntax> Level0
-            => Parse.ChainRightOperator(Power.XOr(Xor), Negate.Or(OnesComplement).Or(Not), MakeBinary).Positioned();
+            => Parse.ChainRightOperator(Power.XOr(Xor), Negate.Or(OnesComplement).Or(Not), MakeBinary)
+                .Log("Expression::Level0").Positioned();
         
         protected internal virtual Parser<ExpressionSyntax> Level1 
-            => Parse.ChainOperator(Multiply.Or(Divide).Or(Modulo), Level0, MakeBinary).Positioned();
+            => Parse.ChainOperator(Multiply.Or(Divide).Or(Modulo), Level0, MakeBinary)
+                .Log("Expression::Level1").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> Level2 
-            => Parse.ChainOperator(Add.Or(Subtract), Level1, MakeBinary).Positioned();
+            => Parse.ChainOperator(Add.Or(Subtract), Level1, MakeBinary)
+                .Log("Expression::Level2").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> Level3
-            => Parse.ChainOperator(LeftShift.Or(RightShift), Level2, MakeBinary).Positioned();
+            => Parse.ChainOperator(LeftShift.Or(RightShift), Level2, MakeBinary)
+                .Log("Expression::Level3").Positioned();
         
         protected internal virtual Parser<ExpressionSyntax> Level4 
-            => Parse.ChainOperator(Xor.Or(And).Or(Or), Level3, MakeBinary).Positioned();
+            => Parse.ChainOperator(Xor.Or(And).Or(Or), Level3, MakeBinary)
+                .Log("Expression::Level4").Positioned();
         
         protected internal virtual Parser<ExpressionSyntax> Level5 
-            => Parse.ChainOperator(AndAlso.Or(OrElse), Level4, MakeBinary).Positioned();
+            => Parse.ChainOperator(AndAlso.Or(OrElse), Level4, MakeBinary)
+                .Log("Expression::Level5").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> Level6
             => Parse.ChainOperator(LessThanOrEqual.Or(GreaterThanOrEqual).Or(LessThan).Or(GreaterThan), 
-                Level5, MakeBinary).Positioned();
+                Level5, MakeBinary)
+                .Log("Expression::Level6").Positioned();
         
         protected internal virtual Parser<ExpressionSyntax> QualifiedExpression 
-            => Parse.ChainOperator(NotEqual.XOr(Equal), Level6, MakeBinary).Positioned();
+            => Parse.ChainOperator(NotEqual.XOr(Equal), Level6, MakeBinary)
+                .Log("QualifiedExpression").Positioned();
         
         
         private static ExpressionSyntax MakeBinary(ExpressionType type, ExpressionSyntax left, ExpressionSyntax right) =>
@@ -225,11 +240,26 @@
         public ExpressionType OperatorType { get; set; }
     }
     
-    public class OperandExpressionSyntax : OperatorExpressionSyntax
+    public class UnaryExpressionSyntax : OperatorExpressionSyntax
     {
-        public ExpressionSyntax Right { get; set; }
-        public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Right);
+        public ExpressionSyntax Operand { get; set; }
+        public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Operand);
         public override SyntaxType Kind => SyntaxType.PostfixUnaryExpression;
+        
+        public override string ToString()
+        {
+            var str = new StringBuilder();
+            str.Append("(");
+            str.Append(OperatorType.GetSymbol());
+            if (Operand.ExpressionString is not null)
+                str.Append(Operand.ExpressionString);
+            else
+                str.Append(Operand.Kind);
+            str.Append(")");
+            return str.ToString();
+        }
+        
+        public override string ExpressionString => ToString();
     }
     
     public class NewExpressionSyntax : OperatorExpressionSyntax
@@ -256,12 +286,20 @@
             str.Append("(");
             if(Left is not null)
             {
-                str.Append(Left.ExpressionString);
+                if (Left.ExpressionString is not null)
+                    str.Append(Left.ExpressionString);
+                else
+                    str.Append(Left.Kind);
+                
                 str.Append($" {OperatorType.GetSymbol()} ");
             }
             else
                 str.Append($"{OperatorType.GetSymbol()}");
-            str.Append(Right.ExpressionString);
+            
+            if (Right.ExpressionString is not null)
+                str.Append(Right.ExpressionString);
+            else
+                str.Append(Right.Kind);
             str.Append(")");
             return str.ToString();
         }
