@@ -2,10 +2,28 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using Sprache;
 
     public static class WaveParserExtensions
     {
+        internal static Action<string> _log = s => {};
+        static int _instance;
+
+        public static Parser<T> Log<T>(this Parser<T> parser, string name)
+        {
+            var id = Interlocked.Increment(ref _instance);
+            _log($"[{id}] Constructing instance of {name}");
+            return i =>
+            {
+                _log($"[{id}] Invoking with input: {i}");
+                var result = parser(i);
+                _log($"[{id}] Result: {result}");
+                return result;
+            };
+        }
+        
+        
         
         public static IEnumerable<T> GetOrEmpty<T>(this IOption<IEnumerable<T>> option) 
             => option.GetOrElse(Array.Empty<T>());
