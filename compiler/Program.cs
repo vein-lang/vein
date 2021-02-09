@@ -52,26 +52,26 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
 var rootCommand = new RootCommand
 {
     new Option<DirectoryInfo>(
-        new []{"--source-dir", "-s"},
-        "Source directory."),
-    new Option<FileInfo>(
-        new []{"--out-file", "-o"},
-        "Filename for output.")
+        new []{"--project-dir", "-p"},
+        "Project directory."),
+    new Option<bool?>(
+        new []{"--generate-runtime", "-g"},
+        "Generate runtime.")
 };
 
 rootCommand.Description = "Wave Compiler";
 
 var ver = FileVersionInfo.GetVersionInfo(typeof(_term).Assembly.Location).ProductVersion;
 WriteLine($"Wave compiler {ver}".Pastel(Color.Gray));
-WriteLine($"Copyright (C) 2020 Yuuki Wesp.\n\n".Pastel(Color.Gray));
+WriteLine($"Copyright (C) 2021 Yuuki Wesp.\n\n".Pastel(Color.Gray));
 
-rootCommand.Handler = CommandHandler.Create<DirectoryInfo, FileInfo>((sourcePath, output) =>
+rootCommand.Handler = CommandHandler.Create<DirectoryInfo, bool?>((projectDir, genRuntime) =>
 {
-    if (sourcePath is null)
-        return Fail("'--source-dir' is null.");
-    if (output is null)
-        return Fail("'--out-file' is null.");
-    return Pipeline.StartAsync(sourcePath, output);
+    //if (genRuntime is not null && genRuntime.Value)
+        return Pipeline.Create().GenerateRuntimeAsync();
+    //if (projectDir is null)
+    //    return Fail("'--source-dir' is null");
+    //return Pipeline.Create().StartAsync(projectDir);
 });
 
 var result = rootCommand.InvokeAsync(args).Result;
