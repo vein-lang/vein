@@ -22,6 +22,9 @@
     <Filter Include="Header Files\types">
       <UniqueIdentifier>{6350d79b-f3fd-4390-ac3d-3d305e0b2f97}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\builtin">
+      <UniqueIdentifier>{2d8f513e-d83a-4ef1-a3ff-21d8fb81f851}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\api\eeprom_windows.cpp">
@@ -124,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="..\include\proxy.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\builtin\console.buniltin.h">
+      <Filter>Header Files\builtin</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

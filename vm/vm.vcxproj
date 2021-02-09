@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\api\EEPROM.h" />
     <ClInclude Include="..\include\api\Windows\eeprom_windows.h" />
+    <ClInclude Include="..\include\builtin\console.buniltin.h" />
     <ClInclude Include="..\include\class.h" />
     <ClInclude Include="..\include\collections\hashtable.h" />
     <ClInclude Include="..\include\collections\list.h" />

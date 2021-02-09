@@ -2,5 +2,10 @@
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/SolBuilderDuo/UseMsbuildSolutionBuilder/@EntryValue">No</s:String>
 	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\ls-mi\AppData\Local\Temp\JetBrains\ReSharperPlatformVs16\vAny_ba758409\CoverageData\_wave_lang.460587392\Snapshot\snapshot.utdcvr</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=01685e47_002D4f5a_002D468f_002D8dbc_002D8e00ac734ba6/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="FirstTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Project Location="C:\git\wave_vm\test\wc_test" Presentation="&amp;lt;wc_test&amp;gt;" /&gt;&#xD;
+  &lt;Or&gt;&#xD;
+    &lt;Project Location="C:\git\wave_vm\test\wc_test" Presentation="&amp;lt;wc_test&amp;gt;" /&gt;&#xD;
+    &lt;TestAncestor&gt;&#xD;
+      &lt;TestId&gt;xUnit::F6B36C4B-9F93-42D3-A3C1-D01A03AD3BCC::net5.0::project_system_test.parse_test.ParseVersion&lt;/TestId&gt;&#xD;
+    &lt;/TestAncestor&gt;&#xD;
+  &lt;/Or&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
