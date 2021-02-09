@@ -23,6 +23,10 @@ static WaveObject* i_call_get_Platform()
 #endif
 };
 
+
+
+#include "builtin/console.buniltin.h"
+
 static WaveObject* i_call_printf(WaveString* str)
 {
     d_print("i_call_printf:: ");
