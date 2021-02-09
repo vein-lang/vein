@@ -21,13 +21,22 @@
             moduleBuilder = module;
         }
 
+        public TypeName GetName() => new(_name, _ns);
+        public ClassFlags GetFlags() => _flags;
+
         public void SetFlags(ClassFlags flags)
             => _flags = flags; 
         
-        public MethodBuilder DefineMethod(string name, params WaveArgumentRef[] args)
+        public MethodBuilder DefineMethod(string name, WaveType returnType, params WaveArgumentRef[] args)
         {
-            var method = new MethodBuilder(this, name, args);
+            var method = new MethodBuilder(this, name, returnType, args);
             methods.Add(method);
+            return method;
+        }
+        public MethodBuilder DefineMethod(string name, MethodFlags flags, WaveType returnType, params WaveArgumentRef[] args)
+        {
+            var method = this.DefineMethod(name, returnType, args);
+            method.SetFlags(flags);
             return method;
         }
 

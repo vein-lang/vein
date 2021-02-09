@@ -24,6 +24,12 @@
             classList.Add(c);
             return c;
         }
+        public ClassBuilder DefineClass(TypeName name)
+        {
+            var c = new ClassBuilder(this, name.Name, name.Namespace);
+            classList.Add(c);
+            return c;
+        }
 
         public int GetStringConstant(string str)
         {

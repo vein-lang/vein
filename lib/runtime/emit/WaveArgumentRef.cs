@@ -2,7 +2,7 @@
 {
     public class WaveArgumentRef
     {
-        public WaveRuntimeType Type { get; set; }
+        public WaveType Type { get; set; }
         public RuntimeToken Token => RuntimeToken.Create(Name);
         public string Name { get; set; }
         

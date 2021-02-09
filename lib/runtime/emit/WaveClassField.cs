@@ -2,7 +2,7 @@
 {
     public class WaveClassField
     {
-        public WaveRuntimeType Type;
+        public WaveType Type;
         public uint Flags;
     }
 }

@@ -38,14 +38,15 @@
     public record TypeName(string fullName)
     {
         public string Name => fullName.Split('/').Last();
-        public string Namespace => fullName.Split('/').SkipLast(1).Join(string.Empty);
+        public string Namespace => fullName.Split('/').SkipLast(1).Join("/");
 
         public RuntimeToken Token => RuntimeToken.Create(fullName);
 
 
         public static implicit operator string(TypeName t) => t.fullName;
         public static implicit operator TypeName(string t) => new(t);
-        
-        
+
+
+        public TypeName(string name, string ns) : this($"{ns}/{name}") { }
     }
 }

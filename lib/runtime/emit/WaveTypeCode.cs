@@ -17,6 +17,7 @@
         TYPE_U8, /* ulong  */
         TYPE_R4, /* float  */
         TYPE_R8, /* double */
+        TYPE_R16, /* decimal */
         TYPE_STRING,
         TYPE_CLASS,
         TYPE_ARRAY

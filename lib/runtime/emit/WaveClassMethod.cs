@@ -4,7 +4,7 @@
 
     public class WaveClassMethod
     {
-        public WaveRuntimeType ReturnType { get; set; }
+        public WaveType ReturnType { get; set; }
         public WaveClass Owner { get; set; }
         public List<WaveArgumentRef> Arguments { get; } = new();
         public string Name { get; set; }
