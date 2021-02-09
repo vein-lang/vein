@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Text;
+    using wave.emit;
     using wave.fs;
     using Xunit;
     public class elf_test
@@ -33,7 +34,6 @@
         //    WaveAssembly.WriteToFile(asm, file);
         //    var result = WaveAssembly.LoadFromFile(file);
         //}
-
 
         public string GetTempFile() => Path.Combine(Path.GetTempPath(), "wave_test", Path.GetTempFileName());
     }

@@ -1,11 +1,28 @@
-namespace wave.extensions
+﻿namespace wave.extensions
 {
     using System;
+    using System.Linq.Expressions;
     using emit;
     using syntax;
-
+    
     public static class GeneratorExtension
     {
+        public static void EmitUnary(this ILGenerator gen, UnaryExpressionSyntax node)
+        {
+            if (node.OperatorType == ExpressionType.NegateChecked && node.Operand.GetTypeCode().IsInteger())
+            {
+                var type = node.Operand.GetTypeCode();
+                gen.EmitDefault(type);
+                gen.EmitExpression(node.Operand);
+                gen.EmitBinaryOperator(ExpressionType.SubtractChecked, type, type, type);
+            }
+            else
+            {
+                gen.EmitExpression(node.Operand);
+                //gen.EmitUnaryOperator(node.NodeType, node.Operand.Type, node.Type);
+            }
+        }
+        
         
         public static void EmitBinaryOperator(this ILGenerator gen, ExpressionType op, WaveTypeCode leftType, WaveTypeCode rightType, WaveTypeCode resultType)
         {
@@ -77,6 +94,8 @@ namespace wave.extensions
                     throw new NotSupportedException($"{code}");
             }
         }
+
+        
         public static WaveTypeCode GetTypeCode(this ExpressionSyntax exp)
         {
             if (exp is NumericLiteralExpressionSyntax num)
@@ -99,6 +118,12 @@ namespace wave.extensions
             DoubleLiteralExpressionSyntax => WaveTypeCode.TYPE_R8,
             _ => throw new NotSupportedException($"{number} is not support number.")
         };
+        
+        public static void EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
+        {
+            
+        }
+
         public static void EmitThrow(this ILGenerator generator, TypeName type)
         {
             generator.Emit(OpCodes.NEWOBJ, type.Token.Value);
