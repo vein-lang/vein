@@ -21,7 +21,7 @@
             var module = new ModuleBuilder("xuy");
             var clazz = module.DefineClass("svack_pidars", "wave/lang");
             clazz.SetFlags(ClassFlags.Public | ClassFlags.Static);
-            var method = clazz.DefineMethod("insert_dick_into_svack", ("x", WaveTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
             method.SetFlags(MethodFlags.Public | MethodFlags.Static);
             var body = method.GetGenerator();
             
@@ -46,7 +46,7 @@
             var module = new ModuleBuilder("xuy");
             var clazz = module.DefineClass("svack_pidars", "wave/lang");
             clazz.SetFlags(ClassFlags.Public | ClassFlags.Static);
-            var method = clazz.DefineMethod("insert_dick_into_svack", ("x", WaveTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
             method.SetFlags(MethodFlags.Public | MethodFlags.Static);
             var body = method.GetGenerator();
             
@@ -86,7 +86,7 @@
 
                     foreach (var methodMember in classMember.Methods)
                     {
-                        var method = @class.DefineMethod(methodMember.Identifier);
+                        var method = @class.DefineMethod(methodMember.Identifier, WaveTypeCode.TYPE_VOID.AsType());
                         var generator = method.GetGenerator();
 
                         foreach (var statement in methodMember.Body.Statements)
@@ -152,15 +152,25 @@
             
             var actual = CreateGenerator();
             
+            
             Assert.Throws<FieldIsNotDeclaredException>(() => actual.EmitReturn(ret));
         }
         
+        
+        [Fact]
+        public void BuiltinGenTest()
+        {
+            var module = new ModuleBuilder(Guid.NewGuid().ToString());
+            BuiltinGen.GenerateConsole(module);
+            module.BakeByteArray();
+            module.BakeDebugString();
+        }
         
         public static ILGenerator CreateGenerator(params WaveArgumentRef[] args)
         {
             var module = new ModuleBuilder(Guid.NewGuid().ToString());
             var @class = new ClassBuilder(module, "foo", "bar");
-            var method = @class.DefineMethod("foo", args);
+            var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsType(), args);
             return method.GetGenerator();
         }
     }
