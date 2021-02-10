@@ -130,7 +130,7 @@
             generator.EmitCall(OpCodes.CALL, GetDefaultCtor(type));
             generator.Emit(OpCodes.THROW);
         }
-        public static WaveClassMethod GetDefaultCtor(TypeName t) => throw new NotImplementedException();
+        public static WaveMethod GetDefaultCtor(TypeName t) => throw new NotImplementedException();
         public static void EmitIfElse(this ILGenerator generator, IfStatementSyntax ifStatement)
         {
             var elseLabel = generator.DefineLabel();
