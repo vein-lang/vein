@@ -1,4 +1,4 @@
-namespace wave.emit
+﻿namespace wave.emit
 {
     using System;
     using System.Collections.Generic;
