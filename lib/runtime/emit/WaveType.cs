@@ -47,6 +47,8 @@ namespace wave.emit
         public virtual bool IsStatic { get; protected set; } = false;
         public virtual bool IsPrivate { get; protected set; } = false;
         public virtual bool IsPrimitive { get; protected set; } = false;
+        
+        public override WaveMemberKind Kind => WaveMemberKind.Type;
 
 
         public static implicit operator WaveType(string typeName) =>
