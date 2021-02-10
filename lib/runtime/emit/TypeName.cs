@@ -1,8 +1,7 @@
-namespace wave.emit
+﻿namespace wave.emit
 {
     using System.Linq;
     using System.Security;
-    using extensions;
 
     public record RuntimeToken(string text, ulong Value)
     {
@@ -34,14 +33,14 @@ namespace wave.emit
     }
 
 
-    public record FieldName(string name);
 
     public record TypeName(string fullName)
     {
         public string Name => fullName.Split('/').Last();
         public string Namespace => fullName.Split('/').SkipLast(1).Join("/");
 
-        public RuntimeToken Token => RuntimeToken.Create(fullName);
+        public RuntimeToken Token 
+            => RuntimeToken.Create(fullName);
 
 
         public static implicit operator string(TypeName t) => t.fullName;
@@ -49,5 +48,11 @@ namespace wave.emit
 
 
         public TypeName(string name, string ns) : this($"{ns}/{name}") { }
+
+        public static TypeName Construct(in int nameIdx, in int namespaceIdx, WaveModule module) 
+            => new(module.GetConstByIndex(nameIdx), module.GetConstByIndex(namespaceIdx));
+        public static TypeName Construct(in long fullIdx, WaveModule module) 
+            => new(module.GetConstByIndex((int)(fullIdx >> 32)), 
+                module.GetConstByIndex((int)(fullIdx & uint.MaxValue)));
     }
 }
