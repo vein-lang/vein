@@ -67,20 +67,18 @@ namespace wave.emit
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
 
-            var idx = GetStringConstant(_name);
-            var name = Encoding.UTF8.GetBytes(_name);
+            var idx = GetStringConstant(Name);
             
             binary.Write(idx);
-            binary.Write(name.Length);
-            binary.Write(name);
+            
+            binary.Write(strings.Count);
             foreach (var (key, value) in strings)
             {
                 binary.Write(key);
-                binary.Write(value.Length);
                 binary.Write(value);
             }
-
-            foreach (var clazz in classList)
+            binary.Write(classList.Count);
+            foreach (var clazz in classList.OfType<IBaker>())
             {
                 var body = clazz.BakeByteArray();
                 binary.Write(body.Length);
@@ -93,11 +91,11 @@ namespace wave.emit
         public string BakeDebugString()
         {
             var str = new StringBuilder();
-            str.AppendLine($".module {_name}");
+            str.AppendLine($".module '{Name}'");
             str.AppendLine("{");
             foreach (var (key, value) in strings) 
                 str.AppendLine($"\t.string 0x{key:X8}.'{value}'");
-            foreach (var clazz in classList.Select(x => x.BakeDebugString()))
+            foreach (var clazz in classList.OfType<IBaker>().Select(x => x.BakeDebugString()))
                 str.AppendLine($"{clazz.Split('\n').Select(x => $"\t{x}").Join('\n')}");
             str.AppendLine("}");
 
@@ -127,11 +125,6 @@ namespace wave.emit
                 }
                 return num1 + num2 * 0x5D588B65;
             }
-        }
-
-        public int GetMethodToken(WaveClassMethod method)
-        {
-            throw new NotImplementedException();
         }
     }
 }
