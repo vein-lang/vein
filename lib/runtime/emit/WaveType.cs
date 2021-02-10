@@ -1,4 +1,4 @@
-﻿namespace wave.emit
+namespace wave.emit
 {
     using System;
     using System.Linq;
@@ -59,7 +59,7 @@
 
     public abstract class WaveMember
     {
-        public abstract string Name { get; }
+        public abstract string Name { get; protected set; }
         public abstract WaveMemberKind Kind { get; }
     }
     
