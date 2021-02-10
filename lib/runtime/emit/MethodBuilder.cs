@@ -5,44 +5,39 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using extensions;
 
-    public class MethodBuilder
+    public class MethodBuilder : WaveMethod, IBaker
     {
         internal readonly ClassBuilder classBuilder;
-        private readonly string _name;
-        private MethodFlags _flags;
-        private readonly WaveType _returnType;
+        internal ModuleBuilder moduleBuilder 
+            => classBuilder?.moduleBuilder;
         private readonly ILGenerator _generator;
-        private readonly List<WaveArgumentRef> _args = new();
-        private readonly Dictionary<int, WaveArgumentRef> _locals = new();
+
 
         internal MethodBuilder(ClassBuilder clazz, string name, WaveType returnType, params WaveArgumentRef[] args)
         {
             classBuilder = clazz;
-            _returnType = returnType;
-            _name = name;
+            ReturnType = returnType;
+            Name = name;
             _generator = new ILGenerator(this);
-            this._args.AddRange(args);
+            Arguments.AddRange(args);
         }
 
-        public void SetFlags(MethodFlags flags) => _flags = flags;
-
-
         public ILGenerator GetGenerator() => _generator;
-        
-        internal byte[] BakeByteArray()
+
+        public byte[] BakeByteArray()
         {
-            var idx = classBuilder.moduleBuilder.GetStringConstant(_name);
+            var idx = classBuilder.moduleBuilder.GetStringConstant(Name);
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
-            if (_flags.HasFlag(MethodFlags.Extern))
+            if (Flags.HasFlag(MethodFlags.Extern))
             {
                 binary.Write(idx); // $method name
-                binary.Write((byte)_flags); // $flags
+                binary.Write((byte)Flags); // $flags
                 binary.Write(0); // body size
                 binary.Write((byte)0); // stack size TODO
                 binary.Write((byte)0); // locals size TODO
+                binary.Write(classBuilder.moduleBuilder.GetTypeConstant(ReturnType.FullName));
                 binary.Write(new byte[0]); // IL Body
                 return mem.ToArray();
             }
@@ -50,27 +45,39 @@
             var body = _generator.BakeByteArray();
             
             binary.Write(idx); // $method name
-            binary.Write((byte)_flags); // $flags
+            binary.Write((byte)Flags); // $flags
             binary.Write(body.Length); // body size
             binary.Write((byte)64); // stack size TODO
             binary.Write((byte)24); // locals size TODO
+            binary.Write(classBuilder.moduleBuilder.GetTypeConstant(ReturnType.FullName));
+            WriteArguments(binary);
             binary.Write(body); // IL Body
 
             return mem.ToArray();
         }
         
-        internal string BakeDebugString()
+        private void WriteArguments(BinaryWriter binary)
+        {
+            binary.Write(ArgLength);
+            foreach (var argument in Arguments)
+            {
+                binary.Write(moduleBuilder.GetStringConstant(argument.Name));
+                binary.Write(moduleBuilder.GetTypeConstant(argument.Type.FullName));
+            }
+        }
+
+        public string BakeDebugString()
         {
             var str = new StringBuilder();
-            var args = _args.Select(x => $"{x.Name}: {x.Type.Name}").Join(',');
-            if (_flags.HasFlag(MethodFlags.Extern))
+            var args = Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(',');
+            if (Flags.HasFlag(MethodFlags.Extern))
             {
-                str.AppendLine($".method extern {_name} ({args}) {_flags.EnumerateFlags().Join(' ').ToLowerInvariant()};");
+                str.AppendLine($".method extern {Name} ({args}) {Flags.EnumerateFlags().Join(' ').ToLowerInvariant()};");
                 return str.ToString();
             }
             var body = _generator.BakeDebugString();
             
-            str.AppendLine($".method {_name} ({args}) {_flags.EnumerateFlags().Join(' ').ToLowerInvariant()}");
+            str.AppendLine($".method '{Name}' ({args}) {Flags.EnumerateFlags().Join(' ').ToLowerInvariant()}");
             str.AppendLine("{");
             str.AppendLine($"\t.size {_generator.ILOffset}");
             str.AppendLine($"\t.maxstack 0x{64:X8}");
@@ -94,17 +101,15 @@
             => getLocal(@ref)?.idx;
         private (int idx, WaveArgumentRef arg)? getLocal(FieldName @ref)
         {
-            var (key, value) = _locals
+            var (key, value) = Locals
                 .FirstOrDefault(x
-                    => x.Value.Name.Equals(@ref.name, StringComparison.CurrentCultureIgnoreCase));
+                    => x.Value.Name.Equals(@ref.Name, StringComparison.CurrentCultureIgnoreCase));
             return value != null ? (key, value) : default;
         }
         private (int idx, WaveArgumentRef type)? getArg(FieldName @ref)
         {
-            var result = _args.Select((x, i) => (i, x)).FirstOrDefault(x => x.x.Name.Equals(@ref.name, StringComparison.CurrentCultureIgnoreCase));
-            if (result.x is null)
-                return default;
-            return result;
+            var result = Arguments.Select((x, i) => (i, x)).FirstOrDefault(x => x.x.Name.Equals(@ref.Name, StringComparison.CurrentCultureIgnoreCase));
+            return result.x is null ? default((int idx, WaveArgumentRef type)?) : result;
         }
         #endregion
     }
