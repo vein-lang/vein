@@ -1,5 +1,6 @@
-﻿namespace wave.stl
+﻿namespace wave
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
@@ -18,6 +19,16 @@
         public static string Join(this IEnumerable<string> enumerable, string key) 
             => string.Join(key, enumerable);
         public static string Join(this IEnumerable<string> enumerable, char key) 
+            => string.Join(key, enumerable);
+        
+        public static string Join<T>(this IEnumerable<T> enumerable) 
+            where T : struct, IComparable, IFormattable, IConvertible
+            => string.Join(string.Empty, enumerable);
+        public static string Join<T>(this IEnumerable<T> enumerable, string key) 
+            where T : struct, IComparable, IFormattable, IConvertible
+            => string.Join(key, enumerable);
+        public static string Join<T>(this IEnumerable<T> enumerable, char key) 
+            where T : struct, IComparable, IFormattable, IConvertible
             => string.Join(key, enumerable);
         
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable) 
