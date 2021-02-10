@@ -153,7 +153,7 @@
             };
             this.EnsureCapacity<OpCode>();
             this.InternalEmit(opcode);
-            _debugBuilder.AppendLine($".{opcode.Name} {field.name}.{token:X8}");
+            _debugBuilder.AppendLine($".{opcode.Name} {field.Name}.{token:X8}");
         }
         
         public virtual void Emit(OpCode opcode, Label label)
@@ -161,7 +161,7 @@
             
         }
 
-        public virtual void EmitCall(OpCode opcode, WaveClassMethod method)
+        public virtual void EmitCall(OpCode opcode, WaveMethod method)
         {
             if (method is null)
                 throw new ArgumentNullException(nameof (method));
