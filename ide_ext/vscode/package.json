@@ -2,7 +2,7 @@
 	"name": "wave-language",
 	"displayName": "Wave Language",
 	"description": "Wave developmemnt environment",
-	"version": "0.0.1",
+	"version": "0.1.300",
 	"icon": "images/icon.png",
 	"galleryBanner": {
 		"color": "#18c7b1",
@@ -50,6 +50,16 @@
 					".wave"
 				],
 				"configuration": "./wave.configuration.json"
+			},
+			{
+				"id": "wvil",
+				"aliases": [
+					"wvil"
+				],
+				"extensions": [
+					".wvil"
+				],
+				"configuration": "./wvil.configuration.json"
 			}
 		],
 		"grammars": [
@@ -57,6 +67,11 @@
 				"language": "wave",
 				"scopeName": "source.wave",
 				"path": "./syntaxes/wave.tmLanguage"
+			},
+			{
+				"language": "wvil",
+				"scopeName": "source.wave.il",
+				"path": "./syntaxes/wvil.tmLanguage"
 			}
 		]
 	},
