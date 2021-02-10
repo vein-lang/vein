@@ -34,8 +34,17 @@ namespace wave.emit
     public abstract class WaveType : WaveMember
     {
         public string Namespace => FullName.Namespace;
-        public override string Name => FullName.Name;
-        
+        public List<WaveMember> Members { get; } = new();
+        protected internal ClassFlags? classFlags { get; set; }
+        public WaveTypeCode TypeCode { get; protected set; }
+        public WaveType Parent { get; protected set; }
+
+        public override string Name
+        {
+            get => FullName.Name;
+            protected set => throw new NotImplementedException();
+        }
+
 
         public abstract TypeName FullName { get; }
 
