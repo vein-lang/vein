@@ -63,6 +63,20 @@
         public static WaveClass BoolClass;
         public static WaveClass CharClass;
         public static WaveClass ArrayClass;
+
+        public static List<WaveClass> All => new()
+        {
+            ObjectClass,
+            ValueTypeClass,
+            VoidClass,
+            StringClass,
+            Int32Class,
+            Int64Class,
+            Int16Class,
+            BoolClass,
+            CharClass,
+            ArrayClass
+        };
         
         public static void Init()
         {
