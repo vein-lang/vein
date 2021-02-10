@@ -7,11 +7,6 @@ namespace wave.emit
     internal sealed class WaveTypeImpl : WaveType
     {
         public override TypeName FullName { get; }
-        public override WaveMemberKind Kind => WaveMemberKind.Type;
-        public WaveTypeCode TypeCode { get; }
-        
-        
-        private readonly ClassFlags _flags;
         
         public WaveTypeImpl(TypeName typeName, WaveTypeCode code)
         {
