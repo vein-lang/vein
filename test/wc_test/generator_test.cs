@@ -19,10 +19,10 @@
         public void Test()
         {
             var module = new ModuleBuilder("xuy");
-            var clazz = module.DefineClass("svack_pidars", "wave/lang");
-            clazz.SetFlags(ClassFlags.Public | ClassFlags.Static);
+            var clazz = module.DefineClass("global::wave/lang/svack_pidars");
+            clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
-            method.SetFlags(MethodFlags.Public | MethodFlags.Static);
+            method.Flags = MethodFlags.Public | MethodFlags.Static;
             var body = method.GetGenerator();
             
             body.Emit(OpCodes.LDC_I4_S, 1448);
@@ -44,10 +44,10 @@
         public void TestIL()
         {
             var module = new ModuleBuilder("xuy");
-            var clazz = module.DefineClass("svack_pidars", "wave/lang");
-            clazz.SetFlags(ClassFlags.Public | ClassFlags.Static);
+            var clazz = module.DefineClass("global::wave/lang/svack_pidars");
+            clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
-            method.SetFlags(MethodFlags.Public | MethodFlags.Static);
+            method.Flags = MethodFlags.Public | MethodFlags.Static;
             var body = method.GetGenerator();
             
             body.Emit(OpCodes.LDC_I4_S, 1448);
@@ -82,7 +82,7 @@
             {
                 if (member is ClassDeclarationSyntax classMember)
                 {
-                    var @class = module.DefineClass(classMember.Identifier, "wave/lang");
+                    var @class = module.DefineClass($"global::wave/lang/{classMember.Identifier}");
 
                     foreach (var methodMember in classMember.Methods)
                     {
@@ -169,7 +169,7 @@
         public static ILGenerator CreateGenerator(params WaveArgumentRef[] args)
         {
             var module = new ModuleBuilder(Guid.NewGuid().ToString());
-            var @class = new ClassBuilder(module, "foo", "bar");
+            var @class = new ClassBuilder(module, "foo/bar");
             var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsType(), args);
             return method.GetGenerator();
         }
