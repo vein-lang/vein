@@ -5,6 +5,7 @@
     [Flags]
     public enum ClassFlags : sbyte
     {
+        None = 0,
         Public = 1 << 0,
         Static = 1 << 1,
         Internal = 1 << 2,
