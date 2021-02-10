@@ -24,6 +24,6 @@
     public static class ClassBuilderExtension
     {
         public static WaveType AsType(this ClassBuilder builder) 
-            => new WaveTypeImpl(builder.GetName(), TYPE_CLASS, builder.GetFlags());
+            => new WaveTypeImpl(builder.GetName(), TYPE_CLASS, builder.Flags);
     }
 }
