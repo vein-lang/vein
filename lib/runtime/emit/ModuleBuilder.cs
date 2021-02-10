@@ -1,4 +1,4 @@
-﻿namespace wave.emit
+namespace wave.emit
 {
     using System;
     using System.Collections.Generic;
@@ -43,7 +43,25 @@
                 $"Please report this issue into https://github.com/0xF6/wave_lang/issues.");
             return key;
         }
-
+        
+        public long GetTypeConstant(TypeName name)
+        {
+            var i1 = GetStringConstant(name.Namespace);
+            var i2 = GetStringConstant(name.Name);
+            long b = i2;
+            b <<= 32;
+            b |= (uint)i1;
+            return b;
+        }
+        public long GetTypeConstant(FieldName name)
+        {
+            var i1 = GetStringConstant(name.Class);
+            var i2 = GetStringConstant(name.Name);
+            long b = i2;
+            b <<= 32;
+            b |= (uint)i1;
+            return b;
+        }
         public byte[] BakeByteArray()
         {
             using var mem = new MemoryStream();
