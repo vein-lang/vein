@@ -18,8 +18,8 @@ jobs:
         dotnet-version: 5.0.x
     - name: Install dependencies
       run: dotnet restore
-
-    - run: dotnet publish ./lib/runtime.csproj -c release
+    - run: ls -a
+    - run: dotnet publish .\lib\runtime.csproj -c release
 
     - name: Install NuGet client
       uses: warrenbuckley/Setup-Nuget@v1
