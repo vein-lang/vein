@@ -1,14 +1,10 @@
-﻿namespace wave
-{
-    using System.Runtime.CompilerServices;
-    using emit;
+﻿
+using System.Runtime.CompilerServices;
+using wave.emit;
 
-    public static class RuntimeModule
-    {
-        [ModuleInitializer]
-        public static void Init()
-        {
-            WaveCore.Init();
-        }
-    }
+[assembly: InternalsVisibleTo("wc_test")]
+public static class RuntimeModule
+{
+    [ModuleInitializer]
+    public static void Init() => WaveCore.Init();
 }
