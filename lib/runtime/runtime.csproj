@@ -1,17 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>wave</RootNamespace>
-    <AssemblyName>wave.runtime</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <TargetFramework>net5.0</TargetFramework>
+      <RootNamespace>wave</RootNamespace>
+	  <Version>0.2.222</Version>
+      <AssemblyName>insomnia.vm.runtime</AssemblyName>
+      <PackageIconUrl>https://raw.githubusercontent.com/0xF6/wave_lang/master/ide_ext/vscode/images/icon.png</PackageIconUrl>
+	  <PackageProjectUrl>https://github.com/0xF6/wave_lang</PackageProjectUrl>
+	  <RepositoryUrl>https://github.com/0xF6/wave_lang</RepositoryUrl>
+	  <RepositoryType>git</RepositoryType>
+	  <Copyright>(C) 2021 Yuuki Wesp</Copyright>
+	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+	  <Authors>Yuuki Wesp</Authors>
+	  <Company>Wave Lang Project</Company>
+	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	  <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\metadata\opcodes.def.cs" Link="emit\opcodes.def.cs" />
     <Compile Include="..\..\metadata\opcodes.list.def.cs" Link="emit\opcodes.list.def.cs" />
   </ItemGroup>
+	<PropertyGroup Condition="$(Configuration) == 'Debug'">
+		<BumpPatch>true</BumpPatch>
+	</PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="morelinq" Version="3.3.2" />
+	  <PackageReference Include="Ivy.Versioning" Version="3.1.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	  <PackageReference Include="morelinq" Version="3.3.2" />
   </ItemGroup>
 </Project>
