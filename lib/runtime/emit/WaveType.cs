@@ -1,9 +1,10 @@
 namespace wave.emit
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
 
-
+    
     internal sealed class WaveTypeImpl : WaveType
     {
         public override TypeName FullName { get; }
@@ -15,7 +16,10 @@ namespace wave.emit
         }
         public WaveTypeImpl(TypeName typeName, WaveTypeCode code, ClassFlags flags) 
             : this(typeName, code) 
-            => this._flags = flags;
+            => this.classFlags = flags;
+        public WaveTypeImpl(TypeName typeName, WaveTypeCode code, ClassFlags flags, WaveType parent) 
+            : this(typeName, code, flags) =>
+            this.Parent = parent;
 
         public override bool IsStatic => _flags.HasFlag(ClassFlags.Static);
         public override bool IsPublic => _flags.HasFlag(ClassFlags.Public);
