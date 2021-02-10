@@ -21,14 +21,11 @@ namespace wave.emit
             : this(typeName, code, flags) =>
             this.Parent = parent;
 
-        public override bool IsStatic => _flags.HasFlag(ClassFlags.Static);
-        public override bool IsPublic => _flags.HasFlag(ClassFlags.Public);
-        public override bool IsPrivate => _flags.HasFlag(ClassFlags.Private);
+        public override bool IsStatic => classFlags?.HasFlag(ClassFlags.Static) ?? false;
+        public override bool IsPublic => classFlags?.HasFlag(ClassFlags.Public) ?? false;
+        public override bool IsPrivate => classFlags?.HasFlag(ClassFlags.Private) ?? false;
         public override bool IsPrimitive => TypeCode != WaveTypeCode.TYPE_CLASS && TypeCode != WaveTypeCode.TYPE_NONE;
         public override bool IsClass => !IsPrimitive;
-
-        
-        public override string ToString() => $"[{FullName}]";
     }
     
     public abstract class WaveType : WaveMember
