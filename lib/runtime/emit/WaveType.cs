@@ -55,6 +55,9 @@ namespace wave.emit
         
         public static WaveType ByName(TypeName name) => 
             WaveCore.Types.All.FirstOrDefault(x => x.FullName == name);
+        
+        
+        public override string ToString() => $"[{FullName}]";
     }
 
     public abstract class WaveMember
