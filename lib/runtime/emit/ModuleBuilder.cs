@@ -1,32 +1,18 @@
-namespace wave.emit
+﻿namespace wave.emit
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Security;
-    using System.Security.Cryptography;
     using System.Text;
-    using extensions;
 
-    public class ModuleBuilder : IBaker
+    public class ModuleBuilder : WaveModule, IBaker
     {
-        private readonly string _name;
-        private readonly Dictionary<int, string> strings = new();
-        private readonly List<ClassBuilder> classList = new ();
+        public ModuleBuilder(string name) : base(name) {}
 
-        public ModuleBuilder(string name) => _name = name;
-
-
-        public ClassBuilder DefineClass(string name, string @namespace)
-        {
-            var c = new ClassBuilder(this, name, @namespace);
-            classList.Add(c);
-            return c;
-        }
         public ClassBuilder DefineClass(TypeName name)
         {
-            var c = new ClassBuilder(this, name.Name, name.Namespace);
+            var c = new ClassBuilder(this, name);
             classList.Add(c);
             return c;
         }
@@ -62,6 +48,7 @@ namespace wave.emit
             b |= (uint)i1;
             return b;
         }
+
         public byte[] BakeByteArray()
         {
             using var mem = new MemoryStream();
