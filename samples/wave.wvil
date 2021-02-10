@@ -1,0 +1,32 @@
+.module 'xuy'
+{
+	.string 0x12AB4DC9 'insert_dick_into_svack'
+	.string 0x161B4D5F 'mamka_svacka'
+	.string 0x42A66FC1 'papka_svacka'
+	.string 0xF8126E00 'svack_pidars'
+
+	.namespace 'wave/lang'
+	.class 'svack_pidars' public static
+	{
+		.field 'mamka_svacka' as string public static
+			= [0x22,0x55,0x63];
+		.field 'papka_svacka' as string public static
+			= [0x11,0x75,0x21];
+
+		.method 'insert_dick_into_svack' (x: string) public static
+		{
+			.size 25
+			.maxstack 0x00000040
+			.locals 0x00000018
+			
+			.ldc.i4.s 0x000005A8.int
+			.ldc.i4.s 0x000000E4.int
+			.add
+			.ldc.i4.s 0x00000002.int
+			.xor
+			.dump.0
+			.ldarg.0 x.7AA162CB7D6
+			.ret
+		}
+	}
+}
