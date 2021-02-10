@@ -18,7 +18,7 @@
             => Enumerable.Range(range.Start.Value, range.End.Value).GetEnumerator();
     }
 
-    public partial class WaveAssembly
+    public partial class InsomniaAssembly
     {
         public string Name { get; init; }
         
@@ -27,7 +27,7 @@
         public void AddSegment((string name, byte[] data) seg) => sections.Add(seg);
 
         /// <exception cref="BadImageFormatException"/>
-        public static WaveAssembly LoadFromFile(string file)
+        public static InsomniaAssembly LoadFromFile(string file)
         {
             using var fs = File.OpenRead(file);
             using var br = new BinaryReader(fs);
@@ -69,10 +69,10 @@
                 sections[i] = (tmp.name, reader.ReadBytes(reader.ReadInt32()));
             }
             
-            return new WaveAssembly {sections = sections};
+            return new InsomniaAssembly {sections = sections};
         }
         
-        public static void WriteToFile(WaveAssembly asm, string file)
+        public static void WriteToFile(InsomniaAssembly asm, string file)
         {
             using var memory = new MemoryStream();
             using var writer = new BinaryWriter(memory);

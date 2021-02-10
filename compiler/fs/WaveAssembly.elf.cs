@@ -12,7 +12,7 @@ namespace wave.fs
     using ElfSegmentFlags = elf.ElfSegmentFlags;
     using ElfSegmentType = elf.ElfSegmentType;
     using ElfType = elf.ElfType;
-    public partial class WaveAssembly
+    public partial class InsomniaAssembly
     {
         protected internal static void WriteElf(byte[] ilCode, Stream stream)
         {

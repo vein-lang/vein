@@ -13,14 +13,14 @@
         {
             Console.WriteLine($"{":gear:".Emoji()} Initialized regeneration runtime libraries...");
 
-            var asm = new WaveAssembly { Name = "stl" };
+            var asm = new InsomniaAssembly { Name = "stl" };
             var stllib = new ModuleBuilder("stl");
             Console.WriteLine($"{":smoking:".Emoji()} Generate stl.lib...");
             
             BuiltinGen.GenerateConsole(stllib);
             asm.AddSegment((".code", stllib.BakeByteArray()));
             
-            WaveAssembly.WriteToFile(asm, @"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any\stl.wll");
+            InsomniaAssembly.WriteToFile(asm, @"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any\stl.wll");
             await File.WriteAllTextAsync(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any\stl.wll.il",
                 stllib.BakeDebugString());
 

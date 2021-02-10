@@ -63,11 +63,11 @@
             var body_module = module.BakeByteArray();
 
 
-            var asm = new WaveAssembly();
+            var asm = new InsomniaAssembly();
             
             asm.AddSegment((".code", body_module));
             
-            WaveAssembly.WriteToFile(asm, @"C:\Users\ls-mi\Desktop\wave.dll");
+            InsomniaAssembly.WriteToFile(asm, @"C:\Users\ls-mi\Desktop\wave.dll");
         }
         [Fact]
         public void AST2ILTest()

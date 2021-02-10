@@ -12,13 +12,13 @@
         public void ElfReadTest()
         {
             var file = GetTempFile();
-            var asm = new WaveAssembly
+            var asm = new InsomniaAssembly
             {
                 Name = "wave_test"
             };
             asm.AddSegment((".code", Encoding.ASCII.GetBytes("IL_CODE")));
-            WaveAssembly.WriteToFile(asm, file);
-            var result = WaveAssembly.LoadFromFile(file);
+            InsomniaAssembly.WriteToFile(asm, file);
+            var result = InsomniaAssembly.LoadFromFile(file);
             var (_, body) = result.sections[0];
             Assert.Equal("IL_CODE", Encoding.ASCII.GetString(body));
             File.Delete(file);
@@ -26,13 +26,13 @@
         //public void ElfReadManul()
         //{
         //    var file = @"C:\Users\ls-mi\Desktop\wave.elf";
-        //    var asm = new WaveAssembly
+        //    var asm = new InsomniaAssembly
         //    {
         //        Name = "wave_test"
         //    };
         //    asm.AddSegment((".code", Encoding.ASCII.GetBytes("IL_CODE")));
-        //    WaveAssembly.WriteToFile(asm, file);
-        //    var result = WaveAssembly.LoadFromFile(file);
+        //    InsomniaAssembly.WriteToFile(asm, file);
+        //    var result = InsomniaAssembly.LoadFromFile(file);
         //}
 
         public string GetTempFile() => Path.Combine(Path.GetTempPath(), "wave_test", Path.GetTempFileName());
