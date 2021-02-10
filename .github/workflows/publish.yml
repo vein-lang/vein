@@ -1,0 +1,37 @@
+name: publish release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with: 
+        submodules: 'recursive'
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.200
+    - name: Install dependencies
+      run: dotnet restore
+
+    - run: dotnet publish ./lib/runtime.csproj -c release
+
+    - name: Install NuGet client
+      uses: warrenbuckley/Setup-Nuget@v1
+
+    - name: Add private GitHub registry to NuGet
+      run: nuget sources add -name "GPR" -Source https://nuget.pkg.github.com/0xf6/index.json -Username 0xF6 -Password ${{ secrets.GITHUB_TOKEN }}
+
+    # problem with associate package to another repo
+    - name: Push generated package to GitHub registry
+      run: nuget push .\**\*.nupkg -Source "GPR" -SkipDuplicate
+      continue-on-error: true
+
+    - name: Push generated package to NuGet registry
+      run: nuget push .\**\*.nupkg -ApiKey ${{ secrets.NUGET_KEY }} -Source https://api.nuget.org/v3/index.json -SkipDuplicate
+      continue-on-error: true
