@@ -1,12 +1,13 @@
-﻿namespace wave.emit
+namespace wave.emit
 {
     using System.Linq;
     using System.Security;
     using extensions;
 
-    public record RuntimeToken(ulong Value)
+    public record RuntimeToken(string text, ulong Value)
     {
-        public static RuntimeToken Create(string id) => new(getHashCode(id));
+        public static RuntimeToken Create(string id) 
+            => new(id, getHashCode(id));
         [SecurityCritical]
         private static unsafe ulong getHashCode(string str)
         {
