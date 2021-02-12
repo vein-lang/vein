@@ -67,7 +67,7 @@
             
             asm.AddSegment((".code", body_module));
             
-            InsomniaAssembly.WriteToFile(asm, @"C:\Users\ls-mi\Desktop\wave.dll");
+            InsomniaAssembly.WriteToFile(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
         }
         [Fact]
         public void AST2ILTest()
