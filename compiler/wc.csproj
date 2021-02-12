@@ -27,9 +27,6 @@
     <PackageReference Include="System.CommandLine.Rendering" Version="0.3.0-alpha.20574.7" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="fs\elf\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\lib\runtime\runtime.csproj" />
   </ItemGroup>
 </Project>
