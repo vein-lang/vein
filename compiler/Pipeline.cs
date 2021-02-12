@@ -20,7 +20,8 @@
             BuiltinGen.GenerateConsole(stllib);
             asm.AddSegment((".code", stllib.BakeByteArray()));
             
-            InsomniaAssembly.WriteToFile(asm, @"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any\stl.wll");
+            InsomniaAssembly.WriteToFile(asm, 
+                new (@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any"));
             await File.WriteAllTextAsync(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any\stl.wll.il",
                 stllib.BakeDebugString());
 

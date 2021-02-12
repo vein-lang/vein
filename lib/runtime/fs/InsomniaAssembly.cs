@@ -69,7 +69,7 @@
             return new InsomniaAssembly {sections = sections};
         }
         
-        public static void WriteToFile(InsomniaAssembly asm, string file)
+        public static void WriteToFile(InsomniaAssembly asm, DirectoryInfo directory)
         {
             using var memory = new MemoryStream();
             using var writer = new BinaryWriter(memory);
@@ -88,7 +88,9 @@
                 writer.Write(data);
             }
 
-            using var fs = File.Create(file);
+            var file = new FileInfo(Path.Combine(directory.FullName, $"{asm.Name}.wll"));
+
+            using var fs = File.Create(file.FullName);
             
             WriteElf(memory.ToArray(), fs);
         }
