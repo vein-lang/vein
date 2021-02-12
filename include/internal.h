@@ -13,13 +13,13 @@ using PInvokeDelegate2 = WaveObject*(T1* t1, T2* t2);
 static WaveObject* i_call_get_Platform()
 {
 #if defined(AVR_PLATFORM)
-    return WaveConvert<WaveString>::box(new WaveString("WaveVM AVR"));
+    return WaveConvert<WaveString>::box(new WaveString("Insomnia AVR"));
 #elif defined(_WIN32) || defined(WIN32) 
-    return WaveConvert<WaveString>::box(new WaveString("WaveVM Win32"));
+    return WaveConvert<WaveString>::box(new WaveString("Insomnia Windows"));
 #elif defined(__unix__)
-    return WaveConvert<WaveString>::box(new WaveString("WaveVM Unix"));
+    return WaveConvert<WaveString>::box(new WaveString("Insomnia Unix"));
 #elif defined(__APPLE__)
-    return WaveConvert<WaveString>::box(new WaveString("WaveVM Apple"));
+    return WaveConvert<WaveString>::box(new WaveString("Insomnia Apple"));
 #endif
 };
 
