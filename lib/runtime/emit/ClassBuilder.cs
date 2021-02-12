@@ -45,7 +45,7 @@
             var ns_idx = moduleBuilder.GetStringConstant(FullName.Namespace);
             binary.Write(idx);
             binary.Write(ns_idx);
-            binary.Write((uint)Flags);
+            binary.Write((byte)Flags);
             binary.Write(moduleBuilder.GetTypeConstant(Parent.FullName));
             binary.Write(Methods.Count);
             foreach (var method in Methods.OfType<IBaker>())

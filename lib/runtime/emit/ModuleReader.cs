@@ -64,7 +64,7 @@
             using var binary = new BinaryReader(mem);
             var idx = binary.ReadInt32();
             var nsidx = binary.ReadInt32();
-            var flags = (ClassFlags)binary.ReadUInt32();
+            var flags = (ClassFlags)binary.ReadByte();
             var parentIdx = binary.ReadInt64();
             var len = binary.ReadInt32();
 
