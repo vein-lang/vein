@@ -13,7 +13,6 @@
     <BumpPatch>true</BumpPatch>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="BinaryTools.Elf" Version="0.3.0" />
     <PackageReference Include="EmojiOne.NETStandard" Version="4.0.1" />
     <PackageReference Include="Ivy.Versioning" Version="3.1.0">
       <PrivateAssets>all</PrivateAssets>

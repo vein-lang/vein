@@ -13,9 +13,6 @@
     {
         public static bool Exist(this ElfSectionHeaderTable table, ElfSectionType type) 
             => table.Any(x => x.Type == type);
-
-        public static IEnumerator<int> GetEnumerator(this Range range) 
-            => Enumerable.Range(range.Start.Value, range.End.Value).GetEnumerator();
     }
 
     public partial class InsomniaAssembly

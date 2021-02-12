@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Linq.Expressions;
 
     public class WaveModule
     {
@@ -42,11 +41,5 @@
 
         public int GetMethodToken(WaveMethod method) 
             => throw new NotImplementedException();
-    }
-
-
-    public class TypeNotFoundException : Exception
-    {
-        public TypeNotFoundException(string msg) : base(msg) { }
     }
 }
