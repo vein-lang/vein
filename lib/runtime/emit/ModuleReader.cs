@@ -1,11 +1,31 @@
 ﻿namespace wave.emit
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
     using wave;
+    
+    public static class BinaryExtension
+    {
+        public static string ReadInsomniaString(this BinaryReader reader)
+        {
+            var size = reader.ReadInt32();
+            var magic = reader.ReadByte();
+            if (magic != 0x45)
+                throw new InvalidOperationException("Cannot read string from binary stream. [magic flag invalid]");
+            return Encoding.UTF8.GetString(reader.ReadBytes(size));
+        }
+        public static void WriteInsomniaString(this BinaryWriter writer, string value)
+        {
+            var body = Encoding.UTF8.GetBytes(value);
+            writer.Write(body.Length);
+            writer.Write((byte)0x45);
+            writer.Write(body);
+        }
+    }
 
     public class ModuleReader : WaveModule
     {
@@ -21,7 +41,7 @@
             foreach (var _ in ..reader.ReadInt32())
             {
                 var key = reader.ReadInt32();
-                module.strings.Add(key, reader.ReadString());
+                module.strings.Add(key, reader.ReadInsomniaString());
             }
 
             foreach (var _ in ..reader.ReadInt32())

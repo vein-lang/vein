@@ -62,7 +62,7 @@
             foreach (var (key, value) in strings)
             {
                 binary.Write(key);
-                binary.Write(value);
+                binary.WriteInsomniaString(value);
             }
             binary.Write(classList.Count);
             foreach (var clazz in classList.OfType<IBaker>())
