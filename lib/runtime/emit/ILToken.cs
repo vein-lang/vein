@@ -65,7 +65,7 @@
 
     public enum ControlChain
     {
-        Invalid,
+        None,
         Next1,
         Next2,
         Next3,
@@ -73,6 +73,7 @@
     
     public enum FlowControl
     {
+        None,
         Branch,
         Break,
         Call,
