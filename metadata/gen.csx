@@ -157,14 +157,52 @@ void gen_cs_props(StringBuilder builder)
     }
     builder.AppendLine("\t}\n}");
 }
+/*
+---
+description: Nope operation.
+---
+
+# .NOP
+
+| Name | Size | ControlChain | FlowControl |
+| :--- | :--- | :--- | :--- |
+| NOP | 0 | None | None |
 
 
+
+    */
+
+StringBuilder gen_markdown_docs(OpCode o)
+{
+    var opcode_text = new StringBuilder();
+    opcode_text.AppendLine("---");
+    opcode_text.AppendLine($"description: {o.description}");
+    opcode_text.AppendLine("---");
+    opcode_text.AppendLine("");
+    opcode_text.AppendLine($"# .{o.name.ToUpperInvariant()}");
+    opcode_text.AppendLine("");
+    opcode_text.AppendLine("| Name | Size | ControlChain | FlowControl |");
+    opcode_text.AppendLine("| :--- | :--- | :--- | :--- |");
+    opcode_text.AppendLine($"| {o.name.ToUpperInvariant()} | {o.override_size} | {o.chain} | {o.flow} |");
+    return opcode_text;
+}
+
+if (Args.Contains("--generate-docs"))
+{
+    Directory.CreateDirectory("./docs");
+    foreach (var o in ops)
+    {
+        var name = $".{o.name.ToUpperInvariant()}";
+        var d = gen_markdown_docs(o);
+        if (File.Exists($"./docs/{name}.md"))
+            File.Delete($"./docs/{name}.md");
+        File.WriteAllText($"./docs/{name}.md", d.ToString());
+    }
+}
 
 gen_cpp_def(cpp_def);
 gen_cs_def(cs_def);
 gen_cs_props(cs_def_props);
-
-    
 
 if (File.Exists("opcodes.def"))
     File.Delete("opcodes.def");
