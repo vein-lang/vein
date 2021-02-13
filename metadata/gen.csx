@@ -172,32 +172,26 @@ description: Nope operation.
 
     */
 
-StringBuilder gen_markdown_docs(OpCode o)
-{
-    var opcode_text = new StringBuilder();
-    opcode_text.AppendLine("---");
-    opcode_text.AppendLine($"description: {o.description}");
-    opcode_text.AppendLine("---");
-    opcode_text.AppendLine("");
-    opcode_text.AppendLine($"# .{o.name.ToUpperInvariant()}");
-    opcode_text.AppendLine("");
-    opcode_text.AppendLine("| Name | Size | ControlChain | FlowControl |");
-    opcode_text.AppendLine("| :--- | :--- | :--- | :--- |");
-    opcode_text.AppendLine($"| {o.name.ToUpperInvariant()} | {o.override_size} | {o.chain} | {o.flow} |");
-    return opcode_text;
-}
-
 if (Args.Contains("--generate-docs"))
 {
     Directory.CreateDirectory("./docs");
+    var summary = new StringBuilder();
     foreach (var o in ops)
     {
-        var name = $".{o.name.ToUpperInvariant()}";
-        var d = gen_markdown_docs(o);
-        if (File.Exists($"./docs/{name}.md"))
-            File.Delete($"./docs/{name}.md");
-        File.WriteAllText($"./docs/{name}.md", d.ToString());
+        var name = $".{o.name.ToLowerInvariant()}";
+        
+        summary.AppendLine($"## .{o.name.ToUpperInvariant()}");
+        summary.AppendLine("");
+        summary.AppendLine($"{o.description}");
+        summary.AppendLine("");
+        summary.AppendLine("| Name | Size | ControlChain | FlowControl |");
+        summary.AppendLine("| :--- | :--- | :--- | :--- |");
+        summary.AppendLine($"| {o.name.ToUpperInvariant()} | {o.override_size} | {get(o.chain)} | {get(o.flow)} |");
+        summary.AppendLine("");
     }
+    if (File.Exists($"./docs/!SUMMARY.md"))
+        File.Delete($"./docs/!SUMMARY.md");
+    File.WriteAllText($"./docs/!SUMMARY.md", summary.ToString());
 }
 
 gen_cpp_def(cpp_def);
