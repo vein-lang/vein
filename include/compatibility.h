@@ -4,7 +4,7 @@
 #else
 int main(int argc, char* argv[])
 {
-    setup();
+    setup(argc, argv);
     while (1)
     {
         loop();

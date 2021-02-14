@@ -19,7 +19,7 @@ typedef uint8_t byte;
 typedef std::string String;
 #define ASM(x)
 #define sleep(x) 
-void setup();
+void setup(int argc, char* argv[]);
 void loop();
 #endif
 
