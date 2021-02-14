@@ -19,6 +19,8 @@
     {
         public string Name { get; init; }
         
+        public Version Version { get; set; }
+        
         public List<(string name, byte[] data)> sections { get; set; } = new ();
         
         public void AddSegment((string name, byte[] data) seg) => sections.Add(seg);
@@ -40,8 +42,8 @@
             var noteSection = elf.Sections.Single(x => x is { Type: Note });
             var keyCode = Encoding.ASCII.GetString(noteSection.ReadFrom(fs));
             
-            if (keyCode != "wave")
-                throw new BadImageFormatException($"File '{file}' is not wave image.");
+            if (keyCode != "insomnia")
+                throw new BadImageFormatException($"File '{file}' is not insomnia image.");
             
             
             var ilCodeSection = elf.Sections.Single(x => x is { Type: ProgBits });
@@ -66,10 +68,19 @@
                 sections[i] = (tmp.name, reader.ReadBytes(reader.ReadInt32()));
             }
             
-            return new InsomniaAssembly {sections = sections};
+            return new InsomniaAssembly
+            {
+                sections = sections, 
+                Name = Path.GetFileNameWithoutExtension(file)
+            };
         }
-        
+
         public static void WriteToFile(InsomniaAssembly asm, DirectoryInfo directory)
+        {
+            var file = new FileInfo(Path.Combine(directory.FullName, $"{asm.Name}.wll"));
+            WriteToFile(asm, file.FullName);
+        }
+        internal static void WriteToFile(InsomniaAssembly asm, string file)
         {
             using var memory = new MemoryStream();
             using var writer = new BinaryWriter(memory);
@@ -87,10 +98,8 @@
                 writer.Write(data.Length);
                 writer.Write(data);
             }
-
-            var file = new FileInfo(Path.Combine(directory.FullName, $"{asm.Name}.wll"));
-
-            using var fs = File.Create(file.FullName);
+            
+            using var fs = File.Create(file);
             
             WriteElf(memory.ToArray(), fs);
         }

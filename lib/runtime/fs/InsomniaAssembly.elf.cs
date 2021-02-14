@@ -1,6 +1,7 @@
 namespace wave.fs
 {
     using System.IO;
+    using System.Linq;
     using System.Text;
     using elf;
     using ElfFile = elf.ElfFile;
@@ -61,6 +62,7 @@ namespace wave.fs
                 writer.WriteElf32(cloned);
             }
             writer.Write(file.Data.ToArray());
+            var offset = 0u;
             foreach (var section in file.Sections)
             {
                 var cloned = section;
@@ -68,8 +70,13 @@ namespace wave.fs
                 {
                     cloned.Offset += dataOffset;
                 }
+
+                if (cloned.Type == ElfSectionType.ProgBits)
+                    offset = cloned.Offset;
                 writer.WriteElf32(cloned);
             }
+            writer.Write((uint)ilCode.Length - 17);
+            writer.Write(offset + 17);
         }
         
         private static void AddCode(ElfFile file, byte[] il)
@@ -97,7 +104,7 @@ namespace wave.fs
             });
             file.Data.Write(il, 0, il.Length);
             
-            var vm_notes = Encoding.ASCII.GetBytes("wave");
+            var vm_notes = Encoding.ASCII.GetBytes("insomnia");
             file.Sections.Add(new ElfSection
             {
                 Name = file.Strings.SaveString(".note"),
