@@ -78,6 +78,11 @@ static inline wpointer malloc0(const uintptr_t x)
 #endif
 
 
+#define CUSTOM_EXCEPTION(name) struct name : public std::exception {    \
+    const char* msg;                                                    \
+    name(const char* message) { msg = message; }                        \
+    _NODISCARD const char* what() const throw () { return msg; }        \
+    }
 
 template<typename T>
 using Comparer = int(T t1, T t2);
