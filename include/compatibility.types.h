@@ -102,13 +102,23 @@ using Func0 = T();
 template<typename T0, typename T1>
 using Func1 = T0(T1 arg1);
 
-
+#if __cplusplus >= 201406
 template<typename T>
 struct Nullable { inline static const T Value = NULL; };
 
 template<typename T>
-struct Nullable<T*> { inline static const T* Value = nullptr; };
+ struct Nullable<T*> { inline static const T* Value = nullptr; };
+#else
+template<typename T>
+struct Nullable { static const T Value = NULL; };
 
+template<typename T>
+struct Nullable<T*>
+{
+    inline static T* Value = nullptr;
+};
+#endif
+ 
 #define NULL_VALUE(T) Nullable<T>::Value
 
 #if defined(AVR_PLATFORM)
