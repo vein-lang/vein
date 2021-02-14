@@ -5,10 +5,10 @@
 #include "WaveMethodSignature.h"
 
 typedef struct {
-	const char* name;
-	uint16_t            flags;
-	WaveMethodSignature* signature;
-	WaveImage* image;
+	const char*             name;
+	uint16_t                flags;
+	WaveMethodSignature*    signature;
+	WaveImage*              image;
 	union {
 		MetaMethodHeader* header;
 		WaveMethodPInvokeInfo* piinfo;
