@@ -1,5 +1,5 @@
 #pragma once
-#include "WaveRuntimeType.h"
+#include "WaveRuntimeType.hpp"
 struct WaveMethodSignature {
 	char call_convention;
 	int param_count;

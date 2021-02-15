@@ -50,6 +50,9 @@ static inline wpointer malloc0(const uintptr_t x)
 #define read32(x) UINT32_FROM_LE (*((const uint32_t *) (x)))
 #define read64(x) UINT64_FROM_LE (*((const uint64_t *) (x)))
 
+#define PTR_TO_INT(x) static_cast<int32_t>(reinterpret_cast<intptr_t>(x)) 
+#define INT_TO_PTR(x) reinterpret_cast<wpointer>(static_cast<intptr_t>(x))
+
 #define LAMBDA_TRUE(_) [](_) { return true; }
 #define LAMBDA_FALSE(_) [](_) { return false; }
 

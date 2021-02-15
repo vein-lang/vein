@@ -1,9 +1,10 @@
 #pragma once
-#include "WaveClass.h"
+#include "compatibility.types.hpp"
+#include "WaveClass.hpp"
 
 
 struct WaveObject {
 	WaveClass*   clazz;
-	WaveTypeEnum type;
+	WaveTypeCode type;
 	wpointer     data; /* to store static class data */
 };

@@ -9,13 +9,22 @@
 // asdasd
 global auto new_line = "\n";
 
+public enum Foo 
+{
+    A,
+    B,
+    C
+}
+
 public class Program
 {
     operation Xuy[] -> void
     {
         body
         {
-            auto* s;
+            use enum Foo;
+            auto* the_a = A;
+            auto* the_b = B;
         };
         gc auto;
     };

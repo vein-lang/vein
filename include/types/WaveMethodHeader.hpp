@@ -1,5 +1,5 @@
 #pragma once
-#include "compatibility.types.h"
+#include "compatibility.types.hpp"
 
 typedef struct {
 	uint32_t                code_size;

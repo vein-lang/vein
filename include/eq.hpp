@@ -1,8 +1,5 @@
 #pragma once
-#include "compatibility.types.h"
-#define PTR_TO_INT(x) static_cast<int32_t>(reinterpret_cast<intptr_t>(x)) 
-#define INT_TO_PTR(x) reinterpret_cast<wpointer>(static_cast<intptr_t>(x))
-
+#include "compatibility.types.hpp"
 
 template<class T> struct equality {};
 
@@ -33,11 +30,5 @@ template<> struct equality<int64_t> {
 template<> struct equality<int16_t> {
 	static bool equal(const int16_t l, const int16_t r) {
 		return l == r;
-	}
-};
-
-template<> struct equality<WaveString> {
-	static bool equal(const WaveString* l, const WaveString* r) {
-		return equality<const char*>::equal(l->chars, r->chars);
 	}
 };

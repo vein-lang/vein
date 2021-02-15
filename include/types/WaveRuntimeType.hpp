@@ -1,13 +1,13 @@
 #pragma once
-#include "compatibility.types.h"
-#include "typetoken.h"
+#include "compatibility.types.hpp"
 #include "WaveArray.h"
 #include "WaveModificator.h"
+#include <WaveTypeCode.hpp>
 struct ModifiedType;
 struct WaveClass;
 struct WaveMethodSignature;
 struct WaveRuntimeType {
-	WaveTypeEnum type;
+	WaveTypeCode type;
 	union {
 		WaveClass* klass;
 		WaveRuntimeType* type;

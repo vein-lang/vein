@@ -1,6 +1,6 @@
 #pragma once
-#include "WaveClass.h"
-#include "WaveImage.h"
+#include "WaveClass.hpp"
+#include "WaveImage.hpp"
 
 typedef struct
 {

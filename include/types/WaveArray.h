@@ -1,9 +1,9 @@
 #pragma once
 
-struct WaveRuntimeType;
+struct WaveType;
 
 struct WaveArray {
-	WaveRuntimeType* type;
+	WaveType* type;
 	int rank;
 	int numsizes;
 	int numlobounds;

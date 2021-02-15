@@ -1,6 +1,7 @@
 #pragma once
-#include "compatibility.types.h"
-#include "WaveMethodHeader.h"
+#include "compatibility.types.hpp"
+#include "WaveImage.hpp"
+#include "WaveMethodHeader.hpp"
 #include "WaveMethodPInvokeInfo.h"
 #include "WaveMethodSignature.h"
 

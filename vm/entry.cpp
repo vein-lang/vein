@@ -3,8 +3,12 @@
 #include "interp.h"
 #include "object.h"
 #include "internal.h"
+#include "api/elf_reader.h"
+#include "streams/stream.h"
 #include "types/WaveRuntimeType.h"
-
+#include "api/boolinq.h"
+#include <string_view>
+#include "types/WaveType.h"
 static WaveImage* main_image;
 enum class CALL_CONTEXT : unsigned char
 {
@@ -13,7 +17,33 @@ enum class CALL_CONTEXT : unsigned char
     OUTER_CALL
 };
 
-void setup() {
+
+using namespace std::literals;
+
+void setup(int argc, char* argv[]) {
+    auto* a = new TypeName();
+
+    a->FullName = "foo/bar";
+
+    auto rr = a->GetName();
+    auto dd = a->GetNamespace();
+
+    if (argc == 1)
+    {
+        printf("[WARN] entry point not found.");
+        return;
+    }
+    if (!std::string_view(argv[1]).ends_with(".wll"))
+    {
+        printf("[WARN] entry point not found.");
+        return;
+    }
+
+    auto bytes = readILfromElf(argv[0]);
+    auto w = MemoryStream(bytes, sizeof(bytes));
+    auto r = new BinaryReader(w);
+
+    
     main_image = new WaveImage("main_image");
     init_serial();
     init_default();
@@ -403,6 +433,13 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
                 d_print("\n");
                 return;
         }
+
+
+        throw_label:
+            do
+            {
+                
+            } while (true);
     }
 
 

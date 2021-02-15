@@ -1,6 +1,7 @@
 #pragma once
 #include "WaveMethod.h"
 #include "WaveType.hpp"
+#include "WaveTypeCode.hpp"
 #include "collections/list.hpp"
 #include "emit/ClassFlags.hpp"
 #include "emit/TypeName.hpp"

@@ -1,5 +1,5 @@
 #pragma once
-#include "collections/hashtable.h"
+#include "collections/hashtable.hpp"
 
 
 struct WaveImage {

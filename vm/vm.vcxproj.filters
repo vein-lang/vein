@@ -25,32 +25,26 @@
     <Filter Include="Header Files\builtin">
       <UniqueIdentifier>{2d8f513e-d83a-4ef1-a3ff-21d8fb81f851}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\streams">
+      <UniqueIdentifier>{610cd822-ffaa-436c-8de5-2d621accb7db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{d8dbeaf9-542c-44c6-9a81-a410548670d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\emit">
+      <UniqueIdentifier>{31f5da25-2f63-4271-a951-2259d534f8db}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\api\eeprom_windows.cpp">
-      <Filter>Header Files\external</Filter>
-    </ClCompile>
     <ClCompile Include="entry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="api\eeprom_windows.cpp">
+      <Filter>Header Files\external</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\class.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\core.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\interp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\compatibility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\compatibility.types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\eq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\api\EEPROM.h">
@@ -59,29 +53,8 @@
     <ClInclude Include="..\include\api\Windows\eeprom_windows.h">
       <Filter>Header Files\external</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\hash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\collections\list.h">
-      <Filter>Header Files\collections</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\collections\hashtable.h">
-      <Filter>Header Files\collections</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\internal.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveClass.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveClassField.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveMethod.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveMethodHeader.h">
-      <Filter>Header Files\types</Filter>
     </ClInclude>
     <ClInclude Include="..\include\types\WaveMethodPInvokeInfo.h">
       <Filter>Header Files\types</Filter>
@@ -98,38 +71,119 @@
     <ClInclude Include="..\include\types\WaveRef.h">
       <Filter>Header Files\types</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\types\WaveReturnType.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveRuntimeType.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveSignature.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveString.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\types\WaveArray.h">
       <Filter>Header Files\types</Filter>
     </ClInclude>
     <ClInclude Include="..\include\types\WaveCallConvention.h">
       <Filter>Header Files\types</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\types\WaveImage.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveCore.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\typetoken.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\proxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\builtin\console.buniltin.h">
       <Filter>Header Files\builtin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\api\elf_reader.h">
+      <Filter>Header Files\external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\streams\stream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\streams\memory_stream.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\streams\binary_reader.h">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\api\boolinq.h">
+      <Filter>Header Files\collections</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\FieldName.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\WaveModue.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\Exceptions.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\utils\string.trim.hpp">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\utils\string.contains.hpp">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\utils\string.start.hpp">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\collections\dictionary.hpp">
+      <Filter>Header Files\collections</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\collections\list.hpp">
+      <Filter>Header Files\collections</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\TypeName.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\ClassFlags.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\WaveMemberKind.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\WaveMember.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\utils\string.split.hpp">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\WaveField.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\FieldFlags.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\WaveTypeCode.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveClass.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveType.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveMethod.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveMethodHeader.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\collections\hashtable.hpp">
+      <Filter>Header Files\collections</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveString.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\compatibility.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\compatibility.types.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveCore.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveImage.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\eq.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\hash.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,13 +1,14 @@
 #include "api/Windows/eeprom_windows.h"
-#if defined(WIN32)
+#if defined(WIN32) || defined(_WIN32)
 #include <cassert>
 #include <windows.h>
 #include <iostream>
 #include "io.h"
 #include <fstream>
 #include <vector>
+#include <experimental/filesystem>
 #include <filesystem>
-using namespace std::filesystem;
+using namespace std::experimental::filesystem;
 #define var auto
 #define FS_SIZE 8192
 

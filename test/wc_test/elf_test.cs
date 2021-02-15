@@ -21,6 +21,14 @@
             var result = InsomniaAssembly.LoadFromFile(file);
             var (_, body) = result.sections[0];
             Assert.Equal("IL_CODE", Encoding.ASCII.GetString(body));
+            var f_mem = new MemoryStream(File.ReadAllBytes(file));
+            f_mem.Seek(f_mem.Capacity - (sizeof(uint) * 2), SeekOrigin.Begin);
+            var bin = new BinaryReader(f_mem);
+            var len = bin.ReadUInt32();
+            var offset = bin.ReadUInt32();
+            f_mem.Seek(offset, SeekOrigin.Begin);
+            var bytes = bin.ReadBytes((int)len);
+            Assert.Equal("IL_CODE", Encoding.ASCII.GetString(bytes));
             File.Delete(file);
         }
         //public void ElfReadManul()

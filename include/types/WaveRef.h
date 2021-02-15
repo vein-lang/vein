@@ -1,6 +1,6 @@
 #pragma once
-#include "compatibility.types.h"
-#include "WaveRuntimeType.h"
+#include "compatibility.types.hpp"
+#include "WaveRuntimeType.hpp"
 
 typedef struct {
 	WaveRuntimeType* type;

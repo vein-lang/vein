@@ -80,18 +80,21 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\git\wave_vm\include</IncludePath>
+    <IncludePath>$(ProjectDir)..\external\fmt\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\git\wave_vm\include</IncludePath>
+    <TargetName>insmvm</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(ProjectDir)..\external\fmt\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,8 +121,10 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,42 +148,57 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\api\eeprom_windows.cpp" />
+    <ClCompile Include="api\eeprom_windows.cpp" />
     <ClCompile Include="entry.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\api\boolinq.h" />
     <ClInclude Include="..\include\api\EEPROM.h" />
+    <ClInclude Include="..\include\api\elf_reader.h" />
     <ClInclude Include="..\include\api\Windows\eeprom_windows.h" />
     <ClInclude Include="..\include\builtin\console.buniltin.h" />
-    <ClInclude Include="..\include\class.h" />
-    <ClInclude Include="..\include\collections\hashtable.h" />
-    <ClInclude Include="..\include\collections\list.h" />
-    <ClInclude Include="..\include\compatibility.h" />
-    <ClInclude Include="..\include\compatibility.types.h" />
-    <ClInclude Include="..\include\core.h" />
-    <ClInclude Include="..\include\eq.h" />
-    <ClInclude Include="..\include\hash.h" />
+    <ClInclude Include="..\include\collections\dictionary.hpp" />
+    <ClInclude Include="..\include\collections\hashtable.hpp" />
+    <ClInclude Include="..\include\collections\list.hpp" />
+    <ClInclude Include="..\include\compatibility.hpp" />
+    <ClInclude Include="..\include\compatibility.types.hpp" />
+    <ClInclude Include="..\include\core.hpp" />
+    <ClInclude Include="..\include\emit\ClassFlags.hpp" />
+    <ClInclude Include="..\include\emit\Exceptions.hpp" />
+    <ClInclude Include="..\include\emit\FieldFlags.hpp" />
+    <ClInclude Include="..\include\emit\FieldName.hpp" />
+    <ClInclude Include="..\include\emit\TypeName.hpp" />
+    <ClInclude Include="..\include\emit\WaveField.hpp" />
+    <ClInclude Include="..\include\emit\WaveMember.hpp" />
+    <ClInclude Include="..\include\emit\WaveMemberKind.hpp" />
+    <ClInclude Include="..\include\emit\WaveModue.hpp" />
+    <ClInclude Include="..\include\eq.hpp" />
+    <ClInclude Include="..\include\hash.hpp" />
     <ClInclude Include="..\include\internal.h" />
     <ClInclude Include="..\include\interp.h" />
     <ClInclude Include="..\include\proxy.h" />
+    <ClInclude Include="..\include\streams\binary_reader.h" />
+    <ClInclude Include="..\include\streams\memory_stream.h" />
+    <ClInclude Include="..\include\streams\stream.h" />
     <ClInclude Include="..\include\types\WaveArray.h" />
     <ClInclude Include="..\include\types\WaveCallConvention.h" />
-    <ClInclude Include="..\include\types\WaveClass.h" />
-    <ClInclude Include="..\include\types\WaveClassField.h" />
-    <ClInclude Include="..\include\types\WaveCore.h" />
-    <ClInclude Include="..\include\types\WaveImage.h" />
-    <ClInclude Include="..\include\types\WaveMethod.h" />
-    <ClInclude Include="..\include\types\WaveMethodHeader.h" />
+    <ClInclude Include="..\include\types\WaveClass.hpp" />
+    <ClInclude Include="..\include\types\WaveCore.hpp" />
+    <ClInclude Include="..\include\types\WaveImage.hpp" />
+    <ClInclude Include="..\include\types\WaveMethod.hpp" />
+    <ClInclude Include="..\include\types\WaveMethodHeader.hpp" />
     <ClInclude Include="..\include\types\WaveMethodPInvokeInfo.h" />
     <ClInclude Include="..\include\types\WaveMethodSignature.h" />
     <ClInclude Include="..\include\types\WaveModificator.h" />
     <ClInclude Include="..\include\types\WaveObject.h" />
     <ClInclude Include="..\include\types\WaveRef.h" />
-    <ClInclude Include="..\include\types\WaveReturnType.h" />
-    <ClInclude Include="..\include\types\WaveRuntimeType.h" />
-    <ClInclude Include="..\include\types\WaveSignature.h" />
-    <ClInclude Include="..\include\types\WaveString.h" />
-    <ClInclude Include="..\include\typetoken.h" />
+    <ClInclude Include="..\include\types\WaveString.hpp" />
+    <ClInclude Include="..\include\types\WaveType.hpp" />
+    <ClInclude Include="..\include\WaveTypeCode.hpp" />
+    <ClInclude Include="..\include\utils\string.contains.hpp" />
+    <ClInclude Include="..\include\utils\string.split.hpp" />
+    <ClInclude Include="..\include\utils\string.start.hpp" />
+    <ClInclude Include="..\include\utils\string.trim.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\metadata\internal.def" />

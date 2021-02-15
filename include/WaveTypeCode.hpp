@@ -1,7 +1,7 @@
 #pragma once
 
 
-enum WaveTypeEnum {
+enum WaveTypeCode {
     TYPE_NONE = 0x0,
     TYPE_VOID,
     TYPE_OBJECT,
