@@ -105,6 +105,9 @@ using Func0 = T();
 template<typename T0, typename T1>
 using Func1 = T0(T1 arg1);
 
+
+using GetConstByIndexDelegate = std::string(int arg1);
+
 #if __cplusplus >= 201406
 template<typename T>
 struct Nullable { inline static const T Value = NULL; };
