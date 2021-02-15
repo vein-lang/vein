@@ -7,17 +7,15 @@ using namespace std;
 CUSTOM_EXCEPTION(SequenceContainsNoElements);
 
 
-#define LAMBDA_TRUE(_) [](_) { return true; }
-
 template <class K, class V>
 class dictionary : public unordered_map<K, V>
 {
 public:
-    tuple<K, V> First()
+    [[nodiscard]] tuple<K, V> First() noexcept(false)
     {
         return this->First(LAMBDA_TRUE(_));
     }
-    tuple<K, V> First(Predicate<tuple<K, V>> predicate)
+    [[nodiscard]] tuple<K, V> First(Predicate<tuple<K, V>> predicate) noexcept(false)
     {
         if (predicate == nullptr)
             predicate = LAMBDA_TRUE(_);
@@ -30,7 +28,7 @@ public:
         }
         throw SequenceContainsNoElements();
     }
-    tuple<K, V> FirstOrDefault(Predicate<tuple<K, V>> predicate)
+    [[nodiscard]] tuple<K, V> FirstOrDefault(Predicate<tuple<K, V>> predicate) noexcept(true)
     {
         try
         {
@@ -41,7 +39,7 @@ public:
             return make_tuple(Nullable<K>::Value, Nullable<V>::Value);
         }
     }
-    tuple<K, V> FirstOrDefault()
+    [[nodiscard]] tuple<K, V> FirstOrDefault() noexcept(true)
     {
         try
         {
@@ -52,11 +50,11 @@ public:
             return make_tuple(Nullable<K>::Value, Nullable<V>::Value);
         }
     }
-    tuple<K, V> Last()
+    [[nodiscard]] tuple<K, V> Last() noexcept(false)
     {
         return this->Last(LAMBDA_TRUE(_));
     }
-    tuple<K, V> Last(Predicate<tuple<K, V>> predicate)
+    [[nodiscard]] tuple<K, V> Last(Predicate<tuple<K, V>> predicate) noexcept(false)
     {
         if (predicate == nullptr)
             predicate = LAMBDA_TRUE(_);
@@ -69,7 +67,7 @@ public:
         }
         throw SequenceContainsNoElements();
     }
-    tuple<K, V> LastOrDefault(Predicate<tuple<K, V>> predicate)
+    [[nodiscard]] tuple<K, V> LastOrDefault(Predicate<tuple<K, V>> predicate) noexcept(true)
     {
         try
         {
@@ -80,7 +78,7 @@ public:
             return make_tuple(Nullable<K>::Value, Nullable<V>::Value);
         }
     }
-    tuple<K, V> LastOrDefault()
+    [[nodiscard]] tuple<K, V> LastOrDefault() noexcept(true)
     {
         try
         {
