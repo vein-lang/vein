@@ -50,7 +50,8 @@ static inline wpointer malloc0(const uintptr_t x)
 #define read32(x) UINT32_FROM_LE (*((const uint32_t *) (x)))
 #define read64(x) UINT64_FROM_LE (*((const uint64_t *) (x)))
 
-
+#define LAMBDA_TRUE(_) [](_) { return true; }
+#define LAMBDA_FALSE(_) [](_) { return false; }
 
 #ifdef DEBUG
 #define d_print(x) Serial.print(x)
