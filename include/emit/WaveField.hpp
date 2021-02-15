@@ -31,9 +31,9 @@ public:
         return Field;
     }
 
-    bool IsLiteral() { return (Flags & Literal) != 0; }
-    bool IsStatic() { return (Flags & Static) != 0; }
-    bool IsPublic() { return (Flags & Public) != 0; }
+    bool IsLiteral() const { return (Flags & FIELD_Literal) != 0; }
+    bool IsStatic () const { return (Flags & FIELD_Static) != 0; }
+    bool IsPublic () const { return (Flags & FIELD_Public) != 0; }
     bool IsPrivate() { return !IsPublic(); }
 
     

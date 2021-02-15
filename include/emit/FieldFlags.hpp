@@ -2,9 +2,9 @@
 
 enum FieldFlags 
 {
-    None = 0,
-    Literal = 1 << 1,
-    Public = 1 << 2,
-    Static = 1 << 3,
-    Protected = 1 << 4
+    FIELD_None = 0,
+    FIELD_Literal = 1 << 1,
+    FIELD_Public = 1 << 2,
+    FIELD_Static = 1 << 3,
+    FIELD_Protected = 1 << 4
 };

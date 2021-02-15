@@ -2,10 +2,10 @@
 
 enum ClassFlags
 {
-    None        = 0 << 0,
-    Public      = 1 << 0,
-    Static      = 1 << 1,
-    Internal    = 1 << 2,
-    Protected   = 1 << 3,
-    Private     = 1 << 4
+    CLASS_None        = 0 << 0,
+    CLASS_Public      = 1 << 0,
+    CLASS_Static      = 1 << 1,
+    CLASS_Internal    = 1 << 2,
+    CLASS_Protected   = 1 << 3,
+    CLASS_Private     = 1 << 4
 };
