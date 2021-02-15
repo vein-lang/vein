@@ -44,60 +44,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\interp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\api\EEPROM.h">
-      <Filter>Header Files\external</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\api\Windows\eeprom_windows.h">
-      <Filter>Header Files\external</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveMethodPInvokeInfo.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveMethodSignature.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveModificator.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveObject.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveRef.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveArray.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\types\WaveCallConvention.h">
-      <Filter>Header Files\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\proxy.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\builtin\console.buniltin.h">
-      <Filter>Header Files\builtin</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\api\elf_reader.h">
-      <Filter>Header Files\external</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\streams\stream.h">
-      <Filter>Header Files\streams</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\streams\memory_stream.h">
-      <Filter>Header Files\streams</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\streams\binary_reader.h">
-      <Filter>Header Files\streams</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\api\boolinq.h">
-      <Filter>Header Files\collections</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\emit\FieldName.hpp">
       <Filter>Header Files\emit</Filter>
     </ClInclude>
@@ -184,6 +130,60 @@
     </ClInclude>
     <ClInclude Include="..\include\hash.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveArray.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveCallConvention.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveModificator.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveMethodSignature.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveMethodPInvokeInfo.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveObject.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\types\WaveRef.hpp">
+      <Filter>Header Files\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\internal.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\interp.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\proxy.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\streams\binary_reader.hpp">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\streams\memory_stream.hpp">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\streams\stream.hpp">
+      <Filter>Header Files\streams</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\api\boolinq.hpp">
+      <Filter>Header Files\collections</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\builtin\console.buniltin.hpp">
+      <Filter>Header Files\builtin</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\api\EEPROM.hpp">
+      <Filter>Header Files\external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\api\Windows\eeprom_windows.hpp">
+      <Filter>Header Files\external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\api\elf_reader.hpp">
+      <Filter>Header Files\external</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
