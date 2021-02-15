@@ -157,9 +157,10 @@ inline void vm_shutdown()
 #else
 #define REGISTER register 
 #endif
+static const char* out_of_memory_Str = "<<OUT OF MEMORY>>";
 inline void throw_out_of_memory()
 {
-    w_print("<<OUT OF MEMORY>>");
+    w_print(out_of_memory_Str);
     vm_shutdown();
 }
 
