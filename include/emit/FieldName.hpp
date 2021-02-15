@@ -7,32 +7,30 @@ using namespace std;
 struct FieldName
 {
     string FullName;
-    [[no_discard]] string GetName()
+    [[nodiscard]] string get_name()
     {
         auto results = split(FullName, '.');
         auto result = results[results.size() - 1];
         results.clear();
         return result;
     }
-    [[no_discard]] string GetClass()
+    [[nodiscard]] string GetClass()
     {
-        auto n = GetName();
+        auto n = get_name();
         return FullName.substr(0, (FullName.size() - n.size()) - 1);
     }
 
-    FieldName(string n, string c)
+    FieldName(const string& n, const string& c) noexcept(true)
     {
         FullName = n + "." + c;
     }
-
-
-    [[no_discard]] static FieldName* Construct(int nameIdx, int classIdx, WaveModule* m)
+    [[nodiscard]] static FieldName* construct(const int nameIdx, const int classIdx, GetConstByIndexDelegate* m) noexcept(true)
     {
-        return new FieldName(m->GetConstByIndex(nameIdx), m->GetConstByIndex(classIdx));
+        return new FieldName(m(nameIdx), m(classIdx));
     }
-    [[no_discard]] static FieldName* Construct(long idx, WaveModule* m)
+    [[nodiscard]] static FieldName* construct(const long idx, GetConstByIndexDelegate* m) noexcept(true)
     {
-        return new FieldName(m->GetConstByIndex(static_cast<int>(idx >> 32)), 
-            m->GetConstByIndex(static_cast<int>(idx & static_cast<uint32_t>(4294967295))));
+        return new FieldName(m(static_cast<int>(idx >> 32)), 
+            m(static_cast<int>(idx & static_cast<uint32_t>(4294967295))));
     }
 };
