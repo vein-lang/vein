@@ -3,14 +3,22 @@
 #include "../emit/Exceptions.hpp"
 using namespace std;
 
-
-CUSTOM_EXCEPTION(SequenceContainsNoElements);
-
-
 template <class K, class V>
 class dictionary : public unordered_map<K, V>
 {
 public:
+    // TODO, impl lazy
+    [[nodiscard]] dictionary<K, V>* Where(Predicate<tuple<K, V>> predicate) noexcept(true)
+    {
+        auto cp = new dictionary<K, V>();
+        for(const auto kv : this)
+        {
+            auto t = make_tuple(kv.first, kv.second);
+            if (predicate(t))
+                cp->insert(t);
+        }
+        return cp;
+    }
     [[nodiscard]] tuple<K, V> First() noexcept(false)
     {
         return this->First(LAMBDA_TRUE(_));
