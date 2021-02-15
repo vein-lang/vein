@@ -81,6 +81,7 @@ static inline wpointer malloc0(const uintptr_t x)
 #define CUSTOM_EXCEPTION(name) struct name : public std::exception {    \
     const char* msg;                                                    \
     name(const char* message) { msg = message; }                        \
+    name(std::string message) { msg = message.data(); }                 \
     _NODISCARD const char* what() const throw () { return msg; }        \
     }
 
