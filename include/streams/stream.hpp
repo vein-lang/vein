@@ -1,6 +1,5 @@
 #pragma once
-#include <cstring>
-#include "compatibility.types.h"
+#include "compatibility.types.hpp"
 
 class Stream
 {

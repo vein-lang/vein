@@ -1,5 +1,5 @@
 #pragma once
-#include "WaveMethod.h"
+#include "WaveMethod.hpp"
 #include "WaveType.hpp"
 #include "WaveTypeCode.hpp"
 #include "collections/list.hpp"

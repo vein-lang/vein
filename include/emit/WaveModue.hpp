@@ -6,9 +6,9 @@
 #include <fmt/core.h>
 
 #include "Exceptions.hpp"
-#include "types/WaveClass.h"
-#include "types/WaveType.h"
-#include "api/boolinq.h"
+#include "types/WaveClass.hpp"
+#include "types/WaveType.hpp"
+#include "api/boolinq.hpp"
 #include "collections/dictionary.hpp"
 
 using namespace std;

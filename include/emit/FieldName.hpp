@@ -1,6 +1,6 @@
 #pragma once
-#include "compatibility.types.h"
-#include "utils/string.split.h"
+#include "compatibility.types.hpp"
+#include "utils/string.split.hpp"
 #include <string>
 
 using namespace std;

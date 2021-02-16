@@ -1,14 +1,15 @@
 // ReSharper disable CppDeprecatedRegisterStorageClassSpecifier
-#include "core.h"
-#include "interp.h"
-#include "object.h"
-#include "internal.h"
-#include "api/elf_reader.h"
-#include "streams/stream.h"
-#include "types/WaveRuntimeType.h"
-#include "api/boolinq.h"
+#include "core.hpp"
+#include "interp.hpp"
+#include "internal.hpp"
+#include "api/elf_reader.hpp"
+#include "types/WaveRuntimeType.hpp"
+#include "api/boolinq.hpp"
 #include <string_view>
-#include "types/WaveType.h"
+
+
+#include "streams/binary_reader.hpp"
+#include "streams/memory_stream.hpp"
 static WaveImage* main_image;
 enum class CALL_CONTEXT : unsigned char
 {
@@ -21,12 +22,10 @@ enum class CALL_CONTEXT : unsigned char
 using namespace std::literals;
 
 void setup(int argc, char* argv[]) {
-    auto* a = new TypeName();
-
-    a->FullName = "foo/bar";
-
-    auto rr = a->GetName();
-    auto dd = a->GetNamespace();
+    auto* a = new TypeName("global::foo/zoo/doo", "bar");
+    
+    auto rr = a->get_name();
+    auto dd = a->get_namespace();
 
     if (argc == 1)
     {

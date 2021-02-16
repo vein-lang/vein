@@ -1,7 +1,7 @@
 #pragma once
 #include "compatibility.hpp"
-#include "internal.h"
-#include "types/WaveCallConvention.h"
+#include "internal.hpp"
+#include "types/WaveCallConvention.hpp"
 #include "types/WaveCore.hpp"
 #include "types/WaveImage.hpp"
 #include "types/WaveMethod.hpp"
@@ -14,7 +14,7 @@ namespace __internal
 {
     WaveClass* wave_create_object_class(WaveImage* core_image)
     {
-        auto* t = new WaveClass();
+       /* auto* t = new WaveClass();
 
         t->inited = true;
         t->type_token = TYPE_OBJECT;
@@ -23,12 +23,13 @@ namespace __internal
         t->parent = nullptr;
 
         core_image->class_cache->add(class_name(root_namespace, "Object"), t);
-        return t;
+        return t;*/
+        return nullptr;
     }
 
     WaveClass* wave_create_void_class(WaveImage* core_image, WaveClass* parent)
     {
-        auto* t = new WaveClass();
+        /*auto* t = new WaveClass();
 
         t->inited = true;
         t->type_token = TYPE_VOID;
@@ -38,7 +39,9 @@ namespace __internal
 
         core_image->class_cache->add(class_name(root_namespace, "Void"), t);
 
-        return t;
+        return t;*/
+
+        return nullptr;
     }
 }
 

@@ -10,7 +10,7 @@
 
 
 #if defined(AVR_PLATFORM)
-#include "Arduino.h"
+#include "Arduino.hpp"
 #define ASM(x) __ASM volatile (x)
 #define sleep(x) delay(x)
 #else
@@ -26,6 +26,7 @@ void loop();
 typedef const char* nativeString;
 typedef void* wpointer;
 typedef unsigned char uchar_t;
+typedef unsigned char byte;
 
 static inline wpointer malloc0(const uintptr_t x)
 {
@@ -107,6 +108,7 @@ template<typename T>
 using Func0 = T();
 template<typename T0, typename T1>
 using Func1 = T0(T1 arg1);
+
 
 
 using GetConstByIndexDelegate = std::string(int arg1);

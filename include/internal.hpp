@@ -1,6 +1,6 @@
 #pragma once
-#include "compatibility.types.h"
-#include "proxy.h"
+#include "compatibility.types.hpp"
+#include "proxy.hpp"
 
 
 using PInvokeDelegate0 = WaveObject*();
@@ -8,7 +8,6 @@ template<typename T1>
 using PInvokeDelegate1 = WaveObject*(T1* t1);
 template<typename T1, typename T2>
 using PInvokeDelegate2 = WaveObject*(T1* t1, T2* t2);
-
 
 static WaveObject* i_call_get_Platform()
 {
@@ -25,7 +24,7 @@ static WaveObject* i_call_get_Platform()
 
 
 
-#include "builtin/console.buniltin.h"
+#include "builtin/console.buniltin.hpp"
 
 static WaveObject* i_call_printf(WaveString* str)
 {
@@ -69,7 +68,7 @@ static const wpointer internal_call_functions[] = {
 
 #define INTERNAL_CALL(id, func, argsize) argsize,
 
-static const byte internal_call_function_args_size[] = {
+static const unsigned char internal_call_function_args_size[] = {
     #include "../metadata/internal.def"
     0
 };

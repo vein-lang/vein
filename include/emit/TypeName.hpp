@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 
-#include "compatibility.types.h"
-#include "utils/string.split.h"
+#include "compatibility.types.hpp"
+#include "utils/string.split.hpp"
 
 using namespace std;
 

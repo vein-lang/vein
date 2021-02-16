@@ -1,7 +1,7 @@
 #pragma once
-#include "compatibility.types.h"
-#include "hash.h"
-#include "eq.h"
+#include "compatibility.types.hpp"
+#include "hash.hpp"
+#include "eq.hpp"
 
 template<typename TKey>
 struct bucket {

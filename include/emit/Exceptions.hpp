@@ -1,5 +1,5 @@
 #pragma once
-#include "compatibility.types.h"
+#include "compatibility.types.hpp"
 
 CUSTOM_EXCEPTION(AggregateException);
 CUSTOM_EXCEPTION(TypeNotFoundException);

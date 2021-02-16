@@ -2,8 +2,8 @@
 #include "compatibility.types.hpp"
 #include "WaveImage.hpp"
 #include "WaveMethodHeader.hpp"
-#include "WaveMethodPInvokeInfo.h"
-#include "WaveMethodSignature.h"
+#include "WaveMethodPInvokeInfo.hpp"
+#include "WaveMethodSignature.hpp"
 
 typedef struct {
 	const char*             name;

@@ -2,7 +2,6 @@
 #include "Exceptions.hpp"
 #include "FieldFlags.hpp"
 #include "FieldName.hpp"
-#include "typetoken.h"
 #include "WaveMember.hpp"
 
 

@@ -1,8 +1,9 @@
 #pragma once
 #include "compatibility.types.hpp"
-#include "WaveArray.h"
-#include "WaveModificator.h"
+#include "WaveArray.hpp"
+#include "WaveModificator.hpp"
 #include <WaveTypeCode.hpp>
+#include <types/WaveModificator.hpp>
 struct ModifiedType;
 struct WaveClass;
 struct WaveMethodSignature;

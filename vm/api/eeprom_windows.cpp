@@ -1,4 +1,4 @@
-#include "api/Windows/eeprom_windows.h"
+#include "api/Windows/eeprom_windows.hpp"
 #if defined(WIN32) || defined(_WIN32)
 #include <cassert>
 #include <windows.h>

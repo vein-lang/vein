@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(WIN32) || defined(_WIN32)
-#include "compatibility.types.h"
+#include "compatibility.types.hpp"
 #include <filesystem>
 #include <fstream>
 using namespace std::filesystem;
