@@ -1,11 +1,8 @@
 #pragma once
 #include "compatibility.hpp"
 #include "internal.hpp"
-#include "types/WaveCallConvention.hpp"
 #include "types/WaveCore.hpp"
 #include "types/WaveImage.hpp"
-#include "types/WaveMethod.hpp"
-#include "WaveTypeCode.hpp"
 
 #define root_namespace "wave/lang"
 #define class_name(namespace, class_name) "global::"#namespace#class_name
@@ -59,16 +56,16 @@ void init_tables()
 {
     for (auto i = 0; i < internal_last; i++)
     {
-        auto* const f = new WaveMethod();
+        //auto* const f = new WaveMethod();
 
-        f->name = internal_call_names[i];
-        f->signature = new WaveMethodSignature();
-        f->signature->call_convention = WAVE_CALL_C;
-        f->signature->param_count = internal_call_function_args_size[i];
-        //f->signature->params = new WaveParam*[i];
-        f->flags = 0x0;
-        f->data.piinfo = new WaveMethodPInvokeInfo();
-        f->data.piinfo->addr = internal_call_functions[i];
-        wave_core->corlib->method_cache->add(f->name, f);
+        //f->name = internal_call_names[i];
+        //f->signature = new WaveMethodSignature();
+        //f->signature->call_convention = WAVE_CALL_C;
+        //f->signature->param_count = internal_call_function_args_size[i];
+        ////f->signature->params = new WaveParam*[i];
+        //f->flags = 0x0;
+        //f->data.piinfo = new WaveMethodPInvokeInfo();
+        //f->data.piinfo->addr = internal_call_functions[i];
+        //wave_core->corlib->method_cache->add(f->name, f);
     }
 }
