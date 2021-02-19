@@ -5,17 +5,26 @@ using namespace std;
 
 
 template <class K>
-class list : public vector<K>
+class list_t : public vector<K>
 {
 public:
     // TODO, impl lazy
-    [[nodiscard]] list<K>* Where(Predicate<K> predicate) noexcept(true)
+    template<class Z>
+    [[nodiscard]] list_t<Z>* Cast() noexcept(false)
     {
-        auto cp = new list<K>();
-        for(const auto k : this)
+        auto cp = new list_t<Z>();
+        for (auto d = this->begin(); d != this->end(); ++d)
+            cp->push_back(reinterpret_cast<Z>(*d));
+        return cp;
+    }
+    // TODO, impl lazy
+    [[nodiscard]] list_t<K>* Where(Predicate<K> predicate) noexcept(true)
+    {
+        auto cp = new list_t<K>();
+        for (auto d = this->begin(); d != this->end(); ++d)
         {
-            if (predicate(k))
-                cp->push_back(k);
+            if (predicate(*d))
+                cp->push_back(*d);
         }
         return cp;
     }
@@ -27,12 +36,11 @@ public:
     {
         if (predicate == nullptr)
             predicate = [](K _) { return true; };
-        for(const auto kv : this)
+
+        for (auto d = this->begin(); d != this->end(); ++d)
         {
-            auto t = make_tuple(kv.first, kv.second);
-            if (predicate(t))
-                return t;
-            delete t;
+            if (predicate(*d))
+                return *d;
         }
         throw SequenceContainsNoElements();
     }
@@ -66,10 +74,10 @@ public:
     {
         if (predicate == nullptr)
             predicate = [](K _) { return true; };
-        for (auto t = this->rbegin(); t != this->rend();)
+        for (auto t = this->rbegin(); t != this->rend(); ++t)
         {
-            if (predicate(t))
-                return t;
+            if (predicate(*t))
+                return *t;
         }
         throw SequenceContainsNoElements();
     }
@@ -94,5 +102,11 @@ public:
         {
             return Nullable<K>::Value;
         }
+    }
+
+    void AddRange(list_t<K>* other) noexcept
+    {
+        for (auto d = other->begin(); d != other->end(); ++d)
+            this->push_back(*d);
     }
 };
