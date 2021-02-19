@@ -27,7 +27,7 @@ public:
 
     WaveMemberKind GetKind() override
     {
-        return Field;
+        return WaveMemberKind::Field;
     }
 
     bool IsLiteral() const { return (Flags & FIELD_Literal) != 0; }
