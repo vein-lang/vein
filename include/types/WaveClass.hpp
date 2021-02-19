@@ -2,7 +2,7 @@
 #include "WaveMethod.hpp"
 #include "WaveType.hpp"
 #include "WaveTypeCode.hpp"
-#include "collections/list.hpp"
+#include "collections/list_t.hpp"
 #include "emit/ClassFlags.hpp"
 #include "emit/TypeName.hpp"
 #include "emit/WaveField.hpp"
@@ -11,14 +11,14 @@ class WaveClass {
 public:
 	TypeName* FullName;
 
-	string GetName() { return FullName->get_name(); }
-    string GetPath()  { return FullName->get_namespace(); }
+	wstring GetName() { return FullName->get_name(); }
+    wstring GetPath()  { return FullName->get_namespace(); }
 
 	ClassFlags Flags;
     WaveClass* Parent;
 
-	list<WaveField>* Fields = new list<WaveField>();
-    list<WaveMethod>* Methods = new list<WaveMethod>();
+	list_t<WaveField*>* Fields = new list_t<WaveField*>();
+    list_t<WaveMethod*>* Methods = new list_t<WaveMethod*>();
 
 
 	WaveTypeCode TypeCode = TYPE_CLASS;
