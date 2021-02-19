@@ -1,12 +1,11 @@
 #pragma once
-#include <iostream>
 #include <sstream>
 #include <vector>
 
-vector<string> split (const string &s, char delim) {
-    vector<string> result;
-    stringstream ss (s);
-    string item;
+vector<wstring> split (const wstring &s, wchar_t delim) {
+    vector<wstring> result;
+    wstringstream ss (s);
+    wstring item;
 
     while (getline (ss, item, delim))
         result.push_back (item);
