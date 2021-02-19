@@ -18,3 +18,10 @@ node_modules/
 log*
 
 obj/
+*.vcxproj
+
+*.filters
+
+CMakeFiles/
+
+out/

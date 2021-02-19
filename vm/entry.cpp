@@ -4,7 +4,6 @@
 #include "internal.hpp"
 #include "api/elf_reader.hpp"
 #include "types/WaveRuntimeType.hpp"
-#include "api/boolinq.hpp"
 #include "emit/module_reader.hpp"
 #include "streams/binary_reader.hpp"
 #include "streams/memory_stream.hpp"
@@ -25,7 +24,7 @@ using namespace std::literals;
 void setup(int argc, char* argv[]) {
 
     auto* val = 
-        readILfromElf("C:\\Users\\ls-mi\\Desktop\\woo.wll");
+        readILfromElf("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
 
     auto list = new list_t<WaveModule*>();
     try
@@ -36,9 +35,9 @@ void setup(int argc, char* argv[]) {
     catch (std::exception& e)
     {
         printf("Unhandled exception: [");
-        printf(typeid(e).raw_name());
+        //printf(typeid(e).raw_name());
         printf("] ");
-        printf(e.what());
+        //printf(e.what());
         printf(" \n");
     }
 
@@ -59,14 +58,14 @@ void setup(int argc, char* argv[]) {
 
     auto w1 = stt->First();
     auto w2 = stt->Last();
-    auto w3 = stt->Last([](string q) { return q.starts_with("ba"); });
+    //auto w3 = stt->Last([](string q) { return q.starts_with("ba"); });
 
     if (argc == 1)
     {
         printf("[WARN] entry point not found.");
         return;
     }
-    if (!std::string_view(argv[1]).ends_with(".wll"))
+   // if (!std::string_view(argv[1]).ends_with(".wll"))
     {
         printf("[WARN] entry point not found.");
         return;
