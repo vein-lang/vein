@@ -7,12 +7,12 @@ public:
     MemoryStream() : MemoryStream(0) { }
     MemoryStream(int capacity)
     {
-        _buffer = capacity != 0 ? new unsigned char[capacity] : new unsigned char[1];
+        _buffer = capacity != 0 ? new char[capacity] : new char[1];
         _capacity = capacity;
         _length = capacity;
     }
 
-    MemoryStream(unsigned char* buffer, int size)
+    MemoryStream(char* buffer, int size)
     {
         _buffer = buffer;
         _capacity = size;
@@ -30,7 +30,7 @@ public:
     {
         return _position - _origin;
     }
-    int Read(unsigned char* buffer, const int offset, const int count)
+    char Read(char* buffer, const int offset, const int count)
     {
         auto n = _length - _position;
         if (n > count)
@@ -45,11 +45,11 @@ public:
     }
     unsigned char ReadByte()
     {
-      auto* buffer = new unsigned char[1];
-      return Read(buffer, 0, 1) == 0 ? -1 : buffer[0];
+      auto* buffer = new char[1];
+      return Read(buffer, 0, 1) == 0 ? -1 : static_cast<unsigned char>(buffer[0]);
     }
 private:
-    unsigned char* _buffer;
+    char* _buffer;
     int _origin = 0;
     int _position = 0;
     int _length = 0;
