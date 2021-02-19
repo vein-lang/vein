@@ -6,7 +6,14 @@
 #include <fstream>
 using namespace std::filesystem;
 using namespace std;
-unsigned char* readILfromElf(const char* f_name)
+
+struct elfCode
+{
+    size_t size;
+    std::vector<char> bytes;
+};
+
+elfCode* readILfromElf(const char* f_name)
 {
     const auto fasm = current_path() / f_name;
     printf("[INF] load insomnia assembly '%ls'...\n", fasm.c_str());
@@ -25,9 +32,11 @@ unsigned char* readILfromElf(const char* f_name)
     a.read(reinterpret_cast<char*>(&len), sizeof(uint32_t));
     a.read(reinterpret_cast<char*>(&offset), sizeof(uint32_t));
     a.seekg(offset, 0);
-    std::vector<char> bytes(7);
-    a.read(bytes.data(), 7);
-        
-    return (unsigned char*)bytes.data();
+    std::vector<char> bytes(len);
+    a.read(bytes.data(), len);
+    auto* result = new elfCode();
+    result->size = len;
+    result->bytes = bytes;
+    return result;
 }
 #endif
