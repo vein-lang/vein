@@ -34,9 +34,13 @@
             body.Emit(OpCodes.LDF, new FieldName("x"));
             body.Emit(OpCodes.RET);
 
-            method.BakeByteArray();
+            File.WriteAllBytes(@"C:\Users\ls-mi\Desktop\wave.wll", 
+                method.BakeByteArray());
             
-            File.WriteAllText(@"C:\Users\ls-mi\Desktop\wave.il", module.BakeDebugString());
+            File.WriteAllText(@"C:\Users\ls-mi\Desktop\wave.il", 
+                module.BakeDebugString());
+            
+            
 
         }
 

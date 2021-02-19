@@ -5,9 +5,7 @@
 #include "api/elf_reader.hpp"
 #include "types/WaveRuntimeType.hpp"
 #include "api/boolinq.hpp"
-#include <string_view>
-
-
+#include "emit/module_reader.hpp"
 #include "streams/binary_reader.hpp"
 #include "streams/memory_stream.hpp"
 static WaveImage* main_image;
@@ -21,11 +19,47 @@ enum class CALL_CONTEXT : unsigned char
 
 using namespace std::literals;
 
+
+
+
 void setup(int argc, char* argv[]) {
-    auto* a = new TypeName("global::foo/zoo/doo", "bar");
+
+    auto* val = 
+        readILfromElf("C:\\Users\\ls-mi\\Desktop\\woo.wll");
+
+    auto list = new list_t<WaveModule*>();
+    try
+    {
+        auto z= val->bytes[0];
+        auto m = readModule(val->bytes.data(), val->size, list);
+    }
+    catch (std::exception& e)
+    {
+        printf("Unhandled exception: [");
+        printf(typeid(e).raw_name());
+        printf("] ");
+        printf(e.what());
+        printf(" \n");
+    }
+
+
+
+
+    auto* a = new TypeName(L"global::foo/zoo/doo", L"bar");
     
     auto rr = a->get_name();
     auto dd = a->get_namespace();
+
+
+    auto* stt = new list_t<string>();
+
+    stt->push_back("foo");
+    stt->push_back("bar");
+    stt->push_back("zet");
+
+    auto w1 = stt->First();
+    auto w2 = stt->Last();
+    auto w3 = stt->Last([](string q) { return q.starts_with("ba"); });
 
     if (argc == 1)
     {
@@ -37,11 +71,6 @@ void setup(int argc, char* argv[]) {
         printf("[WARN] entry point not found.");
         return;
     }
-
-    auto bytes = readILfromElf(argv[0]);
-    auto w = MemoryStream(bytes, sizeof(bytes));
-    auto r = new BinaryReader(w);
-
     
     main_image = new WaveImage("main_image");
     init_serial();
@@ -126,21 +155,21 @@ void setup(int argc, char* argv[]) {
         RET       /* return                                         */
     };
 
-    auto* xuy_govno = new WaveMethod();
+    //auto* xuy_govno = new WaveMethod();
 
-    uint32_t code_xuy_govno[] = {
-        CALL,
-        static_cast<uint32_t>(CALL_CONTEXT::INTERNAL_CALL),
-        static_cast<uint32_t>(calle_f3),
-        LDARG_2,  /* load from args by 2 index into stack           */
-        CALL,
-        static_cast<uint32_t>(CALL_CONTEXT::INTERNAL_CALL),
-        static_cast<uint32_t>(calle_f4),
-        RET
+    //uint32_t code_xuy_govno[] = {
+    //    CALL,
+    //    static_cast<uint32_t>(CALL_CONTEXT::INTERNAL_CALL),
+    //    static_cast<uint32_t>(calle_f3),
+    //    LDARG_2,  /* load from args by 2 index into stack           */
+    //    CALL,
+    //    static_cast<uint32_t>(CALL_CONTEXT::INTERNAL_CALL),
+    //    static_cast<uint32_t>(calle_f4),
+    //    RET
 
-    };
-    
-    xuy_govno->signature = new WaveMethodSignature();
+    //};
+    //
+   /* xuy_govno->signature = new WaveMethodSignature();
     xuy_govno->signature->ret = new WaveRuntimeType();
     xuy_govno->signature->ret->type = TYPE_VOID;
     xuy_govno->signature->ret->data.klass = wave_core->void_class;
@@ -166,10 +195,10 @@ void setup(int argc, char* argv[]) {
     method->data.header = new MetaMethodHeader();
     method->data.header->max_stack = 24;
     method->data.header->code_size = sizeof(code) / sizeof(uint32_t);
-    method->data.header->code = &*code;
+    method->data.header->code = &*code;*/
 
 
-    main_image->method_cache->add("main", method);
+   /* main_image->method_cache->add("main", method);
 
     auto* str = new WaveString("hello world, from wave vm!");
 
@@ -188,7 +217,7 @@ void setup(int argc, char* argv[]) {
 
     REGISTER unsigned int level = 0;
 
-    exec_method(method->data.header, args, &level);
+    exec_method(method->data.header, args, &level);*/
 }
 
 void loop() {
@@ -324,7 +353,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
                     ++ip;
                     auto* method = get_wave_method(*ip, main_image);
                     d_print("call ");
-                    d_print(method->name);
+                    //d_print(method->name);
                     d_print(" self function.\n");
                     (*level)++;
                     exec_method(method->data.header, args, level);
@@ -335,7 +364,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
                 ++ip;
                 auto* method = get_wave_method(*ip, wave_core->corlib);
 
-                d_print("call ");
+                /*d_print("call ");
                 d_print(method->name);
                 d_print(" internal function.\n");
                 if (method->signature->call_convention == WAVE_CALL_C)
@@ -376,7 +405,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
                         sp->data.p = reinterpret_cast<size_t>(f_result);
                     }
                 }
-                ++ip;
+                ++ip;*/
             }
             break;
             case LDLOC_0:

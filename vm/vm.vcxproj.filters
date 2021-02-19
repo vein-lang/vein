@@ -65,9 +65,6 @@
     <ClInclude Include="..\include\collections\dictionary.hpp">
       <Filter>Header Files\collections</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\collections\list.hpp">
-      <Filter>Header Files\collections</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\emit\TypeName.hpp">
       <Filter>Header Files\emit</Filter>
     </ClInclude>
@@ -184,6 +181,24 @@
     </ClInclude>
     <ClInclude Include="..\include\api\elf_reader.hpp">
       <Filter>Header Files\external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\collections\list_t.hpp">
+      <Filter>Header Files\collections</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\module_reader.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\AsType.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\AsClass.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\MethodFlags.hpp">
+      <Filter>Header Files\emit</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\emit\WaveArgumentRef.hpp">
+      <Filter>Header Files\emit</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

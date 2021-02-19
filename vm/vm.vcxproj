@@ -125,6 +125,10 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <EnableModules>true</EnableModules>
+      <AdditionalOptions>/module:stdIfcDir "$(VCToolsInstallDir_150)ifc\$(PlatformTarget)" %(AdditionalOptions)</AdditionalOptions>
+      <CompileAs>CompileAsCppModule</CompileAs>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,6 +143,11 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <EnableModules>true</EnableModules>
+      <CompileAs>CompileAsCppModule</CompileAs>
+      <ExceptionHandling>Async</ExceptionHandling>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,15 +168,20 @@
     <ClInclude Include="..\include\builtin\console.buniltin.hpp" />
     <ClInclude Include="..\include\collections\dictionary.hpp" />
     <ClInclude Include="..\include\collections\hashtable.hpp" />
-    <ClInclude Include="..\include\collections\list.hpp" />
+    <ClInclude Include="..\include\collections\list_t.hpp" />
     <ClInclude Include="..\include\compatibility.hpp" />
     <ClInclude Include="..\include\compatibility.types.hpp" />
     <ClInclude Include="..\include\core.hpp" />
+    <ClInclude Include="..\include\emit\AsClass.hpp" />
+    <ClInclude Include="..\include\emit\AsType.hpp" />
     <ClInclude Include="..\include\emit\ClassFlags.hpp" />
     <ClInclude Include="..\include\emit\Exceptions.hpp" />
     <ClInclude Include="..\include\emit\FieldFlags.hpp" />
     <ClInclude Include="..\include\emit\FieldName.hpp" />
+    <ClInclude Include="..\include\emit\MethodFlags.hpp" />
+    <ClInclude Include="..\include\emit\module_reader.hpp" />
     <ClInclude Include="..\include\emit\TypeName.hpp" />
+    <ClInclude Include="..\include\emit\WaveArgumentRef.hpp" />
     <ClInclude Include="..\include\emit\WaveField.hpp" />
     <ClInclude Include="..\include\emit\WaveMember.hpp" />
     <ClInclude Include="..\include\emit\WaveMemberKind.hpp" />

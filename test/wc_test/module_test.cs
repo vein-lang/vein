@@ -1,9 +1,11 @@
 ﻿namespace wc_test
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using wave;
     using wave.emit;
+    using wave.fs;
     using Xunit;
 
     public class module_test
@@ -73,7 +75,8 @@
         {
             var deps = GetDeps();
             var module = WriteTest();
-            var bytes = module.BakeByteArray();
+            var f = InsomniaAssembly.LoadFromFile(@"C:\Users\ls-mi\Desktop\woo.wll");
+            var (_, bytes) = f.sections.First();
 
             var result = ModuleReader.Read(bytes, deps);
             
