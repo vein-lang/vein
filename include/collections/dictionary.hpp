@@ -21,12 +21,12 @@ public:
     }
     [[nodiscard]] tuple<K, V> First() noexcept(false)
     {
-        return this->First(LAMBDA_TRUE(_));
+        return this->First([](tuple<K, V> x) { return true; });
     }
     [[nodiscard]] tuple<K, V> First(Predicate<tuple<K, V>> predicate) noexcept(false)
     {
         if (predicate == nullptr)
-            predicate = LAMBDA_TRUE(_);
+            predicate = [](tuple<K, V> x) { return true; };
         for(const auto kv : this)
         {
             auto t = make_tuple(kv.first, kv.second);
@@ -51,7 +51,7 @@ public:
     {
         try
         {
-            return this->First(LAMBDA_TRUE(_));
+            return this->First([](tuple<K, V> x) { return true; });
         }
         catch (SequenceContainsNoElements)
         {
@@ -60,12 +60,12 @@ public:
     }
     [[nodiscard]] tuple<K, V> Last() noexcept(false)
     {
-        return this->Last(LAMBDA_TRUE(_));
+        return this->Last([](tuple<K, V> x) { return true; });
     }
     [[nodiscard]] tuple<K, V> Last(Predicate<tuple<K, V>> predicate) noexcept(false)
     {
         if (predicate == nullptr)
-            predicate = LAMBDA_TRUE(_);
+            predicate = [](tuple<K, V> x) { return true; };
         for (auto iter = this->rbegin(); iter != this->rend();)
         {
             auto t = make_tuple(iter->first, iter->second);
@@ -90,7 +90,7 @@ public:
     {
         try
         {
-            return this->Last(LAMBDA_TRUE(_));
+            return this->Last([](tuple<K, V> x) { return true; });
         }
         catch (SequenceContainsNoElements)
         {
