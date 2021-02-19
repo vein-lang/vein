@@ -2,13 +2,9 @@
 #include <map>
 #include <string>
 #include <unordered_map>
-
-#include <fmt/core.h>
-
 #include "Exceptions.hpp"
 #include "types/WaveClass.hpp"
 #include "types/WaveType.hpp"
-#include "api/boolinq.hpp"
 #include "collections/dictionary.hpp"
 
 using namespace std;
@@ -18,20 +14,20 @@ using namespace std;
 
 struct WaveModule
 {
-    const char* name;
-    dictionary<int, string>* strings;
-    dictionary<string, WaveClass*>* classList;
-    string GetConstByIndex(int index)
+    wstring name;
+    dictionary<int, wstring>* strings;
+    list_t<WaveClass*>* classList;
+    wstring GetConstByIndex(int index)
     {
         if (strings->contains(index))
             return strings->at(index);
-        throw AggregateException(fmt::format("Index '{0}' not found in module '{1}'.", index, name));
+        throw AggregateException("Index '"+to_string(index)+"' not found in module ''.");
     }
 
-    WaveModule(const char* Name)
+    WaveModule(const wstring Name)
     {
-        strings = new dictionary<int, string>;
-        classList = new dictionary<string, WaveClass*>;
+        strings = new dictionary<int, wstring>;
+        classList = new list_t<WaveClass*>;
         name = Name;
     }
     
@@ -40,7 +36,7 @@ struct WaveModule
         //bool filter(InsomniaClass x) => x!.FullName.Equals(type);
         if (!findExternally)
         {
-            for(const auto & [ key, value ] : *classList)
+            for(const auto value : *classList)
             {
                 //if (value->name == type->FullName)
                     //return (void*)value;
