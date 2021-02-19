@@ -6,7 +6,9 @@
 #if defined(ARDUINO)
 #define AVR_PLATFORM
 #endif
-
+#include <codecvt>
+#include <functional>
+#include <locale>
 
 
 #if defined(AVR_PLATFORM)
@@ -82,14 +84,21 @@ static inline wpointer malloc0(const uintptr_t x)
 #define init_serial()
 #endif
 
-
-#define CUSTOM_EXCEPTION(name) struct name : public std::exception {    \
-    const char* msg;                                                    \
-    name() { msg = ""; }                                                \
-    name(const char* message) { msg = message; }                        \
-    name(std::string message) { msg = message.data(); }                 \
-    _NODISCARD const char* what() const throw () { return msg; }        \
+#define CUSTOM_EXCEPTION(name) struct name : public std::exception {   \
+    const char* msg;                                                   \
+    name() { msg = ""; }                                               \
+    name(const char* message) { msg = (message); }                     \
+    name(std::string message) { msg = (message.c_str()); }             \
+    _NODISCARD const char* what() const throw () { return msg; }       \
 }
+#define CUSTOM_WEXCEPTION(name) struct name                        {   \
+    const wchar_t* msg;                                                \
+    name() { msg = L""; }                                               \
+    name(const wchar_t* message) { msg = (message); }                  \
+    name(std::wstring message  ) { msg = (message.c_str()); }          \
+    _NODISCARD const wchar_t* what() const throw () { return msg; }    \
+}
+
 
 template<typename T>
 using Comparer = int(T t1, T t2);
@@ -111,7 +120,7 @@ using Func1 = T0(T1 arg1);
 
 
 
-using GetConstByIndexDelegate = std::string(int arg1);
+using GetConstByIndexDelegate = std::function<std::wstring(int z)>;
 
 #if __cplusplus >= 201406
 template<typename T>
@@ -129,7 +138,7 @@ struct Nullable<T*>
     inline static T* Value = nullptr;
 };
 #endif
- 
+
 #define NULL_VALUE(T) Nullable<T>::Value
 
 #if defined(AVR_PLATFORM)
