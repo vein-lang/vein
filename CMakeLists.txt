@@ -12,3 +12,4 @@ include_directories("include")
 add_subdirectory ("vm")
 
 
+add_subdirectory("external/fmt")
