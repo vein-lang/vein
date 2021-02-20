@@ -38,6 +38,7 @@
                 binary.Write((byte)0); // stack size TODO
                 binary.Write((byte)0); // locals size TODO
                 binary.Write(classBuilder.moduleBuilder.GetTypeConstant(ReturnType.FullName));
+                WriteArguments(binary);
                 binary.Write(new byte[0]); // IL Body
                 return mem.ToArray();
             }
