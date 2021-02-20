@@ -7,3 +7,4 @@ CUSTOM_EXCEPTION(SequenceContainsNoElements);
 CUSTOM_EXCEPTION(NotImplementedException);
 CUSTOM_EXCEPTION(InvalidOperationException);
 CUSTOM_EXCEPTION(ArgumentNullException);
+CUSTOM_EXCEPTION(CollisionDetectedException);
