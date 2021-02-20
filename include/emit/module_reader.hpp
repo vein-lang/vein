@@ -71,11 +71,6 @@ WaveMethod* readMethod(BinaryReader* reader, WaveClass* clazz, WaveModule* m) no
     return method;
 }
 
-union bytes {
-    unsigned char c[8];
-    uint64_t l;
-} myb;
-
 [[nodiscard]]
 WaveClass* readClass(BinaryReader* reader, WaveModule* m) noexcept(false)
 {
