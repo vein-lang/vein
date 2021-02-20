@@ -48,10 +48,10 @@ enum {
 };
 #undef INTERNAL_CALL
 
-#define INTERNAL_CALL(id, func, argsize) #id,
+#define INTERNAL_CALL(id, func, argsize) L#id,
 
 
-static const char* internal_call_names[] = {
+static const wchar_t* internal_call_names[] = {
     #include "../metadata/internal.def"
     nullptr
 };
