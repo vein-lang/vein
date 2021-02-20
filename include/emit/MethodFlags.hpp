@@ -1,6 +1,6 @@
 #pragma once
 
-enum MethodFlags
+enum MethodFlags : int32_t
 {
         MethodPublic = 1 << 0,
         MethodStatic = 1 << 1,
