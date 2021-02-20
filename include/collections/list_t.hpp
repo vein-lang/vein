@@ -18,7 +18,7 @@ public:
         return cp;
     }
     // TODO, impl lazy
-    [[nodiscard]] list_t<K>* Where(Predicate<K> predicate) noexcept(true)
+    [[nodiscard]] list_t<K>* Where(Predicate<K> predicate) noexcept(false)
     {
         auto cp = new list_t<K>();
         for (auto d = this->begin(); d != this->end(); ++d)
@@ -50,9 +50,13 @@ public:
         {
             return this->First(predicate);
         }
-        catch (SequenceContainsNoElements)
+        catch (SequenceContainsNoElements&)
         {
-            return Nullable<K>::Value;
+            return nullptr;
+        }
+        catch (SequenceContainsNoElements*)
+        {
+            return nullptr;
         }
     }
     [[nodiscard]] K FirstOrDefault() noexcept(true)
@@ -61,9 +65,9 @@ public:
         {
             return this->First([](K _) { return true; });
         }
-        catch (SequenceContainsNoElements)
+        catch (SequenceContainsNoElements&)
         {
-            return Nullable<K>::Value;
+            return nullptr;
         }
     }
     [[nodiscard]] K Last() noexcept(false)
