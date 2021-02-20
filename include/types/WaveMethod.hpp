@@ -11,14 +11,14 @@
 class WaveArgumentRef;
 using namespace std;
 
-class WaveMethodBase : WaveMember
+class WaveMethodBase : public WaveMember
 {
 protected:
     WaveMethodBase(const wstring& name, MethodFlags flags, list_t<WaveArgumentRef*>* args)
     : WaveMember(name)
     {
-        Arguments = args;
-
+		Flags = flags;
+		Arguments = args;
     }
 public:
 	MethodFlags Flags;
@@ -38,23 +38,23 @@ public:
 	[[nodiscard]]
 	virtual bool IsStatic() const noexcept
 	{
-	    return (Flags & MethodStatic) != 0;
+	    return (static_cast<int>(Flags) & static_cast<int>(MethodStatic)) != 0;
 	}
 
 	[[nodiscard]]
 	virtual bool IsPrivate() const noexcept
 	{
-	    return (Flags & MethodPrivate) != 0;
+	    return (static_cast<int>(Flags) & static_cast<int>(MethodPrivate)) != 0;
 	}
 
     [[nodiscard]]
     virtual bool IsExtern() const noexcept
 	{
-	    return (Flags & MethodExtern) != 0;
+	    return (static_cast<int>(Flags) & static_cast<int>(MethodExtern)) != 0;
 	}
 };
 
-class WaveMethod : WaveMethodBase
+class WaveMethod : public WaveMethodBase
 {
 public:
 	WaveType* ReturnType;
