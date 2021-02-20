@@ -28,9 +28,15 @@ struct FieldName
     {
         return new FieldName(m->operator()(nameIdx), m->operator()(classIdx));
     }
-    [[nodiscard]] static FieldName* construct(const long idx, GetConstByIndexDelegate* m) noexcept(true)
+    [[nodiscard]] static FieldName* construct(const int64_t idx, GetConstByIndexDelegate* m) noexcept(true)
     {
         return new FieldName(m->operator()(static_cast<int>(idx >> 32)), 
             m->operator()(static_cast<int>(idx & static_cast<uint32_t>(4294967295))));
     }
+};
+
+template<> struct equality<FieldName*> {
+	static bool equal(FieldName* l, FieldName* r) {
+		return wcscmp(l->FullName.c_str(), r->FullName.c_str()) == 0;
+	}
 };
