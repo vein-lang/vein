@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <string>
 
 
@@ -47,7 +47,7 @@ protected:
         TypeCode = TYPE_CLASS;
         classFlags = CLASS_None;
     }
-    WaveType() : WaveMember(nullptr)
+    WaveType() : WaveMember(L"")
     {
         Parent = nullptr;
         classFlags = CLASS_None;
