@@ -26,16 +26,14 @@ auto* readArguments(BinaryReader* reader, WaveModule* m) noexcept
 
         result->Type = m->FindType(tName, true);
         result->Name = m->GetConstByIndex(nIdx);
+        args->push_back(result);
     }
     return args;
 }
 
 [[nodiscard]]
-WaveMethod* readMethod(char* arr, size_t sz, WaveClass* clazz, WaveModule* m) noexcept
+WaveMethod* readMethod(BinaryReader* reader, WaveClass* clazz, WaveModule* m) noexcept
 {
-    auto* mem = new MemoryStream(arr, sz);
-    auto* reader = new BinaryReader(mem);
-
     function<wstring(int z)> wn = [m](const int w) {
         return m->GetConstByIndex(w);
     };
@@ -73,16 +71,18 @@ WaveMethod* readMethod(char* arr, size_t sz, WaveClass* clazz, WaveModule* m) no
     return method;
 }
 
-
+union bytes {
+    unsigned char c[8];
+    uint64_t l;
+} myb;
 
 [[nodiscard]]
-WaveClass* readClass(char* arr, size_t sz, WaveModule* m) noexcept(false)
+WaveClass* readClass(BinaryReader* reader, WaveModule* m) noexcept(false)
 {
-    auto* mem = new MemoryStream(arr, sz);
-    auto* reader = new BinaryReader(mem);
     const auto idx = reader->Read4();
     const auto nsidx = reader->Read4();
     const auto flags = static_cast<ClassFlags>(reader->ReadU2());
+
     const auto parentIdx = reader->Read8();
     const auto len = reader->Read4();
 
@@ -92,15 +92,20 @@ WaveClass* readClass(char* arr, size_t sz, WaveModule* m) noexcept(false)
 
     auto* const typeName = TypeName::construct(parentIdx, &wn);
     auto* const parent = m->FindType(typeName, true);
-    auto* className = TypeName::construct(idx, nsidx, &wn);
+    auto* className = TypeName::construct(nsidx, idx, &wn);
     auto* clazz = new WaveClass(className, AsClass(parent));
     clazz->Flags = flags;
     for (auto i = 0; i != len; i++)
     {
         const auto size = reader->Read4();
         auto* const body = reader->ReadBytes(size);
-        auto* const method = readMethod(body, size, clazz, m);
+        auto* const methodMem = new MemoryStream(body, size);
+        auto* const methodReader = new BinaryReader(methodMem);
+        auto* const method = readMethod(methodReader, clazz, m);
         clazz->Methods->push_back(method);
+        delete methodReader;
+        delete methodMem;
+        delete body;
     }
 
     const auto fsize = reader->Read4();
@@ -111,15 +116,11 @@ WaveClass* readClass(char* arr, size_t sz, WaveModule* m) noexcept(false)
         const auto tnameIdx = reader->Read8();
         auto* tname = TypeName::construct(tnameIdx, &wn);
         auto* const return_type = m->FindType(tname, true);
-        auto fflags  = static_cast<FieldFlags>(reader->ReadU2());
+        const auto fflags  = static_cast<FieldFlags>(reader->ReadU2());
         //auto litVal = reader->ReadBytes(0);
         auto* field = new WaveField(clazz, fname, fflags, return_type);
         clazz->Fields->push_back(field);
     }
-    delete reader;
-    delete mem;
-    
-
     return clazz;
 }
 
@@ -131,17 +132,8 @@ WaveModule* readModule(char* arr, size_t sz, list_t<WaveModule*>* deps) noexcept
     auto* mem = new MemoryStream(arr, sz);
     auto* reader = new BinaryReader(mem);
 
-    //target->deps->addRange(deps);
-    //auto b0 = arr[sz-1];
-    //auto a0 = arr[0];
-    //auto a1 = mem->ReadByte();
-    //auto a2 = mem->ReadByte();
-    //auto a3 = mem->ReadByte();
-    //auto a4 = mem->ReadByte();
-
-    //auto aa = (a4 << 24) | (a3 << 16) | (a2 << 8)| (a1 << 0);
-
-
+    target->deps = deps;
+    
     const auto idx = reader->Read4();
 
     const auto ssize = reader->Read4();
@@ -156,8 +148,13 @@ WaveModule* readModule(char* arr, size_t sz, list_t<WaveModule*>* deps) noexcept
     {
         const auto size = reader->Read4();
         auto* body = reader->ReadBytes(size);
-        auto* clazz = readClass(body, size, target);
+        auto* const classMem = new MemoryStream(body, size);
+        auto* const classReader = new BinaryReader(classMem);
+        auto* clazz = readClass(classReader, target);
         target->classList->push_back(clazz);
+        delete classReader;
+        delete classMem;
+        delete body;
     }
 
     target->name = target->GetConstByIndex(idx);
