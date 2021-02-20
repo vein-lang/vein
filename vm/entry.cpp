@@ -3,11 +3,7 @@
 #include "interp.hpp"
 #include "internal.hpp"
 #include "api/elf_reader.hpp"
-#include "types/WaveRuntimeType.hpp"
 #include "emit/module_reader.hpp"
-#include "streams/binary_reader.hpp"
-#include "streams/memory_stream.hpp"
-static WaveImage* main_image;
 enum class CALL_CONTEXT : unsigned char
 {
     INTERNAL_CALL,
@@ -17,22 +13,31 @@ enum class CALL_CONTEXT : unsigned char
 
 
 using namespace std::literals;
+class AV { };
 
+#include <signal.h>
 
-
+void catcher(int sig){ throw AV(); }
 
 void setup(int argc, char* argv[]) {
+    init_serial();
+    init_default();
+    init_tables();
 
     auto* val = 
         readILfromElf("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
 
     auto list = new list_t<WaveModule*>();
+    list->push_back(wave_core->corlib);
+    //auto s22 = hash_gen<wstring>::getHashCode(L"x");
+    //auto s33 = hash_gen<string>::getHashCode("x");
+
     try
     {
         auto z= val->bytes[0];
         auto m = readModule(val->bytes.data(), val->size, list);
     }
-    catch (std::exception& e)
+    catch (...)
     {
         printf("Unhandled exception: [");
         //printf(typeid(e).raw_name());
@@ -71,10 +76,7 @@ void setup(int argc, char* argv[]) {
         return;
     }
     
-    main_image = new WaveImage("main_image");
-    init_serial();
-    init_default();
-    init_tables();
+    
     /*auto a = new hashtable<const char*>();
     auto s1 = "xuy";
     auto s2 = "dick";
@@ -117,7 +119,7 @@ void setup(int argc, char* argv[]) {
     */
     
 
-    auto* str_1 = new WaveString("get_Platform");
+    /*auto* str_1 = new WaveString("get_Platform");
     auto calle_f = hash_gen<WaveString>::getHashCode(str_1);
 
     auto* str_2 = new WaveString("xuy_govno");
@@ -128,31 +130,31 @@ void setup(int argc, char* argv[]) {
     auto calle_f3 = hash_gen<WaveString>::getHashCode(str_3);
 
     auto* str_4 = new WaveString("printf");
-    auto calle_f4 = hash_gen<WaveString>::getHashCode(str_4);
+    auto calle_f4 = hash_gen<WaveString>::getHashCode(str_4);*/
 
-    main_image->db_str_cache->add(calle_f, str_1);
-    main_image->db_str_cache->add(calle_f2, str_2);
-    main_image->db_str_cache->add(calle_f3, str_3);
-    main_image->db_str_cache->add(calle_f4, str_4);
+    //main_image->db_str_cache->add(calle_f, str_1);
+    //main_image->db_str_cache->add(calle_f2, str_2);
+    //main_image->db_str_cache->add(calle_f3, str_3);
+    //main_image->db_str_cache->add(calle_f4, str_4);
 
-    uint32_t code[] = {
-        LDC_I4_S, /* load i4 into stack                             */
-        4,        /* i4                                             */
-        LDC_I4_S, /* load i4 into stack                             */
-        1,        /* i4                                             */
-        ADD,      /* fetch two i4 and sum result push into stack    */
-        LDC_I4_S, /* load i4 into stack                             */
-        2,        /* i4                                             */
-        XOR,      /* fetch i4 and XOR result push into stack        */
-        DUMP_0,   /* debug                                          */
-        CALL,     /* call function by next index                    */
-        static_cast<uint32_t>(CALL_CONTEXT::INTERNAL_CALL),
-        static_cast<uint32_t>(calle_f),
-        CALL,
-        static_cast<uint32_t>(CALL_CONTEXT::SELF_CALL),
-        static_cast<uint32_t>(calle_f2),
-        RET       /* return                                         */
-    };
+    //uint32_t code[] = {
+    //    LDC_I4_S, /* load i4 into stack                             */
+    //    4,        /* i4                                             */
+    //    LDC_I4_S, /* load i4 into stack                             */
+    //    1,        /* i4                                             */
+    //    ADD,      /* fetch two i4 and sum result push into stack    */
+    //    LDC_I4_S, /* load i4 into stack                             */
+    //    2,        /* i4                                             */
+    //    XOR,      /* fetch i4 and XOR result push into stack        */
+    //    DUMP_0,   /* debug                                          */
+    //    CALL,     /* call function by next index                    */
+    //    static_cast<uint32_t>(CALL_CONTEXT::INTERNAL_CALL),
+    //    static_cast<uint32_t>(calle_f),
+    //    CALL,
+    //    static_cast<uint32_t>(CALL_CONTEXT::SELF_CALL),
+    //    static_cast<uint32_t>(calle_f2),
+    //    RET       /* return                                         */
+    //};
 
     //auto* xuy_govno = new WaveMethod();
 
@@ -230,9 +232,7 @@ void loop() {
 
 WaveMethod* get_wave_method(uint32_t idx, WaveImage* targetImage)
 {
-    auto* method_name = static_cast<WaveString*>(main_image->db_str_cache->get(idx));
-    auto* method = static_cast<WaveMethod*>(targetImage->method_cache->get(method_name->chars));
-    return method;
+    return nullptr;
 }
 
 void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
@@ -350,18 +350,18 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
                 if (callctx == CALL_CONTEXT::SELF_CALL)
                 {
                     ++ip;
-                    auto* method = get_wave_method(*ip, main_image);
+                   // auto* method = get_wave_method(*ip, main_image);
                     d_print("call ");
                     //d_print(method->name);
                     d_print(" self function.\n");
                     (*level)++;
-                    exec_method(method->data.header, args, level);
+                    //exec_method(method->data.header, args, level);
 
                     continue;
                 }
 
                 ++ip;
-                auto* method = get_wave_method(*ip, wave_core->corlib);
+                //auto* method = get_wave_method(*ip, wave_core->corlib);
 
                 /*d_print("call ");
                 d_print(method->name);

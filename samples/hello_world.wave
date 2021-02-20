@@ -23,8 +23,10 @@ public class Program
         body
         {
             use enum Foo;
-            auto* the_a = A;
-            auto* the_b = B;
+            auto* the_a = master<Foo>()::A;
+            auto* the_b = slave<Foo>(the_a)::B;
+
+            auto b = static_cast<black_int32>(454);
         };
         gc auto;
     };

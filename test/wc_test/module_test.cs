@@ -75,7 +75,7 @@
         {
             var deps = GetDeps();
             var module = WriteTest();
-            var f = InsomniaAssembly.LoadFromFile(@"C:\Users\ls-mi\Desktop\woo.wll");
+            var f = InsomniaAssembly.LoadFromFile("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
             var (_, bytes) = f.sections.First();
 
             var result = ModuleReader.Read(bytes, deps);
