@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <string>
 
 
@@ -54,11 +54,11 @@ protected:
     }
 };
 
-class WaveTypeImpl : WaveType
+class WaveTypeImpl : public WaveType
 {
     
 public:
-    WaveTypeImpl(TypeName* tn, WaveTypeCode code) : WaveType()
+    WaveTypeImpl(TypeName* tn, WaveTypeCode code)
     {
         type_name_ = tn;
         TypeCode = code;
