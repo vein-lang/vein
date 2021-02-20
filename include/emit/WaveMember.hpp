@@ -6,7 +6,7 @@
 class WaveMember
 {
 public:
-    std::wstring Name;
+    wstring Name;
     virtual WaveMemberKind GetKind() = 0;
 protected:
     WaveMember(const std::wstring& name) { Name = name; }
