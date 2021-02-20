@@ -24,6 +24,7 @@
         
         public MethodBuilder DefineMethod(string name, WaveType returnType, params WaveArgumentRef[] args)
         {
+            moduleBuilder.GetStringConstant(name);
             var method = new MethodBuilder(this, name, returnType, args);
             Methods.Add(method);
             return method;
