@@ -104,7 +104,7 @@ template<typename T>
 using Comparer = int(T t1, T t2);
 
 template<typename T>
-using Predicate = bool(T t);
+using Predicate = std::function<bool(T z)>;
 
 template<typename T>
 using Action0 = void(T t);
