@@ -18,6 +18,10 @@ public:
         _capacity = size;
         _length = size;
     }
+    ~MemoryStream()
+    {
+        delete _buffer;
+    }
     long Capacity() override
     {
         return _capacity - _origin;
@@ -30,7 +34,7 @@ public:
     {
         return _position - _origin;
     }
-    char Read(char* buffer, const int offset, const int count)
+    int Read(char* buffer, const int offset, const int count)
     {
         auto n = _length - _position;
         if (n > count)
