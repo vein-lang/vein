@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Security;
     using System.Text;
+    using MoreLinq;
 
     public class ModuleBuilder : WaveModule, IBaker
     {
@@ -12,6 +13,8 @@
 
         public ClassBuilder DefineClass(TypeName name)
         {
+            GetStringConstant(name.Name);
+            GetStringConstant(name.Namespace);
             var c = new ClassBuilder(this, name);
             classList.Add(c);
             return c;
@@ -51,6 +54,9 @@
 
         public byte[] BakeByteArray()
         {
+            classList.OfType<IBaker>().Pipe(x => x.BakeDebugString()).Consume();
+            classList.OfType<IBaker>().Pipe(x => x.BakeByteArray()).Consume();
+            
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
 
