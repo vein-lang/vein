@@ -25,16 +25,17 @@ public:
             (static_cast<int>(_origin->ReadByte()) << 24); // (a4 << 24) | (a3 << 16) | (a2 << 8)| (a1 << 0)
     }
     [[nodiscard]]
-    long Read8() const noexcept
+    uint64_t Read8() const noexcept
     {
         return
-            static_cast<long>(_origin->ReadByte()) << 0  | 
-            static_cast<long>(_origin->ReadByte()) << 8  | 
-            static_cast<long>(_origin->ReadByte()) << 16 | 
-            static_cast<long>(_origin->ReadByte()) << 24 | 
-            static_cast<long>(_origin->ReadByte()) << 32 | 
-            static_cast<long>(_origin->ReadByte()) << 40 | 
-            static_cast<long>(_origin->ReadByte()) << 48;
+            static_cast<uint64_t>(_origin->ReadByte()) << 0  | 
+            static_cast<uint64_t>(_origin->ReadByte()) << 8  | 
+            static_cast<uint64_t>(_origin->ReadByte()) << 16 | 
+            static_cast<uint64_t>(_origin->ReadByte()) << 24 | 
+            static_cast<uint64_t>(_origin->ReadByte()) << 32 | 
+            static_cast<uint64_t>(_origin->ReadByte()) << 40 | 
+            static_cast<uint64_t>(_origin->ReadByte()) << 48 |
+            static_cast<uint64_t>(_origin->ReadByte()) << 56;
     }
     [[nodiscard]]
     char* ReadBytes(const size_t size) const noexcept
