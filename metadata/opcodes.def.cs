@@ -239,7 +239,7 @@ namespace wave
 		/// </summary>
 		STLOC_S = 0x39,
 		/// <summary>
-		/// Initialization locals stack  .
+		/// Initialization locals stack.
 		/// </summary>
 		LOC_INIT = 0x3A,
 		/// <summary>

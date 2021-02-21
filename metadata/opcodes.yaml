@@ -18,13 +18,15 @@
     I4:
       description: Load int32 constant into stack.
       range: true
+      override-size: 4
     I2:
       description: Load int16 constant into stack.
       range: true
+      override-size: 2
     I8:
       description: Load in64 constant into stack.
       range: true
-      override-size: 2
+      override-size: 8
 - DUMP.0:
     description: Debug operation.
 - DUMP.1:
@@ -33,7 +35,7 @@
     description: Return operation.
 - CALL:
     description: Call operation.
-    override-size: 2
+    override-size: 8
 - LDNULL:
     description: Load NULL into stack.
 - LDF:
@@ -46,8 +48,8 @@
     description: Load from locals into stack.
     range: true
 - LOC.INIT:
-    description: Initialization locals stack  .
-    override-size: 1
+    description: Initialization locals stack.
+    override-size: 4
 - DUP:
     description: Duplicate memory from stack.
 - XOR:
@@ -67,34 +69,34 @@
     description: Throw exception operation.
 - NEWOBJ:
     description: New object Operation.
-    override-size: 2
+    override-size: 4
 - EQL:
     description: Compare two value, when values are equal 1 (int32) stage into stack, otherwise 0 (int32).
 - JMP:
     description: Control flow, jump onto label. (unconditional)
     use-root: true
-    override-size: 1
+    override-size: 4
     LQ:
-      override-size: 1
+      override-size: 4
       description: Control flow, jump onto label when first value is less than or equal to second value.
     L:
-      override-size: 1
+      override-size: 4
       description: Control flow, jump onto label when first value is less second value.
     HQ:
-      override-size: 1
+      override-size: 4
       description: Control flow, jump onto label when first value is greater than or equal to second value.
     H:
-      override-size: 1
+      override-size: 4
       description: Control flow, jump onto label when first value is greater second value.
     NQ:
-      override-size: 1
+      override-size: 4
       description: Control flow, jump onto label when two integer/float is equal.
     NN:
-      override-size: 1
+      override-size: 4
       description: Control flow, jump onto label when two integer/float is not equal.
     F:
-      override-size: 1
+      override-size: 4
       description: Control flow, jump onto label when value has false, null or zero.
     T:
-      override-size: 1
+      override-size: 4
       description: Control flow, jump onto label when value has true or either differs from null or from zero.
