@@ -8,3 +8,4 @@ CUSTOM_EXCEPTION(NotImplementedException);
 CUSTOM_EXCEPTION(InvalidOperationException);
 CUSTOM_WEXCEPTION(ArgumentNullException);
 CUSTOM_WEXCEPTION(CollisionDetectedException);
+CUSTOM_WEXCEPTION(CorruptILException);
