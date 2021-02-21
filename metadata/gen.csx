@@ -94,8 +94,8 @@ var cs_def_props = new StringBuilder();
 
 void gen_cpp_def(StringBuilder builder)
 {
-    foreach(var i in ops.Select((x, y) => (x.name, y)))
-        builder.AppendLine($"OP_DEF({i.name.Replace(".", "_")}, 0x{i.y:X2})");
+    foreach(var i in ops.Select((x, y) => (x.name, y, x.override_size)))
+        builder.AppendLine($"OP_DEF({i.name.Replace(".", "_")}, 0x{i.y:X2}, {i.override_size})");
 }
 
 void gen_cs_def(StringBuilder builder)
@@ -134,10 +134,11 @@ int get(string r)
 void gen_cs_props(StringBuilder builder)
 {
     int CreateFlag(byte size, int flow, int chain) 
-            => (chain << 0xC) | 0x1F | (flow << 0x11) | 0x1F | (size << 22) | 0x3;
+            => ((chain << 0xC) | 0x1F) | ((flow << 0x11) | 0x1F) | ((size << 0x16) | 0x1F);
     builder.AppendLine(header);
     builder.AppendLine("namespace wave \n{");
     builder.AppendLine("\tusing global::wave.runtime.emit;");
+    builder.AppendLine("\tusing global::System.Collections.Generic;");
     builder.AppendLine("\tpublic static class OpCodes \n\t{");
     foreach(var i in ops.Select((x, y) => (x.name, y, x.override_size, get(x.flow), get(x.chain))))
     {
@@ -145,6 +146,9 @@ void gen_cs_props(StringBuilder builder)
         var note = ops[i.y].note;
         builder.AppendLine($"\t\t/// <summary>");
         builder.AppendLine($"\t\t/// {desc}");
+        builder.AppendLine($"\t\t/// size: {i.override_size}");
+        builder.AppendLine($"\t\t/// flow: {i.Item4}");
+        builder.AppendLine($"\t\t/// chain: {i.Item5}");
         builder.AppendLine($"\t\t/// </summary>");
         if (note is not null)
         {
@@ -153,8 +157,13 @@ void gen_cs_props(StringBuilder builder)
             builder.AppendLine($"\t\t/// </remarks>");
         }
         builder.AppendLine($"\t\tpublic static OpCode {i.name.Replace(".", "_")} "+
-        $"= new (0x{i.y:X2}, 0x{CreateFlag(i.override_size ?? 0, i.Item4, i.Item5):X6});");
+        $"= new (0x{i.y:X2}, 0x{CreateFlag(i.override_size ?? 0, i.Item4, i.Item5):X8});");
     }
+    builder.AppendLine("\n\t\tpublic static Dictionary<OpCodeValue, OpCode> all = new ()");
+    builder.AppendLine("\t\t{");
+    foreach(var i in ops.Select((x, y) => x.name))
+        builder.AppendLine($"\t\t\t{{OpCodeValue.{i.Replace(".", "_")}, {i.Replace(".", "_")}}},");
+    builder.AppendLine("\t\t};");
     builder.AppendLine("\t}\n}");
 }
 /*
