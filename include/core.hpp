@@ -90,7 +90,7 @@ inline void init_default()
     processStrings(wave_core->void_type, corlib);
     processStrings(wave_core->void_class, corlib);
 
-
+    
     corlib->classList->push_back(wave_core->object_class);
     corlib->classList->push_back(wave_core->void_class);
     corlib->classList->push_back(wave_core->native_class);
