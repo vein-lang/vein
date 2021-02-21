@@ -57,10 +57,10 @@
 
         public FlowControl FlowControl => (FlowControl) (flags >> 0x11 & 0x1F);
 
-        public int Size => flags >> 0x16 & 0x3;
+        public int Size => flags >> 0x16 & 0x1F;
         
         internal static int CreateFlag(byte size, FlowControl flow, ControlChain chain) 
-            => ((int) chain << 0xC) | 0x1F | ((int) flow << 0x11) | 0x1F | (size << 22) | 0x3;
+            => ((int) chain << 0xC) | 0x1F | ((int) flow << 0x11) | 0x1F | (size << 22) | 0x1F;
     }
 
     public enum ControlChain
