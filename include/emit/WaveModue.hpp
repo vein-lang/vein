@@ -8,6 +8,7 @@
 #include "collections/dictionary.hpp"
 #include "emit/AsType.hpp"
 #include "eq.hpp"
+#include <fmt/format.h>
 using namespace std;
 
 
@@ -20,23 +21,26 @@ struct WaveModule
     list_t<WaveClass*>* classList;
     list_t<WaveModule*>* deps;
 
-
+    [[nodiscard]]
     wstring GetConstByIndex(int index) const noexcept(false)
     {
         if (strings->contains(index))
             return strings->at(index);
-        throw AggregateException("Index '"+to_string(index)+"' not found in module ''.");
+        throw AggregateException(fmt::format(L"Index '{0}' not found in module '{1}'.", index, name));
     }
     [[nodiscard]]
     int32_t GetStringConstant(const wstring& str) const noexcept(false)
     {
         if (str.empty())
-            throw ArgumentNullException("GetStringConstant:: [str is empty]");
+            throw ArgumentNullException(L"GetStringConstant:: [str is empty]");
         auto key = static_cast<int32_t>(hash_gen<wstring>::getHashCode(str));
         if (!strings->contains(key))
             strings->insert({key, str});
         if (!equality<wstring>::equal(strings->at(key), str))
-            throw CollisionDetectedException("Detected collisions of string constant. '{str}' and '{strings[key]}'.\n Please report this issue into https://github.com/0xF6/wave_lang/issues.");
+            throw CollisionDetectedException(fmt::format(
+                L"Detected collisions of string constant. '{0}' and '{1}'.\n Please report this issue into {2}.",
+                str, strings->at(key),
+                L"https://github.com/0xF6/wave_lang/issues"));
         return key;
     }
     int64_t GetTypeConstant(TypeName* name) const noexcept(false)
@@ -67,9 +71,9 @@ struct WaveModule
         name = Name;
     }
     
-    WaveType* FindType(TypeName* type, bool findExternally = false) noexcept(false)
+    WaveType* FindType(TypeName* type, bool findExternally = false) const noexcept(false)
     {
-        function<bool(WaveClass* z)> filter = [type](WaveClass* s) {
+        const function<bool(WaveClass* z)> filter = [type](WaveClass* s) {
             return equality<TypeName*>::equal(type, s->FullName);
         };
         if (!findExternally)
@@ -78,13 +82,12 @@ struct WaveModule
         if (result != nullptr)
             return AsType(result);
         
-        for(auto m : *deps)
+        for(auto* m : *deps)
         {
-            auto result = m->FindType(type, findExternally);
+            auto* result = m->FindType(type, findExternally);
             if (result != nullptr)
                 return result;
         }
-
-        throw TypeNotFoundException("'{type}' not found in modules and dependency assemblies.");
+        throw TypeNotFoundException(fmt::format(L"'{0}' not found in modules and dependency assemblies.", type->FullName));
     }
 };
