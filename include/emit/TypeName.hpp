@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-
+#include <fmt/format.h>
 #include "compatibility.types.hpp"
 #include "utils/string.split.hpp"
 
@@ -45,4 +45,17 @@ template<> struct equality<TypeName*> {
 	static bool equal(TypeName* l, TypeName* r) {
 		return wcscmp(l->FullName.c_str(), r->FullName.c_str()) == 0;
 	}
+};
+
+template <> struct fmt::formatter<TypeName>: formatter<string_view> {
+  template <typename FormatContext>
+  auto format(TypeName c, FormatContext& ctx) {
+    return formatter<string_view>::format(c.FullName, ctx);
+  }
+};
+template <> struct fmt::formatter<TypeName*>: formatter<string_view> {
+  template <typename FormatContext>
+  auto format(TypeName* c, FormatContext& ctx) {
+    return formatter<string_view>::format(c->FullName, ctx);
+  }
 };
