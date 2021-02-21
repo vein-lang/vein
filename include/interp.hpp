@@ -2,16 +2,22 @@
 
 #define ALLOC(t, x) ((t)__builtin_alloca(x))
 
-#define OP_DEF(x, y) x = y,
+#define OP_DEF(x, y, z) x = y,
 enum {
     #include "../metadata/opcodes.def"
-	LAST = 0xff
+	LAST
 };
 #undef OP_DEF
-#define OP_DEF(x, y) #x,
-const char* opcodes [] = {
+#define OP_DEF(x, y, z) #x,
+inline const char* opcodes [] = {
 	#include "../metadata/opcodes.def"
 	"LAST"
+};
+#undef OP_DEF
+#define OP_DEF(x, y, z) z,
+inline const unsigned char opcode_size [] = {
+	#include "../metadata/opcodes.def"
+	0
 };
 #undef OP_DEF
 
