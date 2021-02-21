@@ -4,6 +4,7 @@
 #include "internal.hpp"
 #include "api/elf_reader.hpp"
 #include "emit/module_reader.hpp"
+#include <fmt/format.h>
 enum class CALL_CONTEXT : unsigned char
 {
     INTERNAL_CALL,
@@ -23,15 +24,15 @@ void setup(int argc, char* argv[]) {
     init_serial();
     init_default();
     init_tables();
-
+    auto qweqw = fmt::format(L"{0}:{0}", 1);
     auto* val = 
-        readILfromElf("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
-
+        //readILfromElf("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
+        readILfromElf("C:\\Users\\ls-mi\\Desktop\\satl.wll");
     auto list = new list_t<WaveModule*>();
     list->push_back(wave_core->corlib);
     //auto s22 = hash_gen<wstring>::getHashCode(L"x");
     //auto s33 = hash_gen<string>::getHashCode("x");
-
+    
     try
     {
         auto z= val->bytes[0];

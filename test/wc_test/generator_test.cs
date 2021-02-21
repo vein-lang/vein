@@ -177,5 +177,37 @@
             var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsType(), args);
             return method.GetGenerator();
         }
+        
+        
+        
+        [Fact]
+        public void ManualGen()
+        {
+            var module = new ModuleBuilder("satl");
+            var clazz = module.DefineClass("global::wave/lang/svack_pidars");
+            clazz.Flags = ClassFlags.Public | ClassFlags.Static;
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType(),
+                ("x", WaveTypeCode.TYPE_STRING));
+            method.Flags = MethodFlags.Public | MethodFlags.Static;
+            var body = method.GetGenerator();
+            
+            body.Emit(OpCodes.LDC_I4_S, 1448);
+            body.Emit(OpCodes.LDC_I4_S, 228);
+            body.Emit(OpCodes.ADD);
+            body.Emit(OpCodes.LDC_I4_S, 2);
+            body.Emit(OpCodes.XOR);
+            body.Emit(OpCodes.DUMP_0);
+            body.Emit(OpCodes.RET);
+
+
+            var body_module = module.BakeByteArray();
+
+
+            var asm = new InsomniaAssembly { Name = module.Name };
+            
+            asm.AddSegment((".code", body_module));
+            
+            InsomniaAssembly.WriteToFile(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+        }
     }
 }
