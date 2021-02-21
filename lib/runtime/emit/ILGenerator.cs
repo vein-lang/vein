@@ -248,7 +248,7 @@
             var num = opcode.Value;
             if (opcode.Size != 1)
             {
-                BinaryPrimitives.WriteUInt16BigEndian(_ilBody.AsSpan(_position), num);
+                BinaryPrimitives.WriteUInt16LittleEndian(_ilBody.AsSpan(_position), num);
                 _position += 2;
             }
             else
