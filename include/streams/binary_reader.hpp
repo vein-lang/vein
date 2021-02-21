@@ -10,10 +10,17 @@ public:
         _origin = origin;
     }
     [[nodiscard]]
-    unsigned char ReadU2() const
+    unsigned char ReadByte() const
     {
         return
             _origin->ReadByte();
+    }
+    [[nodiscard]]
+    uint16_t Read2() const
+    {
+        return
+            (static_cast<uint16_t>(_origin->ReadByte()) << 0)  | 
+            (static_cast<uint16_t>(_origin->ReadByte()) << 8);
     }
     [[nodiscard]]
     int Read4() const
@@ -50,16 +57,23 @@ public:
     wstring ReadInsomniaString() const noexcept(false)
     {
         const auto size = Read4();
-        const auto magic = ReadU2();
+        const auto magic = ReadByte();
         if (magic != 0x45)
             throw InvalidOperationException("Cannot read string from binary stream. [magic flag invalid]");
         auto* const body = ReadBytes(size);
-
         return BytesToUTF8(body, size);
     }
 
-
-
+    [[nodiscard]]
+    int Position() const noexcept
+    {
+        return _origin->Position();
+    }
+    [[nodiscard]]
+    int Length() const noexcept
+    {
+        return _origin->Length();
+    }
 
 private:
     MemoryStream* _origin;
