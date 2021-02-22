@@ -1,7 +1,9 @@
 #pragma once
 #include "compatibility.types.hpp"
 #include "proxy.hpp"
-
+#include "collections/create_map.hpp"
+#include <map>
+using namespace std;
 
 using PInvokeDelegate0 = WaveObject*();
 template<typename T1>
@@ -22,33 +24,30 @@ static WaveObject* i_call_get_Platform()
 #endif
 };
 
+#define FE_ARG(name) static const map<wstring, wstring> arg_list_of_##name = create_map<wstring, wstring>
+#define GET_FE_ARG(name) arg_list_of_##name
+
+/****************              start builtin              ****************/
+
 
 
 #include "builtin/console.buniltin.hpp"
 
-static WaveObject* i_call_printf(WaveString* str)
-{
-    d_print("i_call_printf:: ");
-    w_print(str->chars);
-    return nullptr;
-}
 
 
-static WaveObject* i_call_Echo()
-{
-    w_print("echo");
-    return nullptr;
-}
+/****************              end builtin                ****************/
 
-#define INTERNAL_CALL(id, func, argsize) internal_ ## id,
+#include "../metadata/internal.args.def"
+
+#define FE_CALL(name, type_name, link, argsize) internal_##name,
 
 enum {
     #include "../metadata/internal.def"
     internal_last
 };
-#undef INTERNAL_CALL
+#undef FE_CALL
 
-#define INTERNAL_CALL(id, func, argsize) L#id,
+#define FE_CALL(name, type_name, link, argsize) L#name,
 
 
 static const wchar_t* internal_call_names[] = {
@@ -56,19 +55,40 @@ static const wchar_t* internal_call_names[] = {
     nullptr
 };
 
-#undef INTERNAL_CALL
+#undef FE_CALL
 
-#define INTERNAL_CALL(id, func, argsize) &func,
+#define FE_CALL(name, type_name, link, argsize) type_name,
+
+static const wstring internal_call_functions_direction[] = {
+    #include "../metadata/internal.def"
+    L"<null>"
+};
+
+#undef FE_CALL
+
+#define FE_CALL(name, type_name, link, argsize) &link,
 
 static const wpointer internal_call_functions[] = {
     #include "../metadata/internal.def"
     nullptr
 };
-#undef INTERNAL_CALL
+#undef FE_CALL
 
-#define INTERNAL_CALL(id, func, argsize) argsize,
+#define FE_CALL(name, type_name, link, argsize) argsize,
 
 static const unsigned char internal_call_function_args_size[] = {
     #include "../metadata/internal.def"
     0
 };
+
+#undef FE_CALL
+
+#define FE_CALL(name, type_name, link, argsize) &GET_FE_ARG(name),
+
+//[[clang::no_destroy]]
+static const void* internal_call_function_args_refs[] = {
+    #include "../metadata/internal.def"
+    nullptr
+};
+
+#undef FE_CALL
