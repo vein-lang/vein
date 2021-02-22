@@ -2,6 +2,7 @@
 #include <string>
 #include <fmt/format.h>
 #include "compatibility.types.hpp"
+#include "Exceptions.hpp"
 #include "utils/string.split.hpp"
 
 using namespace std;
@@ -39,6 +40,12 @@ struct TypeName
     {
         return new TypeName(m->operator()(static_cast<int>(idx & static_cast<uint32_t>(4294967295))), 
             m->operator()(static_cast<int>(idx >> 32)));
+    }
+
+    static void Validate(TypeName* name) noexcept(false)
+    {
+        if (!name->FullName.starts_with(L"global::"))
+            throw InvalidFormatException(fmt::format(L"TypeName '{0}' has invalid. [name is not start with global::]", name->FullName));
     }
 };
 template<> struct equality<TypeName*> {
