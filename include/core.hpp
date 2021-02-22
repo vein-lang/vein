@@ -1,6 +1,7 @@
 #pragma once
 #include "compatibility.hpp"
 #include "internal.hpp"
+#include "collections/map2args.hpp"
 #include "emit/WaveArgumentRef.hpp"
 #include "types/WaveCore.hpp"
 
@@ -58,48 +59,85 @@ inline void processStrings(WaveClass* type, WaveModule* m)
     }
 }
 
+
+map<wstring, WaveClass*> classes_ref;
+#define CREATE_REF(T) {wave_core->T->FullName->FullName, wave_core->T}
+
+// ORDER 1
 inline void init_default()
 {
     auto* const corlib = new WaveModule(L"corlib");
     
-    wave_core->object_type = createType(L"global::wave/lang/Object", TYPE_OBJECT);
-    wave_core->object_class = new WaveClass(wave_core->object_type, nullptr);
-
-    wave_core->void_type = createType(L"global::wave/lang/Void", TYPE_VOID);
-    wave_core->void_class = new WaveClass(wave_core->void_type, wave_core->object_class);
-
-    wave_core->native_type = createType(L"global::wave/lang/Native", TYPE_CLASS);
-    wave_core->native_class = new WaveClass(wave_core->native_type, wave_core->object_class);
-
-    wave_core->string_type = createType(L"global::wave/lang/String", TYPE_STRING);
-    wave_core->string_class = new WaveClass(wave_core->string_type, wave_core->object_class);
-
-    processStrings(wave_core->object_type, corlib);
-    processStrings(wave_core->object_class, corlib);
-
-    processStrings(wave_core->void_type, corlib);
-    processStrings(wave_core->void_class, corlib);
-
+    wave_core->object_class = new WaveClass(new TypeName(L"global::wave/lang/Object"), nullptr);
+    wave_core->object_class->TypeCode = TYPE_OBJECT;
     
+    wave_core->void_class = new WaveClass(new TypeName(L"global::wave/lang/Void"), wave_core->object_class);
+    wave_core->void_class->TypeCode = TYPE_VOID;
+    
+    wave_core->string_class = new WaveClass(new TypeName(L"global::wave/lang/String"), wave_core->object_class);
+    wave_core->string_class->TypeCode = TYPE_STRING;
+    
+    wave_core->console_class = new WaveClass(new TypeName(L"global::wave/lang/Console"), wave_core->object_class);
+    wave_core->native_class = new WaveClass(new TypeName(L"global::wave/lang/Native"), wave_core->object_class);
+
+
     corlib->classList->push_back(wave_core->object_class);
     corlib->classList->push_back(wave_core->void_class);
     corlib->classList->push_back(wave_core->native_class);
     corlib->classList->push_back(wave_core->string_class);
+    corlib->classList->push_back(wave_core->console_class);
 
+    classes_ref = {
+        CREATE_REF(object_class),
+        CREATE_REF(void_class),
+        CREATE_REF(native_class),
+        CREATE_REF(string_class),
+        CREATE_REF(console_class),
+    };
     wave_core->corlib = corlib;
 }
 
 #define EMPTY_LIST_(T) new list_t<T>()
 
+inline void init_strings_phase_1()
+{
+    for(auto* clazz : *wave_core->corlib->classList)
+        processStrings(clazz, wave_core->corlib);
+}
+// ORDER 2
+inline void init_types() // TODO resolve members problem with AsClass casting this types...
+{
+    wave_core->object_type = AsType(wave_core->object_class);
+    wave_core->void_type = AsType(wave_core->void_class);
+    wave_core->string_type = AsType(wave_core->string_class);
+    wave_core->console_type = AsType(wave_core->console_class);
+    wave_core->native_type = AsType(wave_core->native_class);
+}
+// ORDER 3
 inline void init_tables()
 {
     for (auto i = 0; i < internal_last; i++)
     {
+        const auto* const name = internal_call_names[i];
+        void* ref = internal_call_functions[i];
+        auto arg_size = internal_call_function_args_size[i];
+        auto* raw_args = (map<wstring, wstring>*)internal_call_function_args_refs[i];
+        auto direction = internal_call_functions_direction[i];
+        auto* args = convert_map2list_args(raw_args, wave_core->corlib);
+
         auto* const f = new WaveMethod(
-        internal_call_names[i],
+        name,
         static_cast<MethodFlags>(MethodPublic | MethodExtern | MethodStatic),
-            wave_core->void_type, wave_core->native_class, EMPTY_LIST_(WaveArgumentRef*));
+            wave_core->void_type, classes_ref.at(direction), args);
         f->data.piinfo = new WaveMethodPInvokeInfo();
         f->data.piinfo->addr = internal_call_functions[i];
+
+        classes_ref.at(direction)->Methods->push_back(f);
     }
+}
+// ORDER 4
+inline void init_strings_phase_2()
+{
+    for(auto* clazz : *wave_core->corlib->classList)
+        processStrings(clazz, wave_core->corlib);
 }
