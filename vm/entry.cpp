@@ -12,194 +12,32 @@ enum class CALL_CONTEXT : unsigned char
     OUTER_CALL
 };
 
-
-using namespace std::literals;
-class AV { };
-
-#include <signal.h>
-
-void catcher(int sig){ throw AV(); }
-
 void setup(int argc, char* argv[]) {
     init_serial();
     init_default();
+    init_strings_phase_1();
+    init_types();
     init_tables();
-    auto qweqw = fmt::format(L"{0}:{0}", 1);
+    init_strings_phase_2();
     auto* val = 
         //readILfromElf("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
         readILfromElf("C:\\Users\\ls-mi\\Desktop\\satl.wll");
     auto list = new list_t<WaveModule*>();
     list->push_back(wave_core->corlib);
-    //auto s22 = hash_gen<wstring>::getHashCode(L"x");
-    //auto s33 = hash_gen<string>::getHashCode("x");
-    
-    try
-    {
-        auto z= val->bytes[0];
-        auto m = readModule(val->bytes.data(), val->size, list);
-    }
-    catch (...)
-    {
-        printf("Unhandled exception: [");
-        //printf(typeid(e).raw_name());
-        printf("] ");
-        //printf(e.what());
-        printf(" \n");
-    }
-
-
-
-
-    auto* a = new TypeName(L"global::foo/zoo/doo", L"bar");
-    
-    auto rr = a->get_name();
-    auto dd = a->get_namespace();
-
-
-    auto* stt = new list_t<string>();
-
-    stt->push_back("foo");
-    stt->push_back("bar");
-    stt->push_back("zet");
-
-    auto w1 = stt->First();
-    auto w2 = stt->Last();
-    //auto w3 = stt->Last([](string q) { return q.starts_with("ba"); });
-
-    if (argc == 1)
+    auto m = readModule(val->bytes.data(), val->size, list);
+    /*if (argc == 1)
     {
         printf("[WARN] entry point not found.");
         return;
     }
-   // if (!std::string_view(argv[1]).ends_with(".wll"))
+    if (!std::string_view(argv[1]).ends_with(".wll"))
     {
         printf("[WARN] entry point not found.");
         return;
-    }
+    }*/
     
-    
-    /*auto a = new hashtable<const char*>();
-    auto s1 = "xuy";
-    auto s2 = "dick";
-
-    auto z1 = &s1;
-    auto z2 = &s2;
-
-    a->add("1", z1);
-    a->add("2", z2);
-
-    auto z = *static_cast<const char**>(a->get("2"));*/
-    /*auto a = new List<int*>(1);
-
-    auto z1 = 1;
-    auto z2 = 2;
-
-    a->add(&z1);
-    a->add(&z2);
-
-    auto q1 = a->operator[](0);
-
-    a->removeAt(0);
-
-    auto q2 = a->operator[](0);*/
-
-    /*auto a1 = hash_table_new(w_hash_str, w_equal_str);
-    auto insertedKey = 0x1;
-    auto val = "foo_string";
-    hash_table_insert(a1, &insertedKey, static_cast<void*>(&val), false);
-
-    auto res = hash_table_find(a1, [](const wpointer key, wpointer _) { return *static_cast<int*>(key) == 0x1; });
-
-    const auto* res2 = static_cast<const char*>(res);*/
-    /*
-    auto fs = EEPROM();
-
-    auto a1 = fs.write(0x0, 0x0);
-    auto a2 = fs.write(0x1, 0x1);
-    auto a3 = fs.write(0x2, 0x2);
-    */
-    
-
-    /*auto* str_1 = new WaveString("get_Platform");
-    auto calle_f = hash_gen<WaveString>::getHashCode(str_1);
-
-    auto* str_2 = new WaveString("xuy_govno");
-    auto calle_f2 = hash_gen<WaveString>::getHashCode(str_2);
-
-
-    auto* str_3 = new WaveString("Echo");
-    auto calle_f3 = hash_gen<WaveString>::getHashCode(str_3);
-
-    auto* str_4 = new WaveString("printf");
-    auto calle_f4 = hash_gen<WaveString>::getHashCode(str_4);*/
-
-    //main_image->db_str_cache->add(calle_f, str_1);
-    //main_image->db_str_cache->add(calle_f2, str_2);
-    //main_image->db_str_cache->add(calle_f3, str_3);
-    //main_image->db_str_cache->add(calle_f4, str_4);
-
-    //uint32_t code[] = {
-    //    LDC_I4_S, /* load i4 into stack                             */
-    //    4,        /* i4                                             */
-    //    LDC_I4_S, /* load i4 into stack                             */
-    //    1,        /* i4                                             */
-    //    ADD,      /* fetch two i4 and sum result push into stack    */
-    //    LDC_I4_S, /* load i4 into stack                             */
-    //    2,        /* i4                                             */
-    //    XOR,      /* fetch i4 and XOR result push into stack        */
-    //    DUMP_0,   /* debug                                          */
-    //    CALL,     /* call function by next index                    */
-    //    static_cast<uint32_t>(CALL_CONTEXT::INTERNAL_CALL),
-    //    static_cast<uint32_t>(calle_f),
-    //    CALL,
-    //    static_cast<uint32_t>(CALL_CONTEXT::SELF_CALL),
-    //    static_cast<uint32_t>(calle_f2),
-    //    RET       /* return                                         */
-    //};
-
-    //auto* xuy_govno = new WaveMethod();
-
-    //uint32_t code_xuy_govno[] = {
-    //    CALL,
-    //    static_cast<uint32_t>(CALL_CONTEXT::INTERNAL_CALL),
-    //    static_cast<uint32_t>(calle_f3),
-    //    LDARG_2,  /* load from args by 2 index into stack           */
-    //    CALL,
-    //    static_cast<uint32_t>(CALL_CONTEXT::INTERNAL_CALL),
-    //    static_cast<uint32_t>(calle_f4),
-    //    RET
-
-    //};
-    //
-   /* xuy_govno->signature = new WaveMethodSignature();
-    xuy_govno->signature->ret = new WaveRuntimeType();
-    xuy_govno->signature->ret->type = TYPE_VOID;
-    xuy_govno->signature->ret->data.klass = wave_core->void_class;
-    xuy_govno->data.header = new MetaMethodHeader();
-    xuy_govno->data.header->max_stack = 0;
-    xuy_govno->data.header->code_size = sizeof(code) / sizeof(uint32_t);
-    xuy_govno->data.header->code = &*code_xuy_govno;
-    xuy_govno->name = "xuy_govno";
-
-    main_image->method_cache->add("xuy_govno", xuy_govno);
-
-
-
-    auto* method = new WaveMethod();
-
-    method->name = "main";
-    method->signature = new WaveMethodSignature();
-    method->signature->call_convention = WAVE_CALL_DEFAULT;
-    method->signature->param_count = 1;
-    method->signature->ret = new WaveRuntimeType();
-    method->signature->ret->type = TYPE_VOID;
-    method->signature->ret->data.klass = wave_core->void_class;
-    method->data.header = new MetaMethodHeader();
-    method->data.header->max_stack = 24;
-    method->data.header->code_size = sizeof(code) / sizeof(uint32_t);
-    method->data.header->code = &*code;*/
-
-
+    auto* entry_point = m->GetEntryPoint();
+    auto* const args = new stackval[0];
    /* main_image->method_cache->add("main", method);
 
     auto* str = new WaveString("hello world, from wave vm!");
@@ -216,10 +54,10 @@ void setup(int argc, char* argv[]) {
 
 
     auto* str2 = static_cast<WaveString*>(reinterpret_cast<void*>(args[2].data.p));
-
+    */
     REGISTER unsigned int level = 0;
 
-    exec_method(method->data.header, args, &level);*/
+    exec_method(entry_point->data.header, args, &level);
 }
 
 void loop() {
@@ -461,13 +299,6 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
                 d_print("\n");
                 return;
         }
-
-
-        throw_label:
-            do
-            {
-                
-            } while (true);
     }
 
 
