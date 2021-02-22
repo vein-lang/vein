@@ -90,4 +90,17 @@ struct WaveModule
         }
         throw TypeNotFoundException(fmt::format(L"'{0}' not found in modules and dependency assemblies.", type->FullName));
     }
+
+    WaveMethod* GetEntryPoint()
+    {
+        for(auto c : *classList)
+        {
+            for(auto m : *c->Methods)
+            {
+                if (m->Name._Equal(L"master"))
+                    return m;
+            }
+        }
+        throw new EntryPointNotFoundException();
+    }
 };
