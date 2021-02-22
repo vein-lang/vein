@@ -1,0 +1,3 @@
+FE_ARG(println)(L"value", L"global::wave/lang/String");
+FE_ARG(print)(L"value", L"global::wave/lang/String");
+FE_ARG(GetPlatform)(L"", L"");
