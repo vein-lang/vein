@@ -18,9 +18,9 @@ auto decodeIL(BinaryReader* reader) noexcept(false)
     
     while (reader->Position() < reader->Length())
     {
-        auto opcode = reader->ReadByte();
-        if (opcode == NOP)
-            continue;
+        auto opcode = reader->Read2();
+        /*if (opcode == NOP)
+            continue;*/
         auto opcode_name = opcodes[opcode];
         printf("\t\t\t\t\t[ .%s, %d ]\n", opcode_name, opcode);
         if (opcode >= LAST)
@@ -39,7 +39,11 @@ auto decodeIL(BinaryReader* reader) noexcept(false)
                 result->push_back(reader->Read2());
                 continue;
             case sizeof(int32_t):
-                result->push_back(reader->Read4());
+                {
+                    auto s = reader->Read4();
+                    auto d = static_cast<uint32_t>(s);
+                    result->push_back(d);
+                }
                 continue;
             case sizeof(int64_t):
                 result->push_back(reader->Read4());
@@ -117,7 +121,6 @@ WaveMethod* readMethod(BinaryReader* reader, WaveClass* clazz, WaveModule* m) no
     printf("\t\t\t\tidx: %d, stack: %d, locals: %d\n", idx, bodySize, stackSize, locals);
     printf("\t\t\t\tmethod name: %ws\n", name.c_str());
     printf("\t\t\t\treturn type: %ws\n", retTypeName->FullName.c_str());
-    printf("\t\t\t\treturn type: %ws\n", retTypeName->FullName.c_str());
 
     method->LocalsSize = locals;
     method->StackSize = stackSize;
@@ -167,7 +170,7 @@ WaveClass* readClass(BinaryReader* reader, WaveModule* m) noexcept(false)
     auto* className = TypeName::construct(nsidx, idx, &wn);
     auto* clazz = new WaveClass(className, AsClass(parent));
     clazz->Flags = flags;
-    printf("\t\t\tclass name: '%ws'\n", typeName->FullName.c_str());
+    printf("\t\t\tclass name: '%ws'\n", className->FullName.c_str());
     printf("\t\t\tclass parent: '%ws'\n", parent->get_full_name()->FullName.c_str());
     printf("\t\t\t[construct method table] size: %d\n", len);
     for (auto i = 0; i != len; i++)
@@ -178,9 +181,7 @@ WaveClass* readClass(BinaryReader* reader, WaveModule* m) noexcept(false)
         auto* const methodReader = new BinaryReader(methodMem);
         auto* const method = readMethod(methodReader, clazz, m);
         clazz->Methods->push_back(method);
-        //delete methodReader;
-        //delete methodMem;
-        //delete body;
+        delete body;
     }
 
     const auto fsize = reader->Read4();
@@ -233,7 +234,7 @@ WaveModule* readModule(char* arr, size_t sz, list_t<WaveModule*>* deps) noexcept
         target->classList->push_back(clazz);
         //delete classReader;
         //delete classMem;
-        //delete body;
+        delete body;
     }
     target->name = target->GetConstByIndex(idx);
     printf("\tload '%ws' module success\n", target->name.c_str());
