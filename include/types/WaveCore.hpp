@@ -13,6 +13,7 @@ typedef struct
     WaveClass* void_class;
     WaveClass* native_class;
     WaveClass* string_class;
+    WaveClass* console_class;
 
 
     WaveType* object_type;
@@ -20,6 +21,7 @@ typedef struct
     WaveType* value_type;
     WaveType* native_type;
     WaveType* string_type;
+    WaveType* console_type;
 } WaveCore;
 
 static WaveCore* wave_core = new WaveCore();
