@@ -37,4 +37,13 @@ public:
         Flags = CLASS_None;
         FullName = type->get_full_name();
     }
+    [[nodiscard]]
+    WaveMethod* DefineMethod(const wstring& name, MethodFlags flags, WaveType* retType, list_t<WaveArgumentRef*>* args)
+    {
+        auto* method = new WaveMethod(name, flags, retType, this, args);
+
+        Methods->push_back(method);
+
+        return method;
+    }
 };
