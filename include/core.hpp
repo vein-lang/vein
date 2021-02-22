@@ -4,16 +4,6 @@
 #include "emit/WaveArgumentRef.hpp"
 #include "types/WaveCore.hpp"
 
-#define root_namespace "wave/lang"
-#define class_name(namespace, class_name) "global::"#namespace#class_name
-
-inline WaveType* createType(wstring addr, WaveTypeCode code)
-{
-    auto n = new TypeName(addr);
-    auto a = new WaveTypeImpl(n, code);
-    return dynamic_cast<WaveType*>(a);
-}
-
 inline void processStrings(WaveType* type, WaveModule* m)
 {
     m->GetTypeConstant(type->get_full_name());
