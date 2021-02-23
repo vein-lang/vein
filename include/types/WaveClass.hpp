@@ -46,4 +46,14 @@ public:
 
         return method;
     }
+
+    WaveMethod* FindMethod(const wstring& name) const noexcept(false)
+    {
+        for(auto mh : *Methods)
+        {
+            if (mh->Name._Equal(name))
+                return mh;
+        }
+        throw "Not found method";
+    }
 };
