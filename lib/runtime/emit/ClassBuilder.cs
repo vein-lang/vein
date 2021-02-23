@@ -32,6 +32,7 @@
         public MethodBuilder DefineMethod(string name, MethodFlags flags, WaveType returnType, params WaveArgumentRef[] args)
         {
             var method = this.DefineMethod(name, returnType, args);
+            method.Owner = this;
             method.Flags = flags;
             return method;
         }
