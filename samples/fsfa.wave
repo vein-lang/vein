@@ -1,0 +1,12 @@
+#use "stl.lib"
+
+
+public static class bla
+{
+    public static master(): void
+    {
+        auto result = (228 + 1448) ^ 2;
+        il(".dump.0");
+        return;
+    }
+}

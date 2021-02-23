@@ -5,6 +5,7 @@
 #include "api/elf_reader.hpp"
 #include "emit/module_reader.hpp"
 #include <fmt/format.h>
+#include "api/Stopwatch.hpp"
 enum class CALL_CONTEXT : unsigned char
 {
     INTERNAL_CALL,
@@ -21,6 +22,7 @@ void setup(int argc, char* argv[]) {
     init_strings_phase_2();
     auto* val = 
         //readILfromElf("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
+        //readILfromElf("C:\\Users\\ls-mi\\Desktop\\satl.wll");
         readILfromElf("C:\\Users\\ls-mi\\Desktop\\satl.wll");
     auto list = new list_t<WaveModule*>();
     list->push_back(wave_core->corlib);
@@ -37,7 +39,7 @@ void setup(int argc, char* argv[]) {
     }*/
     
     auto* entry_point = m->GetEntryPoint();
-    auto* const args = new stackval[0];
+    auto* const args = new stackval[1];
    /* main_image->method_cache->add("main", method);
 
     auto* str = new WaveString("hello world, from wave vm!");
@@ -56,14 +58,16 @@ void setup(int argc, char* argv[]) {
     auto* str2 = static_cast<WaveString*>(reinterpret_cast<void*>(args[2].data.p));
     */
     REGISTER unsigned int level = 0;
-
-    exec_method(entry_point->data.header, args, &level);
+    namespace sw = stopwatch;
+    sw::Stopwatch my_watch;
+    exec_method(entry_point->data.header, args, m, &level);
+    auto duration_ms = my_watch.elapsed();
+    std::cout << "Elapsed: " << duration_ms << " milliseconds." << std::endl;
 }
 
 void loop() {
 }
 
-#define SWITCH(x) d_print("@"); d_print(opcodes[x]); d_print("\n"); switch (x)
 
 #define CASE(x) case x: {
 #define BREAK break; }
@@ -73,15 +77,29 @@ WaveMethod* get_wave_method(uint32_t idx, WaveImage* targetImage)
 {
     return nullptr;
 }
+#define DEBUG_IL2
 
-void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
+#ifdef DEBUG_IL
+#define SWITCH(x) d_print("@"); d_print(opcodes[x]); d_print("\n"); switch (x)
+#else
+#define SWITCH(x) switch (x)
+#endif
+void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsigned int* level)
 {
-    w_print("@exec::");
+    #ifdef DEBUG_IL
+    printf("@exec::\n");
+    #endif
+    function<wstring(int z)> get_const_string = [_module](const int w) {
+        return _module->GetConstByIndex(w);
+    };
+
+
     auto* const stack = static_cast<stackval*>(calloc(mh->max_stack, sizeof(stackval)));
     REGISTER auto* sp = stack;
     REGISTER auto* ip = mh->code;
     
     auto* end = ip + mh->code_size;
+    auto* start = (ip + 1) - 1;
 
     auto* locals = new stackval[0];
     while (1)
@@ -112,7 +130,16 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
                 A_OPERATION(+=);
                 break;
             case SUB:
-                A_OPERATION(-=);
+                ++ip; 
+	            --sp; 
+                if (sp->type == VAL_I32) 
+                    sp[-1].data.i -= sp[0].data.i; 
+	            else if (sp->type == VAL_I64) 
+		            sp[-1].data.l -= sp[0].data.l; 
+	            else if (sp->type == VAL_DOUBLE) 
+		            sp[-1].data.f -= sp[0].data.f; 
+                else if (sp->type == VAL_FLOAT) 
+		            sp[-1].data.f_r4 -= sp[0].data.f_r4;
                 break;
             case MUL:
                 A_OPERATION(*=);
@@ -144,27 +171,43 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
             case LDARG_4:
                 *sp = args[(*ip) - LDARG_0];
 
-                #if DEBUG
-                {
-                    auto __type = VAL_NAMES[sp->type];
-                    d_print("load from args -> ");
-                    d_print(__type);
-                    d_print("\n");
-                }
+                #ifdef DEBUG_IL
+                printf("load from args -> %s %d\n", VAL_NAMES[sp->type], sp->data.i);
                 #endif
 
                 ++sp;
                 ++ip;
                 break;
             case LDC_I4_0:
-                ++ip;
+            case LDC_I4_1:
+            case LDC_I4_2:
+            case LDC_I4_3:
+            case LDC_I4_5:
                 sp->type = VAL_I32;
-                sp->data.i = -1;
+                sp->data.i = (*ip) - LDC_I4_0;
+                ++ip;
                 ++sp;
+                break;
+            case LDC_I8_0:
+            case LDC_I8_1:
+            case LDC_I8_2:
+            case LDC_I8_3:
+            case LDC_I8_5:
+                sp->type = VAL_I64;
+                sp->data.i = (*ip) - LDC_I8_0;
+                ++sp;
+                ++ip;
                 break;
             case LDC_I4_S:
                 ++ip;
                 sp->type = VAL_I32;
+                sp->data.i = static_cast<int32_t>(*ip);
+                ++ip;
+                ++sp;
+                break;
+            case LDC_I8_S:
+                ++ip;
+                sp->type = VAL_I64;
                 sp->data.i = static_cast<int32_t>(*ip);
                 ++ip;
                 ++sp;
@@ -179,7 +222,11 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
                 break;
             case RET:
                 ++ip;
+                --sp;
+                args[0] = *sp;
                 (*level)--;
+                delete stack;
+                delete locals;
                 return;
             case CALL:
             {
@@ -189,20 +236,37 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
                 if (callctx == CALL_CONTEXT::SELF_CALL)
                 {
                     ++ip;
-                   // auto* method = get_wave_method(*ip, main_image);
-                    d_print("call ");
-                    //d_print(method->name);
-                    d_print(" self function.\n");
+                    const auto tokenIdx = READ32(ip);
+                    ip++;
+                    const auto ownerIdx = READ64(ip);
+                    ip+=2;
+
+                    auto* method = _module->GetMethod(tokenIdx, ownerIdx);
+                    #ifdef DEBUG_IL
+                    printf("%%call %ws self function.\n", method->Name.c_str());
+                    #endif
                     (*level)++;
-                    //exec_method(method->data.header, args, level);
-
-                    continue;
+                    auto* method_args = new stackval[method->ArgLen()];
+                    for (auto i = 0; i != method->ArgLen(); i++)
+                    {
+                        auto* _a = method->Arguments->at(i);
+                        // TODO, type eq validate
+                        --sp;
+                        method_args[i] = *sp;
+                    }
+                    exec_method(method->data.header, method_args, _module, level);
+                    if (method->ReturnType->TypeCode != TYPE_VOID)
+                    {
+                        *sp = method_args[0];
+                        sp++;
+                    }
+                    delete method_args;
+                    break;
                 }
-
-                ++ip;
-                //auto* method = get_wave_method(*ip, wave_core->corlib);
-
-                /*d_print("call ");
+                throw "not implemented";
+                /*++ip;
+                auto* method = get_wave_method(*ip, wave_core->corlib);
+                d_print("call ");
                 d_print(method->name);
                 d_print(" internal function.\n");
                 if (method->signature->call_convention == WAVE_CALL_C)
@@ -252,13 +316,8 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
             case LDLOC_3:
             case LDLOC_4:
                 * sp = locals[(*ip) - LDLOC_0];
-                #if DEBUG
-                {
-                    auto __type = VAL_NAMES[sp->type];
-                    d_print("load from locals -> ");
-                    d_print(__type);
-                    d_print("\n");
-                }
+                #ifdef DEBUG_IL
+                printf("load from locals -> %s %d\n", VAL_NAMES[sp->type], sp->data.i);
                 #endif
                 ++ip;
                 ++sp;
@@ -270,33 +329,88 @@ void exec_method(MetaMethodHeader* mh, stackval* args, unsigned int* level)
             case STLOC_4:
                 --sp;
                 locals[(*ip) - STLOC_0] = *sp;
-                #if DEBUG
-                {
-                    auto __type = VAL_NAMES[sp->type];
-                    d_print("load into locals -> ");
-                    d_print(__type);
-                    d_print("\n");
-                }
+                #ifdef DEBUG_IL
+                printf("load from locals -> %s %d\n", VAL_NAMES[sp->type], sp->data.i);
                 #endif
                 ++ip;
                 break;
             case LOC_INIT:
-                ++ip;
-                locals = new stackval[args[*ip].data.i];
-                d_print(args[*ip].data.i);
-                w_print("'n locals size inited.");
-                ++sp;
-                ++ip;
+                {
+                    ++ip;
+                    const auto locals_size = *ip;
+                    locals = new stackval[static_cast<int32_t>(locals_size)];
+                    ++ip;
+                    for (auto i = 0u; i != locals_size; i++)
+                    {
+                        ++ip;
+                        auto b1 = *ip;
+                        auto b2 = *(ip+1);
+                        auto b3 = *(ip+2);
+
+                        const auto type_idx = READ64(ip);
+                        auto* type_name = TypeName::construct(type_idx, &get_const_string);
+                        auto* type = _module->FindType(type_name, true);
+                        if (type->IsPrimitive())
+                        {
+                            if (type->get_full_name()->get_name() == L"Int32")
+                            {
+                                locals[i].type = VAL_I32;
+                                locals[i].data.i = 0;
+                            }
+                        }
+                        else
+                        {
+                            locals[i].type = VAL_OBJ;
+                            locals[i].data.p = 0;
+                        }
+                        ip += 2;
+                    }
+                }
                 break;
             case CONV_R4:
                 ++ip;
                 sp[-1].data.i = static_cast<int>(sp[-1].data.f_r4);
                 sp[-1].type = VAL_I32;
                 break;
+            case JMP_L:
+                {
+                    ++ip;
+                    --sp;
+                    const auto first = *sp;
+                    --sp;
+                    const auto second = *sp;
+                    if (first.type == second.type)
+                    {
+                        if (first.type == VAL_I32)
+                        {
+                            if (second.data.i < first.data.i)
+                            {
+                                ip++;
+                                auto d = *ip;
+                                auto dd1 = opcodes[d];
+                                auto dd2 = opcodes[d];
+                            }
+                            else
+                            {
+                                auto pw = mh->labels_map->at(mh->labels->at(*ip));
+                                auto diff = start + pw.pos;
+                                auto wd = *diff;
+                                auto cd = opcodes[wd];
+                                ip = diff;
+                                
+                            }
+                        }
+                    }
+                    else
+                        throw "not implemented exception";
+                }
+                break;
             default:
-                d_print("Unimplemented opcode: ");
-                d_print(opcodes[*ip]);
-                d_print("\n");
+                {
+                    d_print("Unimplemented opcode: ");
+                    d_print(opcodes[*ip]);
+                    d_print("\n");
+                }
                 return;
         }
     }

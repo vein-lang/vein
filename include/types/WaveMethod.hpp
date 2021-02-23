@@ -74,4 +74,22 @@ public:
         ReturnType = retType;
 		Owner = owner;
     }
+
+
+	void SetILCode(uint32_t* code)
+    {
+        if ((Flags & MethodExtern) != 0)
+			throw MethodHasExternException();
+		data.header = new MetaMethodHeader();
+		data.header->code = &*code;
+		data.header->code_size = sizeof(code) / sizeof(uint32_t);
+    }
+
+	void SetExternalLink(wpointer ref)
+    {
+        if ((Flags & MethodExtern) == 0)
+			throw InvalidOperationException("Cannot set native reference, method is not extern.");
+		data.piinfo = new WaveMethodPInvokeInfo();
+		data.piinfo->addr = ref;
+    }
 };
