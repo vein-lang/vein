@@ -35,21 +35,24 @@
     description: Return operation.
 - CALL:
     description: Call operation.
-    override-size: 8
+    override-size: 13
 - LDNULL:
     description: Load NULL into stack.
 - LDF:
     description: Load field into stack.
     note: Not used directly.
 - LDLOC:
-    description: Load from stack into locals.
+    description: Load from locals into stack.
     range: true
 - STLOC:
-    description: Load from locals into stack.
+    description: Load from stack into locals.
     range: true
 - LOC.INIT:
     description: Initialization locals stack.
     override-size: 4
+- LOC.INIT.X:
+    description: (part of LOD.INIT) Initialization locals slot as derrived type.
+    override-size: 8
 - DUP:
     description: Duplicate memory from stack.
 - XOR:

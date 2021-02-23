@@ -183,59 +183,59 @@ namespace wave
 		/// </remarks>
 		LDF = 0x2B,
 		/// <summary>
-		/// Load from stack into locals.
+		/// Load from locals into stack.
 		/// </summary>
 		LDLOC_0 = 0x2C,
 		/// <summary>
-		/// Load from stack into locals.
+		/// Load from locals into stack.
 		/// </summary>
 		LDLOC_1 = 0x2D,
 		/// <summary>
-		/// Load from stack into locals.
+		/// Load from locals into stack.
 		/// </summary>
 		LDLOC_2 = 0x2E,
 		/// <summary>
-		/// Load from stack into locals.
+		/// Load from locals into stack.
 		/// </summary>
 		LDLOC_3 = 0x2F,
 		/// <summary>
-		/// Load from stack into locals.
+		/// Load from locals into stack.
 		/// </summary>
 		LDLOC_4 = 0x30,
 		/// <summary>
-		/// Load from stack into locals.
+		/// Load from locals into stack.
 		/// </summary>
 		LDLOC_5 = 0x31,
 		/// <summary>
-		/// Load from stack into locals.
+		/// Load from locals into stack.
 		/// </summary>
 		LDLOC_S = 0x32,
 		/// <summary>
-		/// Load from locals into stack.
+		/// Load from stack into locals.
 		/// </summary>
 		STLOC_0 = 0x33,
 		/// <summary>
-		/// Load from locals into stack.
+		/// Load from stack into locals.
 		/// </summary>
 		STLOC_1 = 0x34,
 		/// <summary>
-		/// Load from locals into stack.
+		/// Load from stack into locals.
 		/// </summary>
 		STLOC_2 = 0x35,
 		/// <summary>
-		/// Load from locals into stack.
+		/// Load from stack into locals.
 		/// </summary>
 		STLOC_3 = 0x36,
 		/// <summary>
-		/// Load from locals into stack.
+		/// Load from stack into locals.
 		/// </summary>
 		STLOC_4 = 0x37,
 		/// <summary>
-		/// Load from locals into stack.
+		/// Load from stack into locals.
 		/// </summary>
 		STLOC_5 = 0x38,
 		/// <summary>
-		/// Load from locals into stack.
+		/// Load from stack into locals.
 		/// </summary>
 		STLOC_S = 0x39,
 		/// <summary>
@@ -243,88 +243,92 @@ namespace wave
 		/// </summary>
 		LOC_INIT = 0x3A,
 		/// <summary>
+		/// (part of LOD.INIT) Initialization locals slot as derrived type.
+		/// </summary>
+		LOC_INIT_X = 0x3B,
+		/// <summary>
 		/// Duplicate memory from stack.
 		/// </summary>
-		DUP = 0x3B,
+		DUP = 0x3C,
 		/// <summary>
 		/// XOR Operation.
 		/// </summary>
-		XOR = 0x3C,
+		XOR = 0x3D,
 		/// <summary>
 		/// OR Operation.
 		/// </summary>
-		OR = 0x3D,
+		OR = 0x3E,
 		/// <summary>
 		/// AND Operation.
 		/// </summary>
-		AND = 0x3E,
+		AND = 0x3F,
 		/// <summary>
 		/// Shift Right Operation.
 		/// </summary>
-		SHR = 0x3F,
+		SHR = 0x40,
 		/// <summary>
 		/// Shift Left Operation.
 		/// </summary>
-		SHL = 0x40,
+		SHL = 0x41,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_R4 = 0x41,
+		CONV_R4 = 0x42,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_R8 = 0x42,
+		CONV_R8 = 0x43,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_I4 = 0x43,
+		CONV_I4 = 0x44,
 		/// <summary>
 		/// Throw exception operation.
 		/// </summary>
-		THROW = 0x44,
+		THROW = 0x45,
 		/// <summary>
 		/// New object Operation.
 		/// </summary>
-		NEWOBJ = 0x45,
+		NEWOBJ = 0x46,
 		/// <summary>
 		/// Compare two value, when values are equal 1 (int32) stage into stack, otherwise 0 (int32).
 		/// </summary>
-		EQL = 0x46,
+		EQL = 0x47,
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// </summary>
-		JMP = 0x47,
+		JMP = 0x48,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value.
 		/// </summary>
-		JMP_LQ = 0x48,
+		JMP_LQ = 0x49,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value.
 		/// </summary>
-		JMP_L = 0x49,
+		JMP_L = 0x4A,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value.
 		/// </summary>
-		JMP_HQ = 0x4A,
+		JMP_HQ = 0x4B,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value.
 		/// </summary>
-		JMP_H = 0x4B,
+		JMP_H = 0x4C,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal.
 		/// </summary>
-		JMP_NQ = 0x4C,
+		JMP_NQ = 0x4D,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal.
 		/// </summary>
-		JMP_NN = 0x4D,
+		JMP_NN = 0x4E,
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero.
 		/// </summary>
-		JMP_F = 0x4E,
+		JMP_F = 0x4F,
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero.
 		/// </summary>
-		JMP_T = 0x4F,
+		JMP_T = 0x50,
 	}
 }
