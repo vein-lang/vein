@@ -1,33 +1,84 @@
 #pragma once
 #include "AsClass.hpp"
+#include "ILLabel.hpp"
+#include "interp.hpp"
 #include "MethodFlags.hpp"
 #include "WaveArgumentRef.hpp"
 #include "WaveModue.hpp"
 #include "streams/memory_stream.hpp"
 #include "streams/binary_reader.hpp"
 
+
 struct ILWrapper
 {
     uint32_t* code;
     uint32_t size;
 };
-
-auto decodeIL(BinaryReader* reader) noexcept(false)
+struct DecodedIL
 {
+    ILWrapper* il;
+    dictionary<int, ILLabel>* map = new dictionary<int, ILLabel>();
+};
+auto decodeLabels(BinaryReader* reader, int offset)
+{
+    reader->Seek(offset);
+    const auto labels_size = reader->Read4();
+    if (labels_size == 0)
+       return new list_t<int>();
+    auto result = new list_t<int>();
+    for (auto i = 0; i != labels_size; i++)
+    {
+        auto p = reader->Read4();
+        result->push_back(p);
+    }
+    return result;
+}
+
+auto decodeIL(BinaryReader* reader, int* offset) noexcept(false)
+{
+    auto* const il_result = new DecodedIL();
+    il_result->il = new ILWrapper();
     auto* result = new list_t<uint32_t>();
     
     while (reader->Position() < reader->Length())
     {
         auto opcode = reader->Read2();
-        /*if (opcode == NOP)
-            continue;*/
-        auto opcode_name = opcodes[opcode];
-        printf("\t\t\t\t\t[ .%s, %d ]\n", opcode_name, opcode);
-        if (opcode >= LAST)
+
+        if (opcode == 0xFF00)
+        {
+            reader->ReadByte();
+            opcode = 0xFFFF;
+        }
+
+        if (opcode == 0xFFFF)
+        {
+            *offset = static_cast<int>(reader->Position());
+            il_result->il->code = new uint32_t[result->size()];
+            il_result->il->size = static_cast<uint32_t>(result->size());
+            for (auto i = 0u; i != il_result->il->size; i++)
+                il_result->il->code[i] = result->at(i);
+            return il_result;
+        }
+        if (opcode == NOP)
+            continue;
+
+        if (opcode >= (uint16_t)LAST)
             throw CorruptILException(fmt::format(L"OpCode '{0}' is not found in metadata.\n{1}", 
                                                  opcode, L"re-run 'gen.csx' for fix this error."));
-        result->push_back(opcode);
+
+        const auto* opcode_name = opcodes[opcode];
         auto size = static_cast<int>(opcode_size[opcode]);
+        printf("\t\t\t\t\t[ .%s, %d, %d]\n", opcode_name, opcode, size);
+        
+        auto label = ILLabel {
+            static_cast<WaveOpCode>(opcode),
+            static_cast<int>(result->size())
+        };
+        auto ke = static_cast<int>(reader->Position() - sizeof(int16_t));
+        il_result->map->insert({ke, label});
+
+        result->push_back(opcode);
+        
         switch (size)
         {
             case 0:
@@ -55,19 +106,23 @@ auto decodeIL(BinaryReader* reader) noexcept(false)
                 result->push_back(reader->Read4());
                 result->push_back(reader->Read4());
                 continue;
+            // CALL body
+            case sizeof(char) + sizeof(int32_t) + sizeof(int64_t):
+                result->push_back(reader->ReadByte());
+                result->push_back(reader->Read4());
+                result->push_back(reader->Read4());
+                result->push_back(reader->Read4());
+                continue;
             default:
                 throw CorruptILException(fmt::format(L"OpCode '{0}' has invalid size [{1}].\n{2}", opcode, size,
                         L"Check 'opcodes.def' and re-run 'gen.csx' for fix this error."));
         }
     }
-    const ILWrapper il {
-         new uint32_t[result->size()],
-         static_cast<uint32_t>(result->size())
-    };
-    for (auto i = 0u; i != il.size; i++)
-        il.code[i] = result->at(i);
-    //delete result;
-    return il;
+    il_result->il->code = new uint32_t[result->size()];
+    il_result->il->size = static_cast<uint32_t>(result->size());
+    for (auto i = 0u; i != il_result->il->size; i++)
+        il_result->il->code[i] = result->at(i);
+    return il_result;
 }
 
 
@@ -138,11 +193,18 @@ WaveMethod* readMethod(BinaryReader* reader, WaveClass* clazz, WaveModule* m) no
         auto* const ilMem = new MemoryStream(body, bodySize);
         auto* const ilReader = new BinaryReader(ilMem);
 
-        auto const il = decodeIL(ilReader);
+        auto l_offset = 0;
+        auto* const decoded = decodeIL(ilReader, &l_offset);
+        auto* const il = decoded->il;
 
-        method->data.header->code_size = il.size;
+        ilMem->Seek(0);
+        auto* const labels = decodeLabels(ilReader, l_offset);
+
+        method->data.header->labels_map = decoded->map;
+        method->data.header->labels = labels;
+        method->data.header->code_size = il->size;
         method->data.header->max_stack = method->StackSize;
-        method->data.header->code = &*il.code;
+        method->data.header->code = &*il->code;
         //delete ilMem;
     }
     printf("\t\t\t\t},\n");
