@@ -37,9 +37,5 @@
 
             throw new TypeNotFoundException($"'{type}' not found in modules and dependency assemblies.");
         }
-
-
-        public int GetMethodToken(WaveMethod method) 
-            => throw new NotImplementedException();
     }
 }

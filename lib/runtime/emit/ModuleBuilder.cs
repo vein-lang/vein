@@ -51,6 +51,9 @@
             b |= (uint)i1;
             return b;
         }
+        
+        public (int, long) GetMethodToken(WaveMethod method) => 
+            (this.GetStringConstant(method.Name), this.GetTypeConstant(method.Owner.FullName));
 
         public byte[] BakeByteArray()
         {

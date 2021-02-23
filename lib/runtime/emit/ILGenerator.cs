@@ -2,6 +2,7 @@
 {
     using System;
     using System.Buffers.Binary;
+    using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
@@ -17,7 +18,7 @@
         
         public virtual int ILOffset => _position;
 
-        public ILGenerator(MethodBuilder method) : this(method, 64) { }
+        public ILGenerator(MethodBuilder method) : this(method, 16) { }
         public ILGenerator(MethodBuilder method, int size)
         {
             _methodBuilder = method;
@@ -29,7 +30,7 @@
         public virtual void Emit(OpCode opcode)
         {
             _debugBuilder.AppendLine($".{opcode.Name}");
-            EnsureCapacity<OpCode>(sizeof(byte));
+            EnsureCapacity<OpCode>();
             InternalEmit(opcode);
         }
         public virtual void Emit(OpCode opcode, byte arg)
@@ -158,18 +159,53 @@
         
         public virtual void Emit(OpCode opcode, Label label)
         {
+            this.EnsureCapacity<OpCode>(sizeof(int));
+            this.InternalEmit(opcode);
+            this.PutInteger4(label.Value);
+            _debugBuilder.AppendLine($".{opcode.Name} :{label.Value:X8}");
+        }
+        
+        public virtual void Emit(OpCode opcode, LocalsBuilder locals)
+        {
+            if (opcode.Value != (int) LOC_INIT)
+                throw new Exception("invalid opcode");
+            var size = locals.Count();
             
+            this.EnsureCapacity<OpCode>(sizeof(int) + ((sizeof(long)+sizeof(ushort)) * size));
+            this.InternalEmit(opcode);
+            this.PutInteger4(size);
+            foreach(var t in locals)
+            {
+                this.InternalEmit(OpCodes.LOC_INIT_X);
+                this.PutInteger8(_methodBuilder.moduleBuilder.GetTypeConstant(t));
+            }
+            
+            var str = new StringBuilder();
+            str.AppendLine(".locals { ");
+            foreach(var (t, i) in locals.Select((x, y) => (x, y)))
+                str.AppendLine($"\t[{i}]: {t.Name}");
+            str.Append("};");
+            _debugBuilder.AppendLine($"{str}");
         }
 
         public virtual void EmitCall(OpCode opcode, WaveMethod method)
         {
             if (method is null)
                 throw new ArgumentNullException(nameof (method));
-            var token = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
-            this.EnsureCapacity<OpCode>(sizeof(int));
-            // TODO
+            var (tokenIdx, ownerIdx) = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
+            this.EnsureCapacity<OpCode>(sizeof(byte) + sizeof(int) + sizeof(long));
             this.InternalEmit(opcode);
-            this.PutInteger4(token);
+            
+            if (method.Owner.FullName == this._methodBuilder.Owner.FullName)
+                this.PutByte((byte)CallContext.SELF_CALL);
+            else if (method.IsExtern)
+                this.PutByte((byte)CallContext.INTERNAL_CALL);
+            else
+                this.PutByte((byte)CallContext.OUTER_CALL);
+            
+            this.PutInteger4(tokenIdx);
+            this.PutInteger8(ownerIdx);
+            _debugBuilder.AppendLine($".{opcode.Name} {method}");
         }
         
         public enum FieldDirection
@@ -201,7 +237,10 @@
             if (_labels[loc.Value] != -1)
                 throw new UndefinedLabelException();
             _labels[loc.Value] = _position;
+            _debugBuilder.AppendLine($"::label {loc.Value:X8}@{_position:X8}");
         }
+
+        public int[] GetLabels() => _labels;
 
 
         private (ulong, FieldDirection) FindFieldToken(FieldName field)
@@ -219,17 +258,23 @@
         internal byte[] BakeByteArray()
         {
             if (_position == 0)
-                return null;
-            return _ilBody;
+                return new byte[0];
+            using var mem = new MemoryStream();
+            using var bin = new BinaryWriter(mem);
+            
+            bin.Write(_ilBody);
+            bin.Write((ushort)0xFFFF); // end frame
+            bin.Write(_labels_count);
+            if (_labels_count == 0) 
+                return mem.ToArray();
+            foreach (var i in _labels) 
+                bin.Write(i);
+            return mem.ToArray();
         }
 
         internal string BakeDebugString()
-        {
-            if (_position == 0)
-                return "";
-            return _debugBuilder.ToString();
-        }
-        
+            => _position == 0 ? "" : _debugBuilder.ToString();
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PutInteger4(int value)
         {
@@ -237,22 +282,29 @@
             _position += sizeof(int);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void PutByte(byte value)
+        {
+            _ilBody[_position] = value;
+            _position += sizeof(byte);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PutUInteger8(ulong value)
         {
             BinaryPrimitives.WriteUInt64LittleEndian(_ilBody.AsSpan(_position), value);
             _position += sizeof(ulong);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void PutInteger8(long value)
+        {
+            BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), value);
+            _position += sizeof(long);
+        }
         
         internal void InternalEmit(OpCode opcode)
         {
             var num = opcode.Value;
-            if (opcode.Size != 1)
-            {
-                BinaryPrimitives.WriteUInt16LittleEndian(_ilBody.AsSpan(_position), num);
-                _position += 2;
-            }
-            else
-                _ilBody[_position++] = (byte) num;
+            BinaryPrimitives.WriteUInt16LittleEndian(_ilBody.AsSpan(_position), num);
+            _position += sizeof(ushort);
             //this.UpdateStackSize(opcode, opcode.StackChange());
         }
         internal void EnsureCapacity<_>(params int[] sizes) where _ : struct
@@ -269,7 +321,10 @@
         
         private void IncreaseCapacity(int size)
         {
-            var numArray = new byte[Math.Max(_ilBody.Length * 2, _position + size)];
+            var newsize = Math.Max(_ilBody.Length * 2, _position + size + 2);
+            if (newsize % 2 != 0)
+                newsize++;
+            var numArray = new byte[newsize];
             Array.Copy(_ilBody, numArray, _ilBody.Length);
             _ilBody = numArray;
         }

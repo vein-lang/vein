@@ -1,6 +1,7 @@
 ﻿namespace wave.emit
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     public class WaveMethod : WaveMethodBase
     {
@@ -21,6 +22,14 @@
             this.Owner = owner;
             this.ReturnType = returnType;
         }
+
+
+        #region Overrides of Object
+
+        public override string ToString() 
+            => $"{Owner.Name}::{Name}({Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(',')})";
+
+        #endregion
     }
     
     
