@@ -75,6 +75,11 @@ public:
         return _origin->Length();
     }
 
+    void Seek(int offset)
+    {
+        _origin->Seek(offset);
+    }
+
 private:
     MemoryStream* _origin;
 };

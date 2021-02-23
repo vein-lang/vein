@@ -52,6 +52,10 @@ public:
       auto* buffer = new char[1];
       return Read(buffer, 0, 1) == 0 ? -1 : static_cast<unsigned char>(buffer[0]);
     }
+    void Seek(int offset)
+    {
+        _position = offset;
+    }
 private:
     char* _buffer;
     int _origin = 0;
