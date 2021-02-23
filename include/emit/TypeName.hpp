@@ -4,11 +4,15 @@
 #include "compatibility.types.hpp"
 #include "Exceptions.hpp"
 #include "utils/string.split.hpp"
+#include <map>
 
 using namespace std;
 
+struct TypeName;
+static map<int64_t, TypeName*>* __TypeName_cache = nullptr;
 struct TypeName
 {
+    
     wstring FullName;
     [[nodiscard]] wstring get_name() const noexcept(false)
     {
@@ -38,8 +42,16 @@ struct TypeName
     }
     [[nodiscard]] static TypeName* construct(const int64_t idx, GetConstByIndexDelegate* m) noexcept(true)
     {
-        return new TypeName(m->operator()(static_cast<int>(idx & static_cast<uint32_t>(4294967295))), 
+        if (__TypeName_cache == nullptr)
+            __TypeName_cache = new map<int64_t, TypeName*>();
+        if (__TypeName_cache->contains(idx))
+            return __TypeName_cache->at(idx);
+
+        auto result = new TypeName(m->operator()(static_cast<int>(idx & static_cast<uint32_t>(4294967295))), 
             m->operator()(static_cast<int>(idx >> 32)));
+
+        __TypeName_cache->insert({idx, result});
+        return result;
     }
 
     static void Validate(TypeName* name) noexcept(false)
