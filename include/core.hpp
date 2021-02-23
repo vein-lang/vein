@@ -70,6 +70,8 @@ inline void init_default()
     
     wave_core->object_class = new WaveClass(new TypeName(L"global::wave/lang/Object"), nullptr);
     wave_core->object_class->TypeCode = TYPE_OBJECT;
+
+    wave_core->value_class = new WaveClass(new TypeName(L"global::wave/lang/ValueType"), wave_core->value_class);
     
     wave_core->void_class = new WaveClass(new TypeName(L"global::wave/lang/Void"), wave_core->object_class);
     wave_core->void_class->TypeCode = TYPE_VOID;
@@ -79,20 +81,27 @@ inline void init_default()
     
     wave_core->console_class = new WaveClass(new TypeName(L"global::wave/lang/Console"), wave_core->object_class);
     wave_core->native_class = new WaveClass(new TypeName(L"global::wave/lang/Native"), wave_core->object_class);
+    
+    wave_core->i4_class = new WaveClass(new TypeName(L"global::wave/lang/Int32"), wave_core->value_class);
+    wave_core->i4_class->TypeCode = TYPE_I4;
 
 
     corlib->classList->push_back(wave_core->object_class);
+    corlib->classList->push_back(wave_core->value_class);
     corlib->classList->push_back(wave_core->void_class);
     corlib->classList->push_back(wave_core->native_class);
     corlib->classList->push_back(wave_core->string_class);
     corlib->classList->push_back(wave_core->console_class);
+    corlib->classList->push_back(wave_core->i4_class);
 
     classes_ref = {
         CREATE_REF(object_class),
+        CREATE_REF(value_class),
         CREATE_REF(void_class),
         CREATE_REF(native_class),
         CREATE_REF(string_class),
         CREATE_REF(console_class),
+        CREATE_REF(i4_class),
     };
     wave_core->corlib = corlib;
 }
@@ -108,10 +117,12 @@ inline void init_strings_phase_1()
 inline void init_types() // TODO resolve members problem with AsClass casting this types...
 {
     wave_core->object_type = AsType(wave_core->object_class);
+    wave_core->value_type = AsType(wave_core->value_class);
     wave_core->void_type = AsType(wave_core->void_class);
     wave_core->string_type = AsType(wave_core->string_class);
     wave_core->console_type = AsType(wave_core->console_class);
     wave_core->native_type = AsType(wave_core->native_class);
+    wave_core->i4_type = AsType(wave_core->i4_class);
 }
 // ORDER 3
 inline void init_tables()
