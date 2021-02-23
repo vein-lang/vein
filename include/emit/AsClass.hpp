@@ -2,9 +2,15 @@
 #include "types/WaveClass.hpp"
 #include "types/WaveType.hpp"
 
-
+map<wstring, WaveClass*>* __AsClass_cache;
 WaveClass* AsClass(WaveType* type)
 {
+    if (__AsClass_cache == nullptr)
+        __AsClass_cache = new map<wstring, WaveClass*>();
+    auto key = type->get_full_name()->FullName;
+    if (__AsClass_cache->contains(key))
+        return __AsClass_cache->at(key);
+
     WaveClass* parent = nullptr;
 
     if (type->Parent != nullptr)
@@ -31,5 +37,6 @@ WaveClass* AsClass(WaveType* type)
         Members->
         Where(waveFieldFilter)->
         Cast<WaveField*>());
+    __AsClass_cache->insert({key, clazz});
     return clazz;
 }
