@@ -210,24 +210,34 @@ let before = clock();
 puts fib(40);
 let after = clock();
 puts after - before;*/
-            int f(int n)
+            long f(long n)
             {
-                if (n < 2)
-                    return n;
-                var a = f(n - 1);
-                var b = f(n - 2);
-                var val = a + b;
-                _testOutputHelper.WriteLine(val+"");
-                return val; 
+                if (n == 0)
+                {
+                    return 0;
+                }
+                if (n == 1)
+                {
+                    return 1;
+                }
+                long first = 0;
+                long second = 1;
+                long nth = 1;
+                for (long i = 2; i <= n; i++)
+                {
+                    nth = first + second;
+                    first = second;
+                    second = nth;
+                }
+                return nth;
             }
-
             
             var s = new Stopwatch();
             
             s.Start();
-            var a = f(6);
+            var a = f(2570);
             s.Stop();
-            _testOutputHelper.WriteLine(a+"");
+            _testOutputHelper.WriteLine($"{a}, {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
         }
         
         [Fact]
@@ -240,42 +250,100 @@ puts after - before;*/
             
             var fib = clazz.DefineMethod("fib", 
                 MethodFlags.Public | MethodFlags.Static,
-                WaveTypeCode.TYPE_I4.AsType(), ("x", WaveTypeCode.TYPE_I4));
+                WaveTypeCode.TYPE_I8.AsType(), ("x", WaveTypeCode.TYPE_I8));
 
             var fibGen = fib.GetGenerator();
-            var label = fibGen.DefineLabel();
-
-            //fibGen.Emit(OpCodes.LDARG_0);
-            //fibGen.Emit(OpCodes.STLOC_0);
-            //fibGen.Emit(OpCodes.LDC_I4_S, 20);
-            //fibGen.Emit(OpCodes.LDLOC_0);
-            //fibGen.Emit(OpCodes.JMP_L, label);      // if (n < 2) 
-            //fibGen.Emit(OpCodes.LDC_I4_S, 228);
-            //fibGen.Emit(OpCodes.RET);               // return n;
-            //fibGen.UseLabel(label);
-            //fibGen.Emit(OpCodes.LDC_I4_S, 1448);
-            //fibGen.Emit(OpCodes.RET);
-            // .locals { [0]: int32 }
-            fibGen.Emit(OpCodes.LOC_INIT, new[] { WaveTypeCode.TYPE_I4 });
-            fibGen.Emit(OpCodes.LDARG_0);           // n from args
-            fibGen.Emit(OpCodes.LDC_I4_2);          // load 2
-            fibGen.Emit(OpCodes.JMP_L, label);      // if (n < 2) 
-            fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
-            fibGen.Emit(OpCodes.RET);               // return n;
-            fibGen.UseLabel(label);                 // end if
-            fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
-            fibGen.Emit(OpCodes.LDC_I4_1);          // load '1'
-            fibGen.Emit(OpCodes.SUB);               // n - 1
-            fibGen.EmitCall(OpCodes.CALL, fib);     // call fib(n - 1)
-            fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
-            fibGen.Emit(OpCodes.LDC_I4_2);          // load '2'
-            fibGen.Emit(OpCodes.SUB);               //  n - 2
-            fibGen.EmitCall(OpCodes.CALL, fib);     // call fib(n - 2)
-            fibGen.Emit(OpCodes.STLOC_0);
-            fibGen.Emit(OpCodes.LDLOC_0);
-            fibGen.Emit(OpCodes.ADD);               // 'fib(n - 1)' + 'fib(n - 2)'
-            fibGen.Emit(OpCodes.RET);
+            var label_if_1 = fibGen.DefineLabel();
+            var label_if_2 = fibGen.DefineLabel();
+            var for_1 = fibGen.DefineLabel();
+            var for_body = fibGen.DefineLabel();
             
+            // if (x == 0) return 0;
+            fibGen.Emit(OpCodes.LDARG_0);
+            fibGen.Emit(OpCodes.JMP_T, label_if_1);
+            fibGen.Emit(OpCodes.LDC_I8_0);
+            fibGen.Emit(OpCodes.RET);
+            fibGen.UseLabel(label_if_1);
+            // if (x == 1) return 1;
+            fibGen.Emit(OpCodes.LDARG_0);
+            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.JMP_NN, label_if_2);
+            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.RET);
+            fibGen.UseLabel(label_if_2);
+            // var first, second, nth, i = 0;
+            fibGen.Emit(OpCodes.LOC_INIT, new[]
+            {
+                WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8, 
+                WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8
+            });
+            // second, nth = 1; i = 2;
+            fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_1);
+            fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_2);
+            fibGen.Emit(OpCodes.LDC_I8_2); fibGen.Emit(OpCodes.STLOC_3);
+            
+            // for
+            // 
+            fibGen.Emit(OpCodes.JMP, for_1);
+            fibGen.UseLabel(for_body);
+            fibGen.Emit(OpCodes.LDLOC_0);
+            fibGen.Emit(OpCodes.LDLOC_1);
+            fibGen.Emit(OpCodes.ADD);
+            fibGen.Emit(OpCodes.STLOC_2);
+            
+            fibGen.Emit(OpCodes.LDLOC_1);
+            fibGen.Emit(OpCodes.STLOC_0);
+            
+            fibGen.Emit(OpCodes.LDLOC_2);
+            fibGen.Emit(OpCodes.STLOC_1);
+            
+            // i++
+            fibGen.Emit(OpCodes.LDLOC_3);
+            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.ADD);
+            fibGen.Emit(OpCodes.STLOC_3);
+
+
+            // i <= n
+            fibGen.UseLabel(for_1);
+            fibGen.Emit(OpCodes.LDLOC_3);
+            fibGen.Emit(OpCodes.LDARG_0);
+            fibGen.Emit(OpCodes.JMP_LQ, for_body);
+            // return nth;
+            fibGen.Emit(OpCodes.LDLOC_2);
+            fibGen.Emit(OpCodes.RET);
+            /*
+        fibGen.Emit(OpCodes.LDARG_0);
+        fibGen.Emit(OpCodes.STLOC_0);
+        fibGen.Emit(OpCodes.LDC_I4_S, 20);
+        fibGen.Emit(OpCodes.LDLOC_0);
+        fibGen.Emit(OpCodes.JMP_L, label);      // if (n < 2) 
+        fibGen.Emit(OpCodes.LDC_I4_S, 228);
+        fibGen.Emit(OpCodes.RET);               // return n;
+        fibGen.UseLabel(label);
+        fibGen.Emit(OpCodes.LDC_I4_S, 1448);
+        fibGen.Emit(OpCodes.RET);
+         .locals { [0]: int32 }
+        fibGen.Emit(OpCodes.LOC_INIT, new[] { WaveTypeCode.TYPE_I4 });
+        fibGen.Emit(OpCodes.LDARG_0);           // n from args
+        fibGen.Emit(OpCodes.LDC_I4_2);          // load 2
+        fibGen.Emit(OpCodes.JMP_L, label);      // if (n < 2) 
+        fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
+        fibGen.Emit(OpCodes.RET);               // return n;
+        fibGen.UseLabel(label);                 // end if
+        fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
+        fibGen.Emit(OpCodes.LDC_I4_1);          // load '1'
+        fibGen.Emit(OpCodes.SUB);               // n - 1
+        fibGen.EmitCall(OpCodes.CALL, fib);     // call fib(n - 1)
+        fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
+        fibGen.Emit(OpCodes.LDC_I4_2);          // load '2'
+        fibGen.Emit(OpCodes.SUB);               //  n - 2
+        fibGen.EmitCall(OpCodes.CALL, fib);     // call fib(n - 2)
+        fibGen.Emit(OpCodes.STLOC_0);
+        fibGen.Emit(OpCodes.LDLOC_0);
+        fibGen.Emit(OpCodes.ADD);               // 'fib(n - 1)' + 'fib(n - 2)'
+        fibGen.Emit(OpCodes.RET);
+        */
             /*
              * /* (15,17)-(15,27) main.cs 
             /* 0x00000000 02            IL_0000: ldarg.0
@@ -310,7 +378,7 @@ puts after - before;*/
             
             
             
-            body.Emit(OpCodes.LDC_I4_S, 40);
+            body.Emit(OpCodes.LDC_I8_S, (long)70);
             body.EmitCall(OpCodes.CALL, fib);
             body.Emit(OpCodes.DUMP_0);
             body.Emit(OpCodes.RET);
