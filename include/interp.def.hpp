@@ -41,7 +41,7 @@ static const char* VAL_NAMES[] = {
 struct stackval {
 	union {
 		int i;
-		long l;
+		long long l;
 		float f_r4;
 		double f;
 		size_t p;

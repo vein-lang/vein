@@ -85,6 +85,9 @@ inline void init_default()
     wave_core->i4_class = new WaveClass(new TypeName(L"global::wave/lang/Int32"), wave_core->value_class);
     wave_core->i4_class->TypeCode = TYPE_I4;
 
+    wave_core->i8_class = new WaveClass(new TypeName(L"global::wave/lang/Int64"), wave_core->value_class);
+    wave_core->i8_class->TypeCode = TYPE_I8;
+
 
     corlib->classList->push_back(wave_core->object_class);
     corlib->classList->push_back(wave_core->value_class);
@@ -93,6 +96,7 @@ inline void init_default()
     corlib->classList->push_back(wave_core->string_class);
     corlib->classList->push_back(wave_core->console_class);
     corlib->classList->push_back(wave_core->i4_class);
+    corlib->classList->push_back(wave_core->i8_class);
 
     classes_ref = {
         CREATE_REF(object_class),
@@ -102,6 +106,7 @@ inline void init_default()
         CREATE_REF(string_class),
         CREATE_REF(console_class),
         CREATE_REF(i4_class),
+        CREATE_REF(i8_class),
     };
     wave_core->corlib = corlib;
 }
@@ -123,6 +128,7 @@ inline void init_types() // TODO resolve members problem with AsClass casting th
     wave_core->console_type = AsType(wave_core->console_class);
     wave_core->native_type = AsType(wave_core->native_class);
     wave_core->i4_type = AsType(wave_core->i4_class);
+    wave_core->i8_type = AsType(wave_core->i8_class);
 }
 // ORDER 3
 inline void init_tables()

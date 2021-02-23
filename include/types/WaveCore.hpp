@@ -19,6 +19,7 @@ typedef struct
 
     WaveType* object_type;
     WaveType* i4_type;
+    WaveType* i8_type;
     WaveType* void_type;
     WaveType* value_type;
     WaveType* native_type;
