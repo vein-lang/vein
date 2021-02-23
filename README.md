@@ -11,7 +11,7 @@
 </h1>
 <!-- desc -->
 <h4 align="center">
-  [research] Wave language with just-in-time compilation into machine instructions which are then executed on AVR controllers or standalone OS
+  [research] Wave language with just-in-time compilation into machine instructions which are then executed on ESP/ARM controllers or standalone OS
 </h4>
 
 <!-- classic badges -->
