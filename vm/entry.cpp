@@ -62,7 +62,7 @@ void setup(int argc, char* argv[]) {
     sw::Stopwatch my_watch;
     exec_method(entry_point->data.header, args, m, &level);
     auto duration_ms = my_watch.elapsed();
-    std::cout << "Elapsed: " << duration_ms << " milliseconds." << std::endl;
+    std::cout << "Elapsed: " << duration_ms / 1000.0f << " seconds." << std::endl;
 }
 
 void loop() {
@@ -80,6 +80,7 @@ WaveMethod* get_wave_method(uint32_t idx, WaveImage* targetImage)
 #define DEBUG_IL2
 
 #ifdef DEBUG_IL
+#pragma optimize("", off)
 #define SWITCH(x) d_print("@"); d_print(opcodes[x]); d_print("\n"); switch (x)
 #else
 #define SWITCH(x) switch (x)
@@ -194,7 +195,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
             case LDC_I8_3:
             case LDC_I8_5:
                 sp->type = VAL_I64;
-                sp->data.i = (*ip) - LDC_I8_0;
+                sp->data.l = (*ip) - LDC_I8_0;
                 ++sp;
                 ++ip;
                 break;
@@ -208,7 +209,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
             case LDC_I8_S:
                 ++ip;
                 sp->type = VAL_I64;
-                sp->data.i = static_cast<int32_t>(*ip);
+                sp->data.l = static_cast<int32_t>(*ip);
                 ++ip;
                 ++sp;
                 break;
@@ -226,7 +227,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                 args[0] = *sp;
                 (*level)--;
                 delete stack;
-                delete locals;
+                delete[] locals;
                 return;
             case CALL:
             {
@@ -260,7 +261,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                         *sp = method_args[0];
                         sp++;
                     }
-                    delete method_args;
+                    delete[] method_args;
                     break;
                 }
                 throw "not implemented";
@@ -357,6 +358,11 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                                 locals[i].type = VAL_I32;
                                 locals[i].data.i = 0;
                             }
+                            if (type->get_full_name()->get_name() == L"Int64")
+                            {
+                                locals[i].type = VAL_I64;
+                                locals[i].data.l = 0;
+                            }
                         }
                         else
                         {
@@ -383,28 +389,106 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                     {
                         if (first.type == VAL_I32)
                         {
-                            if (second.data.i < first.data.i)
-                            {
-                                ip++;
-                                auto d = *ip;
-                                auto dd1 = opcodes[d];
-                                auto dd2 = opcodes[d];
-                            }
+                            if (first.data.i < second.data.i)
+                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
                             else
-                            {
-                                auto pw = mh->labels_map->at(mh->labels->at(*ip));
-                                auto diff = start + pw.pos;
-                                auto wd = *diff;
-                                auto cd = opcodes[wd];
-                                ip = diff;
-                                
-                            }
+                                ip++;
+                        }
+                        if (first.type == VAL_I64)
+                        {
+                            if (first.data.l < second.data.l)
+                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
+                            else
+                                ip++;
                         }
                     }
                     else
                         throw "not implemented exception";
                 }
                 break;
+            case JMP_T:
+                {
+                    ++ip;
+                    --sp;
+                    const auto first = *sp;
+                    if (first.type == VAL_I32)
+                    {
+                        if (first.data.i != 0)
+                            ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
+                        else
+                            ip++;
+                    }
+                    if (first.type == VAL_I64)
+                    {
+                        if (first.data.i != 0)
+                            ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
+                        else
+                            ip++;
+                    }
+                }
+            break;
+            case JMP_NN:
+                {
+                    ++ip;
+                    --sp;
+                    const auto first = *sp;
+                    --sp;
+                    const auto second = *sp;
+                    if (first.type == second.type)
+                    {
+                        if (first.type == VAL_I32)
+                        {
+                            if (second.data.i != first.data.i)
+                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
+                            else
+                                ip++;
+                        }
+                        if (first.type == VAL_I64)
+                        {
+                            if (second.data.l != first.data.l)
+                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
+                            else
+                                ip++;
+                        }
+                    }
+                    else
+                        throw "not implemented exception";
+                }
+            break;
+            case JMP:
+                {
+                    ++ip;
+                    ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
+                }
+                break;
+            case JMP_LQ:
+                {
+                    ++ip;
+                    --sp;
+                    auto first = *sp;
+                    --sp;
+                    auto second = *sp;
+                    if (first.type == second.type)
+                    {
+                        if (first.type == VAL_I32)
+                        {
+                            if (second.data.i <= first.data.i)
+                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
+                            else
+                                ip++;
+                        }
+                        if (first.type == VAL_I64)
+                        {
+                            if (second.data.l <= first.data.l)
+                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
+                            else
+                                ip++;
+                        }
+                    }
+                    else
+                        throw "not implemented exception";
+                }
+            break;
             default:
                 {
                     d_print("Unimplemented opcode: ");
@@ -418,3 +502,6 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
 
 }
 
+#ifdef DEBUG_IL
+#pragma optimize("", on)
+#endif
