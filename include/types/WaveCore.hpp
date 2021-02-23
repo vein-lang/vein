@@ -14,9 +14,11 @@ typedef struct
     WaveClass* native_class;
     WaveClass* string_class;
     WaveClass* console_class;
+    WaveClass* value_class;
 
 
     WaveType* object_type;
+    WaveType* i4_type;
     WaveType* void_type;
     WaveType* value_type;
     WaveType* native_type;
