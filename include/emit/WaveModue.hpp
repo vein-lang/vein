@@ -91,16 +91,48 @@ struct WaveModule
         throw TypeNotFoundException(fmt::format(L"'{0}' not found in modules and dependency assemblies.", type->FullName));
     }
 
-    WaveMethod* GetEntryPoint()
+    WaveClass* FindClass(TypeName* type, bool findExternally = false) const noexcept(false)
     {
-        for(auto c : *classList)
+        const function<bool(WaveClass* z)> filter = [type](WaveClass* s) {
+            return equality<TypeName*>::equal(type, s->FullName);
+        };
+        if (!findExternally)
+            return classList->First(filter);
+        auto* result = classList->FirstOrDefault(filter);
+        if (result != nullptr)
+            return result;
+        
+        for(auto* m : *deps)
         {
-            for(auto m : *c->Methods)
+            auto* result = m->FindClass(type, findExternally);
+            if (result != nullptr)
+                return result;
+        }
+        throw TypeNotFoundException(fmt::format(L"'{0}' not found in modules and dependency assemblies.", type->FullName));
+    }
+
+    WaveMethod* GetMethod(const int tokenIdx, const int64_t ownerIdx)
+    {
+        function<wstring(int z)> get_const_string = [this](const int w) {
+            return this->GetConstByIndex(w);
+        };
+
+        auto* clazzType = TypeName::construct(ownerIdx, &get_const_string);
+        auto* clazz = FindClass(clazzType, true);
+
+        return clazz->FindMethod(this->GetConstByIndex(tokenIdx));
+    }
+
+    WaveMethod* GetEntryPoint() const
+    {
+        for(auto* c : *classList)
+        {
+            for(auto* m : *c->Methods)
             {
                 if (m->Name._Equal(L"master"))
                     return m;
             }
         }
-        throw new EntryPointNotFoundException();
+        throw EntryPointNotFoundException();
     }
 };
