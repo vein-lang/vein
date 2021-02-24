@@ -89,8 +89,8 @@ struct stackval {
 		uint64_t ul;
 		float f_r4;
 		double f;
-        WaveDecimal d;
-		half hf;
+        WaveDecimal* d;
+		half* hf;
 		size_t p;
 	} data;
 	int type;
