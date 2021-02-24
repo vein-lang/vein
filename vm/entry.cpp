@@ -421,23 +421,27 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                     const auto second = *sp;
                     if (first.type == second.type)
                     {
-                        W_JUMP(VAL_I8, b, !=)
-                        W_JUMP(VAL_I16, s, !=)
-                        W_JUMP(VAL_I32, i, !=)
-                        W_JUMP(VAL_I64, l, !=)
+                        #undef OPERATOR
+                        #define OPERATOR !=
+                        W_JUMP(VAL_I8, b, OPERATOR)
+                        W_JUMP(VAL_I16, s, OPERATOR)
+                        W_JUMP(VAL_I32, i, OPERATOR)
+                        W_JUMP(VAL_I64, l, OPERATOR)
 
-                        W_JUMP(VAL_U8, ub, !=)
-                        W_JUMP(VAL_U16, us, !=)
-                        W_JUMP(VAL_U32, ui, !=)
-                        W_JUMP(VAL_U64, ul, !=)
+                        W_JUMP(VAL_U8, ub, OPERATOR)
+                        W_JUMP(VAL_U16, us, OPERATOR)
+                        W_JUMP(VAL_U32, ui, OPERATOR)
+                        W_JUMP(VAL_U64, ul, OPERATOR)
 
-                        W_JUMP(VAL_FLOAT, f_r4, !=)
-                        W_JUMP(VAL_DOUBLE, f, !=)
+                        W_JUMP(VAL_FLOAT, f_r4, OPERATOR)
+                        W_JUMP(VAL_DOUBLE, f, OPERATOR)
 
                         if (first.type == VAL_DECIMAL)
-                            W_JUMP_AFTER(*first.data.d, !=, *second.data.d);
+                            W_JUMP_AFTER(*first.data.d, OPERATOR, *second.data.d);
                         else if (first.type == VAL_HALF)
-                            W_JUMP_AFTER(*first.data.hf, !=, *second.data.hf);
+                            W_JUMP_AFTER(*first.data.hf, OPERATOR, *second.data.hf);
+
+                        #undef OPERATOR
                     }
                     else
                         throw "not implemented exception";
@@ -458,23 +462,60 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                     auto second = *sp;
                     if (first.type == second.type)
                     {
-                        W_JUMP(VAL_I8, b, <=)
-                        W_JUMP(VAL_I16, s, <=)
-                        W_JUMP(VAL_I32, i, <=)
-                        W_JUMP(VAL_I64, l, <=)
+                        #undef OPERATOR
+                        #define OPERATOR <=
+                        W_JUMP(VAL_I8, b, OPERATOR)
+                        W_JUMP(VAL_I16, s, OPERATOR)
+                        W_JUMP(VAL_I32, i, OPERATOR)
+                        W_JUMP(VAL_I64, l, OPERATOR)
 
-                        W_JUMP(VAL_U8, ub, <=)
-                        W_JUMP(VAL_U16, us, <=)
-                        W_JUMP(VAL_U32, ui, <=)
-                        W_JUMP(VAL_U64, ul, <=)
+                        W_JUMP(VAL_U8, ub, OPERATOR)
+                        W_JUMP(VAL_U16, us, OPERATOR)
+                        W_JUMP(VAL_U32, ui, OPERATOR)
+                        W_JUMP(VAL_U64, ul, OPERATOR)
 
-                        W_JUMP(VAL_FLOAT, f_r4, <=)
-                        W_JUMP(VAL_DOUBLE, f, <=)
+                        W_JUMP(VAL_FLOAT, f_r4, OPERATOR)
+                        W_JUMP(VAL_DOUBLE, f, OPERATOR)
 
                         if (first.type == VAL_DECIMAL)
                             W_JUMP_AFTER(*first.data.d, <=, *second.data.d);
                         else if (first.type == VAL_HALF)
                             W_JUMP_AFTER(*first.data.hf, <=, *second.data.hf);
+                        #undef OPERATOR
+                    }
+                    else
+                        throw "not implemented exception";
+                }
+            break;
+            case JMP_HQ:
+                {
+                    ++ip;
+                    --sp;
+                    auto first = *sp;
+                    --sp;
+                    auto second = *sp;
+                    if (first.type == second.type)
+                    {
+                        #undef OPERATOR
+                        #define OPERATOR >=
+                        W_JUMP(VAL_I8, b, OPERATOR)
+                        W_JUMP(VAL_I16, s, OPERATOR)
+                        W_JUMP(VAL_I32, i, OPERATOR)
+                        W_JUMP(VAL_I64, l, OPERATOR)
+
+                        W_JUMP(VAL_U8, ub, OPERATOR)
+                        W_JUMP(VAL_U16, us, OPERATOR)
+                        W_JUMP(VAL_U32, ui, OPERATOR)
+                        W_JUMP(VAL_U64, ul, OPERATOR)
+
+                        W_JUMP(VAL_FLOAT, f_r4, OPERATOR)
+                        W_JUMP(VAL_DOUBLE, f, OPERATOR)
+
+                        if (first.type == VAL_DECIMAL)
+                            W_JUMP_AFTER(*first.data.d, OPERATOR, *second.data.d);
+                        else if (first.type == VAL_HALF)
+                            W_JUMP_AFTER(*first.data.hf, OPERATOR, *second.data.hf);
+                        #undef OPERATOR
                     }
                     else
                         throw "not implemented exception";
