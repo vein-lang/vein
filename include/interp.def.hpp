@@ -2,8 +2,14 @@
 
 
 #define ALLOC(t, x) ((t)__builtin_alloca(x))
-
 #define OP_DEF(x, y, z) x = y,
+#include "api/decimal.hpp"
+#include "api/half.hpp"
+
+using namespace dec;
+using namespace std;
+typedef decimal<29> WaveDecimal;
+
 enum WaveOpCode {
     #include "../metadata/opcodes.def"
 	LAST
@@ -23,27 +29,53 @@ inline const unsigned char opcode_size [] = {
 #undef OP_DEF
 
 enum {
+	VAL_INCORRECT,
+	VAL_I8,
+	VAL_I16,
 	VAL_I32,
 	VAL_I64,
+	VAL_U8,
+	VAL_U16,
+	VAL_U32,
+	VAL_U64,
 	VAL_DOUBLE,
 	VAL_FLOAT,
+	VAL_DECIMAL,
+	VAL_HALF,
 	VAL_OBJ
 };
 
 static const char* VAL_NAMES[] = {
+	"VAL_INCORRECT",
+	"VAL_I8",
+	"VAL_I16",
 	"VAL_I32",
 	"VAL_I64",
+	"VAL_U8",
+	"VAL_U16",
+	"VAL_U32",
+	"VAL_U64",
 	"VAL_DOUBLE",
 	"VAL_FLOAT",
+	"VAL_DECIMAL",
+	"VAL_HALF",
 	"VAL_OBJ"
 };
 
 struct stackval {
 	union {
-		int i;
-		long long l;
+		int8_t b;
+		int16_t s;
+		int32_t i;
+		int64_t l;
+		uint8_t ub;
+		uint16_t us;
+		uint32_t ui;
+		uint64_t ul;
 		float f_r4;
 		double f;
+        WaveDecimal d;
+		half hf;
 		size_t p;
 	} data;
 	int type;
