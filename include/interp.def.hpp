@@ -5,11 +5,25 @@
 #define OP_DEF(x, y, z) x = y,
 #include "api/decimal.hpp"
 #include "api/half.hpp"
-
+#include "fmt/format.h"
 using namespace dec;
 using namespace std;
 typedef decimal<5> WaveDecimal;
 
+
+
+template <> struct fmt::formatter<WaveDecimal>: formatter<string_view> {
+  template <typename FormatContext>
+  auto format(WaveDecimal c, FormatContext& ctx) {
+    return formatter<string_view>::format(toString(c), ctx);
+  }
+};
+template <> struct fmt::formatter<half>: formatter<string_view> {
+  template <typename FormatContext>
+  auto format(half c, FormatContext& ctx) {
+    return formatter<string_view>::format(to_string(static_cast<float>(c)), ctx);
+  }
+};
 
 enum WaveOpCode {
     #include "../metadata/opcodes.def"
