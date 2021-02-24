@@ -69,22 +69,14 @@ void loop() {
 }
 
 
-#define CASE(x) case x: {
-#define BREAK break; }
+
 
 
 WaveMethod* get_wave_method(uint32_t idx, WaveImage* targetImage)
 {
     return nullptr;
 }
-#define DEBUG_IL2
 
-#ifdef DEBUG_IL
-#pragma optimize("", off)
-#define SWITCH(x) d_print("@"); d_print(opcodes[x]); d_print("\n"); switch (x)
-#else
-#define SWITCH(x) switch (x)
-#endif
 void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsigned int* level)
 {
     #ifdef DEBUG_IL
@@ -131,16 +123,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                 A_OPERATION(+=);
                 break;
             case SUB:
-                ++ip; 
-	            --sp; 
-                if (sp->type == VAL_I32) 
-                    sp[-1].data.i -= sp[0].data.i; 
-	            else if (sp->type == VAL_I64) 
-		            sp[-1].data.l -= sp[0].data.l; 
-	            else if (sp->type == VAL_DOUBLE) 
-		            sp[-1].data.f -= sp[0].data.f; 
-                else if (sp->type == VAL_FLOAT) 
-		            sp[-1].data.f_r4 -= sp[0].data.f_r4;
+                A_OPERATION(-=);
                 break;
             case MUL:
                 A_OPERATION(*=);
@@ -215,11 +198,12 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                 break;
             case DUMP_0:
                 ++ip;
-                DUMP_STACK(sp, -1);
+                DUMP_STACK(-1);
                 break;
             case DUMP_1:
                 ++ip;
-                DUMP_STACK(sp, 0);
+                DUMP_STACK(0);
+                
                 break;
             case RET:
                 ++ip;
@@ -343,33 +327,31 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                     ++ip;
                     for (auto i = 0u; i != locals_size; i++)
                     {
-                        ++ip;
-                        auto b1 = *ip;
-                        auto b2 = *(ip+1);
-                        auto b3 = *(ip+2);
-
+                        ++ip; // skip opcode LOC_INIT_X
                         const auto type_idx = READ64(ip);
                         auto* type_name = TypeName::construct(type_idx, &get_const_string);
                         auto* type = _module->FindType(type_name, true);
                         if (type->IsPrimitive())
                         {
-                            if (type->get_full_name()->get_name() == L"Int32")
-                            {
-                                locals[i].type = VAL_I32;
-                                locals[i].data.i = 0;
-                            }
-                            if (type->get_full_name()->get_name() == L"Int64")
-                            {
-                                locals[i].type = VAL_I64;
-                                locals[i].data.l = 0;
-                            }
+                            LOCALS_INIT(TYPE_I1, VAL_I8, i, b)
+                            LOCALS_INIT(TYPE_I2, VAL_I16, i, s)
+                            LOCALS_INIT(TYPE_I4, VAL_I32, i, i)
+                            LOCALS_INIT(TYPE_I8, VAL_I64, i, l)
+
+                            LOCALS_INIT(TYPE_U1, VAL_U8, i, ub)
+                            LOCALS_INIT(TYPE_U2, VAL_U16, i, us)
+                            LOCALS_INIT(TYPE_U4, VAL_U32, i, ui)
+                            LOCALS_INIT(TYPE_U8, VAL_U64, i, ul)
+
+                            LOCALS_INIT(TYPE_R4, VAL_FLOAT, i, f_r4)
+                            LOCALS_INIT(TYPE_R8, VAL_DOUBLE, i, f)
                         }
                         else
                         {
                             locals[i].type = VAL_OBJ;
                             locals[i].data.p = 0;
                         }
-                        ip += 2;
+                        ip += 2; // after READ64
                     }
                 }
                 break;
@@ -387,20 +369,23 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                     const auto second = *sp;
                     if (first.type == second.type)
                     {
-                        if (first.type == VAL_I32)
-                        {
-                            if (first.data.i < second.data.i)
-                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
-                            else
-                                ip++;
-                        }
-                        if (first.type == VAL_I64)
-                        {
-                            if (first.data.l < second.data.l)
-                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
-                            else
-                                ip++;
-                        }
+                        W_JUMP(VAL_I8, b, <)
+                        W_JUMP(VAL_I16, s, <)
+                        W_JUMP(VAL_I32, i, <)
+                        W_JUMP(VAL_I64, l, <)
+
+                        W_JUMP(VAL_U8, ub, <)
+                        W_JUMP(VAL_U16, us, <)
+                        W_JUMP(VAL_U32, ui, <)
+                        W_JUMP(VAL_U64, ul, <)
+
+                        W_JUMP(VAL_FLOAT, f_r4, <)
+                        W_JUMP(VAL_DOUBLE, f, <)
+
+                        if (first.type == VAL_DECIMAL)
+                            W_JUMP_AFTER(*first.data.d, <, *second.data.d);
+                        else if (first.type == VAL_HALF)
+                            W_JUMP_AFTER(*first.data.hf, <, *second.data.hf);
                     }
                     else
                         throw "not implemented exception";
@@ -436,20 +421,23 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                     const auto second = *sp;
                     if (first.type == second.type)
                     {
-                        if (first.type == VAL_I32)
-                        {
-                            if (second.data.i != first.data.i)
-                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
-                            else
-                                ip++;
-                        }
-                        if (first.type == VAL_I64)
-                        {
-                            if (second.data.l != first.data.l)
-                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
-                            else
-                                ip++;
-                        }
+                        W_JUMP(VAL_I8, b, !=)
+                        W_JUMP(VAL_I16, s, !=)
+                        W_JUMP(VAL_I32, i, !=)
+                        W_JUMP(VAL_I64, l, !=)
+
+                        W_JUMP(VAL_U8, ub, !=)
+                        W_JUMP(VAL_U16, us, !=)
+                        W_JUMP(VAL_U32, ui, !=)
+                        W_JUMP(VAL_U64, ul, !=)
+
+                        W_JUMP(VAL_FLOAT, f_r4, !=)
+                        W_JUMP(VAL_DOUBLE, f, !=)
+
+                        if (first.type == VAL_DECIMAL)
+                            W_JUMP_AFTER(*first.data.d, !=, *second.data.d);
+                        else if (first.type == VAL_HALF)
+                            W_JUMP_AFTER(*first.data.hf, !=, *second.data.hf);
                     }
                     else
                         throw "not implemented exception";
@@ -470,20 +458,23 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                     auto second = *sp;
                     if (first.type == second.type)
                     {
-                        if (first.type == VAL_I32)
-                        {
-                            if (second.data.i <= first.data.i)
-                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
-                            else
-                                ip++;
-                        }
-                        if (first.type == VAL_I64)
-                        {
-                            if (second.data.l <= first.data.l)
-                                ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
-                            else
-                                ip++;
-                        }
+                        W_JUMP(VAL_I8, b, <=)
+                        W_JUMP(VAL_I16, s, <=)
+                        W_JUMP(VAL_I32, i, <=)
+                        W_JUMP(VAL_I64, l, <=)
+
+                        W_JUMP(VAL_U8, ub, <=)
+                        W_JUMP(VAL_U16, us, <=)
+                        W_JUMP(VAL_U32, ui, <=)
+                        W_JUMP(VAL_U64, ul, <=)
+
+                        W_JUMP(VAL_FLOAT, f_r4, <=)
+                        W_JUMP(VAL_DOUBLE, f, <=)
+
+                        if (first.type == VAL_DECIMAL)
+                            W_JUMP_AFTER(*first.data.d, <=, *second.data.d);
+                        else if (first.type == VAL_HALF)
+                            W_JUMP_AFTER(*first.data.hf, <=, *second.data.hf);
                     }
                     else
                         throw "not implemented exception";
@@ -501,7 +492,3 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
 
 
 }
-
-#ifdef DEBUG_IL
-#pragma optimize("", on)
-#endif
