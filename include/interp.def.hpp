@@ -8,7 +8,8 @@
 
 using namespace dec;
 using namespace std;
-typedef decimal<29> WaveDecimal;
+typedef decimal<5> WaveDecimal;
+
 
 enum WaveOpCode {
     #include "../metadata/opcodes.def"
