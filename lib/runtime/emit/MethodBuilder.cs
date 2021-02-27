@@ -1,4 +1,4 @@
-﻿namespace wave.emit
+namespace wave.emit
 {
     using System;
     using System.Collections.Generic;
@@ -19,9 +19,10 @@
         {
             classBuilder = clazz;
             ReturnType = returnType;
-            Name = name;
             _generator = new ILGenerator(this);
             Arguments.AddRange(args);
+            Name = GenerateID(name, Arguments);
+            clazz.moduleBuilder.GetStringConstant(Name);
         }
 
         public ILGenerator GetGenerator() => _generator;
@@ -79,7 +80,7 @@
             }
             var body = _generator.BakeDebugString();
             
-            str.AppendLine($".method '{Name}' ({args}) {Flags.EnumerateFlags().Join(' ').ToLowerInvariant()}");
+            str.AppendLine($".method '{RawName}' ({args}) {Flags.EnumerateFlags().Join(' ').ToLowerInvariant()}");
             str.AppendLine("{");
             str.AppendLine($"\t.size {_generator.ILOffset}");
             str.AppendLine($"\t.maxstack 0x{64:X8}");
@@ -114,5 +115,9 @@
             return result.x is null ? default((int idx, WaveArgumentRef type)?) : result;
         }
         #endregion
+        
+        
+        private static string GenerateID(string name, List<WaveArgumentRef> args) 
+            => !args.Any() ? $"{name}()" : $"{name}({args.Select(x => x.Type.FullName.Name).Join(",")})";
     }
 }
