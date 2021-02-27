@@ -378,7 +378,7 @@ puts after - before;*/
             
             
             
-            body.Emit(OpCodes.LDC_I8_S, (long)1073741823);
+            body.Emit(OpCodes.LDC_I8_S, (long)1073741823/**/);
             body.EmitCall(OpCodes.CALL, fib);
             body.Emit(OpCodes.DUMP_0);
             body.Emit(OpCodes.RET);
@@ -393,6 +393,7 @@ puts after - before;*/
             asm.AddSegment((".code", body_module));
             
             InsomniaAssembly.WriteToFile(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+            File.WriteAllText($@"C:\Users\ls-mi\Desktop\{module.Name}.wvil", module.BakeDebugString());
         }
     }
 }
