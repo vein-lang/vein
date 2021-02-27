@@ -19,7 +19,7 @@
                throw new AggregateException($"Index '{index}' not found in module '{Name}'.");
         
         
-        public WaveType FindType(TypeName type, bool findExternally = false)
+        public WaveType FindType(QualityTypeName type, bool findExternally = false)
         {
             bool filter(WaveClass x) => x!.FullName.Equals(type);
             if (!findExternally)

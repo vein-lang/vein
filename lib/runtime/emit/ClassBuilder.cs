@@ -3,24 +3,25 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using extensions;
 
     public class ClassBuilder : WaveClass, IBaker
     {
         internal WaveModuleBuilder moduleBuilder;
-        public ClassBuilder(WaveModuleBuilder module, TypeName name, WaveTypeCode parent = WaveTypeCode.TYPE_OBJECT)
+        public ClassBuilder(WaveModuleBuilder module, QualityTypeName name, WaveTypeCode parent = WaveTypeCode.TYPE_OBJECT)
         {
             this.FullName = name;
             moduleBuilder = module;
             this.Parent = parent.AsType().AsClass();
         }
-        public ClassBuilder(WaveModuleBuilder module, TypeName name, WaveType parent)
+        public ClassBuilder(WaveModuleBuilder module, QualityTypeName name, WaveType parent)
         {
             this.FullName = name;
             moduleBuilder = module;
             this.Parent = parent.AsClass();
         }
 
-        public TypeName GetName() => this.FullName;
+        public QualityTypeName GetName() => this.FullName;
         
         public MethodBuilder DefineMethod(string name, WaveType returnType, params WaveArgumentRef[] args)
         {
@@ -43,12 +44,9 @@
                 return null;
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
-            var idx = moduleBuilder.GetStringConstant(FullName.Name);
-            var ns_idx = moduleBuilder.GetStringConstant(FullName.Namespace);
-            binary.Write(idx);
-            binary.Write(ns_idx);
+            binary.WriteTypeName(this.FullName, moduleBuilder);
             binary.Write((byte)Flags);
-            binary.Write(moduleBuilder.GetTypeConstant(Parent.FullName));
+            binary.WriteTypeName(Parent.FullName, moduleBuilder);
             binary.Write(Methods.Count);
             foreach (var method in Methods.OfType<IBaker>())
             {
@@ -60,7 +58,7 @@
             foreach (var field in Fields)
             {
                 binary.Write(moduleBuilder.GetTypeConstant(field.FullName));
-                binary.Write(moduleBuilder.GetTypeConstant(field.FieldType.FullName));
+                binary.WriteTypeName(field.FieldType.FullName, moduleBuilder);
                 binary.Write((byte)field.Flags);
                 binary.WriteLiteralValue(field);
             }

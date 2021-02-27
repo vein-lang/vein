@@ -1,7 +1,9 @@
 ﻿namespace wave.emit
 {
+    using System;
     using System.Linq;
     using System.Security;
+    using System.Text.RegularExpressions;
 
     public record RuntimeToken(string text, ulong Value)
     {
@@ -31,28 +33,35 @@
             }
         }
     }
-
-
-
-    public record TypeName(string fullName)
+    
+    public record QualityTypeName(string fullName)
     {
         public string Name => fullName.Split('/').Last();
-        public string Namespace => fullName.Split('/').SkipLast(1).Join("/");
+        public string Namespace => fullName
+            .Split('/')
+            .SkipLast(1).Join("/")
+            .Split("%").Skip(1)
+            .Join("/");
 
-        public RuntimeToken Token 
-            => RuntimeToken.Create(fullName);
+        public string AssemblyName => fullName.Split("%").SkipLast(1).Join();
+        
+        
+        public QualityTypeName(string asmName, string name, string ns) : this($"{asmName}%{ns}/{name}") { }
+        
+        public static QualityTypeName Construct(in int asmIdx, in int nameIdx, in int namespaceIdx, WaveModule module) 
+            => new(
+                module.GetConstByIndex(asmIdx), 
+                module.GetConstByIndex(nameIdx), 
+                module.GetConstByIndex(namespaceIdx));
+        
+        
+        public static implicit operator QualityTypeName(string name)
+        {
+            if (!Regex.IsMatch(name, @"(.+)\%global::(.+)\/(.+)"))
+                throw new Exception($"'{name}' is not valid type name.");
+            return new QualityTypeName(name);
+        }
 
-
-        public static implicit operator string(TypeName t) => t.fullName;
-        public static implicit operator TypeName(string t) => new(t);
-
-
-        public TypeName(string name, string ns) : this($"{ns}/{name}") { }
-
-        public static TypeName Construct(in int nameIdx, in int namespaceIdx, WaveModule module) 
-            => new(module.GetConstByIndex(nameIdx), module.GetConstByIndex(namespaceIdx));
-        public static TypeName Construct(in long fullIdx, WaveModule module) 
-            => new(module.GetConstByIndex((int)(fullIdx >> 32)), 
-                module.GetConstByIndex((int)(fullIdx & uint.MaxValue)));
+        public override string ToString() => fullName;
     }
 }

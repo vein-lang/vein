@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using extensions;
 
     public class MethodBuilder : WaveMethod, IBaker
     {
@@ -37,7 +38,7 @@
                 binary.Write(0); // body size
                 binary.Write((byte)0); // stack size TODO
                 binary.Write((byte)0); // locals size TODO
-                binary.Write(classBuilder.moduleBuilder.GetTypeConstant(ReturnType.FullName));
+                binary.WriteTypeName(ReturnType.FullName, moduleBuilder);
                 WriteArguments(binary);
                 binary.Write(new byte[0]); // IL Body
                 return mem.ToArray();
@@ -50,7 +51,7 @@
             binary.Write(body.Length); // body size
             binary.Write((byte)64); // stack size TODO
             binary.Write((byte)24); // locals size TODO
-            binary.Write(classBuilder.moduleBuilder.GetTypeConstant(ReturnType.FullName));
+            binary.WriteTypeName(ReturnType.FullName, moduleBuilder);
             WriteArguments(binary);
             binary.Write(body); // IL Body
 
@@ -63,7 +64,7 @@
             foreach (var argument in Arguments)
             {
                 binary.Write(moduleBuilder.GetStringConstant(argument.Name));
-                binary.Write(moduleBuilder.GetTypeConstant(argument.Type.FullName));
+                binary.WriteTypeName(argument.Type.FullName, moduleBuilder);
             }
         }
 

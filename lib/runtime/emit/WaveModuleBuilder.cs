@@ -7,11 +7,11 @@
     using System.Text;
     using MoreLinq;
 
-    public class ModuleBuilder : WaveModule, IBaker
+    public class WaveModuleBuilder : WaveModule, IBaker
     {
-        public ModuleBuilder(string name) : base(name) {}
+        public WaveModuleBuilder(string name) : base(name) {}
 
-        public ClassBuilder DefineClass(TypeName name)
+        public ClassBuilder DefineClass(QualityTypeName name)
         {
             GetStringConstant(name.Name);
             GetStringConstant(name.Namespace);
@@ -33,7 +33,7 @@
             return key;
         }
         
-        public long GetTypeConstant(TypeName name)
+        public long GetTypeConstant(QualityTypeName name)
         {
             var i1 = GetStringConstant(name.Namespace);
             var i2 = GetStringConstant(name.Name);
@@ -52,8 +52,8 @@
             return b;
         }
         
-        public (int, long) GetMethodToken(WaveMethod method) => 
-            (this.GetStringConstant(method.Name), this.GetTypeConstant(method.Owner.FullName));
+        public (int, QualityTypeName) GetMethodToken(WaveMethod method) => 
+            (this.GetStringConstant(method.Name), method.Owner.FullName);
 
         public byte[] BakeByteArray()
         {

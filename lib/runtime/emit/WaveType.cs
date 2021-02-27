@@ -7,17 +7,17 @@
     
     internal sealed class WaveTypeImpl : WaveType
     {
-        public override TypeName FullName { get; }
+        public override QualityTypeName FullName { get; }
         
-        public WaveTypeImpl(TypeName typeName, WaveTypeCode code)
+        public WaveTypeImpl(QualityTypeName typeName, WaveTypeCode code)
         {
             this.FullName = typeName;
             this.TypeCode = code;
         }
-        public WaveTypeImpl(TypeName typeName, WaveTypeCode code, ClassFlags flags) 
+        public WaveTypeImpl(QualityTypeName typeName, WaveTypeCode code, ClassFlags flags) 
             : this(typeName, code) 
             => this.classFlags = flags;
-        public WaveTypeImpl(TypeName typeName, WaveTypeCode code, ClassFlags flags, WaveType parent) 
+        public WaveTypeImpl(QualityTypeName typeName, WaveTypeCode code, ClassFlags flags, WaveType parent) 
             : this(typeName, code, flags) =>
             this.Parent = parent;
 
@@ -43,7 +43,7 @@
         }
 
 
-        public abstract TypeName FullName { get; }
+        public abstract QualityTypeName FullName { get; }
 
         public virtual bool IsArray { get; protected set; } = false;
         public virtual bool IsSealed { get; protected set; } = false;
@@ -60,7 +60,7 @@
             new WaveTypeImpl(typeName, WaveTypeCode.TYPE_CLASS);
         
         
-        public static WaveType ByName(TypeName name) => 
+        public static WaveType ByName(QualityTypeName name) => 
             WaveCore.Types.All.FirstOrDefault(x => x.FullName == name);
         
         

@@ -7,7 +7,7 @@
     {
         public static WaveType GenerateConsole(WaveModuleBuilder module)
         {
-            var clazz = module.DefineClass("global::wave/lang/console");
+            var clazz = module.DefineClass("corlib%global::wave/lang/console");
 
             clazz.DefineMethod("println", Extern | Static | Public, 
                 TYPE_VOID.AsType(),

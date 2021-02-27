@@ -3,10 +3,10 @@
     using System.Collections;
     using System.Collections.Generic;
 
-    public class LocalsBuilder : IEnumerable<TypeName>
+    public class LocalsBuilder : IEnumerable<QualityTypeName>
     {
-        private readonly IList<TypeName> types = new List<TypeName>();
-        public void Push(TypeName type) 
+        private readonly IList<QualityTypeName> types = new List<QualityTypeName>();
+        public void Push(QualityTypeName type) 
             => types.Add(type);
 
         public void Push(WaveType type) 
@@ -17,7 +17,7 @@
 
         #region Implementation of IEnumerable
 
-        public IEnumerator<TypeName> GetEnumerator() 
+        public IEnumerator<QualityTypeName> GetEnumerator() 
             => types.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() 
@@ -40,7 +40,7 @@
                 l.Push(type);
             return l;
         }
-        public static implicit operator LocalsBuilder(TypeName[] arr)
+        public static implicit operator LocalsBuilder(QualityTypeName[] arr)
         {
             var l = new LocalsBuilder();
             foreach (var type in arr) 

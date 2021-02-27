@@ -38,19 +38,20 @@
 
             internal static void Init()
             {
-                ObjectType  = new WaveTypeImpl("global::wave/lang/Object"   , WaveTypeCode.TYPE_OBJECT);
-                ValueType   = new WaveTypeImpl("global::wave/lang/ValueType", WaveTypeCode.TYPE_CLASS);
-                VoidType    = new WaveTypeImpl("global::wave/lang/Void"     , WaveTypeCode.TYPE_VOID);
-                StringType  = new WaveTypeImpl("global::wave/lang/String"   , WaveTypeCode.TYPE_STRING);
-                Int16Type   = new WaveTypeImpl("global::wave/lang/Int16"    , WaveTypeCode.TYPE_I2);
-                Int32Type   = new WaveTypeImpl("global::wave/lang/Int32"    , WaveTypeCode.TYPE_I4);
-                Int64Type   = new WaveTypeImpl("global::wave/lang/Int64"    , WaveTypeCode.TYPE_I8);
-                FloatType   = new WaveTypeImpl("global::wave/lang/Float"    , WaveTypeCode.TYPE_R4);
-                DoubleType  = new WaveTypeImpl("global::wave/lang/Double"   , WaveTypeCode.TYPE_R8);
-                DecimalType = new WaveTypeImpl("global::wave/lang/Decimal"  , WaveTypeCode.TYPE_R16);
-                CharType    = new WaveTypeImpl("global::wave/lang/Char"     , WaveTypeCode.TYPE_CHAR);
-                BoolType    = new WaveTypeImpl("global::wave/lang/Boolean"  , WaveTypeCode.TYPE_BOOLEAN);
-                ArrayType   = new WaveTypeImpl("global::wave/lang/Array"    , WaveTypeCode.TYPE_ARRAY);
+                var asmName = "corlib%";
+                ObjectType  = new WaveTypeImpl($"{asmName}global::wave/lang/Object"   , WaveTypeCode.TYPE_OBJECT);
+                ValueType   = new WaveTypeImpl($"{asmName}global::wave/lang/ValueType", WaveTypeCode.TYPE_CLASS);
+                VoidType    = new WaveTypeImpl($"{asmName}global::wave/lang/Void"     , WaveTypeCode.TYPE_VOID);
+                StringType  = new WaveTypeImpl($"{asmName}global::wave/lang/String"   , WaveTypeCode.TYPE_STRING);
+                Int16Type   = new WaveTypeImpl($"{asmName}global::wave/lang/Int16"    , WaveTypeCode.TYPE_I2);
+                Int32Type   = new WaveTypeImpl($"{asmName}global::wave/lang/Int32"    , WaveTypeCode.TYPE_I4);
+                Int64Type   = new WaveTypeImpl($"{asmName}global::wave/lang/Int64"    , WaveTypeCode.TYPE_I8);
+                FloatType   = new WaveTypeImpl($"{asmName}global::wave/lang/Float"    , WaveTypeCode.TYPE_R4);
+                DoubleType  = new WaveTypeImpl($"{asmName}global::wave/lang/Double"   , WaveTypeCode.TYPE_R8);
+                DecimalType = new WaveTypeImpl($"{asmName}global::wave/lang/Decimal"  , WaveTypeCode.TYPE_R16);
+                CharType    = new WaveTypeImpl($"{asmName}global::wave/lang/Char"     , WaveTypeCode.TYPE_CHAR);
+                BoolType    = new WaveTypeImpl($"{asmName}global::wave/lang/Boolean"  , WaveTypeCode.TYPE_BOOLEAN);
+                ArrayType   = new WaveTypeImpl($"{asmName}global::wave/lang/Array"    , WaveTypeCode.TYPE_ARRAY);
             }
         }
         public static WaveClass ObjectClass;

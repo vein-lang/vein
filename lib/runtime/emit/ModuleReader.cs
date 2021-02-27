@@ -8,6 +8,7 @@
     using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
+    using extensions;
     using wave;
     
     public static class BinaryExtension
@@ -64,14 +65,13 @@
            
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
-            var idx = binary.ReadInt32();
-            var nsidx = binary.ReadInt32();
+            var className = binary.ReadTypeName(module);
             var flags = (ClassFlags)binary.ReadByte();
-            var parentIdx = binary.ReadInt64();
+            var parentIdx = binary.ReadTypeName(module);
             var len = binary.ReadInt32();
 
-            var parent = module.FindType(TypeName.Construct(parentIdx, module), true);
-            var @class = new WaveClass(TypeName.Construct(idx, nsidx, module), parent.AsClass())
+            var parent = module.FindType(parentIdx, true);
+            var @class = new WaveClass(className, parent.AsClass())
             {
                 Flags = flags
             };
@@ -93,7 +93,7 @@
             foreach (var _ in ..binary.ReadInt32())
             {
                 var name = FieldName.Construct(binary.ReadInt64(), module);
-                var type_name = TypeName.Construct(binary.ReadInt64(), module);
+                var type_name = binary.ReadTypeName(module);
                 var type = module.FindType(type_name, true);
                 var flags = (FieldFlags) binary.ReadByte();
                 var litValue = binary.ReadLiteralValue(type.TypeCode);
@@ -106,27 +106,16 @@
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
-            /*
-             *  binary.Write(idx); // $method name
-            binary.Write((byte)Flags); // $flags
-            binary.Write(body.Length); // body size
-            binary.Write((byte)64); // stack size TODO
-            binary.Write((byte)24); // locals size TODO
-            binary.Write(classBuilder.moduleBuilder.GetTypeConstant(ReturnType.FullName));
-            WriteArguments(binary);
-            binary.Write(body); // IL Body
-
-             */
             var idx = binary.ReadInt32();
             var flags = (MethodFlags)binary.ReadByte();
             var bodysize = binary.ReadInt32();
             var stacksize = binary.ReadByte();
             var locals = binary.ReadByte();
-            var retTypeIdx = binary.ReadInt64();
+            var retType = binary.ReadTypeName(module);
             var args = ReadArguments(binary, module);
             var _ = binary.ReadBytes(bodysize);
             return new WaveMethod(module.GetConstByIndex(idx), flags,
-                module.FindType(TypeName.Construct(retTypeIdx, module), true), 
+                module.FindType(retType, true), 
                 @class, args.ToArray());
         }
 
@@ -138,11 +127,11 @@
             foreach (var _ in ..binary.ReadInt32())
             {
                 var nIdx = binary.ReadInt32();
-                var tIdx = binary.ReadInt64();
+                var type = binary.ReadTypeName(module);
                 args.Add(new WaveArgumentRef()
                 {
                     Name = module.GetConstByIndex(nIdx),
-                    Type = module.FindType(TypeName.Construct(tIdx, module), true)
+                    Type = module.FindType(type, true)
                 });
             }
             return args;

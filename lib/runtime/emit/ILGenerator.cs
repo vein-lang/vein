@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
+    using extensions;
     using runtime.emit;
     using static OpCodeValue;
 
@@ -13,7 +14,7 @@
     {
         private byte[] _ilBody;
         private int _position;
-        private readonly MethodBuilder _methodBuilder;
+        internal readonly MethodBuilder _methodBuilder;
         private readonly StringBuilder _debugBuilder = new ();
         
         public virtual int ILOffset => _position;
@@ -165,19 +166,28 @@
             _debugBuilder.AppendLine($".{opcode.Name} :{label.Value:X8}");
         }
         
+        
+        public virtual void Emit(OpCode opcode, QualityTypeName type)
+        {
+            this.EnsureCapacity<OpCode>(sizeof(int)*3);
+            this.InternalEmit(opcode);
+            this.PutTypeName(type);
+            _debugBuilder.AppendLine($".{opcode.Name} [{type}]");
+        }
+        
         public virtual void Emit(OpCode opcode, LocalsBuilder locals)
         {
             if (opcode.Value != (int) LOC_INIT)
                 throw new Exception("invalid opcode");
             var size = locals.Count();
             
-            this.EnsureCapacity<OpCode>(sizeof(int) + ((sizeof(long)+sizeof(ushort)) * size));
+            this.EnsureCapacity<OpCode>(sizeof(int) + (((sizeof(int) * 3)+sizeof(ushort)) * size));
             this.InternalEmit(opcode);
             this.PutInteger4(size);
             foreach(var t in locals)
             {
                 this.InternalEmit(OpCodes.LOC_INIT_X);
-                this.PutInteger8(_methodBuilder.moduleBuilder.GetTypeConstant(t));
+                this.PutTypeName(t);
             }
             
             var str = new StringBuilder();
@@ -193,7 +203,7 @@
             if (method is null)
                 throw new ArgumentNullException(nameof (method));
             var (tokenIdx, ownerIdx) = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
-            this.EnsureCapacity<OpCode>(sizeof(byte) + sizeof(int) + sizeof(long));
+            this.EnsureCapacity<OpCode>(sizeof(byte) + sizeof(int) + (sizeof(int) * 3));
             this.InternalEmit(opcode);
             
             if (method.Owner.FullName == this._methodBuilder.Owner.FullName)
@@ -204,7 +214,7 @@
                 this.PutByte((byte)CallContext.OUTER_CALL);
             
             this.PutInteger4(tokenIdx);
-            this.PutInteger8(ownerIdx);
+            this.PutTypeName(ownerIdx);
             _debugBuilder.AppendLine($".{opcode.Name} {method}");
         }
         
