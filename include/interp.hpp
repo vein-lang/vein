@@ -5,7 +5,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* module_, unsi
 
 
 
-#define DEBUG_IL
+//#define DEBUG_IL
 
 #ifdef DEBUG_IL
 #define SWITCH(x) d_print("@"); d_print(opcodes[x]); d_print("\n"); switch (x)
@@ -99,4 +99,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* module_, unsi
 #define W_JUMP_AFTER(F,S,O) do { W_JUMP_DEBUG(F, S, O); if (F S O) W_JUMP_NOW(); else ip++; } while(0)
 #define W_JUMP(v_type, variable, op) if (first.type == v_type) { \
     W_JUMP_AFTER(first.data.variable, op, second.data.variable); } \
+    else
+#define S_JUMP(v_type, variable, op) if (first.type == v_type) { \
+    W_JUMP_AFTER(first.data.variable, op, 0); } \
     else
