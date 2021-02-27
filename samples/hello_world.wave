@@ -36,33 +36,24 @@ public class Program
         gc auto;
     };
 
-    operation Main(args: array<string>) -> void
+    operation Main(args: array<string>) -> bool
     {
         body
         {
             auto v = new Complex(12.4, .2);
             Terminal.Println("Hello World");
 
-            //if (v is { Real > 10.0 })
-                fail $"bla bla {asd} xuy"
+            if (v is { Real > 10.0 })
+                fail $"is not valid :(";
 
-            auto govno = obj 
-                |> get
-                |> xuy
-                |> govno;
-
-            try
-            {
-
-            }
-            catch(e: ErrorType) when (e.Inner is not null)
-            {
-                
-            }
+            return obj 
+                |> pool
+                |> prefabs
+                |> destroy();
         }
         gc auto;
     };
-    operation factorial[i: int] -> int
+    operation factorial<T>[i: int32] -> int32
     {
         body
         {
@@ -70,7 +61,7 @@ public class Program
         };
         gc nocontrol;
     };
-    operation mul<T>[predicate: (~T) -> bool] -> T
+    operation foo<T>[predicate: bool, sad: s] -> void where T is struct, IOperable
     {
         body 
         {
@@ -123,10 +114,8 @@ public class Foo
     }
 };
 
-public struct Vector<~T> where T is struct, IOperable
+public struct Vector<T> where T is struct, IOperable
 {
-    public T x;
-    public T y;
-    public T z;
+    public { x, y, z } as T;
 };
 

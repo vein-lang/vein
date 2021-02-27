@@ -4,7 +4,7 @@ namespace s
     {
         public void method()
         {
-            
+            var a = 1 + 1;
         }
     }
 }
