@@ -366,12 +366,29 @@ repository:
             - include: "#type-arguments"
             - include: "#type-array-suffix"
     operation-declaration:
-        begin: \b(operation)\s+(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)
+        begin: \b(operation)\s+(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)(?<template_key><(\S)>)?(\[.+?\])\s?+(->)\s?+(\S+)(\s?+(where)\s?+(\S+)\s?+(is)\s?+(struct|class))?
         beginCaptures:
             "1":
                 name: keyword.control.wave
             "2":
                 name: entity.name.function.wave
+            "4":
+                name: constant.numeric.generic.wave
+            "5":
+                patterns:
+                    - include: "#operation-argument-list"
+            "6":
+                name: keyword.operator.wave
+            "7":
+                name: entity.name.type
+            "9":
+                name: keyword.type
+            "10":
+                name: constant.numeric.generic.wave
+            "11":
+                name: keyword.type
+            "12":
+                name: keyword.type
         end: '(?<=\})'
         patterns:
             - include: "#comment"
@@ -428,16 +445,20 @@ repository:
         patterns:
             - include: "#argument"
             - include: "#punctuation-comma"
-    declaration-expression-local:
-        match: "(?x) (?: \b(auto)\b| (?<type_name> (?: (?: (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?<name_and_type_args> \g<identifier>\s* (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)? ) (?:\s*\.\s*\g<name_and_type_args>)* | (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)) ) (?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ) ) )\s+ (\g<identifier>)\b\s* (?=[,)\]])"
+    operation-argument-list:
+        match: "((?<variable_name>[a-zA-Z0-9]+)\s?+\:\s?+(?<type_name>[a-zA-Z0-9]+))(,?)+"
         captures:
-            "1":
-                name: keyword.other.var.wave
             "2":
-                patterns:
-                    - include: "#type"
-            "7":
                 name: entity.name.variable.local.wave
+            "3":
+                name: entity.name.type
+    declaration-expression-local:
+        match: "((?<variable_name>[a-zA-Z0-9]+)\s?+\:\s?+(?<type_name>[a-zA-Z0-9]+))(,?)+"
+        captures:
+            "2":
+                name: entity.name.variable.local.wave
+            "3":
+                name: entity.name.type
     argument:
         patterns:
             - name: storage.modifier.wave

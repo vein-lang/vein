@@ -1167,7 +1167,7 @@ U[a-fA-F0-9]{,8} )</string>
       <key>operation-declaration</key>
       <dict>
         <key>begin</key>
-        <string>\b(operation)\s+(?&lt;identifier&gt;@?[_[:alpha:]][_[:alnum:]]*)</string>
+        <string>\b(operation)\s+(?&lt;identifier&gt;@?[_[:alpha:]][_[:alnum:]]*)(?&lt;template_key&gt;&lt;(\S)&gt;)?(\[.+?\])\s?+(-&gt;)\s?+(\S+)(\s?+(where)\s?+(\S+)\s?+(is)\s?+(struct|class))?</string>
         <key>beginCaptures</key>
         <dict>
           <key>1</key>
@@ -1179,6 +1179,51 @@ U[a-fA-F0-9]{,8} )</string>
           <dict>
             <key>name</key>
             <string>entity.name.function.wave</string>
+          </dict>
+          <key>4</key>
+          <dict>
+            <key>name</key>
+            <string>constant.numeric.generic.wave</string>
+          </dict>
+          <key>5</key>
+          <dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#operation-argument-list</string>
+              </dict>
+            </array>
+          </dict>
+          <key>6</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.operator.wave</string>
+          </dict>
+          <key>7</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.type</string>
+          </dict>
+          <key>9</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.type</string>
+          </dict>
+          <key>10</key>
+          <dict>
+            <key>name</key>
+            <string>constant.numeric.generic.wave</string>
+          </dict>
+          <key>11</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.type</string>
+          </dict>
+          <key>12</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.type</string>
           </dict>
         </dict>
         <key>end</key>
@@ -1359,31 +1404,39 @@ U[a-fA-F0-9]{,8} )</string>
           </dict>
         </array>
       </dict>
-      <key>declaration-expression-local</key>
+      <key>operation-argument-list</key>
       <dict>
         <key>match</key>
-        <string>(?x) (?: (auto)| (?&lt;type_name&gt; (?: (?: (?:(?&lt;identifier&gt;@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?&lt;name_and_type_args&gt; \g&lt;identifier&gt;\s* (?&lt;type_args&gt;\s*&lt;(?:[^&lt;&gt;]|\g&lt;type_args&gt;)+&gt;\s*)? ) (?:\s*\.\s*\g&lt;name_and_type_args&gt;)* | (?&lt;tuple&gt;\s*\((?:[^\(\)]|\g&lt;tuple&gt;)+\)) ) (?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ) ) )\s+ (\g&lt;identifier&gt;)\s* (?=[,)\]])</string>
+        <string>((?&lt;variable_name&gt;[a-zA-Z0-9]+)\s?+\:\s?+(?&lt;type_name&gt;[a-zA-Z0-9]+))(,?)+</string>
         <key>captures</key>
         <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>keyword.other.var.wave</string>
-          </dict>
           <key>2</key>
-          <dict>
-            <key>patterns</key>
-            <array>
-              <dict>
-                <key>include</key>
-                <string>#type</string>
-              </dict>
-            </array>
-          </dict>
-          <key>7</key>
           <dict>
             <key>name</key>
             <string>entity.name.variable.local.wave</string>
+          </dict>
+          <key>3</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.type</string>
+          </dict>
+        </dict>
+      </dict>
+      <key>declaration-expression-local</key>
+      <dict>
+        <key>match</key>
+        <string>((?&lt;variable_name&gt;[a-zA-Z0-9]+)\s?+\:\s?+(?&lt;type_name&gt;[a-zA-Z0-9]+))(,?)+</string>
+        <key>captures</key>
+        <dict>
+          <key>2</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.variable.local.wave</string>
+          </dict>
+          <key>3</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.type</string>
           </dict>
         </dict>
       </dict>
