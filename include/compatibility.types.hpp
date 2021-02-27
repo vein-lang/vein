@@ -6,10 +6,14 @@
 #if defined(ARDUINO)
 #define AVR_PLATFORM
 #endif
+
+#if defined(WIN32)
 #include <codecvt>
 #include <functional>
 #include <locale>
-
+#elif defined(__linux__)
+#include <functional>
+#endif
 
 #if defined(AVR_PLATFORM)
 #include "Arduino.hpp"
@@ -30,7 +34,7 @@ typedef void* wpointer;
 typedef unsigned char uchar_t;
 typedef unsigned char byte;
 
-static inline wpointer malloc0(const uintptr_t x)
+static inline wpointer malloc0(const size_t x)
 {
     if (x)
         return calloc(1, x);
@@ -76,6 +80,10 @@ static inline wpointer malloc0(const uintptr_t x)
 #define init_serial()
 #endif
 
+
+#if defined(__GNUC__)
+#define _NODISCARD [[nodiscard]]
+#endif
 
 static std::wstring BytesToUTF8(const char* in, size_t size)
 {
