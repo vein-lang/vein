@@ -124,13 +124,13 @@
             
         }
 
-        public static void EmitThrow(this ILGenerator generator, TypeName type)
+        public static void EmitThrow(this ILGenerator generator, QualityTypeName type)
         {
-            generator.Emit(OpCodes.NEWOBJ, type.Token.Value);
+            generator.Emit(OpCodes.NEWOBJ, type);
             generator.EmitCall(OpCodes.CALL, GetDefaultCtor(type));
             generator.Emit(OpCodes.THROW);
         }
-        public static WaveMethod GetDefaultCtor(TypeName t) => throw new NotImplementedException();
+        public static WaveMethod GetDefaultCtor(QualityTypeName t) => throw new NotImplementedException();
         public static void EmitIfElse(this ILGenerator generator, IfStatementSyntax ifStatement)
         {
             var elseLabel = generator.DefineLabel();
