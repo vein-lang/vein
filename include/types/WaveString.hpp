@@ -2,6 +2,17 @@
 #include "compatibility.types.hpp"
 #include "eq.hpp"
 #include "hash.hpp"
+
+inline char* __strdup(const char *str) noexcept
+{
+    const auto len = strlen(str);
+    auto *x = static_cast<char*>(malloc(len + 1));
+    if(!x) return nullptr;
+    memcpy(x,str,len+1);
+    return x;
+}
+
+
 struct WaveString {
 	uint32_t length;
 	char* chars;
@@ -9,7 +20,7 @@ struct WaveString {
     WaveString(const char* str)
     {
         this->length = strlen(str);
-        this->chars = _strdup(str);
+        this->chars = __strdup(str);
     }
 };
 
