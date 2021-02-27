@@ -28,7 +28,6 @@ struct WaveModule
             return strings->at(index);
         throw AggregateException(fmt::format(L"Index '{0}' not found in module '{1}'.", index, name));
     }
-    [[nodiscard]]
     int32_t GetStringConstant(const wstring& str) const noexcept(false)
     {
         if (str.empty())
@@ -43,16 +42,13 @@ struct WaveModule
                 L"https://github.com/0xF6/wave_lang/issues"));
         return key;
     }
-    int64_t GetTypeConstant(TypeName* name) const noexcept(false)
+    void StageTypeConstant(TypeName* name) const noexcept(false)
     {
-        const auto i1 = GetStringConstant(name->get_namespace());
-        const auto i2 = GetStringConstant(name->get_name());
-        int64_t b = i2;
-        b <<= 32;
-        b |= static_cast<uint32_t>(i1);
-        return b;
+        GetStringConstant(name->get_assembly_name());
+        GetStringConstant(name->get_namespace());
+        GetStringConstant(name->get_name());
     }
-    int64_t GetTypeConstant(FieldName* name) const noexcept(false)
+    int64_t GetFieldConstant(FieldName* name) const noexcept(false)
     {
         const auto i1 = GetStringConstant(name->GetClass());
         const auto i2 = GetStringConstant(name->get_name());
@@ -110,19 +106,27 @@ struct WaveModule
         }
         throw TypeNotFoundException(fmt::format(L"'{0}' not found in modules and dependency assemblies.", type->FullName));
     }
-
-    WaveMethod* GetMethod(const int tokenIdx, const int64_t ownerIdx)
+    WaveMethod* GetMethod(const int tokenIdx, const tuple<int, int, int> owner)
+    {
+        return GetMethod(tokenIdx, std::get<0>(owner), std::get<1>(owner), std::get<2>(owner));
+    }
+    WaveMethod* GetMethod(const int tokenIdx, const int asmIdx, const int nameIdx, const int nsIdx)
     {
         function<wstring(int z)> get_const_string = [this](const int w) {
             return this->GetConstByIndex(w);
         };
 
-        auto* clazzType = TypeName::construct(ownerIdx, &get_const_string);
+        auto* clazzType = TypeName::construct(asmIdx, nameIdx, nsIdx, &get_const_string);
+        
+        return GetMethod(tokenIdx, clazzType);
+    }
+    [[nodiscard]]
+    WaveMethod* GetMethod(const int tokenIdx, TypeName* clazzType) const noexcept(false)
+    {
         auto* clazz = FindClass(clazzType, true);
-
         return clazz->FindMethod(this->GetConstByIndex(tokenIdx));
     }
-
+    [[nodiscard]]
     WaveMethod* GetEntryPoint() const
     {
         for(auto* c : *classList)
