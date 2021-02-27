@@ -13,6 +13,16 @@ enum class CALL_CONTEXT : unsigned char
     OUTER_CALL
 };
 
+WaveObject* GetWaveException(TypeName* name, WaveModule* mod)
+{
+    auto clazz = mod->FindClass(name);
+    auto obj = new WaveObject();
+
+    obj->type = TYPE_CLASS;
+    obj->clazz = clazz;
+
+    return obj;
+}
 void setup(int argc, char* argv[]) {
     init_serial();
     init_default();
@@ -67,16 +77,6 @@ void setup(int argc, char* argv[]) {
 
 void loop() {
 }
-
-
-
-
-
-WaveMethod* get_wave_method(uint32_t idx, WaveImage* targetImage)
-{
-    return nullptr;
-}
-
 void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsigned int* level)
 {
     #ifdef DEBUG_IL
@@ -220,13 +220,11 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
 
                 if (callctx == CALL_CONTEXT::SELF_CALL)
                 {
+
                     ++ip;
                     const auto tokenIdx = READ32(ip);
-                    ip++;
-                    const auto ownerIdx = READ64(ip);
-                    ip+=2;
-
-                    auto* method = _module->GetMethod(tokenIdx, ownerIdx);
+                    auto owner = readTypeName(&ip, &get_const_string);
+                    auto* method = _module->GetMethod(tokenIdx, owner);
                     #ifdef DEBUG_IL
                     printf("%%call %ws self function.\n", method->Name.c_str());
                     #endif
@@ -327,9 +325,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                     ++ip;
                     for (auto i = 0u; i != locals_size; i++)
                     {
-                        ++ip; // skip opcode LOC_INIT_X
-                        const auto type_idx = READ64(ip);
-                        auto* type_name = TypeName::construct(type_idx, &get_const_string);
+                        auto* type_name = readTypeName(&ip, &get_const_string);
                         auto* type = _module->FindType(type_name, true);
                         if (type->IsPrimitive())
                         {
@@ -351,7 +347,6 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                             locals[i].type = VAL_OBJ;
                             locals[i].data.p = 0;
                         }
-                        ip += 2; // after READ64
                     }
                 }
                 break;
@@ -396,20 +391,29 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                     ++ip;
                     --sp;
                     const auto first = *sp;
-                    if (first.type == VAL_I32)
-                    {
-                        if (first.data.i != 0)
-                            ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
-                        else
-                            ip++;
-                    }
-                    if (first.type == VAL_I64)
-                    {
-                        if (first.data.i != 0)
-                            ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
-                        else
-                            ip++;
-                    }
+
+                    #undef OPERATOR
+                    #define OPERATOR !=
+                    S_JUMP(VAL_I8, b, OPERATOR)
+                    S_JUMP(VAL_I16, s, OPERATOR)
+                    S_JUMP(VAL_I32, i, OPERATOR)
+                    S_JUMP(VAL_I64, l, OPERATOR)
+
+                    S_JUMP(VAL_U8, ub, OPERATOR)
+                    S_JUMP(VAL_U16, us, OPERATOR)
+                    S_JUMP(VAL_U32, ui, OPERATOR)
+                    S_JUMP(VAL_U64, ul, OPERATOR)
+
+                    S_JUMP(VAL_FLOAT, f_r4, OPERATOR)
+                    S_JUMP(VAL_DOUBLE, f, OPERATOR)
+
+                    if (first.type == VAL_DECIMAL)
+                        W_JUMP_AFTER(*first.data.d, OPERATOR, 0.0f);
+                    else if (first.type == VAL_HALF)
+                        W_JUMP_AFTER(*first.data.hf, OPERATOR, static_cast<half>(0.0f));
+                    else if (first.type == VAL_OBJ)
+                        W_JUMP_AFTER(first.data.p, OPERATOR, 0);
+                    #undef OPERATOR
                 }
             break;
             case JMP_NN:
@@ -448,10 +452,8 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                 }
             break;
             case JMP:
-                {
-                    ++ip;
-                    ip = start + (mh->labels_map->at(mh->labels->at(*ip))).pos;
-                }
+                ++ip;
+                W_JUMP_NOW();
                 break;
             case JMP_LQ:
                 {
@@ -521,6 +523,11 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                         throw "not implemented exception";
                 }
             break;
+            case THROW:
+                --sp;
+                //if (!sp->data.p)
+				//    sp->data.p = m;
+                break;
             default:
                 {
                     d_print("Unimplemented opcode: ");
