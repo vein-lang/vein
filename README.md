@@ -1,7 +1,7 @@
 <!-- Logo -->
 <p align="center">
   <a href="#">
-    <img height="128" width="128" src="https://raw.githubusercontent.com/0xF6/wave_lang/master/ide_ext/vscode/images/icon.png">
+    <img src="https://raw.githubusercontent.com/0xF6/wave_lang/master/splash.png">
   </a>
 </p>
 
