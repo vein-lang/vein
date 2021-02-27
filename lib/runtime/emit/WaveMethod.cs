@@ -49,6 +49,7 @@
         public bool IsExtern => Flags.HasFlag(MethodFlags.Extern);
         
         public sealed override string Name { get; protected set; }
+        public string RawName => Name.Split('(').First();
         
         public List<WaveArgumentRef> Arguments { get; } = new();
 
