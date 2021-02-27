@@ -7,7 +7,7 @@
 
 inline void processStrings(WaveType* type, WaveModule* m)
 {
-    m->GetTypeConstant(type->get_full_name());
+    m->StageTypeConstant(type->get_full_name());
     for(auto* a : *type->Members)
     {
         switch (a->GetKind())
@@ -15,20 +15,20 @@ inline void processStrings(WaveType* type, WaveModule* m)
             case WaveMemberKind::Field:
             {
                 auto* f = dynamic_cast<WaveField*>(a);
-                m->GetTypeConstant(f->FullName);
-                m->GetTypeConstant(f->Type->get_full_name());
+                m->GetFieldConstant(f->FullName);
+                m->StageTypeConstant(f->Type->get_full_name());
             }
             break;
             case WaveMemberKind::Method:
             {
                 auto* f = dynamic_cast<WaveMethod*>(a);
                 m->GetStringConstant(f->Name);
-                m->GetTypeConstant(f->ReturnType->get_full_name());
-                m->GetTypeConstant(f->Owner->FullName);
+                m->StageTypeConstant(f->ReturnType->get_full_name());
+                m->StageTypeConstant(f->Owner->FullName);
                 for(auto* arg : *f->Arguments)
                 {
                     m->GetStringConstant(arg->Name);
-                    m->GetTypeConstant(arg->Type->get_full_name());
+                    m->StageTypeConstant(arg->Type->get_full_name());
                 }
             }
             break;
@@ -41,24 +41,23 @@ inline void processStrings(WaveType* type, WaveModule* m)
 
 inline void processStrings(WaveClass* type, WaveModule* m)
 {
-    m->GetTypeConstant(type->FullName);
+    m->StageTypeConstant(type->FullName);
     for(auto* a : *type->Fields)
     {
-        m->GetTypeConstant(a->FullName);
-        m->GetTypeConstant(a->Type->get_full_name());
+        m->GetFieldConstant(a->FullName);
+        m->StageTypeConstant(a->Type->get_full_name());
     }
     for(auto* a : *type->Methods)
     {
         m->GetStringConstant(a->Name);
-        m->GetTypeConstant(a->ReturnType->get_full_name());
+        m->StageTypeConstant(a->ReturnType->get_full_name());
         for(auto* arg : *a->Arguments)
         {
             m->GetStringConstant(arg->Name);
-            m->GetTypeConstant(arg->Type->get_full_name());
+            m->StageTypeConstant(arg->Type->get_full_name());
         }
     }
 }
-
 
 map<wstring, WaveClass*> classes_ref;
 #define CREATE_REF(T) {wave_core->T->FullName->FullName, wave_core->T}
@@ -68,25 +67,27 @@ inline void init_default()
 {
     auto* const corlib = new WaveModule(L"corlib");
     
-    wave_core->object_class = new WaveClass(new TypeName(L"global::wave/lang/Object"), nullptr);
+    wave_core->object_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/Object"), nullptr);
     wave_core->object_class->TypeCode = TYPE_OBJECT;
 
-    wave_core->value_class = new WaveClass(new TypeName(L"global::wave/lang/ValueType"), wave_core->value_class);
+    wave_core->value_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/ValueType"), wave_core->value_class);
     
-    wave_core->void_class = new WaveClass(new TypeName(L"global::wave/lang/Void"), wave_core->object_class);
+    wave_core->void_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/Void"), wave_core->object_class);
     wave_core->void_class->TypeCode = TYPE_VOID;
     
-    wave_core->string_class = new WaveClass(new TypeName(L"global::wave/lang/String"), wave_core->object_class);
+    wave_core->string_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/String"), wave_core->object_class);
     wave_core->string_class->TypeCode = TYPE_STRING;
     
-    wave_core->console_class = new WaveClass(new TypeName(L"global::wave/lang/Console"), wave_core->object_class);
-    wave_core->native_class = new WaveClass(new TypeName(L"global::wave/lang/Native"), wave_core->object_class);
+    wave_core->console_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/Console"), wave_core->object_class);
+    wave_core->native_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/Native"), wave_core->object_class);
     
-    wave_core->i4_class = new WaveClass(new TypeName(L"global::wave/lang/Int32"), wave_core->value_class);
+    wave_core->i4_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/Int32"), wave_core->value_class);
     wave_core->i4_class->TypeCode = TYPE_I4;
 
-    wave_core->i8_class = new WaveClass(new TypeName(L"global::wave/lang/Int64"), wave_core->value_class);
+    wave_core->i8_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/Int64"), wave_core->value_class);
     wave_core->i8_class->TypeCode = TYPE_I8;
+
+    wave_core->exception_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/Exception"), wave_core->object_class);
 
 
     corlib->classList->push_back(wave_core->object_class);
@@ -97,6 +98,7 @@ inline void init_default()
     corlib->classList->push_back(wave_core->console_class);
     corlib->classList->push_back(wave_core->i4_class);
     corlib->classList->push_back(wave_core->i8_class);
+    corlib->classList->push_back(wave_core->exception_class);
 
     classes_ref = {
         CREATE_REF(object_class),
@@ -107,6 +109,7 @@ inline void init_default()
         CREATE_REF(console_class),
         CREATE_REF(i4_class),
         CREATE_REF(i8_class),
+        CREATE_REF(exception_class),
     };
     wave_core->corlib = corlib;
 }
@@ -129,6 +132,7 @@ inline void init_types() // TODO resolve members problem with AsClass casting th
     wave_core->native_type = AsType(wave_core->native_class);
     wave_core->i4_type = AsType(wave_core->i4_class);
     wave_core->i8_type = AsType(wave_core->i8_class);
+    wave_core->exception_type = AsType(wave_core->exception_class);
 }
 // ORDER 3
 inline void init_tables()
