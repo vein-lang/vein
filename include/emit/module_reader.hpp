@@ -106,14 +106,23 @@ auto decodeIL(BinaryReader* reader, int* offset) noexcept(false)
                 result->push_back(reader->Read4());
                 result->push_back(reader->Read4());
                 continue;
-            // CALL body
-            case sizeof(char) + sizeof(int32_t) + sizeof(int64_t):
-                result->push_back(reader->ReadByte());
-                result->push_back(reader->Read4());
-                result->push_back(reader->Read4());
-                result->push_back(reader->Read4());
-                continue;
             default:
+                switch (opcode)
+                {
+                    case CALL:
+                        result->push_back(reader->ReadByte());
+                        result->push_back(reader->Read4());
+                        result->push_back(reader->Read4());
+                        result->push_back(reader->Read4());
+                        result->push_back(reader->Read4());
+                    continue;
+                    case LOC_INIT_X:
+                        result->push_back(reader->Read4());
+                        result->push_back(reader->Read4());
+                        result->push_back(reader->Read4());
+                    continue;
+                }
+                
                 throw CorruptILException(fmt::format(L"OpCode '{0}' has invalid size [{1}].\n{2}", opcode, size,
                         L"Check 'opcodes.def' and re-run 'gen.csx' for fix this error."));
         }
@@ -139,9 +148,8 @@ auto* readArguments(BinaryReader* reader, WaveModule* m) noexcept
     for (auto i = 0; i != size; i++)
     {
         const auto nIdx = reader->Read4();
-        const auto tIdx = reader->Read8();
+        auto* tName = reader->ReadTypeName(wn);
         auto* result = new WaveArgumentRef();
-        auto* tName = TypeName::construct(tIdx, &wn);
 
         result->Type = m->FindType(tName, true);
         result->Name = m->GetConstByIndex(nIdx);
@@ -162,10 +170,9 @@ WaveMethod* readMethod(BinaryReader* reader, WaveClass* clazz, WaveModule* m) no
     const auto bodySize = reader->Read4();
     const auto stackSize = reader->ReadByte();
     const auto locals = reader->ReadByte();
-    const auto retTypeIdx = reader->Read8();
+    const auto retTypeName = reader->ReadTypeName(wn);
     auto* args = readArguments(reader, m);
     auto* body = reader->ReadBytes(bodySize);
-    auto* retTypeName = TypeName::construct(retTypeIdx, &wn);
 
     const auto name = m->GetConstByIndex(idx);
     auto* retType = m->FindType(retTypeName, true);
@@ -214,22 +221,17 @@ WaveMethod* readMethod(BinaryReader* reader, WaveClass* clazz, WaveModule* m) no
 [[nodiscard]]
 WaveClass* readClass(BinaryReader* reader, WaveModule* m) noexcept(false)
 {
-    const auto idx = reader->Read4();
-    const auto nsidx = reader->Read4();
-    const auto flags = static_cast<ClassFlags>(reader->ReadByte());
-
-    const auto parentIdx = reader->Read8();
-    const auto len = reader->Read4();
-
-    printf("\t\t\tidx: %d, ns_idx: %d\n", idx, nsidx);
-
     function<wstring(int z)> wn = [m](const int w) {
         return m->GetConstByIndex(w);
     };
 
-    auto* const typeName = TypeName::construct(parentIdx, &wn);
-    auto* const parent = m->FindType(typeName, true);
-    auto* className = TypeName::construct(nsidx, idx, &wn);
+    auto* const className = reader->ReadTypeName(wn);
+    const auto flags = static_cast<ClassFlags>(reader->ReadByte());
+
+    auto* const parentName = reader->ReadTypeName(wn);
+    const auto len = reader->Read4();
+        
+    auto* const parent = m->FindType(parentName, true);
     auto* clazz = new WaveClass(className, AsClass(parent));
     clazz->Flags = flags;
     printf("\t\t\tclass name: '%ws'\n", className->FullName.c_str());
@@ -251,8 +253,7 @@ WaveClass* readClass(BinaryReader* reader, WaveModule* m) noexcept(false)
     {
         const auto fnameIdx = reader->Read8();
         auto* fname = FieldName::construct(fnameIdx, &wn);
-        const auto tnameIdx = reader->Read8();
-        auto* tname = TypeName::construct(tnameIdx, &wn);
+        const auto tname = reader->ReadTypeName(wn);
         auto* const return_type = m->FindType(tname, true);
         const auto fflags  = static_cast<FieldFlags>(reader->ReadByte());
         //auto litVal = reader->ReadBytes(0);
