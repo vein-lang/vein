@@ -28,7 +28,7 @@
         public void Test()
         {
             var module = new WaveModuleBuilder("xuy");
-            var clazz = module.DefineClass("global::wave/lang/svack_pidars");
+            var clazz = module.DefineClass("xuy%global::wave/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
@@ -54,14 +54,14 @@
             gen.Emit(OpCodes.SUB);
             
             
-            File.WriteAllText(@"C:\Users\ls-mi\Desktop\wave.il", 
-                module.BakeDebugString());
+            //File.WriteAllText(@"C:\Users\ls-mi\Desktop\wave.il", 
+            //    module.BakeDebugString());
             
             var asm = new InsomniaAssembly{Name = "woodo"};
             
             asm.AddSegment((".code", method.BakeByteArray()));
             
-            InsomniaAssembly.WriteToFile(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+            //InsomniaAssembly.WriteToFile(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
 
         }
 
@@ -69,7 +69,7 @@
         public void TestIL()
         {
             var module = new WaveModuleBuilder("xuy");
-            var clazz = module.DefineClass("global::wave/lang/svack_pidars");
+            var clazz = module.DefineClass("xuy%global::wave/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
@@ -92,7 +92,7 @@
             
             asm.AddSegment((".code", body_module));
             
-            InsomniaAssembly.WriteToFile(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+            //InsomniaAssembly.WriteToFile(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
         }
         [Fact]
         public void AST2ILTest()
@@ -107,7 +107,7 @@
             {
                 if (member is ClassDeclarationSyntax classMember)
                 {
-                    var @class = module.DefineClass($"global::wave/lang/{classMember.Identifier}");
+                    var @class = module.DefineClass($"foo%global::wave/lang/{classMember.Identifier}");
 
                     foreach (var methodMember in classMember.Methods)
                     {
@@ -194,7 +194,7 @@
         public static ILGenerator CreateGenerator(params WaveArgumentRef[] args)
         {
             var module = new WaveModuleBuilder(Guid.NewGuid().ToString());
-            var @class = new ClassBuilder(module, "foo/bar");
+            var @class = new ClassBuilder(module, $"{module.Name}%global::foo/bar");
             var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsType(), args);
             return method.GetGenerator();
         }
@@ -235,16 +235,16 @@ puts after - before;*/
             var s = new Stopwatch();
             
             s.Start();
-            var a = f(int.MaxValue / 2);
+            //var a = f(int.MaxValue / 2);
             s.Stop();
-            _testOutputHelper.WriteLine($"{a}, {int.MaxValue / 2} {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
+            //_testOutputHelper.WriteLine($"{a}, {int.MaxValue / 2} {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
         }
         
         [Fact]
         public void ManualGen()
         {
             var module = new WaveModuleBuilder("satl");
-            var clazz = module.DefineClass("global::wave/lang/program");
+            var clazz = module.DefineClass("satl%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             
             

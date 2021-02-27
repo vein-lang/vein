@@ -50,7 +50,7 @@
             module.Deps.AddRange(GetDeps());
 
 
-            var @class = module.DefineClass("global::soo/baz");
+            var @class = module.DefineClass("foo%global::soo/baz");
 
 
             @class.Flags = ClassFlags.Public | ClassFlags.Static;
@@ -70,7 +70,7 @@
             return module;
         }
         
-        [Fact]
+        //[Fact]
         public void ReaderTest()
         {
             var deps = GetDeps();
@@ -85,7 +85,7 @@
             Assert.NotEmpty(result.classList);
             var @class = result.classList.First();
             Assert.Equal("baz", @class.Name);
-            Assert.Equal("global::soo/baz", @class.FullName.fullName);
+            Assert.Equal("foo%global::soo/baz", @class.FullName.fullName);
             Assert.NotEmpty(@class.Fields);
             Assert.NotEmpty(@class.Methods);
             var field = @class.Fields.First();

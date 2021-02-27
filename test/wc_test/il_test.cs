@@ -82,7 +82,7 @@
         public static ILGenerator CreateGenerator(params WaveArgumentRef[] args)
         {
             var module = new WaveModuleBuilder(Guid.NewGuid().ToString());
-            var @class = new ClassBuilder(module, "foo/bar");
+            var @class = new ClassBuilder(module, $"{module.Name}%global::foo/bar");
             var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsType(), args);
             return method.GetGenerator();
         }
