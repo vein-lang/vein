@@ -63,6 +63,15 @@ public:
         auto* const body = ReadBytes(size);
         return BytesToUTF8(body, size);
     }
+    [[nodiscard]]
+    TypeName* ReadTypeName(const function<wstring(int z)> getConst) const noexcept(false)
+    {
+        const auto asmIdx = getConst(Read4());
+        const auto nameIdx = getConst(Read4());
+        const auto nsIdx = getConst(Read4());
+
+        return new TypeName(asmIdx, nameIdx, nsIdx);
+    }
 
     [[nodiscard]]
     int Position() const noexcept
