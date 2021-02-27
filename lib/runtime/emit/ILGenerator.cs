@@ -17,6 +17,8 @@
         internal readonly MethodBuilder _methodBuilder;
         private readonly StringBuilder _debugBuilder = new ();
         
+        internal int LocalsSize { get; set; }
+        
         public virtual int ILOffset => _position;
 
         public ILGenerator(MethodBuilder method) : this(method, 16) { }
@@ -188,8 +190,8 @@
             {
                 this.InternalEmit(OpCodes.LOC_INIT_X);
                 this.PutTypeName(t);
+                this.LocalsSize++;
             }
-            
             var str = new StringBuilder();
             str.AppendLine(".locals { ");
             foreach(var (t, i) in locals.Select((x, y) => (x, y)))

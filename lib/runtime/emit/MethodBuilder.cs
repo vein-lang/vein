@@ -1,4 +1,4 @@
-namespace wave.emit
+﻿namespace wave.emit
 {
     using System;
     using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace wave.emit
                 binary.Write((byte)Flags); // $flags
                 binary.Write(0); // body size
                 binary.Write((byte)0); // stack size TODO
-                binary.Write((byte)0); // locals size TODO
+                binary.Write((byte)0); // locals size
                 binary.WriteTypeName(ReturnType.FullName, moduleBuilder);
                 WriteArguments(binary);
                 binary.Write(new byte[0]); // IL Body
@@ -51,7 +51,7 @@ namespace wave.emit
             binary.Write((byte)Flags); // $flags
             binary.Write(body.Length); // body size
             binary.Write((byte)64); // stack size TODO
-            binary.Write((byte)24); // locals size TODO
+            binary.Write((byte)_generator.LocalsSize); // locals size
             binary.WriteTypeName(ReturnType.FullName, moduleBuilder);
             WriteArguments(binary);
             binary.Write(body); // IL Body
