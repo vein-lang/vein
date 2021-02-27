@@ -10,7 +10,7 @@
 
 using namespace std;
 
-class WaveType : WaveMember
+class WaveType : public WaveMember
 {
 public:
     virtual wstring get_namespace()
