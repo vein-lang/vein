@@ -294,11 +294,11 @@ namespace wave
 		public static OpCode RET = new (0x28, 0x0000001F);
 		/// <summary>
 		/// Call operation.
-		/// size: 13
+		/// size: 17
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode CALL = new (0x29, 0x0340001F);
+		public static OpCode CALL = new (0x29, 0x0440001F);
 		/// <summary>
 		/// Load NULL into stack.
 		/// size: 0
@@ -423,11 +423,11 @@ namespace wave
 		public static OpCode LOC_INIT = new (0x3A, 0x0100001F);
 		/// <summary>
 		/// (part of LOD.INIT) Initialization locals slot as derrived type.
-		/// size: 8
+		/// size: 12
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LOC_INIT_X = new (0x3B, 0x0200001F);
+		public static OpCode LOC_INIT_X = new (0x3B, 0x0300001F);
 		/// <summary>
 		/// Duplicate memory from stack.
 		/// size: 0
