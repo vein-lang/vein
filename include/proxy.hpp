@@ -24,20 +24,3 @@ public:
         return nullptr;
     }
 };
-
-template<> class WaveConvert<unsigned char> {
-public:
-    static WaveObject* box(unsigned char s) {
-        auto* obj = new WaveObject();
-        obj->data = reinterpret_cast<unsigned char*>(s);
-        obj->clazz = wave_core->i2_class;
-        obj->type = TYPE_I2;
-        return obj;
-    }
-    static unsigned char unbox(WaveObject* obj)
-    {
-        if(obj->type == TYPE_STRING)
-            return reinterpret_cast<unsigned char>(obj->data);
-        return 0; // TODO new fail
-    }
-};
