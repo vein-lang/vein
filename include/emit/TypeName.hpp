@@ -2,17 +2,15 @@
 #include <string>
 #include <fmt/format.h>
 #include "compatibility.types.hpp"
-#include "Exceptions.hpp"
 #include "utils/string.split.hpp"
 #include <map>
 
 using namespace std;
 
 struct TypeName;
-static map<int64_t, TypeName*>* __TypeName_cache = nullptr;
+static map<tuple<int, int, int>, TypeName*>* __TypeName_cache = nullptr;
 struct TypeName
 {
-    
     wstring FullName;
     [[nodiscard]] wstring get_name() const noexcept(false)
     {
@@ -21,14 +19,22 @@ struct TypeName
         results.clear();
         return result;
     }
-    [[nodiscard]] wstring get_namespace() noexcept(false)
+    [[nodiscard]] wstring get_namespace() const noexcept(false)
     {
-        const auto n = get_name();
-        return FullName.substr(0, (FullName.size() - n.size()) - 1);
+        auto n = get_name();
+        n = FullName.substr(0, (FullName.size() - n.size()) - 1);
+        const auto asmName = get_assembly_name();
+        return n.substr(asmName.size(), (n.size() - asmName.size()) - 1);
     }
-    TypeName(const wstring& n, const wstring& c) noexcept(true)
+
+    [[nodiscard]] wstring get_assembly_name() const noexcept(false)
     {
-        FullName = n + L"/" + c;
+        auto splited = split(FullName, '%');
+        return splited.at(0);
+    }
+    TypeName(const wstring& a, const wstring& n, const wstring& c) noexcept(true)
+    {
+        FullName = a + L"%" + c + L"/" + n;
     }
 
     TypeName(const wstring& fullName) noexcept(true)
@@ -36,28 +42,28 @@ struct TypeName
         FullName = fullName;
     }
 
-    [[nodiscard]] static TypeName* construct(const int nameIdx, const int classIdx, GetConstByIndexDelegate* m) noexcept(true)
-    {
-        return new TypeName(m->operator()(nameIdx), m->operator()(classIdx));
-    }
-    [[nodiscard]] static TypeName* construct(const int64_t idx, GetConstByIndexDelegate* m) noexcept(true)
+    [[nodiscard]] static TypeName* construct(
+        const int asmIdx,
+        const int nameIdx, 
+        const int namespaceIdx, 
+        GetConstByIndexDelegate* m) noexcept(true)
     {
         if (__TypeName_cache == nullptr)
-            __TypeName_cache = new map<int64_t, TypeName*>();
-        if (__TypeName_cache->contains(idx))
-            return __TypeName_cache->at(idx);
+            __TypeName_cache = new map<tuple<int, int, int>, TypeName*>();
+        auto key = make_tuple(asmIdx, nameIdx, namespaceIdx);
+        if (__TypeName_cache->contains(key))
+            return __TypeName_cache->at(key);
 
-        auto result = new TypeName(m->operator()(static_cast<int>(idx & static_cast<uint32_t>(4294967295))), 
-            m->operator()(static_cast<int>(idx >> 32)));
+        auto* result = new TypeName(m->operator()(asmIdx), m->operator()(nameIdx), m->operator()(namespaceIdx));
 
-        __TypeName_cache->insert({idx, result});
+        __TypeName_cache->insert({key, result});
         return result;
     }
 
     static void Validate(TypeName* name) noexcept(false)
     {
-        if (!name->FullName.starts_with(L"global::"))
-            throw InvalidFormatException(fmt::format(L"TypeName '{0}' has invalid. [name is not start with global::]", name->FullName));
+        //if (!name->FullName.starts_with(L"global::"))
+        //    throw InvalidFormatException(fmt::format(L"TypeName '{0}' has invalid. [name is not start with global::]", name->FullName));
     }
 };
 template<> struct equality<TypeName*> {
@@ -78,3 +84,16 @@ template <> struct fmt::formatter<TypeName*>: formatter<string_view> {
     return formatter<string_view>::format(c->FullName, ctx);
   }
 };
+
+
+TypeName* readTypeName(uint32_t** ip, GetConstByIndexDelegate* m)
+{
+    ++(*ip);
+    const auto asmIdx = READ32((*ip));
+    ++(*ip);
+    const auto nameIdx = READ32((*ip));
+    ++(*ip);
+    const auto nsIdx = READ32((*ip));
+    ++(*ip);
+    return TypeName::construct(asmIdx, nameIdx, nsIdx, m);
+}
