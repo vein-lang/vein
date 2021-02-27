@@ -16,7 +16,7 @@
             var list = new List<WaveModule>();
 
 
-            var stl = new ModuleBuilder("stl");
+            var stl = new WaveModuleBuilder("stl");
 
             foreach (var type in WaveCore.Types.All) 
                 stl.GetTypeConstant(type.FullName);
@@ -44,9 +44,9 @@
             return list;
         }
         [Fact]
-        public ModuleBuilder WriteTest()
+        public WaveModuleBuilder WriteTest()
         {
-            var module = new ModuleBuilder("foo");
+            var module = new WaveModuleBuilder("foo");
             module.Deps.AddRange(GetDeps());
 
 

@@ -14,7 +14,7 @@
             Console.WriteLine($"{":gear:".Emoji()} Initialized regeneration runtime libraries...");
 
             var asm = new InsomniaAssembly { Name = "stl" };
-            var stllib = new ModuleBuilder("stl");
+            var stllib = new WaveModuleBuilder("stl");
             Console.WriteLine($"{":smoking:".Emoji()} Generate stl.lib...");
             
             BuiltinGen.GenerateConsole(stllib);

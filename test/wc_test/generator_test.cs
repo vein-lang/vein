@@ -27,7 +27,7 @@
         [Fact]
         public void Test()
         {
-            var module = new ModuleBuilder("xuy");
+            var module = new WaveModuleBuilder("xuy");
             var clazz = module.DefineClass("global::wave/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
@@ -68,7 +68,7 @@
         [Fact]
         public void TestIL()
         {
-            var module = new ModuleBuilder("xuy");
+            var module = new WaveModuleBuilder("xuy");
             var clazz = module.DefineClass("global::wave/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
@@ -101,7 +101,7 @@
             var ast = w.CompilationUnit.ParseWave(
                 " class Program { void main() { if(ze()) return x; else { return d();  } } }");
 
-            var module = new ModuleBuilder("foo");
+            var module = new WaveModuleBuilder("foo");
 
             foreach (var member in ast.Members)
             {
@@ -185,7 +185,7 @@
         [Fact]
         public void BuiltinGenTest()
         {
-            var module = new ModuleBuilder(Guid.NewGuid().ToString());
+            var module = new WaveModuleBuilder(Guid.NewGuid().ToString());
             BuiltinGen.GenerateConsole(module);
             module.BakeByteArray();
             module.BakeDebugString();
@@ -193,7 +193,7 @@
         
         public static ILGenerator CreateGenerator(params WaveArgumentRef[] args)
         {
-            var module = new ModuleBuilder(Guid.NewGuid().ToString());
+            var module = new WaveModuleBuilder(Guid.NewGuid().ToString());
             var @class = new ClassBuilder(module, "foo/bar");
             var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsType(), args);
             return method.GetGenerator();
@@ -235,15 +235,15 @@ puts after - before;*/
             var s = new Stopwatch();
             
             s.Start();
-            var a = f(2570);
+            var a = f(int.MaxValue / 2);
             s.Stop();
-            _testOutputHelper.WriteLine($"{a}, {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
+            _testOutputHelper.WriteLine($"{a}, {int.MaxValue / 2} {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
         }
         
         [Fact]
         public void ManualGen()
         {
-            var module = new ModuleBuilder("satl");
+            var module = new WaveModuleBuilder("satl");
             var clazz = module.DefineClass("global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             
@@ -306,8 +306,8 @@ puts after - before;*/
 
             // i <= n
             fibGen.UseLabel(for_1);
-            fibGen.Emit(OpCodes.LDLOC_3);
             fibGen.Emit(OpCodes.LDARG_0);
+            fibGen.Emit(OpCodes.LDLOC_3);
             fibGen.Emit(OpCodes.JMP_LQ, for_body);
             // return nth;
             fibGen.Emit(OpCodes.LDLOC_2);
@@ -378,7 +378,7 @@ puts after - before;*/
             
             
             
-            body.Emit(OpCodes.LDC_I8_S, (long)70);
+            body.Emit(OpCodes.LDC_I8_S, (long)1073741823);
             body.EmitCall(OpCodes.CALL, fib);
             body.Emit(OpCodes.DUMP_0);
             body.Emit(OpCodes.RET);

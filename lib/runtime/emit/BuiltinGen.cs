@@ -5,7 +5,7 @@
 
     public static class BuiltinGen
     {
-        public static WaveType GenerateConsole(ModuleBuilder module)
+        public static WaveType GenerateConsole(WaveModuleBuilder module)
         {
             var clazz = module.DefineClass("global::wave/lang/console");
 

@@ -9,7 +9,7 @@
     public class MethodBuilder : WaveMethod, IBaker
     {
         internal readonly ClassBuilder classBuilder;
-        internal ModuleBuilder moduleBuilder 
+        internal WaveModuleBuilder moduleBuilder 
             => classBuilder?.moduleBuilder;
         private readonly ILGenerator _generator;
 

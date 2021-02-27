@@ -6,14 +6,14 @@
 
     public class ClassBuilder : WaveClass, IBaker
     {
-        internal ModuleBuilder moduleBuilder;
-        public ClassBuilder(ModuleBuilder module, TypeName name, WaveTypeCode parent = WaveTypeCode.TYPE_OBJECT)
+        internal WaveModuleBuilder moduleBuilder;
+        public ClassBuilder(WaveModuleBuilder module, TypeName name, WaveTypeCode parent = WaveTypeCode.TYPE_OBJECT)
         {
             this.FullName = name;
             moduleBuilder = module;
             this.Parent = parent.AsType().AsClass();
         }
-        public ClassBuilder(ModuleBuilder module, TypeName name, WaveType parent)
+        public ClassBuilder(WaveModuleBuilder module, TypeName name, WaveType parent)
         {
             this.FullName = name;
             moduleBuilder = module;
