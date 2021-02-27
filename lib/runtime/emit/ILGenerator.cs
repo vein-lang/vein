@@ -165,7 +165,7 @@
             this.EnsureCapacity<OpCode>(sizeof(int));
             this.InternalEmit(opcode);
             this.PutInteger4(label.Value);
-            _debugBuilder.AppendLine($".{opcode.Name} :{label.Value:X8}");
+            _debugBuilder.AppendLine($".{opcode.Name} label(0x{label.Value:X})");
         }
         
         
@@ -249,7 +249,7 @@
             if (_labels[loc.Value] != -1)
                 throw new UndefinedLabelException();
             _labels[loc.Value] = _position;
-            _debugBuilder.AppendLine($"::label {loc.Value:X8}@{_position:X8}");
+            _debugBuilder.AppendLine($"/* defined-label id: 0x{loc.Value:X}, offset: 0x{_position:X} */");
         }
 
         public int[] GetLabels() => _labels;
