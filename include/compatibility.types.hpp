@@ -176,6 +176,8 @@ struct Nullable<T*>
 };
 #endif
 
+#include "api/memory_barrier.hpp"
+
 #define NULL_VALUE(T) Nullable<T>::Value
 
 #if defined(AVR_PLATFORM)
