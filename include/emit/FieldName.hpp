@@ -42,6 +42,12 @@ template<> struct equality<FieldName*> {
 	}
 };
 
+template<> struct equality<FieldName> {
+	static bool equal(FieldName* l, FieldName* r) {
+		return wcscmp(l->FullName.c_str(), r->FullName.c_str()) == 0;
+	}
+};
+
 template <> struct fmt::formatter<FieldName>: formatter<string_view> {
   template <typename FormatContext>
   auto format(FieldName c, FormatContext& ctx) {
