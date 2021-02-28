@@ -31,8 +31,8 @@ struct FieldName
     }
     [[nodiscard]] static FieldName* construct(const int64_t idx, GetConstByIndexDelegate* m) noexcept(true)
     {
-        return new FieldName(m->operator()(static_cast<int>(idx >> 32)), 
-            m->operator()(static_cast<int>(idx & static_cast<uint32_t>(4294967295))));
+        return new FieldName(m->operator()(static_cast<int>(idx & static_cast<uint32_t>(4294967295))), 
+            m->operator()(static_cast<int>(idx >> 32)));
     }
 };
 
