@@ -5,11 +5,12 @@
     [Flags]
     public enum ClassFlags : byte
     {
-        None = 0,
-        Public = 1 << 0,
-        Static = 1 << 1,
-        Internal = 1 << 2,
-        Protected = 1 << 3,
-        Private = 1 << 4
+        None        = 0 << 0,
+        Public      = 1 << 1,
+        Static      = 1 << 2,
+        Internal    = 1 << 3,
+        Protected   = 1 << 4,
+        Private     = 1 << 5,
+        Abstract    = 1 << 6
     }
 }
