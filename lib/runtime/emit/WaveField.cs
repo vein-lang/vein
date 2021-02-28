@@ -24,6 +24,9 @@
 
         public FieldName(string name, string className) : this($"{className}.{name}") { }
 
+        public static FieldName Construct(WaveClass owner, string name) 
+            => new(name, owner.FullName.Name);
+        
         public static FieldName Construct(in int nameIdx, in int classIdx, WaveModule module) 
             => new(module.GetConstByIndex(nameIdx), module.GetConstByIndex(classIdx));
         public static FieldName Construct(in long fullIdx, WaveModule module) 
@@ -86,7 +89,10 @@
         Literal = 1 << 1,
         Public = 1 << 2,
         Static = 1 << 3,
-        Protected = 1 << 4
+        Protected = 1 << 4,
+        Virtual = 1 << 5,
+        Abstract = 1 << 6,
+        Override = 1 << 7
     }
     
     public static class WaveFieldExtension
