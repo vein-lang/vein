@@ -5,7 +5,11 @@
 #include "api/elf_reader.hpp"
 #include "emit/module_reader.hpp"
 #include <fmt/format.h>
+
+#include "api/kernel_panic.hpp"
 #include "api/Stopwatch.hpp"
+#include "fmt/color.h"
+
 enum class CALL_CONTEXT : unsigned char
 {
     INTERNAL_CALL,
@@ -15,8 +19,8 @@ enum class CALL_CONTEXT : unsigned char
 
 WaveObject* GetWaveException(TypeName* name, WaveModule* mod)
 {
-    auto clazz = mod->FindClass(name);
-    auto obj = new WaveObject();
+    auto* clazz = mod->FindClass(name);
+    auto* obj = new WaveObject();
 
     obj->type = TYPE_CLASS;
     obj->clazz = clazz;
@@ -90,33 +94,34 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
     auto* const stack = static_cast<stackval*>(calloc(mh->max_stack, sizeof(stackval)));
     REGISTER auto* sp = stack;
     REGISTER auto* ip = mh->code;
-    
-    auto* end = ip + mh->code_size;
-    auto* start = (ip + 1) - 1;
 
+    #pragma optimize("", off)
+    auto* start = (ip + 1) - 1;
+    auto* end = mh->code + mh->code_size;
+    #pragma optimize("", on)
     auto* locals = new stackval[0];
     while (1)
     {
-        if(*ip == *end)
+        if (get_kernel_data()->exception)
+        {
+            print(fg(fmt::color::crimson) | fmt::emphasis::bold,
+             L"native exception was thrown. \n\t[{0}] \n\t'{1}'\n", wave_exception_names[get_kernel_data()->exception->code],
+                get_kernel_data()->exception->msg);
+            vm_shutdown();
+            return;
+        }
+        //printf("op: %d, ip: %llu, end: %llu\n", (uint32_t)*ip, (size_t)ip, (size_t)end);
+        if(ip == end)
         {
             w_print("unexpected end of executable memory.");
             vm_shutdown();
+            return;
         }
-        #if !defined(DEBUG) && !defined(ARDUINO)
-        {
-            for (auto h = 0; h < level; ++h)
-                d_print("\t");
-        }
-        printf("0x%04x %02x\n", ip - static_cast<unsigned char*>(mh->code), *ip);
-        if (sp != stack) {
-            printf("[%d] %d 0x%08x %0.5f %0.5f\n", sp - stack, sp[-1].type,
-                sp[-1].data.i, sp[-1].data.f, sp[-1].data.f_r4);
-        }
-        #endif
         SWITCH(*ip)
         {
             case NOP:
                 ASM("nop");
+                printf(".NOP\n");
                 ++ip;
                 break;
             case ADD:
