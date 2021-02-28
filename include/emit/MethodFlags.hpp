@@ -8,5 +8,7 @@ enum MethodFlags : int32_t
     MethodProtected = 1 << 3,
     MethodPrivate = 1 << 4,
     MethodExtern = 1 << 5,
-    MethodVirtual = 1 << 6
+    MethodVirtual = 1 << 6,
+    MethodOverride = 1 << 7,
+    MethodAbstract = 1 << 8
 };
