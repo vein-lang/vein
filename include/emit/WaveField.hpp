@@ -24,6 +24,7 @@ public:
     FieldFlags Flags;
     WaveClass* Owner;
 
+    int vtable_offset = 0;
 
     WaveMemberKind GetKind() override
     {
@@ -58,4 +59,11 @@ protected:
         int32_t i4;
         int64_t i8;
     };
+};
+template<> struct wave_debug<>
+{
+    auto static toString(WaveField* f)
+    {
+        return D::toString(f->FullName);
+    }
 };
