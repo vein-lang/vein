@@ -33,7 +33,7 @@ public:
     bool IsLiteral() const { return (Flags & FIELD_Literal) != 0; }
     bool IsStatic () const { return (Flags & FIELD_Static) != 0; }
     bool IsPublic () const { return (Flags & FIELD_Public) != 0; }
-    bool IsPrivate() { return !IsPublic(); }
+    bool IsPrivate() const { return !IsPublic(); }
 
     
     template<class T>
