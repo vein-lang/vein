@@ -1,4 +1,7 @@
 #pragma once
+// wut?!
+#define __x86_64__
+// fix this..
 
 
 #ifdef __x86_64__
