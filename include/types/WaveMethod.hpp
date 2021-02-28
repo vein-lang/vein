@@ -4,8 +4,10 @@
 #include "WaveMethodHeader.hpp"
 #include "WaveMethodPInvokeInfo.hpp"
 #include "WaveMethodSignature.hpp"
+#include "WaveType.hpp"
 #include "collections/list_t.hpp"
 #include "emit/MethodFlags.hpp"
+#include "emit/WaveArgumentRef.hpp"
 #include "emit/WaveMember.hpp"
 
 class WaveArgumentRef;
@@ -23,8 +25,8 @@ protected:
 public:
 	MethodFlags Flags;
 	list_t<WaveArgumentRef*>* Arguments;
-
-	int ArgLen() const noexcept
+	
+    int ArgLen() const noexcept
     {
 	    if (Arguments == nullptr)
 			return 0;
@@ -59,14 +61,16 @@ class WaveMethod : public WaveMethodBase
 public:
 	WaveType* ReturnType;
 	WaveClass* Owner;
-	unsigned char StackSize; 
-	unsigned char LocalsSize; 
+	unsigned char StackSize = 8; 
+	unsigned char LocalsSize = 0; 
 
 	union {
 		MetaMethodHeader* header;
 		WaveMethodPInvokeInfo* piinfo;
 	} data;
 
+	int vtable_offset;
+	
     WaveMethod(const wstring& name,
 		MethodFlags flags, WaveType* retType,
 		WaveClass* owner, list_t<WaveArgumentRef*>* args) : WaveMethodBase(name, flags, args)
@@ -74,6 +78,10 @@ public:
         ReturnType = retType;
 		Owner = owner;
     }
+
+
+
+
 
 
 	void SetILCode(uint32_t* code)
@@ -91,5 +99,13 @@ public:
 			throw InvalidOperationException("Cannot set native reference, method is not extern.");
 		data.piinfo = new WaveMethodPInvokeInfo();
 		data.piinfo->addr = ref;
+    }
+};
+
+template<> struct wave_debug<WaveMethod*>
+{
+    wstring static toString(WaveMethod* f)
+    {
+        return f->Name;
     }
 };
