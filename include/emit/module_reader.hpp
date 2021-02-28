@@ -260,6 +260,9 @@ WaveClass* readClass(BinaryReader* reader, WaveModule* m) noexcept(false)
         auto* field = new WaveField(clazz, fname, fflags, return_type);
         clazz->Fields->push_back(field);
     }
+
+    clazz->init_vtable();
+
     return clazz;
 }
 
