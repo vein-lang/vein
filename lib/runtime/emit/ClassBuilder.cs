@@ -37,6 +37,14 @@
             method.Flags = flags;
             return method;
         }
+        
+        public WaveField DefineField(string name, FieldFlags flags, WaveType fieldType)
+        {
+            var field = new WaveField(this, new FieldName(name, this.Name), flags, fieldType);
+            moduleBuilder.GetTypeConstant(field.FullName);
+            Fields.Add(field);
+            return field;
+        }
 
         public byte[] BakeByteArray()
         {
