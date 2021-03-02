@@ -7,6 +7,7 @@
 #include "emit/ClassFlags.hpp"
 #include "emit/TypeName.hpp"
 #include "emit/WaveField.hpp"
+#include "etc/debug_string.hpp"
 
 class WaveClass {
 public:
