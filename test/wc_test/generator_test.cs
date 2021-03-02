@@ -1,4 +1,4 @@
-﻿namespace wc_test
+namespace wc_test
 {
     using System;
     using System.Collections;
@@ -246,7 +246,8 @@ puts after - before;*/
             var module = new WaveModuleBuilder("satl");
             var clazz = module.DefineClass("satl%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            
+
+            clazz.DefineField("zopa", FieldFlags.Public | FieldFlags.Override, WaveTypeCode.TYPE_I4.AsType());
             
             var fib = clazz.DefineMethod("fib", 
                 MethodFlags.Public | MethodFlags.Static,

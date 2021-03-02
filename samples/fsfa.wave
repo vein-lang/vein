@@ -12,3 +12,18 @@ operation foo<T>[predicate: bool] -> void where T is struct, IOperable
         memory.free(&arr);
     }
 };
+
+operation foo<T>[predicate: bool] -> void
+{
+    body 
+    {
+        auto** arr = stackalloc T[64];
+        random_fill(arr);
+
+        return arr.single(predicate);
+    };
+    gc
+    {
+        memory.free(&arr);
+    }
+};
