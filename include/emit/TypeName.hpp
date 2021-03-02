@@ -3,12 +3,15 @@
 #include <fmt/format.h>
 #include "compatibility.types.hpp"
 #include "utils/string.split.hpp"
+#include "utils/string.replace.hpp"
 #include <map>
+
 
 using namespace std;
 
 struct TypeName;
 static map<tuple<int, int, int>, TypeName*>* __TypeName_cache = nullptr;
+
 struct TypeName
 {
     wstring FullName;
@@ -21,10 +24,9 @@ struct TypeName
     }
     [[nodiscard]] wstring get_namespace() const noexcept(false)
     {
-        auto n = get_name();
-        n = FullName.substr(0, (FullName.size() - n.size()) - 1);
-        const auto asmName = get_assembly_name();
-        return n.substr(asmName.size(), (n.size() - asmName.size()) - 1);
+        auto rd = split(FullName, '%');
+        auto& target = rd.at(1);
+        return replace_string(target, get_name(), L"");
     }
 
     [[nodiscard]] wstring get_assembly_name() const noexcept(false)
