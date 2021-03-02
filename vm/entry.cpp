@@ -10,6 +10,8 @@
 #include "api/Stopwatch.hpp"
 #include "fmt/color.h"
 
+#include "debug_string.impl.hpp"
+
 enum class CALL_CONTEXT : unsigned char
 {
     INTERNAL_CALL,
