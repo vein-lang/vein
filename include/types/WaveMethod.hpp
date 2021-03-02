@@ -101,11 +101,3 @@ public:
 		data.piinfo->addr = ref;
     }
 };
-
-template<> struct wave_debug<WaveMethod*>
-{
-    wstring static toString(WaveMethod* f)
-    {
-        return f->Name;
-    }
-};

@@ -112,7 +112,7 @@ public:
             {
                 set_failure(WAVE_EXCEPTION_TYPE_LOAD, 
                     fmt::format(L"Method '{0}' in '{1}' type has invalid mapping.",
-                        D::toString(method), D::toString(this->Parent)));
+                        toString(method), toString(this->Parent)));
                 return;
             }
 
@@ -124,7 +124,7 @@ public:
             if (w == nullptr && (method->Flags & MethodAbstract) != 0)
                     set_failure(WAVE_EXCEPTION_MISSING_FIELD, 
                         fmt::format(L"method '{0}' mark as OVERRIDE, but parent class '{1}' no contained virtual/abstract method.",
-                            D::toString(method), D::toString(this->Parent)));
+                            toString(method), toString(this->Parent)));
             vtable[method->vtable_offset] = method;
         }
         // check overrides for fields
@@ -138,7 +138,7 @@ public:
                 {
                     set_failure(WAVE_EXCEPTION_TYPE_LOAD, 
                         fmt::format(L"Field '{0}' in '{1}' type has invalid mapping.",
-                            D::toString(field), D::toString(this->Parent)));
+                            toString(field), toString(this->Parent)));
                     return;
                 }
 
@@ -151,17 +151,10 @@ public:
                 if (w == nullptr && (field->Flags & FIELD_Override) != 0)
                     set_failure(WAVE_EXCEPTION_MISSING_FIELD, 
                         fmt::format(L"field '{0}' mark as OVERRIDE, but parent class '{1}' no contained virtual/abstract field.",
-                            D::toString(field), D::toString(this->Parent)));
+                            toString(field), toString(this->Parent)));
                 vtable[field->vtable_offset] = vtable;
             }
         }
     }
 };
 
-template<> struct wave_debug<WaveClass*>
-{
-    wstring static toString(WaveClass* f)
-    {
-        return f->FullName->get_namespace() + f->FullName->get_name();
-    }
-};

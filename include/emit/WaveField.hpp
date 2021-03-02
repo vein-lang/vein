@@ -60,10 +60,4 @@ protected:
         int64_t i8;
     };
 };
-template<> struct wave_debug<>
-{
-    auto static toString(WaveField* f)
-    {
-        return D::toString(f->FullName);
-    }
-};
+

@@ -133,7 +133,7 @@ struct WaveModule
         {
             for(auto* m : *c->Methods)
             {
-                if (m->Name._Equal(L"master"))
+                if (m->Name == L"master()")
                     return m;
             }
         }
