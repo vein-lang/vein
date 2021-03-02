@@ -202,7 +202,7 @@ void array_copy(T* sourceArray, int sourceIndex, T* destinationArray, int destin
 }
 inline void vm_shutdown()
 {
-    w_print("\t !! WM SHUTDOWN !!");
+    w_print("\t !! VM SHUTDOWN !!");
     while (true)
     {
         sleep(200);
