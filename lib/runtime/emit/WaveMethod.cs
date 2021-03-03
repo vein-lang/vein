@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     public class WaveMethod : WaveMethodBase
     {
@@ -40,7 +41,16 @@
             this.Arguments.AddRange(args);
             this.Name = name;
             this.Flags = flags;
+            this.RegenerateName();
         }
+
+        private void RegenerateName()
+        {
+            if (Regex.IsMatch(this.Name, @"\S+\((.+)?\)"))
+                return;
+            this.Name = $"{this.Name}({Arguments.Select(x => x.Type.Name)})";
+        }
+        
         
         public MethodFlags Flags { get; set; }
         
