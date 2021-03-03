@@ -7,6 +7,7 @@ patterns:
     - include: "#operation-declaration"
     - include: "#comment"
     - include: "#preprocessor"
+    - include: "#class-declaration"
     - include: "#operators"
     - include: "#numbers"
     - include: "#keywords"
@@ -15,7 +16,6 @@ patterns:
     - include: "#storage-types"
     - include: "#storage-modifier"
     - include: "#backslash-escapes"
-    - include: "#class-declaration"
     - include: "#union-declaration"
     - include: "#typdef-declaration"
     - include: "#types"
@@ -66,11 +66,7 @@ repository:
                   "1": { name: punctuation.whitespace.comment.leading.wave }
               end: '(?!\G)'
     preprocessor:
-        begin: '^\s*((#)\s*(use|load))\b\s*'
-        beginCaptures:
-            "1": 
-              name: punctuation.separator.hash.wave
-        end: '(?=(?://|/\*))|(?<!\\)(?=\n)'
+        match: '^\s*((#)\s*(use|space|load))\b\s*'
         name: meta.preprocessor.wave
     operators:
         patterns:
@@ -99,13 +95,13 @@ repository:
     keywords:
         patterns:
             - name: keyword.control.wave
-              match: '(?<!\.)\b(global|this|base|using|auto|const|if|else|while|do|body|for|is|in|return|fail)\b'
+              match: '(?<!\.)\b(global|char|this|base|using|auto|const|if|else|while|do|body|for|is|in|return|fail)\b'
             - name: keyword.control.core.wave
               match: '(?<!\.)\b(struct|record|union)\b'
     storage-modifier:
         patterns:
             - name: storage.modifier
-              match: '\b(gc|new|delete|public|protected|internal|private|static|readonly|const|extern|auto|extensions)\b'
+              match: '\b(gc|new|delete|native|virtual|getter|setter|public|special|protected|internal|private|static|readonly|const|extern|auto|extensions)\b'
     union-declaration:
         begin: \b(union)\s+
         beginCaptures:
@@ -130,7 +126,7 @@ repository:
                   - include: "#comment"
                   - include: "#field-declaration"
     class-declaration:
-        begin: \b(class)\s+
+        begin: \b(class|struct)\s+
         beginCaptures:
             "1":
                 name: keyword.other.class.wave
@@ -148,11 +144,65 @@ repository:
                   "0": { name: punctuation.curlybrace.close.wave }
               patterns:
                   - include: "#comment"
+                  - include: "#field-declaration"
+                  - include: "#indexer-declaration"
                   - include: "#punctuation-semicolon"
                   - include: "#operation-declaration"
                   - include: "#union-declaration"
                   - include: "#storage-modifier"
                   - include: "#method-declaration"
+    indexer-declaration:
+        begin: "(this)(?>\s?+)\[(.+)\](?>\s?+)\:(?>\s?+)(@?[_[:alpha:]][_[:alnum:]]*)"
+        beginCaptures:
+            "1": 
+                name: keyword.control.wave
+            "2":
+                patterns:
+                    - include: "#operation-argument-list"
+            "3":
+                name: entity.name.type
+        end: "(?=;)"
+        patterns:
+            - name: entity.name.variable.field.wave
+              match: "@?[_[:alpha:]][_[:alnum:]]*"
+            - include: "#punctuation-comma"
+            - include: "#comment"
+            - include: "#variable-initializer"
+            - include: "#class-or-struct-members"
+            - include: "#literal"
+    field-declaration:
+        begin: "(@?[_[:alpha:]][_[:alnum:]]*)(?>\s?+)\:(?>\s?+)(@?[_[:alpha:]][_[:alnum:]]*)"
+        beginCaptures:
+            "1":
+                name: entity.name.variable.field.wave
+            "2":
+                name: entity.name.type
+        end: "(?=;)"
+        patterns:
+            - name: entity.name.variable.field.wave
+              match: "@?[_[:alpha:]][_[:alnum:]]*"
+            - include: "#punctuation-comma"
+            - include: "#comment"
+            - include: "#variable-initializer"
+            - include: "#class-or-struct-members"
+            - include: "#literal"
+    method-declaration:
+        begin: "(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)(?>\s?+)\(((?>.)+)?\)(?>\s?+)\:(?>\s?+)(@?[_[:alpha:]][_[:alnum:]]*)"
+        beginCaptures:
+            "1":
+                name: entity.name.function.wave
+            "2":
+                patterns:
+                    - include: "#operation-argument-list"
+            "3":
+                name: entity.name.type
+        end: '(?<=\})|(?=;)'
+        patterns:
+            - include: "#comment"
+            - include: "#parenthesized-parameter-list"
+            - include: "#generic-constraints"
+            - include: "#expression-body"
+            - include: "#block"
     typdef-declaration:
         begin: (\#typedef)\s+
         beginCaptures:
@@ -172,6 +222,75 @@ repository:
                   "0": { name: punctuation.curlybrace.close.wave }
               patterns:
                   - { include: "#punctuation-semicolon" }
+    block:
+        begin: '\{'
+        beginCaptures:
+            "0":
+                name: punctuation.curlybrace.open.wave
+        end: '\}'
+        endCaptures:
+            "0":
+                name: punctuation.curlybrace.close.wave
+        patterns:
+            - include: "#statement"
+    statement:
+        patterns:
+            - include: "#comment"
+            - include: "#while-statement"
+            - include: "#do-statement"
+            - include: "#for-statement"
+            - include: "#foreach-statement"
+            - include: "#if-statement"
+            - include: "#else-part"
+            - include: "#switch-statement"
+            - include: "#goto-statement"
+            - include: "#return-statement"
+            - include: "#break-or-continue-statement"
+            - include: "#throw-statement"
+            - include: "#yield-statement"
+            - include: "#await-statement"
+            - include: "#try-statement"
+            - include: "#checked-unchecked-statement"
+            - include: "#lock-statement"
+            - include: "#using-statement"
+            - include: "#labeled-statement"
+            - include: "#local-declaration"
+            - include: "#block"
+            - include: "#expression"
+            - include: "#punctuation-semicolon"
+    if-statement:
+        begin: '(?<!\.)\b(if)\b\s*(?=\()'
+        beginCaptures:
+            "1":
+                name: keyword.control.conditional.if.wave
+        end: '(?<=\})|(?=;)'
+        patterns:
+            - begin: \(
+              beginCaptures:
+                  "0": { name: punctuation.parenthesis.open.wave }
+              end: \)
+              endCaptures:
+                  "0": { name: punctuation.parenthesis.close.wave }
+              patterns:
+                  - { include: "#expression" }
+            - include: "#statement"
+    return-statement:
+        begin: '(?<!\.)\b(return)\b'
+        beginCaptures:
+            "1":
+                name: keyword.control.flow.return.wave
+        end: "(?=;)"
+        patterns:
+            - include: "#ref-modifier"
+            - include: "#expression"
+    throw-statement:
+        begin: '(?<!\.)\b(fail)\b'
+        beginCaptures:
+            "1":
+                name: keyword.control.flow.fail.wave
+        end: "(?=;)"
+        patterns:
+            - include: "#expression"
     type-builtin:
         patterns:
           - include: "#types"
@@ -395,28 +514,6 @@ repository:
             - include: "#gc-modifier"
             - include: "#sync-modifier"
             - include: "#body-operation-statament"
-    method-declaration:
-        begin: "(?x)(?<return_type>  (?<type_name>    (?:      (?:ref\s+(?:readonly\s+)?)?       (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?        (?<name_and_type_args>           \g<identifier>\s*          (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)?        )        (?:\s*\.\s*\g<name_and_type_args>)* |        (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\))      )      (?:\s*\?\s*)?       (?:\s*\[(?:\s*,\s*)*\]\s*)*     )  )\s+)(?<interface_name>\g<type_name>\s*\.\s*)?(\g<identifier>)\s*(<([^<>]+)>)?\s*(?=\()"
-        beginCaptures:
-            "1":
-                patterns:
-                    - { include: "#type" }
-            "7":
-                patterns:
-                    - { include: "#type" }
-                    - { include: "#punctuation-accessor" }
-            "8":
-                name: entity.name.function.wave
-            "9":
-                patterns:
-                    - { include: "#type-parameter-list" }
-        end: '(?<=\})|(?=;)'
-        patterns:
-            - include: "#comment"
-            - include: "#parenthesized-parameter-list"
-            - include: "#generic-constraints"
-            - include: "#expression-body"
-            - include: "#block"
     field-declaration:
         begin: "(?x)(?<typename>(?:(?:(?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?<nameandtypeargs>\g<identifier>\s*(?<typeargs>\s*<(?:[^<>]|\g<typeargs>)+>\s*)?      )      (?:\s*\.\s*\g<nameandtypeargs>)* | (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)))(?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ))\s+(\g<identifier>)\s* (?!=>|==)(?=,|;|=|$)"
         beginCaptures:

@@ -28,6 +28,10 @@
       </dict>
       <dict>
         <key>include</key>
+        <string>#class-declaration</string>
+      </dict>
+      <dict>
+        <key>include</key>
         <string>#operators</string>
       </dict>
       <dict>
@@ -57,10 +61,6 @@
       <dict>
         <key>include</key>
         <string>#backslash-escapes</string>
-      </dict>
-      <dict>
-        <key>include</key>
-        <string>#class-declaration</string>
       </dict>
       <dict>
         <key>include</key>
@@ -235,18 +235,8 @@
       </dict>
       <key>preprocessor</key>
       <dict>
-        <key>begin</key>
-        <string>^\s*((#)\s*(use|load))\b\s*</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>punctuation.separator.hash.wave</string>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>(?=(?://|/\*))|(?&lt;!\\)(?=\n)</string>
+        <key>match</key>
+        <string>^\s*((#)\s*(use|space|load))\b\s*</string>
         <key>name</key>
         <string>meta.preprocessor.wave</string>
       </dict>
@@ -330,7 +320,7 @@
             <key>name</key>
             <string>keyword.control.wave</string>
             <key>match</key>
-            <string>(?&lt;!\.)\b(global|this|base|using|auto|const|if|else|while|do|body|for|is|in|return|fail)\b</string>
+            <string>(?&lt;!\.)\b(global|char|this|base|using|auto|const|if|else|while|do|body|for|is|in|return|fail)\b</string>
           </dict>
           <dict>
             <key>name</key>
@@ -348,7 +338,7 @@
             <key>name</key>
             <string>storage.modifier</string>
             <key>match</key>
-            <string>\b(gc|new|delete|public|protected|internal|private|static|readonly|const|extern|auto|extensions)\b</string>
+            <string>\b(gc|new|delete|native|virtual|getter|setter|public|special|protected|internal|private|static|readonly|const|extern|auto|extensions)\b</string>
           </dict>
         </array>
       </dict>
@@ -432,7 +422,7 @@
       <key>class-declaration</key>
       <dict>
         <key>begin</key>
-        <string>\b(class)\s+</string>
+        <string>\b(class|struct)\s+</string>
         <key>beginCaptures</key>
         <dict>
           <key>1</key>
@@ -488,6 +478,14 @@
               </dict>
               <dict>
                 <key>include</key>
+                <string>#field-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#indexer-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
                 <string>#punctuation-semicolon</string>
               </dict>
               <dict>
@@ -507,6 +505,167 @@
                 <string>#method-declaration</string>
               </dict>
             </array>
+          </dict>
+        </array>
+      </dict>
+      <key>indexer-declaration</key>
+      <dict>
+        <key>begin</key>
+        <string>(this)(?&gt;\s?+)\[(.+)\](?&gt;\s?+)\:(?&gt;\s?+)(@?[_[:alpha:]][_[:alnum:]]*)</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.control.wave</string>
+          </dict>
+          <key>2</key>
+          <dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#operation-argument-list</string>
+              </dict>
+            </array>
+          </dict>
+          <key>3</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.type</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?=;)</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>name</key>
+            <string>entity.name.variable.field.wave</string>
+            <key>match</key>
+            <string>@?[_[:alpha:]][_[:alnum:]]*</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#punctuation-comma</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#comment</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#variable-initializer</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#class-or-struct-members</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#literal</string>
+          </dict>
+        </array>
+      </dict>
+      <key>field-declaration</key>
+      <dict>
+        <key>begin</key>
+        <string>(@?[_[:alpha:]][_[:alnum:]]*)(?&gt;\s?+)\:(?&gt;\s?+)(@?[_[:alpha:]][_[:alnum:]]*)</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.variable.field.wave</string>
+          </dict>
+          <key>2</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.type</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?=;)</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>name</key>
+            <string>entity.name.variable.field.wave</string>
+            <key>match</key>
+            <string>@?[_[:alpha:]][_[:alnum:]]*</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#punctuation-comma</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#comment</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#variable-initializer</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#class-or-struct-members</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#literal</string>
+          </dict>
+        </array>
+      </dict>
+      <key>method-declaration</key>
+      <dict>
+        <key>begin</key>
+        <string>(?&lt;identifier&gt;@?[_[:alpha:]][_[:alnum:]]*)(?&gt;\s?+)\(((?&gt;.)+)?\)(?&gt;\s?+)\:(?&gt;\s?+)(@?[_[:alpha:]][_[:alnum:]]*)</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.function.wave</string>
+          </dict>
+          <key>2</key>
+          <dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#operation-argument-list</string>
+              </dict>
+            </array>
+          </dict>
+          <key>3</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.type</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?&lt;=\})|(?=;)</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#comment</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#parenthesized-parameter-list</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#generic-constraints</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#expression-body</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#block</string>
           </dict>
         </array>
       </dict>
@@ -568,6 +727,233 @@
                 <string>#punctuation-semicolon</string>
               </dict>
             </array>
+          </dict>
+        </array>
+      </dict>
+      <key>block</key>
+      <dict>
+        <key>begin</key>
+        <string>\{</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>0</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.curlybrace.open.wave</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>\}</string>
+        <key>endCaptures</key>
+        <dict>
+          <key>0</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.curlybrace.close.wave</string>
+          </dict>
+        </dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#statement</string>
+          </dict>
+        </array>
+      </dict>
+      <key>statement</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#comment</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#while-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#do-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#for-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#foreach-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#if-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#else-part</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#switch-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#goto-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#return-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#break-or-continue-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#throw-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#yield-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#await-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#try-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#checked-unchecked-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#lock-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#using-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#labeled-statement</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#local-declaration</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#block</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#punctuation-semicolon</string>
+          </dict>
+        </array>
+      </dict>
+      <key>if-statement</key>
+      <dict>
+        <key>begin</key>
+        <string>(?&lt;!\.)\b(if)\b\s*(?=\()</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.control.conditional.if.wave</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?&lt;=\})|(?=;)</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>begin</key>
+            <string>\(</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.parenthesis.open.wave</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>\)</string>
+            <key>endCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.parenthesis.close.wave</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#expression</string>
+              </dict>
+            </array>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#statement</string>
+          </dict>
+        </array>
+      </dict>
+      <key>return-statement</key>
+      <dict>
+        <key>begin</key>
+        <string>(?&lt;!\.)\b(return)\b</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.control.flow.return.wave</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?=;)</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#ref-modifier</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#expression</string>
+          </dict>
+        </array>
+      </dict>
+      <key>throw-statement</key>
+      <dict>
+        <key>begin</key>
+        <string>(?&lt;!\.)\b(fail)\b</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.control.flow.fail.wave</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?=;)</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#expression</string>
           </dict>
         </array>
       </dict>
@@ -1167,7 +1553,7 @@ U[a-fA-F0-9]{,8} )</string>
       <key>operation-declaration</key>
       <dict>
         <key>begin</key>
-        <string>\b(operation)\s+(?&lt;identifier&gt;@?[_[:alpha:]][_[:alnum:]]*)(?&lt;template_key&gt;&lt;(\S)&gt;)?(\[.+?\])\s?+(-&gt;)\s?+(\S+)(\s?+(where)\s?+(\S+)\s?+(is)\s?+(struct|class))?</string>
+        <string>\b(operation)\s+(?&lt;identifier&gt;@?[_[:alpha:]][_[:alnum:]]*)(?&lt;template_key&gt;&lt;(\S)&gt;)?(\[.+?\]?)\s?+(-&gt;)\s?+(\S+)(\s?+(where)\s?+(\S+)\s?+(is)\s?+(struct|class))?</string>
         <key>beginCaptures</key>
         <dict>
           <key>1</key>
@@ -1245,128 +1631,6 @@ U[a-fA-F0-9]{,8} )</string>
           <dict>
             <key>include</key>
             <string>#body-operation-statament</string>
-          </dict>
-        </array>
-      </dict>
-      <key>method-declaration</key>
-      <dict>
-        <key>begin</key>
-        <string>(?x)(?&lt;return_type&gt;  (?&lt;type_name&gt;    (?:      (?:ref\s+(?:readonly\s+)?)?       (?:        (?:(?&lt;identifier&gt;@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?        (?&lt;name_and_type_args&gt;           \g&lt;identifier&gt;\s*          (?&lt;type_args&gt;\s*&lt;(?:[^&lt;&gt;]|\g&lt;type_args&gt;)+&gt;\s*)?        )        (?:\s*\.\s*\g&lt;name_and_type_args&gt;)* |        (?&lt;tuple&gt;\s*\((?:[^\(\)]|\g&lt;tuple&gt;)+\))      )      (?:\s*\?\s*)?       (?:\s*\[(?:\s*,\s*)*\]\s*)*     )  )\s+)(?&lt;interface_name&gt;\g&lt;type_name&gt;\s*\.\s*)?(\g&lt;identifier&gt;)\s*(&lt;([^&lt;&gt;]+)&gt;)?\s*(?=\()</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>patterns</key>
-            <array>
-              <dict>
-                <key>include</key>
-                <string>#type</string>
-              </dict>
-            </array>
-          </dict>
-          <key>7</key>
-          <dict>
-            <key>patterns</key>
-            <array>
-              <dict>
-                <key>include</key>
-                <string>#type</string>
-              </dict>
-              <dict>
-                <key>include</key>
-                <string>#punctuation-accessor</string>
-              </dict>
-            </array>
-          </dict>
-          <key>8</key>
-          <dict>
-            <key>name</key>
-            <string>entity.name.function.wave</string>
-          </dict>
-          <key>9</key>
-          <dict>
-            <key>patterns</key>
-            <array>
-              <dict>
-                <key>include</key>
-                <string>#type-parameter-list</string>
-              </dict>
-            </array>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>(?&lt;=\})|(?=;)</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#comment</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#parenthesized-parameter-list</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#generic-constraints</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#expression-body</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#block</string>
-          </dict>
-        </array>
-      </dict>
-      <key>field-declaration</key>
-      <dict>
-        <key>begin</key>
-        <string>(?x)(?&lt;typename&gt;(?:(?:(?:(?&lt;identifier&gt;@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?&lt;nameandtypeargs&gt;\g&lt;identifier&gt;\s*(?&lt;typeargs&gt;\s*&lt;(?:[^&lt;&gt;]|\g&lt;typeargs&gt;)+&gt;\s*)?      )      (?:\s*\.\s*\g&lt;nameandtypeargs&gt;)* | (?&lt;tuple&gt;\s*\((?:[^\(\)]|\g&lt;tuple&gt;)+\)))(?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ))\s+(\g&lt;identifier&gt;)\s* (?!=&gt;|==)(?=,|;|=|$)</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>patterns</key>
-            <array>
-              <dict>
-                <key>include</key>
-                <string>#type</string>
-              </dict>
-            </array>
-          </dict>
-          <key>6</key>
-          <dict>
-            <key>name</key>
-            <string>entity.name.variable.field.wave</string>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>(?=;)</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>name</key>
-            <string>entity.name.variable.field.wave</string>
-            <key>match</key>
-            <string>@?[_[:alpha:]][_[:alnum:]]*</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#punctuation-comma</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#comment</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#variable-initializer</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#class-or-struct-members</string>
           </dict>
         </array>
       </dict>
