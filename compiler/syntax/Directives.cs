@@ -16,5 +16,12 @@
             {
                 Value = str
             };
+        internal virtual Parser<SpaceSyntax> SpaceSyntax =>
+            from start in DirectiveDeclarator(DirectiveType.Space)
+            from str in StringLiteralExpression.Token()
+            select new SpaceSyntax
+            {
+                Value = str
+            };
     }
 }
