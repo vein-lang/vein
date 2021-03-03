@@ -124,6 +124,23 @@
             Assert.Equal("stl.lib", d.Value.Token);
         }
         
+        [Fact]
+        public void SpaceDirectiveTest()
+        {
+            var a = new WaveSyntax();
+            var d = a.SpaceSyntax
+                .ParseWave("#space \"foo\"");
+            Assert.Equal("foo", d.Value.Token);
+        }
+        
+        [Fact]
+        public void AnnotationTest()
+        {
+            var a = new WaveSyntax();
+            var d = a.AnnotationExpression.End().ParseWave("[special, native]");
+            Assert.Equal(2, d.Length);
+        }
+        
         [Theory]
         [InlineData("class")]
         [InlineData("public")]
@@ -172,13 +189,14 @@
         [Fact]
         public void ClassDeclarationCanDeclareMethods()
         {
-            var cd = Wave.ClassDeclaration.Parse(" class Program { void main() {} }");
+            var cd = Wave.ClassDeclaration.Parse(" class Program { [special] void main() {} }");
             Assert.True(cd.Methods.Any());
             Assert.Equal("Program", cd.Identifier);
 
             var md = cd.Methods.Single();
             Assert.Equal("void", md.ReturnType.Identifier);
             Assert.Equal("main", md.Identifier);
+            Assert.Equal(WaveAnnotationKind.Special, md.Annotations.Single());
             Assert.False(md.Parameters.Any());
             
             Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave(" class Test { void Main }"));
