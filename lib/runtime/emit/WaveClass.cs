@@ -1,6 +1,7 @@
 ﻿namespace wave.emit
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     public class WaveClass
     {
@@ -33,5 +34,10 @@
             Methods.Add(method);
             return this;
         }
+
+
+
+        public WaveMethod FindMethod(string name) 
+            => Methods.FirstOrDefault(method => method.Name == name);
     }
 }
