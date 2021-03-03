@@ -37,4 +37,7 @@ template<> struct equality<std::wstring> {
 	static bool equal(const std::wstring& l, const std::wstring& r) {
 		return wcscmp(l.c_str(), r.c_str()) == 0;
 	}
+	static bool equal(const std::wstring* l, const std::wstring* r) {
+		return wcscmp(l->c_str(), r->c_str()) == 0;
+	}
 };
