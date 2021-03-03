@@ -1,0 +1,12 @@
+#space "wave/lang"
+
+
+[special, readonly]
+public struct Int16 : ValueType
+{
+    [native]
+    private _value: Int16;
+
+    public const MaxValue: Int16 = 32767;
+    public const MinValue: Int16 = -32768;
+}
