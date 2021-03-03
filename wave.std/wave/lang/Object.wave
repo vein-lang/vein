@@ -1,0 +1,12 @@
+#space "wave/lang"
+
+
+[special]
+public class Object : <null>
+{
+    [virtual]
+    public toString(): String
+    {
+        return "<Object>";
+    }
+}
