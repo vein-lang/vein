@@ -25,6 +25,9 @@
         
         internal virtual Parser<string> Keyword(string text) =>
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(text);
+        internal virtual Parser<WaveAnnotationKind> Keyword(WaveAnnotationKind value) =>
+            Parse.IgnoreCase(value.ToString().ToLowerInvariant()).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not())
+                .Return(value);
         
         protected internal virtual Parser<TypeSyntax> SystemType =>
             Keyword("byte").Or(
@@ -53,6 +56,15 @@
                     Keyword("global")).Or(
                     Keyword("extern"))
                 .Text().Token().Named("Modifier");
+
+        protected internal virtual Parser<WaveAnnotationKind> Annotation =>
+            Keyword(WaveAnnotationKind.Getter)
+                .Or(Keyword(WaveAnnotationKind.Setter))
+                .Or(Keyword(WaveAnnotationKind.Native))
+                .Or(Keyword(WaveAnnotationKind.Readonly))
+                .Or(Keyword(WaveAnnotationKind.Special))
+                .Or(Keyword(WaveAnnotationKind.Virtual))
+                .Token().Named("Annotation");
         
         internal virtual Parser<TypeSyntax> NonGenericType =>
             SystemType.Or(QualifiedIdentifier.Select(qi => new TypeSyntax(qi)));
@@ -107,9 +119,11 @@
         // examples: /* this is a member */ public
         protected internal virtual Parser<MemberDeclarationSyntax> MemberDeclarationHeading =>
             from comments in CommentParser.AnyComment.Token().Many()
+            from annotation in AnnotationExpression.Token().Optional()
             from modifiers in Modifier.Many()
             select new MemberDeclarationSyntax
             {
+                Annotations = annotation.GetOrEmpty().Select(x => x.AnnotationKind).ToList(),
                 LeadingComments = comments.ToList(),
                 Modifiers = modifiers.ToList(),
             };
@@ -149,6 +163,14 @@
                 MemberName = identifier.Last(),
                 MemberChain = identifier.SkipLast(1).ToArray()
             };
+
+
+
+        protected internal virtual Parser<AnnotationSyntax[]> AnnotationExpression =>
+            from open in Parse.Char('[')
+            from kind in Parse.Ref(() => Annotation).DelimitedBy(Parse.Char(',').Token())
+            from close in Parse.Char(']')
+            select kind.Select(x => new AnnotationSyntax(x)).ToArray();
         
         // foo.bar()
         // foo.bar(1,24)
@@ -166,12 +188,14 @@
             };
 
         public virtual Parser<DocumentDeclaration> CompilationUnit =>
+            from name in SpaceSyntax
             from includes in UseSyntax.Many().Optional()
             from members in ClassDeclaration.Select(c => c as MemberDeclarationSyntax).Or(EnumDeclaration).Many()
             from whiteSpace in Parse.WhiteSpace.Many()
             from trailingComments in CommentParser.AnyComment.Token().Many().End()
             select new DocumentDeclaration
             {
+                Name = name.Value.Token,
                 Members = members.Select(x => x.WithTrailingComments(trailingComments)),
                 Uses = includes.GetOrElse(new List<UseSyntax>())
             };
