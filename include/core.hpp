@@ -135,7 +135,9 @@ inline void init_types() // TODO resolve members problem with AsClass casting th
 
 
 
-    wave_core->exception_class->DefineField(L"message", static_cast<FieldFlags>(FIELD_Public | FIELD_Virtual), wave_core->string_type);
+    wave_core->exception_class->DefineField(L"message", static_cast<FieldFlags>(FIELD_Public | FIELD_Virtual), 
+        wave_core->string_type);
+    wave_core->exception_class->DefineMethod(L"ctor()", MethodPublic, wave_core->void_type, EMPTY_LIST_(WaveArgumentRef*));
 }
 // ORDER 3
 inline void init_tables()
