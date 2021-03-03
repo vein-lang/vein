@@ -1,0 +1,8 @@
+#space "wave/lang"
+
+
+[special]
+public class Exception : Object
+{
+    public message: String;
+}
