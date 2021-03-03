@@ -16,8 +16,8 @@
         {
             Identifier = classBody.Identifier;
             IsInterface = classBody.IsInterface;
-            BaseType = classBody.BaseType;
-            Interfaces = classBody.Interfaces;
+            IsStruct = classBody.IsStruct;
+            Inheritance = classBody.Inheritance;
             Members = classBody.Members;
             InnerComments = classBody.InnerComments;
             TrailingComments = classBody.TrailingComments;
@@ -30,15 +30,14 @@
         public override SyntaxType Kind => SyntaxType.Class;
 
         public override IEnumerable<BaseSyntax> ChildNodes =>
-            base.ChildNodes.Concat(GetNodes(BaseType)).Concat(Interfaces).Concat(Members).Where(n => n != null);
+            base.ChildNodes.Concat(Inheritance).Concat(Members).Where(n => n != null);
 
         public string Identifier { get; set; }
 
-        public TypeSyntax BaseType { get; set; }
-
         public virtual bool IsInterface { get; set; }
+        public virtual bool IsStruct { get; set; }
 
-        public List<TypeSyntax> Interfaces { get; set; } = new();
+        public List<TypeSyntax> Inheritance { get; set; } = new();
 
         public List<string> InnerComments { get; set; } = new();
 
