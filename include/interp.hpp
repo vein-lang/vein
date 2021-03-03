@@ -1,7 +1,8 @@
 #pragma once
+#include "CallFrame.hpp"
 #include "types/WaveMethodHeader.hpp"
 
-void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* module_, unsigned int* level = 0);
+void exec_method(CallFrame* invocation);
 
 
 

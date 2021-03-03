@@ -10,6 +10,7 @@
 #include "emit/WaveArgumentRef.hpp"
 #include "emit/WaveMember.hpp"
 
+struct WaveModule;
 class WaveArgumentRef;
 using namespace std;
 
@@ -78,11 +79,6 @@ public:
         ReturnType = retType;
 		Owner = owner;
     }
-
-
-
-
-
 
 	void SetILCode(uint32_t* code)
     {

@@ -24,6 +24,7 @@ public:
 	list_t<WaveField*>* Fields = new list_t<WaveField*>();
     list_t<WaveMethod*>* Methods = new list_t<WaveMethod*>();
 
+    WaveModule* owner_module = nullptr;
 
 	WaveTypeCode TypeCode = TYPE_CLASS;
 
@@ -41,6 +42,7 @@ public:
         Flags = CLASS_None;
         FullName = type->get_full_name();
     }
+
     [[nodiscard]]
     WaveMethod* DefineMethod(const wstring& name, MethodFlags flags, WaveType* retType, list_t<WaveArgumentRef*>* args)
     {

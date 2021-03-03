@@ -6,6 +6,8 @@
 #include "emit/module_reader.hpp"
 #include <fmt/format.h>
 
+
+#include "CallFrame.hpp"
 #include "api/kernel_panic.hpp"
 #include "api/Stopwatch.hpp"
 #include "fmt/color.h"
@@ -18,6 +20,7 @@ enum class CALL_CONTEXT : unsigned char
     SELF_CALL,
     OUTER_CALL
 };
+
 
 WaveObject* GetWaveException(TypeName* name, WaveModule* mod)
 {
@@ -56,38 +59,33 @@ void setup(int argc, char* argv[]) {
     
     auto* entry_point = m->GetEntryPoint();
     auto* const args = new stackval[1];
-   /* main_image->method_cache->add("main", method);
 
-    auto* str = new WaveString("hello world, from wave vm!");
+    auto frame = new CallFrame();
 
-    auto* const args = new stackval[3];
-    args[0].type = VAL_FLOAT;
-    args[0].data.f_r4 = 14.48f;
-
-    args[1].type = VAL_FLOAT;
-    args[1].data.f_r4 = static_cast<float>(1483);
-
-    args[2].type = VAL_OBJ;
-    args[2].data.p = reinterpret_cast<size_t>(static_cast<void*>(str));
+    frame->args = args;
+    frame->method = entry_point;
+    frame->level = 0;
 
 
-    auto* str2 = static_cast<WaveString*>(reinterpret_cast<void*>(args[2].data.p));
-    */
-    REGISTER unsigned int level = 0;
     namespace sw = stopwatch;
     sw::Stopwatch my_watch;
-    exec_method(entry_point->data.header, args, m, &level);
+    exec_method(frame);
     auto duration_ms = my_watch.elapsed();
     std::cout << "Elapsed: " << duration_ms / 1000.0f << " seconds." << std::endl;
 }
 
+
 void loop() {
 }
-void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsigned int* level)
+void exec_method(CallFrame* invocation)
 {
     #ifdef DEBUG_IL
     printf("@exec::\n");
     #endif
+    auto* _module = invocation->method->Owner->owner_module;
+    auto* mh = invocation->method->data.header;
+    auto* args = invocation->args;
+
     function<wstring(int z)> get_const_string = [_module](const int w) {
         return _module->GetConstByIndex(w);
     };
@@ -96,6 +94,8 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
     auto* const stack = static_cast<stackval*>(calloc(mh->max_stack, sizeof(stackval)));
     REGISTER auto* sp = stack;
     REGISTER auto* ip = mh->code;
+
+    invocation->stack = stack;
 
     #pragma optimize("", off)
     auto* start = (ip + 1) - 1;
@@ -215,8 +215,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
             case RET:
                 ++ip;
                 --sp;
-                args[0] = *sp;
-                (*level)--;
+                invocation->returnValue = &*sp;
                 delete stack;
                 delete[] locals;
                 return;
@@ -227,7 +226,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
 
                 if (callctx == CALL_CONTEXT::SELF_CALL)
                 {
-
+                    auto new_frame = new CallFrame();
                     ++ip;
                     const auto tokenIdx = READ32(ip);
                     auto owner = readTypeName(&ip, &get_const_string);
@@ -235,7 +234,7 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                     #ifdef DEBUG_IL
                     printf("%%call %ws self function.\n", method->Name.c_str());
                     #endif
-                    (*level)++;
+                    
                     auto* method_args = new stackval[method->ArgLen()];
                     for (auto i = 0; i != method->ArgLen(); i++)
                     {
@@ -244,13 +243,19 @@ void exec_method(MetaMethodHeader* mh, stackval* args, WaveModule* _module, unsi
                         --sp;
                         method_args[i] = *sp;
                     }
-                    exec_method(method->data.header, method_args, _module, level);
+                    new_frame->level = invocation->level + 1;
+                    new_frame->parent = invocation;
+                    new_frame->args = method_args;
+                    new_frame->method = method;
+
+                    exec_method(new_frame);
                     if (method->ReturnType->TypeCode != TYPE_VOID)
                     {
-                        *sp = method_args[0];
+                        *sp = *new_frame->returnValue;
                         sp++;
                     }
                     delete[] method_args;
+                    delete new_frame;
                     break;
                 }
                 throw "not implemented";

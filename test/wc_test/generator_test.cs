@@ -247,7 +247,7 @@ puts after - before;*/
             var clazz = module.DefineClass("satl%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
 
-            clazz.DefineField("zopa", FieldFlags.Public | FieldFlags.Override, WaveTypeCode.TYPE_I4.AsType());
+            clazz.DefineField("zopa", FieldFlags.Public, WaveTypeCode.TYPE_I4.AsType());
             
             var fib = clazz.DefineMethod("fib", 
                 MethodFlags.Public | MethodFlags.Static,
