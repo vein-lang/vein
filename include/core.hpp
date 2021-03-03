@@ -88,8 +88,7 @@ inline void init_default()
     wave_core->i8_class->TypeCode = TYPE_I8;
 
     wave_core->exception_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/Exception"), wave_core->object_class);
-
-
+    
     corlib->classList->push_back(wave_core->object_class);
     corlib->classList->push_back(wave_core->value_class);
     corlib->classList->push_back(wave_core->void_class);
@@ -133,6 +132,10 @@ inline void init_types() // TODO resolve members problem with AsClass casting th
     wave_core->i4_type = AsType(wave_core->i4_class);
     wave_core->i8_type = AsType(wave_core->i8_class);
     wave_core->exception_type = AsType(wave_core->exception_class);
+
+
+
+    wave_core->exception_class->DefineField(L"message", static_cast<FieldFlags>(FIELD_Public | FIELD_Virtual), wave_core->string_type);
 }
 // ORDER 3
 inline void init_tables()
