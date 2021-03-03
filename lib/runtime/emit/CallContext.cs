@@ -2,8 +2,9 @@
 {
     public enum CallContext : byte
     {
-        INTERNAL_CALL,
-        SELF_CALL,
-        OUTER_CALL
+        NATIVE_CALL,
+        THIS_CALL,
+        STATIC_CALL,
+        BACKWARD_CALL
     };
 }
