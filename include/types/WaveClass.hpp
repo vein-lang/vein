@@ -42,16 +42,14 @@ public:
         Flags = CLASS_None;
         FullName = type->get_full_name();
     }
-
-    [[nodiscard]]
+    
     WaveField* DefineField(const wstring& name, FieldFlags flags, WaveType* fieldType)
     {
         auto* field = new WaveField(this, new FieldName(get_name(), name), flags, fieldType);
         Fields->push_back(field);
         return field;
     }
-
-    [[nodiscard]]
+    
     WaveMethod* DefineMethod(const wstring& name, MethodFlags flags, WaveType* retType, list_t<WaveArgumentRef*>* args)
     {
         auto* method = new WaveMethod(name, flags, retType, this, args);
