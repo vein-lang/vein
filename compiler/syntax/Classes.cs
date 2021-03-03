@@ -42,11 +42,12 @@
                 Identifier = typeAndName.Identifier,
                 Accessors = accessors.Accessors,
             };
-        // example: private static int x, y, z = 3;
+        // example: private static x, y, z: int = 3;
         protected internal virtual Parser<FieldDeclarationSyntax> FieldDeclaration =>
             from heading in MemberDeclarationHeading
-            from type in TypeReference
             from declarators in FieldDeclarator.DelimitedBy(Parse.Char(',').Token())
+            from twodot in Parse.Char(':').Token()
+            from type in TypeReference
             from semicolon in Parse.Char(';').Token()
             select new FieldDeclarationSyntax(heading)
             {
@@ -96,20 +97,22 @@
 
         // example: class Program { void main() {} }
         protected internal virtual Parser<ClassDeclarationSyntax> ClassDeclarationBody =>
-            from @class in Parse.IgnoreCase("class").Text().Token().Or(Parse.IgnoreCase("interface").Text().Token())
+            from @class in 
+                Parse.IgnoreCase("class").Text().Token()
+                    .Or(Parse.IgnoreCase("interface").Text().Token())
+                    .Or(Parse.IgnoreCase("struct").Text().Token())
             from className in Identifier
-            from baseType in Parse.IgnoreCase("extends").Token().Then(t => TypeReference).Optional()
-            from interfaces in Parse.IgnoreCase("implements").Token().Then(t => TypeReference.DelimitedBy(Parse.Char(',').Token())).Optional()
+            from interfaces in Parse.IgnoreCase(":").Token().Then(t => TypeReference.DelimitedBy(Parse.Char(',').Token())).Optional()
             from skippedComments in CommentParser.AnyComment.Token().Many()
             from openBrace in Parse.Char('{').Token()
             from members in ClassMemberDeclaration.Many()
             from closeBrace in Parse.Char('}').Commented(this)
-            let classBody = new ClassDeclarationSyntax()
+            let classBody = new ClassDeclarationSyntax
             {
                 Identifier = className,
                 IsInterface = @class == "interface",
-                BaseType = baseType.GetOrDefault(),
-                Interfaces = interfaces.GetOrElse(Enumerable.Empty<TypeSyntax>()).ToList(),
+                IsStruct = @class == "struct",
+                Inheritance = interfaces.GetOrElse(Enumerable.Empty<TypeSyntax>()).ToList(),
                 Members = ConvertConstructors(members, className).ToList(),
                 InnerComments = closeBrace.LeadingComments.ToList(),
                 TrailingComments = closeBrace.TrailingComments.ToList(),
