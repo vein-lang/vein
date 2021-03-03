@@ -74,7 +74,7 @@
             syntax.LeadingComments = Concat(syntax.LeadingComments, other.LeadingComments);
             syntax.TrailingComments = Concat(syntax.TrailingComments, other.TrailingComments);
             syntax.Modifiers = Concat(syntax.Modifiers, other.Modifiers);
-
+            syntax.Annotations = Concat(syntax.Annotations, other.Annotations);
             return syntax;
         }
 

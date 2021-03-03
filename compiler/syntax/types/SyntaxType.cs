@@ -5,6 +5,7 @@
         None,
         Accessor,
         AssignmentExpression,
+        Annotation,
         BinaryExpression,
         Block,
         BreakStatement,

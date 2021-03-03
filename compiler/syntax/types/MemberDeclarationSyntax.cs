@@ -8,11 +8,10 @@
         {
             this.WithProperties(other);
         }
-
         public override SyntaxType Kind => SyntaxType.ClassMember;
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
 
-
+        public List<WaveAnnotationKind> Annotations { get; set; } = new();
         public List<string> Modifiers { get; set; } = new();
 
         public virtual MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName) => this;
