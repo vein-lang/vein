@@ -158,6 +158,9 @@ inline void init_tables()
 
         classes_ref.at(direction)->Methods->push_back(f);
     }
+
+    for (auto c : classes_ref)
+        c.second->init_vtable();
 }
 // ORDER 4
 inline void init_strings_phase_2()
