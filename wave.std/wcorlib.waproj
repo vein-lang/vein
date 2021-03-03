@@ -1,0 +1,3 @@
+<Project sdk="default">
+    <Target>wcorlib</Target>
+</Project>
