@@ -80,6 +80,16 @@ public:
         }
         return nullptr;
     }
+    [[nodiscard]]
+    WaveField* FindFieldByLowName(const wstring& low_name) const noexcept(true)
+    {
+        for (auto* fh : *Fields)
+        {
+            if (equality<wstring>::equal(fh->FullName->get_name(), low_name))
+                return fh;
+        }
+        return nullptr;
+    }
 
     size_t computed_size = 0;
     bool is_inited = false;
