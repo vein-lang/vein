@@ -209,11 +209,13 @@
             this.InternalEmit(opcode);
             
             if (method.Owner.FullName == this._methodBuilder.Owner.FullName)
-                this.PutByte((byte)CallContext.SELF_CALL);
+                this.PutByte((byte)CallContext.THIS_CALL);
             else if (method.IsExtern)
-                this.PutByte((byte)CallContext.INTERNAL_CALL);
-            else
-                this.PutByte((byte)CallContext.OUTER_CALL);
+                this.PutByte((byte)CallContext.NATIVE_CALL);
+            else if (method.IsStatic)
+                this.PutByte((byte)CallContext.STATIC_CALL);
+            else 
+                this.PutByte((byte)CallContext.BACKWARD_CALL);
             
             this.PutInteger4(tokenIdx);
             this.PutTypeName(ownerIdx);
