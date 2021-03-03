@@ -2,6 +2,7 @@
 {
     public enum DirectiveType
     {
-        Use
+        Use,
+        Space
     }
 }
