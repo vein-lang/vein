@@ -11,10 +11,10 @@
         protected internal virtual Parser<MemberDeclarationSyntax> ClassMemberDeclaration =>
             from heading in MemberDeclarationHeading
             from member in ClassInitializerBody.Select(c => c as MemberDeclarationSyntax)
-                .Or(EnumDeclarationBody)
-                .Or(ClassDeclarationBody)
-                .Or(MethodOrPropertyDeclaration)
-                .Or(FieldDeclaration)
+                .Or(MethodOrPropertyDeclaration.Token())
+                //.Or(EnumDeclarationBody.Token())
+                //.Or(ClassDeclarationBody.Token())
+                .Or(FieldDeclaration.Token())
             select member.WithProperties(heading);
         
         // examples: { instanceProperty = 0; }, static { staticProperty = 0; }
@@ -30,11 +30,15 @@
             {
                 Body = body,
             };
-        
-        // example: @required public String name { get; set; }
+        protected internal virtual Parser<ParameterSyntax> NameAndType =>
+            from name in Identifier.Optional()
+            from @as in Parse.Char(':').Token().Commented(this)
+            from type in TypeReference.Token().Positioned()
+            select new ParameterSyntax(type, name.GetOrDefault());
+        // example: @required public name: String { get; set; }
         protected internal virtual Parser<PropertyDeclarationSyntax> PropertyDeclaration =>
             from heading in MemberDeclarationHeading
-            from typeAndName in TypeAndName
+            from typeAndName in NameAndType
             from accessors in PropertyAccessors
             select new PropertyDeclarationSyntax(heading)
             {
@@ -44,25 +48,24 @@
             };
         // example: private static x, y, z: int = 3;
         protected internal virtual Parser<FieldDeclarationSyntax> FieldDeclaration =>
-            from heading in MemberDeclarationHeading
-            from declarators in FieldDeclarator.DelimitedBy(Parse.Char(',').Token())
+            from heading in MemberDeclarationHeading.Token()
+            from identifier in Identifier.Commented(this)
             from twodot in Parse.Char(':').Token()
-            from type in TypeReference
+            from type in TypeReference.Token().Positioned()
+            from expression in Parse.Char('=').Token().Then(c => GenericExpression).Optional()
             from semicolon in Parse.Char(';').Token()
             select new FieldDeclarationSyntax(heading)
             {
                 Type = type,
-                Fields = declarators.ToList(),
-            };
-        // example: now = DateTime.Now()
-        protected internal virtual Parser<FieldDeclaratorSyntax> FieldDeclarator =>
-            from identifier in Identifier.Commented(this)
-            from expression in Parse.Char('=').Token().Then(c => GenericExpression).Optional()
-            select new FieldDeclaratorSyntax
-            {
-                Identifier = identifier.Value,
-                Expression = ExpressionSyntax.CreateOrDefault(expression),
-                LeadingComments = identifier.LeadingComments.ToList(),
+                Fields = new List<FieldDeclaratorSyntax>()
+                {
+                    new ()
+                    {
+                        Identifier = identifier.Value,
+                        Expression = ExpressionSyntax.CreateOrDefault(expression),
+                        LeadingComments = identifier.LeadingComments.ToList()
+                    }
+                },
             };
         // examples: get; private set; get { return 0; }
         protected internal virtual Parser<AccessorDeclarationSyntax> PropertyAccessor =>
@@ -84,15 +87,15 @@
         
         // method or property declaration starting with the type and name
         protected internal virtual Parser<MemberDeclarationSyntax> MethodOrPropertyDeclaration =>
-            from typeAndName in TypeAndName
+            from name in Identifier
             from member in MethodParametersAndBody.Select(c => c as MemberDeclarationSyntax)
                 .XOr(PropertyAccessors)
-            select member.WithTypeAndName(typeAndName);
+            select member.WithName(name);
         
         // example: @TestFixture public static class Program { static void main() {} }
         public virtual Parser<ClassDeclarationSyntax> ClassDeclaration =>
-            from heading in MemberDeclarationHeading
-            from classBody in ClassDeclarationBody
+            from heading in MemberDeclarationHeading.Token()
+            from classBody in ClassDeclarationBody.Token()
             select ClassDeclarationSyntax.Create(heading, classBody);
 
         // example: class Program { void main() {} }
@@ -101,12 +104,12 @@
                 Parse.IgnoreCase("class").Text().Token()
                     .Or(Parse.IgnoreCase("interface").Text().Token())
                     .Or(Parse.IgnoreCase("struct").Text().Token())
-            from className in Identifier
-            from interfaces in Parse.IgnoreCase(":").Token().Then(t => TypeReference.DelimitedBy(Parse.Char(',').Token())).Optional()
+            from className in Identifier.Token()
+            from interfaces in Parse.IgnoreCase(":").Token().Then(t => TypeReference.Positioned().DelimitedBy(Parse.Char(',').Token())).Optional()
             from skippedComments in CommentParser.AnyComment.Token().Many()
             from openBrace in Parse.Char('{').Token()
-            from members in ClassMemberDeclaration.Many()
-            from closeBrace in Parse.Char('}').Commented(this)
+            from members in ClassMemberDeclaration.Token().Many()
+            from closeBrace in Parse.Char('}').Token().Commented(this)
             let classBody = new ClassDeclarationSyntax
             {
                 Identifier = className,

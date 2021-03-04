@@ -2,9 +2,10 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Sprache;
     using stl;
 
-    public class TypeSyntax : BaseSyntax
+    public class TypeSyntax : BaseSyntax, IPositionAware<TypeSyntax>
     {
         public TypeSyntax(IEnumerable<string> qualifiedName)
         {
@@ -15,6 +16,7 @@
             var lastItem = Namespaces.Count - 1;
             Identifier = Namespaces[lastItem];
             Namespaces.RemoveAt(lastItem);
+            transform = new Transform(new Position(0, 0, 0), 0);
         }
 
         public TypeSyntax(params string[] qualifiedName)
@@ -46,5 +48,11 @@
             (TypeParameters.IsNullOrEmpty() ? string.Empty :
                 "<" + string.Join(", ", TypeParameters.Select(t => t.AsString())) + ">") +
             (IsArray ? "[]" : string.Empty);
+
+        TypeSyntax IPositionAware<TypeSyntax>.SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
     }
 }

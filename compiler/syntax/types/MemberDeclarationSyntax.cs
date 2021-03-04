@@ -15,5 +15,6 @@
         public List<string> Modifiers { get; set; } = new();
 
         public virtual MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName) => this;
+        public virtual MemberDeclarationSyntax WithName(string name) => this;
     }
 }

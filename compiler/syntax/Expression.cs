@@ -69,7 +69,7 @@
         protected internal virtual Parser<string> GenericNewExpression =>
             from prev in WaveParserExtensions.PrevChar(c => !char.IsLetterOrDigit(c), "non-alphanumeric")
             from @new in Parse.IgnoreCase("new").Then(_ => Parse.LetterOrDigit.Not()).Token()
-            from type in TypeReference.Token()
+            from type in TypeReference.Token().Positioned()
             select $"new {type.AsString()}";
 
         /// <summary> == </summary>
@@ -163,7 +163,7 @@
         protected internal virtual Parser<ExpressionSyntax> New =>
         (
             from sign in Keyword("new")
-            from type in TypeReference
+            from type in TypeReference.Token().Positioned()
             from ctorArgs in Parse.Ref(() => QualifiedArgumentExpression)
             select new NewExpressionSyntax
             {

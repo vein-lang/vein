@@ -1,6 +1,7 @@
 ﻿namespace wave.syntax
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using Sprache;
     using stl;
@@ -12,7 +13,7 @@
         
         
         protected internal virtual Parser<string> RawIdentifier =>
-            from identifier in Parse.Identifier(Parse.Letter, Parse.LetterOrDigit.Or(Parse.Char('_')))
+            from identifier in Parse.Identifier(Parse.Letter.Or(Parse.Chars("_@")), Parse.LetterOrDigit.Or(Parse.Char('_')))
             where !WaveKeywords.list.Contains(identifier)
             select identifier;
 
@@ -70,18 +71,18 @@
             SystemType.Or(QualifiedIdentifier.Select(qi => new TypeSyntax(qi)));
         
         internal virtual Parser<TypeSyntax> TypeReference =>
-            from type in NonGenericType
-            from parameters in TypeParameters.Optional()
-            from arraySpecifier in Parse.Char('[').Token().Then(_ => Parse.Char(']').Token()).Optional()
-            select new TypeSyntax(type)
-            {
-                TypeParameters = parameters.GetOrElse(Enumerable.Empty<TypeSyntax>()).ToList(),
-                IsArray = arraySpecifier.IsDefined,
-            };
+            (from type in NonGenericType
+                from parameters in TypeParameters.Optional()
+                from arraySpecifier in Parse.Char('[').Token().Then(_ => Parse.Char(']').Token()).Optional()
+                select new TypeSyntax(type)
+                {
+                    TypeParameters = parameters.GetOrElse(Enumerable.Empty<TypeSyntax>()).ToList(),
+                    IsArray = arraySpecifier.IsDefined,
+                }).Token().Positioned();
         
         internal virtual Parser<IEnumerable<TypeSyntax>> TypeParameters =>
             from open in Parse.Char('<').Token()
-            from types in TypeReference.DelimitedBy(Parse.Char(',').Token())
+            from types in TypeReference.Token().Positioned().DelimitedBy(Parse.Char(',').Token())
             from close in Parse.Char('>').Token()
             select types;
         
@@ -91,7 +92,7 @@
             from modifiers in Modifier.Token().Many().Commented(this)
             from name in Identifier.Commented(this)
             from @as in Parse.Char(':').Token().Commented(this)
-            from type in TypeReference.Commented(this)
+            from type in TypeReference.Token().Positioned().Commented(this)
             select new ParameterSyntax(type.Value, name.Value)
             {
                 LeadingComments = modifiers.LeadingComments.Concat(type.LeadingComments).ToList(),
@@ -112,10 +113,7 @@
         
         
         // examples: string Name, void Test
-        protected internal virtual Parser<ParameterSyntax> TypeAndName =>
-            from type in TypeReference
-            from name in Identifier.Optional()
-            select new ParameterSyntax(type, name.GetOrDefault());
+        
         // examples: /* this is a member */ public
         protected internal virtual Parser<MemberDeclarationSyntax> MemberDeclarationHeading =>
             from comments in CommentParser.AnyComment.Token().Many()
@@ -133,14 +131,14 @@
         // public static void Hello() {}
         protected internal virtual Parser<MethodDeclarationSyntax> MethodDeclaration =>
             from heading in MemberDeclarationHeading
-            from typeAndName in TypeAndName
+            from name in Identifier
             from methodBody in MethodParametersAndBody
             select new MethodDeclarationSyntax(heading)
             {
-                Identifier = typeAndName.Identifier ?? typeAndName.Type.Identifier,
-                ReturnType = typeAndName.Type,
+                Identifier = name,
                 Parameters = methodBody.Parameters,
                 Body = methodBody.Body,
+                ReturnType = methodBody.ReturnType
             };
         // examples:
         // void Test() {}
@@ -148,11 +146,14 @@
         // int Dispose();
         protected internal virtual Parser<MethodDeclarationSyntax> MethodParametersAndBody =>
             from parameters in MethodParameters
+            from @as in Parse.Char(':').Token().Commented(this)
+            from type in TypeReference
             from methodBody in Block.Or(Parse.Char(';').Return(default(BlockSyntax))).Token()
             select new MethodDeclarationSyntax
             {
                 Parameters = parameters,
                 Body = methodBody,
+                ReturnType = type
             };
 
         // foo.bar.zet
@@ -188,14 +189,15 @@
             };
 
         public virtual Parser<DocumentDeclaration> CompilationUnit =>
-            from name in SpaceSyntax
+            from name in SpaceSyntax.Token().Commented(this)
             from includes in UseSyntax.Many().Optional()
-            from members in ClassDeclaration.Select(c => c as MemberDeclarationSyntax).Or(EnumDeclaration).Many()
+            from members in ClassDeclaration.Token().Select(c => c as MemberDeclarationSyntax)
+                .Or(EnumDeclaration).Many()
             from whiteSpace in Parse.WhiteSpace.Many()
             from trailingComments in CommentParser.AnyComment.Token().Many().End()
             select new DocumentDeclaration
             {
-                Name = name.Value.Token,
+                Name = name.Value.Value.Token,
                 Members = members.Select(x => x.WithTrailingComments(trailingComments)),
                 Uses = includes.GetOrElse(new List<UseSyntax>())
             };
@@ -210,5 +212,16 @@
         public string Name { get; set; }
         public IEnumerable<UseSyntax> Uses { get; set; }
         public IEnumerable<MemberDeclarationSyntax> Members { get; set; }
+        public FileInfo FileEntity { get; set; }
+
+
+        public List<string> Includes => Uses.Select(x =>
+        {
+            var result = x.Value.Token;
+
+            if (!result.StartsWith("global::"))
+                return $"global::{result}";
+            return result;
+        }).ToList();
     }
 }

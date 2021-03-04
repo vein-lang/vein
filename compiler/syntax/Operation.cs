@@ -12,7 +12,7 @@
         /// </example>
         internal virtual Parser<TypeSyntax> OperationReturnType =>
             from open in Parse.String("->").Token()
-            from type in TypeReference
+            from type in TypeReference.Token().Positioned()
             select type;
         /// <example>
         /// body {

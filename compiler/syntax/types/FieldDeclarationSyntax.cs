@@ -25,6 +25,13 @@
 
             return this;
         }
+        
+        public override MemberDeclarationSyntax WithName(string name)
+        {
+            if (!Fields.IsNullOrEmpty()) 
+                Fields[0].Identifier = name;
+            return this;
+        }
 
         public TypeSyntax Type { get; set; }
 

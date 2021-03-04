@@ -16,7 +16,7 @@
             };
         // example: int x, y, z = 3;
         protected internal virtual Parser<VariableDeclarationSyntax> VariableDeclaration =>
-            from type in TypeReference
+            from type in TypeReference.Token().Positioned()
             from declarators in VariableDeclarator.DelimitedBy(Parse.Char(',').Token())
             from semicolon in Parse.Char(';')
             select new VariableDeclarationSyntax
