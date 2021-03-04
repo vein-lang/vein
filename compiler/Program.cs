@@ -6,25 +6,32 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using Pastel;
-using System.Drawing;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Spectre.Console;
+using Spectre.Console.Cli;
 using wave;
+using wave.cmd;
 using static wave._term;
 using static System.Console;
+using static Spectre.Console.AnsiConsole;
+using Color = System.Drawing.Color;
 
 [assembly: InternalsVisibleTo("wc_test")]
+
 
 if (Environment.GetEnvironmentVariable("WT_SESSION") == null && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 {
     Environment.SetEnvironmentVariable($"RUNE_EMOJI_USE", "0");
     Environment.SetEnvironmentVariable($"RUNE_COLOR_USE", "0");
     Environment.SetEnvironmentVariable($"RUNE_NIER_USE", "0");
-    Environment.SetEnvironmentVariable($"NO_COLOR", "true");
-    ForegroundColor = ConsoleColor.Gray;
-    WriteLine($"\t@\tno windows-terminal: coloring, emoji and nier has disabled.");
-    ForegroundColor = ConsoleColor.White;
+    //Environment.SetEnvironmentVariable($"NO_COLOR", "true");
+    //ForegroundColor = ConsoleColor.Gray;
+    //Console.WriteLine($"\t@\tno windows-terminal: coloring, emoji and nier has disabled.");
+    //ForegroundColor = ConsoleColor.White;
 }
 
 AppDomain.CurrentDomain.ProcessExit += (_, _) => { ConsoleExtensions.Disable(); };
@@ -32,7 +39,7 @@ AppDomain.CurrentDomain.ProcessExit += (_, _) => { ConsoleExtensions.Disable(); 
 
 if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
 {
-    WriteLine("Platform is not supported.");
+    MarkupLine("Platform is not supported.");
     return -1;
 }
 var watch = Stopwatch.StartNew();
@@ -49,35 +56,26 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
 };
 
 
-var rootCommand = new RootCommand
-{
-    new Option<DirectoryInfo>(
-        new []{"--project-dir", "-p"},
-        "Project directory."),
-    new Option<bool?>(
-        new []{"--generate-runtime", "-g"},
-        "Generate runtime.")
-};
-
-rootCommand.Description = "Wave Compiler";
 
 var ver = FileVersionInfo.GetVersionInfo(typeof(_term).Assembly.Location).ProductVersion;
-WriteLine($"Wave compiler {ver}".Pastel(Color.Gray));
-WriteLine($"Copyright (C) 2021 Yuuki Wesp.\n\n".Pastel(Color.Gray));
+MarkupLine($"[grey]Wave compiler[/] [red]{ver}[/]");
+MarkupLine($"[grey]Copyright (C)[/] [cyan3]2021[/] [bold]Yuuki Wesp[/].\n\n");
 
-rootCommand.Handler = CommandHandler.Create<DirectoryInfo, bool?>((projectDir, genRuntime) =>
+
+ColorShim.Apply();
+var app = new CommandApp();
+
+
+
+app.Configure(config =>
 {
-    //if (genRuntime is not null && genRuntime.Value)
-        return Pipeline.Create().GenerateRuntimeAsync();
-    //if (projectDir is null)
-    //    return Fail("'--source-dir' is null");
-    //return Pipeline.Create().StartAsync(projectDir);
+    config.AddCommand<CompileCommand>("compile");
 });
 
-var result = rootCommand.InvokeAsync(args).Result;
+var result = app.Run(args);
 
 watch.Stop();
 
-WriteLine($"{":sparkles:".Emoji()} Done in {watch.Elapsed.TotalSeconds:00.000}s.");
+MarkupLine($":sparkles: Done in [lime]{watch.Elapsed.TotalSeconds:00.000}s[/].");
 
 return result;
