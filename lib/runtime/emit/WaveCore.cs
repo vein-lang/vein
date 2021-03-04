@@ -97,6 +97,7 @@
             BoolClass = new WaveClass(Types.BoolType, ValueTypeClass);
             CharClass = new WaveClass(Types.CharType, ValueTypeClass);
             ArrayClass = new WaveClass(Types.ArrayType, ObjectClass);
+            ExceptionClass = new WaveClass(Types.ExceptionType, ObjectClass);
             
             
             ObjectClass.DefineMethod("getHashCode", Types.Int32Type, 
