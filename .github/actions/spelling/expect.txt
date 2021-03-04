@@ -412,6 +412,7 @@ Bvon
 BVTb
 Bvv
 bw
+Bwave
 BWf
 Bwuk
 BXa
@@ -953,6 +954,7 @@ ecdf
 ecf
 ecfe
 ECH
+ECore
 ECqrgsp
 Ecr
 Ect
@@ -974,6 +976,7 @@ edf
 Edg
 Edgql
 edj
+Edot
 Edqo
 eea
 eec
@@ -1001,6 +1004,7 @@ effd
 effde
 effec
 EFFVYw
+EFilter
 Efza
 EGDDD
 Eggg
@@ -1043,6 +1047,7 @@ Emc
 EMD
 EMi
 Emo
+EModel
 emoji
 emxp
 ENa
@@ -1077,6 +1082,7 @@ eofu
 Eok
 EOw
 Epai
+EPipeline
 Epwsi
 Epymbzq
 EQB
@@ -1095,7 +1101,9 @@ escapestringchar
 ESf
 Eshyiqc
 ESl
+ESolution
 ESQm
+EString
 esult
 ESv
 Esvbdl
@@ -1301,9 +1309,11 @@ fsize
 fsqq
 FSRb
 fstream
+Fterm
 Ftt
 FTUUq
 FUDDD
+Fullset
 Func
 FUNCDNAME
 FUNCSIG
@@ -3723,6 +3733,7 @@ Twc
 tweetnacl
 TWEOz
 TWiz
+twodot
 TWSO
 TWW
 TXIx
@@ -4108,6 +4119,7 @@ WBs
 wchar
 WCl
 wco
+wcorlib
 WCp
 WCq
 WCr
