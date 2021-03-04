@@ -117,7 +117,7 @@
 
             return (val, field.FieldType.TypeCode) switch
             {
-                (bool b, TYPE_BOOLEAN)  => new byte[] {b ? 1 : 0},
+                (bool b, TYPE_BOOLEAN)  => new byte[] {b ? (byte)1 : (byte)0},
                 (char b, TYPE_CHAR)     => BitConverter.GetBytes(b),
                 (byte b, TYPE_I1)       => new[] {b},
                 (short b, TYPE_I2)      => BitConverter.GetBytes(b),
