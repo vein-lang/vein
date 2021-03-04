@@ -14,7 +14,7 @@ namespace wc_test
     using wave.syntax;
     using Xunit;
     using Xunit.Abstractions;
-
+    
     public class generator_test
     {
         private readonly ITestOutputHelper _testOutputHelper;
@@ -303,6 +303,13 @@ puts after - before;*/
             fibGen.Emit(OpCodes.LDC_I8_1);
             fibGen.Emit(OpCodes.ADD);
             fibGen.Emit(OpCodes.STLOC_3);
+
+            var exceptionType =
+                module.FindType(new QualityTypeName("corlib%global::wave/lang/Exception")).AsClass();
+            
+            fibGen.Emit(OpCodes.NEWOBJ, exceptionType.FullName);
+            fibGen.EmitCall(OpCodes.CALL, exceptionType.FindMethod("ctor()"));
+            fibGen.Emit(OpCodes.THROW);
 
 
             // i <= n

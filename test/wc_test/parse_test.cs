@@ -67,7 +67,7 @@
             Assert.Throws<WaveParseException>(() => new WaveSyntax().ParameterDeclaration.ParseWave(parseStr));
         }
         [Fact]
-        public void MethodParametersAndBodyTest()
+        public void OperationParametersAndBodyTest()
         {
             var a = new WaveSyntax();
             var d = a.OperationDeclaration
@@ -83,6 +83,39 @@
             Assert.Equal("int32", d.ReturnType.Identifier);
             Assert.Equal(SyntaxType.ReturnStatement, d.Body.Statements.First().Kind);
         }
+        
+        
+        [Fact]
+        public void MethodParametersAndBodyTest()
+        {
+            var a = new WaveSyntax();
+            var d = a.MethodDeclaration
+                .ParseWave("public test(x: int32): void { }");
+            Assert.Equal("test", d.Identifier);
+            Assert.Equal("void", d.ReturnType.Identifier);
+        }
+        
+        [Fact]
+        public void FullsetMethodParametersAndBodyTest()
+        {
+            var a = new WaveSyntax();
+            var d = a.ClassDeclaration
+                .ParseWave("public class DDD { public test(x: int32): void { } }");
+            
+            Assert.False(d.IsStruct);
+            Assert.False(d.IsInterface);
+            Assert.Equal("DDD", d.Identifier);
+            Assert.Contains(d.Modifiers, x => x.Equals("public"));
+            var method = d.Methods.Single();
+            Assert.Equal("test", method.Identifier);
+            Assert.Contains(method.Modifiers, x => x.Equals("public"));
+            Assert.Equal("void", method.ReturnType.Identifier);
+            
+            var @params = method.Parameters.Single();
+            Assert.Equal("x", @params.Identifier);
+            Assert.Equal("int32", @params.Type.Identifier);
+        }
+
         
         [Theory]
         [InlineData("operation test[x: int32] -> int32", "test", false)]
@@ -141,6 +174,32 @@
             Assert.Equal(2, d.Length);
         }
         
+        [Fact]
+        public void FieldTest()
+        {
+            Wave.FieldDeclaration.ParseWave("public const MaxValue: Int16 = 32767;");
+        }
+        [Fact]
+        public void FieldWithAnnotationTest()
+        {
+            Wave.FieldDeclaration.ParseWave("[native] private _value: Int16;");
+        }
+        [Fact]
+        public void MethodTest00()
+        {
+            Wave.MethodDeclaration.ParseWave(@"public EndsWith(value: Char): Boolean
+            {
+                if (Length - 1 < Length)
+                    {return false;}
+                return this[Length - 1] == value;
+            }");
+        }
+        [Fact]
+        public void ReturnParseTest00()
+        {
+            Wave.ReturnStatement.ParseWave(@"return this == value;");
+        }
+        
         [Theory]
         [InlineData("class")]
         [InlineData("public")]
@@ -186,12 +245,16 @@
                 Assert.Equal(result, expr.Token);
             }
         }
-        [Fact]
-        public void ClassDeclarationCanDeclareMethods()
+        [Theory]
+        [InlineData("class")]
+        [InlineData("struct")]
+        [InlineData("interface")]
+        public void DeclarationCanDeclareMethods(string keyword)
         {
-            var cd = Wave.ClassDeclaration.Parse(" class Program { [special] void main() {} }");
+            var cd = Wave.ClassDeclaration.Parse($"[special] {keyword} Program {{ [special] void main() {{}} }}");
             Assert.True(cd.Methods.Any());
             Assert.Equal("Program", cd.Identifier);
+            Assert.Equal(WaveAnnotationKind.Special, cd.Annotations.Single());
 
             var md = cd.Methods.Single();
             Assert.Equal("void", md.ReturnType.Identifier);
@@ -200,8 +263,24 @@
             Assert.False(md.Parameters.Any());
             
             Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave(" class Test { void Main }"));
-            Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave("class Apex { int main() }"));
+            Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave("class Foo { int main() }"));
         }
+        [Fact]
+        public void InheritanceTest()
+        {
+            var cd = Wave.ClassDeclaration.Parse("class Program : Object {}");
+            
+            Assert.Equal("Object", cd.Inheritance.Single().Identifier);
+        }
+        
+        [Fact]
+        public void FieldsTest()
+        {
+            var cd = Wave.ClassDeclaration.Parse("class Program : Object { foo: foo; }");
+            
+            Assert.Equal("Object", cd.Inheritance.Single().Identifier);
+        }
+        
         [Theory]
         [InlineData("foo()")]
         [InlineData("foo.bar()")]
