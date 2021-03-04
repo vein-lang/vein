@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using Sprache;
 
@@ -35,13 +36,8 @@
             {
                 return result.Value;
             }
-
-            var message = result.ToString();
-
-            // append the whole current line text
-            var lines = (input ?? string.Empty).Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-            var lineNumber = result.Remainder.Line - 1;
-            throw new WaveParseException(message, lineNumber, lines);
+            throw new WaveParseException(result.Message, 
+                new Position(result.Remainder.Position, result.Remainder.Line, result.Remainder.Column));
         }
 
         /// <summary>
@@ -133,13 +129,9 @@
     
     public class WaveParseException : ParseException
     {
-        public string[] WaveCode { get; set; }
-        public int LineNumber { get; set; }
-        public WaveParseException(string message, int lineNumber, string[] waveCode)
-            : base(message)
+        public WaveParseException(string message, Position pos)
+            : base(message, pos)
         {
-            LineNumber = lineNumber;
-            WaveCode = waveCode;
         }
     }
 }
