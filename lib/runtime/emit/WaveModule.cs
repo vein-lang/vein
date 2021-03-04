@@ -17,7 +17,32 @@
         public string GetConstByIndex(int index) 
             => strings.GetValueOrDefault(index) ?? 
                throw new AggregateException($"Index '{index}' not found in module '{Name}'.");
-        
+
+        public WaveType TryFindType(string typename, List<string> includes)
+        {
+            try
+            {
+                return FindType(typename, includes);
+            }
+            catch (TypeNotFoundException)
+            {
+                return null;
+            }
+        }
+        public WaveType FindType(string typename, List<string> includes)
+        {
+            var result = classList.Where(x => includes.Contains(x.FullName.Namespace)).
+                FirstOrDefault(x => x.Name.Equals(typename))?.AsType();
+            if (result is not null)
+                return result;
+            foreach (var module in Deps)
+            {
+                result = module.FindType(typename, includes);
+                if (result is not null)
+                    return result;
+            }
+            throw new TypeNotFoundException($"'{typename}' not found in modules and dependency assemblies.");
+        }
         
         public WaveType FindType(QualityTypeName type, bool findExternally = false)
         {
