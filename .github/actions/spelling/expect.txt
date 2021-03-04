@@ -578,6 +578,7 @@ CMIA
 Cmiu
 cmm
 CMN
+cmp
 Cmqlkwj
 cmx
 cn
@@ -2857,6 +2858,7 @@ Pdmc
 PDO
 Pem
 PEMJ
+perl
 PEUw
 PFE
 pff
@@ -2914,6 +2916,7 @@ PNt
 Pof
 Pog
 Poj
+popd
 popout
 popup
 POrj
@@ -2977,6 +2980,7 @@ Pudk
 Puj
 punycode
 PUo
+pushd
 Puv
 PUxk
 PUzbaq
@@ -3682,6 +3686,7 @@ Togvnh
 tok
 tolower
 Toogpwo
+toplevel
 toq
 toz
 Tpanhtc
