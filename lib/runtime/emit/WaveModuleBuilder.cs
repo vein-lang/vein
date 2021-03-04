@@ -11,6 +11,9 @@
     {
         public WaveModuleBuilder(string name) : base(name) {}
 
+        public ClassBuilder DefineClass(string clazzName) 
+            => DefineClass(new QualityTypeName($"{Name}%{clazzName}"));
+
         public ClassBuilder DefineClass(QualityTypeName name)
         {
             GetStringConstant(name.Name);
