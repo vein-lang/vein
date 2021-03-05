@@ -7,35 +7,23 @@
 
     public partial class WaveSyntax
     {
-        // class members: methods, classes, properties
         protected internal virtual Parser<MemberDeclarationSyntax> ClassMemberDeclaration =>
-            from heading in MemberDeclarationHeading
-            from member in ClassInitializerBody.Select(c => c as MemberDeclarationSyntax)
-                .Or(MethodOrPropertyDeclaration.Token())
-                //.Or(EnumDeclarationBody.Token())
-                //.Or(ClassDeclarationBody.Token())
+            from member in 
+                MethodOrPropertyDeclaration.Token()
                 .Or(FieldDeclaration.Token())
-            select member.WithProperties(heading);
+            select member;
         
-        // examples: { instanceProperty = 0; }, static { staticProperty = 0; }
-        protected internal virtual Parser<ClassInitializerSyntax> ClassInitializer =>
-            from heading in MemberDeclarationHeading
-            from initializer in ClassInitializerBody
-            select initializer.WithProperties(heading);
-
-        // examples: { a = 0; }
-        protected internal virtual Parser<ClassInitializerSyntax> ClassInitializerBody =>
-            from body in Block
-            select new ClassInitializerSyntax
-            {
-                Body = body,
-            };
         protected internal virtual Parser<ParameterSyntax> NameAndType =>
             from name in Identifier.Optional()
             from @as in Parse.Char(':').Token().Commented(this)
             from type in TypeReference.Token().Positioned()
             select new ParameterSyntax(type, name.GetOrDefault());
-        // example: @required public name: String { get; set; }
+        /// <summary></summary>
+        /// <example>
+        /// foo: Type;
+        /// [special] foo: Type;
+        /// [special] public foo: Type;
+        /// </example>
         protected internal virtual Parser<PropertyDeclarationSyntax> PropertyDeclaration =>
             from heading in MemberDeclarationHeading
             from typeAndName in NameAndType
@@ -87,10 +75,11 @@
         
         // method or property declaration starting with the type and name
         protected internal virtual Parser<MemberDeclarationSyntax> MethodOrPropertyDeclaration =>
+            from dec in MemberDeclarationHeading
             from name in Identifier
             from member in MethodParametersAndBody.Select(c => c as MemberDeclarationSyntax)
                 .XOr(PropertyAccessors)
-            select member.WithName(name);
+            select member.WithName(name).WithProperties(dec);
         
         // example: @TestFixture public static class Program { static void main() {} }
         public virtual Parser<ClassDeclarationSyntax> ClassDeclaration =>

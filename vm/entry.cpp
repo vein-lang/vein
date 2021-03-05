@@ -1,4 +1,3 @@
-// ReSharper disable CppDeprecatedRegisterStorageClassSpecifier
 #include "core.hpp"
 #include "interp.hpp"
 #include "internal.hpp"
@@ -12,7 +11,9 @@
 #include "api/Stopwatch.hpp"
 #include "fmt/color.h"
 
+// ReSharper disable once CppUnusedIncludeDirective
 #include "debug_string.impl.hpp"
+#include "string_storage.hpp"
 
 enum class CALL_CONTEXT : unsigned char
 {
@@ -22,17 +23,27 @@ enum class CALL_CONTEXT : unsigned char
     BACKWARD_CALL
 };
 
-
-WaveObject* GetWaveException(TypeName* name, WaveModule* mod)
+WaveObject* AllocateWaveString(const wstring& str)
 {
-    auto* clazz = mod->FindClass(name);
-    auto* obj = new WaveObject();
+    return StringPool::Intern(str);
+}
 
-    obj->type = TYPE_CLASS;
-    obj->clazz = clazz;
+WaveObject* GetWaveException(const wstring& msg)
+{
+    auto* obj = new WaveObject(wave_core->exception_class);
+    auto* field = wave_core->exception_class->FindFieldByLowName(L"message");
+
+    obj->vtable[field->vtable_offset] = AllocateWaveString(msg);
 
     return obj;
 }
+
+WaveString* GetMessageFromException(WaveObject* ex)
+{
+    auto* field = wave_core->exception_class->FindFieldByLowName(L"message");
+    return static_cast<WaveString*>(static_cast<WaveObject*>(ex->vtable[field->vtable_offset]));
+}
+
 void setup(int argc, char* argv[]) {
     init_serial();
     init_default();
@@ -225,9 +236,9 @@ void exec_method(CallFrame* invocation)
                 ++ip;
                 auto callctx = static_cast<CALL_CONTEXT>(static_cast<uint32_t>(*ip));
 
-                if (callctx == CALL_CONTEXT::SELF_CALL)
+                if (callctx == CALL_CONTEXT::THIS_CALL)
                 {
-                    auto new_frame = new CallFrame();
+                    auto child_frame = new CallFrame();
                     ++ip;
                     const auto tokenIdx = READ32(ip);
                     auto owner = readTypeName(&ip, &get_const_string);
@@ -244,19 +255,42 @@ void exec_method(CallFrame* invocation)
                         --sp;
                         method_args[i] = *sp;
                     }
-                    new_frame->level = invocation->level + 1;
-                    new_frame->parent = invocation;
-                    new_frame->args = method_args;
-                    new_frame->method = method;
+                    child_frame->level = invocation->level + 1;
+                    child_frame->parent = invocation;
+                    child_frame->args = method_args;
+                    child_frame->method = method;
 
-                    exec_method(new_frame);
+                    exec_method(child_frame);
+                    if (child_frame->exception)
+                    {
+                        auto* msg = GetMessageFromException(child_frame->exception->value);
+                        //auto d2 = msg->GetValue();
+                        print(fg(fmt::color::crimson) | fmt::emphasis::bold,
+                         L"unhandled exception was thrown. \n [{0}] {1}\n{2}",
+                            child_frame->exception->value->clazz->FullName->get_name(),
+                            L"null reference exception",
+                            child_frame->exception->stack_trace);
+                        vm_shutdown();
+                        return;
+                    }
                     if (method->ReturnType->TypeCode != TYPE_VOID)
                     {
-                        *sp = *new_frame->returnValue;
+                        *sp = *child_frame->returnValue;
                         sp++;
                     }
+                    
+
+                    try
+                    {
+                        throw 228;
+                    }
+                    catch(int& ex)
+                    {
+                        
+                    }
+
                     delete[] method_args;
-                    delete new_frame;
+                    delete child_frame;
                     break;
                 }
                 throw "not implemented";
@@ -538,9 +572,18 @@ void exec_method(CallFrame* invocation)
             break;
             case THROW:
                 --sp;
-                //if (!sp->data.p)
-				//    sp->data.p = m;
-                break;
+                if (!sp->data.p)
+				    sp->data.p = reinterpret_cast<size_t>(GetWaveException(L"null reference exception"));
+                if (sp->type != TYPE_OBJECT)
+                {
+                    set_failure(WAVE_EXCEPTION_TYPE_LOAD, L"stack type is not TYPE_OBJECT.");
+                    return;
+                }
+                invocation->exception = new CallFrameException();
+                invocation->exception->value = reinterpret_cast<WaveObject*>(sp->data.p);
+                invocation->exception->last_ip = ip;
+                CallFrame::fill_stacktrace(invocation);
+                return;
             default:
                 {
                     d_print("Unimplemented opcode: ");

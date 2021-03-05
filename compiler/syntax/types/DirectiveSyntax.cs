@@ -7,5 +7,6 @@
         public override SyntaxType Kind { get; } = SyntaxType.DirectiveDeclaration;
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
         public abstract DirectiveType DirectiveKind { get; }
+        public LiteralExpressionSyntax Value { get; set; }
     }
 }

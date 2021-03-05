@@ -19,7 +19,7 @@
 
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Type);
 
-        public List<string> Modifiers { get; set; } = new();
+        public List<ModificatorSyntax> Modifiers { get; set; } = new();
 
         public TypeSyntax Type { get; set; }
 

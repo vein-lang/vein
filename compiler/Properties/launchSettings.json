@@ -1,7 +1,8 @@
 {
   "profiles": {
     "wc": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "compile C:\\git\\wave_vm\\wave.std\\wcorlib.waproj"
     }
   }
 }

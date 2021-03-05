@@ -52,7 +52,7 @@
 
         public BlockSyntax Body { get; set; }
 
-        public bool IsStatic => Modifiers.EmptyIfNull().Any(m => m == "static");
+        public bool IsStatic => Modifiers.EmptyIfNull().Any(m => m.ModificatorKind == ModificatorKind.Static);
     }
     public class InterfaceDeclarationSyntax : ClassDeclarationSyntax
     {

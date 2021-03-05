@@ -2,9 +2,14 @@
 #use "reflection.lib"
 #use "metadata.lib"
 
-public class MethodBuilder
+public class CtorAndDtorSample
 {
+    
     new () 
+    {
+
+    }
+    delete ()
     {
 
     }

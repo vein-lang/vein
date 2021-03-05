@@ -2,7 +2,7 @@
 
 
 [special]
-public class Object : <null>
+public class Object
 {
     [virtual]
     public toString(): String

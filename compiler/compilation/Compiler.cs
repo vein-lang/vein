@@ -9,7 +9,6 @@
     using System.IO;
     using System.Linq;
     using System.Threading;
-    using static emit.MethodFlags;
     using static Spectre.Console.AnsiConsole;
 
     public class Compiler
@@ -79,19 +78,29 @@
         }
         public void CompileInto(DocumentDeclaration doc)
         {
+            var classes = new List<(WaveClass clazz, ClassDeclarationSyntax member)>();
+
+            // apply root namespace into includes
+            doc.Includes.Add(doc.Name);
+
             foreach (var member in doc.Members)
             {
                 if (member is ClassDeclarationSyntax clazz)
                 {
                     ctx.WaveStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
-                    CompileInto(clazz, doc);
+                    classes.Add((CompileInto(clazz, doc), clazz));
                 }
                 else
                     warnings.Add($"[grey]Member[/] [yellow underline]'{member.GetType().Name}'[/] [grey]is not supported.[/]");
             }
+
+            foreach (var (clazz, member) in classes)
+            {
+                CompileMethods(member, clazz, doc);
+            }
         }
 
-        public void CompileInto(ClassDeclarationSyntax member, DocumentDeclaration doc)
+        public WaveClass CompileInto(ClassDeclarationSyntax member, DocumentDeclaration doc)
         {
             var clazz = module.DefineClass($"global::{doc.Name}/{member.Identifier}");
 
@@ -103,11 +112,15 @@
                 owner ??= new TypeSyntax("Object");
 
                 clazz.Parent = FetchType(owner, doc)?.AsClass();
-
-                if (clazz.Parent is null)
-                    return;
             }
 
+            clazz.Flags = GenerateClassFlags(member);
+
+            return clazz;
+        }
+
+        public void CompileMethods(ClassDeclarationSyntax member, WaveClass clazz, DocumentDeclaration doc)
+        {
             foreach (var memberMember in member.Members)
             {
                 if (memberMember is MethodDeclarationSyntax method)
@@ -138,6 +151,15 @@
             ctx.WaveStatus("Collecting metadata...");
             var retType = module.TryFindType(typename.Identifier, doc.Includes);
 
+            if (HasNativeType(typename) && retType is null)
+            {
+                errors.Add($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]' \n\t" +
+                           $"[red bold]Native type is not loaded.[/]\n\t" +
+                           $"at '[orange bold]{typename.transform.pos.Line} line, {typename.transform.pos.Column} column[/]' \n\t" +
+                           $"in '[orange bold]{doc.FileEntity}[/]'.");
+                return null;
+            }
+
             if (retType is null) 
                 errors.Add($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]' \n\t" +
                            $"at '[orange bold]{typename.transform.pos.Line} line, {typename.transform.pos.Column} column[/]' \n\t" +
@@ -145,6 +167,8 @@
             return retType;
         }
 
+        private bool HasNativeType(TypeSyntax typename) 
+            => WaveCore.All.Any(x => x.Name.Equals(typename.Identifier, StringComparison.InvariantCultureIgnoreCase));
 
         private WaveArgumentRef[] GenerateArgument(MethodDeclarationSyntax method, DocumentDeclaration doc)
         {
@@ -153,6 +177,68 @@
             return method.Parameters.Select(parameter => new WaveArgumentRef
                 {Type = FetchType(parameter.Type, doc), Name = parameter.Identifier})
                 .ToArray();
+        }
+
+        private ClassFlags GenerateClassFlags(ClassDeclarationSyntax clazz)
+        {
+            var flags = (ClassFlags) 0;
+
+            var annotation = clazz.Annotations;
+            var mods = clazz.Modifiers;
+
+            foreach (var kind in annotation)
+            {
+                switch (kind.AnnotationKind)
+                {
+                    case WaveAnnotationKind.Getter:
+                    case WaveAnnotationKind.Setter:
+                    case WaveAnnotationKind.Virtual:
+                        errors.Add($"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
+                                   $"class/struct/interface declaration.");
+                        continue;
+                    case WaveAnnotationKind.Special:
+                    case WaveAnnotationKind.Native:
+                        continue;
+                    case WaveAnnotationKind.Readonly when !clazz.IsStruct:
+                        errors.Add($"[orange bold]Annotation[/] [red bold]{kind}[/] can only be applied to a structure declaration.");
+                        continue;
+                    default:
+                        errors.Add(
+                            $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
+                        continue;
+                }
+            }
+
+            foreach (var mod in mods)
+            {
+                switch (mod.ModificatorKind.ToString().ToLower())
+                {
+                    case "public":
+                        flags &= ClassFlags.Public;
+                        continue;
+                    case "private":
+                        flags &= ClassFlags.Private;
+                        continue;
+                    case "static":
+                        flags &= ClassFlags.Static;
+                        continue;
+                    case "protected":
+                        flags &= ClassFlags.Protected;
+                        continue;
+                    case "internal":
+                        flags &= ClassFlags.Internal;
+                        continue;
+                    case "abstract":
+                        flags &= ClassFlags.Abstract;
+                        continue;
+                    default:
+                        errors.Add(
+                            $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{mod}[/] is not supported [orange bold]modificator[/].");
+                        continue;
+                }
+            }
+
+            return flags;
         }
 
         private MethodFlags GenerateMethodFlags(MethodDeclarationSyntax method)
@@ -164,10 +250,10 @@
 
             foreach (var kind in annotation)
             {
-                switch (kind)
+                switch (kind.AnnotationKind)
                 {
                     case WaveAnnotationKind.Virtual:
-                        flags &= Virtual;
+                        flags &= MethodFlags.Virtual;
                         continue;
                     case WaveAnnotationKind.Special:
                     case WaveAnnotationKind.Native:
@@ -178,31 +264,33 @@
                         errors.Add($"In [orange]'{method.Identifier}'[/] method [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
                         continue;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        errors.Add(
+                            $"In [orange]'{method.Identifier}'[/] method [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
+                        continue;
                 }
             }
 
             foreach (var mod in mods)
             {
-                switch (mod)
+                switch (mod.ModificatorKind.ToString().ToLower())
                 {
                     case "public":
-                        flags &= Public;
+                        flags &= MethodFlags.Public;
                         continue;
                     case "extern":
-                        flags &= Extern;
+                        flags &= MethodFlags.Extern;
                         continue;
                     case "private":
-                        flags &= Private;
+                        flags &= MethodFlags.Private;
                         continue;
                     case "static":
-                        flags &= Static;
+                        flags &= MethodFlags.Static;
                         continue;
                     case "protected":
-                        flags &= Protected;
+                        flags &= MethodFlags.Protected;
                         continue;
                     case "internal":
-                        flags &= Internal;
+                        flags &= MethodFlags.Internal;
                         continue;
                     default:
                         errors.Add($"In [orange]'{method.Identifier}'[/] method [red bold]{mod}[/] is not supported [orange bold]modificator[/].");
@@ -211,7 +299,7 @@
             }
 
 
-            if (flags.HasFlag(Private) && flags.HasFlag(Public))
+            if (flags.HasFlag(MethodFlags.Private) && flags.HasFlag(MethodFlags.Public))
                 errors.Add($"Modificator [red bold]public[/] cannot be combined with [red bold]private[/] in [orange]'{method.Identifier}'[/] method.");
 
 
@@ -229,7 +317,7 @@
         {
             if (context == null)
                 throw new ArgumentNullException(nameof (context));
-            Thread.Sleep(400); // so, i need it :(
+            Thread.Sleep(200); // so, i need it :(
             context.Status = status;
             return context;
         }

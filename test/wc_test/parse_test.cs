@@ -41,7 +41,7 @@
         [InlineData(" a: int", "a", "int", 0, null)]
         [InlineData("  b : SomeClass", "b", "SomeClass", 0, null)]
         [InlineData("lst: List<T>", "lst", "List", 0, null)]
-        [InlineData("readonly b: int", "b", "int", 1, "readonly")]
+        [InlineData("override b: int", "b", "int", 1, "override")]
         [InlineData("static c: int", "c", "int", 1, "static")]
         public void ParameterDeclarationParseTest(string parseStr, string name, string type, int lenMod, string mod)
         {
@@ -51,7 +51,7 @@
             Assert.Equal(type, result.Type.Identifier);
             Assert.Equal(lenMod, result.Modifiers.Count);
             if(mod is not null)
-                Assert.Equal(mod, result.Modifiers[0]);
+                Assert.Equal(mod, result.Modifiers[0].ModificatorKind.ToString().ToLower());
         }
         
         [Theory]
@@ -83,6 +83,15 @@
             Assert.Equal("int32", d.ReturnType.Identifier);
             Assert.Equal(SyntaxType.ReturnStatement, d.Body.Statements.First().Kind);
         }
+
+        [Theory]
+        [InlineData("foo: Type;")]
+        [InlineData("[special] foo: Type;")]
+        [InlineData("[special] public foo: Type;")]
+        public void FieldTest00(string str)
+        {
+            Wave.FieldDeclaration.ParseWave(str);
+        }
         
         
         [Fact]
@@ -105,10 +114,10 @@
             Assert.False(d.IsStruct);
             Assert.False(d.IsInterface);
             Assert.Equal("DDD", d.Identifier);
-            Assert.Contains(d.Modifiers, x => x.Equals("public"));
+            Assert.Contains(d.Modifiers, x => x.ModificatorKind == ModificatorKind.Public);
             var method = d.Methods.Single();
             Assert.Equal("test", method.Identifier);
-            Assert.Contains(method.Modifiers, x => x.Equals("public"));
+            Assert.Contains(method.Modifiers, x => x.ModificatorKind == ModificatorKind.Public);
             Assert.Equal("void", method.ReturnType.Identifier);
             
             var @params = method.Parameters.Single();
@@ -124,7 +133,7 @@
         [InlineData("operation asd_d2[i: s, x: w] -> foo22", "asd_d2", false)]
         [InlineData("operation asd-d[i: s, x: w] -> foo22", "asd-d2", true)]
         [InlineData("operation 123[i: s, x: w] -> foo22", "123", true)]
-        [InlineData("operation @[i: s, x: w] -> foo22", "@", true)]
+        [InlineData("operation $[i: s, x: w] -> foo22", "$", true)]
         [InlineData("operation name[ s s s s] -> foo22", "name", true)]
         [InlineData("operation name[i: s, x: w] - foo22", "name", true)]
         [InlineData("operation name[i: s, x: w]", "name", true)]
@@ -153,7 +162,7 @@
         {
             var a = new WaveSyntax();
             var d = a.UseSyntax
-                .ParseWave("#use \"stl.lib\"");
+                .ParseWave("#use \"stl.lib\"") as UseSyntax;
             Assert.Equal("stl.lib", d.Value.Token);
         }
         
@@ -191,7 +200,7 @@
             {
                 if (Length - 1 < Length)
                     {return false;}
-                return this[Length - 1] == value;
+                return this == value;
             }");
         }
         [Fact]
@@ -251,15 +260,15 @@
         [InlineData("interface")]
         public void DeclarationCanDeclareMethods(string keyword)
         {
-            var cd = Wave.ClassDeclaration.Parse($"[special] {keyword} Program {{ [special] void main() {{}} }}");
+            var cd = Wave.ClassDeclaration.Parse($"[special] {keyword} Program {{ [special] main(): void {{}} }}");
             Assert.True(cd.Methods.Any());
             Assert.Equal("Program", cd.Identifier);
-            Assert.Equal(WaveAnnotationKind.Special, cd.Annotations.Single());
+            Assert.Equal(WaveAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
 
             var md = cd.Methods.Single();
             Assert.Equal("void", md.ReturnType.Identifier);
             Assert.Equal("main", md.Identifier);
-            Assert.Equal(WaveAnnotationKind.Special, md.Annotations.Single());
+            Assert.Equal(WaveAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
             Assert.False(md.Parameters.Any());
             
             Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave(" class Test { void Main }"));
@@ -385,10 +394,17 @@
         [Fact]
         public void FooProgramTest()
         {
-            var result = Wave.CompilationUnit.End().ParseWave("#use \"stl.lib\"\n" +
-                                           "public class Foo {" +
-                                           "void main() {}" +
-                                           "}");
+            Wave.CompilationUnit.End().ParseWave(
+            "#use \"stl.lib\"\n" +
+               "public class Foo {" +
+               "public main(): void {}" +
+               "}");
+        }
+
+        [Fact]
+        public void FooUseTest()
+        {
+            Wave.UseSyntax.End().ParseWave("#use \"boo\"");
         }
     }
 }

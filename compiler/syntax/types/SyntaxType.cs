@@ -37,6 +37,7 @@
         LiteralExpression,
         MemberAccessExpression,
         Method,
+        Modificator,
         ObjectCreationExpression,
         Parameter,
         ParenthesizedExpression,

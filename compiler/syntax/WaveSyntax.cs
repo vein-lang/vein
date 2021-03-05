@@ -45,18 +45,22 @@
                     Keyword("void"))
                 .Token().Select(n => new TypeSyntax(n))
                 .Named("SystemType");
-        
-        protected internal virtual Parser<string> Modifier =>
-            Keyword("public").Or(
+
+        protected internal virtual Parser<ModificatorSyntax> Modifier =>
+            (from mod in Keyword("public").Or(
                     Keyword("protected")).Or(
                     Keyword("private")).Or(
+                    Keyword("internal")).Or(
+                    Keyword("override")).Or(
                     Keyword("static")).Or(
-                    Keyword("abstract")).Or(
                     Keyword("const")).Or(
-                    Keyword("readonly")).Or(
                     Keyword("global")).Or(
                     Keyword("extern"))
-                .Text().Token().Named("Modifier");
+                .Text()
+            select new ModificatorSyntax(mod))
+            .Token()
+            .Named("Modifier")
+            .Positioned();
 
         protected internal virtual Parser<WaveAnnotationKind> Annotation =>
             Keyword(WaveAnnotationKind.Getter)
@@ -116,15 +120,15 @@
         
         // examples: /* this is a member */ public
         protected internal virtual Parser<MemberDeclarationSyntax> MemberDeclarationHeading =>
-            from comments in CommentParser.AnyComment.Token().Many()
-            from annotation in AnnotationExpression.Token().Optional()
-            from modifiers in Modifier.Many()
-            select new MemberDeclarationSyntax
-            {
-                Annotations = annotation.GetOrEmpty().Select(x => x.AnnotationKind).ToList(),
-                LeadingComments = comments.ToList(),
-                Modifiers = modifiers.ToList(),
-            };
+            (from comments in CommentParser.AnyComment.Token().Many()
+                from annotation in AnnotationExpression.Optional()
+                from modifiers in Modifier.Many()
+                select new MemberDeclarationSyntax
+                {
+                    Annotations = annotation.GetOrEmpty().ToList(),
+                    LeadingComments = comments.ToList(),
+                    Modifiers = modifiers.ToList(),
+                }).Token().Positioned();
         
         // examples:
         // @isTest void Test() {}
@@ -165,13 +169,20 @@
                 MemberChain = identifier.SkipLast(1).ToArray()
             };
 
+        protected internal virtual Parser<AnnotationSyntax> AnnotationSyntax =>
+            (from kind in Annotation
+                select new AnnotationSyntax(kind))
+            .Positioned()
+            .Token()
+            .Named("annotation");
 
 
         protected internal virtual Parser<AnnotationSyntax[]> AnnotationExpression =>
-            from open in Parse.Char('[')
-            from kind in Parse.Ref(() => Annotation).DelimitedBy(Parse.Char(',').Token())
-            from close in Parse.Char(']')
-            select kind.Select(x => new AnnotationSyntax(x)).ToArray();
+            (from open in Parse.Char('[')
+                from kinds in Parse.Ref(() => AnnotationSyntax).Positioned().DelimitedBy(Parse.Char(',').Token())
+                from close in Parse.Char(']')
+                select kinds.ToArray())
+            .Token().Named("annotation list");
         
         // foo.bar()
         // foo.bar(1,24)
@@ -189,17 +200,16 @@
             };
 
         public virtual Parser<DocumentDeclaration> CompilationUnit =>
-            from name in SpaceSyntax.Token().Commented(this)
-            from includes in UseSyntax.Many().Optional()
-            from members in ClassDeclaration.Token().Select(c => c as MemberDeclarationSyntax)
-                .Or(EnumDeclaration).Many()
+            from directives in 
+                SpaceSyntax.Token()
+                .Or(UseSyntax.Token()).Many()
+            from members in ClassDeclaration.Token().AtLeastOnce()
             from whiteSpace in Parse.WhiteSpace.Many()
             from trailingComments in CommentParser.AnyComment.Token().Many().End()
             select new DocumentDeclaration
             {
-                Name = name.Value.Value.Token,
-                Members = members.Select(x => x.WithTrailingComments(trailingComments)),
-                Uses = includes.GetOrElse(new List<UseSyntax>())
+                Directives = directives,
+                Members = members.Select(x => x.WithTrailingComments(trailingComments))
             };
         
         
@@ -209,13 +219,13 @@
     
     public class DocumentDeclaration
     {
-        public string Name { get; set; }
-        public IEnumerable<UseSyntax> Uses { get; set; }
+        public string Name => Directives.OfExactType<SpaceSyntax>().Single().Value.Token;
+        public IEnumerable<DirectiveSyntax> Directives { get; set; }
         public IEnumerable<MemberDeclarationSyntax> Members { get; set; }
         public FileInfo FileEntity { get; set; }
 
 
-        public List<string> Includes => Uses.Select(x =>
+        public List<string> Includes => Directives.OfExactType<UseSyntax>().Select(x =>
         {
             var result = x.Value.Token;
 

@@ -3,6 +3,8 @@
 #include "proxy.hpp"
 #include "collections/create_map.hpp"
 #include <map>
+
+#include "string_storage.hpp"
 using namespace std;
 
 using PInvokeDelegate0 = WaveObject*();
@@ -16,7 +18,7 @@ static WaveObject* i_call_get_Platform()
 #if defined(AVR_PLATFORM)
     return WaveConvert<WaveString>::box(new WaveString("Insomnia AVR"));
 #elif defined(_WIN32) || defined(WIN32) 
-    return WaveConvert<WaveString>::box(new WaveString("Insomnia Windows"));
+    return StringPool::Intern(L"Insomnia Windows");
 #elif defined(__unix__)
     return WaveConvert<WaveString>::box(new WaveString("Insomnia Unix"));
 #elif defined(__APPLE__)

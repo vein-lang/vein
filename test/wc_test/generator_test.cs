@@ -52,6 +52,9 @@ namespace wc_test
             gen.UseLabel(l2);
             gen.Emit(OpCodes.SUB);
             gen.Emit(OpCodes.SUB);
+
+
+            module.BakeDebugString();
             
             
             //File.WriteAllText(@"C:\Users\ls-mi\Desktop\wave.il", 

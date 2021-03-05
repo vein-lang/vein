@@ -130,8 +130,11 @@
     public class WaveParseException : ParseException
     {
         public WaveParseException(string message, Position pos)
-            : base(message, pos)
+            : base($"{message} at {pos}", pos)
         {
+            this.ErrorMessage = message;
         }
+
+        public string ErrorMessage { get; set; }
     }
 }

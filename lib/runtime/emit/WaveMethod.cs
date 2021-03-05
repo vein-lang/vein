@@ -46,6 +46,8 @@
 
         private void RegenerateName()
         {
+            if (string.IsNullOrEmpty(this.Name))
+                return;
             if (Regex.IsMatch(this.Name, @"\S+\((.+)?\)"))
                 return;
             this.Name = $"{this.Name}({Arguments.Select(x => x.Type.Name)})";
