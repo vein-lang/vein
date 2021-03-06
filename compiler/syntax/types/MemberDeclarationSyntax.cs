@@ -5,6 +5,8 @@
 
     public class MemberDeclarationSyntax : BaseSyntax, IPositionAware<MemberDeclarationSyntax>
     {
+        public MemberDeclarationSyntax() { }
+
         public MemberDeclarationSyntax(MemberDeclarationSyntax other = null)
         {
             this.WithProperties(other);
