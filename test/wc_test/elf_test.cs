@@ -17,7 +17,7 @@
                 Name = "wave_test"
             };
             asm.AddSegment((".code", Encoding.ASCII.GetBytes("IL_CODE")));
-            InsomniaAssembly.WriteToFile(asm, file);
+            InsomniaAssembly.WriteTo(asm, file);
             var result = InsomniaAssembly.LoadFromFile(file);
             var (_, body) = result.sections[0];
             Assert.Equal("IL_CODE", Encoding.ASCII.GetString(body));
@@ -39,7 +39,7 @@
         //        Name = "wave_test"
         //    };
         //    asm.AddSegment((".code", Encoding.ASCII.GetBytes("IL_CODE")));
-        //    InsomniaAssembly.WriteToFile(asm, file);
+        //    InsomniaAssembly.WriteTo(asm, file);
         //    var result = InsomniaAssembly.LoadFromFile(file);
         //}
 

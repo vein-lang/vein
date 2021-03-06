@@ -64,7 +64,7 @@ namespace wc_test
             
             asm.AddSegment((".code", method.BakeByteArray()));
             
-            //InsomniaAssembly.WriteToFile(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+            //InsomniaAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
 
         }
 
@@ -72,7 +72,7 @@ namespace wc_test
         public void TestIL()
         {
             var module = new WaveModuleBuilder("xuy");
-            var clazz = module.DefineClass("xuy%global::wave/lang/svack_pidars");
+            var clazz = module.DefineClass("global::wave/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
@@ -95,14 +95,14 @@ namespace wc_test
             
             asm.AddSegment((".code", body_module));
             
-            //InsomniaAssembly.WriteToFile(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+            //InsomniaAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
         }
         [Fact]
         public void AST2ILTest()
         {
             var w = new WaveSyntax();
             var ast = w.CompilationUnit.ParseWave(
-                " class Program { void main() { if(ze()) return x; else { return d();  } } }");
+                " class Program { main(): void { if(ze()) return x; else { return d();  } } }");
 
             var module = new WaveModuleBuilder("foo");
 
@@ -110,7 +110,7 @@ namespace wc_test
             {
                 if (member is ClassDeclarationSyntax classMember)
                 {
-                    var @class = module.DefineClass($"foo%global::wave/lang/{classMember.Identifier}");
+                    var @class = module.DefineClass($"global::wave/lang/{classMember.Identifier}");
 
                     foreach (var methodMember in classMember.Methods)
                     {
@@ -197,7 +197,7 @@ namespace wc_test
         public static ILGenerator CreateGenerator(params WaveArgumentRef[] args)
         {
             var module = new WaveModuleBuilder(Guid.NewGuid().ToString());
-            var @class = new ClassBuilder(module, $"{module.Name}%global::foo/bar");
+            var @class = module.DefineClass("global::foo/bar");
             var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsType(), args);
             return method.GetGenerator();
         }
@@ -254,75 +254,81 @@ puts after - before;*/
             
             var fib = clazz.DefineMethod("fib", 
                 MethodFlags.Public | MethodFlags.Static,
-                WaveTypeCode.TYPE_I8.AsType(), ("x", WaveTypeCode.TYPE_I8));
+                WaveTypeCode.TYPE_I8.AsType(), ("x", WaveTypeCode.TYPE_BOOLEAN));
 
             var fibGen = fib.GetGenerator();
-            var label_if_1 = fibGen.DefineLabel();
-            var label_if_2 = fibGen.DefineLabel();
-            var for_1 = fibGen.DefineLabel();
-            var for_body = fibGen.DefineLabel();
-            
-            // if (x == 0) return 0;
-            fibGen.Emit(OpCodes.LDARG_0);
-            fibGen.Emit(OpCodes.JMP_T, label_if_1);
-            fibGen.Emit(OpCodes.LDC_I8_0);
-            fibGen.Emit(OpCodes.RET);
-            fibGen.UseLabel(label_if_1);
-            // if (x == 1) return 1;
-            fibGen.Emit(OpCodes.LDARG_0);
-            fibGen.Emit(OpCodes.LDC_I8_1);
-            fibGen.Emit(OpCodes.JMP_NN, label_if_2);
-            fibGen.Emit(OpCodes.LDC_I8_1);
-            fibGen.Emit(OpCodes.RET);
-            fibGen.UseLabel(label_if_2);
-            // var first, second, nth, i = 0;
-            fibGen.Emit(OpCodes.LOC_INIT, new[]
-            {
-                WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8, 
-                WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8
-            });
-            // second, nth = 1; i = 2;
-            fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_1);
-            fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_2);
-            fibGen.Emit(OpCodes.LDC_I8_2); fibGen.Emit(OpCodes.STLOC_3);
-            
-            // for
-            // 
-            fibGen.Emit(OpCodes.JMP, for_1);
-            fibGen.UseLabel(for_body);
-            fibGen.Emit(OpCodes.LDLOC_0);
-            fibGen.Emit(OpCodes.LDLOC_1);
-            fibGen.Emit(OpCodes.ADD);
-            fibGen.Emit(OpCodes.STLOC_2);
-            
-            fibGen.Emit(OpCodes.LDLOC_1);
-            fibGen.Emit(OpCodes.STLOC_0);
-            
-            fibGen.Emit(OpCodes.LDLOC_2);
-            fibGen.Emit(OpCodes.STLOC_1);
-            
-            // i++
-            fibGen.Emit(OpCodes.LDLOC_3);
-            fibGen.Emit(OpCodes.LDC_I8_1);
-            fibGen.Emit(OpCodes.ADD);
-            fibGen.Emit(OpCodes.STLOC_3);
 
-            var exceptionType =
-                module.FindType(new QualityTypeName("corlib%global::wave/lang/Exception")).AsClass();
-            
-            fibGen.Emit(OpCodes.NEWOBJ, exceptionType.FullName);
-            fibGen.EmitCall(OpCodes.CALL, exceptionType.FindMethod("ctor()"));
-            fibGen.Emit(OpCodes.THROW);
-
-
-            // i <= n
-            fibGen.UseLabel(for_1);
-            fibGen.Emit(OpCodes.LDARG_0);
-            fibGen.Emit(OpCodes.LDLOC_3);
-            fibGen.Emit(OpCodes.JMP_LQ, for_body);
-            // return nth;
-            fibGen.Emit(OpCodes.LDLOC_2);
+            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.EQL);
             fibGen.Emit(OpCodes.RET);
+
+            //var label_if_1 = fibGen.DefineLabel();
+            //var label_if_2 = fibGen.DefineLabel();
+            //var for_1 = fibGen.DefineLabel();
+            //var for_body = fibGen.DefineLabel();
+            
+            //// if (x == 0) return 0;
+            //fibGen.Emit(OpCodes.LDARG_0);
+            //fibGen.Emit(OpCodes.JMP_T, label_if_1);
+            //fibGen.Emit(OpCodes.LDC_I8_0);
+            //fibGen.Emit(OpCodes.RET);
+            //fibGen.UseLabel(label_if_1);
+            //// if (x == 1) return 1;
+            //fibGen.Emit(OpCodes.LDARG_0);
+            //fibGen.Emit(OpCodes.LDC_I8_1);
+            //fibGen.Emit(OpCodes.JMP_NN, label_if_2);
+            //fibGen.Emit(OpCodes.LDC_I8_1);
+            //fibGen.Emit(OpCodes.RET);
+            //fibGen.UseLabel(label_if_2);
+            //// var first, second, nth, i = 0;
+            //fibGen.Emit(OpCodes.LOC_INIT, new[]
+            //{
+            //    WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8, 
+            //    WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8
+            //});
+            //// second, nth = 1; i = 2;
+            //fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_1);
+            //fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_2);
+            //fibGen.Emit(OpCodes.LDC_I8_2); fibGen.Emit(OpCodes.STLOC_3);
+            
+            //// for
+            //// 
+            //fibGen.Emit(OpCodes.JMP, for_1);
+            //fibGen.UseLabel(for_body);
+            //fibGen.Emit(OpCodes.LDLOC_0);
+            //fibGen.Emit(OpCodes.LDLOC_1);
+            //fibGen.Emit(OpCodes.ADD);
+            //fibGen.Emit(OpCodes.STLOC_2);
+            
+            //fibGen.Emit(OpCodes.LDLOC_1);
+            //fibGen.Emit(OpCodes.STLOC_0);
+            
+            //fibGen.Emit(OpCodes.LDLOC_2);
+            //fibGen.Emit(OpCodes.STLOC_1);
+            
+            //// i++
+            //fibGen.Emit(OpCodes.LDLOC_3);
+            //fibGen.Emit(OpCodes.LDC_I8_1);
+            //fibGen.Emit(OpCodes.ADD);
+            //fibGen.Emit(OpCodes.STLOC_3);
+
+            //// var exceptionType =
+            ////    module.FindType(new QualityTypeName("corlib%global::wave/lang/Exception")).AsClass();
+            
+            ////fibGen.Emit(OpCodes.NEWOBJ, exceptionType.FullName);
+            ////fibGen.Emit(OpCodes.CALL, exceptionType.FindMethod("ctor()"));
+            //fibGen.Emit(OpCodes.THROW);
+
+
+            //// i <= n
+            //fibGen.UseLabel(for_1);
+            //fibGen.Emit(OpCodes.LDARG_0);
+            //fibGen.Emit(OpCodes.LDLOC_3);
+            //fibGen.Emit(OpCodes.JMP_LQ, for_body);
+            //// return nth;
+            //fibGen.Emit(OpCodes.LDLOC_2);
+            //fibGen.Emit(OpCodes.RET);
             /*
         fibGen.Emit(OpCodes.LDARG_0);
         fibGen.Emit(OpCodes.STLOC_0);
@@ -345,11 +351,11 @@ puts after - before;*/
         fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
         fibGen.Emit(OpCodes.LDC_I4_1);          // load '1'
         fibGen.Emit(OpCodes.SUB);               // n - 1
-        fibGen.EmitCall(OpCodes.CALL, fib);     // call fib(n - 1)
+        fibGen.Emit(OpCodes.CALL, fib);     // call fib(n - 1)
         fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
         fibGen.Emit(OpCodes.LDC_I4_2);          // load '2'
         fibGen.Emit(OpCodes.SUB);               //  n - 2
-        fibGen.EmitCall(OpCodes.CALL, fib);     // call fib(n - 2)
+        fibGen.Emit(OpCodes.CALL, fib);     // call fib(n - 2)
         fibGen.Emit(OpCodes.STLOC_0);
         fibGen.Emit(OpCodes.LDLOC_0);
         fibGen.Emit(OpCodes.ADD);               // 'fib(n - 1)' + 'fib(n - 2)'
@@ -390,10 +396,10 @@ puts after - before;*/
             
             
             body.Emit(OpCodes.LDC_I8_S, (long)1073741823/**/);
-            body.EmitCall(OpCodes.CALL, fib);
+            body.Emit(OpCodes.CALL, fib);
             body.Emit(OpCodes.DUMP_0);
             body.Emit(OpCodes.RET);
-            //body.EmitCall(OpCodes.CALL);
+            //body.Emit(OpCodes.CALL);
 
 
             var body_module = module.BakeByteArray();
@@ -403,7 +409,7 @@ puts after - before;*/
             
             asm.AddSegment((".code", body_module));
             
-            InsomniaAssembly.WriteToFile(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+            InsomniaAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
             File.WriteAllText($@"C:\Users\ls-mi\Desktop\{module.Name}.wvil", module.BakeDebugString());
         }
     }
