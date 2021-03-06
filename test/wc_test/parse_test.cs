@@ -1,4 +1,4 @@
-namespace wc_test
+﻿namespace wc_test
 {
     using System;
     using System.Linq;
@@ -92,7 +92,27 @@ namespace wc_test
         {
             Wave.FieldDeclaration.ParseWave(str);
         }
-        
+
+        [Fact]
+        public void InvalidTokenFieldParse()
+        {
+            var result = Wave.CompilationUnit.ParseWave(
+                @"#space ""wave/lang""
+                [special]
+                public class String : Object {
+                [native]
+                private _value: String;
+                [native]
+                public extern this*^*index: int32]: Char;
+                [native]
+                public extern Length: Int32; }
+                ");
+
+            var clazz = result.Members.First() as ClassDeclarationSyntax;
+            Assert.NotNull(clazz);
+            var errMember = clazz.Members.Skip(1).First();
+            Assert.True(errMember.IsBrokenToken);
+        }
         
         [Fact]
         public void MethodParametersAndBodyTest()
@@ -182,7 +202,13 @@ namespace wc_test
             var d = a.AnnotationExpression.End().ParseWave("[special, native]");
             Assert.Equal(2, d.Length);
         }
-        
+        [Fact]
+        public void MemberFailTest()
+        {
+            var result = 
+                Wave.ClassMemberDeclaration.End().ParseWave("public const MaxValue Int16 = 32767;");
+            _logger.WriteLine($"type: {result.GetType()}");
+        }
         [Fact]
         public void FieldTest()
         {
