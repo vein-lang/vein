@@ -1,4 +1,4 @@
-﻿namespace wave.compilation
+namespace wave.compilation
 {
     using emit;
     using Spectre.Console;
@@ -10,6 +10,13 @@
     using System.Linq;
     using System.Threading;
     using static Spectre.Console.AnsiConsole;
+    using Console = System.Console;
+
+    public static class MarkupExtensions
+    {
+        public static string EscapeArgumentSymbols(this string str) 
+            => str.Replace("{", "{{").Replace("}", "}}");
+    }
 
     public class Compiler
     {
