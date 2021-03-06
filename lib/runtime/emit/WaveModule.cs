@@ -11,13 +11,19 @@
         protected internal readonly List<WaveClass> classList = new();
         protected internal List<WaveModule> Deps { get; set; } = new();
 
-        public WaveModule(string name) => Name = name;
+        internal WaveModule(string name) => Name = name;
         
-        
+        /// <summary>
+        /// Get interned string from storage by index.
+        /// </summary>
+        /// <exception cref="AggregateException"></exception>
         public string GetConstByIndex(int index) 
             => strings.GetValueOrDefault(index) ?? 
                throw new AggregateException($"Index '{index}' not found in module '{Name}'.");
 
+        /// <summary>
+        /// Try find type by name (without namespace) with namespace includes.
+        /// </summary>
         public WaveType TryFindType(string typename, List<string> includes)
         {
             try
@@ -29,6 +35,10 @@
                 return null;
             }
         }
+        /// <summary>
+        /// Find type by name (without namespace) with namespace includes.
+        /// </summary>
+        /// <exception cref="TypeNotFoundException"></exception>
         public WaveType FindType(string typename, List<string> includes)
         {
             var result = classList.Where(x => includes.Contains(x.FullName.Namespace)).
@@ -43,7 +53,13 @@
             }
             throw new TypeNotFoundException($"'{typename}' not found in modules and dependency assemblies.");
         }
-        
+        /// <summary>
+        /// Find type by typename.
+        /// </summary>
+        /// <exception cref="TypeNotFoundException"></exception>
+        /// <remarks>
+        /// Support find in external deps.
+        /// </remarks>
         public WaveType FindType(QualityTypeName type, bool findExternally = false)
         {
             bool filter(WaveClass x) => x!.FullName.Equals(type);

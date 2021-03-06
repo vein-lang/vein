@@ -12,25 +12,20 @@
 
         protected WaveMethod() : base(null, 0) { }
         
-        public WaveMethod(string name, MethodFlags flags, params WaveArgumentRef[] args)
+        internal WaveMethod(string name, MethodFlags flags, params WaveArgumentRef[] args)
             : base(name, flags, args) =>
             this.ReturnType = WaveTypeCode.TYPE_VOID.AsType();
 
-        public WaveMethod(string name, MethodFlags flags, WaveType returnType, WaveClass owner,
+        internal WaveMethod(string name, MethodFlags flags, WaveType returnType, WaveClass owner,
             params WaveArgumentRef[] args)
             : base(name, flags, args)
         {
             this.Owner = owner;
             this.ReturnType = returnType;
         }
-
-
-        #region Overrides of Object
-
+        
         public override string ToString() 
             => $"{Owner.Name}::{Name}({Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(',')})";
-
-        #endregion
     }
     
     
@@ -46,8 +41,6 @@
 
         private void RegenerateName()
         {
-            if (string.IsNullOrEmpty(this.Name))
-                return;
             if (Regex.IsMatch(this.Name, @"\S+\((.+)?\)"))
                 return;
             this.Name = $"{this.Name}({Arguments.Select(x => x.Type.Name)})";

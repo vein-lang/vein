@@ -2,13 +2,14 @@
 {
     using System.Collections;
     using System.Collections.Generic;
-
+    /// <summary>
+    /// Locals builder.
+    /// </summary>
     public class LocalsBuilder : IEnumerable<QualityTypeName>
     {
         private readonly IList<QualityTypeName> types = new List<QualityTypeName>();
         public void Push(QualityTypeName type) 
             => types.Add(type);
-
         public void Push(WaveType type) 
             => types.Add(type.FullName);
         public void Push(WaveTypeCode type)

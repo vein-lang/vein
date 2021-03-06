@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Text;
     using BinaryTools.Elf;
+    using emit;
     using static BinaryTools.Elf.ElfSectionType;
 
 
@@ -25,6 +26,22 @@
         
         public void AddSegment((string name, byte[] data) seg) => sections.Add(seg);
 
+        private void InsertModule(WaveModuleBuilder module)
+        {
+            if (module is null)
+                throw new ArgumentNullException(nameof(module));
+            if (string.IsNullOrEmpty(module.Name))
+                throw new NullReferenceException("Name of module has null.");
+            this.AddSegment((".code", module.BakeByteArray()));
+        }
+
+
+        public InsomniaAssembly(WaveModuleBuilder module) 
+            => this.InsertModule(module);
+
+        internal InsomniaAssembly()
+        {
+        }
         /// <exception cref="BadImageFormatException"/>
         public static InsomniaAssembly LoadFromFile(string file)
         {
@@ -75,12 +92,18 @@
             };
         }
 
-        public static void WriteToFile(InsomniaAssembly asm, DirectoryInfo directory)
+        public void WriteTo(DirectoryInfo directory)
+        {
+            var file = new FileInfo(Path.Combine(directory.FullName, $"{this.Name}.wll"));
+            WriteTo(this, file.FullName);
+        }
+
+        public static void WriteTo(InsomniaAssembly asm, DirectoryInfo directory)
         {
             var file = new FileInfo(Path.Combine(directory.FullName, $"{asm.Name}.wll"));
-            WriteToFile(asm, file.FullName);
+            WriteTo(asm, file.FullName);
         }
-        internal static void WriteToFile(InsomniaAssembly asm, string file)
+        internal static void WriteTo(InsomniaAssembly asm, string file)
         {
             using var memory = new MemoryStream();
             using var writer = new BinaryWriter(memory);

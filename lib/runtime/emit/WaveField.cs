@@ -13,7 +13,7 @@
         public string Name => fullName.Split('.').Last();
         public string Class => fullName.Split('.').SkipLast(1).Join();
         
-        
+        [Obsolete]
         public RuntimeToken Token 
             => RuntimeToken.Create(fullName);
 
@@ -55,7 +55,7 @@
             protected set;
         }
         
-        
+        [Obsolete]
         internal object LiteralFieldValue
         {
             get
@@ -82,21 +82,10 @@
 
         private object litValue;
     }
-    [Flags]
-    public enum FieldFlags : byte
-    {
-        None = 0,
-        Literal = 1 << 1,
-        Public = 1 << 2,
-        Static = 1 << 3,
-        Protected = 1 << 4,
-        Virtual = 1 << 5,
-        Abstract = 1 << 6,
-        Override = 1 << 7
-    }
-    
+
     public static class WaveFieldExtension
     {
+        [Obsolete]
         public static void WriteLiteralValue(this BinaryWriter binary, WaveField field)
         {
             if (!field.IsLiteral)
@@ -108,6 +97,7 @@
             binary.Write(bytes.Length);
             binary.Write(bytes);
         }
+        [Obsolete]
         public static byte[] BakeLiteralValue(this WaveField field)
         {
             var val = field.LiteralFieldValue;
@@ -130,6 +120,7 @@
                 _ => throw new InvalidOperationException($"Cannot bake literal value. [not primitive type.]")
             };
         }
+        [Obsolete]
         public static object ReadLiteralValue(this BinaryReader binary, WaveTypeCode code)
         {
             var size = binary.ReadInt32();

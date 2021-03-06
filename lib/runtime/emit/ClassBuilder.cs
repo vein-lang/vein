@@ -1,5 +1,6 @@
 ﻿namespace wave.emit
 {
+    using System;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -8,21 +9,29 @@
     public class ClassBuilder : WaveClass, IBaker
     {
         internal WaveModuleBuilder moduleBuilder;
-        public ClassBuilder(WaveModuleBuilder module, QualityTypeName name, WaveTypeCode parent = WaveTypeCode.TYPE_OBJECT)
+        internal ClassBuilder(WaveModuleBuilder module, QualityTypeName name, WaveTypeCode parent = WaveTypeCode.TYPE_OBJECT)
         {
             this.FullName = name;
             moduleBuilder = module;
             this.Parent = parent.AsType().AsClass();
         }
-        public ClassBuilder(WaveModuleBuilder module, QualityTypeName name, WaveType parent)
+        internal ClassBuilder(WaveModuleBuilder module, QualityTypeName name, WaveType parent)
         {
             this.FullName = name;
             moduleBuilder = module;
             this.Parent = parent.AsClass();
         }
-
+        /// <summary>
+        /// Get class <see cref="QualityTypeName"/>.
+        /// </summary>
         public QualityTypeName GetName() => this.FullName;
         
+        /// <summary>
+        /// Define method in current class.
+        /// </summary>
+        /// <remarks>
+        /// Method name will be interned.
+        /// </remarks>
         public MethodBuilder DefineMethod(string name, WaveType returnType, params WaveArgumentRef[] args)
         {
             moduleBuilder.GetStringConstant(name);
@@ -30,6 +39,12 @@
             Methods.Add(method);
             return method;
         }
+        /// <summary>
+        /// Define method in current class.
+        /// </summary>
+        /// <remarks>
+        /// Method name will be interned.
+        /// </remarks>
         public MethodBuilder DefineMethod(string name, MethodFlags flags, WaveType returnType, params WaveArgumentRef[] args)
         {
             var method = this.DefineMethod(name, returnType, args);
@@ -38,6 +53,12 @@
             return method;
         }
         
+        /// <summary>
+        /// Define field in current class.
+        /// </summary>
+        /// <remarks>
+        /// Field name will be interned.
+        /// </remarks>
         public WaveField DefineField(string name, FieldFlags flags, WaveType fieldType)
         {
             var field = new WaveField(this, new FieldName(name, this.Name), flags, fieldType);
@@ -45,15 +66,15 @@
             Fields.Add(field);
             return field;
         }
-
-        public byte[] BakeByteArray()
+        
+        byte[] IBaker.BakeByteArray()
         {
             if (Methods.Count == 0)
                 return null;
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
             binary.WriteTypeName(this.FullName, moduleBuilder);
-            binary.Write((byte)Flags);
+            binary.Write((short)Flags);
             binary.WriteTypeName(Parent.FullName, moduleBuilder);
             binary.Write(Methods.Count);
             foreach (var method in Methods.OfType<IBaker>())
@@ -67,21 +88,21 @@
             {
                 binary.Write(moduleBuilder.GetTypeConstant(field.FullName));
                 binary.WriteTypeName(field.FieldType.FullName, moduleBuilder);
-                binary.Write((byte)field.Flags);
+                binary.Write((short)field.Flags);
                 binary.WriteLiteralValue(field);
             }
             return mem.ToArray();
         }
         
-        public string BakeDebugString()
+        string IBaker.BakeDebugString()
         {
             var str = new StringBuilder();
             str.AppendLine($".namespace '{FullName.Namespace}'");
-            str.AppendLine($".class '{FullName.Name}' {Flags.EnumerateFlags().Join(' ').ToLowerInvariant()}");
+            str.AppendLine($".class '{FullName.Name}' {Flags.EnumerateFlags().Except(new [] {ClassFlags.None}).Join(' ').ToLowerInvariant()}");
             str.AppendLine("{");
             foreach (var field in Fields)
             {
-                var flags = field.Flags.EnumerateFlags().Join(' ').ToLowerInvariant();
+                var flags = field.Flags.EnumerateFlags().Except(new [] {FieldFlags.None}).Join(' ').ToLowerInvariant();
                 str.AppendLine($"\t.field '{field.Name}' as '{field.FieldType.Name}' {flags}");
                 if (field.IsLiteral)
                     str.AppendLine($"\t\t= [{field.BakeLiteralValue().Select(x => $"{x:2}").Join(',')}];");
@@ -93,9 +114,7 @@
             return str.ToString();
         }
 
-        public ulong? FindMemberField(FieldName field)
-        {
-            return null;
-        }
+        public ulong? FindMemberField(FieldName field) 
+            => throw new NotImplementedException();
     }
 }

@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
 
-    public static unsafe class ILReader
+    internal static unsafe class ILReader
     {
         public static List<int> DeconstructLabels(byte[] arr, int offset)
         {

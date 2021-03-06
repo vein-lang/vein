@@ -2,16 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Collections.Specialized;
     using System.IO;
-    using System.Linq;
-    using System.Reflection;
     using System.Text;
-    using System.Threading.Tasks;
     using extensions;
     using wave;
     
-    public static class BinaryExtension
+    internal static class BinaryExtension
     {
         public static string ReadInsomniaString(this BinaryReader reader)
         {
@@ -30,7 +26,7 @@
         }
     }
 
-    public class ModuleReader : WaveModule
+    internal class ModuleReader : WaveModule
     {
         public static ModuleReader Read(byte[] arr, List<WaveModule> deps)
         {

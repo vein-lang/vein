@@ -3,7 +3,7 @@
     using System;
 
     [Flags]
-    public enum ClassFlags : byte
+    public enum ClassFlags : short
     {
         None        = 0 << 0,
         Public      = 1 << 1,

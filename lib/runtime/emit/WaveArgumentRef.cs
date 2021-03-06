@@ -1,8 +1,11 @@
 ﻿namespace wave.emit
 {
+    using System;
+
     public class WaveArgumentRef
     {
         public WaveType Type { get; set; }
+        [Obsolete]
         public RuntimeToken Token => RuntimeToken.Create(Name);
         public string Name { get; set; }
         

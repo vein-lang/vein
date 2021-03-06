@@ -14,12 +14,12 @@
         public readonly List<WaveMethod> Methods = new();
         public WaveTypeCode TypeCode { get; set; } = WaveTypeCode.TYPE_CLASS;
         
-        public WaveClass(QualityTypeName name, WaveClass parent)
+        internal WaveClass(QualityTypeName name, WaveClass parent)
         {
             this.FullName = name;
             this.Parent = parent;
         }
-        public WaveClass(WaveType type, WaveClass parent)
+        internal WaveClass(WaveType type, WaveClass parent)
         {
             this.FullName = type.FullName;
             this.Parent = parent;
@@ -27,7 +27,7 @@
         
         protected WaveClass() {  }
         
-        public WaveClass DefineMethod(string name, WaveType returnType, MethodFlags flags, params WaveArgumentRef[] args)
+        internal WaveClass DefineMethod(string name, WaveType returnType, MethodFlags flags, params WaveArgumentRef[] args)
         {
             var method = new WaveMethod(name, flags, returnType, this, args);
             method.Arguments.AddRange(args);
@@ -35,9 +35,7 @@
             return this;
         }
 
-
-
-        public WaveMethod FindMethod(string name) 
+        internal WaveMethod FindMethod(string name) 
             => Methods.FirstOrDefault(method => method.Name == name);
     }
 }

@@ -62,22 +62,4 @@
         internal static int CreateFlag(byte size, FlowControl flow, ControlChain chain) 
             => ((int) chain << 0xC) | 0x1F | ((int) flow << 0x11) | 0x1F | (size << 22) | 0x1F;
     }
-
-    public enum ControlChain
-    {
-        None,
-        Next1,
-        Next2,
-        Next3,
-    }
-    
-    public enum FlowControl
-    {
-        None,
-        Branch,
-        Break,
-        Call,
-        Return,
-        Throw
-    }
 }

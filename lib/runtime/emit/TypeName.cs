@@ -4,7 +4,7 @@
     using System.Linq;
     using System.Security;
     using System.Text.RegularExpressions;
-
+    [Obsolete]
     public record RuntimeToken(string text, ulong Value)
     {
         public static RuntimeToken Create(string id) 
@@ -63,5 +63,17 @@
         }
 
         public override string ToString() => fullName;
+
+        internal T TryGet<T>(Func<QualityTypeName, T> t) where T : class
+        {
+            try
+            {
+                return t(this);
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

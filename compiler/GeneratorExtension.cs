@@ -127,7 +127,7 @@
         public static void EmitThrow(this ILGenerator generator, QualityTypeName type)
         {
             generator.Emit(OpCodes.NEWOBJ, type);
-            generator.EmitCall(OpCodes.CALL, GetDefaultCtor(type));
+            generator.Emit(OpCodes.CALL, GetDefaultCtor(type));
             generator.Emit(OpCodes.THROW);
         }
         public static WaveMethod GetDefaultCtor(QualityTypeName t) => throw new NotImplementedException();

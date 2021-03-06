@@ -5,15 +5,50 @@
     using System.Linq;
     using System.Security;
     using System.Text;
+    using exceptions;
     using MoreLinq;
 
     public class WaveModuleBuilder : WaveModule, IBaker
     {
         public WaveModuleBuilder(string name) : base(name) {}
 
-        public ClassBuilder DefineClass(string clazzName) 
-            => DefineClass(new QualityTypeName($"{Name}%{clazzName}"));
+        /// <summary>
+        /// Define class by name.
+        /// </summary>
+        /// <remarks>
+        /// 'assemblyName%global::namespace/className' - VALID
+        /// <br/>
+        /// 'global::namespace/className' - VALID
+        /// <br/>
+        /// 'namespace/className' - INVALID, need 'global::' prefix.
+        /// <br/>
+        /// 'className' - INVALID, need describe namespace.
+        /// </remarks>
+        /// <exception cref="IncompleteClassNameException">See 'remarks'.</exception>
+        public ClassBuilder DefineClass(string classFullname)
+        {
+            if (!classFullname.Contains("/"))
+                throw new IncompleteClassNameException("Class name not contained namespace.");
+            var typename = default(QualityTypeName);
+            if (classFullname.Contains("%"))
+            {
+                if (!classFullname.StartsWith($"{Name}%"))
+                    throw new IncompleteClassNameException($"Class name contains incorrect assembly name.");
+                typename = new QualityTypeName(classFullname);
+            }
+            else
+                typename = new QualityTypeName($"{Name}%{classFullname}");
 
+            if (typename.TryGet(x => x.Namespace) is null)
+                throw new IncompleteClassNameException($"Class name has incorrect format.");
+            if (!typename.Namespace.StartsWith("global::"))
+                throw new IncompleteClassNameException($"Class namespace not start with 'global::'.");
+
+            return DefineClass(typename);
+        }
+        /// <summary>
+        /// Define class by name.
+        /// </summary>
         public ClassBuilder DefineClass(QualityTypeName name)
         {
             GetStringConstant(name.Name);
@@ -22,7 +57,11 @@
             classList.Add(c);
             return c;
         }
-
+        /// <summary>
+        /// Intern string constant into module storage and return string index.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="StringCollisionException"></exception>
         public int GetStringConstant(string str)
         {
             if (str == null)
@@ -31,11 +70,14 @@
             if (!strings.ContainsKey(key))
                 strings[key] = str;
             if (strings[key] != str)
-                throw new Exception($"Detected collisions of string constant. '{str}' and '{strings[key]}'.\n " +
-                $"Please report this issue into https://github.com/0xF6/wave_lang/issues.");
+                throw new StringCollisionException(str, strings[key]);
             return key;
         }
-        
+        /// <summary>
+        /// Intern TypeName constant into module storage and return TypeName index.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="StringCollisionException"></exception>
         public long GetTypeConstant(QualityTypeName name)
         {
             var i1 = GetStringConstant(name.Namespace);
@@ -45,6 +87,11 @@
             b |= (uint)i1;
             return b;
         }
+        /// <summary>
+        /// Intern FieldName constant into module storage and return FieldName index.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="StringCollisionException"></exception>
         public long GetTypeConstant(FieldName name)
         {
             var i1 = GetStringConstant(name.Class);
@@ -55,9 +102,11 @@
             return b;
         }
         
-        public (int, QualityTypeName) GetMethodToken(WaveMethod method) => 
+        internal (int, QualityTypeName) GetMethodToken(WaveMethod method) => 
             (this.GetStringConstant(method.Name), method.Owner.FullName);
-
+        /// <summary>
+        /// Bake result into il byte code.
+        /// </summary>
         public byte[] BakeByteArray()
         {
             classList.OfType<IBaker>().Pipe(x => x.BakeDebugString()).Consume();
@@ -86,7 +135,9 @@
 
             return mem.ToArray();
         }
-
+        /// <summary>
+        /// Bake result into debug il preview document.
+        /// </summary>
         public string BakeDebugString()
         {
             var str = new StringBuilder();

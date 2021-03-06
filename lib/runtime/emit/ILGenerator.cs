@@ -21,14 +21,14 @@
         
         public virtual int ILOffset => _position;
 
-        public ILGenerator(MethodBuilder method) : this(method, 16) { }
-        public ILGenerator(MethodBuilder method, int size)
+        internal ILGenerator(MethodBuilder method) : this(method, 16) { }
+        internal ILGenerator(MethodBuilder method, int size)
         {
             _methodBuilder = method;
             _ilBody = new byte[Math.Max(size, 16)];
         }
 
-        public MethodBuilder GetMethodBuilder() => _methodBuilder;
+        internal MethodBuilder GetMethodBuilder() => _methodBuilder;
 
         public virtual void Emit(OpCode opcode)
         {
@@ -112,7 +112,9 @@
                 BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), i);
             _position += sizeof(decimal);
         }
-        
+        /// <remarks>
+        /// <see cref="string"/> will be interned.
+        /// </remarks>
         public virtual void Emit(OpCode opcode, string str)
         {
             var token = _methodBuilder
@@ -124,11 +126,22 @@
             PutInteger4(token);
             _debugBuilder.AppendLine($".{opcode.Name} '{str}'.0x{token:X8}");
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="opcode"></param>
+        /// <param name="field"></param>
+        /// <exception cref="FieldIsNotDeclaredException"></exception>
+        /// <exception cref="InvalidOpCodeException"></exception>
+        /// <remarks>
+        /// Only <see cref="OpCodes.LDF"/>.
+        /// </remarks>
         public virtual void Emit(OpCode opcode, FieldName field)
         {
+            throw new NotImplementedException();
+
             if (opcode.Value != (int) LDF)
-                throw new Exception("invalid opcode");
+                throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
             
             var (token, direction) = this.FindFieldToken(field);
 
@@ -159,7 +172,9 @@
             this.InternalEmit(opcode);
             _debugBuilder.AppendLine($".{opcode.Name} {field.Name}.{token:X8}");
         }
-        
+        /// <summary>
+        /// Emit branch instruction with label.
+        /// </summary>
         public virtual void Emit(OpCode opcode, Label label)
         {
             this.EnsureCapacity<OpCode>(sizeof(int));
@@ -168,7 +183,6 @@
             _debugBuilder.AppendLine($".{opcode.Name} label(0x{label.Value:X})");
         }
         
-        
         public virtual void Emit(OpCode opcode, QualityTypeName type)
         {
             this.EnsureCapacity<OpCode>(sizeof(int)*3);
@@ -176,11 +190,19 @@
             this.PutTypeName(type);
             _debugBuilder.AppendLine($".{opcode.Name} [{type}]");
         }
-        
+        /// <summary>
+        /// Emit LOC_INIT.
+        /// </summary>
+        /// <exception cref="InvalidOpCodeException"></exception>
+        /// <remarks>
+        /// Only <see cref="OpCodes.LOC_INIT"/>.
+        /// <br/>
+        /// <see cref="OpCodes.LOC_INIT_X"/> will be automatic generated.
+        /// </remarks>
         public virtual void Emit(OpCode opcode, LocalsBuilder locals)
         {
             if (opcode.Value != (int) LOC_INIT)
-                throw new Exception("invalid opcode");
+                throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
             var size = locals.Count();
             
             this.EnsureCapacity<OpCode>(sizeof(int) + (((sizeof(int) * 3)+sizeof(ushort)) * size));
@@ -199,11 +221,20 @@
             str.Append("};");
             _debugBuilder.AppendLine($"{str}");
         }
-
-        public virtual void EmitCall(OpCode opcode, WaveMethod method)
+        /// <summary>
+        /// Emit call.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="InvalidOpCodeException"></exception>
+        /// <remarks>
+        /// Only <see cref="OpCodes.CALL"/>.
+        /// </remarks>
+        public virtual void Emit(OpCode opcode, WaveMethod method)
         {
             if (method is null)
                 throw new ArgumentNullException(nameof (method));
+            if (opcode != OpCodes.CALL)
+                throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
             var (tokenIdx, ownerIdx) = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
             this.EnsureCapacity<OpCode>(sizeof(byte) + sizeof(int) + (sizeof(int) * 3));
             this.InternalEmit(opcode);
@@ -222,7 +253,7 @@
             _debugBuilder.AppendLine($".{opcode.Name} {method}");
         }
         
-        public enum FieldDirection
+        internal enum FieldDirection
         {
             Arg,
             Local,
@@ -231,7 +262,10 @@
 
         private int[] _labels;
         private int _labels_count;
-        
+        /// <summary>
+        /// Define label for future use. 
+        /// </summary>
+        /// <returns></returns>
         public virtual Label DefineLabel()
         {
             _labels ??= new int[4];
@@ -240,10 +274,17 @@
             _labels[_labels_count] = -1;
             return new Label(_labels_count++);
         }
-        
-        public virtual Label[] DefineLabel(int size)
-            => Enumerable.Range(0, size).Select(_ => DefineLabel()).ToArray();
-        
+        /// <summary>
+        /// Define multiple labels for future use.
+        /// </summary>
+        public virtual Label[] DefineLabel(uint size) => 
+            Enumerable.Range(0, (int)size).Select(_ => DefineLabel()).ToArray();
+
+        /// <summary>
+        /// Use label in current position.
+        /// </summary>
+        /// <exception cref="InvalidLabelException"></exception>
+        /// <exception cref="UndefinedLabelException"></exception>
         public virtual void UseLabel(Label loc)
         {
             if (_labels is null || loc.Value < 0 || loc.Value >= _labels.Length)
@@ -253,7 +294,9 @@
             _labels[loc.Value] = _position;
             _debugBuilder.AppendLine($"/* defined-label id: 0x{loc.Value:X}, offset: 0x{_position:X} */");
         }
-
+        /// <summary>
+        /// Get labels positions.
+        /// </summary>
         public int[] GetLabels() => _labels;
 
 
