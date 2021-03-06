@@ -1,4 +1,4 @@
-namespace wave.compilation
+﻿namespace wave.compilation
 {
     using emit;
     using Spectre.Console;
@@ -126,17 +126,29 @@ namespace wave.compilation
             return clazz;
         }
 
-        public void CompileMethods(ClassDeclarationSyntax member, WaveClass clazz, DocumentDeclaration doc)
+        public void CompileMethods(ClassDeclarationSyntax clazzSyntax, WaveClass clazz, DocumentDeclaration doc)
         {
-            foreach (var memberMember in member.Members)
+            foreach (var member in clazzSyntax.Members)
             {
-                if (memberMember is MethodDeclarationSyntax method)
+                switch (member)
                 {
-                    ctx.WaveStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
-                    CompileInto(method, clazz, doc);
+                    case MethodDeclarationSyntax method:
+                        ctx.WaveStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
+                        CompileInto(method, clazz, doc);
+                        break;
+                    case IPassiveParseTransition transition when member.IsBrokenToken:
+                        var e = transition.Error;
+                        var pos = member.Transform.pos;
+                        errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
+                                   $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
+                                   $"in '[orange bold]{doc.FileEntity}[/]'.");
+                        break;
+                    default:
+                        warnings.Add($"[grey]Member[/] '[yellow underline]{member.GetType().Name}[/]' [grey]is not supported.[/]");
+                        break;
                 }
-                else
-                    warnings.Add($"[grey]Member[/] '[yellow underline]{memberMember.GetType().Name}[/]' [grey]is not supported.[/]");
+
+                
             }
         }
 
@@ -162,14 +174,14 @@ namespace wave.compilation
             {
                 errors.Add($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]' \n\t" +
                            $"[red bold]Native type is not loaded.[/]\n\t" +
-                           $"at '[orange bold]{typename.transform.pos.Line} line, {typename.transform.pos.Column} column[/]' \n\t" +
+                           $"at '[orange bold]{typename.Transform.pos.Line} line, {typename.Transform.pos.Column} column[/]' \n\t" +
                            $"in '[orange bold]{doc.FileEntity}[/]'.");
                 return null;
             }
 
             if (retType is null) 
                 errors.Add($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]' \n\t" +
-                           $"at '[orange bold]{typename.transform.pos.Line} line, {typename.transform.pos.Column} column[/]' \n\t" +
+                           $"at '[orange bold]{typename.Transform.pos.Line} line, {typename.Transform.pos.Column} column[/]' \n\t" +
                            $"in '[orange bold]{doc.FileEntity}[/]'.");
             return retType;
         }
@@ -193,9 +205,9 @@ namespace wave.compilation
             var annotation = clazz.Annotations;
             var mods = clazz.Modifiers;
 
-            foreach (var kind in annotation)
+            foreach (var kind in annotation.Select(s => s.AnnotationKind))
             {
-                switch (kind.AnnotationKind)
+                switch (kind)
                 {
                     case WaveAnnotationKind.Getter:
                     case WaveAnnotationKind.Setter:
@@ -208,6 +220,9 @@ namespace wave.compilation
                         continue;
                     case WaveAnnotationKind.Readonly when !clazz.IsStruct:
                         errors.Add($"[orange bold]Annotation[/] [red bold]{kind}[/] can only be applied to a structure declaration.");
+                        continue;
+                    case WaveAnnotationKind.Readonly when clazz.IsStruct:
+                        // TODO
                         continue;
                     default:
                         errors.Add(
@@ -255,9 +270,9 @@ namespace wave.compilation
             var annotation = method.Annotations;
             var mods = method.Modifiers;
 
-            foreach (var kind in annotation)
+            foreach (var kind in annotation.Select(x => x.AnnotationKind))
             {
-                switch (kind.AnnotationKind)
+                switch (kind)
                 {
                     case WaveAnnotationKind.Virtual:
                         flags &= MethodFlags.Virtual;
