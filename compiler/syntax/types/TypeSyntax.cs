@@ -16,7 +16,7 @@
             var lastItem = Namespaces.Count - 1;
             Identifier = Namespaces[lastItem];
             Namespaces.RemoveAt(lastItem);
-            transform = new Transform(new Position(0, 0, 0), 0);
+            Transform = new Transform(new Position(0, 0, 0), 0);
         }
 
         public TypeSyntax(params string[] qualifiedName)

@@ -23,7 +23,7 @@
 
         public new ExpressionSyntax SetPos(Position startPos, int length)
         {
-            this.transform = new Transform(startPos, length);
+            this.Transform = new Transform(startPos, length);
             return this;
         }
     }
