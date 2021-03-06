@@ -7,7 +7,7 @@
     using Sprache;
     using stl;
 
-    public abstract class BaseSyntax : IPositionAware<BaseSyntax>
+    public abstract class BaseSyntax : IPositionAware<BaseSyntax>, IPassiveParseTransition
     {
         public abstract SyntaxType Kind { get; }
         
@@ -37,12 +37,27 @@
         
         public BaseSyntax SetPos(Position startPos, int length)
         {
-            transform = new Transform(startPos, length);
+            Transform = new Transform(startPos, length);
             return this;
         }
+
+        public bool IsBrokenToken => (this as IPassiveParseTransition).Error != null;
         
-        internal Transform transform { get; set; }
+        internal Transform Transform { get; set; }
+        
+        PassiveParseError IPassiveParseTransition.Error { get; set; }
+    }
+
+    public interface IPassiveParseTransition
+    {
+        PassiveParseError Error { get; set; }
     }
 
     public record Transform(Position pos, int len);
+
+    public record PassiveParseError(string Message, IEnumerable<string> Expectations)
+    {
+        public string FormatExpectations() 
+            => Expectations.Select(x => $"'{x}'").Join(" or ");
+    }
 }
