@@ -1,4 +1,4 @@
-﻿namespace wave.syntax
+namespace wave.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -8,11 +8,11 @@
     public partial class WaveSyntax
     {
         protected internal virtual Parser<MemberDeclarationSyntax> ClassMemberDeclaration =>
-            from member in 
+            from member in
                 MethodOrPropertyDeclaration.Token()
-                .Or(FieldDeclaration.Token())
+                    .OrPreview(FieldDeclaration.Token())
             select member;
-        
+
         protected internal virtual Parser<ParameterSyntax> NameAndType =>
             from name in Identifier.Optional()
             from @as in Parse.Char(':').Token().Commented(this)
