@@ -56,36 +56,20 @@
         private static bool IsEffort<T>(this IInput current, IResult<T> attempt) 
             => current.Column != attempt.Remainder.Column || current.Line != attempt.Remainder.Line;
 
-        internal static bool IsEnabled(this IDictionary<object, object> value, MemoFlags flag) 
+        private static bool IsEnabled(this IDictionary<object, object> value, MemoFlags flag) 
             => value.ContainsKey(flag);
 
-        internal static void Enable(this IDictionary<object, object> value, MemoFlags flag)
+        private static void Enable(this IDictionary<object, object> value, MemoFlags flag)
         {
             if (!value.ContainsKey(flag))
                 value[flag] = flag;
         }
-        internal static void Disable(this IDictionary<object, object> value, MemoFlags flag)
+        private static void Disable(this IDictionary<object, object> value, MemoFlags flag)
         {
             if (value.ContainsKey(flag))
                 value.Remove(flag);
         }
-
-        public static IInput AdvancedDelta(this IInput ii, params char[] terminators)
-        {
-            if (ii.AtEnd)
-                throw new InvalidOperationException("The input is already at the end of the source.");
-            
-            while (!terminators.Contains(ii.Current))
-            {
-                if (ii.AtEnd)
-                    throw new Exception();
-                ii = ii.Advance();
-            }
-
-            return ii;
-        }
-
-        public static IResult<T> IfFailure<T>(
+        private static IResult<T> IfFailure<T>(
             this IResult<T> result,
             Func<IResult<T>, IResult<T>> next)
         {
@@ -103,34 +87,6 @@
             return secondFailure.Remainder.Position == firstFailure.Remainder.Position ? 
                 Failure<T>(firstFailure.Remainder, firstFailure.Message, firstFailure.Expectations.Union<string>
                     (secondFailure.Expectations)) : firstFailure;
-        }
-
-        public static IInput AdvancedDelta(this IInput ii, int delta)
-        {
-            if (ii.AtEnd)
-                throw new InvalidOperationException("The input is already at the end of the source.");
-            if (delta <= 0)
-                throw new InvalidOperationException($"The input can't advance by {delta}, need a positive number.");
-            if (ii.Position + delta > ii.Source.Length)
-                throw new InvalidOperationException($"The input can't advance by {delta} because it exceeds the bounds of the source.");
-
-            var line = ii.Line;
-            var column = ii.Column;
-
-            for (var i = ii.Position; i < ii.Position + delta; i++)
-            {
-                if (ii.Source[i] == '\n')
-                {
-                    line++;
-                    column = 1;
-                }
-                else
-                {
-                    column++;
-                }
-            }
-
-            return new WaveInput(ii.Source, ii.Position + delta, line, column);
         }
     }
 }
