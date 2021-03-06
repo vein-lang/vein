@@ -1,4 +1,4 @@
-﻿namespace wc_test
+namespace wc_test
 {
     using System;
     using System.Linq;
@@ -10,12 +10,12 @@
 
     public class parse_test
     {
-        private readonly ITestOutputHelper _testOutputHelper;
+        private readonly ITestOutputHelper _logger;
 
-        public parse_test(ITestOutputHelper testOutputHelper)
+        public parse_test(ITestOutputHelper logger)
         {
-            _testOutputHelper = testOutputHelper;
-            WaveParserExtensions._log = s => _testOutputHelper.WriteLine(s);
+            _logger = logger;
+            WaveParserExtensions._log = s => _logger.WriteLine(s);
         }
 
         public static WaveSyntax Wave => new();
@@ -387,7 +387,7 @@
         [InlineData("~-728565646 & ~-1896339527 && !-651565412 && ~-2116790075")]
         public void OperatorTest(string parseKey)
         {
-            _testOutputHelper.WriteLine(Wave.QualifiedExpression.End().ParseWave($"({parseKey})")?.ExpressionString);
+            _logger.WriteLine(Wave.QualifiedExpression.End().ParseWave($"({parseKey})")?.ExpressionString);
         }
 
 
