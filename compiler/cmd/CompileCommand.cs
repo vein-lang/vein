@@ -34,7 +34,9 @@
                 return -1;
             }
 
-            var c = Compiler.Process(files.Select(x => new FileInfo(x)).ToArray());
+            var projName = Path.GetFileNameWithoutExtension(settings.Project);
+
+            var c = Compiler.Process(files.Select(x => new FileInfo(x)).ToArray(), projName);
 
             var rule1 = new Rule($"[yellow]{c.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
             AnsiConsole.Render(rule1);

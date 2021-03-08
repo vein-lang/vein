@@ -25,9 +25,9 @@
 
     public class Compiler
     {
-        public static Compiler Process(FileInfo[] entity)
+        public static Compiler Process(FileInfo[] entity, string projectName)
         {
-            var c = new Compiler();
+            var c = new Compiler(projectName);
             
             return Status()
                 .Spinner(Spinner.Known.Dots8Bit)
@@ -46,6 +46,11 @@
                     return c;
                 });
         }
+
+        public Compiler(string projName) 
+            => ProjectName = projName;
+
+        private string ProjectName { get; set; }
 
         private readonly WaveSyntax syntax = new();
         private StatusContext ctx;
@@ -83,8 +88,8 @@
                 }
             }
 
-            module = new WaveModuleBuilder("wcorlib");
-            warnings.Add($"Виабу [red]г[/][orange]е[/][yellow]е[/][chartreuse3]е[/][steelblue1]е[/][mediumpurple3_1]й[/]!~ :rainbow:");
+            module = new WaveModuleBuilder(ProjectName);
+
             Ast.Select(x => (x.Key, x.Value))
                 .Pipe(x => ctx.WaveStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
                 .Select(x => LinkClasses(x.Value))
@@ -245,7 +250,7 @@
             var line = doc.SourceLines[t.pos.Line].Length < t.len ? t.pos.Line - 1 : t.pos.Line;
 
             var original = doc.SourceLines[line];
-            var err_line = original.Substring(t.pos.Column - 1);
+            var err_line = original[(t.pos.Column - 1)..];
             var space1 = original[..(t.pos.Column - 1)];
             var space2 = (t.pos.Column - 1) + t.len > original.Length ? "" : original[((t.pos.Column - 1) + t.len)..];
 
