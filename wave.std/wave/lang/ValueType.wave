@@ -1,0 +1,12 @@
+#space "wave/lang"
+
+
+[special]
+public struct ValueType
+{
+    [virtual]
+    public toString(): String
+    {
+        return "<Value>";
+    }
+}

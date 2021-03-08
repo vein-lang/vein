@@ -37,5 +37,8 @@
             Identifier = name;
             return this;
         }
+
+
+        public ClassDeclarationSyntax OwnerClass { get; set; }
     }
 }

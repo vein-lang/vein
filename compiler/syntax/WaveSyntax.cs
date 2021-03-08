@@ -1,11 +1,21 @@
 ﻿namespace wave.syntax
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using Sprache;
     using stl;
 
+    public static class StringEx
+    {
+        public static string Capitalize(this string target)
+        {
+            if (string.IsNullOrEmpty(target))
+                return null;
+            return $"{char.ToUpperInvariant(target[0])}{target.Remove(0, 1)}";
+        }
+    }
     public partial class WaveSyntax : ICommentParserProvider
     {
         public virtual IComment CommentParser => new CommentParser();
@@ -43,7 +53,7 @@
                     Keyword("string")).Or(
                     Keyword("char")).Or(
                     Keyword("void"))
-                .Token().Select(n => new TypeSyntax(n))
+                .Token().Select(n => new TypeSyntax(n.Capitalize()))
                 .Named("SystemType");
 
         protected internal virtual Parser<ModificatorSyntax> Modifier =>
@@ -223,9 +233,12 @@
         public IEnumerable<DirectiveSyntax> Directives { get; set; }
         public IEnumerable<MemberDeclarationSyntax> Members { get; set; }
         public FileInfo FileEntity { get; set; }
+        public string SourceText { get; set; }
+        public string[] SourceLines => SourceText.Replace("\r", "").Split("\n");
 
+        private List<string> _includes;
 
-        public List<string> Includes => Directives.OfExactType<UseSyntax>().Select(x =>
+        public List<string> Includes => _includes ??= Directives.OfExactType<UseSyntax>().Select(x =>
         {
             var result = x.Value.Token;
 

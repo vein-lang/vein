@@ -41,14 +41,51 @@
             // read until terminator char
             var r = AnyChar.Until(Char(';'))(i);
             
-            var error = new T();
-            error.SetPos(FromInput(i), r.Remainder.Position - i.Position);
-
             var bestResult = DetermineBestError(fr, sr);
+            var error = new T();
+            error.SetPos(FromInput(bestResult.Remainder), r.Remainder.Position - i.Position);
+
+            
             error.Error = new PassiveParseError(bestResult.Message, bestResult.Expectations);
             r.Remainder.Memos.Enable(MemoFlags.NextFail);
             return Success(error, r.Remainder);
         };
+
+        public static Parser<T> PreviewMultiple<T>(this Parser<T> first, params Parser<T>[] others)
+            where T : BaseSyntax, IPositionAware<T>, IPassiveParseTransition, new() 
+        {
+            return i =>
+            {
+                var results = new[] {first}.Concat(others).Select(x => x(i)).ToArray();
+
+                var succeeded = results.FirstOrDefault(x => x.WasSuccessful);
+
+                if (succeeded is not null)
+                    return Success(succeeded.Value, succeeded.Remainder);
+
+                if (results.All(x => !x.WasSuccessful))
+                {
+                    if (i.Memos.IsEnabled(MemoFlags.NextFail))
+                    {
+                        i.Memos.Disable(MemoFlags.NextFail);
+                        return DetermineBestErrors(results);
+                    }
+                }
+
+                if (!i.IsEffort(results))
+                    return DetermineBestErrors(results);
+
+                var r = AnyChar.Until(Char(';'))(i);
+
+                var error = new T();
+                error.SetPos(FromInput(i), r.Remainder.Position - i.Position);
+
+                var bestResult = DetermineBestErrors(results);
+                error.Error = new PassiveParseError(bestResult.Message, bestResult.Expectations);
+                r.Remainder.Memos.Enable(MemoFlags.NextFail);
+                return Success(error, r.Remainder);
+            };
+        }
 
 
         private static bool IsEffort<T>(this IInput current, params IResult<T>[] attempts) 
@@ -77,6 +114,9 @@
                 throw new ArgumentNullException(nameof (result));
             return !result.WasSuccessful ? next(result) : result;
         }
+
+        private static IResult<T> DetermineBestErrors<T>(params IResult<T>[] firstFailure) 
+            => firstFailure.OrderByDescending(x => x.Remainder.Position).First();
 
         private static IResult<T> DetermineBestError<T>(
             IResult<T> firstFailure,

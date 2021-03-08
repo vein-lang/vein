@@ -45,14 +45,11 @@ namespace wave.syntax
             select new FieldDeclarationSyntax(heading)
             {
                 Type = type,
-                Fields = new List<FieldDeclaratorSyntax>()
+                Field = new ()
                 {
-                    new ()
-                    {
-                        Identifier = identifier.Value,
-                        Expression = ExpressionSyntax.CreateOrDefault(expression),
-                        LeadingComments = identifier.LeadingComments.ToList()
-                    }
+                    Identifier = identifier.Value,
+                    Expression = ExpressionSyntax.CreateOrDefault(expression),
+                    LeadingComments = identifier.LeadingComments.ToList()
                 },
             };
         // examples: get; private set; get { return 0; }
@@ -104,7 +101,7 @@ namespace wave.syntax
                 Identifier = className,
                 IsInterface = @class == "interface",
                 IsStruct = @class == "struct",
-                Inheritance = interfaces.GetOrElse(Enumerable.Empty<TypeSyntax>()).ToList(),
+                Inheritances = interfaces.GetOrElse(Enumerable.Empty<TypeSyntax>()).ToList(),
                 Members = ConvertConstructors(members, className).ToList(),
                 InnerComments = closeBrace.LeadingComments.ToList(),
                 TrailingComments = closeBrace.TrailingComments.ToList(),

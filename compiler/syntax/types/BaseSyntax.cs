@@ -51,6 +51,7 @@
     public interface IPassiveParseTransition
     {
         PassiveParseError Error { get; set; }
+        bool IsBrokenToken { get; }
     }
 
     public record Transform(Position pos, int len);

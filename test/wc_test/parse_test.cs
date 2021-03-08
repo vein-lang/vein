@@ -220,6 +220,12 @@
             Wave.FieldDeclaration.ParseWave("[native] private _value: Int16;");
         }
         [Fact]
+        public void ExpressionTest()
+        {
+            var result = Wave.Statement.ParseWave(@"return (this.$indexer.at(Length - 1) == value);");
+            Assert.True(result.IsBrokenToken);
+        }
+        [Fact]
         public void MethodTest00()
         {
             Wave.MethodDeclaration.ParseWave(@"public EndsWith(value: Char): Boolean
@@ -232,7 +238,8 @@
         [Fact]
         public void ReturnParseTest00()
         {
-            Wave.ReturnStatement.ParseWave(@"return this == value;");
+            var result = Wave.Statement.ParseWave(@"return this == value;");
+            Assert.False(result.IsBrokenToken);
         }
         
         [Theory]
@@ -305,7 +312,7 @@
         {
             var cd = Wave.ClassDeclaration.Parse("class Program : Object {}");
             
-            Assert.Equal("Object", cd.Inheritance.Single().Identifier);
+            Assert.Equal("Object", cd.Inheritances.Single().Identifier);
         }
         
         [Fact]
@@ -313,7 +320,7 @@
         {
             var cd = Wave.ClassDeclaration.Parse("class Program : Object { foo: foo; }");
             
-            Assert.Equal("Object", cd.Inheritance.Single().Identifier);
+            Assert.Equal("Object", cd.Inheritances.Single().Identifier);
         }
         
         [Theory]

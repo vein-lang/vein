@@ -43,7 +43,7 @@
         {
             if (Regex.IsMatch(this.Name, @"\S+\((.+)?\)"))
                 return;
-            this.Name = $"{this.Name}({Arguments.Select(x => x.Type.Name)})";
+            this.Name = $"{this.Name}({Arguments.Select(x => x.Type.Name).Join(",")})";
         }
         
         

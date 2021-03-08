@@ -27,12 +27,12 @@
         
         protected WaveClass() {  }
         
-        internal WaveClass DefineMethod(string name, WaveType returnType, MethodFlags flags, params WaveArgumentRef[] args)
+        internal WaveMethod DefineMethod(string name, WaveType returnType, MethodFlags flags, params WaveArgumentRef[] args)
         {
             var method = new WaveMethod(name, flags, returnType, this, args);
             method.Arguments.AddRange(args);
             Methods.Add(method);
-            return this;
+            return method;
         }
 
         internal WaveMethod FindMethod(string name) 

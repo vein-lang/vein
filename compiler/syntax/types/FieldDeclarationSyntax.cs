@@ -14,28 +14,29 @@
         public override SyntaxType Kind => SyntaxType.Field;
 
         public override IEnumerable<BaseSyntax> ChildNodes =>
-            base.ChildNodes.Concat(GetNodes(Type)).Concat(Fields).Where(n => n != null);
+            base.ChildNodes.Concat(GetNodes(Type)).Concat(new List<BaseSyntax> { Field }).Where(n => n != null);
 
         public override MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName)
         {
             Type = typeAndName.Type;
 
             var identifier = typeAndName.Identifier ?? typeAndName.Type.Identifier;
-            if (!Fields.IsNullOrEmpty()) Fields[0].Identifier = identifier;
+            Field.Identifier = identifier;
 
             return this;
         }
         
         public override MemberDeclarationSyntax WithName(string name)
         {
-            if (!Fields.IsNullOrEmpty()) 
-                Fields[0].Identifier = name;
+            Field.Identifier = name;
             return this;
         }
 
         public TypeSyntax Type { get; set; }
 
-        public List<FieldDeclaratorSyntax> Fields { get; set; } = new();
+        public FieldDeclaratorSyntax Field { get; set; }
+
+        public ClassDeclarationSyntax OwnerClass { get; set; }
     }
     
     public class ClassInitializerSyntax : MemberDeclarationSyntax

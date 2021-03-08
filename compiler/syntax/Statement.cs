@@ -7,18 +7,24 @@
     {
         protected internal virtual Parser<StatementSyntax> Statement =>
             from statement in Block.Select(s => s as StatementSyntax)
-                .Or(IfStatement)
-                //.Or(DoStatement)
-                //.Or(ForEachStatement)
-                //.Or(ForStatement)
-                .Or(WhileStatement)
-                //.Or(BreakStatement)
-                //.Or(ContinueStatement)
-                //.Or(TryCatchFinallyStatement)
-                .Or(ReturnStatement)
-                .Or(FailStatement)
-                .Or(DeleteStatement)
-                .Or(VariableDeclaration)
+                .PreviewMultiple(
+                    IfStatement, 
+                    WhileStatement, 
+                    ReturnStatement, 
+                    FailStatement, 
+                    DeleteStatement).Positioned()
+                //.Or(IfStatement)
+                ////.Or(DoStatement)
+                ////.Or(ForEachStatement)
+                ////.Or(ForStatement)
+                //.Or(WhileStatement)
+                ////.Or(BreakStatement)
+                ////.Or(ContinueStatement)
+                ////.Or(TryCatchFinallyStatement)
+                //.Or(ReturnStatement)
+                //.Or(FailStatement)
+                //.Or(DeleteStatement)
+                //.Or(VariableDeclaration)
                 //.Or(SwitchStatement)
                 //.Or(UnknownGenericStatement)
                 .Commented(this)

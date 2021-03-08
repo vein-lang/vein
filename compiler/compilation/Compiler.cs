@@ -9,13 +9,18 @@
     using System.IO;
     using System.Linq;
     using System.Threading;
+    using MoreLinq;
+    using Sprache;
     using static Spectre.Console.AnsiConsole;
     using Console = System.Console;
 
-    public static class MarkupExtensions
+    public static class Extensions
     {
-        public static string EscapeArgumentSymbols(this string str) 
-            => str.Replace("{", "{{").Replace("}", "}}");
+        public static void Transition<T1, T2>(this (T1 t1, T2 t2) tuple, Action<T1> ft1, Action<T2> ft2)
+        {
+            ft1(tuple.t1);
+            ft2(tuple.t2);
+        }
     }
 
     public class Compiler
@@ -65,6 +70,9 @@
                 {
                     var result = syntax.CompilationUnit.ParseWave(value);
                     result.FileEntity = key;
+                    result.SourceText = value;
+                    // apply root namespace into includes
+                    result.Includes.Add($"global::{result.Name}");
                     Ast.Add(key, result);
                 }
                 catch (WaveParseException e)
@@ -76,119 +84,192 @@
             }
 
             module = new WaveModuleBuilder("wcorlib");
-            
-            foreach (var (key, value) in Ast)
-            {
-                ctx.WaveStatus($"Linking [grey]'{key.Name}'[/]...");
-                CompileInto(value);
-            }
+            warnings.Add($"Виабу [red]г[/][orange]е[/][yellow]е[/][chartreuse3]е[/][steelblue1]е[/][mediumpurple3_1]й[/]!~ :rainbow:");
+            Ast.Select(x => (x.Key, x.Value))
+                .Pipe(x => ctx.WaveStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
+                .Select(x => LinkClasses(x.Value))
+                .ToList()
+                .Pipe(z => z
+                    .Pipe(x => LinkMetadata(x.member, x.clazz, x.member.OwnerDocument))
+                    .Pipe(x => LinkMethods(x.member, x.clazz, x.member.OwnerDocument)
+                        .Transition(
+                            methods => methods.ForEach(GenerateBody),
+                            fields => fields.ForEach(GenerateField)))
+                    .Consume())
+                .Consume();
         }
-        public void CompileInto(DocumentDeclaration doc)
+        public List<(ClassBuilder clazz, ClassDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc)
         {
-            var classes = new List<(WaveClass clazz, ClassDeclarationSyntax member)>();
-
-            // apply root namespace into includes
-            doc.Includes.Add(doc.Name);
-
+            var classes = new List<(ClassBuilder clazz, ClassDeclarationSyntax member)>();
+            
             foreach (var member in doc.Members)
             {
                 if (member is ClassDeclarationSyntax clazz)
                 {
                     ctx.WaveStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
-                    classes.Add((CompileInto(clazz, doc), clazz));
+                    clazz.OwnerDocument = doc;
+                    classes.Add((CompileClass(clazz, doc), clazz));
                 }
                 else
                     warnings.Add($"[grey]Member[/] [yellow underline]'{member.GetType().Name}'[/] [grey]is not supported.[/]");
             }
 
-            foreach (var (clazz, member) in classes)
-            {
-                CompileMethods(member, clazz, doc);
-            }
+            return classes;
         }
 
-        public WaveClass CompileInto(ClassDeclarationSyntax member, DocumentDeclaration doc)
+        public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc) 
+            => module.DefineClass($"global::{doc.Name}/{member.Identifier}");
+
+        public void LinkMetadata(ClassDeclarationSyntax member, WaveClass clazz, DocumentDeclaration doc)
         {
-            var clazz = module.DefineClass($"global::{doc.Name}/{member.Identifier}");
+            clazz.Flags = GenerateClassFlags(member);
+            
+            var owner = member.Inheritances.FirstOrDefault();
 
-            var owner = member.Inheritance.FirstOrDefault();
-
-            if (member.Identifier != "Object")
+            // ignore core base types
+            if (member.Identifier != "Object" || member.Identifier != "ValueType")
             {
                 // TODO
                 owner ??= new TypeSyntax("Object");
 
                 clazz.Parent = FetchType(owner, doc)?.AsClass();
             }
-
-            clazz.Flags = GenerateClassFlags(member);
-
-            return clazz;
         }
 
-        public void CompileMethods(ClassDeclarationSyntax clazzSyntax, WaveClass clazz, DocumentDeclaration doc)
+        public (
+            List<(WaveMethod method, MethodDeclarationSyntax syntax)> methods, 
+            List<(WaveField field, FieldDeclarationSyntax syntax)>) 
+            LinkMethods(ClassDeclarationSyntax clazzSyntax, ClassBuilder clazz, DocumentDeclaration doc)
         {
+            var methods = new List<(WaveMethod method, MethodDeclarationSyntax syntax)>();
+            var fields = new List<(WaveField field, FieldDeclarationSyntax syntax)>();
             foreach (var member in clazzSyntax.Members)
             {
                 switch (member)
                 {
-                    case MethodDeclarationSyntax method:
-                        ctx.WaveStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
-                        CompileInto(method, clazz, doc);
-                        break;
                     case IPassiveParseTransition transition when member.IsBrokenToken:
                         var e = transition.Error;
                         var pos = member.Transform.pos;
+                        var err_line = DiffErrorFull(member.Transform, doc);
                         errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
                                    $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
-                                   $"in '[orange bold]{doc.FileEntity}[/]'.");
+                                   $"in '[orange bold]{doc.FileEntity}[/]'." +
+                                   $"{err_line}");
+                        break;
+                    case MethodDeclarationSyntax method:
+                        ctx.WaveStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
+                        method.OwnerClass = clazzSyntax;
+                        methods.Add(CompileMethod(method, clazz, doc));
+                        break;
+                    case FieldDeclarationSyntax field:
+                        ctx.WaveStatus($"Regeneration field [grey]'{field.Field.Identifier}'[/]");
+                        field.OwnerClass = clazzSyntax;
+                        fields.Add(CompileField(field, clazz, doc));
                         break;
                     default:
                         warnings.Add($"[grey]Member[/] '[yellow underline]{member.GetType().Name}[/]' [grey]is not supported.[/]");
                         break;
                 }
-
-                
             }
+            return (methods, fields);
         }
 
-        public void CompileInto(MethodDeclarationSyntax member, WaveClass clazz, DocumentDeclaration doc)
+        public (WaveMethod method, MethodDeclarationSyntax syntax) 
+            CompileMethod(MethodDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
             var retType = FetchType(member.ReturnType, doc);
 
             if (retType is null)
-                return;
+                return default;
 
             var args = GenerateArgument(member, doc);
             
             var method = clazz.DefineMethod(member.Identifier, retType, GenerateMethodFlags(member), args);
+
+            return (method, member);
+        }
+
+        public (WaveField field, FieldDeclarationSyntax member)
+            CompileField(FieldDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
+        {
+            var fieldType = FetchType(member.Type, doc);
+
+            if (fieldType is null)
+                return default;
+
+            var field = clazz.DefineField(member.Field.Identifier, FieldFlags.None, fieldType);
+            return (field, member);
+        }
+
+        public void GenerateBody((WaveMethod method, MethodDeclarationSyntax member) t)
+        {
+            if (t == default)
+            {
+                errors.Add($"[red bold]Unknown error[/] in [italic]GenerateBody(...);[/]");
+                return;
+            }
+            var (method, member) = t;
+
+            foreach (var pr in member.Body.Statements.SelectMany(x => x.ChildNodes.Concat(new []{x})))
+                AnalyzeStatement(pr, member);
+        }
+
+        private void AnalyzeStatement(BaseSyntax statement, MethodDeclarationSyntax member)
+        {
+            if (statement is not IPassiveParseTransition {IsBrokenToken: true} transition) 
+                return;
+            var doc = member.OwnerClass.OwnerDocument;
+            var pos = statement.Transform.pos;
+            var e = transition.Error;
+            var diff_err = DiffErrorFull(statement.Transform, doc);
+            errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
+                       $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
+                       $"in '[orange bold]{doc.FileEntity}[/]'."+
+                       $"{diff_err}");
+        }
+
+        private static string DiffErrorFull(Transform t, DocumentDeclaration doc)
+        {
+            try
+            {
+                var (diff, arrow_line) = DiffError(t, doc);
+                return $"\n\t[grey] {diff.EscapeMarkup().EscapeArgumentSymbols()} [/]\n\t[red] {arrow_line.EscapeMarkup().EscapeArgumentSymbols()} [/]";
+            }
+            catch
+            {
+                return ""; // TODO analytic
+            }
+        }
+        private static (string line, string arrow_line) DiffError(Transform t, DocumentDeclaration doc)
+        {
+            var line = doc.SourceLines[t.pos.Line].Length < t.len ? t.pos.Line - 1 : t.pos.Line;
+
+            var original = doc.SourceLines[line];
+            var err_line = original.Substring(t.pos.Column - 1);
+            var space1 = original[..(t.pos.Column - 1)];
+            var space2 = (t.pos.Column - 1) + t.len > original.Length ? "" : original[((t.pos.Column - 1) + t.len)..];
+
+            return (original,
+                $"{new string(' ', space1.Length)}{new string('^', err_line.Length)}{new string(' ', space2.Length)}");
+        }
+
+        public void GenerateField((WaveField field, FieldDeclarationSyntax member) t)
+        {
+
         }
 
 
         private WaveType FetchType(TypeSyntax typename, DocumentDeclaration doc)
         {
-            ctx.WaveStatus("Collecting metadata...");
             var retType = module.TryFindType(typename.Identifier, doc.Includes);
-
-            if (HasNativeType(typename) && retType is null)
-            {
-                errors.Add($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]' \n\t" +
-                           $"[red bold]Native type is not loaded.[/]\n\t" +
-                           $"at '[orange bold]{typename.Transform.pos.Line} line, {typename.Transform.pos.Column} column[/]' \n\t" +
-                           $"in '[orange bold]{doc.FileEntity}[/]'.");
-                return null;
-            }
-
+            
             if (retType is null) 
                 errors.Add($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]' \n\t" +
                            $"at '[orange bold]{typename.Transform.pos.Line} line, {typename.Transform.pos.Column} column[/]' \n\t" +
                            $"in '[orange bold]{doc.FileEntity}[/]'.");
             return retType;
         }
-
-        private bool HasNativeType(TypeSyntax typename) 
-            => WaveCore.All.Any(x => x.Name.Equals(typename.Identifier, StringComparison.InvariantCultureIgnoreCase));
-
+        
         private WaveArgumentRef[] GenerateArgument(MethodDeclarationSyntax method, DocumentDeclaration doc)
         {
             if (method.Parameters.Count == 0)
@@ -339,7 +420,7 @@
         {
             if (context == null)
                 throw new ArgumentNullException(nameof (context));
-            Thread.Sleep(200); // so, i need it :(
+            Thread.Sleep(100); // so, i need it :(
             context.Status = status;
             return context;
         }

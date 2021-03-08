@@ -1,6 +1,7 @@
 ﻿namespace wave.syntax
 {
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using stl;
 
@@ -17,7 +18,7 @@
             Identifier = classBody.Identifier;
             IsInterface = classBody.IsInterface;
             IsStruct = classBody.IsStruct;
-            Inheritance = classBody.Inheritance;
+            Inheritances = classBody.Inheritances;
             Members = classBody.Members;
             InnerComments = classBody.InnerComments;
             TrailingComments = classBody.TrailingComments;
@@ -30,32 +31,25 @@
         public override SyntaxType Kind => SyntaxType.Class;
 
         public override IEnumerable<BaseSyntax> ChildNodes =>
-            base.ChildNodes.Concat(Inheritance).Concat(Members).Where(n => n != null);
+            base.ChildNodes.Concat(Inheritances).Concat(Members).Where(n => n != null);
 
         public string Identifier { get; set; }
 
         public virtual bool IsInterface { get; set; }
         public virtual bool IsStruct { get; set; }
 
-        public List<TypeSyntax> Inheritance { get; set; } = new();
-
+        public List<TypeSyntax> Inheritances { get; set; } = new();
+        
         public List<string> InnerComments { get; set; } = new();
 
         public List<MemberDeclarationSyntax> Members { get; set; } = new();
-
-        // the following members are kept for the unit testing purposes only
-        public List<ConstructorDeclarationSyntax> Constructors => Members.OfType<ConstructorDeclarationSyntax>().ToList();
-
+        
         public List<MethodDeclarationSyntax> Methods => Members.OfExactType<MethodDeclarationSyntax>().ToList();
 
         public List<FieldDeclarationSyntax> Fields => Members.OfType<FieldDeclarationSyntax>().ToList();
 
         public List<PropertyDeclarationSyntax> Properties => Members.OfType<PropertyDeclarationSyntax>().ToList();
 
-        public List<EnumDeclarationSyntax> Enums => Members.OfType<EnumDeclarationSyntax>().ToList();
-
-        public List<ClassDeclarationSyntax> InnerClasses => Members.OfType<ClassDeclarationSyntax>().ToList();
-
-        public List<ClassInitializerSyntax> Initializers => Members.OfType<ClassInitializerSyntax>().ToList();
+        public DocumentDeclaration OwnerDocument { get; set; }
     }
 }

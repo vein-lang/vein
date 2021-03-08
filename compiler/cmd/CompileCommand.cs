@@ -35,14 +35,31 @@
             }
 
             var c = Compiler.Process(files.Select(x => new FileInfo(x)).ToArray());
-            
-                
+
+            var rule1 = new Rule($"[yellow]{c.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
+            AnsiConsole.Render(rule1);
             foreach (var error in c.errors)
                 AnsiConsole.MarkupLine($"[red]ERR[/]: {error}");
+            var rule2 = new Rule($"[yellow]{c.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
+            AnsiConsole.Render(rule2);
             foreach (var warn in c.warnings)
                 AnsiConsole.MarkupLine($"[orange]WARN[/]: {warn}");
-
-            return 0;
+            
+            AnsiConsole.MarkupLine($"\n\n\n");
+            if (c.errors.Count > 0)
+            {
+                var rule3 = new Rule($"[red bold]COMPILATION FAILED[/]") {Style = Style.Parse("lime rapidblink")};
+                AnsiConsole.Render(rule3);
+                AnsiConsole.MarkupLine($"\n");
+                return -1;
+            }
+            else
+            {
+                var rule3 = new Rule($"[green bold]COMPILATION SUCCESS[/]") {Style = Style.Parse("lime rapidblink")};
+                AnsiConsole.Render(rule3);
+                AnsiConsole.MarkupLine($"\n");
+                return 0;
+            }
         }
     }
 }
