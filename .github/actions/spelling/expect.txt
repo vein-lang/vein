@@ -1314,6 +1314,7 @@ Fterm
 Ftt
 FTUUq
 FUDDD
+Fullname
 Fullset
 Func
 FUNCDNAME
@@ -1741,6 +1742,7 @@ IIc
 iif
 IIINN
 Iim
+IInput
 Iirwt
 ij
 Ijal
@@ -1804,6 +1806,7 @@ iosfwd
 iostream
 Iov
 ip
+IPassive
 ipch
 ipdb
 IPosition
@@ -1812,6 +1815,7 @@ iqf
 IQmtx
 IQn
 IQt
+IResult
 IRim
 IRKw
 IRNN
@@ -4116,6 +4120,7 @@ VZlqaj
 VZPn
 wao
 Waofq
+waproj
 Waq
 Wbi
 Wbj
