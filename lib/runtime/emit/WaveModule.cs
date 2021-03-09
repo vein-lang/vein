@@ -10,7 +10,7 @@
         protected internal readonly Dictionary<int, string> strings = new();
         protected internal readonly List<WaveClass> classList = new();
         protected internal List<WaveModule> Deps { get; set; } = new();
-
+        protected internal ConstStorage constStorage { get; set; } = new();
         internal WaveModule(string name) => Name = name;
         
         /// <summary>
@@ -78,5 +78,11 @@
 
             throw new TypeNotFoundException($"'{type}' not found in modules and dependency assemblies.");
         }
+
+        internal void WriteToConstStorage<T>(FieldName field, T value) 
+            => constStorage.Stage(field, value);
+
+        public T ReadFromConstStorage<T>(FieldName field)
+            => (T)constStorage.Get(field);
     }
 }

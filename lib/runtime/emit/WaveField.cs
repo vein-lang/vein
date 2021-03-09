@@ -97,6 +97,42 @@
             binary.Write(bytes.Length);
             binary.Write(bytes);
         }
+
+        public static bool IsCompatibleConst(this WaveField field)
+        {
+            try
+            {
+                field.GetConverter(); // so, great solution (no)
+                return true;
+            }
+            catch 
+            {
+                return false;
+            }
+        }
+
+        public static Func<string, object> GetConverter(this WaveField field)
+        {
+            if (new [] { TYPE_U1, TYPE_U2, TYPE_U4, TYPE_U8 }.Any(x => x == field.FieldType.TypeCode))
+                throw new NotSupportedException("Unsigned integer is not support.");
+
+            return (field.FieldType.TypeCode) switch
+            {
+                (TYPE_BOOLEAN)  => (x) => bool.Parse(x),
+                (TYPE_CHAR)     => (x) => char.Parse(x),
+                (TYPE_I1)       => (x) => byte.Parse(x),
+                (TYPE_I2)       => (x) => short.Parse(x),
+                (TYPE_I4)       => (x) => int.Parse(x),
+                (TYPE_I8)       => (x) => long.Parse(x),
+                (TYPE_R4)       => (x) => float.Parse(x),
+                (TYPE_R8)       => (x) => double.Parse(x),
+                (TYPE_R16)      => (x) => decimal.Parse(x),
+                (TYPE_STRING)   => (x) => x,
+                _ => throw new InvalidOperationException($"Cannot fetch converter for {field}, {field.FieldType}")
+            };
+        }
+
+
         [Obsolete]
         public static byte[] BakeLiteralValue(this WaveField field)
         {
