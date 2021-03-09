@@ -40,7 +40,7 @@ namespace wave.syntax
             from identifier in Identifier.Commented(this)
             from twodot in Parse.Char(':').Token()
             from type in TypeReference.Token().Positioned()
-            from expression in Parse.Char('=').Token().Then(c => GenericExpression).Optional()
+            from expression in Parse.Char('=').Token().Then(_ => QualifiedExpression).Positioned().Optional()
             from semicolon in Parse.Char(';').Token()
             select new FieldDeclarationSyntax(heading)
             {

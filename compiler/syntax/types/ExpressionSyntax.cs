@@ -11,8 +11,8 @@
 
         public ExpressionSyntax(string expr) => ExpressionString = expr;
 
-        public static ExpressionSyntax CreateOrDefault(IOption<string> expression) => 
-            expression.IsDefined ? new ExpressionSyntax(expression.Get()) : null;
+        public static ExpressionSyntax CreateOrDefault(IOption<ExpressionSyntax> expression) 
+            => expression.IsDefined ? expression.Get() : null;
 
         public override SyntaxType Kind => SyntaxType.Expression;
 
