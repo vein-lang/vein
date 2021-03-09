@@ -1,4 +1,4 @@
-namespace wave.compilation
+﻿namespace wave.compilation
 {
     using emit;
     using Spectre.Console;
@@ -9,6 +9,7 @@ namespace wave.compilation
     using System.IO;
     using System.Linq;
     using System.Threading;
+    using extensions;
     using MoreLinq;
     using Sprache;
     using static Spectre.Console.AnsiConsole;
@@ -153,7 +154,6 @@ namespace wave.compilation
                 clazz.Parent = FetchType(owner, doc)?.AsClass();
             }
         }
-
         public (
             List<(WaveMethod method, MethodDeclarationSyntax syntax)> methods, 
             List<(WaveField field, FieldDeclarationSyntax syntax)>) 
@@ -270,10 +270,75 @@ namespace wave.compilation
             return (original,
                 $"{new string(' ', space1.Length)}{new string('^', err_line.Length)}{new string(' ', space2.Length)}");
         }
-
         public void GenerateField((WaveField field, FieldDeclarationSyntax member) t)
         {
+            if (t == default)
+            {
+                errors.Add($"[red bold]Unknown error[/] in [italic]GenerateBody(...);[/]");
+                return;
+            }
+            
 
+            var (field, member) = t;
+            var doc = member.OwnerClass.OwnerDocument;
+
+            // skip uninited fields
+            if (member.Field.Expression is null)
+                return;
+
+            // validate type compatible
+            if (member.Field.Expression is LiteralExpressionSyntax literal)
+            {
+                if (literal is NumericLiteralExpressionSyntax numeric)
+                {
+                    if (!numeric.GetTypeCode().IsCompatibleNumber(field.FieldType.TypeCode))
+                    {
+                        var diff_err = DiffErrorFull(literal.Transform, doc);
+                        errors.Add(
+                            $"[red bold]Cannot implicitly convert type[/] " +
+                            $"'[purple underline]{numeric.GetTypeCode().AsType().Name}[/]' to " +
+                            $"'[purple underline]{member.Type.Identifier}[/]'.\n\t" +
+                            $"at '[orange bold]{numeric.Transform.pos.Line} line, {numeric.Transform.pos.Column} column[/]' \n\t" +
+                            $"in '[orange bold]{doc.FileEntity}[/]'."+
+                            $"{diff_err}");
+                    }
+                }
+
+                if (literal.GetTypeCode() != field.FieldType.TypeCode)
+                {
+                    var diff_err = DiffErrorFull(literal.Transform, doc);
+                    errors.Add(
+                        $"[red bold]Cannot implicitly convert type[/] " +
+                        $"'[purple underline]{literal.GetTypeCode().AsType().Name}[/]' to " +
+                        $"'[purple underline]{member.Type.Identifier}[/]'.\n\t" +
+                        $"at '[orange bold]{literal.Transform.pos.Line} line, {literal.Transform.pos.Column} column[/]' \n\t" +
+                        $"in '[orange bold]{doc.FileEntity}[/]'."+
+                        $"{diff_err}");
+                }
+                
+            }
+
+            var clazz = field.Owner;
+            
+
+            if (member.Modifiers.Any(x => x.ModificatorKind == ModificatorKind.Const))
+            {
+                var assigner = member.Field.Expression;
+
+                if (assigner is NewExpressionSyntax)
+                {
+                    var diff_err = DiffErrorFull(assigner.Transform, doc);
+                    errors.Add(
+                        $"[red bold]The expression being assigned to[/] '[purple underline]{member.Field.Identifier}[/]' [red bold]must be constant[/]. \n\t" +
+                        $"at '[orange bold]{assigner.Transform.pos.Line} line, {assigner.Transform.pos.Column} column[/]' \n\t" +
+                        $"in '[orange bold]{doc.FileEntity}[/]'."+
+                        $"{diff_err}");
+                    return;
+                }
+
+                var converter = field.GetConverter();
+            }
+            
         }
 
 
