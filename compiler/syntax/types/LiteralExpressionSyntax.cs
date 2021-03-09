@@ -58,6 +58,13 @@
     {
         protected NumericLiteralExpressionSyntax() => this.LiteralType = LiteralType.Numeric;
     }
+
+    public class UndefinedIntegerNumericLiteral : NumericLiteralExpressionSyntax
+    {
+        public string Value { get; set; }
+
+        public UndefinedIntegerNumericLiteral(string val) => this.Value = this.Token = val;
+    }
     public abstract class NumericLiteralExpressionSyntax<T> : NumericLiteralExpressionSyntax 
         where T : IFormattable, IConvertible, IComparable<T>, IEquatable<T>, IComparable
     {
@@ -81,16 +88,37 @@
     {
         public DecimalLiteralExpressionSyntax(decimal value) : base(value) { }
     }
+    public sealed class ByteLiteralExpressionSyntax : NumericLiteralExpressionSyntax<byte>
+    {
+        public ByteLiteralExpressionSyntax(byte value) : base(value) { }
+    }
+    public sealed class SByteLiteralExpressionSyntax : NumericLiteralExpressionSyntax<sbyte>
+    {
+        public SByteLiteralExpressionSyntax(sbyte value) : base(value) { }
+    }
+
     public sealed class Int16LiteralExpressionSyntax : NumericLiteralExpressionSyntax<short>
     {
         public Int16LiteralExpressionSyntax(short value) : base(value) { }
+    }
+    public sealed class UInt16LiteralExpressionSyntax : NumericLiteralExpressionSyntax<ushort>
+    {
+        public UInt16LiteralExpressionSyntax(ushort value) : base(value) { }
     }
     public sealed class Int32LiteralExpressionSyntax : NumericLiteralExpressionSyntax<int>
     {
         public Int32LiteralExpressionSyntax(int value) : base(value) { }
     }
+    public sealed class UInt32LiteralExpressionSyntax : NumericLiteralExpressionSyntax<uint>
+    {
+        public UInt32LiteralExpressionSyntax(uint value) : base(value) { }
+    }
     public sealed class Int64LiteralExpressionSyntax : NumericLiteralExpressionSyntax<long>
     {
         public Int64LiteralExpressionSyntax(long value) : base(value) { }
+    }
+    public sealed class UInt64LiteralExpressionSyntax : NumericLiteralExpressionSyntax<ulong>
+    {
+        public UInt64LiteralExpressionSyntax(ulong value) : base(value) { }
     }
 }
