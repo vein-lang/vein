@@ -4,8 +4,6 @@
 
     public class SpaceSyntax : DirectiveSyntax, IPositionAware<SpaceSyntax>
     {
-        public LiteralExpressionSyntax Value { get; set; }
-
         public override DirectiveType DirectiveKind { get; } = DirectiveType.Space;
         
         public new SpaceSyntax SetPos(Position startPos, int length)
