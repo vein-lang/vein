@@ -23,6 +23,7 @@
         {
             this.FullName = type.FullName;
             this.Parent = parent;
+            this.TypeCode = type.TypeCode;
         }
         
         protected WaveClass() {  }
@@ -33,6 +34,24 @@
             method.Arguments.AddRange(args);
             Methods.Add(method);
             return method;
+        }
+
+
+        public WaveMethod GetDefaultDtor() => GetOrCreateTor("dtor()");
+        public WaveMethod GetDefaultCtor() => GetOrCreateTor("ctor()");
+
+        private WaveMethod GetOrCreateTor(string name)
+        {
+            var ctor = FindMethod(name);
+            if (ctor is not null)
+                return ctor;
+
+            ctor = new WaveMethod(name, MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType(), this);
+            Methods.Add(ctor);
+
+            if (this is ClassBuilder builder) 
+                builder.moduleBuilder.GetStringConstant(ctor.Name);
+            return ctor;
         }
 
         internal WaveMethod FindMethod(string name) 
