@@ -1,4 +1,4 @@
-﻿namespace wave.compilation
+namespace wave.compilation
 {
     using emit;
     using Spectre.Console;
@@ -122,8 +122,21 @@
             return classes;
         }
 
-        public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc) 
-            => module.DefineClass($"global::{doc.Name}/{member.Identifier}");
+        public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc)
+        {
+            if (module.Name.Equals("wcorlib"))
+            {
+                var result = WaveCore.All.FirstOrDefault(x => x.FullName.Name.Equals(member.Identifier));
+               
+                if (result is not null)
+                {
+                    module.classList.Add(result);
+                    return new ClassBuilder(module, result);
+                }
+            }
+
+            return module.DefineClass($"global::{doc.Name}/{member.Identifier}");
+        }
 
         public void LinkMetadata(ClassDeclarationSyntax member, WaveClass clazz, DocumentDeclaration doc)
         {
