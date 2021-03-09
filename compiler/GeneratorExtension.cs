@@ -9,7 +9,7 @@
     {
         public static void EmitUnary(this ILGenerator gen, UnaryExpressionSyntax node)
         {
-            if (node.OperatorType == ExpressionType.NegateChecked && node.Operand.GetTypeCode().IsInteger())
+            if (node.OperatorType == ExpressionType.NegateChecked && node.Operand.GetTypeCode().HasInteger())
             {
                 var type = node.Operand.GetTypeCode();
                 gen.EmitDefault(type);
@@ -100,22 +100,27 @@
         {
             if (exp is NumericLiteralExpressionSyntax num)
                 return GetTypeCodeFromNumber(num);
+            if (exp is BoolLiteralExpressionSyntax)
+                return WaveTypeCode.TYPE_BOOLEAN;
+            if (exp is StringLiteralExpressionSyntax)
+                return WaveTypeCode.TYPE_STRING;
+            if (exp is NullLiteralExpressionSyntax)
+                return WaveTypeCode.TYPE_NONE;
             return WaveTypeCode.TYPE_CLASS;
         }
-
-        public static bool IsInteger(this WaveTypeCode code) =>
-            code == WaveTypeCode.TYPE_I1 ||
-            code == WaveTypeCode.TYPE_I2 ||
-            code == WaveTypeCode.TYPE_I4 ||
-            code == WaveTypeCode.TYPE_I8;
         public static WaveTypeCode GetTypeCodeFromNumber(NumericLiteralExpressionSyntax number) =>
         number switch
         {
+            ByteLiteralExpressionSyntax => WaveTypeCode.TYPE_I1,
             Int16LiteralExpressionSyntax => WaveTypeCode.TYPE_I2,
+            UInt16LiteralExpressionSyntax => WaveTypeCode.TYPE_U2,
             Int32LiteralExpressionSyntax => WaveTypeCode.TYPE_I4,
+            UInt32LiteralExpressionSyntax => WaveTypeCode.TYPE_U4,
             Int64LiteralExpressionSyntax => WaveTypeCode.TYPE_I8,
+            UInt64LiteralExpressionSyntax => WaveTypeCode.TYPE_U8,
             SingleLiteralExpressionSyntax => WaveTypeCode.TYPE_R4,
             DoubleLiteralExpressionSyntax => WaveTypeCode.TYPE_R8,
+            DecimalLiteralExpressionSyntax => WaveTypeCode.TYPE_R16,
             _ => throw new NotSupportedException($"{number} is not support number.")
         };
         
