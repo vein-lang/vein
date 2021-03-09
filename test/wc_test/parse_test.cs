@@ -80,8 +80,13 @@
                         gc auto;
                     }");
             Assert.Equal("test", d.Identifier);
-            Assert.Equal("int32", d.ReturnType.Identifier);
+            Assert.Equal("int32", d.ReturnType.Identifier.ToLower());
             Assert.Equal(SyntaxType.ReturnStatement, d.Body.Statements.First().Kind);
+        }
+        [Fact]
+        public void QualifiedExpressionNewTest()
+        {
+            Wave.QualifiedExpression.ParseWave("new Foo()");
         }
 
         [Theory]
@@ -121,7 +126,7 @@
             var d = a.MethodDeclaration
                 .ParseWave("public test(x: int32): void { }");
             Assert.Equal("test", d.Identifier);
-            Assert.Equal("void", d.ReturnType.Identifier);
+            Assert.Equal("void", d.ReturnType.Identifier.ToLower());
         }
         
         [Fact]
@@ -138,11 +143,11 @@
             var method = d.Methods.Single();
             Assert.Equal("test", method.Identifier);
             Assert.Contains(method.Modifiers, x => x.ModificatorKind == ModificatorKind.Public);
-            Assert.Equal("void", method.ReturnType.Identifier);
+            Assert.Equal("void", method.ReturnType.Identifier.ToLower());
             
             var @params = method.Parameters.Single();
             Assert.Equal("x", @params.Identifier);
-            Assert.Equal("int32", @params.Type.Identifier);
+            Assert.Equal("int32", @params.Type.Identifier.ToLower());
         }
 
         
@@ -287,6 +292,16 @@
                 Assert.Equal(result, expr.Token);
             }
         }
+        [Fact]
+        public void LiteralAssignedExpressionTest()
+        {
+            var result = Wave.FieldDeclaration.End().ParseWave("foo: Int32 = -22;");
+            Assert.NotNull(result);
+            Assert.Equal("Int32", result.Type.Identifier);
+            Assert.Equal("foo", result.Field.Identifier);
+            Assert.Equal("(-22)", result.Field.Expression.ExpressionString);
+            Assert.IsType<SByteLiteralExpressionSyntax>(result.Field.Expression);
+        }
         [Theory]
         [InlineData("class")]
         [InlineData("struct")]
@@ -299,7 +314,7 @@
             Assert.Equal(WaveAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
 
             var md = cd.Methods.Single();
-            Assert.Equal("void", md.ReturnType.Identifier);
+            Assert.Equal("Void", md.ReturnType.Identifier);
             Assert.Equal("main", md.Identifier);
             Assert.Equal(WaveAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
             Assert.False(md.Parameters.Any());
