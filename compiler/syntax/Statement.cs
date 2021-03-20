@@ -8,11 +8,12 @@
         protected internal virtual Parser<StatementSyntax> Statement =>
             from statement in Block.Select(s => s as StatementSyntax)
                 .PreviewMultiple(
-                    IfStatement, 
+                    IfStatement,
                     WhileStatement, 
                     ReturnStatement, 
                     FailStatement, 
-                    DeleteStatement).Positioned()
+                    DeleteStatement,
+                    VariableDeclaration).Positioned()
                 //.Or(IfStatement)
                 ////.Or(DoStatement)
                 ////.Or(ForEachStatement)
