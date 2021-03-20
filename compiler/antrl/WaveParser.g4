@@ -1,11 +1,20 @@
 parser grammar WaveParser;
-
-options { tokenVocab=WaveLexer; }
+options 
+{ 
+	tokenVocab=WaveLexer;
+    language=CSharp; 
+}
 
 compilation_unit
 	: BYTE_ORDER_MARK? extern_directives? use_directives?
 	  global_attribute_section* namespace_member_declarations? EOF
 	;
+
+body
+	: block
+	| ';'
+	;
+
 namespace_or_type_name 
 	: (identifier type_argument_list? | qualified_alias_member) ('.' identifier type_argument_list?)*
 	;
@@ -73,7 +82,7 @@ namespace_member_declaration
 
 type_declaration
 	: attributes? all_member_modifiers?
-      (class_definition | struct_definition | interface_definition | enum_definition | delegate_definition)
+      (class_definition | struct_definition | interface_definition | enum_definition)
   ;
 
 namespace_declaration
@@ -117,8 +126,32 @@ all_member_modifier
 	;
 // definitions
 
+
+common_member_declaration
+	: constant_declaration
+	| typed_member_declaration
+	| constructor_declaration
+	| VOID method_declaration
+	| class_definition
+	| struct_definition
+	| interface_definition
+	| enum_definition
+	;
+
+typed_member_declaration
+	: (READONLY)? type_
+	  ( namespace_or_type_name '.' indexer_declaration
+	  | method_declaration
+	  | indexer_declaration
+	  | field_declaration
+	  )
+	;
+
 class_definition
-	: CLASS identifier type_parameter_list? class_base? type_parameter_constraints_clauses?
+	: CLASS identifier 
+	type_parameter_list? 
+	class_base? 
+	type_parameter_constraints_clauses?
 	    class_body ';'?
 	;
 
@@ -135,6 +168,10 @@ interface_definition
 
 enum_definition
 	: ENUM identifier enum_base? enum_body ';'?
+	;
+
+interface_type_list
+	: namespace_or_type_name (','  namespace_or_type_name)*
 	;
 
 field_declaration
@@ -154,11 +191,121 @@ variable_initializer
 	| array_initializer
 	;
 
-array_initializer
-	: OPEN_BRACE (variable_initializer (','  variable_initializer)* ','?)? CLOSE_BRACE
+type_parameter_constraints_clauses
+	: type_parameter_constraints_clause+
+	;
+
+type_parameter_constraints_clause
+	: WHERE identifier ':' type_parameter_constraints
+	;
+
+type_parameter_constraints
+	: constructor_constraint
+	| primary_constraint (',' secondary_constraints)? (',' constructor_constraint)?
+	;
+
+secondary_constraints
+	: namespace_or_type_name (',' namespace_or_type_name)*
+	;
+
+constructor_constraint
+	: NEW OPEN_PARENS CLOSE_PARENS
+	;
+
+primary_constraint
+	: class_type
+	| CLASS '?'?
+	| STRUCT
+	| NUMBER
+	;
+
+// enums
+
+enum_base
+	: ':' type_
+	;
+
+enum_body
+	: OPEN_BRACE (enum_member_declaration (','  enum_member_declaration)* ','?)? CLOSE_BRACE
+	;
+
+enum_member_declaration
+	: attributes? identifier ('=' expression)?
+	;
+
+// classes
+
+class_base
+	: ':' class_type (','  namespace_or_type_name)*
+	;
+
+class_body
+	: OPEN_BRACE class_member_declarations? CLOSE_BRACE
+	;
+
+class_member_declarations
+	: class_member_declaration+
+	;
+
+class_member_declaration
+	: attributes? all_member_modifiers? (common_member_declaration | destructor_definition)
+	;
+
+// interfaces
+
+variant_type_parameter_list
+	: '<' variant_type_parameter (',' variant_type_parameter)* '>'
+	;
+
+variant_type_parameter
+	: attributes? identifier
+	;
+
+interface_base
+	: ':' interface_type_list
+	;
+
+interface_body // ignored in csharp 8
+	: OPEN_BRACE interface_member_declaration* CLOSE_BRACE
+	;
+
+interface_member_declaration
+	: attributes? NEW?
+	  (READONLY? type_
+	    ( identifier type_parameter_list? OPEN_PARENS formal_parameter_list? CLOSE_PARENS type_parameter_constraints_clauses? ';'
+	    | identifier OPEN_BRACE interface_accessors CLOSE_BRACE
+	    | THIS '[' formal_parameter_list ']' OPEN_BRACE interface_accessors CLOSE_BRACE)
+	  | VOID identifier type_parameter_list? OPEN_PARENS formal_parameter_list? CLOSE_PARENS type_parameter_constraints_clauses? ';')
+	;
+
+interface_accessors
+	: attributes? (GETTER ';' (attributes? SETTER ';')? | SETTER ';' (attributes? GETTER ';')?)
+	;
+
+// structs
+
+struct_interfaces
+	: ':' interface_type_list
+	;
+
+struct_body
+	: OPEN_BRACE struct_member_declaration* CLOSE_BRACE
+	;
+
+struct_member_declaration
+	: attributes? all_member_modifiers?
+	  (common_member_declaration)
 	;
 
 // declarations
+
+constant_declarator
+	: identifier '=' expression
+	;
+
+constant_declarators
+	: constant_declarator (','  constant_declarator)*
+	;
 
 constant_declaration
 	: CONST type_ constant_declarators ';'
@@ -168,12 +315,64 @@ indexer_declaration
 	: THIS '[' formal_parameter_list ']' (OPEN_BRACE accessor_declarations CLOSE_BRACE | right_arrow failable_expression ';')
 	;
 
+accessor_declarations
+	: attrs=attributes? mods=accessor_modifier?
+	  (GETTER accessor_body set_accessor_declaration? | SETTER accessor_body get_accessor_declaration?)
+	;
+
+accessor_modifier
+	: PROTECTED
+	| INTERNAL
+	| PRIVATE
+	| PROTECTED INTERNAL
+	| INTERNAL PROTECTED
+	;
+
+get_accessor_declaration
+	: attributes? accessor_modifier? GETTER accessor_body
+	;
+
+set_accessor_declaration
+	: attributes? accessor_modifier? SETTER accessor_body
+	;
+
+accessor_body
+	: block
+	| ';'
+	;
+
+formal_parameter_list
+	: parameter_array
+	| fixed_parameters (',' parameter_array)?
+	;
+
+fixed_parameters
+	: fixed_parameter ( ',' fixed_parameter )*
+	;
+
+fixed_parameter
+	: attributes? parameter_modifier? arg_declaration
+	;
+
+parameter_modifier
+	: IN
+	| IN THIS
+	| THIS
+	;
+
+parameter_array
+	: attributes? PARAMS array_type identifier
+	;
+
 destructor_definition
 	: DELETE OPEN_PARENS CLOSE_PARENS body
 	;
 
 constructor_declaration
 	: NEW OPEN_PARENS formal_parameter_list? CLOSE_PARENS constructor_initializer? body
+	;
+constructor_initializer
+	: ':' (BASE | THIS) OPEN_PARENS argument_list? CLOSE_PARENS
 	;
 
 method_declaration
@@ -248,8 +447,34 @@ type_
 	: base_type ('?' | rank_specifier | '*')*
 	;
 
+// arrays
+
+array_type
+	: base_type (('*' | '?')* rank_specifier)+
+	;
+
+rank_specifier
+	: '[' ','* ']'
+	;
+
+array_initializer
+	: OPEN_BRACE (variable_initializer (','  variable_initializer)* ','?)? CLOSE_BRACE
+	;
+
 
 // literals
+
+right_arrow
+	: first='=' second='>' {$first.index + 1 == $second.index}?
+	;
+
+right_shift
+	: first='>' second='>' {$first.index + 1 == $second.index}?
+	;
+
+right_shift_assignment
+	: first='>' second='>=' {$first.index + 1 == $second.index}?
+	;
 
 boolean_literal
 	: TRUE
@@ -301,7 +526,6 @@ expression
 
 non_assignment_expression
 	: lambda_expression
-	| query_expression
 	| conditional_expression
 	;
 
@@ -363,7 +587,7 @@ multiplicative_expression
 	;
 
 switch_expression
-    : range_expression ('switch' '{' (switch_expression_arms ','?)? '}')?
+    : SWITCH '{' (switch_expression_arms ','?)? '}'
     ;
 
 switch_expression_arms
@@ -374,20 +598,15 @@ switch_expression_arm
     : expression case_guard? right_arrow failable_expression
     ;
 
-range_expression
-    : unary_expression
-    | unary_expression? OP_RANGE unary_expression?
-    ;
-
 unary_expression
 	: primary_expression
 	| '+' unary_expression
 	| '-' unary_expression
-	| BANG unary_expression
+	| '!' unary_expression
 	| '~' unary_expression
 	| '++' unary_expression
 	| '--' unary_expression
-	| OPEN_PARENS type_ CLOSE_PARENS unary_expression
+	| '(' type_ ')' unary_expression
 	| '&' unary_expression
 	| '*' unary_expression
 	;
@@ -396,6 +615,8 @@ primary_expression
 	: pe=primary_expression_start '!'? bracket_expression* '!'?
 	  (((member_access | method_invocation | '++' | '--' | '->' identifier) '!'?) bracket_expression* '!'?)*
 	;
+
+foo : OPEN_PARENS*;
 
 primary_expression_start
 	: literal                                   #literalExpression
@@ -413,16 +634,13 @@ primary_expression_start
 	      | anonymous_object_initializer
 	      | rank_specifier array_initializer)                       #objectCreationExpression
 	| TYPEOF OPEN_PARENS (unbound_type_name | type_ | VOID) CLOSE_PARENS   #typeofExpression
-	| CHECKED OPEN_PARENS expression CLOSE_PARENS                   #checkedExpression
-	| UNCHECKED OPEN_PARENS expression CLOSE_PARENS                 #uncheckedExpression
-	| ASYNC? DELEGATE (OPEN_PARENS explicit_anonymous_function_parameter_list? CLOSE_PARENS)? block #anonymousMethodExpression
 	| SIZEOF OPEN_PARENS type_ CLOSE_PARENS                          #sizeofExpression
 	| NAMEOF OPEN_PARENS (identifier '.')* identifier CLOSE_PARENS  #nameofExpression
 	;
 
 failable_expression
 	: expression
-	| throw_expression
+	| fail_expression
 	;
 
 fail_expression
@@ -556,22 +774,7 @@ statement
 declarationStatement
 	: local_variable_declaration ';'
 	| local_constant_declaration ';'
-	| local_function_declaration
 	;
-
-local_function_declaration
-    : local_function_header local_function_body
-    ;
-
-local_function_header
-    : local_function_modifiers? return_type identifier type_parameter_list?
-        OPEN_PARENS formal_parameter_list? CLOSE_PARENS type_parameter_constraints_clauses?
-    ;
-
-local_function_body
-    : block
-    | right_arrow throwable_expression ';'
-    ;
 
 labeled_Statement
 	: identifier ':' statement  
@@ -671,6 +874,10 @@ specific_catch_clause
 
 general_catch_clause
 	: CATCH exception_filter? block
+	;
+
+exception_filter
+	: WHEN OPEN_PARENS expression CLOSE_PARENS
 	;
 
 finally_clause

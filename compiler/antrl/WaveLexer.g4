@@ -1,25 +1,30 @@
 lexer grammar WaveLexer;
-
 channels { COMMENTS_CHANNEL }
+
+@lexer::members
+{private int interpolatedStringLevel;
+private System.Collections.Generic.Stack<bool> interpolatedVerbatiums = new ();
+private System.Collections.Generic.Stack<int> curlyLevels = new ();
+}
 
 
 BYTE_ORDER_MARK: '\u00EF\u00BB\u00BF';
 
-DELIMITED_DOC_COMMENT   :   '/**' ~'/' .*? '*/'                 -> channel(COMMENTS_CHANNEL);
-SINGLE_LINE_COMMENT     :   '//'  InputCharacter*               -> channel(COMMENTS_CHANNEL);
-DELIMITED_COMMENT       :   '/*'  .*? '*/'                      -> channel(COMMENTS_CHANNEL);
+DELIMITED_DOC_COMMENT   : '/**' ~'/' .*? '*/'                 -> channel(COMMENTS_CHANNEL);
+SINGLE_LINE_COMMENT     : '//'  InputCharacter*               -> channel(COMMENTS_CHANNEL);
+DELIMITED_COMMENT       : '/*'  .*? '*/'                      -> channel(COMMENTS_CHANNEL);
 
-WHITESPACES             :   (Whitespace | NewLine)+             -> channel(HIDDEN);
-IDENTIFIER              :   '@'? IdentifierOrKeyword;
-LITERAL_ACCESS          :   [0-9] ('_'* [0-9])* IntegerTypeSuffix? '.' '@'? IdentifierOrKeyword;
+WHITESPACES             : (Whitespace | NewLine)+             -> channel(HIDDEN);
+IDENTIFIER              : '@'? IdentifierOrKeyword;
+LITERAL_ACCESS          : [0-9] ('_'* [0-9])* IntegerTypeSuffix? '.' '@'? IdentifierOrKeyword;
 
 INTEGER_LITERAL         :     [0-9] ('_'* [0-9])* IntegerTypeSuffix?;
 HEX_INTEGER_LITERAL     : '0' [xX] ('_'* HexDigit)+ IntegerTypeSuffix?;
 BIN_INTEGER_LITERAL     : '0' [bB] ('_'* [01])+ IntegerTypeSuffix?;
 REAL_LITERAL            :        
-    ([0-9] ('_'* [0-9])*)? '.' [0-9] ('_'* [0-9])* ExponentPart? [FfDdMm]? | 
-    [0-9] ('_'* [0-9])* ([FfDdMm] | 
-    ExponentPart [FfDdMm]?);
+    ([0-9] ('_'* [0-9])*)? '.' [0-9] ('_'* [0-9])* ExponentPart? [FfDdMmHh]? | 
+    [0-9] ('_'* [0-9])* ([FfDdMmHh] | 
+    ExponentPart [FfDdMmHh]?);
 
 CHARACTER_LITERAL		: '\'' (~['\\\r\n\u0085\u2028\u2029] | CommonCharacter) '\'';
 REGULAR_STRING			: '"'  (~["\\\r\n\u0085\u2028\u2029] | CommonCharacter)* '"';
@@ -75,6 +80,11 @@ BODY 		: 'body';
 GC 			: 'gc';
 SYNC		: 'sync';
 DELETE		: 'delete';
+PARAMS		: 'params';
+GETTER		: 'getter';
+SETTER		: 'setter';
+WHERE		: 'where';
+NUMBER		: 'number';
 // attributes
 NATIVE      : 'native';
 READONLY    : 'readonly';
@@ -103,25 +113,25 @@ HALF        : 'half';
 
 
 INTERPOLATED_REGULAR_STRING_START:   '%"'
-    { interpolatedStringLevel++; interpolatedVerbatiums.push(false); verbatium = false; } -> pushMode(INTERPOLATION_STRING);
+    { interpolatedStringLevel++; interpolatedVerbatiums.Push(false); } -> pushMode(INTERPOLATION_STRING);
 
 
 OPEN_BRACE:               '{'
 {
 if (interpolatedStringLevel > 0)
 {
-    curlyLevels.push(curlyLevels.pop() + 1);
+    curlyLevels.Push(curlyLevels.Pop() + 1);
 }};
 CLOSE_BRACE:              '}'
 {
 if (interpolatedStringLevel > 0)
 {
-    curlyLevels.push(curlyLevels.pop() - 1);
-    if (curlyLevels.peek() == 0)
+    curlyLevels.Push(curlyLevels.Pop() - 1);
+    if (curlyLevels.Peek() == 0)
     {
-        curlyLevels.pop();
-        skip();
-        popMode();
+        curlyLevels.Pop();
+        Skip();
+        PopMode();
     }
 }
 };
@@ -136,10 +146,10 @@ COLON:                    ':'
 if (interpolatedStringLevel > 0)
 {
     int ind = 1;
-    boolean switchToFormatString = true;
-    while ((char)_input.LA(ind) != '}')
+    bool switchToFormatString = true;
+    while ((char)InputStream.LA(ind) != '}')
     {
-        if (_input.LA(ind) == ':' || _input.LA(ind) == ')')
+        if (InputStream.LA(ind) == ':' || InputStream.LA(ind) == ')')
         {
             switchToFormatString = false;
             break;
@@ -148,7 +158,7 @@ if (interpolatedStringLevel > 0)
     }
     if (switchToFormatString)
     {
-        mode(INTERPOLATION_FORMAT);
+        Mode(INTERPOLATION_FORMAT);
     }
 }
 };
@@ -194,14 +204,14 @@ OP_COALESCING_ASSIGNMENT: '??=';
 
 mode INTERPOLATION_STRING;
 DOUBLE_CURLY_INSIDE:           '{{';
-OPEN_BRACE_INSIDE:             '{' { curlyLevels.push(1); } -> skip, pushMode(DEFAULT_MODE);
+OPEN_BRACE_INSIDE:             '{' { curlyLevels.Push(1); } -> skip, pushMode(DEFAULT_MODE);
 REGULAR_CHAR_INSIDE:           SimpleEscapeSequence;
-DOUBLE_QUOTE_INSIDE:           '"' { interpolatedStringLevel--; interpolatedVerbatiums.pop();} -> popMode;
+DOUBLE_QUOTE_INSIDE:           '"' { interpolatedStringLevel--; interpolatedVerbatiums.Pop();} -> popMode;
 REGULAR_STRING_INSIDE:         ~('{' | '\\' | '"')+;
 
 mode INTERPOLATION_FORMAT;
 DOUBLE_CURLY_CLOSE_INSIDE:      '}}' -> type(FORMAT_STRING);
-CLOSE_BRACE_INSIDE:             '}' { curlyLevels.pop(); }   -> skip, popMode;
+CLOSE_BRACE_INSIDE:             '}' { curlyLevels.Pop(); }   -> skip, popMode;
 FORMAT_STRING:                  ~'}'+;
 
 
