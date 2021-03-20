@@ -111,7 +111,8 @@
         public static WaveTypeCode GetTypeCodeFromNumber(NumericLiteralExpressionSyntax number) =>
         number switch
         {
-            ByteLiteralExpressionSyntax => WaveTypeCode.TYPE_I1,
+            ByteLiteralExpressionSyntax => WaveTypeCode.TYPE_U1,
+            SByteLiteralExpressionSyntax => WaveTypeCode.TYPE_I1,
             Int16LiteralExpressionSyntax => WaveTypeCode.TYPE_I2,
             UInt16LiteralExpressionSyntax => WaveTypeCode.TYPE_U2,
             Int32LiteralExpressionSyntax => WaveTypeCode.TYPE_I4,
