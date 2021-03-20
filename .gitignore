@@ -41,3 +41,5 @@ insmvm.sln
 /ALL_BUILD.vcxproj
 /ALL_BUILD.vcxproj.filters
 compiler/antrl/.antlr/
+
+compiler/antrl/generated/
