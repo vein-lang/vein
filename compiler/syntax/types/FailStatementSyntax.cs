@@ -4,7 +4,7 @@
 
     public class FailStatementSyntax : StatementSyntax
     {
-        public override SyntaxType Kind => SyntaxType.ThrowStatement;
+        public override SyntaxType Kind => SyntaxType.FailStatement;
 
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);
 
