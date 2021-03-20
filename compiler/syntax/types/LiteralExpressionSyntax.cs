@@ -4,8 +4,9 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Text;
+    using Sprache;
 
-    public abstract class LiteralExpressionSyntax : ExpressionSyntax
+    public abstract class LiteralExpressionSyntax : ExpressionSyntax, IPositionAware<LiteralExpressionSyntax>
     {
         protected LiteralExpressionSyntax(string token = null, LiteralType type = LiteralType.Null)
         {
@@ -22,6 +23,11 @@
         public LiteralType LiteralType { get; set; }
         
         public override string ExpressionString => Token;
+        public new LiteralExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
     }
     
     public sealed class StringLiteralExpressionSyntax : LiteralExpressionSyntax
@@ -54,16 +60,22 @@
         }
         public bool Value { get; private set; }
     }
-    public abstract class NumericLiteralExpressionSyntax : LiteralExpressionSyntax
+    public abstract class NumericLiteralExpressionSyntax : LiteralExpressionSyntax, IPositionAware<NumericLiteralExpressionSyntax>
     {
         protected NumericLiteralExpressionSyntax() => this.LiteralType = LiteralType.Numeric;
+        
+        public new NumericLiteralExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
     }
 
     public class UndefinedIntegerNumericLiteral : NumericLiteralExpressionSyntax
     {
         public string Value { get; set; }
 
-        public UndefinedIntegerNumericLiteral(string val) => this.Value = this.Token = val;
+        public UndefinedIntegerNumericLiteral(string val) => this.Value = this.Token = this.ExpressionString = val;
     }
     public abstract class NumericLiteralExpressionSyntax<T> : NumericLiteralExpressionSyntax 
         where T : IFormattable, IConvertible, IComparable<T>, IEquatable<T>, IComparable
