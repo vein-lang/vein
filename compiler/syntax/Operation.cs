@@ -24,7 +24,7 @@
             from returnType in OperationReturnType
             from openBrace in Parse.Char('{').Token()
             from _ in Keyword("body")
-            from methodBody in Block.Token()
+            from methodBody in Block.Token().Positioned()
             from gc in GCDeclaration.Token().Optional()
             from sync in SyncDeclaration.Token().Optional()
             from closeBrace in Parse.Char('}').Commented(this)
