@@ -2,9 +2,17 @@
 {
     using System.Collections;
     using System.Collections.Generic;
+    using Sprache;
     using stl;
 
-    public class BlockSyntax : StatementSyntax, IEnumerable<StatementSyntax>
+    public class ErrorBlockSyntax : BlockSyntax
+    {
+        public ErrorBlockSyntax()
+        {
+        }
+    }
+
+    public class BlockSyntax : StatementSyntax, IEnumerable<StatementSyntax>, IPositionAware<BlockSyntax>
     {
         public BlockSyntax()
         {
@@ -28,5 +36,11 @@
         public IEnumerator GetEnumerator() => ((IEnumerable)Statements).GetEnumerator();
 
         IEnumerator<StatementSyntax> IEnumerable<StatementSyntax>.GetEnumerator() => Statements.GetEnumerator();
+        
+        public new BlockSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
     }
 }
