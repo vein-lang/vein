@@ -260,7 +260,9 @@
         }
         private static (string line, string arrow_line) DiffError(Transform t, DocumentDeclaration doc)
         {
-            var line = doc.SourceLines[t.pos.Line].Length < t.len ? t.pos.Line - 1 : t.pos.Line;
+            var line = doc.SourceLines[t.pos.Line].Length < t.len ? 
+                t.pos.Line - 1 : 
+                /*t.pos.Line*/throw new Exception("cannot detect line");
 
             var original = doc.SourceLines[line];
             var err_line = original[(t.pos.Column - 1)..];
@@ -291,20 +293,24 @@
             {
                 if (literal is NumericLiteralExpressionSyntax numeric)
                 {
-                    if (!numeric.GetTypeCode().IsCompatibleNumber(field.FieldType.TypeCode))
+                    if (!field.FieldType.TypeCode.IsCompatibleNumber(numeric.GetTypeCode()))
                     {
                         var diff_err = DiffErrorFull(literal.Transform, doc);
+                        
+                        var value = numeric.GetTypeCode();
+                        var variable = member.Type.Identifier;
+                        var variable1 = field.FieldType.TypeCode;
+
                         errors.Add(
                             $"[red bold]Cannot implicitly convert type[/] " +
                             $"'[purple underline]{numeric.GetTypeCode().AsType().Name}[/]' to " +
-                            $"'[purple underline]{member.Type.Identifier}[/]'.\n\t" +
+                            $"'[purple underline]{field.FieldType.Name}[/]'.\n\t" +
                             $"at '[orange bold]{numeric.Transform.pos.Line} line, {numeric.Transform.pos.Column} column[/]' \n\t" +
                             $"in '[orange bold]{doc.FileEntity}[/]'."+
                             $"{diff_err}");
                     }
                 }
-
-                if (literal.GetTypeCode() != field.FieldType.TypeCode)
+                else if (literal.GetTypeCode() != field.FieldType.TypeCode)
                 {
                     var diff_err = DiffErrorFull(literal.Transform, doc);
                     errors.Add(
@@ -315,7 +321,6 @@
                         $"in '[orange bold]{doc.FileEntity}[/]'."+
                         $"{diff_err}");
                 }
-                
             }
 
             var clazz = field.Owner;
@@ -340,8 +345,6 @@
             }
             
         }
-
-
         private WaveType FetchType(TypeSyntax typename, DocumentDeclaration doc)
         {
             var retType = module.TryFindType(typename.Identifier, doc.Includes);
