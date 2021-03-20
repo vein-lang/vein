@@ -33,64 +33,47 @@
         /// 1.23m
         /// </example>
         protected internal virtual Parser<NumericLiteralExpressionSyntax> DecimalLiteralExpression =>
-            from polarity in Parse.Chars('-', '+').Optional()
             from token in Parse.DecimalInvariant
             from suffix in Parse.Chars('m', 'M').Except(Parse.Chars('f', 'F', 'd', 'D', 'l', 'L'))
             from e in Exponent.Optional()
-            select new DecimalLiteralExpressionSyntax(decimal.Parse($"{polarity.GetOrElse('+')}{token}{e.GetOrElse("")}", 
+            select new DecimalLiteralExpressionSyntax(decimal.Parse($"{token}{e.GetOrElse("")}", 
                 CultureInfo.InvariantCulture));
         
         /// <example>
         /// 1.23f
         /// </example>
         protected internal virtual Parser<NumericLiteralExpressionSyntax> FloatLiteralExpression =>
-            from polarity in Parse.Chars('-', '+').Optional()
             from token in Parse.DecimalInvariant
             from suffix in Parse.Chars('f', 'F').Except(Parse.Chars('m', 'M', 'd', 'D', 'l', 'L'))
-            select new SingleLiteralExpressionSyntax(float.Parse($"{polarity.GetOrElse('+')}{token}", CultureInfo.InvariantCulture));
+            select new SingleLiteralExpressionSyntax(float.Parse($"{token}", CultureInfo.InvariantCulture));
         
         /// <example>
         /// 1.23d
         /// </example>
         protected internal virtual Parser<NumericLiteralExpressionSyntax> DoubleLiteralExpression =>
-            from polarity in Parse.Chars('-', '+').Optional()
             from token in Parse.DecimalInvariant
             from suffix in Parse.Chars('d', 'D').Except(Parse.Chars('m', 'M', 'f', 'F', 'l', 'L'))
-            select new DoubleLiteralExpressionSyntax(double.Parse($"{polarity.GetOrElse('+')}{token}", CultureInfo.InvariantCulture));
+            select new DoubleLiteralExpressionSyntax(double.Parse($"{token}", CultureInfo.InvariantCulture));
         
         /// <example>
         /// 1124
         /// </example>
         protected internal virtual Parser<LiteralExpressionSyntax> IntLiteralExpression =>
-            from polarity in Parse.Chars('-', '+').Optional()
             from token in Parse.Number
-            //from suffix in Parse.Chars('l', 'L').Except(Parse.Chars('m', 'M', 'f', 'F')).Optional()
-            select transformNumber($"{polarity.GetOrElse('+')}{token}", default);
+            // so, why not automatic transform literal token (eg Int16LiteralExpression)
+            // problem with UnaryExpression, negate symbol has parsed on top level combinators and into this combinator doesn't come
+            // solution:
+            //      define UndefinedIntegerNumericLiteral and into Unary combinator detection on construction level and replace for 
+            //      proper variant.
+            select new UndefinedIntegerNumericLiteral(token); 
 
         protected internal virtual Parser<LiteralExpressionSyntax> NumericLiteralExpression =>
-            from expr in
-                DecimalLiteralExpression.Or(
-                DoubleLiteralExpression).Or(
-                FloatLiteralExpression).Or(
-                IntLiteralExpression)
-            select expr;
-        
-        // TODO rework detection int type
-        private LiteralExpressionSyntax transformNumber(string token, char suffix)
-        {
-            if (!long.TryParse(token, out _))
-                throw new ParseException("not valid integer.");
-            
-            if (suffix is 'l' or 'L')
-                return new Int64LiteralExpressionSyntax(long.Parse(token));
-            if (token.Count(char.IsDigit) <= 5)
-                return new Int16LiteralExpressionSyntax(short.Parse(token));
-            if (token.Count(char.IsDigit) <= 10)
-                return new Int32LiteralExpressionSyntax(int.Parse(token));
-            if (token.Count(char.IsDigit) <= 19)
-                return new Int64LiteralExpressionSyntax(long.Parse(token));
-            throw new ParseException($"too big number '{token}'"); // TODO custom exception
-        }
+            (from expr in
+                    DecimalLiteralExpression.Or(
+                        DoubleLiteralExpression).Or(
+                        FloatLiteralExpression).Or(
+                        IntLiteralExpression)
+                select expr).Positioned();
         
         /// <example>
         /// true
@@ -115,7 +98,7 @@
                 NumericLiteralExpression.XOr(
                 StringLiteralExpression).XOr(
                 NullLiteralExpression).XOr(
-                BooleanLiteralExpression).Commented(this)
+                BooleanLiteralExpression).Positioned().Commented(this)
             select expr.Value
                 .WithLeadingComments(expr.LeadingComments)
                 .WithTrailingComments(expr.TrailingComments);
