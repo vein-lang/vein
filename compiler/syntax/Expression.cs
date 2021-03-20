@@ -139,10 +139,13 @@
         /// <summary> ! </summary>
         protected internal virtual Parser<ExpressionSyntax> Not =>
             Operand('!', ExpressionType.Not);
+        /// <summary> . </summary>
+        protected internal virtual Parser<ExpressionSyntax> MemberAccess =>
+            Operand('.', ExpressionType.MemberAccess);
         
-        
-        
-            
+        protected internal virtual Parser<ExpressionSyntax> CallExpression =>
+            Parse.ChainRightOperator(MemberAccess, QualifiedExpression,
+                (syntax, s, arg3) => new AccessExpressionSyntax {Exp1 = s, Exp2 = arg3, op = syntax});
         
         protected internal virtual Parser<ExpressionType> Operator(string op, ExpressionType opType) 
             => Parse.String(op).Token().Log("Operator").Return(opType);
@@ -150,16 +153,13 @@
         (   
             from sign in Parse.Char(symbol)
             from factor in RawExpression()
-            select new UnaryExpressionSyntax()
+            select new UnaryExpressionSyntax
             {
                 Operand = factor,
                 OperatorType = type
             }
         ).XOr(RawExpression()).Log("Operand").Token();
         
-        
-
-
         protected internal virtual Parser<ExpressionSyntax> New =>
         (
             from sign in Keyword("new")
@@ -171,7 +171,7 @@
                 CtorArgs = ctorArgs.GetOrEmpty().ToList(),
                 OperatorType = ExpressionType.New
             }
-        ).Token();
+        ).Positioned().Token();
         
         protected internal virtual Parser<IOption<IEnumerable<ExpressionSyntax>>> QualifiedArgumentExpression =>
             from open in Parse.Char('(')
@@ -191,6 +191,8 @@
             .Or(MemberAccessExpression);
 
 
+        //protected internal virtual Parser<ExpressionSyntax> LevelUnary =>
+        //    Parse.ChainRightOperator(Negate.Or(OnesComplement).Or(Not), Level0, MakeBinary)
 
         protected internal virtual Parser<ExpressionSyntax> Level0
             => Parse.ChainRightOperator(Power.XOr(Xor), Negate.Or(OnesComplement).Or(Not), MakeBinary)
@@ -222,7 +224,7 @@
                 .Log("Expression::Level6").Positioned();
         
         protected internal virtual Parser<ExpressionSyntax> QualifiedExpression 
-            => Parse.ChainOperator(NotEqual.XOr(Equal), Level6, MakeBinary)
+            => Parse.ChainOperator(NotEqual.XOr(Equal), Level6, MakeBinary).Or(New)
                 .Log("QualifiedExpression").Positioned();
         
         
@@ -238,6 +240,10 @@
     public class OperatorExpressionSyntax : ExpressionSyntax
     {
         public ExpressionType OperatorType { get; set; }
+
+        public OperatorExpressionSyntax()  { }
+
+        public OperatorExpressionSyntax(ExpressionType exp) => this.OperatorType = exp;
     }
     
     public class UnaryExpressionSyntax : OperatorExpressionSyntax
@@ -262,16 +268,41 @@
         public override string ExpressionString => ToString();
     }
     
-    public class NewExpressionSyntax : OperatorExpressionSyntax
+    public class NewExpressionSyntax : OperatorExpressionSyntax, IPositionAware<NewExpressionSyntax>
     {
         public override SyntaxType Kind => SyntaxType.ClassInitializer;
         public override IEnumerable<BaseSyntax> ChildNodes => CtorArgs.Concat(new BaseSyntax[] { TargetType });
         public TypeSyntax TargetType { get; set; }
         public List<ExpressionSyntax> CtorArgs { get; set; }
         
+        public new NewExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
+    }
+
+    public class AccessExpressionSyntax : BinaryExpressionSyntax, IPositionAware<AccessExpressionSyntax>
+    {
+        public ExpressionSyntax Exp1, Exp2;
+        public ExpressionSyntax op;
+        public new AccessExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
+    }
+
+    public class InvalidBinaryExpressionSyntax : BinaryExpressionSyntax, IPositionAware<BinaryExpressionSyntax>
+    {
+        public new InvalidBinaryExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
     }
     
-    public class BinaryExpressionSyntax : OperatorExpressionSyntax
+    public class BinaryExpressionSyntax : OperatorExpressionSyntax, IPositionAware<BinaryExpressionSyntax>
     {
         public ExpressionSyntax Left { get; set; }
         public ExpressionSyntax Right { get; set; }
@@ -279,7 +310,37 @@
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Left, Right);
         
         public override SyntaxType Kind => SyntaxType.BinaryExpression;
-        
+
+        public new BinaryExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
+
+        public BinaryExpressionSyntax()
+        {
+            
+        }
+
+        public BinaryExpressionSyntax(ExpressionSyntax first, ExpressionSyntax last)
+        {
+            this.Left = first;
+            this.Right = last;
+        }
+
+        public BinaryExpressionSyntax(ExpressionSyntax first, ExpressionSyntax last, ExpressionType op)
+        {
+            this.OperatorType = op;
+            this.Left = first;
+            this.Right = last;
+        }
+        public BinaryExpressionSyntax(ExpressionSyntax first, ExpressionSyntax last, string op)
+        {
+            this.OperatorType = op.ToExpressionType();
+            this.Left = first;
+            this.Right = last;
+        }
+
         public override string ToString()
         {
             var str = new StringBuilder();
@@ -329,6 +390,10 @@
     
     public static class ExpressionTypeEx
     {
+        public static ExpressionType ToExpressionType(this string str)
+        {
+            return Enum.GetValues<ExpressionType>().Select(x => (x.GetSymbol(), x)).Where(x => x.Item1 != null).First(x => x.Item1.Equals(str)).x;
+        }
         public static string GetSymbol(this ExpressionType exp)
         {
             switch (exp)
@@ -414,8 +479,10 @@
                 case ExpressionType.Negate:
                 case ExpressionType.NegateChecked:
                     return "-";
+                case ExpressionType.MemberAccess:
+                    return ".";
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(exp), exp, null);
+                    return null;
             }
         }
     }
