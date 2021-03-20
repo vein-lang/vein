@@ -1,7 +1,7 @@
 ﻿namespace wave.syntax
 {
-    using System.Linq;
     using Sprache;
+    using stl;
 
     public partial class WaveSyntax
     {
@@ -14,15 +14,21 @@
                    Identifier = identifier,
                    Expression = ExpressionSyntax.CreateOrDefault(expression),
                }).Positioned();
-        // example: int x, y, z = 3;
+        // auto i: int = 3;
         protected internal virtual Parser<VariableDeclarationSyntax> VariableDeclaration =>
-            (from type in TypeReference.Token().Positioned()
-                from declarators in VariableDeclarator.DelimitedBy(Parse.Char(',').Token())
+            (from keyword in Keyword("auto").Token()
+                from declarator in VariableDeclarator.Commented(this)
+                from @as in Parse.Char(':').Token().Commented(this)
+                from type in TypeReference.Token().Positioned().Commented(this)
                 from semicolon in Parse.Char(';')
                 select new VariableDeclarationSyntax
                 {
-                    Type = type,
-                    Variables = declarators.ToList(),
-                }).Positioned();
+                    Type = type.Value,
+                    Variables = declarator.Value,
+                }
+                    .WithLeadingComments(declarator.LeadingComments).WithTrailingComments(declarator.TrailingComments)
+                    .WithLeadingComments(@as.LeadingComments).WithTrailingComments(@as.TrailingComments)
+                    .WithLeadingComments(type.LeadingComments).WithTrailingComments(type.TrailingComments)
+            ).Positioned();
     }
 }
