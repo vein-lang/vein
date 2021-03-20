@@ -18,7 +18,15 @@
     public partial class WaveSyntax
     {
         protected internal virtual Parser<ExpressionSyntax> expression =>
-            assignment.Or(non_assignment_expression);
+            non_assignment_expression.Or(assignment);
+
+        /*protected internal virtual Parser<ExpressionSyntax> expression =>
+            primary_expression_start
+                .Or(
+                    from e in expression 
+                    from c in Parse.Char('.').Token()
+                    from d in (IdentifierExpression.Or(methodCall))
+                    )*/
 
         protected internal virtual Parser<ExpressionSyntax> assignment =>
             from exp in unary_expression
@@ -39,7 +47,7 @@
                 .Or(Parse.String("+="))
                 .Or(Parse.String("=")).Token().Text();
         protected internal virtual Parser<ExpressionSyntax> non_assignment_expression =>
-            lambda_expression.Or(conditional_expression);
+            conditional_expression.Or(lambda_expression);
 
         
         protected internal virtual Parser<ExpressionSyntax> lambda_expression =>
@@ -79,8 +87,19 @@
 
         #endregion
 
+        /*range_expression
+        : unary_expression
+        | unary_expression? OP_RANGE unary_expression?
+            ;*/
+        
 
-
+        protected internal virtual Parser<ExpressionSyntax> range_expression =>
+            unary_expression.XOr(
+                from s1 in unary_expression.Optional()
+                from op in Parse.String("..").Token()
+                from s2 in unary_expression.Optional()
+                select new RangeExpressionSyntax(s1, s2)
+            );
 
         protected internal virtual Parser<IOption<BlockSyntax>> block =>
             WrappedExpression('{', '}', statement_list.Token().Select(x => new BlockSyntax(x)).Optional());
@@ -100,7 +119,7 @@
                             .Select(z => (x, z)))))
                 .Token()
                 .Optional()
-            select new BinaryExpressionSyntax(operand, new CoalescingExpressionSyntax(d));
+            select FlatIfEmptyOrNull(operand, new CoalescingExpressionSyntax(d));
 
 
 
@@ -113,42 +132,41 @@
                 .Then(_ => expression.Token().Positioned())
                 .Select(x => new FailOperationExpression(x));
 
-        protected internal virtual Parser<BinaryExpressionSyntax> null_coalescing_expression =>
+        protected internal virtual Parser<ExpressionSyntax> null_coalescing_expression =>
             from c in conditional_or_expression
             from a in Parse.String("??").Token().Then(_ => null_coalescing_expression.Or(fail_expression)).Optional()
-            select new BinaryExpressionSyntax(c, a.GetOrDefault());
-
-
-        protected internal virtual Parser<BinaryExpressionSyntax> conditional_or_expression =>
+            select FlatIfEmptyOrNull(c, a, "??");
+        
+        protected internal virtual Parser<ExpressionSyntax> conditional_or_expression =>
             BinaryExpression(conditional_and_expression, "||").Positioned();
 
-        protected internal virtual Parser<BinaryExpressionSyntax> conditional_and_expression =>
+        protected internal virtual Parser<ExpressionSyntax> conditional_and_expression =>
             BinaryExpression(inclusive_or_expression, "&&").Positioned();
 
-        protected internal virtual Parser<BinaryExpressionSyntax> inclusive_or_expression =>
+        protected internal virtual Parser<ExpressionSyntax> inclusive_or_expression =>
             BinaryExpression(exclusive_or_expression, "|").Positioned();
 
-        protected internal virtual Parser<BinaryExpressionSyntax> exclusive_or_expression =>
+        protected internal virtual Parser<ExpressionSyntax> exclusive_or_expression =>
             BinaryExpression(and_expression, "^").Positioned();
 
-        protected internal virtual Parser<BinaryExpressionSyntax> and_expression =>
+        protected internal virtual Parser<ExpressionSyntax> and_expression =>
             BinaryExpression(equality_expression, "&").Positioned();
 
 
-        protected internal virtual Parser<BinaryExpressionSyntax> equality_expression =>
+        protected internal virtual Parser<ExpressionSyntax> equality_expression =>
             BinaryExpression(relational_expression, "==", "!=").Positioned();
 
-        protected internal virtual Parser<BinaryExpressionSyntax> relational_expression =>
+        protected internal virtual Parser<ExpressionSyntax> relational_expression =>
             BinaryExpression(shift_expression.Or(AsTypePattern).Or(IsTypePattern), ">=", "<=", ">", "<").Positioned();
 
-        protected internal virtual Parser<BinaryExpressionSyntax> shift_expression =>
+        protected internal virtual Parser<ExpressionSyntax> shift_expression =>
             BinaryExpression(additive_expression, "<<", ">>").Positioned();
 
-        protected internal virtual Parser<BinaryExpressionSyntax> additive_expression =>
+        protected internal virtual Parser<ExpressionSyntax> additive_expression =>
             BinaryExpression(multiplicative_expression, "+", "-").Positioned();
 
-        protected internal virtual Parser<BinaryExpressionSyntax> multiplicative_expression =>
-            BinaryExpression(switch_expression, "*", "/", "%").Positioned();
+        protected internal virtual Parser<ExpressionSyntax> multiplicative_expression =>
+            BinaryExpression(range_expression, "*", "/", "%").Positioned();
 
 
         protected internal virtual Parser<BinaryExpressionSyntax> switch_expression =>
@@ -168,17 +186,21 @@
             select new IsTypePatternExpression(ty);
 
 
-        private Parser<BinaryExpressionSyntax> BinaryExpression<T>(Parser<T> t, string op) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> => 
+        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, string op) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> => 
             from c in t.Token()
-            from _op in Parse.String(op).Text().Token()
-            from a in Parse.String(op).Token().Then(_ => t.Token()).Many()
-            select new BinaryExpressionSyntax(c, new MultipleBinaryChainExpressionSyntax(a), _op);
+            from data in 
+                (from _op in Parse.String(op).Text().Token()
+                    from a in t.Token()
+                    select (_op, a)).Many()
+            select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
         
-        private Parser<BinaryExpressionSyntax> BinaryExpression<T>(Parser<T> t, params string[] ops) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> => 
+        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, params string[] ops) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> => 
             from c in t.Token()
-            from _op in Parse.Regex(ops.Join("|"), $"operators '{ops.Join(',')}'")
-            from a in t.Token().Many()
-            select new BinaryExpressionSyntax(c, new MultipleBinaryChainExpressionSyntax(a), _op);
+            from data in 
+                (from _op in Parse.Regex(ops.Select(x => $"\\{x}").Join("|"), $"operators '{ops.Join(',')}'")
+                    from a in t.Token()
+                    select (_op, a)).Many()
+            select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
 
         protected internal virtual Parser<IEnumerable<ExpressionSyntax>> expression_list =>
             from exp in expression
@@ -265,9 +287,9 @@
             select new BracketExpression(nl, idx.ToArray());
 
         protected internal virtual Parser<ExpressionSyntax> primary_expression_start =>
-            LiteralExpression.Select(x => x.Downlevel())
-                .Or(IdentifierExpression)
-                .Or(WrappedExpression('(', ')', expression))
+            LiteralExpression.Select(x => x.Downlevel()).Log("LiteralExpression")
+                .Or(IdentifierExpression.Log("IdentifierExpression"))
+                .Or(WrappedExpression('(', ')', Parse.Ref(() => expression)))
                 .Or(SystemTypeExpression)
                 .Or(KeywordExpression("this"))
                 .Or(
@@ -282,6 +304,7 @@
 
                 //                )
                 //        )
+                .Token()
                 .Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> member_access =>
@@ -297,7 +320,7 @@
             select new MethodInvocationExpression(exp);
 
         protected internal virtual Parser<ExpressionSyntax> primary_expression =>
-            from pe in primary_expression_start.Token()
+            from pe in primary_expression_start.Token().Log("from pe in primary_expression_start")
             from s1 in Parse.Char('!').Token().Optional()
             from bk in bracket_expression.Many()
             from s2 in Parse.Char('!').Token().Optional()
@@ -318,7 +341,7 @@
 
         private Parser<ExpressionSyntax> UnaryOperator(string op) =>
             from o in Parse.String(op).Token()
-            from u in unary_expression
+            from u in Parse.Ref(() => unary_expression)
             select new UnaryExpressionSyntax() {Operand = u, OperatorType = op.ToExpressionType()};
         
 
@@ -335,6 +358,23 @@
                 .Or(UnaryOperator("*"))
             select f1;
 
+    }
+
+    public class RangeExpressionSyntax : ExpressionSyntax, IPositionAware<RangeExpressionSyntax>
+    {
+        public ExpressionSyntax S1, S2;
+
+        public RangeExpressionSyntax(IOption<ExpressionSyntax> e1, IOption<ExpressionSyntax> e2)
+        {
+            this.S1 = e1.GetOrDefault();
+            this.S2 = e2.GetOrDefault();
+        }
+
+        public new RangeExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
     }
 
     public class AnonFunctionSignatureExpression : ExpressionSyntax, IPositionAware<AnonFunctionSignatureExpression>
@@ -464,6 +504,7 @@
     {
         public Unnamed02ExpressionSyntax(ExpressionSyntax pe, IEnumerable<ExpressionSyntax> bk, IEnumerable<Unnamed01ExpressionSyntax> dd)
         {
+            this.ExpressionString = pe.ExpressionString;
             Pe = pe;
             Bk = bk;
             Dd = dd;
@@ -478,6 +519,8 @@
             base.SetPos(startPos, length);
             return this;
         }
+
+
     }
 
     public class MethodInvocationExpression : ExpressionSyntax, IPositionAware<MethodInvocationExpression>
@@ -647,15 +690,13 @@
             base.SetPos(startPos, length);
             return this;
         }
-
-        
     }
 
     public class IdentifierExpression : ExpressionSyntax, IPositionAware<IdentifierExpression>
     {
-        public IdentifierExpression(string name) : base(name)
-        {
-        }
+        public IdentifierExpression(string name) : base(name) 
+            => this.ExpressionString = name;
+
         public new IdentifierExpression SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
