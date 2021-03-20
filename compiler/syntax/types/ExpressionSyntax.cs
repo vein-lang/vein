@@ -8,6 +8,7 @@
         public ExpressionSyntax()
         {
         }
+        public ExpressionSyntax(bool isUnused) => HasUnused = isUnused;
 
         public ExpressionSyntax(string expr) => ExpressionString = expr;
 
@@ -19,12 +20,14 @@
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
 
         public virtual string ExpressionString { get; set; }
-        
+        public bool HasUnused { get; set; }
 
         public new ExpressionSyntax SetPos(Position startPos, int length)
         {
             this.Transform = new Transform(startPos, length);
             return this;
         }
+
+        public ExpressionSyntax Downlevel() => this;
     }
 }
