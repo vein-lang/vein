@@ -50,7 +50,7 @@
         SuperExpression,
         SwitchStatement,
         ThisExpression,
-        ThrowStatement,
+        FailStatement,
         TryStatement,
         Type,
         UpdateStatement,
