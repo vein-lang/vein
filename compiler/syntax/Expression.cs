@@ -481,6 +481,8 @@
                     return "-";
                 case ExpressionType.MemberAccess:
                     return ".";
+                case ExpressionType.Conditional:
+                    return "?:";
                 default:
                     return null;
             }
