@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using Sprache;
 
-    public class StatementSyntax : BaseSyntax, IPositionAware<StatementSyntax>
+    public class StatementSyntax : ExpressionSyntax, IPositionAware<StatementSyntax>
     {
         public StatementSyntax() => Body = null;
         public StatementSyntax(string body) => Body = body;
