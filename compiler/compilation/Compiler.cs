@@ -10,6 +10,7 @@
     using System.Linq;
     using System.Threading;
     using extensions;
+    using fs;
     using MoreLinq;
     using Sprache;
     using static Spectre.Console.AnsiConsole;
@@ -26,9 +27,9 @@
 
     public class Compiler
     {
-        public static Compiler Process(FileInfo[] entity, string projectName)
+        public static Compiler Process(FileInfo[] entity, string projectName, string projectDir)
         {
-            var c = new Compiler(projectName);
+            var c = new Compiler(projectName, projectDir);
             
             return Status()
                 .Spinner(Spinner.Known.Dots8Bit)
@@ -48,10 +49,14 @@
                 });
         }
 
-        public Compiler(string projName) 
-            => ProjectName = projName;
+        public Compiler(string projName, string projDir)
+        {
+            ProjectName = projName;
+            ProjectDirectory = projDir;
+        }
 
         private string ProjectName { get; set; }
+        private string ProjectDirectory { get; set; }
 
         private readonly WaveSyntax syntax = new();
         private StatusContext ctx;
@@ -103,7 +108,37 @@
                             fields => fields.ForEach(GenerateField)))
                     .Consume())
                 .Consume();
+            if (errors.Count == 0)
+                WriteOutput(module);
         }
+
+        public void WriteOutput(WaveModuleBuilder builder)
+        {
+            var dirInfo = new DirectoryInfo(Path.Combine(ProjectDirectory, "bin"));
+
+            if (!dirInfo.Exists)
+                dirInfo.Create();
+            else
+                dirInfo.EnumerateFiles("*.*", SearchOption.AllDirectories).ForEach(x => x.Delete());
+
+
+            var asm_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{ProjectName}.wll"));
+            var wil_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{ProjectName}.wvil.bin"));
+            var dbg_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{ProjectName}.wvil"));
+
+            var wil_data = builder.BakeByteArray();
+            var dbg_data = builder.BakeDebugString();
+
+
+            var asm = new InsomniaAssembly(builder);
+
+            InsomniaAssembly.WriteTo(asm, asm_file.FullName);
+
+            File.WriteAllBytes(wil_file.FullName, wil_data);
+            File.WriteAllText(dbg_file.FullName, dbg_data);
+        }
+
+
         public List<(ClassBuilder clazz, ClassDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc)
         {
             var classes = new List<(ClassBuilder clazz, ClassDeclarationSyntax member)>();
@@ -131,11 +166,11 @@
                
                 if (result is not null)
                 {
-                    module.classList.Add(result);
-                    return new ClassBuilder(module, result);
+                    var clz = new ClassBuilder(module, result);
+                    module.classList.Add(clz);
+                    return clz;
                 }
             }
-
             return module.DefineClass($"global::{doc.Name}/{member.Identifier}");
         }
 
@@ -202,7 +237,7 @@
 
             var args = GenerateArgument(member, doc);
             
-            var method = clazz.DefineMethod(member.Identifier, retType, GenerateMethodFlags(member), args);
+            var method = clazz.DefineMethod(member.Identifier, GenerateMethodFlags(member), retType, args);
 
             return (method, member);
         }
