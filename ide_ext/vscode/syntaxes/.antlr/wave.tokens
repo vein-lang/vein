@@ -1,0 +1,8 @@
+T__0=1
+INTEGER=2
+FLOAT=3
+STRING=4
+BOOLEAN=5
+ID=6
+WS=7
+'hello'=1
