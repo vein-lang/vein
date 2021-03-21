@@ -25,7 +25,10 @@
             };
 
         protected internal virtual Parser<IOption<ExpressionSyntax>> KeywordExpressionStatement(string keyword) =>
-            KeywordExpression(keyword).Token().Then(_ => QualifiedExpression.Token().Optional());
+            KeywordExpression(keyword)
+                .Token()
+                .Then(_ => QualifiedExpression.Token().XOptional())
+                .Then(x => Parse.Char(';').Token().Return(x));
     }
     
     public class OperatorExpressionSyntax : ExpressionSyntax
