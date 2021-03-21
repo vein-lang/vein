@@ -103,15 +103,6 @@
                 .WithLeadingComments(expr.LeadingComments)
                 .WithTrailingComments(expr.TrailingComments);
         
-        /// <example>
-        /// (1+2*4), 'hello', (true == false ? 1 : 2), null
-        /// </example>
-        protected internal virtual Parser<ExpressionSyntax> FactorExpression =>
-            GenericExpressionInBraces().Select(expr => new ExpressionSyntax("(" + expr + ")"))
-                .XOr(LiteralExpression);
-        
-        
-        
         protected internal virtual Parser<string> Exponent =>
             Parse.Chars("Ee").Then(e => Parse.Number.Select(n => "e+" + n).XOr(
                 Parse.Chars("+-").Then(s => Parse.Number.Select(n => "e" + s + n))));

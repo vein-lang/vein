@@ -62,22 +62,22 @@
         /// </example>
         protected internal virtual Parser<WhileStatementSyntax> WhileStatement =>
             from whileKeyword in Parse.IgnoreCase("while").Token()
-            from expression in GenericExpressionInBraces()
+            from expression in WrappedExpression('(', ')', QualifiedExpression)
             from loopBody in Statement
             select new WhileStatementSyntax
             {
-                Expression = new ExpressionSyntax(expression),
+                Expression = expression,
                 Statement = loopBody,
             };
         
         protected internal virtual Parser<IfStatementSyntax> IfStatement =>
             from ifKeyword in Keyword("if").Token()
-            from expression in GenericExpressionInBraces()
+            from expression in WrappedExpression('(', ')', QualifiedExpression)
             from thenBranch in Statement
             from elseBranch in Keyword("else").Token(this).Then(_ => Statement).Optional()
             select new IfStatementSyntax
             {
-                Expression = new ExpressionSyntax(expression),
+                Expression = expression,
                 ThenStatement = thenBranch,
                 ElseStatement = elseBranch.GetOrDefault(),
             };

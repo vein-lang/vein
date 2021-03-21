@@ -17,7 +17,7 @@
 
     public partial class WaveSyntax
     {
-        protected internal virtual Parser<ExpressionSyntax> expression =>
+        protected internal virtual Parser<ExpressionSyntax> QualifiedExpression =>
             non_assignment_expression.Or(assignment);
 
         /*protected internal virtual Parser<ExpressionSyntax> expression =>
@@ -118,12 +118,12 @@
 
 
         protected internal virtual Parser<ExpressionSyntax> failable_expression =>
-            expression.Or(fail_expression);
+            QualifiedExpression.Or(fail_expression);
         
         protected internal virtual Parser<ExpressionSyntax> fail_expression =>
             Keyword("fail")
                 .Token()
-                .Then(_ => expression.Token().Positioned())
+                .Then(_ => QualifiedExpression.Token().Positioned())
                 .Select(x => new FailOperationExpression(x));
 
         protected internal virtual Parser<ExpressionSyntax> null_coalescing_expression =>
@@ -200,8 +200,8 @@
             select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
 
         protected internal virtual Parser<IEnumerable<ExpressionSyntax>> expression_list =>
-            from exp in expression
-            from exps in Parse.Ref(() => expression).DelimitedBy(Parse.Char(',')).Token()
+            from exp in QualifiedExpression
+            from exps in Parse.Ref(() => QualifiedExpression).DelimitedBy(Parse.Char(',')).Token()
             select exps;
 
         protected internal virtual Parser<IdentifierExpression> IdentifierExpression =>
@@ -233,7 +233,7 @@
             from type in KeywordExpression("auto")
                 .Or(TypeExpression.Select(x => x.Downlevel()))
                 .Positioned().Token().Optional()
-            from exp in expression
+            from exp in QualifiedExpression
             select new ArgumentExpression(id, type, exp);
 
         protected internal virtual Parser<IndexerArgument> indexer_argument =>
@@ -241,7 +241,7 @@
                 .Then(x => Parse.Char(':').Token().Return(x))
                 .Positioned()
                 .Token().Optional()
-            from exp in expression
+            from exp in QualifiedExpression
             select new IndexerArgument(id, exp);
 
         protected internal virtual Parser<ExpressionSyntax[]> argument_list =>
@@ -286,7 +286,7 @@
         protected internal virtual Parser<ExpressionSyntax> primary_expression_start =>
             LiteralExpression.Select(x => x.Downlevel()).Log("LiteralExpression")
                 .Or(IdentifierExpression.Log("IdentifierExpression"))
-                .Or(WrappedExpression('(', ')', Parse.Ref(() => expression)))
+                .Or(WrappedExpression('(', ')', Parse.Ref(() => QualifiedExpression)))
                 .Or(SystemTypeExpression)
                 .Or(KeywordExpression("this"))
                 .Or(

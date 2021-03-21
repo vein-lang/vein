@@ -48,7 +48,7 @@ namespace wave.syntax
                 Field = new ()
                 {
                     Identifier = identifier.Value,
-                    Expression = ExpressionSyntax.CreateOrDefault(expression),
+                    Expression = expression.GetOrDefault(),
                     LeadingComments = identifier.LeadingComments.ToList()
                 },
             };

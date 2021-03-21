@@ -185,7 +185,7 @@
         public void FooAoo()
         {
             AppFlags.Set("exp_simplify_optimize", false);
-            var result = Wave.expression.End().ParseWave("1 + 2 - 3 * 4 / 5 ^^ 2");
+            var result = Wave.QualifiedExpression.End().ParseWave("1 + 2 - 3 * 4 / 5 ^^ 2");
             _logger.WriteLine(result.ToString());
         }
         
@@ -355,7 +355,7 @@
         [Fact]
         public void AccessMemberTest()
         {
-            Wave.CallExpression.End().ParseWave(@"44.4.govno");
+            Wave.QualifiedExpression.End().ParseWave(@"44.4.govno");
         }
 
         [Fact]
@@ -501,7 +501,7 @@
         [InlineData("~-728565646 & ~-1896339527 && !-651565412 && ~-2116790075")]
         public void OperatorTest(string parseKey)
         {
-            var result = Wave.expression.End().ParseWave($"({parseKey})");
+            var result = Wave.QualifiedExpression.End().ParseWave($"({parseKey})");
             _logger.WriteLine(result?.ExpressionString);
         }
 

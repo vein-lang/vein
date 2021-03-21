@@ -8,11 +8,11 @@
         // example: now = DateTime.Now()
         protected internal virtual Parser<VariableDeclaratorSyntax> VariableDeclarator =>
            (from identifier in Identifier
-               from expression in Parse.Char('=').Token().Then(_ => QualifiedExpression).Positioned().Optional()
+               from exp in Parse.Char('=').Token().Then(_ => QualifiedExpression).Positioned().Optional()
                select new VariableDeclaratorSyntax
                {
                    Identifier = identifier,
-                   Expression = ExpressionSyntax.CreateOrDefault(expression),
+                   Expression = ExpressionSyntax.CreateOrDefault(exp),
                }).Positioned();
         // auto i: int = 3;
         protected internal virtual Parser<VariableDeclarationSyntax> VariableDeclaration =>
