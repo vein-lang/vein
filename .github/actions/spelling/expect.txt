@@ -725,6 +725,7 @@ dbd
 dbe
 dbede
 dbf
+dbg
 DBil
 dbmdl
 DBn
@@ -1153,6 +1154,7 @@ Exj
 EXk
 EXOa
 experement
+expm
 Expontent
 expr
 exps
@@ -4246,6 +4248,7 @@ WHITESPACES
 Whj
 WIC
 WIe
+wil
 winfx
 winrt
 WISY
