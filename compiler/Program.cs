@@ -22,7 +22,7 @@ using Color = System.Drawing.Color;
 
 [assembly: InternalsVisibleTo("wc_test")]
 
-
+AppFlags.RegisterArgs(args);
 if (Environment.GetEnvironmentVariable("WT_SESSION") == null && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 {
     Environment.SetEnvironmentVariable($"RUNE_EMOJI_USE", "0");
