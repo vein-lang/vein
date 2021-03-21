@@ -1,19 +1,71 @@
 ﻿namespace wave
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using MoreLinq;
     using Sprache;
+    using static Spectre.Console.AnsiConsole;
+
+    [AttributeUsage(AttributeTargets.Field)]
+    public class ExperementalAttribute : Attribute { }
+    public enum ApplicationFlag
+    {
+        use_experemental_options,
+        [Experemental]
+        exp_simplify_optimize
+    }
 
     public static class AppFlags
     {
         private static Dictionary<string, string> flags = new();
         // filter only extra flag
-        public static void RegisterArgs(string[] args) => args
-            .Where(x => x.StartsWith("--EF"))
-            .Select(ParserExtraFlag.unit.End().Parse)
-            .Where(x => !flags.ContainsKey(x.Key))
-            .ForEach(x => flags.Add(x.Key, x.Value));
+        public static void RegisterArgs(ref string[] args)
+        {
+            var flagExperemental = args.Contains("--EF:+use_experemental_options");
+
+            var values = GetAppFlagValues(flagExperemental ? FilterFlagValue.All : FilterFlagValue.Default);
+            var expm = GetAppFlagValues(FilterFlagValue.OnlyExperemental);
+
+            args
+                .Where(x => x.StartsWith("--EF"))
+                .Select(ParserExtraFlag.unit.End().Parse)
+                .Where(x => !flags.ContainsKey(x.Key))
+                .Where(x =>
+                {
+                    if (values.Contains(x.Key))
+                        return true;
+                    if (expm.Contains(x.Key))
+                        MarkupLine($"[orange]WARN[/]: unsupported option '[red]{x.Key}[/]', put '[red]--EF:+use_experemental_options[/]' below all flags.");
+                    else 
+                        MarkupLine($"[orange]WARN[/]: unknown option '[red]{x}[/]'.");
+                    return false;
+                })
+                .ForEach(x => flags.Add(x.Key, x.Value));
+            args = new List<string>(args.Where(x => !x.StartsWith("--EF:"))).ToArray();
+        }
+
+        private static string[] GetAppFlagValues(FilterFlagValue filter) => Enum.GetNames<ApplicationFlag>()
+            .Where(x =>
+            {
+                ExperementalAttribute? Get() => typeof(ApplicationFlag).GetMember(x).Single()
+                    .GetCustomAttribute<ExperementalAttribute>();
+
+                if (filter == FilterFlagValue.All)
+                    return true;
+                if (filter == FilterFlagValue.Default)
+                    return Get() == null;
+                return Get() != null;
+            })
+            .ToArray();
+
+        private enum FilterFlagValue
+        {
+            Default,
+            OnlyExperemental,
+            All
+        }
 
         public static void Set(string key, bool val)
             => flags.Add(key, val.ToString().ToLowerInvariant());
@@ -32,10 +84,10 @@
                 from s in Parse.Char(':')
                 from data in (
                     from bl in Parse.Char('+').Or(Parse.Char('-'))
-                    from key in Parse.Letter.AtLeastOnce().Text()
+                    from key in Parse.Letter.Or(Parse.Char('_')).AtLeastOnce().Text()
                     select new KeyValuePair<string, string>(key, bl == '+' ? "true" : "false")
                 ).Or(
-                    from key in Parse.Letter.AtLeastOnce().Text()
+                    from key in Parse.Letter.Or(Parse.Char('_')).AtLeastOnce().Text()
                     from s in Parse.Char('=')
                     from val in Parse.LetterOrDigit.AtLeastOnce().Text()
                     select new KeyValuePair<string, string>(key, val)
