@@ -1372,6 +1372,12 @@ U[a-fA-F0-9]{,8} )</string>
             <key>match</key>
             <string>\b[0-9_]+(U|u|L|l|UL|Ul|uL|ul|LU|Lu|lU|lu)?\b</string>
           </dict>
+          <dict>
+            <key>name</key>
+            <string>constant.numeric.decimal.wave</string>
+            <key>match</key>
+            <string>\b(NaN|Infinity)\b</string>
+          </dict>
         </array>
       </dict>
       <key>char-literal</key>

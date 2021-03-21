@@ -435,6 +435,8 @@ repository:
               match: '\b[0-9_]+(F|f|D|d|M|m|H|h)\b'
             - name: constant.numeric.decimal.wave
               match: '\b[0-9_]+(U|u|L|l|UL|Ul|uL|ul|LU|Lu|lU|lu)?\b'
+            - name: constant.numeric.decimal.wave
+              match: '\b(NaN|Infinity)\b'
     char-literal:
         name: string.quoted.single.wave
         begin: "'"
