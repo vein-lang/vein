@@ -60,7 +60,6 @@
             method.Flags = flags;
             return method;
         }
-        
         /// <summary>
         /// Define field in current class.
         /// </summary>
@@ -77,8 +76,8 @@
         
         byte[] IBaker.BakeByteArray()
         {
-            if (Methods.Count == 0)
-                return null;
+            if (Methods.Count == 0 && Fields.Count == 0)
+                return Array.Empty<byte>();
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
             binary.WriteTypeName(this.FullName, moduleBuilder);
