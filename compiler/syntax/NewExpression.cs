@@ -86,13 +86,7 @@
             select new ParameterSyntax((TypeSyntax)null, i);
 
         #endregion
-
-        /*range_expression
-        : unary_expression
-        | unary_expression? OP_RANGE unary_expression?
-            ;*/
         
-
         protected internal virtual Parser<ExpressionSyntax> range_expression =>
             unary_expression.XOr(
                 from s1 in unary_expression.Optional()
@@ -133,16 +127,10 @@
                 .Select(x => new FailOperationExpression(x));
 
         protected internal virtual Parser<ExpressionSyntax> null_coalescing_expression =>
-            from c in conditional_or_expression
+            from c in inclusive_or_expression
             from a in Parse.String("??").Token().Then(_ => null_coalescing_expression.Or(fail_expression)).Optional()
             select FlatIfEmptyOrNull(c, a, "??");
         
-        protected internal virtual Parser<ExpressionSyntax> conditional_or_expression =>
-            BinaryExpression(conditional_and_expression, "||").Positioned();
-
-        protected internal virtual Parser<ExpressionSyntax> conditional_and_expression =>
-            BinaryExpression(inclusive_or_expression, "&&").Positioned();
-
         protected internal virtual Parser<ExpressionSyntax> inclusive_or_expression =>
             BinaryExpression(exclusive_or_expression, "|").Positioned();
 
@@ -166,9 +154,18 @@
             BinaryExpression(multiplicative_expression, "+", "-").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> multiplicative_expression =>
-            BinaryExpression(range_expression, "*", "/", "%").Positioned();
+            BinaryExpression(conditional_or_expression, "*", "/", "%").Positioned();
 
+        protected internal virtual Parser<ExpressionSyntax> conditional_or_expression =>
+            BinaryExpression(conditional_and_expression, "||").Positioned();
 
+        protected internal virtual Parser<ExpressionSyntax> conditional_and_expression =>
+            BinaryExpression(power_expression, "&&").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> power_expression =>
+            BinaryExpression(range_expression, "^^").Positioned();
+
+        // TODO
         protected internal virtual Parser<BinaryExpressionSyntax> switch_expression =>
             from key in Keyword("switch").Token()
             from ob in Parse.Char('{').Token()
@@ -335,9 +332,9 @@
                 ).Token()
                 from bk1 in bracket_expression.Many()
                 from s4 in Parse.Char('!').Token().Optional()
-                select new Unnamed01ExpressionSyntax(cc, bk1)
+                select FlatIfEmptyOrNull(new Unnamed01ExpressionSyntax(cc, bk1))
             ).Token().Many()
-            select new Unnamed02ExpressionSyntax(pe, bk, dd);
+            select FlatIfEmptyOrNull(new Unnamed02ExpressionSyntax(pe, bk, dd));
 
         private Parser<ExpressionSyntax> UnaryOperator(string op) =>
             from o in Parse.String(op).Token()
@@ -502,7 +499,7 @@
 
     public class Unnamed02ExpressionSyntax : ExpressionSyntax, IPositionAware<Unnamed02ExpressionSyntax>
     {
-        public Unnamed02ExpressionSyntax(ExpressionSyntax pe, IEnumerable<ExpressionSyntax> bk, IEnumerable<Unnamed01ExpressionSyntax> dd)
+        public Unnamed02ExpressionSyntax(ExpressionSyntax pe, IEnumerable<ExpressionSyntax> bk, IEnumerable<ExpressionSyntax> dd)
         {
             this.ExpressionString = pe.ExpressionString;
             Pe = pe;
@@ -512,7 +509,7 @@
 
         public ExpressionSyntax Pe { get; }
         public IEnumerable<ExpressionSyntax> Bk { get; }
-        public IEnumerable<Unnamed01ExpressionSyntax> Dd { get; }
+        public IEnumerable<ExpressionSyntax> Dd { get; }
 
         public new Unnamed02ExpressionSyntax SetPos(Position startPos, int length)
         {
