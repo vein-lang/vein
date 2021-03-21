@@ -43,3 +43,5 @@ insmvm.sln
 compiler/antrl/.antlr/
 
 compiler/antrl/generated/
+
+wave.std/bin/

@@ -14,30 +14,12 @@ public class String : Object
     {
         if (Length - 1 < Length)
             return false;
-        return (this.$indexer.at(Length - 1) == value);
+        return (this[Length - 1] == value);
     }
     public StartsWith(value: Char): Boolean
     {
         if (Length < 1)
             return false;
-
-        auto res = this.$indexer.at(0);
-        return res == value;
-    }
-
-    public fib(n: Int64): Int64
-    {
-        if (n == 0) return 0;
-        if (n == 1) return 1;
-        auto first: Int64 = 0;
-        auto second: Int64 = 1;
-        auto nth: Int64 = 1;
-        for (auto i: Int64 = 2; i <= n; i++)
-        {
-            nth = first + second;
-            first = second;
-            second = nth;
-        }
-        return nth;
+        return this[0] == value;
     }
 }
