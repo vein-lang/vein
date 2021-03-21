@@ -1,4 +1,4 @@
-namespace wave.syntax
+﻿namespace wave.syntax
 {
     using System;
     using System.Collections.Generic;
@@ -78,6 +78,47 @@ namespace wave.syntax
             if (exps.EmptyIfNull().Count() == 0)
                 return exp;
             return new BinaryExpressionSyntax(exp, new MultipleBinaryChainExpressionSyntax(exps), op);
+        }
+
+        #endregion
+
+
+        #region exp_simplify_optimize
+
+        private ExpressionSyntax SimplifyOptimization(BinaryExpressionSyntax binary)
+        {
+            if (!AppFlags.HasFlag("exp_simplify_optimize"))
+                return binary;
+
+            if (binary is not {Left: {Kind: SyntaxType.LiteralExpression}, Right: {Kind: SyntaxType.LiteralExpression}})
+                return binary;
+
+            var l1 = binary.Left;
+            var l2 = binary.Right;
+
+
+            if (l1.GetType() != l2.GetType())
+                return binary;
+            try
+            {
+                if (l1 is UndefinedIntegerNumericLiteral n1 && l2 is UndefinedIntegerNumericLiteral n2)
+                {
+                    var v1 = long.Parse(n1.Value);
+                    var v2 = long.Parse(n2.Value);
+
+                    switch (binary.OperatorType)
+                    {
+                        case ExpressionType.Add:
+                        case ExpressionType.AddChecked:
+                            return new UndefinedIntegerNumericLiteral($"{v1 + v2}");
+                        case ExpressionType.Subtract:
+                        case ExpressionType.SubtractChecked:
+                            return new UndefinedIntegerNumericLiteral($"{v1 - v2}");
+                    }
+                }
+            }
+            catch { }
+            return binary;
         }
 
         #endregion
