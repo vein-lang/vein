@@ -49,10 +49,10 @@
         public FieldFlags Flags { get; set; }
         public WaveClass Owner { get; set; }
         
-        public override string Name 
-        { 
-            get; 
-            protected set;
+        public override string Name
+        {
+            get => FullName.Name;
+            protected set => throw new NotImplementedException();
         }
         
         [Obsolete]
