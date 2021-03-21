@@ -1352,19 +1352,19 @@ U[a-fA-F0-9]{,8} )</string>
             <key>name</key>
             <string>constant.numeric.decimal.wave</string>
             <key>match</key>
-            <string>\b([0-9_]+)?\.[0-9_]+((e|E)[0-9]+)?(F|f|D|d|M|m)?\b</string>
+            <string>\b([0-9_]+)?\.[0-9_]+((e|E)(\-?)[0-9]+)?(F|f|D|d|M|m|H|h)?\b</string>
           </dict>
           <dict>
             <key>name</key>
             <string>constant.numeric.decimal.wave</string>
             <key>match</key>
-            <string>\b[0-9_]+(e|E)[0-9_]+(F|f|D|d|M|m)?\b</string>
+            <string>\b[0-9_]+(e|E)(\-?)[0-9_]+(F|f|D|d|M|m|H|h)?\b</string>
           </dict>
           <dict>
             <key>name</key>
             <string>constant.numeric.decimal.wave</string>
             <key>match</key>
-            <string>\b[0-9_]+(F|f|D|d|M|m)\b</string>
+            <string>\b[0-9_]+(F|f|D|d|M|m|H|h)\b</string>
           </dict>
           <dict>
             <key>name</key>
