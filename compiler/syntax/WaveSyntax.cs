@@ -199,7 +199,7 @@
         protected internal virtual Parser<InvocationExpressionSyntax> InvocationExpression =>
             from identifier in QualifiedIdentifier
             from open in Parse.Char('(')
-            from expression in Parse.Ref(() => QualifiedExpression).DelimitedBy(Parse.Char(',').Token()).Optional()
+            from expression in Parse.Ref(() => argument_list).Optional()
             from close in Parse.Char(')')
             select new InvocationExpressionSyntax
             {
