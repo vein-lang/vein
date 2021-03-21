@@ -48,11 +48,18 @@
         public int ArrayRank { get; set; }
         public int PointerRank { get; set; }
 
-        public string AsString() =>
-            string.Join(".", Namespaces.Concat(Enumerable.Repeat(Identifier, 1))) +
-            (TypeParameters.IsNullOrEmpty() ? string.Empty :
-                "<" + string.Join(", ", TypeParameters.Select(t => t.AsString())) + ">") +
-            (IsArray ? "[]" : string.Empty);
+        public string GetFullName()
+        {
+            var result = $"global::";
+            if (Namespaces.Any())
+                result = $"{result}{Namespaces.Join("/")}/";
+            result = $"{result}{Identifier}";
+            if (IsPointer)
+                result = $"{result}{new string('*', PointerRank)}";
+            if (IsArray)
+                result = $"{result}[{new string(',', ArrayRank)}]";
+            return result;
+        }
 
         TypeSyntax IPositionAware<TypeSyntax>.SetPos(Position startPos, int length)
         {

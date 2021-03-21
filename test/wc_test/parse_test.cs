@@ -357,6 +357,19 @@
         }
 
         [Fact]
+        public void NewExpTest()
+        {
+            var result = Wave.QualifiedExpression.End().ParseWave(@"new Foo()");
+            Assert.IsType<NewExpressionSyntax>(result);
+
+            var exp = result as NewExpressionSyntax;
+
+            Assert.Equal(SyntaxType.NewExpression, exp.Kind);
+            Assert.Empty(exp.CtorArgs);
+            Assert.Equal("global::Foo", exp.TargetType.Typeword.GetFullName());
+        }
+
+        [Fact]
         public void LiteralAssignedExpressionTest()
         {
             var result = Wave.FieldDeclaration.End().ParseWave("foo: Int32 = -22;");

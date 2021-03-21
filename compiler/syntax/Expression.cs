@@ -1,5 +1,6 @@
 ﻿namespace wave.syntax
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -267,16 +268,25 @@
             select new NullableExpressionValue(h.IsDefined);
         protected internal virtual Parser<ExpressionSettingSyntax> pointer_specifier =>
             from h in Parse.Char('*').Optional()
-            select new PointerExpressionValue(h.IsDefined);
+            select new PointerSpecifierValue(h.IsDefined);
 
         protected internal virtual Parser<TypeExpression> TypeExpression =>
-            from type in BaseType
+            from type in BaseType.Or(namespace_or_type_name.Token())
             from meta in nullable_specifier
                 .Or(rank_specifier)
                 .Or(pointer_specifier)
                 .Token().Positioned().Many()
             select new TypeExpression(type).WithMetadata(meta.EmptyIfNull().ToArray());
 
+
+        protected internal virtual Parser<TypeSyntax> namespace_or_type_name =>
+            from id in qualified_alias_member.Or(Identifier)
+            from chain in Parse.Char('/').Token().Then(_ => Identifier.Token()).Many()
+            select new QualifiedAliasSyntax(chain.EmptyIfNull().ToArray(), id);
+
+        protected internal virtual Parser<string> qualified_alias_member =>
+            Identifier.Then(x => Parse.String("::").Token().Return($"{x}::")).Then(x => Identifier.Select(z => $"{x}{z}"));
+        
 
         protected internal virtual Parser<ExpressionSyntax> bracket_expression =>
             from nl in nullable_specifier.Select(x => (NullableExpressionValue) x).Token().Optional()
@@ -295,15 +305,16 @@
                         Parse.Char('.').Then(_ => IdentifierExpression).Positioned().Select(x => x.Downlevel()).Or(
                             WrappedExpression('[', ']', expression_list).Select(x => new IndexerExpression(x).Downlevel()))
                     select dw)
-                //.Or(
-                //    from kw in KeywordExpression("new")
-                //    from newexp in (
-
-                //                )
-                //        )
+                .Or(new_expression)
                 .Token()
                 .Positioned();
 
+        protected internal virtual Parser<ExpressionSyntax> new_expression => 
+            KeywordExpression("new").Token().Then(_ => 
+                from type in TypeExpression
+                from creation_expression in object_creation_expression
+                select new NewExpressionSyntax(type, creation_expression)
+                ).Positioned().Token();
         protected internal virtual Parser<ExpressionSyntax> member_access =>
             from s1 in Parse.Char('?').Token().Optional()
             from s2 in Parse.Char('.').Token()
@@ -355,5 +366,14 @@
                 .Or(UnaryOperator("*"))
             select f1;
 
+    }
+
+    public class QualifiedAliasSyntax : TypeSyntax
+    {
+        public QualifiedAliasSyntax(string[] namespaces, string id)
+        {
+            this.Identifier = id;
+            this.Namespaces.AddRange(namespaces);
+        }
     }
 }

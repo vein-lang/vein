@@ -1,5 +1,6 @@
 ﻿namespace wave.syntax
 {
+    using System.Linq;
     using Sprache;
 
     public class TypeExpression : ExpressionSyntax, IPositionAware<TypeExpression>
@@ -16,6 +17,8 @@
 
         public TypeExpression WithMetadata(ExpressionSettingSyntax[] settings)
         {
+            Typeword.PointerRank = settings.OfExactType<PointerSpecifierValue>().Where(x => x.HasPointer).Count();
+            Typeword.ArrayRank = settings.OfExactType<RankSpecifierValue>().Sum(x => x.Rank);
             return this;
         }
     }

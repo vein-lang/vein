@@ -4,6 +4,7 @@
     {
         None,
         Accessor,
+        NewExpression,
         AssignmentExpression,
         Annotation,
         BinaryExpression,
