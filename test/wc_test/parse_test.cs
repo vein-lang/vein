@@ -289,6 +289,8 @@
         {
             var result = Wave.Statement.ParseWave(@"return (this.$indexer.at(Length - 1) == value);");
             Assert.True(result.IsBrokenToken);
+            result = Wave.Statement.ParseWave(@"return (this.indexer.at(Length - 1) == value);");
+            Assert.False(result.IsBrokenToken);
         }
         [Fact]
         public void MethodTest00()
@@ -323,12 +325,8 @@
         [InlineData("1.23f", "1.23", false)]
         [InlineData("1.23m", "1.23", false)]
         [InlineData("1.23d", "1.23", false)]
-        [InlineData("+1.23d", "1.23", false)]
-        [InlineData("-1.23d", "-1.23", false)]
         [InlineData("1.23w", null, true)]
         [InlineData("144", "144", false)]
-        [InlineData("+144", "144", false)]
-        [InlineData("-144", "-144", false)]
         [InlineData("2147483647", "2147483647", false)]
         [InlineData("FALSE", "false", false)]
         [InlineData("NULL", "null", false)]
