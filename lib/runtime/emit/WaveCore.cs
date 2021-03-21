@@ -15,6 +15,9 @@
                 Int32Type,
                 Int16Type,
                 Int64Type,
+                UInt32Type,
+                UInt16Type,
+                UInt64Type,
                 FloatType,
                 DoubleType,
                 DecimalType,
@@ -27,9 +30,13 @@
             public static WaveType ValueType { get; private set; }
             public static WaveType VoidType { get; private set; }
             public static WaveType StringType { get; private set; }
+            public static WaveType ByteType { get; private set; }
             public static WaveType Int32Type { get; private set; }
             public static WaveType Int16Type { get; private set; }
             public static WaveType Int64Type { get; private set; }
+            public static WaveType UInt32Type { get; private set; }
+            public static WaveType UInt16Type { get; private set; }
+            public static WaveType UInt64Type { get; private set; }
             public static WaveType FloatType { get; private set; }
             public static WaveType DoubleType { get; private set; }
             public static WaveType DecimalType { get; private set; }
@@ -45,9 +52,13 @@
                 ValueType       = new WaveTypeImpl($"{asmName}global::wave/lang/ValueType", WaveTypeCode.TYPE_CLASS);
                 VoidType        = new WaveTypeImpl($"{asmName}global::wave/lang/Void"     , WaveTypeCode.TYPE_VOID);
                 StringType      = new WaveTypeImpl($"{asmName}global::wave/lang/String"   , WaveTypeCode.TYPE_STRING);
+                ByteType        = new WaveTypeImpl($"{asmName}global::wave/lang/Byte"    , WaveTypeCode.TYPE_I1);
                 Int16Type       = new WaveTypeImpl($"{asmName}global::wave/lang/Int16"    , WaveTypeCode.TYPE_I2);
                 Int32Type       = new WaveTypeImpl($"{asmName}global::wave/lang/Int32"    , WaveTypeCode.TYPE_I4);
                 Int64Type       = new WaveTypeImpl($"{asmName}global::wave/lang/Int64"    , WaveTypeCode.TYPE_I8);
+                UInt16Type      = new WaveTypeImpl($"{asmName}global::wave/lang/UInt16"   , WaveTypeCode.TYPE_U2);
+                UInt32Type      = new WaveTypeImpl($"{asmName}global::wave/lang/UInt32"   , WaveTypeCode.TYPE_U4);
+                UInt64Type      = new WaveTypeImpl($"{asmName}global::wave/lang/UInt64"   , WaveTypeCode.TYPE_U8);
                 FloatType       = new WaveTypeImpl($"{asmName}global::wave/lang/Float"    , WaveTypeCode.TYPE_R4);
                 DoubleType      = new WaveTypeImpl($"{asmName}global::wave/lang/Double"   , WaveTypeCode.TYPE_R8);
                 DecimalType     = new WaveTypeImpl($"{asmName}global::wave/lang/Decimal"  , WaveTypeCode.TYPE_R16);
@@ -61,9 +72,13 @@
         public static WaveClass ValueTypeClass;
         public static WaveClass VoidClass;
         public static WaveClass StringClass;
+        public static WaveClass ByteClass;
         public static WaveClass Int32Class;
         public static WaveClass Int16Class;
         public static WaveClass Int64Class;
+        public static WaveClass UInt32Class;
+        public static WaveClass UInt16Class;
+        public static WaveClass UInt64Class;
         public static WaveClass BoolClass;
         public static WaveClass CharClass;
         public static WaveClass ArrayClass;
@@ -75,9 +90,13 @@
             ValueTypeClass,
             VoidClass,
             StringClass,
+            ByteClass,
             Int32Class,
             Int64Class,
             Int16Class,
+            UInt32Class,
+            UInt64Class,
+            UInt16Class,
             BoolClass,
             CharClass,
             ArrayClass,
@@ -91,9 +110,13 @@
             ValueTypeClass = new WaveClass(Types.ValueType, ObjectClass);
             VoidClass = new WaveClass(Types.VoidType, ObjectClass);
             StringClass = new WaveClass(Types.StringType, ObjectClass);
+            ByteClass = new WaveClass(Types.ByteType, ValueTypeClass);
             Int16Class = new WaveClass(Types.Int16Type, ValueTypeClass);
             Int32Class = new WaveClass(Types.Int32Type, ValueTypeClass);
             Int64Class = new WaveClass(Types.Int64Type, ValueTypeClass);
+            UInt16Class = new WaveClass(Types.UInt16Type, ValueTypeClass);
+            UInt32Class = new WaveClass(Types.UInt32Type, ValueTypeClass);
+            UInt64Class = new WaveClass(Types.UInt64Type, ValueTypeClass);
             BoolClass = new WaveClass(Types.BoolType, ValueTypeClass);
             CharClass = new WaveClass(Types.CharType, ValueTypeClass);
             ArrayClass = new WaveClass(Types.ArrayType, ObjectClass);

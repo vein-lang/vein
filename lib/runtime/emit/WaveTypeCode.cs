@@ -1,6 +1,7 @@
 ﻿namespace wave.emit
 {
     using System;
+    using static WaveTypeCode;
 
     public enum WaveTypeCode
     {
@@ -28,40 +29,103 @@
 
     public static class WaveTypeCodeEx
     {
-        public static bool IsCompatibleNumber(this WaveTypeCode code, WaveTypeCode target)
+        public static bool IsCompatibleNumber(this WaveTypeCode variable, WaveTypeCode assign)
         {
-            if (code.HasFloat() && target.HasFloat())
-                return code >= target;
-            if (code.HasFloat())
+            if (variable == assign)
+                return true;
+            if (variable.HasFloat() && assign.HasInteger())
+                return true;
+            return (variable, assign) switch
             {
-                if (code == WaveTypeCode.TYPE_R2)
-                    return target <= WaveTypeCode.TYPE_U2;
-                if (code == WaveTypeCode.TYPE_R4)
-                    return target <= WaveTypeCode.TYPE_U4;
-                return target <= WaveTypeCode.TYPE_U8;
-            }
-            return IsCompatibleInteger(code, target);
-        }
-        public static bool IsCompatibleInteger(this WaveTypeCode code, WaveTypeCode target)
-        {
-            if (!code.HasInteger())
-                return false;
-            if (!target.HasInteger())
-                return false;
-            if (code.HasUnsigned() && target.HasUnsigned())
-                return code >= target;
-            if (code.HasSigned() && target.HasSigned())
-                return code >= target;
-            return false;
+                (TYPE_R4, TYPE_R8) => false,
+                (TYPE_R4, TYPE_R16) => false,
+
+                (TYPE_R8, TYPE_R4) => true,
+                (TYPE_R8, TYPE_R16) => false,
+
+                (TYPE_R16, TYPE_R8) => false,
+                (TYPE_R16, TYPE_R4) => false,
+
+                (TYPE_U4, TYPE_I1) => true,
+                (TYPE_U4, TYPE_I2) => true,
+                (TYPE_U4, TYPE_I4) => true,
+                (TYPE_U4, TYPE_I8) => false,
+
+                (TYPE_U2, TYPE_I1) => true,
+                (TYPE_U2, TYPE_I2) => true,
+                (TYPE_U2, TYPE_I4) => false,
+                (TYPE_U2, TYPE_I8) => false,
+
+
+                (TYPE_U1, TYPE_I1) => true,
+                (TYPE_U1, TYPE_I2) => false,
+                (TYPE_U1, TYPE_I4) => false,
+                (TYPE_U1, TYPE_I8) => false,
+
+
+                (TYPE_U8, TYPE_I1) => true,
+                (TYPE_U8, TYPE_I2) => true,
+                (TYPE_U8, TYPE_I4) => true,
+                (TYPE_U8, TYPE_I8) => true,
+
+                (TYPE_I8, TYPE_U1) => true,
+                (TYPE_I8, TYPE_U2) => true,
+                (TYPE_I8, TYPE_U4) => true,
+                (TYPE_I8, TYPE_U8) => false,
+
+
+                (TYPE_I4, TYPE_U1) => true,
+                (TYPE_I4, TYPE_U2) => true,
+                (TYPE_I4, TYPE_U4) => false,
+                (TYPE_I4, TYPE_U8) => false,
+
+                (TYPE_I2, TYPE_U1) => true,
+                (TYPE_I2, TYPE_U2) => false,
+                (TYPE_I2, TYPE_U4) => false,
+                (TYPE_I2, TYPE_U8) => false,
+
+
+                (TYPE_I1, TYPE_U1) => false,
+                (TYPE_I1, TYPE_U2) => false,
+                (TYPE_I1, TYPE_U4) => false,
+                (TYPE_I1, TYPE_U8) => false,
+
+                // 
+
+                (TYPE_I1, TYPE_I1) => true,
+                (TYPE_I1, TYPE_I2) => false,
+                (TYPE_I1, TYPE_I4) => false,
+                (TYPE_I1, TYPE_I8) => false,
+
+
+                (TYPE_I2, TYPE_I1) => false,
+                (TYPE_I2, TYPE_I2) => true,
+                (TYPE_I2, TYPE_I4) => false,
+                (TYPE_I2, TYPE_I8) => false,
+
+
+                (TYPE_I4, TYPE_I1) => true,
+                (TYPE_I4, TYPE_I2) => true,
+                (TYPE_I4, TYPE_I4) => true,
+                (TYPE_I4, TYPE_I8) => false,
+
+                (TYPE_I8, TYPE_I1) => true,
+                (TYPE_I8, TYPE_I2) => true,
+                (TYPE_I8, TYPE_I4) => true,
+                (TYPE_I8, TYPE_I8) => true,
+
+
+                _ => false
+            };
         }
         public static bool HasFloat(this WaveTypeCode code)
         {
             switch (code)
             {
-                case WaveTypeCode.TYPE_R2:
-                case WaveTypeCode.TYPE_R4:
-                case WaveTypeCode.TYPE_R8:
-                case WaveTypeCode.TYPE_R16:
+                case TYPE_R2:
+                case TYPE_R4:
+                case TYPE_R8:
+                case TYPE_R16:
                     return true;
                 default:
                     return false;
@@ -71,10 +135,10 @@
         {
             switch (code)
             {
-                case WaveTypeCode.TYPE_U1:
-                case WaveTypeCode.TYPE_U2:
-                case WaveTypeCode.TYPE_U4:
-                case WaveTypeCode.TYPE_U8:
+                case TYPE_U1:
+                case TYPE_U2:
+                case TYPE_U4:
+                case TYPE_U8:
                     return true;
                 default:
                     return false;
@@ -84,10 +148,10 @@
         {
             switch (code)
             {
-                case WaveTypeCode.TYPE_I1:
-                case WaveTypeCode.TYPE_I2:
-                case WaveTypeCode.TYPE_I4:
-                case WaveTypeCode.TYPE_I8:
+                case TYPE_I1:
+                case TYPE_I2:
+                case TYPE_I4:
+                case TYPE_I8:
                     return true;
                 default:
                     return false;
@@ -101,35 +165,39 @@
             WaveCore.Types.Init();
             switch (code)
             {
-                case WaveTypeCode.TYPE_CHAR:
+                case TYPE_CHAR:
                     return WaveCore.Types.CharType;
-                case WaveTypeCode.TYPE_I1:
-                case WaveTypeCode.TYPE_U1:
-                case WaveTypeCode.TYPE_U2:
-                case WaveTypeCode.TYPE_U4:
-                case WaveTypeCode.TYPE_U8:
-                case WaveTypeCode.TYPE_R8:
+                case TYPE_I1:
+                case TYPE_U1:
+                    return WaveCore.Types.ByteType;
+                case TYPE_U2:
+                    return WaveCore.Types.UInt16Type;
+                case TYPE_U4:
+                    return WaveCore.Types.UInt32Type;
+                case TYPE_U8:
+                    return WaveCore.Types.UInt64Type;
+                case TYPE_R8:
                     return WaveCore.Types.DoubleType;
-                case WaveTypeCode.TYPE_R4:
+                case TYPE_R4:
                     return WaveCore.Types.FloatType;
-                case WaveTypeCode.TYPE_ARRAY:
+                case TYPE_ARRAY:
                     return WaveCore.Types.ArrayType;
-                case WaveTypeCode.TYPE_BOOLEAN:
+                case TYPE_BOOLEAN:
                     return WaveCore.Types.BoolType;
-                case WaveTypeCode.TYPE_NONE:
-                case WaveTypeCode.TYPE_CLASS:
+                case TYPE_NONE:
+                case TYPE_CLASS:
                     throw new Exception();
-                case WaveTypeCode.TYPE_VOID:
+                case TYPE_VOID:
                     return WaveCore.Types.VoidType;
-                case WaveTypeCode.TYPE_OBJECT:
+                case TYPE_OBJECT:
                     return WaveCore.Types.ObjectType;
-                case WaveTypeCode.TYPE_I2:
+                case TYPE_I2:
                     return WaveCore.Types.Int16Type;
-                case WaveTypeCode.TYPE_I4:
+                case TYPE_I4:
                     return WaveCore.Types.Int32Type;
-                case WaveTypeCode.TYPE_I8:
+                case TYPE_I8:
                     return WaveCore.Types.Int64Type;
-                case WaveTypeCode.TYPE_STRING:
+                case TYPE_STRING:
                     return WaveCore.Types.StringType;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(code), code, null);
