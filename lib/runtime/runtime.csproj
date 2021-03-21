@@ -17,8 +17,8 @@
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\metadata\opcodes.def.cs" Link="emit\opcodes.def.cs" />
-    <Compile Include="..\..\metadata\opcodes.list.def.cs" Link="emit\opcodes.list.def.cs" />
+    <Compile Include="..\..\metadata\opcodes.def.cs" Link="reflection\opcodes.def.cs" />
+    <Compile Include="..\..\metadata\opcodes.list.def.cs" Link="reflection\opcodes.list.def.cs" />
   </ItemGroup>
 	<PropertyGroup Condition="$(Configuration) == 'Debug'">
 		<BumpPatch>true</BumpPatch>
