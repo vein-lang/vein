@@ -1,8 +1,12 @@
 ﻿namespace wc_test
 {
     using System;
+    using System.IO;
     using System.Linq;
+    using Antlr4.Runtime;
     using Sprache;
+    using wave;
+    using wave.lexer;
     using wave.stl;
     using wave.syntax;
     using Xunit;
@@ -27,6 +31,54 @@
             Assert.Equal(" bla ", a.CommentParser.AnyComment.ParseWave("/* bla */"));
             Assert.Equal(" bla", a.CommentParser.AnyComment.ParseWave("// bla"));
         }
+        [Fact]
+        public void VariableStatementTest()
+        {
+            Wave.Block.End().ParseWave(@"{
+    auto f: Int32 = 12;
+
+    return 1;
+    return 2;
+}");
+        }
+
+        [Fact]
+        public void FF()
+        {
+            var stream = new AntlrInputStream("public class Zo {  }");
+            var speakLexer = new WaveLexer(stream);
+            var commonTokenStream = new CommonTokenStream(speakLexer);
+            var parser = new WaveParser(commonTokenStream);
+            var result = parser.type_declaration();
+            var r = result.ToString();
+            var w = new WaveSyntaxVisitor();
+            parser.RemoveErrorListeners();
+            parser.AddErrorListener(new ErrorListener(_logger));
+            w.Visit(result);
+
+            var err = parser.GetErrorHeader(result.exception);
+        }
+
+        public class ErrorListener : IAntlrErrorListener<IToken>
+        {
+            private readonly ITestOutputHelper _logger;
+
+            public ErrorListener(ITestOutputHelper logger)
+            {
+                _logger = logger;
+            }
+
+            #region Implementation of IAntlrErrorListener<in IToken>
+
+            public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine,
+                string msg, RecognitionException e)
+            {
+                _logger.WriteLine($"line: {line}, pos: {charPositionInLine}, {msg}");
+            }
+
+            #endregion
+        }
+
         
         [Fact]
         public void IdentifierParseTest()
@@ -127,6 +179,14 @@
                 .ParseWave("public test(x: int32): void { }");
             Assert.Equal("test", d.Identifier);
             Assert.Equal("void", d.ReturnType.Identifier.ToLower());
+        }
+
+        [Fact]
+        public void FooAoo()
+        {
+            AppFlags.Set("exp_simplify_optimize", false);
+            var result = Wave.expression.End().ParseWave("1 + 2 - 3 * 4 / 5 ^^ 2");
+            _logger.WriteLine(result.ToString());
         }
         
         [Fact]
@@ -293,13 +353,19 @@
             }
         }
         [Fact]
+        public void AccessMemberTest()
+        {
+            Wave.CallExpression.End().ParseWave(@"44.4.govno");
+        }
+
+        [Fact]
         public void LiteralAssignedExpressionTest()
         {
             var result = Wave.FieldDeclaration.End().ParseWave("foo: Int32 = -22;");
             Assert.NotNull(result);
             Assert.Equal("Int32", result.Type.Identifier);
             Assert.Equal("foo", result.Field.Identifier);
-            Assert.Equal("(-22)", result.Field.Expression.ExpressionString);
+            Assert.Equal("-22", result.Field.Expression.ExpressionString);
             Assert.IsType<SByteLiteralExpressionSyntax>(result.Field.Expression);
         }
         [Theory]
@@ -370,11 +436,11 @@
         
         [Theory]
         [InlineData("2 ^ 4 + 2 - 2 * 2 % 2 ^^ 2 == foo()")]
-        [InlineData("!106 / ~27 ^^ !81 / ~38 ^^ ~65 - 202 ^^ ~214 & ~143")]
+        [InlineData("!106 / ~27 ^ !81 / ~38 ^ ~65 - 202 ^ ~214 & ~143")]
         [InlineData("~16 ^ !243 && ~131 ^ 171 && 224 >> !67 && ~24 * ~235")]
         [InlineData("~107 & 178 ^^ ~111 || ~113 ^^ ~222 >> !100 ^^ 65 || ~94")]
         [InlineData("~119 ^^ ~161 ^^ ~89 * !241 ^^ ~131 && ~129 ^^ 83 ^^ 44")]
-        [InlineData("!210 && !96 + ~71 - 34 + ~14 << ~164 + !217 * ~147")]
+        [InlineData("!210 && !96 + ~71 - 34 + ~14 << ~164 + !217 * ~147")]//((((((!210) && (!96)) + (~71)) - 34) + (~14)) << ((~164) + ((!217) * (~147))))
         [InlineData("222 ^ 78 + !138 & !192 + 211 / ~63 + ~168 ^^ !55")]
         [InlineData("!160 & ~138 ^^ !248 % ~240 ^^ 68 + !206 ^^ !31 || 81")]
         [InlineData("!173 / !120 ^^ 225 && 7 ^^ ~21 >> !238 ^^ ~197 ^^ !98")]
@@ -435,7 +501,8 @@
         [InlineData("~-728565646 & ~-1896339527 && !-651565412 && ~-2116790075")]
         public void OperatorTest(string parseKey)
         {
-            _logger.WriteLine(Wave.QualifiedExpression.End().ParseWave($"({parseKey})")?.ExpressionString);
+            var result = Wave.expression.End().ParseWave($"({parseKey})");
+            _logger.WriteLine(result?.ExpressionString);
         }
 
 
