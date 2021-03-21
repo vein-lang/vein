@@ -1,16 +1,13 @@
 ﻿namespace wave.syntax
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Text;
     using Sprache;
     using stl;
 
     public partial class WaveSyntax
     {
-        // examples: {}, { /* inner comments */ }, { int a = 0; return; } // trailing comments
         protected internal virtual Parser<BlockSyntax> Block =>
             from comments in CommentParser.AnyComment.Token().Many()
             from openBrace in Parse.Char('{').Token()
@@ -29,257 +26,334 @@
                 .Token()
                 .Then(_ => QualifiedExpression.Token().XOptional())
                 .Then(x => Parse.Char(';').Token().Return(x));
-    }
-    
-    public class OperatorExpressionSyntax : ExpressionSyntax
-    {
-        public ExpressionType OperatorType { get; set; }
 
-        public OperatorExpressionSyntax()  { }
+        protected internal virtual Parser<ExpressionSyntax> QualifiedExpression =>
+            non_assignment_expression.Or(assignment);
+        protected internal virtual Parser<ExpressionSyntax> assignment =>
+            from exp in unary_expression
+            from op in assignment_operator
+            from exp2 in failable_expression
+            select new BinaryExpressionSyntax(exp, exp2, op);
 
-        public OperatorExpressionSyntax(ExpressionType exp) => this.OperatorType = exp;
-    }
-    
-    public class UnaryExpressionSyntax : OperatorExpressionSyntax
-    {
-        public ExpressionSyntax Operand { get; set; }
-        public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Operand);
-        public override SyntaxType Kind => SyntaxType.PostfixUnaryExpression;
+        protected internal virtual Parser<string> assignment_operator =>
+            Parse.String("<<=")
+                .Or(Parse.String("??="))
+                .Or(Parse.String("^="))
+                .Or(Parse.String("|="))
+                .Or(Parse.String("&="))
+                .Or(Parse.String("%="))
+                .Or(Parse.String("/="))
+                .Or(Parse.String("*="))
+                .Or(Parse.String("-="))
+                .Or(Parse.String("+="))
+                .Or(Parse.String("=")).Token().Text();
+        protected internal virtual Parser<ExpressionSyntax> non_assignment_expression =>
+            conditional_expression.Or(lambda_expression);
+
         
-        public override string ToString()
-        {
-            var str = new StringBuilder();
-            str.Append("(");
-            str.Append(OperatorType.GetSymbol());
-            if (Operand.ExpressionString is not null)
-                str.Append(Operand.ExpressionString);
-            else
-                str.Append(Operand.Kind);
-            str.Append(")");
-            return str.ToString();
-        }
-        
-        public override string ExpressionString => ToString();
-    }
-    
-    public class NewExpressionSyntax : OperatorExpressionSyntax, IPositionAware<NewExpressionSyntax>
-    {
-        public override SyntaxType Kind => SyntaxType.ClassInitializer;
-        public override IEnumerable<BaseSyntax> ChildNodes => CtorArgs.Concat(new BaseSyntax[] { TargetType });
-        public TypeSyntax TargetType { get; set; }
-        public List<ExpressionSyntax> CtorArgs { get; set; }
-        
-        public new NewExpressionSyntax SetPos(Position startPos, int length)
-        {
-            base.SetPos(startPos, length);
-            return this;
-        }
-    }
+        protected internal virtual Parser<ExpressionSyntax> lambda_expression =>
+            from dec in lfunction_signature
+            from op in Parse.String("|>").Token()
+            from body in lfunction_body
+            select new AnonymousFunctionExpressionSyntax(dec, body);
 
-    public class AccessExpressionSyntax : BinaryExpressionSyntax, IPositionAware<AccessExpressionSyntax>
-    {
-        public ExpressionSyntax Exp1, Exp2;
-        public ExpressionSyntax op;
-        public new AccessExpressionSyntax SetPos(Position startPos, int length)
-        {
-            base.SetPos(startPos, length);
-            return this;
-        }
-    }
+        #region anon_func
 
-    public class InvalidBinaryExpressionSyntax : BinaryExpressionSyntax, IPositionAware<BinaryExpressionSyntax>
-    {
-        public new InvalidBinaryExpressionSyntax SetPos(Position startPos, int length)
-        {
-            base.SetPos(startPos, length);
-            return this;
-        }
-    }
-    
-    public class BinaryExpressionSyntax : OperatorExpressionSyntax, IPositionAware<BinaryExpressionSyntax>
-    {
-        public ExpressionSyntax Left { get; set; }
-        public ExpressionSyntax Right { get; set; }
         
-        public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Left, Right);
+        protected internal virtual Parser<ExpressionSyntax> lfunction_signature =>
+            WrappedExpression('(', ')')
+                .Or(WrappedExpression('(', ')', explicit_anonymous_function_parameter_list).Select(x => new AnonFunctionSignatureExpression(x)))
+                .Or(WrappedExpression('(', ')', implicit_anonymous_function_parameter_list).Select(x => new AnonFunctionSignatureExpression(x)))
+                .Or(IdentifierExpression);
+
+
+        protected internal virtual Parser<ExpressionSyntax> lfunction_body =>
+            failable_expression.Or(block.Select(x => x.GetOrElse(new BlockSyntax())));
         
-        public override SyntaxType Kind => SyntaxType.BinaryExpression;
+        protected internal virtual Parser<ParameterSyntax[]> explicit_anonymous_function_parameter_list =>
+            explicit_anonymous_function_parameter.Token().Positioned().ChainForward(Parse.Char(',').Token())
+                .Select(x => x.ToArray());
+        protected internal virtual Parser<ParameterSyntax[]> implicit_anonymous_function_parameter_list =>
+            implicit_anonymous_function_parameter.Token().Positioned().ChainForward(Parse.Char(',').Token())
+                .Select(x => x.ToArray());
+        protected internal virtual Parser<ParameterSyntax> explicit_anonymous_function_parameter =>
+            from i in Identifier
+            from d in Parse.Char(':')
+            from t in TypeExpression
+            select new ParameterSyntax(t.Typeword, i);
 
-        public new BinaryExpressionSyntax SetPos(Position startPos, int length)
-        {
-            base.SetPos(startPos, length);
-            return this;
-        }
+        protected internal virtual Parser<ParameterSyntax> implicit_anonymous_function_parameter =>
+            from i in Identifier
+            select new ParameterSyntax((TypeSyntax)null, i);
 
-        public BinaryExpressionSyntax()
-        {
-            
-        }
-
-        public BinaryExpressionSyntax(ExpressionSyntax first, ExpressionSyntax last)
-        {
-            this.Left = first;
-            this.Right = last;
-        }
-
-        public BinaryExpressionSyntax(ExpressionSyntax first, ExpressionSyntax last, ExpressionType op)
-        {
-            this.OperatorType = op;
-            this.Left = first;
-            this.Right = last;
-        }
-        public BinaryExpressionSyntax(ExpressionSyntax first, ExpressionSyntax last, string op)
-        {
-            this.OperatorType = op.ToExpressionType();
-            this.Left = first;
-            this.Right = last;
-        }
-
-        public override string ToString()
-        {
-            var str = new StringBuilder();
-            str.Append("(");
-            if(Left is not null)
-            {
-                if (Left.ExpressionString is not null)
-                    str.Append(Left.ExpressionString);
-                else
-                    str.Append(Left.Kind);
-                
-                str.Append($" {OperatorType.GetSymbol()} ");
-            }
-            else
-                str.Append($"{OperatorType.GetSymbol()}");
-            
-            if (Right.ExpressionString is not null)
-                str.Append(Right.ExpressionString);
-            else
-                str.Append(Right.Kind);
-            str.Append(")");
-            return str.ToString();
-        }
+        #endregion
         
-        public override string ExpressionString => ToString();
-    }
-    
-    
-    public class MemberAccessSyntax : ExpressionSyntax
-    {
-        public string MemberName { get; set; }
-        public string[] MemberChain { get; set; }
+        protected internal virtual Parser<ExpressionSyntax> range_expression =>
+            unary_expression.XOr(
+                from s1 in unary_expression.Optional()
+                from op in Parse.String("..").Token()
+                from s2 in unary_expression.Optional()
+                select new RangeExpressionSyntax(s1, s2)
+            );
+
+        protected internal virtual Parser<IOption<BlockSyntax>> block =>
+            WrappedExpression('{', '}', statement_list.Token().Select(x => new BlockSyntax(x)).Optional());
+
+        protected internal virtual Parser<IEnumerable<StatementSyntax>> statement_list =>
+            Statement.AtLeastOnce();
+
+        protected internal virtual Parser<ExpressionSyntax> conditional_expression =>
+            from operand in null_coalescing_expression
+            from d in Parse.Char('?')
+                .Token()
+                .Then(_ => failable_expression
+                    .Then(x => Parse
+                        .Char(':')
+                        .Token()
+                        .Then(_ => failable_expression
+                            .Select(z => (x, z)))))
+                .Token()
+                .Optional()
+            select FlatIfEmptyOrNull(operand, new CoalescingExpressionSyntax(d));
+
+
+
+        protected internal virtual Parser<ExpressionSyntax> failable_expression =>
+            QualifiedExpression.Or(fail_expression);
         
-        public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
-        public override SyntaxType Kind => SyntaxType.MemberAccessExpression;
+        protected internal virtual Parser<ExpressionSyntax> fail_expression =>
+            Keyword("fail")
+                .Token()
+                .Then(_ => QualifiedExpression.Token().Positioned())
+                .Select(x => new FailOperationExpression(x));
+
+        protected internal virtual Parser<ExpressionSyntax> null_coalescing_expression =>
+            from c in inclusive_or_expression
+            from a in Parse.String("??").Token().Then(_ => null_coalescing_expression.Or(fail_expression)).Optional()
+            select FlatIfEmptyOrNull(c, a, "??");
         
-        public override string ExpressionString
-        {
-            get
-            {
-                if (MemberChain is null || MemberChain.Length == 0)
-                    return $"{MemberName}";
-                return $"{string.Join(".", MemberChain)}.{MemberName}";
-            }
-        }
-    }
-    
-    public static class ExpressionTypeEx
-    {
-        public static ExpressionType ToExpressionType(this string str)
-        {
-            return Enum.GetValues<ExpressionType>().Select(x => (x.GetSymbol(), x)).Where(x => x.Item1 != null).First(x => x.Item1.Equals(str)).x;
-        }
-        public static string GetSymbol(this ExpressionType exp)
-        {
-            switch (exp)
-            {
-                case ExpressionType.Equal:
-                    return "==";
-                case ExpressionType.NotEqual:
-                    return "!=";
-                case ExpressionType.Power:
-                    return "^^";
-                case ExpressionType.Add:
-                case ExpressionType.AddChecked:
-                    return "+";
-                case ExpressionType.And:
-                    return "&";
-                case ExpressionType.AndAlso:
-                    return "&&";
-                case ExpressionType.Coalesce:
-                    return "??";
-                case ExpressionType.Divide:
-                    return "/";
-                case ExpressionType.ExclusiveOr:
-                    return "^";
-                case ExpressionType.GreaterThan:
-                    return ">";
-                case ExpressionType.GreaterThanOrEqual:
-                    return ">=";
-                case ExpressionType.LeftShift:
-                    return "<<";
-                case ExpressionType.LessThan:
-                    return "<";
-                case ExpressionType.LessThanOrEqual:
-                    return "<=";
-                case ExpressionType.Modulo:
-                    return "%";
-                case ExpressionType.Multiply:
-                case ExpressionType.MultiplyChecked:
-                    return "*";
-                case ExpressionType.Not:
-                    return "!";
-                case ExpressionType.Or:
-                    return "|";
-                case ExpressionType.OrElse:
-                    return "||";
-                case ExpressionType.RightShift:
-                    return ">>";
-                case ExpressionType.Subtract:
-                case ExpressionType.SubtractChecked:
-                    return "-";
-                case ExpressionType.Assign:
-                    return "=";
-                case ExpressionType.AddAssign:
-                case ExpressionType.AddAssignChecked:
-                    return "+=";
-                case ExpressionType.AndAssign:
-                    return "&=";
-                case ExpressionType.DivideAssign:
-                    return "/=";
-                case ExpressionType.ExclusiveOrAssign:
-                    return "^=";
-                case ExpressionType.LeftShiftAssign:
-                    return "<<=";
-                case ExpressionType.ModuloAssign:
-                    return "%=";
-                case ExpressionType.MultiplyAssign:
-                case ExpressionType.MultiplyAssignChecked:
-                    return "*=";
-                case ExpressionType.OrAssign:
-                    return "|=";
-                case ExpressionType.RightShiftAssign:
-                    return ">>=";
-                case ExpressionType.SubtractAssign:
-                case ExpressionType.SubtractAssignChecked:
-                    return "-=";
-                case ExpressionType.PostIncrementAssign:
-                case ExpressionType.PreIncrementAssign:
-                    return "++";
-                case ExpressionType.PreDecrementAssign:
-                case ExpressionType.PostDecrementAssign:
-                    return "--";
-                case ExpressionType.OnesComplement:
-                    return "~";
-                case ExpressionType.Negate:
-                case ExpressionType.NegateChecked:
-                    return "-";
-                case ExpressionType.MemberAccess:
-                    return ".";
-                case ExpressionType.Conditional:
-                    return "?:";
-                default:
-                    return null;
-            }
-        }
+        protected internal virtual Parser<ExpressionSyntax> inclusive_or_expression =>
+            BinaryExpression(exclusive_or_expression, "|").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> exclusive_or_expression =>
+            BinaryExpression(and_expression, "^").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> and_expression =>
+            BinaryExpression(equality_expression, "&").Positioned();
+
+
+        protected internal virtual Parser<ExpressionSyntax> equality_expression =>
+            BinaryExpression(relational_expression, "==", "!=").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> relational_expression =>
+            BinaryExpression(shift_expression.Or(AsTypePattern).Or(IsTypePattern), ">=", "<=", ">", "<").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> shift_expression =>
+            BinaryExpression(additive_expression, "<<", ">>").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> additive_expression =>
+            BinaryExpression(multiplicative_expression, "+", "-").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> multiplicative_expression =>
+            BinaryExpression(conditional_or_expression, "*", "/", "%").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> conditional_or_expression =>
+            BinaryExpression(conditional_and_expression, "||").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> conditional_and_expression =>
+            BinaryExpression(power_expression, "&&").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> power_expression =>
+            BinaryExpression(range_expression, "^^").Positioned();
+
+        // TODO
+        protected internal virtual Parser<BinaryExpressionSyntax> switch_expression =>
+            from key in Keyword("switch").Token()
+            from ob in Parse.Char('{').Token()
+            from cb in Parse.Char('}').Token()
+            select new InvalidBinaryExpressionSyntax();
+
+        protected internal virtual Parser<ExpressionSyntax> AsTypePattern =>
+            from key in Keyword("as").Token()
+            from ty in TypeExpression.Token()
+            select new AsTypePatternExpression(ty);
+
+        protected internal virtual Parser<ExpressionSyntax> IsTypePattern =>
+            from key in Keyword("is").Token()
+            from ty in TypeExpression.Token()
+            select new IsTypePatternExpression(ty);
+
+
+        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, string op) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> => 
+            from c in t.Token()
+            from data in 
+                (from _op in Parse.String(op).Text().Token()
+                    from a in t.Token()
+                    select (_op, a)).Many()
+            select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
+        
+        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, params string[] ops) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> => 
+            from c in t.Token()
+            from data in 
+                (from _op in Parse.Regex(ops.Select(x => $"\\{x}").Join("|"), $"operators '{ops.Join(',')}'")
+                    from a in t.Token()
+                    select (_op, a)).Many()
+            select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
+
+        protected internal virtual Parser<IEnumerable<ExpressionSyntax>> expression_list =>
+            from exp in QualifiedExpression
+            from exps in Parse.Ref(() => QualifiedExpression).DelimitedBy(Parse.Char(',')).Token()
+            select exps;
+
+        protected internal virtual Parser<IdentifierExpression> IdentifierExpression =>
+            RawIdentifier.Token().Named("Identifier").Select(x => new IdentifierExpression(x));
+        internal virtual Parser<KeywordExpression> KeywordExpression(string text) =>
+            Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(new KeywordExpression(text));
+
+        protected internal virtual Parser<TypeExpression> SystemTypeExpression =>
+            Keyword("byte").Or(
+                    Keyword("sbyte")).Or(
+                    Keyword("int16")).Or(
+                    Keyword("uint16")).Or(
+                    Keyword("int32")).Or(
+                    Keyword("uint32")).Or(
+                    Keyword("int64")).Or(
+                    Keyword("uint64")).Or(
+                    Keyword("bool")).Or(
+                    Keyword("string")).Or(
+                    Keyword("char")).Or(
+                    Keyword("void"))
+                .Token().Select(n => new TypeExpression(new TypeSyntax(n.Capitalize())))
+                .Named("SystemType").Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> argument =>
+            from id in IdentifierExpression
+                .Then(x => Parse.Char(':').Token().Return(x))
+                .Positioned()
+                .Token().Optional()
+            from type in KeywordExpression("auto")
+                .Or(TypeExpression.Select(x => x.Downlevel()))
+                .Positioned().Token().Optional()
+            from exp in QualifiedExpression
+            select new ArgumentExpression(id, type, exp);
+
+        protected internal virtual Parser<IndexerArgument> indexer_argument =>
+            from id in IdentifierExpression
+                .Then(x => Parse.Char(':').Token().Return(x))
+                .Positioned()
+                .Token().Optional()
+            from exp in QualifiedExpression
+            select new IndexerArgument(id, exp);
+
+        protected internal virtual Parser<ExpressionSyntax[]> argument_list =>
+            from args in argument.ChainForward(Parse.Char(',').Token())
+            select args.ToArray();
+
+
+        protected internal virtual Parser<ExpressionSyntax[]> object_creation_expression =>
+            from arg_list in WrappedExpression('(', ')', argument_list.Optional())
+            select arg_list.GetOrEmpty().ToArray();
+
+        protected internal virtual Parser<TypeSyntax> BaseType =>
+            SystemType.Or(
+                from @void in Keyword("void").Token()
+                from a in Parse.Char('*').Token()
+                select new TypeSyntax(@void) {IsPointer = true});
+        protected internal virtual Parser<ExpressionSettingSyntax> rank_specifier =>
+            from ranks in WrappedExpression('[', ']', Parse.Char(',').Token().Many())
+            select new RankSpecifierValue(ranks.Count());
+        protected internal virtual Parser<ExpressionSettingSyntax> nullable_specifier =>
+            from h in Parse.Char('?').Optional()
+            select new NullableExpressionValue(h.IsDefined);
+        protected internal virtual Parser<ExpressionSettingSyntax> pointer_specifier =>
+            from h in Parse.Char('*').Optional()
+            select new PointerExpressionValue(h.IsDefined);
+
+        protected internal virtual Parser<TypeExpression> TypeExpression =>
+            from type in BaseType
+            from meta in nullable_specifier
+                .Or(rank_specifier)
+                .Or(pointer_specifier)
+                .Token().Positioned().Many()
+            select new TypeExpression(type).WithMetadata(meta.EmptyIfNull().ToArray());
+
+
+        protected internal virtual Parser<ExpressionSyntax> bracket_expression =>
+            from nl in nullable_specifier.Select(x => (NullableExpressionValue) x).Token().Optional()
+            from idx in WrappedExpression('[', ']', indexer_argument.ChainForward(Parse.Char(',')))
+            select new BracketExpression(nl, idx.ToArray());
+
+        protected internal virtual Parser<ExpressionSyntax> primary_expression_start =>
+            LiteralExpression.Select(x => x.Downlevel()).Log("LiteralExpression")
+                .Or(IdentifierExpression.Log("IdentifierExpression"))
+                .Or(WrappedExpression('(', ')', Parse.Ref(() => QualifiedExpression)))
+                .Or(SystemTypeExpression)
+                .Or(KeywordExpression("this"))
+                .Or(
+                    from b in KeywordExpression("base")
+                    from dw in  
+                        Parse.Char('.').Then(_ => IdentifierExpression).Positioned().Select(x => x.Downlevel()).Or(
+                            WrappedExpression('[', ']', expression_list).Select(x => new IndexerExpression(x).Downlevel()))
+                    select dw)
+                //.Or(
+                //    from kw in KeywordExpression("new")
+                //    from newexp in (
+
+                //                )
+                //        )
+                .Token()
+                .Positioned();
+
+        protected internal virtual Parser<ExpressionSyntax> member_access =>
+            from s1 in Parse.Char('?').Token().Optional()
+            from s2 in Parse.Char('.').Token()
+            from id in IdentifierExpression
+            //from args in type_argument_list.Optional()
+            select id;
+        protected internal virtual Parser<ExpressionSyntax> method_invocation =>
+            from o in Parse.Char('(')
+            from exp in argument_list.Optional()
+            from c in Parse.Char(')')
+            select new MethodInvocationExpression(exp);
+
+        protected internal virtual Parser<ExpressionSyntax> primary_expression =>
+            from pe in primary_expression_start.Token().Log("from pe in primary_expression_start")
+            from s1 in Parse.Char('!').Token().Optional()
+            from bk in bracket_expression.Many()
+            from s2 in Parse.Char('!').Token().Optional()
+            from dd in (
+                from cc in (
+                    from zz in member_access.Or(method_invocation)
+                        .Or(Parse.String("++").Return(new OperatorExpressionSyntax(ExpressionType.Increment)))
+                        .Or(Parse.String("--").Return(new OperatorExpressionSyntax(ExpressionType.Decrement)))
+                        .Or(Parse.String("->").Token().Then(_ => IdentifierExpression)).Token().Positioned()
+                    from s3 in Parse.Char('!').Token().Optional()
+                    select zz
+                ).Token()
+                from bk1 in bracket_expression.Many()
+                from s4 in Parse.Char('!').Token().Optional()
+                select FlatIfEmptyOrNull(new Unnamed01ExpressionSyntax(cc, bk1))
+            ).Token().Many()
+            select FlatIfEmptyOrNull(new Unnamed02ExpressionSyntax(pe, bk, dd));
+
+        private Parser<ExpressionSyntax> UnaryOperator(string op) =>
+            from o in Parse.String(op).Token()
+            from u in Parse.Ref(() => unary_expression)
+            select new UnaryExpressionSyntax() {Operand = u, OperatorType = op.ToExpressionType()};
+        
+
+
+        protected internal virtual Parser<ExpressionSyntax> unary_expression =>
+            from f1 in primary_expression
+                .Or(UnaryOperator("++"))
+                .Or(UnaryOperator("--"))
+                .Or(UnaryOperator("+"))
+                .Or(UnaryOperator("-"))
+                .Or(UnaryOperator("!"))
+                .Or(UnaryOperator("~"))
+                .Or(UnaryOperator("&"))
+                .Or(UnaryOperator("*"))
+            select f1;
+
     }
 }

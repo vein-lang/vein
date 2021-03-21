@@ -1,13 +1,12 @@
 #space "wave/lang"
 
-
 [special]
 public class String : Object
 {
     [native]
     private _value: String;
-    [native, getter]
-    public extern this[index: Int32]: Char;
+    //[native, getter]
+    //public extern this[index: Int32]: Char;
     [native, getter]
     public extern Length: Int32;
 
@@ -21,6 +20,24 @@ public class String : Object
     {
         if (Length < 1)
             return false;
-        return this.$indexer.at(0) == value;
+
+        auto res = this.$indexer.at(0);
+        return res == value;
+    }
+
+    public fib(n: Int64): Int64
+    {
+        if (n == 0) return 0;
+        if (n == 1) return 1;
+        auto first: Int64 = 0;
+        auto second: Int64 = 1;
+        auto nth: Int64 = 1;
+        for (auto i: Int64 = 2; i <= n; i++)
+        {
+            nth = first + second;
+            first = second;
+            second = nth;
+        }
+        return nth;
     }
 }
