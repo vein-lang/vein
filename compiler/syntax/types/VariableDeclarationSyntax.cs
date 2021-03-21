@@ -9,11 +9,11 @@
         public override SyntaxType Kind => SyntaxType.VariableDeclaration;
 
         public override IEnumerable<BaseSyntax> ChildNodes =>
-            GetNodes(Type).Concat(Variables).Where(n => n != null);
+            GetNodes(Type).Concat(new [] {Variables}).Where(n => n != null);
 
         public TypeSyntax Type { get; set; }
 
-        public List<VariableDeclaratorSyntax> Variables { get; set; } = new();
+        public VariableDeclaratorSyntax Variables { get; set; }
         
 
         public new VariableDeclarationSyntax SetPos(Position startPos, int length)
