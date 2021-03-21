@@ -1,10 +1,7 @@
 ﻿namespace wave.cmd
 {
-    using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using compilation;
     using Spectre.Console;
     using Spectre.Console.Cli;
@@ -36,14 +33,23 @@
 
             var projName = Path.GetFileNameWithoutExtension(settings.Project);
 
-            var c = Compiler.Process(files.Select(x => new FileInfo(x)).ToArray(), projName);
+            var c = Compiler.Process(files.Select(x => new FileInfo(x)).ToArray(), projName, Path.GetDirectoryName(settings.Project));
 
-            var rule1 = new Rule($"[yellow]{c.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
-            AnsiConsole.Render(rule1);
+            if (c.errors.Count > 0)
+            {
+                var rule1 = new Rule($"[yellow]{c.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
+                AnsiConsole.Render(rule1);
+            }
+            
             foreach (var error in c.errors)
                 AnsiConsole.MarkupLine($"[red]ERR[/]: {error}");
-            var rule2 = new Rule($"[yellow]{c.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
-            AnsiConsole.Render(rule2);
+
+            if (c.warnings.Count > 0)
+            {
+                var rule2 = new Rule($"[yellow]{c.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
+                AnsiConsole.Render(rule2);
+            }
+
             foreach (var warn in c.warnings)
                 AnsiConsole.MarkupLine($"[orange]WARN[/]: {warn}");
             
