@@ -19,15 +19,6 @@
     {
         protected internal virtual Parser<ExpressionSyntax> QualifiedExpression =>
             non_assignment_expression.Or(assignment);
-
-        /*protected internal virtual Parser<ExpressionSyntax> expression =>
-            primary_expression_start
-                .Or(
-                    from e in expression 
-                    from c in Parse.Char('.').Token()
-                    from d in (IdentifierExpression.Or(methodCall))
-                    )*/
-
         protected internal virtual Parser<ExpressionSyntax> assignment =>
             from exp in unary_expression
             from op in assignment_operator
@@ -245,9 +236,8 @@
             select new IndexerArgument(id, exp);
 
         protected internal virtual Parser<ExpressionSyntax[]> argument_list =>
-            from arg in argument.Positioned()
-            from args in argument.Positioned().Many().Optional().Token()
-            select new[] {arg}.Concat(args.GetOrEmpty()).ToArray();
+            from args in argument.ChainForward(Parse.Char(',').Token())
+            select args.ToArray();
 
 
         protected internal virtual Parser<ExpressionSyntax[]> object_creation_expression =>
