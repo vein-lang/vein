@@ -1,0 +1,66 @@
+#space "wave/lang"
+
+
+[special, readonly]
+public struct Half : ValueType
+{
+    [native]
+    private _value: Half;
+
+    public const MaxValue: Half = 65504h;
+    public const MinValue: Half = -65504h;
+
+    [getter]
+    public static NaN: Half;
+    [getter]
+    public static NegativeInfinity: Half;
+    [getter]
+    public static PositiveInfinity: Half;
+    [getter]
+    public static Epsilon: Half;
+
+    /**
+        Determines whether the specified value is finite (zero, subnormal, or normal).
+    **/
+    public static IsFinite(value: Half): Boolean
+    {
+        return value != NaN && value != Infinity && value != -Infinity;
+    }
+
+
+
+    //// implicit getters
+    /**
+        Represents the smallest positive Half value that is greater than zero. 
+    **/
+    [special]
+    public get_Epsilon(): Half 
+    {
+        return 5.9604645e-08h;
+    }
+    /**
+        Represents positive infinity.
+    **/
+    [special]
+    public get_PositiveInfinity(): Half 
+    {
+        return Infinity;
+    }
+    /**
+        Represents negative infinity.
+    **/
+    [special]
+    public get_NegativeInfinity(): Half 
+    {
+        return -Infinity;
+    }
+    /**
+        Represents not a number.
+    **/
+    [special]
+    public get_NaN(): Half 
+    {
+        return NaN;
+    }
+    ////
+}
