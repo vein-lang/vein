@@ -9,11 +9,11 @@
     using static Spectre.Console.AnsiConsole;
 
     [AttributeUsage(AttributeTargets.Field)]
-    public class ExperementalAttribute : Attribute { }
+    public class ExperimentalAttribute : Attribute { }
     public enum ApplicationFlag
     {
-        use_experemental_options,
-        [Experemental]
+        use_experimental_options,
+        [Experimental]
         exp_simplify_optimize
     }
 
@@ -23,10 +23,10 @@
         // filter only extra flag
         public static void RegisterArgs(ref string[] args)
         {
-            var flagExperemental = args.Contains("--EF:+use_experemental_options");
+            var flagExperimental = args.Contains("--EF:+use_experimental_options");
 
-            var values = GetAppFlagValues(flagExperemental ? FilterFlagValue.All : FilterFlagValue.Default);
-            var expm = GetAppFlagValues(FilterFlagValue.OnlyExperemental);
+            var values = GetAppFlagValues(flagExperimental ? FilterFlagValue.All : FilterFlagValue.Default);
+            var expm = GetAppFlagValues(FilterFlagValue.OnlyExperimental);
 
             args
                 .Where(x => x.StartsWith("--EF"))
@@ -37,7 +37,7 @@
                     if (values.Contains(x.Key))
                         return true;
                     if (expm.Contains(x.Key))
-                        MarkupLine($"[orange]WARN[/]: unsupported option '[red]{x.Key}[/]', put '[red]--EF:+use_experemental_options[/]' below all flags.");
+                        MarkupLine($"[orange]WARN[/]: unsupported option '[red]{x.Key}[/]', put '[red]--EF:+use_experimental_options[/]' below all flags.");
                     else 
                         MarkupLine($"[orange]WARN[/]: unknown option '[red]{x}[/]'.");
                     return false;
@@ -49,8 +49,8 @@
         private static string[] GetAppFlagValues(FilterFlagValue filter) => Enum.GetNames<ApplicationFlag>()
             .Where(x =>
             {
-                ExperementalAttribute? Get() => typeof(ApplicationFlag).GetMember(x).Single()
-                    .GetCustomAttribute<ExperementalAttribute>();
+                ExperimentalAttribute? Get() => typeof(ApplicationFlag).GetMember(x).Single()
+                    .GetCustomAttribute<ExperimentalAttribute>();
 
                 if (filter == FilterFlagValue.All)
                     return true;
@@ -63,7 +63,7 @@
         private enum FilterFlagValue
         {
             Default,
-            OnlyExperemental,
+            OnlyExperimental,
             All
         }
 
