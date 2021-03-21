@@ -155,14 +155,14 @@
                 ReturnType = methodBody.ReturnType
             };
         // examples:
-        // void Test() {}
-        // string Hello(string name) {}
-        // int Dispose();
+        // Test() : void {}
+        // Test() : void;
         protected internal virtual Parser<MethodDeclarationSyntax> MethodParametersAndBody =>
             from parameters in MethodParameters
             from @as in Parse.Char(':').Token().Commented(this)
             from type in TypeReference
-            from methodBody in Block.Or(Parse.Char(';').Return(default(BlockSyntax))).Token()
+            from methodBody in Block.Or(Parse.Char(';').Return(default(BlockSyntax)))
+                .Token().Positioned()
             select new MethodDeclarationSyntax
             {
                 Parameters = parameters,
