@@ -1,8 +1,9 @@
-﻿namespace wave.syntax
+namespace wave.syntax
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using Sprache;
 
     public partial class WaveSyntax
@@ -44,17 +45,30 @@
                 return new BinaryExpressionSyntax(exp, coalescing, "?:");
             return exp;
         }
+        private ExpressionSyntax FlatIfEmptyOrNull(Unnamed01ExpressionSyntax exp)
+        {
+            if (exp.bk1.EmptyIfNull().Count() == 0)
+                return exp.cc;
+            return exp;
+        }
+        // fucking shit
+        private ExpressionSyntax FlatIfEmptyOrNull(Unnamed02ExpressionSyntax exp)
+        {
+            if (exp.Bk.EmptyIfNull().Count() == 0 && exp.Dd.EmptyIfNull().Count() == 0)
+                return exp.Pe;
+            return exp;
+        }
         private ExpressionSyntax FlatIfEmptyOrNull<T>(ExpressionSyntax exp, (string op, T exp)[] data) where T : ExpressionSyntax
         {
             if (data.Length == 0)
                 return exp;
             if (data.Length == 1)
-                return new BinaryExpressionSyntax(exp, data[0].exp, data[0].op);
+                return SimplifyOptimization(new BinaryExpressionSyntax(exp, data[0].exp, data[0].op));
             var e = exp;
 
             foreach (var (op, newExp) in data)
             {
-                e = new BinaryExpressionSyntax(e, newExp, op);
+                e = SimplifyOptimization(new BinaryExpressionSyntax(e, newExp, op));
             }
 
             return e;
