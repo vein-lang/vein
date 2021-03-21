@@ -101,125 +101,31 @@
         <array>
           <dict>
             <key>name</key>
-            <string>comment.line.double-slash.documentation.wave</string>
-            <key>begin</key>
-            <string>(?:^)(?&gt;\s*)(\/\/[!\/]+)</string>
-            <key>beginCaptures</key>
-            <dict>
-              <key>1</key>
-              <dict>
-                <key>name</key>
-                <string>punctuation.definition.comment.documentation.wave</string>
-              </dict>
-            </dict>
-            <key>end</key>
-            <string>(?&lt;=\n)(?&lt;!\\\n)</string>
-            <key>patterns</key>
-            <array>
-              <dict>
-                <key>include</key>
-                <string>#line_continuation_character</string>
-              </dict>
-            </array>
-          </dict>
-          <dict>
-            <key>match</key>
-            <string>(\/\*[!*]+(?=\s))(.+)([!*]*\*\/)</string>
-            <key>captures</key>
-            <dict>
-              <key>1</key>
-              <dict>
-                <key>name</key>
-                <string>punctuation.definition.comment.begin.documentation.wave</string>
-              </dict>
-              <key>2</key>
-              <dict>
-                <key>name</key>
-                <string>punctuation.definition.comment.end.documentation.wave</string>
-              </dict>
-            </dict>
-            <key>name</key>
-            <string>comment.block.documentation.wave</string>
-          </dict>
-          <dict>
-            <key>name</key>
-            <string>comment.block.documentation.wave</string>
-            <key>begin</key>
-            <string>((?&gt;\s*)\/\*[!*]+(?:(?:\n|$)|(?=\s)))</string>
-            <key>beginCaptures</key>
-            <dict>
-              <key>1</key>
-              <dict>
-                <key>name</key>
-                <string>punctuation.definition.comment.begin.documentation.wave</string>
-              </dict>
-            </dict>
-            <key>end</key>
-            <string>([!*]*\*\/)</string>
-            <key>endCaptures</key>
-            <dict>
-              <key>1</key>
-              <dict>
-                <key>name</key>
-                <string>punctuation.definition.comment.end.documentation.wave</string>
-              </dict>
-            </dict>
-          </dict>
-          <dict>
-            <key>match</key>
-            <string>^\/\* =(\s*.*?)\s*= \*\/$\n?</string>
-            <key>captures</key>
-            <dict>
-              <key>1</key>
-              <dict>
-                <key>name</key>
-                <string>meta.toc-list.banner.block.c</string>
-              </dict>
-            </dict>
-            <key>name</key>
-            <string>comment.block.banner.wave</string>
-          </dict>
-          <dict>
-            <key>name</key>
             <string>comment.block.wave</string>
             <key>begin</key>
-            <string>(\/\*)</string>
+            <string>/\*</string>
             <key>beginCaptures</key>
             <dict>
-              <key>1</key>
+              <key>0</key>
               <dict>
                 <key>name</key>
-                <string>punctuation.definition.comment.begin.wave</string>
+                <string>punctuation.definition.comment.wave</string>
               </dict>
             </dict>
             <key>end</key>
-            <string>(\*\/)</string>
+            <string>\*/</string>
             <key>endCaptures</key>
             <dict>
-              <key>1</key>
+              <key>0</key>
               <dict>
                 <key>name</key>
-                <string>punctuation.definition.comment.end.wave</string>
+                <string>punctuation.definition.comment.wave</string>
               </dict>
             </dict>
-          </dict>
-          <dict>
-            <key>match</key>
-            <string>^\/\/ =(\s*.*?)\s*=$\n?</string>
-            <key>captures</key>
-            <dict>
-              <key>1</key>
-              <dict>
-                <key>name</key>
-                <string>meta.toc-list.banner.line.wave</string>
-              </dict>
-            </dict>
-            <key>name</key>
-            <string>comment.line.banner.wave</string>
           </dict>
           <dict>
             <key>begin</key>
-            <string>((?:^[ \t]+)?)(?=\/\/)</string>
+            <string>(^\s+)?(?=//)</string>
             <key>beginCaptures</key>
             <dict>
               <key>1</key>
@@ -229,7 +135,49 @@
               </dict>
             </dict>
             <key>end</key>
-            <string>(?!\G)</string>
+            <string>(?=$)</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>name</key>
+                <string>comment.block.documentation.wave</string>
+                <key>begin</key>
+                <string>(?&lt;!/)///(?!/)</string>
+                <key>beginCaptures</key>
+                <dict>
+                  <key>0</key>
+                  <dict>
+                    <key>name</key>
+                    <string>punctuation.definition.comment.wave</string>
+                  </dict>
+                </dict>
+                <key>end</key>
+                <string>(?=$)</string>
+                <key>patterns</key>
+                <array>
+                  <dict>
+                    <key>include</key>
+                    <string>#xml-doc-comment</string>
+                  </dict>
+                </array>
+              </dict>
+              <dict>
+                <key>name</key>
+                <string>comment.line.double-slash.wave</string>
+                <key>begin</key>
+                <string>(?&lt;!/)//(?:(?!/)|(?=//))</string>
+                <key>beginCaptures</key>
+                <dict>
+                  <key>0</key>
+                  <dict>
+                    <key>name</key>
+                    <string>punctuation.definition.comment.wave</string>
+                  </dict>
+                </dict>
+                <key>end</key>
+                <string>(?=$)</string>
+              </dict>
+            </array>
           </dict>
         </array>
       </dict>

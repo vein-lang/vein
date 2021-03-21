@@ -27,44 +27,39 @@ repository:
             - include: "#punctuation-semicolon"
     comment:
         patterns:
-            - name: comment.line.double-slash.documentation.wave
-              begin: '(?:^)(?>\s*)(\/\/[!\/]+)'
-              beginCaptures:
-                  "1": { name: punctuation.definition.comment.documentation.wave }
-              end: '(?<=\n)(?<!\\\n)'
-              patterns:
-                  - { include: "#line_continuation_character" }
-            - match: '(\/\*[!*]+(?=\s))(.+)([!*]*\*\/)'
-              captures:
-                  "1": { name: punctuation.definition.comment.begin.documentation.wave }
-                  "2": { name: punctuation.definition.comment.end.documentation.wave }
-              name: comment.block.documentation.wave
-            - name: comment.block.documentation.wave
-              begin: '((?>\s*)\/\*[!*]+(?:(?:\n|$)|(?=\s)))'
-              beginCaptures:
-                  "1": {  name: punctuation.definition.comment.begin.documentation.wave }
-              end: '([!*]*\*\/)'
-              endCaptures:
-                  "1": { name: punctuation.definition.comment.end.documentation.wave }
-            - match: '^\/\* =(\s*.*?)\s*= \*\/$\n?'
-              captures:
-                  "1": { name: meta.toc-list.banner.block.c }
-              name: comment.block.banner.wave
             - name: comment.block.wave
-              begin: '(\/\*)'
+              begin: '/\*'
               beginCaptures:
-                  "1": { name: punctuation.definition.comment.begin.wave }
-              end: '(\*\/)'
+                  "0": { name: punctuation.definition.comment.wave }
+              end: '\*/'
               endCaptures:
-                  "1": { name: punctuation.definition.comment.end.wave }
-            - match: '^\/\/ =(\s*.*?)\s*=$\n?'
-              captures:
-                  "1": { name: meta.toc-list.banner.line.wave }
-              name: comment.line.banner.wave
-            - begin: '((?:^[ \t]+)?)(?=\/\/)'
+                  "0": { name: punctuation.definition.comment.wave }
+            - begin: '(^\s+)?(?=//)'
               beginCaptures:
                   "1": { name: punctuation.whitespace.comment.leading.wave }
-              end: '(?!\G)'
+              end: "(?=$)"
+              patterns:
+                  - {
+                        name: comment.block.documentation.wave,
+                        begin: "(?<!/)///(?!/)",
+                        beginCaptures:
+                            {
+                                "0":
+                                    { name: punctuation.definition.comment.wave },
+                            },
+                        end: "(?=$)",
+                        patterns: [{ include: "#xml-doc-comment" }],
+                    }
+                  - {
+                        name: comment.line.double-slash.wave,
+                        begin: "(?<!/)//(?:(?!/)|(?=//))",
+                        beginCaptures:
+                            {
+                                "0":
+                                    { name: punctuation.definition.comment.wave },
+                            },
+                        end: "(?=$)",
+                    }
     preprocessor:
         match: '^\s*((#)\s*(use|space|load))\b\s*'
         name: meta.preprocessor.wave
