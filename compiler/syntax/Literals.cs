@@ -38,7 +38,42 @@
             from e in Exponent.Optional()
             select new DecimalLiteralExpressionSyntax(decimal.Parse($"{token}{e.GetOrElse("")}", 
                 CultureInfo.InvariantCulture));
-        
+
+        protected internal virtual Parser<NumericLiteralExpressionSyntax> BinaryLiteralExpression =>
+            from zero in Parse.Char('0')
+            from control in Parse.Chars("Bb") // ('_'* [01])+ IntegerTypeSuffix?
+            from chain in Parse.Char('_').Many().Then(_ => Parse.Chars("01")).AtLeastOnce().Text()
+            from suffix in IntegerTypeSuffix.Optional()
+            select FromBinary(chain, suffix.GetOrDefault());
+        [Flags]
+        public enum NumericSuffix
+        {
+            None = 0,
+            Long = 1 << 1,
+            Unsigned = 1 << 2
+        }
+
+        private NumericLiteralExpressionSyntax FromBinary(string number, NumericSuffix? s)
+        {
+            var suffix = s ?? NumericSuffix.None;
+            if (suffix.HasFlag(NumericSuffix.Long) && suffix.HasFlag(NumericSuffix.Unsigned))
+                return new UInt64LiteralExpressionSyntax(Convert.ToUInt64(number, 2));
+            if (suffix.HasFlag(NumericSuffix.Long))
+                return new Int64LiteralExpressionSyntax(Convert.ToInt64(number, 2));
+            if (suffix.HasFlag(NumericSuffix.Unsigned))
+                return new UInt32LiteralExpressionSyntax(Convert.ToUInt32(number, 2));
+            return new UndefinedIntegerNumericLiteral($"{Convert.ToInt64(number, 2)}");
+        }
+        // [lL]? [uU] | [uU]? [lL]
+        private Parser<NumericSuffix> IntegerTypeSuffix =>
+            (from l in Parse.Chars("lL").Optional()
+                from u in Parse.Chars("uU")
+                select l.IsDefined ? NumericSuffix.Long | NumericSuffix.Unsigned : NumericSuffix.Unsigned).Or(
+                from u in Parse.Chars("uU").Optional()
+                from l in Parse.Chars("lL")
+                select u.IsDefined ? NumericSuffix.Unsigned | NumericSuffix.Long : NumericSuffix.Long);
+
+
         /// <example>
         /// 1.23f
         /// </example>
