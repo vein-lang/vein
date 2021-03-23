@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "projectsystem", "projectsys
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "project_system_test", "test\project_system_test\project_system_test.csproj", "{F6B36C4B-9F93-42D3-A3C1-D01A03AD3BCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lexer", "lexer\lexer.csproj", "{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,18 +97,6 @@ Global
 		{F6B36C4B-9F93-42D3-A3C1-D01A03AD3BCC}.Release|x64.Build.0 = Release|Any CPU
 		{F6B36C4B-9F93-42D3-A3C1-D01A03AD3BCC}.Release|x86.ActiveCfg = Release|Any CPU
 		{F6B36C4B-9F93-42D3-A3C1-D01A03AD3BCC}.Release|x86.Build.0 = Release|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Debug|x64.Build.0 = Debug|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Debug|x86.Build.0 = Debug|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Release|x64.ActiveCfg = Release|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Release|x64.Build.0 = Release|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Release|x86.ActiveCfg = Release|Any CPU
-		{2F88D4BC-84E2-4D56-BD74-80FC3144C9AF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

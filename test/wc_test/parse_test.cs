@@ -1,12 +1,8 @@
 ﻿namespace wc_test
 {
-    using System;
-    using System.IO;
-    using System.Linq;
-    using Antlr4.Runtime;
     using Sprache;
+    using System.Linq;
     using wave;
-    using wave.lexer;
     using wave.stl;
     using wave.syntax;
     using Xunit;
@@ -41,44 +37,6 @@
     return 2;
 }");
         }
-
-        [Fact]
-        public void FF()
-        {
-            var stream = new AntlrInputStream("public class Zo {  }");
-            var speakLexer = new WaveLexer(stream);
-            var commonTokenStream = new CommonTokenStream(speakLexer);
-            var parser = new WaveParser(commonTokenStream);
-            var result = parser.type_declaration();
-            var r = result.ToString();
-            var w = new WaveSyntaxVisitor();
-            parser.RemoveErrorListeners();
-            parser.AddErrorListener(new ErrorListener(_logger));
-            w.Visit(result);
-
-            var err = parser.GetErrorHeader(result.exception);
-        }
-
-        public class ErrorListener : IAntlrErrorListener<IToken>
-        {
-            private readonly ITestOutputHelper _logger;
-
-            public ErrorListener(ITestOutputHelper logger)
-            {
-                _logger = logger;
-            }
-
-            #region Implementation of IAntlrErrorListener<in IToken>
-
-            public void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine,
-                string msg, RecognitionException e)
-            {
-                _logger.WriteLine($"line: {line}, pos: {charPositionInLine}, {msg}");
-            }
-
-            #endregion
-        }
-
         
         [Fact]
         public void IdentifierParseTest()
@@ -353,7 +311,30 @@
         [Fact]
         public void AccessMemberTest()
         {
-            Wave.QualifiedExpression.End().ParseWave(@"44.4.govno");
+            Wave.QualifiedExpression.End().ParseWave(@"44.govno");
+        }
+
+        [Theory]
+        [InlineData("new s()")] // new exp
+        [InlineData("new c(1)")] // new exp
+        [InlineData("new x(x)")] // new exp
+        [InlineData("55.access")] // lit access member
+        [InlineData("55 != 55")] // logic exp
+        [InlineData("55 << 55")] // math exp
+        [InlineData("55 * 55 / 2")] // math exp
+        [InlineData("(x: Int32) |> 22")] // function lambda
+        [InlineData("(x: Int32) |> {}")] // function lambda
+        [InlineData("() |> null")] // function lambda
+        [InlineData("22..22")] // range
+        [InlineData("true ? 22 : 32")] // conditional exp
+        [InlineData("fail new foo()")] // fail exp
+        [InlineData("foo ?? 22")] // coalescing exp
+        [InlineData("as Type")] // as exp
+        [InlineData("is Type")] // is exp
+        [InlineData("this.call()")] // this based call
+        public void AllExpressionTest(string exp)
+        {
+            Wave.QualifiedExpression.End().ParseWave(exp);
         }
 
         [Fact]
@@ -368,6 +349,12 @@
             Assert.Empty(exp.CtorArgs);
             Assert.Equal("global::Foo", exp.TargetType.Typeword.GetFullName());
         }
+        [Fact]
+        public void ExponentPartTest()
+        {
+            Assert.Equal("e+23", Wave.ExponentPart.End().ParseWave("e+23"));
+            Assert.Equal("e-23", Wave.ExponentPart.End().ParseWave("e-23"));
+        }
 
         [Fact]
         public void LiteralAssignedExpressionTest()
@@ -376,8 +363,8 @@
             Assert.NotNull(result);
             Assert.Equal("Int32", result.Type.Identifier);
             Assert.Equal("foo", result.Field.Identifier);
-            Assert.Equal("-22", result.Field.Expression.ExpressionString);
-            Assert.IsType<SByteLiteralExpressionSyntax>(result.Field.Expression);
+            Assert.Equal("(-22)", result.Field.Expression.ExpressionString);
+            Assert.IsType<UnaryExpressionSyntax>(result.Field.Expression);
         }
         [Theory]
         [InlineData("class")]
@@ -427,22 +414,38 @@
         [InlineData("foo.bar.zoo(a, b, 4, zak.woo(a, b, 4))")]
         //[InlineData("global::foo.bar.zoo(a, b, 4, 4 + 4);")]
         public void InvocationTest(string parseStr) 
-            => Wave.InvocationExpression.End().ParseWave(parseStr);
-        
+            => Wave.QualifiedExpression.End().ParseWave(parseStr);
+        [Theory]
+        [InlineData("a")]
+        [InlineData("b")]
+        [InlineData("4")]
+        [InlineData("woo()")]
+        [InlineData("zak.woo()")]
+        [InlineData("zak.woo(a, b, 4)")]
+        public void ArgTest(string args)
+            => Wave.argument.End().ParseWave(args);
+        [Theory]
+        [InlineData("a, b")]
+        [InlineData("a, b, 4")]
+        [InlineData("a, b, 4, 4 + 4")]
+        [InlineData("a, b, 4, woo()")]
+        [InlineData("a, b, 4, zak.woo()")]
+        [InlineData("a, b, 4, zak.woo(a, b, 4)")]
+        public void ArgListTest(string args)
+            => Wave.argument_list.End().ParseWave(args);
         [Theory]
         [InlineData("foo);")]
         [InlineData("foo.bar(")]
-        [InlineData("foo.bar-zoo()")]
         [InlineData("foo@bar.zoo(a, b)")]
         [InlineData("foo.bar.zoo(a b, 4)")]
         [InlineData("foo.bar.zoo(a, b, 4, 4 $ 4)")]
         public void InvocationTestFail(string parseStr) 
-            => Assert.Throws<WaveParseException>(() => Wave.InvocationExpression.End().ParseWave(parseStr));
+            => Assert.Throws<WaveParseException>(() => Wave.QualifiedExpression.End().ParseWave(parseStr));
         
         [Fact]
         public void GenericExpressionTest()
         {
-            var result = Wave.InvocationExpression.ParseWave("foo.bar.zoo(a, b, 4, zak.woo(a, b, 1 & 2 << 4 + 2))");
+            var result = Wave.QualifiedExpression.ParseWave("foo.bar.zoo(zak.woo(a, b, c), a, b, c)");
         }
         
         [Theory]
