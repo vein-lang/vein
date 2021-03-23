@@ -14,7 +14,6 @@
     using MoreLinq;
     using Sprache;
     using static Spectre.Console.AnsiConsole;
-    using Console = System.Console;
 
     public static class Extensions
     {
