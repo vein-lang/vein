@@ -29,7 +29,7 @@ namespace wave.syntax
                 .Then(x => Parse.Char(';').Token().Return(x));
 
         protected internal virtual Parser<ExpressionSyntax> QualifiedExpression =>
-            non_assignment_expression.Or(assignment);
+            assignment.Or(non_assignment_expression);
         protected internal virtual Parser<ExpressionSyntax> assignment =>
             from exp in unary_expression
             from op in assignment_operator
@@ -51,7 +51,7 @@ namespace wave.syntax
         protected internal virtual Parser<ExpressionSyntax> non_assignment_expression =>
             conditional_expression.Or(lambda_expression);
 
-        
+
         protected internal virtual Parser<ExpressionSyntax> lambda_expression =>
             from dec in lfunction_signature
             from op in Parse.String("|>").Token()
@@ -60,7 +60,7 @@ namespace wave.syntax
 
         #region anon_func
 
-        
+
         protected internal virtual Parser<ExpressionSyntax> lfunction_signature =>
             WrappedExpression('(', ')')
                 .Or(WrappedExpression('(', ')', explicit_anonymous_function_parameter_list).Select(x => new AnonFunctionSignatureExpression(x)))
@@ -70,7 +70,7 @@ namespace wave.syntax
 
         protected internal virtual Parser<ExpressionSyntax> lfunction_body =>
             failable_expression.Or(block.Select(x => x.GetOrElse(new BlockSyntax())));
-        
+
         protected internal virtual Parser<ParameterSyntax[]> explicit_anonymous_function_parameter_list =>
             explicit_anonymous_function_parameter.Token().Positioned().ChainForward(Parse.Char(',').Token())
                 .Select(x => x.ToArray());
@@ -88,7 +88,7 @@ namespace wave.syntax
             select new ParameterSyntax((TypeSyntax)null, i);
 
         #endregion
-        
+
         protected internal virtual Parser<ExpressionSyntax> range_expression =>
             unary_expression.XOr(
                 from s1 in unary_expression.Optional()
@@ -121,7 +121,7 @@ namespace wave.syntax
 
         protected internal virtual Parser<ExpressionSyntax> failable_expression =>
             QualifiedExpression.Or(fail_expression);
-        
+
         protected internal virtual Parser<ExpressionSyntax> fail_expression =>
             Keyword("fail")
                 .Token()
@@ -132,7 +132,7 @@ namespace wave.syntax
             from c in inclusive_or_expression
             from a in Parse.String("??").Token().Then(_ => null_coalescing_expression.Or(fail_expression)).Optional()
             select FlatIfEmptyOrNull(c, a, "??");
-        
+
         protected internal virtual Parser<ExpressionSyntax> inclusive_or_expression =>
             BinaryExpression(exclusive_or_expression, "|").Positioned();
 
@@ -185,20 +185,20 @@ namespace wave.syntax
             select new IsTypePatternExpression(ty);
 
 
-        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, string op) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> => 
+        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, string op) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> =>
             from c in t.Token()
-            from data in 
+            from data in
                 (from _op in Parse.String(op).Text().Token()
-                    from a in t.Token()
-                    select (_op, a)).Many()
+                 from a in t.Token()
+                 select (_op, a)).Many()
             select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
-        
-        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, params string[] ops) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> => 
+
+        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, params string[] ops) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> =>
             from c in t.Token()
-            from data in 
+            from data in
                 (from _op in Parse.Regex(ops.Select(x => $"\\{x}").Join("|"), $"operators '{ops.Join(',')}'")
-                    from a in t.Token()
-                    select (_op, a)).Many()
+                 from a in t.Token()
+                 select (_op, a)).Many()
             select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
 
         protected internal virtual Parser<IEnumerable<ExpressionSyntax>> expression_list =>
@@ -260,7 +260,7 @@ namespace wave.syntax
             SystemType.Or(
                 from @void in Keyword("void").Token()
                 from a in Parse.Char('*').Token()
-                select new TypeSyntax(@void) {IsPointer = true});
+                select new TypeSyntax(@void) { IsPointer = true });
         protected internal virtual Parser<ExpressionSettingSyntax> rank_specifier =>
             from ranks in WrappedExpression('[', ']', Parse.Char(',').Token().Many())
             select new RankSpecifierValue(ranks.Count());
@@ -287,31 +287,44 @@ namespace wave.syntax
 
         protected internal virtual Parser<string> qualified_alias_member =>
             Identifier.Then(x => Parse.String("::").Token().Return($"{x}::")).Then(x => Identifier.Select(z => $"{x}{z}"));
-        
+
 
         protected internal virtual Parser<ExpressionSyntax> bracket_expression =>
-            from nl in nullable_specifier.Select(x => (NullableExpressionValue) x).Token().Optional()
+            from nl in nullable_specifier.Select(x => (NullableExpressionValue)x).Token().Optional()
             from idx in WrappedExpression('[', ']', indexer_argument.ChainForward(Parse.Char(',')))
             select new BracketExpression(nl, idx.ToArray());
 
         protected internal virtual Parser<ExpressionSyntax> primary_expression_start =>
-            LiteralExpression.Select(x => x.Downlevel()).Log("LiteralExpression")
-                .Or(IdentifierExpression.Log("IdentifierExpression"))
+            LiteralExpression.Select(x => x.Downlevel())
+                .XOr(LiteralAccessExpression.Select(x => x.Downlevel()).Log("LiteralAccessExpression"))
+                .Or(Parse.Ref(() => IdentifierExpression))
                 .Or(WrappedExpression('(', ')', Parse.Ref(() => QualifiedExpression)))
                 .Or(SystemTypeExpression)
+                //.Or(namespace_or_type_name)
                 .Or(KeywordExpression("this"))
                 .Or(
                     from b in KeywordExpression("base")
-                    from dw in  
+                    from dw in
                         Parse.Char('.').Then(_ => IdentifierExpression).Positioned().Select(x => x.Downlevel()).Or(
                             WrappedExpression('[', ']', expression_list).Select(x => new IndexerExpression(x).Downlevel()))
                     select dw)
                 .Or(new_expression)
+                
                 .Token()
                 .Positioned();
 
-        protected internal virtual Parser<ExpressionSyntax> new_expression => 
-            KeywordExpression("new").Token().Then(_ => 
+
+        protected internal virtual Parser<ExpressionSyntax> LiteralAccessExpression =>
+            from chain in NumberChainBlock
+            from suffix in IntegerTypeSuffix.Optional()
+            from dot in Parse.Char('.').Token()
+            from key in IdentifierExpression
+            select new LiteralAccessExpression(FromDefault(chain, suffix.GetOrDefault()), key);
+
+
+
+        protected internal virtual Parser<ExpressionSyntax> new_expression =>
+            KeywordExpression("new").Token().Then(_ =>
                 from type in TypeExpression
                 from creation_expression in object_creation_expression
                 select new NewExpressionSyntax(type, creation_expression)
@@ -320,7 +333,7 @@ namespace wave.syntax
             from s1 in Parse.Char('?').Token().Optional()
             from s2 in Parse.Char('.').Token()
             from id in IdentifierExpression
-            //from args in type_argument_list.Optional()
+                //from args in type_argument_list.Optional()
             select id;
         protected internal virtual Parser<ExpressionSyntax> method_invocation =>
             from o in Parse.Char('(')
@@ -335,7 +348,8 @@ namespace wave.syntax
             from s2 in Parse.Char('!').Token().Optional()
             from dd in (
                 from cc in (
-                    from zz in member_access.Or(method_invocation)
+                    from zz in member_access
+                        .Or(method_invocation)
                         .Or(Parse.String("++").Return(new OperatorExpressionSyntax(ExpressionType.Increment)))
                         .Or(Parse.String("--").Return(new OperatorExpressionSyntax(ExpressionType.Decrement)))
                         .Or(Parse.String("->").Token().Then(_ => IdentifierExpression)).Token().Positioned()
@@ -351,8 +365,8 @@ namespace wave.syntax
         private Parser<ExpressionSyntax> UnaryOperator(string op) =>
             from o in Parse.String(op).Token()
             from u in Parse.Ref(() => unary_expression)
-            select new UnaryExpressionSyntax() {Operand = u, OperatorType = op.ToExpressionType()};
-        
+            select new UnaryExpressionSyntax() { Operand = u, OperatorType = op.ToExpressionType() };
+
 
 
         protected internal virtual Parser<ExpressionSyntax> unary_expression =>
@@ -375,6 +389,23 @@ namespace wave.syntax
         {
             this.Identifier = id;
             this.Namespaces.AddRange(namespaces);
+        }
+    }
+
+    public class LiteralAccessExpression : ExpressionSyntax, IPositionAware<LiteralAccessExpression>
+    {
+        public NumericLiteralExpressionSyntax NumericLiteral { get; set; }
+        public IdentifierExpression KeyID { get; set; }
+
+        public LiteralAccessExpression(NumericLiteralExpressionSyntax number, IdentifierExpression id)
+        {
+            this.NumericLiteral = number;
+            this.KeyID = id;
+        }
+        public new LiteralAccessExpression SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
         }
     }
 }

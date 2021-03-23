@@ -194,21 +194,6 @@
                 select kinds.ToArray())
             .Token().Named("annotation list");
         
-        // foo.bar()
-        // foo.bar(1,24)
-        protected internal virtual Parser<InvocationExpressionSyntax> InvocationExpression =>
-            from identifier in QualifiedIdentifier
-            from open in Parse.Char('(')
-            from expression in Parse.Ref(() => argument_list).Optional()
-            from close in Parse.Char(')')
-            select new InvocationExpressionSyntax
-            {
-                Arguments = expression.GetOrEmpty().ToList(),
-                FunctionName = identifier.Last(),
-                MemberChain = identifier.SkipLast(1).ToArray(),
-                ExpressionString = $"{identifier.Join('.')}(...)"
-            };
-
         public virtual Parser<DocumentDeclaration> CompilationUnit =>
             from directives in 
                 SpaceSyntax.Token()

@@ -1,4 +1,6 @@
-﻿namespace wave.syntax
+﻿using System.Reflection;
+
+namespace wave.syntax
 {
     using System;
     using System.Globalization;
@@ -28,41 +30,99 @@
         protected internal virtual Parser<LiteralExpressionSyntax> StringLiteralExpression =>
             from token in StringLiteral
             select new StringLiteralExpressionSyntax(token);
-        
         /// <example>
-        /// 1.23m
+        /// 0b0101010_010101
+        /// 0b010101010010101
         /// </example>
-        protected internal virtual Parser<NumericLiteralExpressionSyntax> DecimalLiteralExpression =>
-            from token in Parse.DecimalInvariant
-            from suffix in Parse.Chars('m', 'M').Except(Parse.Chars('f', 'F', 'd', 'D', 'l', 'L'))
-            from e in Exponent.Optional()
-            select new DecimalLiteralExpressionSyntax(decimal.Parse($"{token}{e.GetOrElse("")}", 
-                CultureInfo.InvariantCulture));
-
         protected internal virtual Parser<NumericLiteralExpressionSyntax> BinaryLiteralExpression =>
             from zero in Parse.Char('0')
-            from control in Parse.Chars("Bb") // ('_'* [01])+ IntegerTypeSuffix?
+            from control in Parse.Chars("Bb")
             from chain in Parse.Char('_').Many().Then(_ => Parse.Chars("01")).AtLeastOnce().Text()
             from suffix in IntegerTypeSuffix.Optional()
-            select FromBinary(chain, suffix.GetOrDefault());
+            select FromBinary(chain.Replace("_", ""), suffix.GetOrDefault());
         [Flags]
         public enum NumericSuffix
         {
             None = 0,
             Long = 1 << 1,
-            Unsigned = 1 << 2
+            Unsigned = 1 << 2,
+            Float = 1 << 3,
+            Decimal = 1 << 4,
+            Half = 1 << 5,
+            Double = 1 << 6
+        }
+
+        private NumericLiteralExpressionSyntax TryParse<T, Z>(string str, Func<string, Z> parser) 
+            where Z : IFormattable, IConvertible, IComparable<Z>, IEquatable<Z>, IComparable
+            where T : NumericLiteralExpressionSyntax<Z>
+        {
+            try
+            {
+                parser(str);
+            }
+            catch (Exception e) when (char.IsDigit(str.First()))
+            {
+                return ErrorNumberLiteral(str, e);
+            }
+            catch (Exception e)
+            {
+                throw new ParseException(e.Message);
+            }
+
+            var ctor = typeof(T).GetConstructor(new[] {typeof(Z)});
+
+            if (ctor is null)
+                return ErrorNumberLiteral(str, new Exception($"ctor not found for type '{typeof(T)}'"));
+            
+            return (T)ctor.Invoke(new object?[] { parser(str) }); ;
+        }
+
+        private NumericLiteralExpressionSyntax ErrorNumberLiteral(string value, Exception e)
+        {
+            var err = new UndefinedIntegerNumericLiteral(value) as IPassiveParseTransition;
+            err.Error = new PassiveParseError($"'{value}' is not literal number. [{e?.Message}]", new[] { "literal number." });
+            return (UndefinedIntegerNumericLiteral)err;
         }
 
         private NumericLiteralExpressionSyntax FromBinary(string number, NumericSuffix? s)
         {
             var suffix = s ?? NumericSuffix.None;
             if (suffix.HasFlag(NumericSuffix.Long) && suffix.HasFlag(NumericSuffix.Unsigned))
-                return new UInt64LiteralExpressionSyntax(Convert.ToUInt64(number, 2));
+                return TryParse<UInt64LiteralExpressionSyntax, ulong>(number, x => Convert.ToUInt64(x, 2));
             if (suffix.HasFlag(NumericSuffix.Long))
-                return new Int64LiteralExpressionSyntax(Convert.ToInt64(number, 2));
+                return TryParse<Int64LiteralExpressionSyntax, long>(number, x => Convert.ToInt64(x, 2));
             if (suffix.HasFlag(NumericSuffix.Unsigned))
-                return new UInt32LiteralExpressionSyntax(Convert.ToUInt32(number, 2));
-            return new UndefinedIntegerNumericLiteral($"{Convert.ToInt64(number, 2)}");
+                return TryParse<UInt32LiteralExpressionSyntax, uint>(number, x => Convert.ToUInt32(x, 2));
+
+            return TryParse<Int32LiteralExpressionSyntax, int>(number, x => Convert.ToInt32(x, 2));
+        }
+        private NumericLiteralExpressionSyntax FromDefault(string number, NumericSuffix? s)
+        {
+            var suffix = s ?? NumericSuffix.None;
+            if (suffix.HasFlag(NumericSuffix.Long) && suffix.HasFlag(NumericSuffix.Unsigned))
+                return TryParse<UInt64LiteralExpressionSyntax, ulong>(number, Convert.ToUInt64);
+            if (suffix.HasFlag(NumericSuffix.Long))
+                return TryParse<Int64LiteralExpressionSyntax, long>(number, Convert.ToInt64);
+            if (suffix.HasFlag(NumericSuffix.Unsigned))
+                return TryParse<UInt32LiteralExpressionSyntax, uint>(number, Convert.ToUInt32);
+
+            var res = TryParse<Int32LiteralExpressionSyntax, int>(number, Convert.ToInt32);
+
+            if (res.IsBrokenToken)
+                return TryParse<Int64LiteralExpressionSyntax, long>(number, Convert.ToInt64);
+            return res;
+        }
+        private NumericLiteralExpressionSyntax FromFloat(string number, NumericSuffix? s)
+        {
+            var suffix = s ?? NumericSuffix.None;
+            if (suffix.HasFlag(NumericSuffix.Double))
+                return TryParse<DoubleLiteralExpressionSyntax, double>(number, Convert.ToDouble);
+            if (suffix.HasFlag(NumericSuffix.Decimal))
+                return TryParse<DecimalLiteralExpressionSyntax, decimal>(number, Convert.ToDecimal);
+            if (suffix.HasFlag(NumericSuffix.Half))
+                return TryParse<HalfLiteralExpressionSyntax, float>(number, Convert.ToSingle);
+
+            return TryParse<SingleLiteralExpressionSyntax, float>(number, Convert.ToSingle);
         }
         // [lL]? [uU] | [uU]? [lL]
         private Parser<NumericSuffix> IntegerTypeSuffix =>
@@ -73,43 +133,54 @@
                 from l in Parse.Chars("lL")
                 select u.IsDefined ? NumericSuffix.Unsigned | NumericSuffix.Long : NumericSuffix.Long);
 
+        private Parser<NumericSuffix> FloatTypeSuffix =>
+            Parse.Chars("FfDdMmHh").Select(char.ToLowerInvariant).Select(x => x switch
+            {
+                'f' => NumericSuffix.Float,
+                'd' => NumericSuffix.Double,
+                'm' => NumericSuffix.Decimal,
+                'h' => NumericSuffix.Half,
+                _ => NumericSuffix.None
+            });
+        // [eE] ('+' | '-')? [0-9] ('_'* [0-9])*;
+        internal Parser<string> ExponentPart =>
+            Parse.Chars("eE").Then(x =>
+                Parse.Chars("+-").Optional().Then(polarity =>
+                    Parse.Number.Then(n => Parse.Char('_').Many().Then(_ => Parse.Number).Many()
+                        .Select(w => $"{x}{polarity.GetOrDefault()}{n}{w.Join().Replace("_", "")}"
+                            .Replace($"{default(char)}", "")))));
+        // [0-9] ('_'* [0-9])*
+        private Parser<string> NumberChainBlock =>
+            from number in Parse.Number
+            from chain in Parse.Char('_').Many().Then(_ => Parse.Number).Many().Select(x => x.Join())
+            select $"{number}{chain.Replace("_", "")}";
 
-        /// <example>
-        /// 1.23f
-        /// </example>
-        protected internal virtual Parser<NumericLiteralExpressionSyntax> FloatLiteralExpression =>
-            from token in Parse.DecimalInvariant
-            from suffix in Parse.Chars('f', 'F').Except(Parse.Chars('m', 'M', 'd', 'D', 'l', 'L'))
-            select new SingleLiteralExpressionSyntax(float.Parse($"{token}", CultureInfo.InvariantCulture));
-        
         /// <example>
         /// 1.23d
         /// </example>
-        protected internal virtual Parser<NumericLiteralExpressionSyntax> DoubleLiteralExpression =>
-            from token in Parse.DecimalInvariant
-            from suffix in Parse.Chars('d', 'D').Except(Parse.Chars('m', 'M', 'f', 'F', 'l', 'L'))
-            select new DoubleLiteralExpressionSyntax(double.Parse($"{token}", CultureInfo.InvariantCulture));
-        
+        protected internal virtual Parser<NumericLiteralExpressionSyntax> FloatLiteralExpression =>
+            (from f1block in NumberChainBlock
+                from dot in Parse.Char('.')
+                from f2block in NumberChainBlock.Many()
+                from exp in ExponentPart.Optional()
+                from suffix in FloatTypeSuffix.Optional()
+                select FromFloat($"{f1block}.{f2block.Join()}{exp.GetOrElse("")}",
+                    suffix.GetOrDefault())).Or(
+                    from block in NumberChainBlock
+                    from other in FloatTypeSuffix.Select(x => ("", x)).Or(ExponentPart.Then(x =>
+                        FloatTypeSuffix.Optional().Select(z => (x, z.GetOrDefault()))))
+                    select FromFloat($"{block}{other.Item1}", other.Item2)
+                );
+
         /// <example>
         /// 1124
+        /// 111_241
         /// </example>
         protected internal virtual Parser<LiteralExpressionSyntax> IntLiteralExpression =>
-            from token in Parse.Number
-            // so, why not automatic transform literal token (eg Int16LiteralExpression)
-            // problem with UnaryExpression, negate symbol has parsed on top level combinators and into this combinator doesn't come
-            // solution:
-            //      define UndefinedIntegerNumericLiteral and into Unary combinator detection on construction level and replace for 
-            //      proper variant.
-            select new UndefinedIntegerNumericLiteral(token); 
+            from number in NumberChainBlock
+            from suffix in IntegerTypeSuffix.Optional()
+            select FromDefault(number, suffix.GetOrDefault()); 
 
-        protected internal virtual Parser<LiteralExpressionSyntax> NumericLiteralExpression =>
-            (from expr in
-                    DecimalLiteralExpression.Or(
-                        DoubleLiteralExpression).Or(
-                        FloatLiteralExpression).Or(
-                        IntLiteralExpression)
-                select expr).Positioned();
-        
         /// <example>
         /// true
         /// false
@@ -129,26 +200,16 @@
         /// 1, true, 'hello'
         /// </example>
         protected internal virtual Parser<LiteralExpressionSyntax> LiteralExpression =>
-            from expr in 
-                NumericLiteralExpression.XOr(
-                StringLiteralExpression).XOr(
-                NullLiteralExpression).XOr(
-                BooleanLiteralExpression).Positioned().Commented(this)
+            from expr in
+                FloatLiteralExpression.Log("FloatLiteralExpression").Or(
+                        IntLiteralExpression.Log("IntLiteralExpression")).XOr(
+                    StringLiteralExpression.Log("StringLiteralExpression")).XOr(
+                    BinaryLiteralExpression.Log("BinaryLiteralExpression")).XOr(
+                    BooleanLiteralExpression.Log("BooleanLiteralExpression")).XOr(
+                    NullLiteralExpression.Log("NullLiteralExpression"))
+                    .Positioned().Commented(this)
             select expr.Value
                 .WithLeadingComments(expr.LeadingComments)
                 .WithTrailingComments(expr.TrailingComments);
-        
-        protected internal virtual Parser<string> Exponent =>
-            Parse.Chars("Ee").Then(e => Parse.Number.Select(n => "e+" + n).XOr(
-                Parse.Chars("+-").Then(s => Parse.Number.Select(n => "e" + s + n))));
-        
-        
-        protected internal virtual Parser<string> Binary =>
-            Parse.IgnoreCase("0b").Then(x =>
-                Parse.Chars("01").AtLeastOnce().Text()).Token();
-
-        protected internal virtual Parser<string> Hexadecimal =>
-            Parse.IgnoreCase("0x").Then(x =>
-                Parse.Chars("0123456789ABCDEFabcdef").AtLeastOnce().Text()).Token();
     }
 }
