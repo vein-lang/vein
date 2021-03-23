@@ -71,7 +71,7 @@
         }
     }
 
-    public class UndefinedIntegerNumericLiteral : NumericLiteralExpressionSyntax
+    public class UndefinedIntegerNumericLiteral : NumericLiteralExpressionSyntax, IPassiveParseTransition
     {
         public string Value { get; set; }
 
@@ -99,6 +99,11 @@
     public sealed class DecimalLiteralExpressionSyntax : NumericLiteralExpressionSyntax<decimal>
     {
         public DecimalLiteralExpressionSyntax(decimal value) : base(value) { }
+    }
+
+    public sealed class HalfLiteralExpressionSyntax : NumericLiteralExpressionSyntax<float>
+    {
+        public HalfLiteralExpressionSyntax(float value) : base(value) { }
     }
     public sealed class ByteLiteralExpressionSyntax : NumericLiteralExpressionSyntax<byte>
     {
