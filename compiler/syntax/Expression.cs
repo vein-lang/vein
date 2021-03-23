@@ -1,4 +1,4 @@
-﻿namespace wave.syntax
+namespace wave.syntax
 {
     using System;
     using System.Collections.Generic;
@@ -228,15 +228,16 @@
                 .Named("SystemType").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> argument =>
-            from id in IdentifierExpression
-                .Then(x => Parse.Char(':').Token().Return(x))
-                .Positioned()
-                .Token().Optional()
-            from type in KeywordExpression("auto")
-                .Or(TypeExpression.Select(x => x.Downlevel()))
-                .Positioned().Token().Optional()
+            //from id in IdentifierExpression
+            //    .Then(x => Parse.Char(':').Token().Return(x))
+            //    .Positioned()
+            //    .Token()
+            //    .Optional()
+            //from type in KeywordExpression("auto")
+            //    .Or(TypeExpression.Select(x => x.Downlevel()))
+            //    .Positioned().Token().Optional()
             from exp in QualifiedExpression
-            select new ArgumentExpression(id, type, exp);
+            select new ArgumentExpression(null, null, exp);
 
         protected internal virtual Parser<IndexerArgument> indexer_argument =>
             from id in IdentifierExpression
