@@ -90,12 +90,12 @@ namespace wave.syntax
         #endregion
 
         protected internal virtual Parser<ExpressionSyntax> range_expression =>
-            unary_expression.XOr(
-                from s1 in unary_expression.Optional()
+            (
+                from s1 in unary_expression
                 from op in Parse.String("..").Token()
-                from s2 in unary_expression.Optional()
+                from s2 in unary_expression
                 select new RangeExpressionSyntax(s1, s2)
-            );
+            ).Or(unary_expression);
 
         protected internal virtual Parser<IOption<BlockSyntax>> block =>
             WrappedExpression('{', '}', statement_list.Token().Select(x => new BlockSyntax(x)).Optional());

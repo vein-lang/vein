@@ -587,7 +587,7 @@ multiplicative_expression
 	;
 
 switch_expression
-    : SWITCH '{' (switch_expression_arms ','?)? '}'
+    : range_expression ('switch' '{' (switch_expression_arms ','?)? '}')?
     ;
 
 switch_expression_arms
@@ -596,6 +596,11 @@ switch_expression_arms
 
 switch_expression_arm
     : expression case_guard? right_arrow failable_expression
+    ;
+
+range_expression
+    : unary_expression
+    | unary_expression? OP_RANGE unary_expression?
     ;
 
 unary_expression

@@ -56,6 +56,10 @@ namespace wave.syntax
             where Z : IFormattable, IConvertible, IComparable<Z>, IEquatable<Z>, IComparable
             where T : NumericLiteralExpressionSyntax<Z>
         {
+            if (string.IsNullOrEmpty(str))
+                throw new ParseException($"str is null.");
+            if (str.EndsWith("."))
+                throw new ParseException($"bad float.");
             try
             {
                 parser(str);
@@ -161,7 +165,7 @@ namespace wave.syntax
         protected internal virtual Parser<NumericLiteralExpressionSyntax> FloatLiteralExpression =>
             (from f1block in NumberChainBlock
                 from dot in Parse.Char('.')
-                from f2block in NumberChainBlock.Many()
+                from f2block in NumberChainBlock.AtLeastOnce()
                 from exp in ExponentPart.Optional()
                 from suffix in FloatTypeSuffix.Optional()
                 select FromFloat($"{f1block}.{f2block.Join()}{exp.GetOrElse("")}",

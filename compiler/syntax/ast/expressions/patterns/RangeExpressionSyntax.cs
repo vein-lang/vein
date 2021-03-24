@@ -11,6 +11,11 @@
             this.S1 = e1.GetOrDefault();
             this.S2 = e2.GetOrDefault();
         }
+        public RangeExpressionSyntax(ExpressionSyntax e1, ExpressionSyntax e2)
+        {
+            this.S1 = e1;
+            this.S2 = e2;
+        }
 
         public new RangeExpressionSyntax SetPos(Position startPos, int length)
         {
