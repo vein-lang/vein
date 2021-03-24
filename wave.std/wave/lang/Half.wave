@@ -19,25 +19,13 @@ public struct Half : ValueType
     [getter]
     public static Epsilon: Half;
 
-    /**
-        Determines whether the specified value is finite (zero, subnormal, or normal).
-    **/
-    public static IsFinite(value: Half): Boolean
-    {
-        return value != NaN && value != Infinity && value != -Infinity;
-    }
-
-
-
     //// implicit getters
     /**
         Represents the smallest positive Half value that is greater than zero. 
     **/
     [special]
-    public get_Epsilon(): Half 
-    {
-        return 5.9604645e-08h;
-    }
+    public get_Epsilon(): Half
+        |> 5.9604645e-08h;
     /**
         Represents positive infinity.
     **/
