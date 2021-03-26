@@ -31,14 +31,21 @@ namespace wave.syntax
         protected internal virtual Parser<ExpressionSyntax> QualifiedExpression =>
             assignment.Or(non_assignment_expression);
         protected internal virtual Parser<ExpressionSyntax> assignment =>
-            from exp in unary_expression
-            from op in assignment_operator
-            from exp2 in failable_expression
-            select new BinaryExpressionSyntax(exp, exp2, op);
+            (
+                from exp in unary_expression
+                from op in assignment_operator
+                from exp2 in QualifiedExpression
+                select new BinaryExpressionSyntax(exp, exp2, op)
+            )
+            .Or(
+                from exp in unary_expression
+                from op in Parse.String("??=").Text().Token()
+                from exp2 in failable_expression
+                select new BinaryExpressionSyntax(exp, exp2, op)
+            );
 
         protected internal virtual Parser<string> assignment_operator =>
             Parse.String("<<=")
-                .Or(Parse.String("??="))
                 .Or(Parse.String("^="))
                 .Or(Parse.String("|="))
                 .Or(Parse.String("&="))
@@ -144,7 +151,7 @@ namespace wave.syntax
 
 
         protected internal virtual Parser<ExpressionSyntax> equality_expression =>
-            BinaryExpression(relational_expression, "==", "!=").Positioned();
+            BinaryExpression(relational_expression, "!=", "==").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> relational_expression =>
             BinaryExpression(shift_expression.Or(AsTypePattern).Or(IsTypePattern), ">=", "<=", ">", "<").Positioned();
@@ -296,7 +303,7 @@ namespace wave.syntax
 
         protected internal virtual Parser<ExpressionSyntax> primary_expression_start =>
             LiteralExpression.Select(x => x.Downlevel())
-                .XOr(LiteralAccessExpression.Select(x => x.Downlevel()).Log("LiteralAccessExpression"))
+                .Or(LiteralAccessExpression.Select(x => x.Downlevel()).Log("LiteralAccessExpression"))
                 .Or(Parse.Ref(() => IdentifierExpression))
                 .Or(WrappedExpression('(', ')', Parse.Ref(() => QualifiedExpression)))
                 .Or(SystemTypeExpression)
@@ -348,8 +355,8 @@ namespace wave.syntax
             from s2 in Parse.Char('!').Token().Optional()
             from dd in (
                 from cc in (
-                    from zz in member_access
-                        .Or(method_invocation)
+                    from zz in method_invocation
+                        .Or(member_access)
                         .Or(Parse.String("++").Return(new OperatorExpressionSyntax(ExpressionType.Increment)))
                         .Or(Parse.String("--").Return(new OperatorExpressionSyntax(ExpressionType.Decrement)))
                         .Or(Parse.String("->").Token().Then(_ => IdentifierExpression)).Token().Positioned()

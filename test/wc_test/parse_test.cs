@@ -326,16 +326,31 @@
         [InlineData("(x: Int32) |> {}")] // function lambda
         [InlineData("() |> null")] // function lambda
         [InlineData("22..22")] // range
+        [InlineData("x..22")] // range
+        [InlineData("22..x")] // range
         [InlineData("true ? 22 : 32")] // conditional exp
-        [InlineData("fail new foo()")] // fail exp
+        [InlineData("a ? fail new foo() : 2")] // fail exp
         [InlineData("foo ?? 22")] // coalescing exp
         [InlineData("as Type")] // as exp
         [InlineData("is Type")] // is exp
         [InlineData("this.call()")] // this based call
-        public void AllExpressionTest(string exp)
-        {
-            Wave.QualifiedExpression.End().ParseWave(exp);
-        }
+        [InlineData("(1..i < 1 ? 1 : i)")]
+        [InlineData("v1.x * v2.x + v1.y * v2.y + v1.z * v2.z")]
+        [InlineData("Pf.x - 0.5f + jitter * ox")]
+        [InlineData("mod7(floor((p * K))) + K - Ko")]
+        [InlineData("(d1.x < d1.y) ? d1.xy : d1.yx")]
+        [InlineData("permute(Pi.x + float3(-1.0f, 0.0f, 1.0f))")]
+        [InlineData("int4(asint(x.x), asint(x.y), asint(x.z), asint(x.w))")]
+        [InlineData("abs(x) < double.PositiveInfinity")]
+        [InlineData("(asulong(x) & 07) > 07")]
+        [InlineData("double.IsNaN(y) || x < y ? x : y")]
+        [InlineData("x = ((x >> 1) & 055555555) | ((x & 055555555) << 1)")]
+        [InlineData("uf = select(uf, asuint(asfloat(uf + (1 << 23)) - 6.10351563e-05f), e == 0)")]
+        [InlineData("uf += select(0, (128u - 16u) << 23, e == shifted_exp)")]
+        [InlineData("hx = (asuint(min(asfloat(uux) * 1.92592994e-34f, 260042752.0f)) + 0x1000) >> 13", Skip = "todo")]
+        [InlineData("basis1.x = 1.0f + sign * normal.x * normal.x * a")]
+        [InlineData("hash = rol(state.x, 1) + rol(state.y, 7) + rol(state.z, 12) + rol(state.w, 18)")]
+        public void AllExpressionTest(string exp) => Wave.QualifiedExpression.End().ParseWave(exp);
 
         [Fact]
         public void NewExpTest()
