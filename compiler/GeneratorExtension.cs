@@ -119,6 +119,7 @@
             UInt32LiteralExpressionSyntax => WaveTypeCode.TYPE_U4,
             Int64LiteralExpressionSyntax => WaveTypeCode.TYPE_I8,
             UInt64LiteralExpressionSyntax => WaveTypeCode.TYPE_U8,
+            HalfLiteralExpressionSyntax => WaveTypeCode.TYPE_R2,
             SingleLiteralExpressionSyntax => WaveTypeCode.TYPE_R4,
             DoubleLiteralExpressionSyntax => WaveTypeCode.TYPE_R8,
             DecimalLiteralExpressionSyntax => WaveTypeCode.TYPE_R16,

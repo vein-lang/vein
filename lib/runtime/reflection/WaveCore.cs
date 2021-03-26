@@ -1,4 +1,4 @@
-﻿namespace wave.emit
+namespace wave.emit
 {
     using System.Collections.Generic;
 
@@ -37,6 +37,7 @@
             public static WaveType UInt32Type { get; private set; }
             public static WaveType UInt16Type { get; private set; }
             public static WaveType UInt64Type { get; private set; }
+            public static WaveType HalfType { get; private set; }
             public static WaveType FloatType { get; private set; }
             public static WaveType DoubleType { get; private set; }
             public static WaveType DecimalType { get; private set; }
@@ -59,6 +60,7 @@
                 UInt16Type      = new WaveTypeImpl($"{asmName}global::wave/lang/UInt16"   , WaveTypeCode.TYPE_U2);
                 UInt32Type      = new WaveTypeImpl($"{asmName}global::wave/lang/UInt32"   , WaveTypeCode.TYPE_U4);
                 UInt64Type      = new WaveTypeImpl($"{asmName}global::wave/lang/UInt64"   , WaveTypeCode.TYPE_U8);
+                HalfType        = new WaveTypeImpl($"{asmName}global::wave/lang/Half"     , WaveTypeCode.TYPE_R2);
                 FloatType       = new WaveTypeImpl($"{asmName}global::wave/lang/Float"    , WaveTypeCode.TYPE_R4);
                 DoubleType      = new WaveTypeImpl($"{asmName}global::wave/lang/Double"   , WaveTypeCode.TYPE_R8);
                 DecimalType     = new WaveTypeImpl($"{asmName}global::wave/lang/Decimal"  , WaveTypeCode.TYPE_R16);

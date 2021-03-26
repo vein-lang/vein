@@ -124,6 +124,7 @@
                 (TYPE_I2)       => (x) => short.Parse(x),
                 (TYPE_I4)       => (x) => int.Parse(x),
                 (TYPE_I8)       => (x) => long.Parse(x),
+                (TYPE_R2)       => (x) => Half.Parse(x),
                 (TYPE_R4)       => (x) => float.Parse(x),
                 (TYPE_R8)       => (x) => double.Parse(x),
                 (TYPE_R16)      => (x) => decimal.Parse(x),

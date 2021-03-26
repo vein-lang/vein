@@ -39,12 +39,15 @@
             {
                 (TYPE_R4, TYPE_R8) => false,
                 (TYPE_R4, TYPE_R16) => false,
+                (TYPE_R4, TYPE_R2) => true,
 
                 (TYPE_R8, TYPE_R4) => true,
                 (TYPE_R8, TYPE_R16) => false,
+                (TYPE_R8, TYPE_R2) => false,
 
                 (TYPE_R16, TYPE_R8) => false,
                 (TYPE_R16, TYPE_R4) => false,
+                (TYPE_R16, TYPE_R2) => false,
 
                 (TYPE_U4, TYPE_I1) => true,
                 (TYPE_U4, TYPE_I2) => true,
@@ -180,6 +183,8 @@
                     return WaveCore.Types.DoubleType;
                 case TYPE_R4:
                     return WaveCore.Types.FloatType;
+                case TYPE_R2:
+                    return WaveCore.Types.HalfType;
                 case TYPE_ARRAY:
                     return WaveCore.Types.ArrayType;
                 case TYPE_BOOLEAN:
