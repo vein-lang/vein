@@ -1,4 +1,4 @@
-namespace wave.emit
+﻿namespace wave.emit
 {
     using System.Collections.Generic;
 
@@ -81,6 +81,10 @@ namespace wave.emit
         public static WaveClass UInt32Class;
         public static WaveClass UInt16Class;
         public static WaveClass UInt64Class;
+        public static WaveClass HalfClass;
+        public static WaveClass FloatClass;
+        public static WaveClass DoubleClass;
+        public static WaveClass DecimalClass;
         public static WaveClass BoolClass;
         public static WaveClass CharClass;
         public static WaveClass ArrayClass;
@@ -99,6 +103,10 @@ namespace wave.emit
             UInt32Class,
             UInt64Class,
             UInt16Class,
+            HalfClass,
+            FloatClass,
+            DoubleClass,
+            DecimalClass,
             BoolClass,
             CharClass,
             ArrayClass,
@@ -119,6 +127,10 @@ namespace wave.emit
             UInt16Class = new WaveClass(Types.UInt16Type, ValueTypeClass);
             UInt32Class = new WaveClass(Types.UInt32Type, ValueTypeClass);
             UInt64Class = new WaveClass(Types.UInt64Type, ValueTypeClass);
+            HalfClass = new WaveClass(Types.HalfType, ValueTypeClass);
+            FloatClass = new WaveClass(Types.FloatType, ValueTypeClass);
+            DoubleClass = new WaveClass(Types.DoubleType, ValueTypeClass);
+            DecimalClass = new WaveClass(Types.DecimalType, ValueTypeClass);
             BoolClass = new WaveClass(Types.BoolType, ValueTypeClass);
             CharClass = new WaveClass(Types.CharType, ValueTypeClass);
             ArrayClass = new WaveClass(Types.ArrayType, ObjectClass);
