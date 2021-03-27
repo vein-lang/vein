@@ -64,7 +64,21 @@
 
         public WaveModule ResolveDep(string name, Version version)
         {
-            
+            var file = FindModule(name, version);
+
+            if (file is null)
+            {
+                Journal.logger.Error("[ResolveDep] Assembly {name}, {version} cannot resolve.", name, version);
+                return null;
+            }
+
+            var asm = InsomniaAssembly.LoadFromFile(file);
+
+            Journal.logger.Error("[ResolveDep] Success load assembly {name}, {version}.", name, version);
+
+            var bytes = asm.Sections.First();
+
+            var module = ModuleReader.Read(bytes.data)
         }
 
         private FileInfo FindModule(string name, Version version)
@@ -79,6 +93,7 @@
             // second, find in rune cache
             //files = _project.Packages.Where(x => x.Name.Equals(name));
 
+            return null;
         }
 
         private FileInfo FindModuleInSDK(string name, Version version)
@@ -102,7 +117,7 @@
             }
             catch (Exception e)
             {
-                Journal.logger.Error(e, "FindModuleInSDK has catch exception: {e}");
+                Journal.logger.Error(e, "[FindModuleInSDK] has catch exception.");
                 return null;
             }
         }
