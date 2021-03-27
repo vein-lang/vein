@@ -164,9 +164,13 @@ asdasd
 asdasdasd
 asdasdsddd
 asf
+asfloat
+asint
 asm
 asn
 ASSIMP
+asuint
+asulong
 asynckit
 ATBh
 Atgd
@@ -610,6 +614,7 @@ compl
 concat
 condattr
 config
+configurator
 constexpr
 contentfiles
 Convertation
@@ -1789,6 +1794,7 @@ Iku
 ILfrom
 ILh
 IList
+ILogger
 ily
 img
 IMh
@@ -3321,6 +3327,7 @@ roby
 ROJ
 rojz
 rokm
+rol
 Rorn
 roslyn
 rp
@@ -3973,6 +3980,7 @@ ushort
 USKY
 usn
 USqf
+Utc
 utf
 utg
 utils
@@ -3994,6 +4002,7 @@ uuu
 UUUl
 uuuz
 UUw
+uux
 uv
 uvb
 UVk
@@ -4056,6 +4065,7 @@ Vdgg
 Vdk
 VDQF
 VDR
+vdx
 ve
 Vec
 Vels
@@ -4205,6 +4215,7 @@ wao
 Waofq
 waproj
 Waq
+wasm
 Wbi
 Wbj
 WBl
