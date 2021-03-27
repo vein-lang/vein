@@ -56,6 +56,10 @@
         internal InsomniaAssembly()
         {
         }
+
+        /// <exception cref="BadImageFormatException"/>
+        public static InsomniaAssembly LoadFromFile(FileInfo file)
+            => LoadFromFile(file.FullName);
         /// <exception cref="BadImageFormatException"/>
         public static InsomniaAssembly LoadFromFile(string file)
         {
