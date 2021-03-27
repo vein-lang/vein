@@ -1,4 +1,4 @@
-﻿namespace wave.emit.extensions
+﻿namespace insomnia.emit.extensions
 {
     using System;
     using System.IO;

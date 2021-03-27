@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace wave.syntax
+namespace insomnia.syntax
 {
     using System;
     using System.Globalization;

@@ -1,4 +1,4 @@
-﻿namespace wave.extensions
+﻿namespace insomnia.extensions
 {
     using System;
     using System.Linq.Expressions;

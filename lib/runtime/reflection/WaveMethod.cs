@@ -1,4 +1,4 @@
-﻿namespace wave.emit
+﻿namespace insomnia.emit
 {
     using System.Collections.Generic;
     using System.Linq;

@@ -1,11 +1,11 @@
-﻿namespace wave.emit
+﻿namespace insomnia.emit
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
     using extensions;
-    using wave;
+    using insomnia;
     
     internal static class BinaryExtension
     {

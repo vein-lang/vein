@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace wave.fs.elf
+namespace insomnia.fs.elf
 {
     [Flags]
     public enum ElfSegmentFlags

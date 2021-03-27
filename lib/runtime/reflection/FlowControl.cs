@@ -1,4 +1,4 @@
-﻿namespace wave.runtime.emit
+﻿namespace insomnia.runtime.emit
 {
     public enum FlowControl
     {

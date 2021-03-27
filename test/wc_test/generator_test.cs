@@ -6,12 +6,12 @@ namespace wc_test
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using wave;
-    using wave.emit;
-    using wave.extensions;
-    using wave.fs;
-    using wave.stl;
-    using wave.syntax;
+    using insomnia;
+    using insomnia.emit;
+    using insomnia.extensions;
+    using insomnia.fs;
+    using insomnia.stl;
+    using insomnia.syntax;
     using Xunit;
     using Xunit.Abstractions;
     

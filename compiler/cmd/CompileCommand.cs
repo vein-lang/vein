@@ -1,4 +1,4 @@
-﻿namespace wave.cmd
+﻿namespace insomnia.cmd
 {
     using System.IO;
     using System.Linq;

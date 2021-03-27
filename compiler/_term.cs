@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace wave
+namespace insomnia
 {
     using Pastel;
     using static System.Console;

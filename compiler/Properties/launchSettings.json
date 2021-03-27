@@ -2,7 +2,7 @@
   "profiles": {
     "wc": {
       "commandName": "Project",
-      "commandLineArgs": "compile C:\\git\\wave_vm\\wave.std\\wcorlib.waproj --EF:+exp_simplify_optimize"
+      "commandLineArgs": "compile O:\\wave_vm\\wave.std\\wcorlib.waproj --EF:+exp_simplify_optimize"
     }
   }
 }

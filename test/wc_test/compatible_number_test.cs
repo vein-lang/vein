@@ -3,9 +3,9 @@
     using System;
     using System.Runtime.Serialization;
     using Sprache;
-    using wave.emit;
-    using wave.extensions;
-    using wave.syntax;
+    using insomnia.emit;
+    using insomnia.extensions;
+    using insomnia.syntax;
     using Xunit;
 
     public class compatible_number_test

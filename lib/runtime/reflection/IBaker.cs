@@ -1,4 +1,4 @@
-﻿namespace wave.emit
+﻿namespace insomnia.emit
 {
     public interface IBaker
     {

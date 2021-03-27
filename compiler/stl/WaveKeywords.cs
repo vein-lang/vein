@@ -1,4 +1,4 @@
-﻿namespace wave.stl
+﻿namespace insomnia.stl
 {
     using System.Collections.Generic;
 

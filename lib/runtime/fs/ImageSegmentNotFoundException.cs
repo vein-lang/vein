@@ -1,4 +1,4 @@
-﻿namespace wave.fs
+﻿namespace insomnia.fs
 {
     using System;
 

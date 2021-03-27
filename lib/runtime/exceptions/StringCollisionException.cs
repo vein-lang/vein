@@ -1,4 +1,4 @@
-﻿namespace wave.exceptions
+﻿namespace insomnia.exceptions
 {
     using System;
 

@@ -23,4 +23,7 @@
 		<PackageReference Include="NuGet.Versioning" Version="5.5.1" />
 		<PackageReference Include="Sprache" Version="2.3.2-develop-00043" />
 	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\lib\runtime\runtime.csproj" />
+	</ItemGroup>
 </Project>

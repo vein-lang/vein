@@ -1,4 +1,4 @@
-﻿namespace wave.fs.elf
+﻿namespace insomnia.fs.elf
 {
     using System.Collections.Generic;
     using System.IO;

@@ -3,10 +3,10 @@
     using System;
     using System.IO;
     using System.Text;
-    using wave.emit;
-    using wave.fs;
+    using insomnia.emit;
+    using insomnia.fs;
     using Xunit;
-    public class elf_test
+    public class ElfTest
     {
         [Fact]
         public void ElfReadTest()
@@ -19,7 +19,7 @@
             asm.AddSegment((".code", Encoding.ASCII.GetBytes("IL_CODE")));
             InsomniaAssembly.WriteTo(asm, file);
             var result = InsomniaAssembly.LoadFromFile(file);
-            var (_, body) = result.sections[0];
+            var (_, body) = result.Sections[0];
             Assert.Equal("IL_CODE", Encoding.ASCII.GetString(body));
             var f_mem = new MemoryStream(File.ReadAllBytes(file));
             f_mem.Seek(f_mem.Capacity - (sizeof(uint) * 2), SeekOrigin.Begin);
@@ -31,17 +31,18 @@
             Assert.Equal("IL_CODE", Encoding.ASCII.GetString(bytes));
             File.Delete(file);
         }
-        //public void ElfReadManul()
-        //{
-        //    var file = @"C:\Users\ls-mi\Desktop\wave.elf";
-        //    var asm = new InsomniaAssembly
-        //    {
-        //        Name = "wave_test"
-        //    };
-        //    asm.AddSegment((".code", Encoding.ASCII.GetBytes("IL_CODE")));
-        //    InsomniaAssembly.WriteTo(asm, file);
-        //    var result = InsomniaAssembly.LoadFromFile(file);
-        //}
+        [Fact]
+        public void ElfReadManual()
+        {
+            var file = @"C:\Users\ls-mi\Desktop\wave.elf";
+            var asm = new InsomniaAssembly
+            {
+                Name = "wave_test"
+            };
+            asm.AddSegment((".code", Encoding.ASCII.GetBytes("IL_CODE")));
+            InsomniaAssembly.WriteTo(asm, file);
+            var result = InsomniaAssembly.LoadFromFile(file);
+        }
 
         public string GetTempFile() => Path.Combine(Path.GetTempPath(), "wave_test", Path.GetTempFileName());
     }

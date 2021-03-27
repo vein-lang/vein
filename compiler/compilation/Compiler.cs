@@ -1,4 +1,4 @@
-﻿namespace wave.compilation
+﻿namespace insomnia.compilation
 {
     using emit;
     using Spectre.Console;

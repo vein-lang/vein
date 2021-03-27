@@ -1,4 +1,4 @@
-﻿namespace wave.emit
+﻿namespace insomnia.emit
 {
     using System;
     using System.Collections.Generic;
@@ -7,12 +7,15 @@
     public class WaveModule
     {
         public string Name { get; protected set; }
+        public Version Version { get; protected set; }
         protected internal readonly Dictionary<int, string> strings = new();
         protected internal readonly List<WaveClass> classList = new();
         protected internal List<WaveModule> Deps { get; set; } = new();
         protected internal ConstStorage constStorage { get; set; } = new();
+
         internal WaveModule(string name) => Name = name;
-        
+        internal WaveModule(string name, Version ver) => (Name, Version) = (name, ver);
+
         /// <summary>
         /// Get interned string from storage by index.
         /// </summary>

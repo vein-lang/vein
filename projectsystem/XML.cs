@@ -1,4 +1,4 @@
-﻿namespace wave.project
+﻿namespace insomnia.project
 {
     using System.Collections.Generic;
     using System.Xml.Serialization;

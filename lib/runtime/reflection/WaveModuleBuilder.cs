@@ -1,4 +1,4 @@
-﻿namespace wave.emit
+﻿namespace insomnia.emit
 {
     using System;
     using System.IO;
@@ -11,6 +11,7 @@
     public class WaveModuleBuilder : WaveModule, IBaker
     {
         public WaveModuleBuilder(string name) : base(name) {}
+        public WaveModuleBuilder(string name, Version ver) : base(name, ver) { }
 
         /// <summary>
         /// Define class by name.
@@ -116,9 +117,19 @@
             using var binary = new BinaryWriter(mem);
 
             var idx = GetStringConstant(Name);
-            
+            var vdx = GetStringConstant(Version.ToString());
+
             binary.Write(idx);
-            
+            binary.Write(vdx);
+
+            binary.Write(Deps.Count);
+            foreach (var dep in Deps)
+            {
+                binary.WriteInsomniaString(dep.Name);
+                binary.WriteInsomniaString(dep.Version.ToString());
+            }
+
+
             binary.Write(strings.Count);
             foreach (var (key, value) in strings)
             {
@@ -141,8 +152,10 @@
         public string BakeDebugString()
         {
             var str = new StringBuilder();
-            str.AppendLine($".module '{Name}'");
+            str.AppendLine($".module '{Name}'::'{Version}'");
             str.AppendLine("{");
+            foreach (var dep in Deps)
+                str.AppendLine($"\t.dep '{dep.Name}'::'{dep.Version}'");
             foreach (var (key, value) in strings) 
                 str.AppendLine($"\t.string 0x{key:X8}.'{value}'");
             foreach (var clazz in classList.OfType<IBaker>().Select(x => x.BakeDebugString()))

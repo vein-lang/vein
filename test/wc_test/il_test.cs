@@ -1,8 +1,8 @@
 ﻿namespace wc_test
 {
     using System;
-    using wave;
-    using wave.emit;
+    using insomnia;
+    using insomnia.emit;
     using Xunit;
 
     public class il_test

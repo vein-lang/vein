@@ -1,4 +1,4 @@
-﻿namespace wave.fs
+﻿namespace insomnia.fs
 {
     using System;
     using System.Collections.Generic;
@@ -14,17 +14,30 @@
     {
         public static bool Exist(this ElfSectionHeaderTable table, ElfSectionType type) 
             => table.Any(x => x.Type == type);
+
+        public static string GetStringByKey(this ElfStringTable table, string key)
+        {
+            var value = table.Single(x => x.Value.StartsWith(key));
+
+            return value.Value.Replace($"{key}::", "");
+        }
     }
 
     public partial class InsomniaAssembly
     {
         public string Name { get; init; }
+
+        public Version Version
+        {
+            get => metadata.Version;
+            set => metadata.Version = value;
+        } 
         
-        public Version Version { get; set; }
+        public List<(string name, byte[] data)> Sections { get; set; } = new ();
         
-        public List<(string name, byte[] data)> sections { get; set; } = new ();
-        
-        public void AddSegment((string name, byte[] data) seg) => sections.Add(seg);
+        public void AddSegment((string name, byte[] data) seg) => Sections.Add(seg);
+
+        private InsomniaAssemblyMetadata metadata = new ();
 
         private void InsertModule(WaveModuleBuilder module)
         {
@@ -32,6 +45,7 @@
                 throw new ArgumentNullException(nameof(module));
             if (string.IsNullOrEmpty(module.Name))
                 throw new NullReferenceException("Name of module has null.");
+            Version = module.Version;
             this.AddSegment((".code", module.BakeByteArray()));
         }
 
@@ -61,8 +75,18 @@
             
             if (keyCode != "insomnia")
                 throw new BadImageFormatException($"File '{file}' is not insomnia image.");
-            
-            
+
+            var strings = elf.Sections.Single(x => x is { Type: StrTab }) as ElfStringTable;
+            var metadata = new InsomniaAssemblyMetadata
+            {
+                Version = System.Version.Parse(strings.GetStringByKey(".wasm-version")),
+                Timestamp = DateTimeOffset.FromUnixTimeSeconds(
+                    long.Parse(strings.GetStringByKey(".wasm-timestamp")))
+            };
+
+
+
+
             var ilCodeSection = elf.Sections.Single(x => x is { Type: ProgBits });
 
             using var memory = new MemoryStream(ilCodeSection.ReadFrom(fs));
@@ -87,8 +111,9 @@
             
             return new InsomniaAssembly
             {
-                sections = sections, 
-                Name = Path.GetFileNameWithoutExtension(file)
+                Sections = sections, 
+                Name = Path.GetFileNameWithoutExtension(file),
+                metadata = metadata
             };
         }
 
@@ -108,15 +133,15 @@
             using var memory = new MemoryStream();
             using var writer = new BinaryWriter(memory);
             
-            writer.Write(asm.sections.Count);
-            foreach (var (name, _) in asm.sections)
+            writer.Write(asm.Sections.Count);
+            foreach (var (name, _) in asm.Sections)
             {
                 var b = Encoding.ASCII.GetBytes(name);
                 writer.Write(b.Length);
                 writer.Write(b);
             }
 
-            foreach (var (_, data) in asm.sections)
+            foreach (var (_, data) in asm.Sections)
             {
                 writer.Write(data.Length);
                 writer.Write(data);
@@ -124,7 +149,7 @@
             
             using var fs = File.Create(file);
             
-            WriteElf(memory.ToArray(), fs);
+            WriteElf(memory.ToArray(), fs, asm.metadata);
         }
     }
 }

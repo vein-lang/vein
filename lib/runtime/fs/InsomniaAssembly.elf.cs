@@ -1,4 +1,7 @@
-namespace wave.fs
+using System;
+using System.Collections.Generic;
+
+namespace insomnia.fs
 {
     using System.IO;
     using System.Linq;
@@ -15,13 +18,14 @@ namespace wave.fs
     using ElfType = elf.ElfType;
     public partial class InsomniaAssembly
     {
-        protected internal static void WriteElf(byte[] ilCode, Stream stream)
+        protected internal static void WriteElf(byte[] ilCode, Stream stream, InsomniaAssemblyMetadata meta)
         {
             using var writer = new BinaryWriter(stream);
 
             var file = new ElfFile();
             file.Sections.Add(new ElfSection());
             AddCode(file, ilCode);
+            AddMetadata(file, meta);
 
             var sectionsStringsIndex = file.AddStringsSection();
 
@@ -129,31 +133,25 @@ namespace wave.fs
             file.Data.Write(vm_notes, 0, vm_notes.Length);
         }
 
-        private void AddData(ElfFile file)
+
+        protected static void AddMetadata(ElfFile file, InsomniaAssemblyMetadata metadata)
         {
-            var code = Encoding.UTF8.GetBytes("the big string data; also foo string");
-            file.Sections.Add(new ElfSection
-            {
-                Name = file.Strings.SaveString(".bss"),
-                Type = ElfSectionType.NoBits,
-                Address = 0x800060,
-                Flags = ElfSectionFlags.Alloc | ElfSectionFlags.Writeable,
-                Size = (uint)code.Length,
-                Align = 1,
-                Offset = (uint)file.Data.Position
-            });
-            file.Segments.Add(new ElfSegment
-            {
-                Type = ElfSegmentType.Load,
-                Offset = (uint)file.Data.Position,
-                VirtualAddress = 0x800060,
-                PhysicalAddress = 0x800060,
-                FileSize = (uint)code.Length,
-                MemorySize = (uint)code.Length,
-                Flags = ElfSegmentFlags.Writeable | ElfSegmentFlags.Readable,
-                Align = 1,
-            });
-            file.Data.Write(code, 0, code.Length);
+            file.Strings.SaveString($".wasm-version::{metadata.Version}");
+            file.Strings.SaveString($".wasm-timestamp::{metadata.Timestamp.ToUnixTimeSeconds()}");
+            file.Strings.SaveString($".wasm-framework::{metadata.TargetFramework}");
+            file.Strings.SaveString($".other-len::{metadata.OtherMeta.Count}");
+            var index = 0;
+            foreach (var (k,v) in metadata.OtherMeta) 
+                file.Strings.SaveString($".other-{index++}::{k}\a{v}");
         }
+    }
+
+    public class InsomniaAssemblyMetadata
+    {
+        public Version Version { get; set; } = new (1, 0, 0, 0);
+        public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+        public string TargetFramework { get; set; } = "WaveStandard,Version=v1.0";
+
+        public Dictionary<string, string> OtherMeta { get; } = new();
     }
 }

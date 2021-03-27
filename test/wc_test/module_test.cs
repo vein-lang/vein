@@ -3,9 +3,9 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using wave;
-    using wave.emit;
-    using wave.fs;
+    using insomnia;
+    using insomnia.emit;
+    using insomnia.fs;
     using Xunit;
 
     public class module_test
@@ -76,7 +76,7 @@
             var deps = GetDeps();
             var module = WriteTest();
             var f = InsomniaAssembly.LoadFromFile("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
-            var (_, bytes) = f.sections.First();
+            var (_, bytes) = f.Sections.First();
 
             var result = ModuleReader.Read(bytes, deps);
             

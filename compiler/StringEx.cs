@@ -2,7 +2,7 @@
 using System.Drawing;
 using Pastel;
 
-namespace wave
+namespace insomnia
 {
     public static class StringEx
     {

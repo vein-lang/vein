@@ -1,4 +1,8 @@
-﻿namespace wave.project
+﻿using System;
+using insomnia.emit;
+using insomnia.fs;
+
+namespace insomnia.project
 {
     using System.Xml.Serialization;
     using System.Collections.Generic;
@@ -55,5 +59,42 @@
 
         public IEnumerable<FileInfo> Libs =>
             RootPath.EnumerateFiles("*.wll", SearchOption.AllDirectories);
+
+
+        public WaveModule ResolveDep(string name, Version version)
+        {
+            
+        }
+
+        private FileInfo FindModule(string name, Version version)
+        {
+            // first, find in sdk folders
+            var files = Libs.Where(x => x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase)).ToArray();
+
+            if (files.Any())
+                return files;
+
+            // second, find in application deps
+            files = _project.Packages.Where(x => x.Name.Equals(name));
+
+        }
+
+        private FileInfo FindModuleInSDK(string name, Version version)
+        {
+            try
+            {
+                var files = Libs.Where(x => x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase)).ToArray();
+
+                var assemblies = files.Select(x => 
+                    (x, InsomniaAssembly.LoadFromFile(x.FullName))).ToArray();
+
+                return assemblies.Single(x => x.Item2.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                                              && x.Item2.Version.Equals(version)).x;
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

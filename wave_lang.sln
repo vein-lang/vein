@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "projectsystem", "projectsys
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "project_system_test", "test\project_system_test\project_system_test.csproj", "{F6B36C4B-9F93-42D3-A3C1-D01A03AD3BCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "insomnia.common", "lib\insomnia.common\insomnia.common.csproj", "{EDC4287A-E55D-483A-A97B-13E275E3EC9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{F6B36C4B-9F93-42D3-A3C1-D01A03AD3BCC}.Release|x64.Build.0 = Release|Any CPU
 		{F6B36C4B-9F93-42D3-A3C1-D01A03AD3BCC}.Release|x86.ActiveCfg = Release|Any CPU
 		{F6B36C4B-9F93-42D3-A3C1-D01A03AD3BCC}.Release|x86.Build.0 = Release|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Debug|x64.Build.0 = Debug|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Debug|x86.Build.0 = Debug|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Release|x64.ActiveCfg = Release|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Release|x64.Build.0 = Release|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Release|x86.ActiveCfg = Release|Any CPU
+		{EDC4287A-E55D-483A-A97B-13E275E3EC9F}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

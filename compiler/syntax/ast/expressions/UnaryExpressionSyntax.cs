@@ -1,4 +1,4 @@
-﻿namespace wave.syntax
+﻿namespace insomnia.syntax
 {
     using System.Collections.Generic;
     using System.Text;

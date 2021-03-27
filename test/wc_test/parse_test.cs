@@ -2,9 +2,9 @@
 {
     using Sprache;
     using System.Linq;
-    using wave;
-    using wave.stl;
-    using wave.syntax;
+    using insomnia;
+    using insomnia.stl;
+    using insomnia.syntax;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -72,10 +72,9 @@
         [InlineData("b@b: int : int")]
         [InlineData("43534")]
         [InlineData("):s")]
-        public void ParameterDeclarationParseTestFail(string parseStr)
-        {
+        public void ParameterDeclarationParseTestFail(string parseStr) => 
             Assert.Throws<WaveParseException>(() => new WaveSyntax().ParameterDeclaration.ParseWave(parseStr));
-        }
+
         [Fact]
         public void OperationParametersAndBodyTest()
         {
@@ -94,19 +93,15 @@
             Assert.Equal(SyntaxType.ReturnStatement, d.Body.Statements.First().Kind);
         }
         [Fact]
-        public void QualifiedExpressionNewTest()
-        {
-            Wave.QualifiedExpression.ParseWave("new Foo()");
-        }
+        public void QualifiedExpressionNewTest() 
+            => Wave.QualifiedExpression.ParseWave("new Foo()");
 
         [Theory]
         [InlineData("foo: Type;")]
         [InlineData("[special] foo: Type;")]
         [InlineData("[special] public foo: Type;")]
-        public void FieldTest00(string str)
-        {
-            Wave.FieldDeclaration.ParseWave(str);
-        }
+        public void FieldTest00(string str) 
+            => Wave.FieldDeclaration.ParseWave(str);
 
         [Fact]
         public void InvalidTokenFieldParse()
@@ -233,15 +228,13 @@
             _logger.WriteLine($"type: {result.GetType()}");
         }
         [Fact]
-        public void FieldTest()
-        {
-            Wave.FieldDeclaration.ParseWave("public const MaxValue: Int16 = 32767;");
-        }
+        public void FieldTest() 
+            => Wave.FieldDeclaration.ParseWave("public const MaxValue: Int16 = 32767;");
+
         [Fact]
-        public void FieldWithAnnotationTest()
-        {
-            Wave.FieldDeclaration.ParseWave("[native] private _value: Int16;");
-        }
+        public void FieldWithAnnotationTest() 
+            => Wave.FieldDeclaration.ParseWave("[native] private _value: Int16;");
+
         [Fact]
         public void ExpressionTest()
         {
@@ -256,15 +249,14 @@
             Wave.MethodDeclaration.ParseWave(@"public EndsWith(value: Char): Boolean
             {
                 if (Length - 1 < Length)
-                    {return false;}
+                    return false;
                 return this == value;
             }");
         }
         [Fact]
         public void ReturnParseTest00()
         {
-            var result = Wave.Statement.ParseWave(@"return this == value;");
-            Assert.False(result.IsBrokenToken);
+            Assert.False(Wave.Statement.ParseWave(@"return this == value;").IsBrokenToken);
         }
         
         [Theory]
@@ -309,10 +301,7 @@
             }
         }
         [Fact]
-        public void AccessMemberTest()
-        {
-            Wave.QualifiedExpression.End().ParseWave(@"44.govno");
-        }
+        public void AccessMemberTest() => Wave.QualifiedExpression.End().ParseWave(@"44.govno");
 
         [Theory]
         [InlineData("new s()")] // new exp

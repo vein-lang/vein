@@ -1,4 +1,4 @@
-﻿namespace wave.syntax
+﻿namespace insomnia.syntax
 {
     public class ConstructorDeclarationSyntax : MethodDeclarationSyntax
     {
