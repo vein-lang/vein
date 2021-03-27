@@ -1,13 +1,14 @@
-﻿using System;
-using insomnia.emit;
-using insomnia.fs;
-
-namespace insomnia.project
+﻿namespace insomnia.project
 {
+    using System;
+    using emit;
+    using fs;
     using System.Xml.Serialization;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using @internal;
+    using MoreLinq;
     using Sprache;
     using static System.Environment;
     using static System.Environment.SpecialFolder;
@@ -69,13 +70,14 @@ namespace insomnia.project
         private FileInfo FindModule(string name, Version version)
         {
             // first, find in sdk folders
-            var files = Libs.Where(x => x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase)).ToArray();
+            var file = FindModuleInSDK(name, version);
 
-            if (files.Any())
-                return files;
 
-            // second, find in application deps
-            files = _project.Packages.Where(x => x.Name.Equals(name));
+            if (file is not null)
+                return file;
+
+            // second, find in rune cache
+            //files = _project.Packages.Where(x => x.Name.Equals(name));
 
         }
 
@@ -83,16 +85,24 @@ namespace insomnia.project
         {
             try
             {
-                var files = Libs.Where(x => x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase)).ToArray();
+                var files = Libs.Where(x => 
+                    x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase))
+                    .Pipe(x => Journal.logger.Information("[FindModuleInSDK] analyze file '{x}'.", x))
+                    .ToArray();
 
                 var assemblies = files.Select(x => 
-                    (x, InsomniaAssembly.LoadFromFile(x.FullName))).ToArray();
+                    (x, InsomniaAssembly.LoadFromFile(x.FullName)))
+                    .Pipe(x => Journal.logger
+                        .Information("[FindModuleInSDK] Loaded insomnia assembly '{Name}', '{Version}'.", 
+                            x.Item2.Name, x.Item2.Version))
+                    .ToArray();
 
                 return assemblies.Single(x => x.Item2.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
                                               && x.Item2.Version.Equals(version)).x;
             }
-            catch
+            catch (Exception e)
             {
+                Journal.logger.Error(e, "FindModuleInSDK has catch exception: {e}");
                 return null;
             }
         }

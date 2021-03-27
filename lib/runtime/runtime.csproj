@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
       <TargetFramework>net5.0</TargetFramework>
-      <RootNamespace>wave</RootNamespace>
-	  <Version>0.3.773</Version>
+      <RootNamespace>insomnia</RootNamespace>
+	  <Version>0.4.773</Version>
       <AssemblyName>insomnia.vm.runtime</AssemblyName>
       <PackageIconUrl>https://raw.githubusercontent.com/0xF6/wave_lang/master/ide_ext/vscode/images/icon.png</PackageIconUrl>
 	  <PackageProjectUrl>https://github.com/0xF6/wave_lang</PackageProjectUrl>
@@ -16,6 +16,11 @@
 	  <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+	<ItemGroup>
+		<SupportedPlatform Include="Linux" />
+		<SupportedPlatform Include="macOS" />
+		<SupportedPlatform Include="Windows" />
+	</ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\metadata\opcodes.def.cs" Link="reflection\opcodes.def.cs" />
     <Compile Include="..\..\metadata\opcodes.list.def.cs" Link="reflection\opcodes.list.def.cs" />
@@ -29,6 +34,8 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 	  </PackageReference>
-	  <PackageReference Include="morelinq" Version="3.3.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\insomnia.common\insomnia.common.csproj" />
   </ItemGroup>
 </Project>
