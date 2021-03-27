@@ -3,7 +3,9 @@ using insomnia.emit;
 
 [assembly: InternalsVisibleTo("wc_test")]
 [assembly: InternalsVisibleTo("wc")]
-[assembly: InternalsVisibleTo("Insomnia.Runtime.Transition")]
+[assembly: InternalsVisibleTo("insomnia.runtime.transition")]
+[assembly: InternalsVisibleTo("insomnia.common")]
+[assembly: InternalsVisibleTo("wave.project")]
 
 
 public static class RuntimeModule
