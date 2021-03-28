@@ -34,6 +34,8 @@
         } 
         
         public List<(string name, byte[] data)> Sections { get; set; } = new ();
+
+        private string DebugData = "";
         
         public void AddSegment((string name, byte[] data) seg) => Sections.Add(seg);
 
@@ -47,6 +49,7 @@
                 throw new NullReferenceException("Name of module has null.");
             Version = module.Version;
             this.AddSegment((".code", module.BakeByteArray()));
+            DebugData = module.BakeDebugString();
         }
 
 
@@ -154,6 +157,9 @@
             using var fs = File.Create(file);
             
             WriteElf(memory.ToArray(), fs, asm.metadata);
+
+            if (!string.IsNullOrEmpty(asm.DebugData)) 
+                File.WriteAllText($"{file}.wvil", asm.DebugData);
         }
     }
 }
