@@ -1,5 +1,6 @@
 ﻿namespace wc_test
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -16,7 +17,7 @@
             var list = new List<WaveModule>();
 
 
-            var stl = new WaveModuleBuilder("stl");
+            var stl = new WaveModuleBuilder("stl", new Version(2,3));
 
             foreach (var type in WaveCore.Types.All) 
                 stl.GetTypeConstant(type.FullName);
@@ -44,21 +45,19 @@
             return list;
         }
         [Fact]
-        public WaveModuleBuilder WriteTest()
+        public void WriteTest()
         {
-            var module = new WaveModuleBuilder("foo");
+            var ver = new Version(2, 2, 2, 2);
+            var module = new WaveModuleBuilder("blank", ver);
             module.Deps.AddRange(GetDeps());
 
 
-            var @class = module.DefineClass("foo%global::soo/baz");
+            var @class = module.DefineClass("blank%global::wave/lang/SR");
 
 
             @class.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = @class.DefineMethod("sat", MethodFlags.Public | MethodFlags.Static,
+            var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
                 WaveTypeCode.TYPE_VOID.AsType());
-
-            
-            @class.Fields.Add(new WaveField(@class, "baz.xuy", FieldFlags.Static, WaveTypeCode.TYPE_I4.AsType()));
 
             var gen = method.GetGenerator();
             
@@ -67,18 +66,20 @@
             module.BakeByteArray();
             module.BakeDebugString();
 
-            return module;
+            var blank = new InsomniaAssembly (module) { Name = "blank", Version = ver};
+            
+
+            InsomniaAssembly.WriteTo(blank, new DirectoryInfo("C:/wave-lang-temp"));
         }
         
         //[Fact]
         public void ReaderTest()
         {
             var deps = GetDeps();
-            var module = WriteTest();
             var f = InsomniaAssembly.LoadFromFile("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
             var (_, bytes) = f.Sections.First();
 
-            var result = ModuleReader.Read(bytes, deps);
+            var result = ModuleReader.Read(bytes, deps, null);
             
             
             Assert.Equal("foo", result.Name);
