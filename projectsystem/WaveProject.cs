@@ -74,11 +74,17 @@
 
             var asm = InsomniaAssembly.LoadFromFile(file);
 
-            Journal.logger.Error("[ResolveDep] Success load assembly {name}, {version}.", name, version);
+            Journal.logger.Information("[ResolveDep] Success load assembly {name}, {version}.", name, version);
 
             var bytes = asm.Sections.First();
 
-            var module = ModuleReader.Read(bytes.data)
+            var module = ModuleReader.Read(bytes.data, new List<WaveModule>(), ResolveDep);
+
+            Journal.logger.Information("[ResolveDep] Success load module {Name}, {Version}.", module.Name, module.Version);
+            Journal.logger.Information("[ResolveDep] Module {Name}, {Version} has contained '{Count}' classes.", 
+                module.Name, module.Version, module.classList.Count);
+
+            return module;
         }
 
         private FileInfo FindModule(string name, Version version)
