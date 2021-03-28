@@ -56,5 +56,8 @@
 
         internal WaveMethod FindMethod(string name) 
             => Methods.FirstOrDefault(method => method.Name == name);
+        
+        public override string ToString() 
+            => $"{FullName}, {Flags} ({Parent.FullName})";
     }
 }
