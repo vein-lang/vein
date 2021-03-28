@@ -28,21 +28,31 @@
 
     internal class ModuleReader : WaveModule
     {
-        public static ModuleReader Read(byte[] arr, List<WaveModule> deps)
+        public static ModuleReader Read(byte[] arr, List<WaveModule> deps, Func<string, Version, WaveModule> resolver)
         {
             var module = new ModuleReader();
             using var mem = new MemoryStream(arr);
             using var reader = new BinaryReader(mem);
             module.Deps.AddRange(deps);
 
-            var idx = reader.ReadInt32();
+            var idx = reader.ReadInt32(); // name index
+            var vdx = reader.ReadInt32(); // version index
             
+            // read deps refs
+            foreach (var _ in ..reader.ReadInt32())
+            {
+                var name = reader.ReadInsomniaString();
+                var ver = Version.Parse(reader.ReadInsomniaString());
+                var dep = resolver(name, ver);
+                module.Deps.Add(dep);
+            }
+            // read string storage
             foreach (var _ in ..reader.ReadInt32())
             {
                 var key = reader.ReadInt32();
                 module.strings.Add(key, reader.ReadInsomniaString());
             }
-
+            // read class storage
             foreach (var _ in ..reader.ReadInt32())
             {
                 var body = reader.ReadBytes(reader.ReadInt32());
@@ -51,6 +61,7 @@
             }
 
             module.Name = module.GetConstByIndex(idx);
+            module.Version = Version.Parse(module.GetConstByIndex(vdx));
 
             return module;
         }
@@ -58,7 +69,6 @@
 
         public static WaveClass DecodeClass(byte[] arr, ModuleReader module)
         {
-           
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
             var className = binary.ReadTypeName(module);
