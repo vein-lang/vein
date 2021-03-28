@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using extensions;
     using insomnia;
@@ -43,6 +44,8 @@
             {
                 var name = reader.ReadInsomniaString();
                 var ver = Version.Parse(reader.ReadInsomniaString());
+                if (module.Deps.Any(x => x.Version.Equals(ver) && x.Name.Equals(name))) 
+                    continue;
                 var dep = resolver(name, ver);
                 module.Deps.Add(dep);
             }
