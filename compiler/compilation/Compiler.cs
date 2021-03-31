@@ -123,10 +123,8 @@
 
             var asm_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{ProjectName}.wll"));
             var wil_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{ProjectName}.wvil.bin"));
-            var dbg_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{ProjectName}.wvil"));
 
             var wil_data = builder.BakeByteArray();
-            var dbg_data = builder.BakeDebugString();
 
 
             var asm = new InsomniaAssembly(builder);
@@ -134,7 +132,6 @@
             InsomniaAssembly.WriteTo(asm, asm_file.FullName);
 
             File.WriteAllBytes(wil_file.FullName, wil_data);
-            File.WriteAllText(dbg_file.FullName, dbg_data);
         }
 
 
@@ -327,7 +324,7 @@
             {
                 if (literal is NumericLiteralExpressionSyntax numeric)
                 {
-                    if (!field.FieldType.TypeCode.IsCompatibleNumber(numeric.GetTypeCode()))
+                    if (!field.FieldType.TypeCode.CanImplicitlyCast(numeric))
                     {
                         var diff_err = DiffErrorFull(literal.Transform, doc);
                         
