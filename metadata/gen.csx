@@ -101,7 +101,7 @@ void gen_cpp_def(StringBuilder builder)
 void gen_cs_def(StringBuilder builder)
 {
     builder.AppendLine(header);
-    builder.AppendLine("namespace wave \n{");
+    builder.AppendLine("namespace insomnia \n{");
     builder.AppendLine("\tpublic enum OpCodeValue : ushort \n\t{");
 
     foreach(var i in ops.Select((x, y) => (x.name, y)))
@@ -136,8 +136,8 @@ void gen_cs_props(StringBuilder builder)
     int CreateFlag(byte size, int flow, int chain) 
             => ((chain << 0xC) | 0x1F) | ((flow << 0x11) | 0x1F) | ((size << 0x16) | 0x1F);
     builder.AppendLine(header);
-    builder.AppendLine("namespace wave \n{");
-    builder.AppendLine("\tusing global::wave.runtime.emit;");
+    builder.AppendLine("namespace insomnia \n{");
+    builder.AppendLine("\tusing global::insomnia.runtime.emit;");
     builder.AppendLine("\tusing global::System.Collections.Generic;");
     builder.AppendLine("\tpublic static class OpCodes \n\t{");
     foreach(var i in ops.Select((x, y) => (x.name, y, x.override_size, get(x.flow), get(x.chain))))

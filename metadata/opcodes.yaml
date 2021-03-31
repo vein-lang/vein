@@ -35,7 +35,7 @@
     description: Return operation.
 - CALL:
     description: Call operation.
-    override-size: 17
+    override-size: 9
 - LDNULL:
     description: Load NULL into stack.
 - LDF:
@@ -52,7 +52,7 @@
     override-size: 4
 - LOC.INIT.X:
     description: (part of LOD.INIT) Initialization locals slot as derrived type.
-    override-size: 12
+    override-size: 4
 - DUP:
     description: Duplicate memory from stack.
 - XOR:
