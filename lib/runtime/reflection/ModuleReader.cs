@@ -79,8 +79,11 @@
             {
                 var body = reader.ReadBytes(reader.ReadInt32());
                 var @class = DecodeClass(body, module);
-                module.classList.Add(@class);
+                module.class_table.Add(@class);
             }
+
+            var const_body_len = reader.ReadInt32();
+            var const_body = reader.ReadBytes(const_body_len);
 
             module.Name = module.GetConstStringByIndex(idx);
             module.Version = Version.Parse(module.GetConstStringByIndex(vdx));
