@@ -13,6 +13,7 @@
     using extensions;
     using fs;
     using MoreLinq;
+    using project;
     using Sprache;
     using static Spectre.Console.AnsiConsole;
     using Console = System.Console;
@@ -28,9 +29,9 @@
 
     public class Compiler
     {
-        public static Compiler Process(FileInfo[] entity, string projectName, string projectDir)
+        public static Compiler Process(FileInfo[] entity, WaveProject project)
         {
-            var c = new Compiler(projectName, projectDir);
+            var c = new Compiler(project);
             
             return Status()
                 .Spinner(Spinner.Known.Dots8Bit)
@@ -50,14 +51,12 @@
                 });
         }
 
-        public Compiler(string projName, string projDir)
+        public Compiler(WaveProject project)
         {
-            ProjectName = projName;
-            ProjectDirectory = projDir;
+            Project = project;
         }
 
-        private string ProjectName { get; set; }
-        private string ProjectDirectory { get; set; }
+        private WaveProject Project { get; set; }
 
         private readonly WaveSyntax syntax = new();
         private StatusContext ctx;
@@ -95,7 +94,7 @@
                 }
             }
 
-            module = new WaveModuleBuilder(ProjectName);
+            module = new WaveModuleBuilder(Project.Name);
 
             Ast.Select(x => (x.Key, x.Value))
                 .Pipe(x => ctx.WaveStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
@@ -115,7 +114,7 @@
 
         public void WriteOutput(WaveModuleBuilder builder)
         {
-            var dirInfo = new DirectoryInfo(Path.Combine(ProjectDirectory, "bin"));
+            var dirInfo = new DirectoryInfo(Path.Combine(Project.WorkDir, "bin"));
 
             if (!dirInfo.Exists)
                 dirInfo.Create();
@@ -123,8 +122,8 @@
                 dirInfo.EnumerateFiles("*.*", SearchOption.AllDirectories).ForEach(x => x.Delete());
 
 
-            var asm_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{ProjectName}.wll"));
-            var wil_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{ProjectName}.wvil.bin"));
+            var asm_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{Project.Name}.wll"));
+            var wil_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{Project.Name}.wvil.bin"));
 
             var wil_data = builder.BakeByteArray();
 

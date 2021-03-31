@@ -1,8 +1,10 @@
 ﻿namespace insomnia.cmd
 {
+    using System;
     using System.IO;
     using System.Linq;
     using compilation;
+    using project;
     using Spectre.Console;
     using Spectre.Console.Cli;
     public class CompileSettings : CommandSettings
@@ -20,20 +22,20 @@
                 AnsiConsole.MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] not found.");
                 return -1;
             }
-
-            var directory = Path.GetDirectoryName(settings.Project);
-
-            var files = Directory.EnumerateFiles(directory, "*.wave", SearchOption.AllDirectories).ToArray();
-
-            if (!files.Any())
+            var project = WaveProject.LoadFrom(new(Path.GetFullPath(settings.Project)));
+            
+            if (!project.Sources.Any())
             {
                 AnsiConsole.MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] has empty.");
                 return -1;
             }
 
-            var projName = Path.GetFileNameWithoutExtension(settings.Project);
+            
+            
 
-            var c = Compiler.Process(files.Select(x => new FileInfo(x)).ToArray(), projName, Path.GetDirectoryName(settings.Project));
+            
+
+            var c = Compiler.Process(project.Sources.Select(x => new FileInfo(x)).ToArray(), project);
 
             if (c.errors.Count > 0)
             {

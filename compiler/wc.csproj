@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.4.1107</Version>
+    <Version>0.4.1111</Version>
     <AssemblyName>wc</AssemblyName>
     <RootNamespace>wave</RootNamespace>
 	<OutputType>Exe</OutputType>
@@ -32,5 +32,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\lib\runtime\runtime.csproj" />
+    <ProjectReference Include="..\projectsystem\projectsystem.csproj" />
   </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Xml;
     using @internal;
     using MoreLinq;
     using Sprache;
@@ -41,7 +42,11 @@
         public static WaveProject LoadFrom(FileInfo info)
         {
             var serializer = new XmlSerializer(typeof(XML.Project));
-            using var reader = new StreamReader(info.FullName);
+            using var stream = new StreamReader(info.FullName);
+            using var reader = new XmlTextReader(stream)
+            {
+                Namespaces = false
+            };
             var p = (XML.Project)serializer.Deserialize(reader);
             return new WaveProject(info, p);
         }

@@ -17,7 +17,7 @@
             [XmlElement(ElementName="ref")]
             public List<RefBlock> Ref { get; set; }
         }
-        [XmlRoot(ElementName="project")]
+        [XmlRoot(ElementName="project", Namespace = "")]
         public class Project 
         {
             [XmlElement(ElementName="target")]
