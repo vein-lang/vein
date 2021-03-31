@@ -1,4 +1,4 @@
-namespace insomnia.compilation
+﻿namespace insomnia.compilation
 {
     using emit;
     using Spectre.Console;
@@ -375,6 +375,12 @@ namespace insomnia.compilation
                 }
 
                 var converter = field.GetConverter();
+
+                if (assigner is UnaryExpressionSyntax { OperatorType: ExpressionType.Negate } negate)
+                    module.WriteToConstStorage(field.FullName, converter(negate.ExpressionString.Trim('(', ')'))); // shit
+                else
+                    module.WriteToConstStorage(field.FullName, converter(assigner.ExpressionString));
+
             }
             
         }
