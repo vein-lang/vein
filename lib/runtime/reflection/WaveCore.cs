@@ -21,6 +21,7 @@
                 FloatType,
                 DoubleType,
                 DecimalType,
+                HalfType,
                 CharType,
                 BoolType,
                 ArrayType,
