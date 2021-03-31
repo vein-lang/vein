@@ -7,7 +7,7 @@
     public class WaveModule
     {
         public string Name { get; protected set; }
-        public Version Version { get; protected set; }
+        public Version Version { get; protected set; } = new Version(1, 0, 0, 0);
         protected internal readonly List<WaveClass> classList = new();
         protected internal List<WaveModule> Deps { get; set; } = new();
         protected internal ConstStorage constStorage { get; set; } = new();
