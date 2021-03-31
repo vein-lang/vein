@@ -34,6 +34,8 @@
                         throw new Exception($"FieldName by index '{index}' not found in '{module.Name}' module.");
             return value;
         }
+        
+        public override string ToString() => $"{Class}.{Name}";
     }
     [DebuggerDisplay("{ToString()}")]
     public class WaveField : WaveMember
