@@ -1,4 +1,4 @@
-namespace insomnia.emit
+﻿namespace insomnia.emit
 {
     using System;
     using System.Collections.Generic;
@@ -174,6 +174,10 @@ namespace insomnia.emit
                 binary.Write(body.Length);
                 binary.Write(body);
             }
+
+            var constBody = const_table.BakeByteArray();
+            binary.Write(constBody.Length);
+            binary.Write(constBody);
 
             return mem.ToArray();
         }
