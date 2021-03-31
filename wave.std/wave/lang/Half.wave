@@ -25,7 +25,9 @@ public struct Half : ValueType
     **/
     [special]
     public get_Epsilon(): Half
-        |> 5.9604645e-08h;
+    {
+        return 5.9604645e-08h;
+    }
     /**
         Represents positive infinity.
     **/
