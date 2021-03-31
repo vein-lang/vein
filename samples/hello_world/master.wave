@@ -1,0 +1,10 @@
+#space "hello"
+
+
+public class Program
+{
+    public static Master(args: string[]): void
+    {
+        Out.print("Fuck you.");
+    }
+}

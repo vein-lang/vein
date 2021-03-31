@@ -1,0 +1,6 @@
+<project sdk="wave">
+    <target>hello_world</target>
+    <packages>
+        <ref name="wcorlib"/>
+    <packages/>
+</project>
