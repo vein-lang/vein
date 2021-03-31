@@ -4,17 +4,22 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Text;
+    using Serilog;
 
     public class ConstStorage : IBaker
     {
         private readonly Dictionary<FieldName, object> storage = new();
 
+        private ILogger logger => Journal.Get(nameof(ConstStorage));
+
         public void Stage(FieldName name, object o)
         {
             var type = o.GetType();
 
-            if (!type.IsPrimitive)
+            if (!type.IsPrimitive && type != typeof(string) && type != typeof(Half) /* why half is not primitive?... why...*/)
                 throw new ConstCannotUseNonPrimitiveTypeException(name, type);
+
+            logger.Information("Staged [{name}, {o}] into constant table.", name, o);
             storage.Add(name, o);
         }
 
@@ -28,6 +33,9 @@
             {
                 switch (Type.GetTypeCode(value.GetType()))
                 {
+                    case TypeCode.Object when value is Half hf:
+                        bin.Write((float)hf);
+                        break;
                     case TypeCode.Empty:
                     case TypeCode.Object:
                     case TypeCode.DateTime:
