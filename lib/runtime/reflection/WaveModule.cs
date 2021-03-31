@@ -7,16 +7,15 @@
     public class WaveModule
     {
         public string Name { get; protected set; }
-        public Version Version { get; protected set; } = new Version(1, 0, 0, 0);
-        protected internal readonly List<WaveClass> classList = new();
+        public Version Version { get; protected set; } = new (1, 0, 0, 0);
         protected internal List<WaveModule> Deps { get; set; } = new();
-        protected internal ConstStorage constStorage { get; set; } = new();
 
         internal WaveModule(string name) => Name = name;
         internal WaveModule(string name, Version ver) => (Name, Version) = (name, ver);
 
 
-
+        protected internal ConstStorage const_table { get; set; } = new();
+        protected internal readonly List<WaveClass> class_table = new();
         protected internal readonly Dictionary<int, string> strings_table = new();
         protected internal readonly Dictionary<int, QualityTypeName> types_table = new();
         protected internal readonly Dictionary<int, FieldName> fields_table = new();
@@ -54,7 +53,7 @@
         /// <exception cref="TypeNotFoundException"></exception>
         public WaveType FindType(string typename, List<string> includes)
         {
-            var result = classList.Where(x => includes.Contains(x.FullName.Namespace)).
+            var result = class_table.Where(x => includes.Contains(x.FullName.Namespace)).
                 FirstOrDefault(x => x.Name.Equals(typename))?.AsType();
             if (result is not null)
                 return result;
@@ -77,8 +76,8 @@
         {
             bool filter(WaveClass x) => x!.FullName.Equals(type);
             if (!findExternally)
-                return classList.First(filter).AsType();
-            var result = classList.FirstOrDefault(filter)?.AsType();
+                return class_table.First(filter).AsType();
+            var result = class_table.FirstOrDefault(filter)?.AsType();
             if (result is not null)
                 return result;
             
@@ -93,9 +92,9 @@
         }
 
         internal void WriteToConstStorage<T>(FieldName field, T value) 
-            => constStorage.Stage(field, value);
+            => const_table.Stage(field, value);
 
         public T ReadFromConstStorage<T>(FieldName field)
-            => (T)constStorage.Get(field);
+            => (T)const_table.Get(field);
     }
 }
