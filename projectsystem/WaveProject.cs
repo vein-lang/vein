@@ -56,13 +56,13 @@
         public string Name => _project._project.Sdk;
 
         public DirectoryInfo RootPath => 
-            new (Path.Combine(GetFolderPath(CommonProgramFilesX86), "WaveLang", "sdk", "0.1-preview"));
+            new (Path.Combine(GetFolderPath(ProgramFilesX86), "WaveLang", "sdk", "0.1-preview"));
 
         public IEnumerable<FileInfo> Libs =>
             RootPath.EnumerateFiles("*.wll", SearchOption.AllDirectories);
 
 
-        public WaveModule ResolveDep(string name, Version version)
+        public WaveModule ResolveDep(string name, Version version, List<WaveModule> deps)
         {
             var file = FindModule(name, version);
 
@@ -78,7 +78,7 @@
 
             var bytes = asm.Sections.First();
 
-            var module = ModuleReader.Read(bytes.data, new List<WaveModule>(), ResolveDep);
+            var module = ModuleReader.Read(bytes.data, deps, (x,z) => ResolveDep(x,z,deps));
 
             Journal.logger.Information("[ResolveDep] Success load module {Name}, {Version}.", module.Name, module.Version);
             Journal.logger.Information("[ResolveDep] Module {Name}, {Version} has contained '{Count}' classes.", 

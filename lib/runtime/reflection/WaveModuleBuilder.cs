@@ -1,15 +1,18 @@
 ﻿namespace insomnia.emit
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Security;
     using System.Text;
     using exceptions;
     using MoreLinq;
+    using Serilog;
 
     public class WaveModuleBuilder : WaveModule, IBaker
     {
+        private ILogger logger => Journal.Get(nameof(WaveModule));
+
         public WaveModuleBuilder(string name) : base(name) {}
         public WaveModuleBuilder(string name, Version ver) : base(name, ver) { }
 
@@ -52,59 +55,69 @@
         /// </summary>
         public ClassBuilder DefineClass(QualityTypeName name)
         {
-            GetStringConstant(name.Name);
-            GetStringConstant(name.Namespace);
+            InternString(name.Name);
+            InternString(name.Namespace);
+            InternString(name.AssemblyName);
             var c = new ClassBuilder(this, name);
             classList.Add(c);
             return c;
         }
+
+        private int _intern<T>(Dictionary<int, T> storage, T val)
+        {
+            var (key, value) = storage.FirstOrDefault(x => x.Value.Equals(val));
+
+            if (value is not null)
+                return key;
+            
+            storage[key = storage.Count] = val;
+            return key;
+        }
+
         /// <summary>
         /// Intern string constant into module storage and return string index.
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="StringCollisionException"></exception>
-        public int GetStringConstant(string str)
+        public int InternString(string str)
         {
             if (str == null)
                 throw new ArgumentNullException(nameof (str));
-            var key = getHashCode(str);
-            if (!strings.ContainsKey(key))
-                strings[key] = str;
-            if (strings[key] != str)
-                throw new StringCollisionException(str, strings[key]);
+            var key = _intern(strings_table, str);
+
+
+            logger.Information($"String constant '{str}' baked by index: {key}");
             return key;
         }
         /// <summary>
         /// Intern TypeName constant into module storage and return TypeName index.
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="StringCollisionException"></exception>
-        public long GetTypeConstant(QualityTypeName name)
+        public int InternTypeName(QualityTypeName name)
         {
-            var i1 = GetStringConstant(name.Namespace);
-            var i2 = GetStringConstant(name.Name);
-            long b = i2;
-            b <<= 32;
-            b |= (uint)i1;
-            return b;
+            if (name == null)
+                throw new ArgumentNullException(nameof (name));
+            var key = _intern(types_table, name);
+
+            logger.Information($"TypeName '{name}' baked by index: {key}");
+            return key;
         }
         /// <summary>
         /// Intern FieldName constant into module storage and return FieldName index.
         /// </summary>
         /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="StringCollisionException"></exception>
-        public long GetTypeConstant(FieldName name)
+        public int InternFieldName(FieldName name)
         {
-            var i1 = GetStringConstant(name.Class);
-            var i2 = GetStringConstant(name.Name);
-            long b = i2;
-            b <<= 32;
-            b |= (uint)i1;
-            return b;
+            if (name == null)
+                throw new ArgumentNullException(nameof (name));
+
+            var key = _intern(fields_table, name);
+
+            logger.Information($"FieldName '{name}' baked by index: {key}");
+            return key;
         }
         
         internal (int, QualityTypeName) GetMethodToken(WaveMethod method) => 
-            (this.GetStringConstant(method.Name), method.Owner.FullName);
+            (this.InternString(method.Name), method.Owner.FullName);
         /// <summary>
         /// Bake result into il byte code.
         /// </summary>
@@ -116,11 +129,34 @@
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
 
-            var idx = GetStringConstant(Name);
-            var vdx = GetStringConstant(Version.ToString());
+            var idx = InternString(Name);
+            var vdx = InternString(Version.ToString());
 
             binary.Write(idx);
             binary.Write(vdx);
+
+
+            binary.Write(strings_table.Count);
+            foreach (var (key, value) in strings_table)
+            {
+                binary.Write(key);
+                binary.WriteInsomniaString(value);
+            }
+            binary.Write(types_table.Count);
+            foreach (var (key, value) in types_table)
+            {
+                binary.Write(key);
+                binary.WriteInsomniaString(value.AssemblyName);
+                binary.WriteInsomniaString(value.Namespace);
+                binary.WriteInsomniaString(value.Name);
+            }
+            binary.Write(fields_table.Count);
+            foreach (var (key, value) in fields_table)
+            {
+                binary.Write(key);
+                binary.WriteInsomniaString(value.Name);
+                binary.WriteInsomniaString(value.Class);
+            }
 
             binary.Write(Deps.Count);
             foreach (var dep in Deps)
@@ -129,13 +165,6 @@
                 binary.WriteInsomniaString(dep.Version.ToString());
             }
 
-
-            binary.Write(strings.Count);
-            foreach (var (key, value) in strings)
-            {
-                binary.Write(key);
-                binary.WriteInsomniaString(value);
-            }
             binary.Write(classList.Count);
             foreach (var clazz in classList.OfType<IBaker>())
             {
@@ -156,38 +185,24 @@
             str.AppendLine("{");
             foreach (var dep in Deps)
                 str.AppendLine($"\t.dep '{dep.Name}'::'{dep.Version}'");
-            foreach (var (key, value) in strings) 
-                str.AppendLine($"\t.string 0x{key:X8}.'{value}'");
+
+            str.AppendLine("\n\t.table const");
+            str.AppendLine("\t{");
+            foreach (var (key, value) in strings_table) 
+                str.AppendLine($"\t\t.s {key:D6}.'{value}'");
+
+            foreach (var (key, value) in types_table) 
+                str.AppendLine($"\t\t.t {key:D6}.'{value}'");
+
+            foreach (var (key, value) in fields_table) 
+                str.AppendLine($"\t\t.f {key:D6}.'{value}'");
+            str.AppendLine("\t}\n");
+
             foreach (var clazz in classList.OfType<IBaker>().Select(x => x.BakeDebugString()))
                 str.AppendLine($"{clazz.Split('\n').Select(x => $"\t{x}").Join('\n')}");
             str.AppendLine("}");
 
             return str.ToString();
-        }
-        
-        
-        [SecurityCritical]
-        private static unsafe int getHashCode(string str)
-        {
-            fixed (char* chPtr1 = str)
-            {
-                var num1 = 0x1505; 
-                var num2 = num1;
-                var chPtr2 = chPtr1;
-                int num3;
-                while ((num3 = *chPtr2) != 0)
-                {
-                    num1 = (num1 << 5) + num1 ^ num3;
-                    var num4 = (int) chPtr2[1];
-                    if (num4 != 0)
-                    {
-                        num2 = (num2 << 5) + num2 ^ num4;
-                        chPtr2 += 2;
-                    }
-                    else break;
-                }
-                return num1 + num2 * 0x5D588B65;
-            }
         }
     }
 }

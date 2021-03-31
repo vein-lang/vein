@@ -8,7 +8,6 @@
     {
         public string Name { get; protected set; }
         public Version Version { get; protected set; }
-        protected internal readonly Dictionary<int, string> strings = new();
         protected internal readonly List<WaveClass> classList = new();
         protected internal List<WaveModule> Deps { get; set; } = new();
         protected internal ConstStorage constStorage { get; set; } = new();
@@ -16,13 +15,24 @@
         internal WaveModule(string name) => Name = name;
         internal WaveModule(string name, Version ver) => (Name, Version) = (name, ver);
 
-        /// <summary>
-        /// Get interned string from storage by index.
-        /// </summary>
-        /// <exception cref="AggregateException"></exception>
-        public string GetConstByIndex(int index) 
-            => strings.GetValueOrDefault(index) ?? 
-               throw new AggregateException($"Index '{index}' not found in module '{Name}'.");
+
+
+        protected internal readonly Dictionary<int, string> strings_table = new();
+        protected internal readonly Dictionary<int, QualityTypeName> types_table = new();
+        protected internal readonly Dictionary<int, FieldName> fields_table = new();
+
+        public string GetConstStringByIndex(int index) =>
+            strings_table.GetValueOrDefault(index) ?? 
+            throw new AggregateException($"String by index  '{index}' not found in module '{Name}'.");
+
+        public QualityTypeName GetTypeNameByIndex(int index) =>
+            types_table.GetValueOrDefault(index) ?? 
+            throw new AggregateException($"TypeName by index '{index}' not found in module '{Name}'.");
+
+        public FieldName GetFieldNameByIndex(int index) =>
+            fields_table.GetValueOrDefault(index) ?? 
+            throw new AggregateException($"FieldName by index '{index}' not found in module '{Name}'.");
+
 
         /// <summary>
         /// Try find type by name (without namespace) with namespace includes.

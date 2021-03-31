@@ -7,6 +7,7 @@
     using insomnia;
     using insomnia.emit;
     using insomnia.fs;
+    using insomnia.project;
     using Xunit;
 
     public class module_test
@@ -20,23 +21,23 @@
             var stl = new WaveModuleBuilder("stl", new Version(2,3));
 
             foreach (var type in WaveCore.Types.All) 
-                stl.GetTypeConstant(type.FullName);
+                stl.InternTypeName(type.FullName);
             foreach (var type in WaveCore.All)
             {
-                stl.GetTypeConstant(type.FullName);
-                stl.GetStringConstant(type.Name);
-                stl.GetStringConstant(type.Path);
+                stl.InternTypeName(type.FullName);
+                stl.InternString(type.Name);
+                stl.InternString(type.Path);
                 foreach (var field in type.Fields)
                 {
-                    stl.GetTypeConstant(field.FullName);
-                    stl.GetStringConstant(field.Name);
+                    stl.InternFieldName(field.FullName);
+                    stl.InternString(field.Name);
                 }
                 foreach (var method in type.Methods)
                 {
-                    stl.GetStringConstant(method.Name);
+                    stl.InternString(method.Name);
                     foreach (var argument in method.Arguments)
                     {
-                        stl.GetStringConstant(argument.Name);
+                        stl.InternString(argument.Name);
                     }
                 }
                 stl.classList.Add(type);
@@ -47,39 +48,77 @@
         [Fact]
         public void WriteTest()
         {
-            var ver = new Version(2, 2, 2, 2);
-            var module = new WaveModuleBuilder("blank", ver);
-            module.Deps.AddRange(GetDeps());
+            var verSR = new Version(2, 2, 2, 2);
+            var moduleSR = new WaveModuleBuilder("blank", verSR);
+            {
+                moduleSR.Deps.AddRange(GetDeps());
 
 
-            var @class = module.DefineClass("blank%global::wave/lang/SR");
+                var @class = moduleSR.DefineClass("blank%global::wave/lang/SR");
 
 
-            @class.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                WaveTypeCode.TYPE_VOID.AsType());
+                @class.Flags = ClassFlags.Public | ClassFlags.Static;
+                var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
+                    WaveTypeCode.TYPE_VOID.AsType());
 
-            var gen = method.GetGenerator();
+                var gen = method.GetGenerator();
             
-            gen.Emit(OpCodes.NOP);
+                gen.Emit(OpCodes.NOP);
 
-            module.BakeByteArray();
-            module.BakeDebugString();
+                moduleSR.BakeByteArray();
+                moduleSR.BakeDebugString();
 
-            var blank = new InsomniaAssembly (module) { Name = "blank", Version = ver};
+                var blank = new InsomniaAssembly (moduleSR) { Name = "blank", Version = verSR};
             
 
-            InsomniaAssembly.WriteTo(blank, new DirectoryInfo("C:/wave-lang-temp"));
+                InsomniaAssembly.WriteTo(blank, new DirectoryInfo("C:/wave-lang-temp"));
+            }
+
+
+            {
+                var ver = new Version(2, 2, 2, 2);
+                var module = new WaveModuleBuilder("aspera", ver);
+                module.Deps.AddRange(GetDeps());
+
+
+                var @class = module.DefineClass("aspera%global::wave/lang/DR");
+
+
+                @class.Flags = ClassFlags.Public | ClassFlags.Static;
+                var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
+                    WaveTypeCode.TYPE_VOID.AsType());
+
+                var gen = method.GetGenerator();
+            
+                gen.Emit(OpCodes.NOP);
+
+                module.BakeByteArray();
+                module.BakeDebugString();
+
+                module.Deps.Add(moduleSR);
+
+                var blank = new InsomniaAssembly (module) { Name = "aspera", Version = ver};
+            
+
+                InsomniaAssembly.WriteTo(blank, new DirectoryInfo("C:/wave-lang-temp"));
+            }
         }
         
-        //[Fact]
+        [Fact]
         public void ReaderTest()
         {
             var deps = GetDeps();
-            var f = InsomniaAssembly.LoadFromFile("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
+            var f = InsomniaAssembly.LoadFromFile(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\std\aspera.wll");
             var (_, bytes) = f.Sections.First();
 
-            var result = ModuleReader.Read(bytes, deps, null);
+            var sdk = new WaveSDK(new WaveProject(new FileInfo(@"C:\wave-lang-temp\foo.ww"), new XML.Project()
+            {
+                Sdk = "default"
+            }));
+
+            
+
+            var result = ModuleReader.Read(bytes, deps, (x,z) => sdk.ResolveDep(x,z,deps));
             
             
             Assert.Equal("foo", result.Name);

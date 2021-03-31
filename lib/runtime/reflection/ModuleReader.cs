@@ -38,6 +38,31 @@
 
             var idx = reader.ReadInt32(); // name index
             var vdx = reader.ReadInt32(); // version index
+           
+            // read strings table
+            foreach (var _ in ..reader.ReadInt32())
+            {
+                var key = reader.ReadInt32();
+                var value = reader.ReadInsomniaString();
+                module.strings_table.Add(key, value);
+            }
+            // read types table
+            foreach (var _ in ..reader.ReadInt32())
+            {
+                var key = reader.ReadInt32();
+                var asmName = reader.ReadInsomniaString();
+                var ns = reader.ReadInsomniaString();
+                var name = reader.ReadInsomniaString();
+                module.types_table.Add(key, new QualityTypeName(asmName, name, ns));
+            }
+            // read fields table
+            foreach (var _ in ..reader.ReadInt32())
+            {
+                var key = reader.ReadInt32();
+                var name = reader.ReadInsomniaString();
+                var clazz = reader.ReadInsomniaString();
+                module.fields_table.Add(key, new FieldName(name, clazz));
+            }
             
             // read deps refs
             foreach (var _ in ..reader.ReadInt32())
@@ -49,12 +74,6 @@
                 var dep = resolver(name, ver);
                 module.Deps.Add(dep);
             }
-            // read string storage
-            foreach (var _ in ..reader.ReadInt32())
-            {
-                var key = reader.ReadInt32();
-                module.strings.Add(key, reader.ReadInsomniaString());
-            }
             // read class storage
             foreach (var _ in ..reader.ReadInt32())
             {
@@ -63,8 +82,8 @@
                 module.classList.Add(@class);
             }
 
-            module.Name = module.GetConstByIndex(idx);
-            module.Version = Version.Parse(module.GetConstByIndex(vdx));
+            module.Name = module.GetConstStringByIndex(idx);
+            module.Version = Version.Parse(module.GetConstStringByIndex(vdx));
 
             return module;
         }
@@ -101,7 +120,7 @@
         {
             foreach (var _ in ..binary.ReadInt32())
             {
-                var name = FieldName.Construct(binary.ReadInt64(), module);
+                var name = FieldName.Resolve(binary.ReadInt32(), module);
                 var type_name = binary.ReadTypeName(module);
                 var type = module.FindType(type_name, true);
                 var flags = (FieldFlags) binary.ReadByte();
@@ -123,7 +142,7 @@
             var retType = binary.ReadTypeName(module);
             var args = ReadArguments(binary, module);
             var _ = binary.ReadBytes(bodysize);
-            return new WaveMethod(module.GetConstByIndex(idx), flags,
+            return new WaveMethod(module.GetConstStringByIndex(idx), flags,
                 module.FindType(retType, true), 
                 @class, args.ToArray());
         }
@@ -139,7 +158,7 @@
                 var type = binary.ReadTypeName(module);
                 args.Add(new WaveArgumentRef()
                 {
-                    Name = module.GetConstByIndex(nIdx),
+                    Name = module.GetConstStringByIndex(nIdx),
                     Type = module.FindType(type, true)
                 });
             }

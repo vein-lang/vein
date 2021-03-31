@@ -50,7 +50,7 @@
             Methods.Add(ctor);
 
             if (this is ClassBuilder builder) 
-                builder.moduleBuilder.GetStringConstant(ctor.Name);
+                builder.moduleBuilder.InternString(ctor.Name);
             return ctor;
         }
 

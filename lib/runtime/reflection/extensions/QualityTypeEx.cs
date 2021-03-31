@@ -1,37 +1,32 @@
 ﻿namespace insomnia.emit.extensions
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
 
     public static class QualityTypeEx
     {
         public static QualityTypeName ReadTypeName(this BinaryReader bin, WaveModule module)
         {
-            var asmIdx = bin.ReadInt32();
-            var nameIdx = bin.ReadInt32();
-            var nsIdx = bin.ReadInt32();
+            var typeIndex = bin.ReadInt32();
             
-            return QualityTypeName.Construct(asmIdx, nameIdx, nsIdx, module);
+            return module.types_table.GetValueOrDefault(typeIndex) ?? 
+                   throw new Exception($"TypeName by index '{typeIndex}' not found in '{module.Name}' module.");
         }
         
         public static void WriteTypeName(this BinaryWriter bin, QualityTypeName type, WaveModuleBuilder module)
         {
-            bin.Write(module.GetStringConstant(type.AssemblyName));
-            bin.Write(module.GetStringConstant(type.Name));
-            bin.Write(module.GetStringConstant(type.Namespace));
+            var key = module.InternTypeName(type);
+
+            bin.Write(key);
         }
         
         public static void PutTypeName(this ILGenerator gen, QualityTypeName type)
         {
-            Func<string, int> getConst = gen._methodBuilder.moduleBuilder.GetStringConstant;
+            Func<QualityTypeName, int> getConst = gen._methodBuilder.moduleBuilder.InternTypeName;
 
-            var asmIdx = getConst(type.AssemblyName);
-            var nameIdx = getConst(type.Name);
-            var nsIdx = getConst(type.Namespace);
-            
-            gen.PutInteger4(asmIdx);
-            gen.PutInteger4(nameIdx);
-            gen.PutInteger4(nsIdx);
+            var key = getConst(type);
+            gen.PutInteger4(key);
         }
     }
 }

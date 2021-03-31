@@ -19,7 +19,7 @@
         {
             classBuilder = clazz;
             _generator = new ILGenerator(this);
-            clazz.moduleBuilder.GetStringConstant(Name);
+            clazz.moduleBuilder.InternString(Name);
         }
         /// <summary>
         /// Get body <see cref="ILGenerator"/>.
@@ -30,7 +30,7 @@
         /// </summary>
         public byte[] BakeByteArray()
         {
-            var idx = classBuilder.moduleBuilder.GetStringConstant(Name);
+            var idx = classBuilder.moduleBuilder.InternString(Name);
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
             if (Flags.HasFlag(MethodFlags.Extern))
@@ -65,7 +65,7 @@
             binary.Write(ArgLength);
             foreach (var argument in Arguments)
             {
-                binary.Write(moduleBuilder.GetStringConstant(argument.Name));
+                binary.Write(moduleBuilder.InternString(argument.Name));
                 binary.WriteTypeName(argument.Type.FullName, moduleBuilder);
             }
         }

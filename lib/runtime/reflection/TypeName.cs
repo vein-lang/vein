@@ -48,13 +48,6 @@
         
         public QualityTypeName(string asmName, string name, string ns) : this($"{asmName}%{ns}/{name}") { }
         
-        public static QualityTypeName Construct(in int asmIdx, in int nameIdx, in int namespaceIdx, WaveModule module) 
-            => new(
-                module.GetConstByIndex(asmIdx), 
-                module.GetConstByIndex(nameIdx), 
-                module.GetConstByIndex(namespaceIdx));
-        
-        
         public static implicit operator QualityTypeName(string name)
         {
             if (!Regex.IsMatch(name, @"(.+)\%global::(.+)\/(.+)"))

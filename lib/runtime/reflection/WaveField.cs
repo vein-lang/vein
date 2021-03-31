@@ -1,6 +1,7 @@
 ﻿namespace insomnia.emit
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -26,12 +27,13 @@
 
         public static FieldName Construct(WaveClass owner, string name) 
             => new(name, owner.FullName.Name);
-        
-        public static FieldName Construct(in int nameIdx, in int classIdx, WaveModule module) 
-            => new(module.GetConstByIndex(nameIdx), module.GetConstByIndex(classIdx));
-        public static FieldName Construct(in long fullIdx, WaveModule module) 
-            => new(module.GetConstByIndex((int)(fullIdx >> 32)), 
-                module.GetConstByIndex((int)(fullIdx & uint.MaxValue)));
+
+        public static FieldName Resolve(int index, WaveModule module)
+        {
+            var value = module.fields_table.GetValueOrDefault(index) ??
+                        throw new Exception($"FieldName by index '{index}' not found in '{module.Name}' module.");
+            return value;
+        }
     }
     [DebuggerDisplay("{ToString()}")]
     public class WaveField : WaveMember

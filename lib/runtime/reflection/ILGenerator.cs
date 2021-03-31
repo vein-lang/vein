@@ -120,7 +120,7 @@
             var token = _methodBuilder
                 .classBuilder
                 .moduleBuilder
-                .GetStringConstant(str);
+                .InternString(str);
             this.EnsureCapacity<OpCode>(sizeof(int));
             InternalEmit(opcode);
             PutInteger4(token);
@@ -205,7 +205,7 @@
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
             var size = locals.Count();
             
-            this.EnsureCapacity<OpCode>(sizeof(int) + (((sizeof(int) * 3)+sizeof(ushort)) * size));
+            this.EnsureCapacity<OpCode>(sizeof(int) + (sizeof(int) + sizeof(ushort)) * size);
             this.InternalEmit(opcode);
             this.PutInteger4(size);
             foreach(var t in locals)
@@ -236,7 +236,10 @@
             if (opcode != OpCodes.CALL)
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
             var (tokenIdx, ownerIdx) = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
-            this.EnsureCapacity<OpCode>(sizeof(byte) + sizeof(int) + (sizeof(int) * 3));
+            this.EnsureCapacity<OpCode>(
+                sizeof(byte) /*CallContext */ + 
+                sizeof(int) /* tokenIdx */ + 
+                sizeof(int) /* ownerIdx */);
             this.InternalEmit(opcode);
             
             if (method.Owner.FullName == this._methodBuilder.Owner.FullName)

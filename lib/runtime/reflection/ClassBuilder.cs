@@ -42,7 +42,7 @@
         /// </remarks>
         public MethodBuilder DefineMethod(string name, WaveType returnType, params WaveArgumentRef[] args)
         {
-            moduleBuilder.GetStringConstant(name);
+            moduleBuilder.InternString(name);
             var method = new MethodBuilder(this, name, returnType, args);
             Methods.Add(method);
             return method;
@@ -69,7 +69,7 @@
         public WaveField DefineField(string name, FieldFlags flags, WaveType fieldType)
         {
             var field = new WaveField(this, new FieldName(name, this.Name), flags, fieldType);
-            moduleBuilder.GetTypeConstant(field.FullName);
+            moduleBuilder.InternFieldName(field.FullName);
             Fields.Add(field);
             return field;
         }
@@ -93,7 +93,7 @@
             binary.Write(Fields.Count);
             foreach (var field in Fields)
             {
-                binary.Write(moduleBuilder.GetTypeConstant(field.FullName));
+                binary.Write(moduleBuilder.InternFieldName(field.FullName));
                 binary.WriteTypeName(field.FieldType.FullName, moduleBuilder);
                 binary.Write((short)field.Flags);
                 binary.WriteLiteralValue(field);
