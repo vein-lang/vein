@@ -2,7 +2,7 @@
   <PropertyGroup>
       <TargetFramework>net5.0</TargetFramework>
       <RootNamespace>insomnia</RootNamespace>
-	  <Version>0.4.794</Version>
+	  <Version>0.4.802</Version>
       <AssemblyName>insomnia.vm.runtime</AssemblyName>
       <PackageIconUrl>https://raw.githubusercontent.com/0xF6/wave_lang/master/ide_ext/vscode/images/icon.png</PackageIconUrl>
 	  <PackageProjectUrl>https://github.com/0xF6/wave_lang</PackageProjectUrl>

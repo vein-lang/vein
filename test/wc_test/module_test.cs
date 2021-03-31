@@ -121,18 +121,14 @@
             var result = ModuleReader.Read(bytes, deps, (x,z) => sdk.ResolveDep(x,z,deps));
             
             
-            Assert.Equal("foo", result.Name);
+            Assert.Equal("aspera", result.Name);
             Assert.NotEmpty(result.classList);
             var @class = result.classList.First();
-            Assert.Equal("baz", @class.Name);
-            Assert.Equal("foo%global::soo/baz", @class.FullName.fullName);
-            Assert.NotEmpty(@class.Fields);
+            Assert.Equal("DR", @class.Name);
+            Assert.Equal("aspera%global::wave/lang/DR", @class.FullName.fullName);
             Assert.NotEmpty(@class.Methods);
-            var field = @class.Fields.First();
             var method = @class.Methods.First();
-            
-            Assert.Equal("baz.xuy", field.FullName.fullName);
-            Assert.Equal("sat", method.Name);
+            Assert.Equal("blank()", method.Name);
         }
     }
 }

@@ -85,7 +85,7 @@
             var key = _intern(strings_table, str);
 
 
-            logger.Information($"String constant '{str}' baked by index: {key}");
+            logger.Information("String constant '{str}' baked by index: {key}", str, key);
             return key;
         }
         /// <summary>
@@ -98,7 +98,7 @@
                 throw new ArgumentNullException(nameof (name));
             var key = _intern(types_table, name);
 
-            logger.Information($"TypeName '{name}' baked by index: {key}");
+            logger.Information("TypeName '{name}' baked by index: {key}", name, key);
             return key;
         }
         /// <summary>
@@ -112,7 +112,7 @@
 
             var key = _intern(fields_table, name);
 
-            logger.Information($"FieldName '{name}' baked by index: {key}");
+            logger.Information("FieldName '{name}' baked by index: {key}", name, key);
             return key;
         }
         
@@ -134,6 +134,8 @@
 
             binary.Write(idx);
             binary.Write(vdx);
+
+            
 
 
             binary.Write(strings_table.Count);
