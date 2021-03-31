@@ -82,7 +82,7 @@
 
             Journal.logger.Information("[ResolveDep] Success load module {Name}, {Version}.", module.Name, module.Version);
             Journal.logger.Information("[ResolveDep] Module {Name}, {Version} has contained '{Count}' classes.", 
-                module.Name, module.Version, module.classList.Count);
+                module.Name, module.Version, module.class_table.Count);
 
             return module;
         }

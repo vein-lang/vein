@@ -40,7 +40,7 @@
                         stl.InternString(argument.Name);
                     }
                 }
-                stl.classList.Add(type);
+                stl.class_table.Add(type);
             }
             list.Add(stl);
             return list;
@@ -122,8 +122,8 @@
             
             
             Assert.Equal("aspera", result.Name);
-            Assert.NotEmpty(result.classList);
-            var @class = result.classList.First();
+            Assert.NotEmpty(result.class_table);
+            var @class = result.class_table.First();
             Assert.Equal("DR", @class.Name);
             Assert.Equal("aspera%global::wave/lang/DR", @class.FullName.fullName);
             Assert.NotEmpty(@class.Methods);

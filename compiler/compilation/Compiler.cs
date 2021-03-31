@@ -1,4 +1,4 @@
-﻿namespace insomnia.compilation
+namespace insomnia.compilation
 {
     using emit;
     using Spectre.Console;
@@ -8,12 +8,14 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Threading;
     using extensions;
     using fs;
     using MoreLinq;
     using Sprache;
     using static Spectre.Console.AnsiConsole;
+    using Console = System.Console;
 
     public static class Extensions
     {
@@ -163,7 +165,7 @@
                 if (result is not null)
                 {
                     var clz = new ClassBuilder(module, result);
-                    module.classList.Add(clz);
+                    module.class_table.Add(clz);
                     return clz;
                 }
             }

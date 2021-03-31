@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+namespace insomnia.emit
 {
     using System;
     using System.Collections.Generic;
@@ -59,7 +59,7 @@
             InternString(name.Namespace);
             InternString(name.AssemblyName);
             var c = new ClassBuilder(this, name);
-            classList.Add(c);
+            class_table.Add(c);
             return c;
         }
 
@@ -123,8 +123,8 @@
         /// </summary>
         public byte[] BakeByteArray()
         {
-            classList.OfType<IBaker>().Pipe(x => x.BakeDebugString()).Consume();
-            classList.OfType<IBaker>().Pipe(x => x.BakeByteArray()).Consume();
+            class_table.OfType<IBaker>().Pipe(x => x.BakeDebugString()).Consume();
+            class_table.OfType<IBaker>().Pipe(x => x.BakeByteArray()).Consume();
             
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
@@ -167,8 +167,8 @@
                 binary.WriteInsomniaString(dep.Version.ToString());
             }
 
-            binary.Write(classList.Count);
-            foreach (var clazz in classList.OfType<IBaker>())
+            binary.Write(class_table.Count);
+            foreach (var clazz in class_table.OfType<IBaker>())
             {
                 var body = clazz.BakeByteArray();
                 binary.Write(body.Length);
@@ -200,7 +200,10 @@
                 str.AppendLine($"\t\t.f {key:D6}.'{value}'");
             str.AppendLine("\t}\n");
 
-            foreach (var clazz in classList.OfType<IBaker>().Select(x => x.BakeDebugString()))
+
+            str.AppendLine(const_table.BakeDebugString());
+
+            foreach (var clazz in class_table.OfType<IBaker>().Select(x => x.BakeDebugString()))
                 str.AppendLine($"{clazz.Split('\n').Select(x => $"\t{x}").Join('\n')}");
             str.AppendLine("}");
 
