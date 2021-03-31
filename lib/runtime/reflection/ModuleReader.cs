@@ -94,7 +94,7 @@
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
             var className = binary.ReadTypeName(module);
-            var flags = (ClassFlags)binary.ReadByte();
+            var flags = (ClassFlags)binary.ReadInt16();
             var parentIdx = binary.ReadTypeName(module);
             var len = binary.ReadInt32();
 
@@ -135,7 +135,7 @@
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
             var idx = binary.ReadInt32();
-            var flags = (MethodFlags)binary.ReadByte();
+            var flags = (MethodFlags)binary.ReadInt16();
             var bodysize = binary.ReadInt32();
             var stacksize = binary.ReadByte();
             var locals = binary.ReadByte();

@@ -80,6 +80,7 @@
                 return Array.Empty<byte>();
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
+            
             binary.WriteTypeName(this.FullName, moduleBuilder);
             binary.Write((short)Flags);
             binary.WriteTypeName(Parent.FullName, moduleBuilder);
