@@ -1,0 +1,8 @@
+#space "wave/lang"
+
+
+public static class Out
+{
+    [native]
+    public extern static print(value: String): Void;
+}
