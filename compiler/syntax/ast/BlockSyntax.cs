@@ -12,6 +12,13 @@
         }
     }
 
+    public class EmptyBlockSyntax : BlockSyntax
+    {
+        public EmptyBlockSyntax()
+        {
+        }
+    }
+
     public class BlockSyntax : StatementSyntax, IEnumerable<StatementSyntax>, IPositionAware<BlockSyntax>
     {
         public BlockSyntax()

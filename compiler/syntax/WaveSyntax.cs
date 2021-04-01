@@ -161,7 +161,7 @@
             from parameters in MethodParameters
             from @as in Parse.Char(':').Token().Commented(this)
             from type in TypeReference
-            from methodBody in Block.Or(Parse.Char(';').Return(default(BlockSyntax)))
+            from methodBody in Block.Or(Parse.Char(';').Return(new EmptyBlockSyntax()))
                 .Token().Positioned()
             select new MethodDeclarationSyntax
             {
