@@ -452,6 +452,10 @@
                 <key>include</key>
                 <string>#method-declaration</string>
               </dict>
+              <dict>
+                <key>include</key>
+                <string>#attribute-section</string>
+              </dict>
             </array>
           </dict>
         </array>
@@ -1588,6 +1592,76 @@ U[a-fA-F0-9]{,8} )</string>
           </dict>
         </array>
       </dict>
+      <key>class-or-struct-members</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#preprocessor</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#comment</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#storage-modifier</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#type-declarations</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#property-declaration</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#field-declaration</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#event-declaration</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#indexer-declaration</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#variable-initializer</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#constructor-declaration</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#destructor-declaration</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#operator-declaration</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#conversion-operator-declaration</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#method-declaration</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#attribute-section</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#punctuation-semicolon</string>
+          </dict>
+        </array>
+      </dict>
       <key>argument-list</key>
       <dict>
         <key>begin</key>
@@ -1717,6 +1791,106 @@ U[a-fA-F0-9]{,8} )</string>
           <dict>
             <key>include</key>
             <string>#variable-initializer</string>
+          </dict>
+        </array>
+      </dict>
+      <key>attribute-section</key>
+      <dict>
+        <key>begin</key>
+        <string>(\[)(assembly|module|field|event|method|param|property|return|type)?(\:)?</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.squarebracket.open.wave</string>
+          </dict>
+          <key>2</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.other.attribute-specifier.wave</string>
+          </dict>
+          <key>3</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.separator.colon.wave</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(\])</string>
+        <key>endCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.squarebracket.close.wave</string>
+          </dict>
+        </dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#comment</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#attribute</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#punctuation-comma</string>
+          </dict>
+        </array>
+      </dict>
+      <key>attribute</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#type-name</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#attribute-arguments</string>
+          </dict>
+        </array>
+      </dict>
+      <key>attribute-arguments</key>
+      <dict>
+        <key>begin</key>
+        <string>(\()</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.parenthesis.open.wave</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(\))</string>
+        <key>endCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.parenthesis.close.wave</string>
+          </dict>
+        </dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#attribute-named-argument</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#punctuation-comma</string>
           </dict>
         </array>
       </dict>

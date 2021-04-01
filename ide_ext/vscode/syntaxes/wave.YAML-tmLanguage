@@ -146,6 +146,7 @@ repository:
                   - include: "#union-declaration"
                   - include: "#storage-modifier"
                   - include: "#method-declaration"
+                  - include: "#attribute-section"
     indexer-declaration:
         begin: "(this)(?>\s?+)\[(.+)\](?>\s?+)\:(?>\s?+)(@?[_[:alpha:]][_[:alnum:]]*)"
         beginCaptures:
@@ -527,6 +528,24 @@ repository:
             - include: "#comment"
             - include: "#variable-initializer"
             - include: "#class-or-struct-members"
+    class-or-struct-members:
+        patterns:
+            - include: "#preprocessor"
+            - include: "#comment"
+            - include: "#storage-modifier"
+            - include: "#type-declarations"
+            - include: "#property-declaration"
+            - include: "#field-declaration"
+            - include: "#event-declaration"
+            - include: "#indexer-declaration"
+            - include: "#variable-initializer"
+            - include: "#constructor-declaration"
+            - include: "#destructor-declaration"
+            - include: "#operator-declaration"
+            - include: "#conversion-operator-declaration"
+            - include: "#method-declaration"
+            - include: "#attribute-section"
+            - include: "#punctuation-semicolon"
     argument-list:
         begin: \(
         beginCaptures:
@@ -573,6 +592,40 @@ repository:
             - include: "#parameter"
             - include: "#punctuation-comma"
             - include: "#variable-initializer"
+    attribute-section:
+        begin: '(\[)(assembly|module|field|event|method|param|property|return|type)?(\:)?'
+        beginCaptures:
+            "1":
+                name: punctuation.squarebracket.open.wave
+            "2":
+                name: keyword.other.attribute-specifier.wave
+            "3":
+                name: punctuation.separator.colon.wave
+        end: '(\])'
+        endCaptures:
+            "1":
+                name: punctuation.squarebracket.close.wave
+        patterns:
+            - include: "#comment"
+            - include: "#attribute"
+            - include: "#punctuation-comma"
+    attribute:
+        patterns:
+            - include: "#type-name"
+            - include: "#attribute-arguments"
+    attribute-arguments:
+        begin: (\()
+        beginCaptures:
+            "1":
+                name: punctuation.parenthesis.open.wave
+        end: (\))
+        endCaptures:
+            "1":
+                name: punctuation.parenthesis.close.wave
+        patterns:
+            - include: "#attribute-named-argument"
+            - include: "#expression"
+            - include: "#punctuation-comma"
     gc-modifier:
         name: entity.operation.gc.wave
         match: (?x)(gc)\s+(((nocontrol|auto)\;))

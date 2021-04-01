@@ -181,7 +181,8 @@
 
         protected internal virtual Parser<AnnotationSyntax> AnnotationSyntax =>
             (from kind in Annotation
-                select new AnnotationSyntax(kind))
+                from args in object_creation_expression.Optional()
+                select new AnnotationSyntax(kind, args))
             .Positioned()
             .Token()
             .Named("annotation");
