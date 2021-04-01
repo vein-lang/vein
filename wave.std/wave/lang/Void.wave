@@ -1,0 +1,5 @@
+#space "wave/lang"
+
+
+[special, readonly]
+public struct Void : ValueType { }
