@@ -19,7 +19,7 @@
             if (!type.IsPrimitive && type != typeof(string) && type != typeof(Half) /* why half is not primitive?... why...*/)
                 throw new ConstCannotUseNonPrimitiveTypeException(name, type);
 
-            logger.Information("Staged [{name}, {o}] into constant table.", name, o);
+            logger.Information("Staged [{@name}, {@o}] into constant table.", name, o);
             storage.Add(name, o);
         }
 
@@ -92,7 +92,7 @@
         {
             var str = new StringBuilder();
             foreach (var (key, value) in storage) 
-                str.AppendLine($"@{key.fullName} = {value}");
+                str.AppendLine($"@'{key.fullName}' = '{value}'");
             return str.ToString();
         }
     }

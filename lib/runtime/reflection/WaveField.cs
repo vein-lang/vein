@@ -114,13 +114,12 @@
                 return false;
             }
         }
-
-        public static Func<string, object> GetConverter(this WaveField field)
+        public static Func<string, object> GetConverter(this WaveTypeCode code)
         {
-            if (new [] { TYPE_U1, TYPE_U2, TYPE_U4, TYPE_U8 }.Any(x => x == field.FieldType.TypeCode))
+            if (new [] { TYPE_U1, TYPE_U2, TYPE_U4, TYPE_U8 }.Any(x => x == code))
                 throw new NotSupportedException("Unsigned integer is not support.");
 
-            return (field.FieldType.TypeCode) switch
+            return (code) switch
             {
                 (TYPE_BOOLEAN)  => (x) => bool.Parse(x),
                 (TYPE_CHAR)     => (x) => char.Parse(x),
@@ -133,9 +132,11 @@
                 (TYPE_R8)       => (x) => double.Parse(x),
                 (TYPE_R16)      => (x) => decimal.Parse(x),
                 (TYPE_STRING)   => (x) => x,
-                _ => throw new InvalidOperationException($"Cannot fetch converter for {field}, {field.FieldType}")
+                _ => throw new InvalidOperationException($"Cannot fetch converter for {code}.")
             };
         }
+        public static Func<string, object> GetConverter(this WaveField field) 
+            => GetConverter(field.FieldType.TypeCode);
 
 
         [Obsolete]

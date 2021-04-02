@@ -15,6 +15,7 @@
     using MoreLinq;
     using project;
     using Sprache;
+    using wave.etc;
     using static Spectre.Console.AnsiConsole;
     using Console = System.Console;
 
@@ -157,6 +158,7 @@
 
         public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc)
         {
+            CompileAnnotation(member, doc);
             if (module.Name.Equals("wcorlib"))
             {
                 var result = WaveCore.All.FirstOrDefault(x => x.FullName.Name.Equals(member.Identifier));
@@ -171,20 +173,58 @@
             return module.DefineClass($"global::{doc.Name}/{member.Identifier}");
         }
 
-        public void LinkMetadata(ClassDeclarationSyntax member, WaveClass clazz, DocumentDeclaration doc)
+        public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc)
         {
-            clazz.Flags = GenerateClassFlags(member);
+            CompileAnnotation(method.Annotations, x =>
+                $"{method.OwnerClass.Identifier}_{method.Identifier}.annotation_{x.AnnotationKind}", doc);
+        }
+        public void CompileAnnotation(ClassDeclarationSyntax clazz, DocumentDeclaration doc)
+        {
+            CompileAnnotation(clazz.Annotations, x =>
+                $"{clazz.Identifier}.annotation_{x.AnnotationKind}", doc);
+        }
+
+        private void CompileAnnotation(
+            List<AnnotationSyntax> annotations, 
+            Func<AnnotationSyntax, string> nameGenerator, 
+            DocumentDeclaration doc)
+        {
+            foreach (var annotation in annotations.Where(annotation => annotation.Args.Length != 0))
+            {
+                foreach (var (exp, index) in annotation.Args.Select((x, y) => (x, y)))
+                {
+                    if (exp.CanOptimization())
+                    {
+                        var optimized = exp.ForceOptimization();
+                        var converter = optimized.GetTypeCode().GetConverter();
+                        module.WriteToConstStorage($"{nameGenerator(annotation)}_{index}",
+                            converter(optimized.ExpressionString));
+                    }
+                    else
+                    {
+                        var diff_err = DiffErrorFull(annotation.Transform, doc);
+                        errors.Add($"[red bold]Annotations require compile-time constant.[/] \n\t" +
+                                   $"at '[orange bold]{annotation.Transform.pos.Line} line, {annotation.Transform.pos.Column} column[/]' \n\t" +
+                                   $"in '[orange bold]{doc.FileEntity}[/]'." +
+                                   $"{diff_err}");
+                    }
+                }
+            }
+        }
+
+        public void LinkMetadata(ClassDeclarationSyntax member, WaveClass @class, DocumentDeclaration doc)
+        {
+            @class.Flags = GenerateClassFlags(member);
             
             var owner = member.Inheritances.FirstOrDefault();
 
             // ignore core base types
-            if (member.Identifier != "Object" || member.Identifier != "ValueType")
-            {
-                // TODO
-                owner ??= new TypeSyntax("Object");
+            if (member.Identifier is "Object" or "ValueType") // TODO
+                return;
+            
+            owner ??= new TypeSyntax("Object"); // TODO set for struct ValueType owner
 
-                clazz.Parent = FetchType(owner, doc)?.AsClass();
-            }
+            @class.Parent = FetchType(owner, doc)?.AsClass();
         }
         public (
             List<(WaveMethod method, MethodDeclarationSyntax syntax)> methods, 
@@ -227,6 +267,8 @@
         public (WaveMethod method, MethodDeclarationSyntax syntax) 
             CompileMethod(MethodDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
+            CompileAnnotation(member, doc);
+
             var retType = FetchType(member.ReturnType, doc);
 
             if (retType is null)
@@ -402,7 +444,6 @@
                 {Type = FetchType(parameter.Type, doc), Name = parameter.Identifier})
                 .ToArray();
         }
-
         private ClassFlags GenerateClassFlags(ClassDeclarationSyntax clazz)
         {
             var flags = (ClassFlags) 0;

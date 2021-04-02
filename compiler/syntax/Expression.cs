@@ -1,4 +1,4 @@
-namespace insomnia.syntax
+    namespace insomnia.syntax
 {
     using System;
     using System.Collections.Generic;
@@ -255,7 +255,7 @@ namespace insomnia.syntax
             select new IndexerArgument(id, exp);
 
         protected internal virtual Parser<ExpressionSyntax[]> argument_list =>
-            from args in argument.ChainForward(Parse.Char(',').Token())
+            from args in argument.Positioned().ChainForward(Parse.Char(',').Token())
             select args.ToArray();
 
 
