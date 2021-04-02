@@ -1,0 +1,13 @@
+#space "wave/lang"
+
+
+public static class Application
+{
+    [native("internal.h", "i_call_get_Platform")]
+    private extern static getPlatform(): Object;
+
+    public static GetFrameworkName(): String
+    {
+        return (String)Application.getPlatform();
+    }
+}

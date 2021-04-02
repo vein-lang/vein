@@ -1,5 +1,6 @@
 #space "hello"
 
+#use "wave/lang"
 
 public class Program
 {
