@@ -11,7 +11,10 @@ namespace insomnia.syntax
             from member in
                 MethodOrPropertyDeclaration.Token()
                     .OrPreview(FieldDeclaration.Token())
-            select member;
+                    .Commented(this)
+            select member.Value
+                .WithLeadingComments(member.LeadingComments)
+                .WithTrailingComments(member.TrailingComments);
 
         protected internal virtual Parser<ParameterSyntax> NameAndType =>
             from name in Identifier.Optional()
