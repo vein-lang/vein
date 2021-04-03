@@ -178,7 +178,7 @@
                 MemberName = identifier.Last(),
                 MemberChain = identifier.SkipLast(1).ToArray()
             };
-
+        // native("args")
         protected internal virtual Parser<AnnotationSyntax> AnnotationSyntax =>
             (from kind in Annotation
                 from args in object_creation_expression.Optional()

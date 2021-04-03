@@ -523,6 +523,13 @@
             _logger.WriteLine(result?.ExpressionString);
         }
 
+        [Theory]
+        [InlineData("native(\"foo\")")]
+        public void AnnotationWithArgsTest(string str)
+        {
+            var result = Wave.AnnotationSyntax.End().ParseWave(str);
+            Assert.NotEmpty(result.Args);
+        }
 
         [Fact]
         public void FooProgramTest()
