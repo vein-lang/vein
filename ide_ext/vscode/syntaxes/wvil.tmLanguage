@@ -318,7 +318,7 @@
             <key>name</key>
             <string>keyword.control.wave</string>
             <key>match</key>
-            <string>\.\b(string|global|this|method|base|using|field|auto|const|body|as|namespace|module|class)\b</string>
+            <string>\.\b(string|global|this|table|s|t|f|method|base|using|field|auto|const|body|as|namespace|module|class)\b</string>
           </dict>
           <dict>
             <key>name</key>

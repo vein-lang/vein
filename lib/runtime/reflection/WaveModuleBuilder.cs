@@ -195,17 +195,17 @@
             str.AppendLine("\n\t.table const");
             str.AppendLine("\t{");
             foreach (var (key, value) in strings_table) 
-                str.AppendLine($"\t\t.s {key:D6}.'{value}'");
+                str.AppendLine($"\t\t.s {key:D6}:'{value}'");
 
             foreach (var (key, value) in types_table) 
-                str.AppendLine($"\t\t.t {key:D6}.'{value}'");
+                str.AppendLine($"\t\t.t {key:D6}:'{value}'");
 
             foreach (var (key, value) in fields_table) 
-                str.AppendLine($"\t\t.f {key:D6}.'{value}'");
+                str.AppendLine($"\t\t.f {key:D6}:'{value}'");
             str.AppendLine("\t}\n");
 
 
-            str.AppendLine(const_table.BakeDebugString());
+            str.AppendLine(const_table.BakeDebugString().Split('\n').Select(x => $"\t{x}").Join('\n'));
 
             foreach (var clazz in class_table.OfType<IBaker>().Select(x => x.BakeDebugString()))
                 str.AppendLine($"{clazz.Split('\n').Select(x => $"\t{x}").Join('\n')}");
