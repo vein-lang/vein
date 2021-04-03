@@ -1,0 +1,6 @@
+#space "wave/lang/numeric"
+
+
+public struct BigInt : ValueType
+{
+}

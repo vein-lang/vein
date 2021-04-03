@@ -1,6 +1,6 @@
 #space "wave/lang"
 
-
+[native("internal.h")]
 public static class Application
 {
     [native("internal.h", "i_call_get_Platform")]
@@ -8,6 +8,6 @@ public static class Application
 
     public static GetFrameworkName(): String
     {
-        return (String)Application.getPlatform();
+        return Application.getPlatform();
     }
 }

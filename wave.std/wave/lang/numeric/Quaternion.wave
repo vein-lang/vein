@@ -1,0 +1,32 @@
+#space "wave/lang/numeric"
+
+
+public struct Quaternion : ValueType
+{
+    /*
+    public static Zero: Quaternion = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+
+    public X: float;
+    public Y: float;
+    public Z: float;
+    public W: float;
+
+    public IsZero(): Boolean
+    {
+        return X == 0 && Y == 0 && Z == 0 && W == 0;
+    }
+
+    public IsZero(): Boolean
+    {
+        return X + Y + Z + W == 0;
+    }
+
+    new (x: float, y: float, z: float, w: float)
+    {
+        this.X = x;
+        this.Y = y;
+        this.Z = z;
+        this.W = w;
+    }
+    */
+}
