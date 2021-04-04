@@ -1,4 +1,4 @@
-﻿namespace insomnia.extensions
+namespace insomnia.extensions
 {
     using System;
     using System.Linq.Expressions;
@@ -128,6 +128,21 @@
         
         public static void EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
         {
+            if (expr is LiteralExpressionSyntax literal)
+            {
+                gen.EmitLiteral(literal);
+                return;
+            }
+
+            if (expr is NewExpressionSyntax @new)
+            {
+                gen.EmitCreateObject(@new);
+                return;
+            }
+
+            throw new NotImplementedException();
+        }
+
             
         }
 
