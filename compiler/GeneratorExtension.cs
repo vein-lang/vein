@@ -1,6 +1,8 @@
-namespace insomnia.extensions
+﻿namespace insomnia.extensions
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using emit;
     using syntax;
@@ -157,6 +159,14 @@ namespace insomnia.extensions
             gen.Emit(OpCodes.CALL, ctor);
         }
 
+        public static IEnumerable<WaveType> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, WaveModule module) 
+            => exps.Select(x => x.DetermineType(module));
+
+        public static WaveType DetermineType(this ExpressionSyntax exp, WaveModule module)
+        {
+
+        }
+
         public static void EmitThrow(this ILGenerator generator, QualityTypeName type)
         {
             generator.Emit(OpCodes.NEWOBJ, type);
@@ -179,6 +189,10 @@ namespace insomnia.extensions
             
             
             generator.UseLabel(elseLabel);
+
+            if (ifStatement.ElseStatement is null)
+                return;
+
             if (ifStatement.ElseStatement is ReturnStatementSyntax ret2)
                 generator.EmitReturn(ret2);
             else
@@ -189,6 +203,8 @@ namespace insomnia.extensions
         {
             if (statement is ReturnStatementSyntax ret1)
                 generator.EmitReturn(ret1);
+            else if (statement is IfStatementSyntax theIf)
+                generator.EmitIfElse(theIf);
             else
                 throw new NotImplementedException();
         }
@@ -247,6 +263,13 @@ namespace insomnia.extensions
                     generator.Emit(OpCodes.LDC_F4, f32.Value);
                     break;
                 }
+                case HalfLiteralExpressionSyntax h32:
+                {
+                    generator.Emit(OpCodes.LDC_F2, h32.Value);
+                    break;
+                }
+                default:
+                    throw new NotImplementedException();
             }
         }
 
@@ -272,6 +295,44 @@ namespace insomnia.extensions
             if (statement.Expression is LiteralExpressionSyntax literal)
             {
                 generator.EmitLiteral(literal);
+                generator.Emit(OpCodes.RET);
+                return;
+            }
+
+            if (statement.Expression.ExpressionString == "Infinity")
+            {
+                generator.Emit(OpCodes.LDC_F4, float.PositiveInfinity);
+                generator.Emit(OpCodes.RET);
+                return;
+            }
+            if (statement.Expression.ExpressionString == "(-Infinity)")
+            {
+                generator.Emit(OpCodes.LDC_F4, float.NegativeInfinity);
+                generator.Emit(OpCodes.RET);
+                return;
+            }
+            if (statement.Expression.ExpressionString == "NaN")
+            {
+                generator.Emit(OpCodes.LDC_F4, float.NaN);
+                generator.Emit(OpCodes.RET);
+                return;
+            }
+
+            var @class = generator._methodBuilder.classBuilder;
+            var @method = generator._methodBuilder;
+
+            if (statement.Expression is Unnamed02ExpressionSyntax unnamed02)
+            {
+                var type = generator
+                    ._methodBuilder
+                    .moduleBuilder
+                    .FindType(unnamed02.Pe.ExpressionString, @class.Includes);
+
+                var methodName = unnamed02.Dd.First().ExpressionString;
+
+                var call_method = type.FindMethod(methodName);
+
+                generator.Emit(OpCodes.CALL, method);
                 generator.Emit(OpCodes.RET);
                 return;
             }
