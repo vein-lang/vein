@@ -127,6 +127,32 @@
             _debugBuilder.AppendLine($".{opcode.Name} '{str}'.0x{token:X8}");
         }
         /// <summary>
+        /// Emit opcodes for stage\load value for field.
+        /// </summary>
+        /// <param name="opcode"></param>
+        /// <param name="field"></param>
+        /// <exception cref="InvalidOpCodeException"></exception>
+        /// <remarks>
+        /// Only allowed <see cref="OpCodes.LDF"/>, <see cref="OpCodes.STF"/>,
+        /// <see cref="OpCodes.STSF"/>, <see cref="OpCodes.LDSF"/>.
+        /// </remarks>
+        public virtual void Emit(OpCode opcode, WaveField field)
+        {
+            if (new[] {OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF}.All(x => x != opcode))
+                throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
+
+            this.EnsureCapacity<OpCode>(sizeof(int) * 2);
+
+            var nameIdx = this._methodBuilder.moduleBuilder.InternFieldName(field.FullName);
+            var typeIdx = this._methodBuilder.moduleBuilder.InternTypeName(field.FieldType.FullName);
+
+            this.PutInteger4(nameIdx);
+            this.PutInteger4(typeIdx);
+
+            this.InternalEmit(opcode);
+            _debugBuilder.AppendLine($".{opcode.Name} {field.Name} {field.FieldType}");
+        }
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="opcode"></param>
@@ -182,10 +208,12 @@
             this.PutInteger4(label.Value);
             _debugBuilder.AppendLine($".{opcode.Name} label(0x{label.Value:X})");
         }
-        
+        public virtual void Emit(OpCode opcode, WaveType type) 
+            => Emit(opcode, type.FullName);
+
         public virtual void Emit(OpCode opcode, QualityTypeName type)
         {
-            this.EnsureCapacity<OpCode>(sizeof(int)*3);
+            this.EnsureCapacity<OpCode>(sizeof(int));
             this.InternalEmit(opcode);
             this.PutTypeName(type);
             _debugBuilder.AppendLine($".{opcode.Name} [{type}]");
