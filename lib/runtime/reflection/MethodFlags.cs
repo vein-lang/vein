@@ -14,6 +14,7 @@
         Extern      = 1 << 5,
         Virtual     = 1 << 6,
         Abstract    = 1 << 7,
-        Override    = 1 << 8
+        Override    = 1 << 8,
+        Special     = 1 << 9
     }
 }
