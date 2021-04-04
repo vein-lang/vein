@@ -143,7 +143,18 @@ namespace insomnia.extensions
             throw new NotImplementedException();
         }
 
-            
+        public static void EmitCreateObject(this ILGenerator gen, NewExpressionSyntax @new)
+        {
+            var type = gen._methodBuilder.moduleBuilder.FindType(@new.TargetType.Typeword.Identifier,
+                gen._methodBuilder.classBuilder.Includes);
+            var module = gen._methodBuilder.moduleBuilder;
+            foreach (var arg in @new.CtorArgs) 
+                gen.EmitExpression(arg);
+            gen.Emit(OpCodes.NEWOBJ, type);
+
+            var ctor = type.FindMethod("ctor", @new.CtorArgs.DetermineTypes(module));
+
+            gen.Emit(OpCodes.CALL, ctor);
         }
 
         public static void EmitThrow(this ILGenerator generator, QualityTypeName type)
