@@ -127,8 +127,7 @@
                 var type_name = binary.ReadTypeName(module);
                 var type = module.FindType(type_name, true);
                 var flags = (FieldFlags) binary.ReadByte();
-                var litValue = binary.ReadLiteralValue(type.TypeCode);
-                var method = new WaveField(@class, name, flags, type, litValue);
+                var method = new WaveField(@class, name, flags, type);
                 @class.Fields.Add(method);
             }
         }

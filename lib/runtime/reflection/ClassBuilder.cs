@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+namespace insomnia.emit
 {
     using System;
     using System.IO;
@@ -97,7 +97,6 @@
                 binary.Write(moduleBuilder.InternFieldName(field.FullName));
                 binary.WriteTypeName(field.FieldType.FullName, moduleBuilder);
                 binary.Write((short)field.Flags);
-                binary.WriteLiteralValue(field);
             }
             return mem.ToArray();
         }
@@ -112,8 +111,6 @@
             {
                 var flags = field.Flags.EnumerateFlags().Except(new [] {FieldFlags.None}).Join(' ').ToLowerInvariant();
                 str.AppendLine($"\t.field '{field.Name}' as '{field.FieldType.Name}' {flags}");
-                if (field.IsLiteral)
-                    str.AppendLine($"\t\t= [{field.BakeLiteralValue().Select(x => $"{x:2}").Join(',')}];");
             }
             str.AppendLine("");
             foreach (var method in Methods.OfType<IBaker>().Select(method => method.BakeDebugString()))
