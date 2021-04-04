@@ -34,7 +34,7 @@ public struct Half : ValueType
     [special]
     public get_PositiveInfinity(): Half 
     {
-        return Infinity;
+        return IEEEConsts.getHalfInfinity();
     }
     /**
         Represents negative infinity.
@@ -42,7 +42,7 @@ public struct Half : ValueType
     [special]
     public get_NegativeInfinity(): Half 
     {
-        return -Infinity;
+        return IEEEConsts.getHalfNegativeInfinity();
     }
     /**
         Represents not a number.
@@ -50,7 +50,7 @@ public struct Half : ValueType
     [special]
     public get_NaN(): Half 
     {
-        return NaN;
+        return IEEEConsts.getHalfNaN();
     }
     ////
 }
