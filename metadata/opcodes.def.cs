@@ -176,159 +176,168 @@ namespace insomnia
 		/// </summary>
 		LDNULL = 0x2A,
 		/// <summary>
-		/// Load field into stack.
+		/// Load value from field in instance into stack.
 		/// </summary>
-		/// <remarks>
-		/// Not used directly.
-		/// </remarks>
 		LDF = 0x2B,
 		/// <summary>
-		/// Load from locals into stack.
+		/// Load value from static field into stack.
 		/// </summary>
-		LDLOC_0 = 0x2C,
+		LDSF = 0x2C,
+		/// <summary>
+		/// Stage into instance field value from stack.
+		/// </summary>
+		STF = 0x2D,
+		/// <summary>
+		/// Stage into static field value from stack.
+		/// </summary>
+		STSF = 0x2E,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_1 = 0x2D,
+		LDLOC_0 = 0x2F,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_2 = 0x2E,
+		LDLOC_1 = 0x30,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_3 = 0x2F,
+		LDLOC_2 = 0x31,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_4 = 0x30,
+		LDLOC_3 = 0x32,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_5 = 0x31,
+		LDLOC_4 = 0x33,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_S = 0x32,
+		LDLOC_5 = 0x34,
+		/// <summary>
+		/// Load from locals into stack.
+		/// </summary>
+		LDLOC_S = 0x35,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_0 = 0x33,
+		STLOC_0 = 0x36,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_1 = 0x34,
+		STLOC_1 = 0x37,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_2 = 0x35,
+		STLOC_2 = 0x38,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_3 = 0x36,
+		STLOC_3 = 0x39,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_4 = 0x37,
+		STLOC_4 = 0x3A,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_5 = 0x38,
+		STLOC_5 = 0x3B,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_S = 0x39,
+		STLOC_S = 0x3C,
 		/// <summary>
 		/// Initialization locals stack.
 		/// </summary>
-		LOC_INIT = 0x3A,
+		LOC_INIT = 0x3D,
 		/// <summary>
 		/// (part of LOD.INIT) Initialization locals slot as derrived type.
 		/// </summary>
-		LOC_INIT_X = 0x3B,
+		LOC_INIT_X = 0x3E,
 		/// <summary>
 		/// Duplicate memory from stack.
 		/// </summary>
-		DUP = 0x3C,
+		DUP = 0x3F,
 		/// <summary>
 		/// XOR Operation.
 		/// </summary>
-		XOR = 0x3D,
+		XOR = 0x40,
 		/// <summary>
 		/// OR Operation.
 		/// </summary>
-		OR = 0x3E,
+		OR = 0x41,
 		/// <summary>
 		/// AND Operation.
 		/// </summary>
-		AND = 0x3F,
+		AND = 0x42,
 		/// <summary>
 		/// Shift Right Operation.
 		/// </summary>
-		SHR = 0x40,
+		SHR = 0x43,
 		/// <summary>
 		/// Shift Left Operation.
 		/// </summary>
-		SHL = 0x41,
+		SHL = 0x44,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_R4 = 0x42,
+		CONV_R4 = 0x45,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_R8 = 0x43,
+		CONV_R8 = 0x46,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_I4 = 0x44,
+		CONV_I4 = 0x47,
 		/// <summary>
 		/// Throw exception operation.
 		/// </summary>
-		THROW = 0x45,
+		THROW = 0x48,
 		/// <summary>
 		/// New object Operation.
 		/// </summary>
-		NEWOBJ = 0x46,
+		NEWOBJ = 0x49,
 		/// <summary>
 		/// Compare two value, when values are equal 1 (int32) stage into stack, otherwise 0 (int32).
 		/// </summary>
-		EQL = 0x47,
+		EQL = 0x4A,
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// </summary>
-		JMP = 0x48,
+		JMP = 0x4B,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value.
 		/// </summary>
-		JMP_LQ = 0x49,
+		JMP_LQ = 0x4C,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value.
 		/// </summary>
-		JMP_L = 0x4A,
+		JMP_L = 0x4D,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value.
 		/// </summary>
-		JMP_HQ = 0x4B,
+		JMP_HQ = 0x4E,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value.
 		/// </summary>
-		JMP_H = 0x4C,
+		JMP_H = 0x4F,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal.
 		/// </summary>
-		JMP_NQ = 0x4D,
+		JMP_NQ = 0x50,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal.
 		/// </summary>
-		JMP_NN = 0x4E,
+		JMP_NN = 0x51,
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero.
 		/// </summary>
-		JMP_F = 0x4F,
+		JMP_F = 0x52,
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero.
 		/// </summary>
-		JMP_T = 0x50,
+		JMP_T = 0x53,
 	}
 }

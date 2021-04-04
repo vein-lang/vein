@@ -39,8 +39,17 @@
 - LDNULL:
     description: Load NULL into stack.
 - LDF:
-    description: Load field into stack.
-    note: Not used directly.
+    description: Load value from field in instance into stack.
+    override-size: 8
+- LDSF:
+    description: Load value from static field into stack.
+    override-size: 8
+- STF:
+    description: Stage into instance field value from stack.
+    override-size: 8
+- STSF: 
+    description: Stage into static field value from stack.
+    override-size: 8
 - LDLOC:
     description: Load from locals into stack.
     range: true
