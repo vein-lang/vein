@@ -1,0 +1,9 @@
+#space "wave/lang"
+
+
+[special, readonly]
+public struct Decimal : ValueType
+{
+    [native]
+    private _value: Decimal;
+}
