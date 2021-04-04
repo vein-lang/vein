@@ -1,6 +1,7 @@
 ﻿namespace insomnia.emit
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -78,12 +79,12 @@
             var args = Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(',');
             if (Flags.HasFlag(MethodFlags.Extern))
             {
-                str.AppendLine($".method extern {Name} ({args}) {Flags.EnumerateFlags().Except(new [] {MethodFlags.None}).Join(' ').ToLowerInvariant()};");
+                str.AppendLine($".method extern {RawName} ({args}) {Flags.EnumerateFlags().Except(new [] {MethodFlags.None}).Join(' ').ToLowerInvariant()};");
                 return str.ToString();
             }
             var body = _generator.BakeDebugString();
             
-            str.AppendLine($".method '{RawName}' ({args}) {Flags.EnumerateFlags().Except(new [] {MethodFlags.None}).Join(' ').ToLowerInvariant()}");
+            str.AppendLine($".method {(IsSpecial ? "special" : "")} '{RawName}' ({args}) {Flags.EnumerateFlags().Except(new [] {MethodFlags.None}).Join(' ').ToLowerInvariant()}");
             str.AppendLine("{");
             str.AppendLine($"\t.size {_generator.ILOffset}");
             str.AppendLine($"\t.maxstack 0x{64:X8}");
