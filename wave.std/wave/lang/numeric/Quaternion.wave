@@ -1,11 +1,11 @@
 #space "wave/lang/numeric"
 
+#use "wave/lang"
 
 public struct Quaternion : ValueType
 {
-    /*
     public static Zero: Quaternion = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
-
+    /*
     public X: float;
     public Y: float;
     public Z: float;
