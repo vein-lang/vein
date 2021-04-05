@@ -9,8 +9,10 @@
         Public      = 1 << 1,
         Static      = 1 << 2,
         Internal    = 1 << 3,
+        [Obsolete]
         Protected   = 1 << 4,
         Private     = 1 << 5,
-        Abstract    = 1 << 6
+        Abstract    = 1 << 6,
+        Special     = 1 << 7
     }
 }

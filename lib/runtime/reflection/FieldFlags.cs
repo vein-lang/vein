@@ -12,6 +12,9 @@
         Protected   = 1 << 4,
         Virtual     = 1 << 5,
         Abstract    = 1 << 6,
-        Override    = 1 << 7
+        Override    = 1 << 7,
+        Special     = 1 << 8,
+        Readonly    = 1 << 9,
+        Internal    = 1 << 10
     }
 }
