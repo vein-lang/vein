@@ -1,4 +1,4 @@
-namespace insomnia.emit
+﻿namespace insomnia.emit
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -37,21 +37,38 @@ namespace insomnia.emit
         }
 
         public bool IsSpecial => Flags.HasFlag(ClassFlags.Special);
+        public bool IsPublic => Flags.HasFlag(ClassFlags.Public);
+        public bool IsPrivate => Flags.HasFlag(ClassFlags.Private);
+        public bool IsAbstract => Flags.HasFlag(ClassFlags.Abstract);
+        public bool IsStatic => Flags.HasFlag(ClassFlags.Static);
+        public bool IsInternal => Flags.HasFlag(ClassFlags.Internal);
 
         public WaveMethod GetDefaultDtor() => GetOrCreateTor("dtor()");
         public WaveMethod GetDefaultCtor() => GetOrCreateTor("ctor()");
+        
+        public WaveMethod GetStaticCtor() => GetOrCreateTor("type_ctor()", true);
 
-        private WaveMethod GetOrCreateTor(string name)
+
+        private WaveMethod GetOrCreateTor(string name, bool isStatic = false)
         {
             var ctor = FindMethod(name);
             if (ctor is not null)
                 return ctor;
 
-            ctor = new WaveMethod(name, MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType(), this);
-            Methods.Add(ctor);
+            var flags = MethodFlags.Public;
 
-            if (this is ClassBuilder builder) 
+            if (isStatic)
+                flags |= MethodFlags.Static;
+
+            if (this is ClassBuilder builder)
+            {
+                ctor = builder.DefineMethod(name, flags, WaveTypeCode.TYPE_VOID.AsType());
                 builder.moduleBuilder.InternString(ctor.Name);
+            }
+            else
+                ctor = new WaveMethod(name, flags, WaveTypeCode.TYPE_VOID.AsType(), this);
+            Methods.Add(ctor);
+            
             return ctor;
         }
 
