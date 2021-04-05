@@ -1,4 +1,4 @@
-namespace insomnia.emit
+﻿namespace insomnia.emit
 {
     using System;
     using System.Collections.Generic;
@@ -65,6 +65,32 @@ namespace insomnia.emit
         
         
         public override string ToString() => $"[{FullName}]";
+
+        public WaveMethod FindMethod(string name, IEnumerable<WaveType> args_types)
+        {
+            throw new NotImplementedException();
+        }
+        public WaveMethod FindMethod(string name)
+        {
+            foreach (var member in Members)
+            {
+                if (member is not WaveMethod method)
+                    continue;
+                if (method.RawName.Equals(name))
+                    return method;
+            }
+
+            return null;
+        }
+
+        public static bool operator ==(WaveType t1, WaveType t2)
+        {
+            if (t1 is null || t2 is null)
+                return false;
+            return t1.FullName.fullName.Equals(t2.FullName.fullName);
+        }
+
+        public static bool operator !=(WaveType t1, WaveType t2) => !(t1 == t2);
     }
 
     public abstract class WaveMember
