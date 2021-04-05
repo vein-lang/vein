@@ -10,6 +10,14 @@ namespace insomnia.emit
     {
         internal WaveModuleBuilder moduleBuilder;
 
+        public List<string> Includes { get; set; } = new ();
+
+        internal ClassBuilder WithIncludes(List<string> includes)
+        {
+            Includes.AddRange(includes);
+            return this;
+        }
+
         internal ClassBuilder(WaveModuleBuilder module, WaveClass clazz)
         {
             this.moduleBuilder = module;
