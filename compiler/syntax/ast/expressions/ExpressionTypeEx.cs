@@ -10,6 +10,64 @@
         {
             return Enum.GetValues<ExpressionType>().Select(x => (GetSymbol(x), x)).Where(x => x.Item1 != null).First(x => x.Item1.Equals(str)).x;
         }
+
+        public static bool IsLogic(this ExpressionType exp)
+        {
+            switch (exp)
+            {
+                case ExpressionType.Power:
+                case ExpressionType.Add:
+                case ExpressionType.AddChecked:
+                case ExpressionType.Divide:
+                case ExpressionType.ExclusiveOr:
+                case ExpressionType.LeftShift:
+                case ExpressionType.Modulo:
+                case ExpressionType.Multiply:
+                case ExpressionType.MultiplyChecked:
+                case ExpressionType.RightShift:
+                case ExpressionType.Subtract:
+                case ExpressionType.SubtractChecked:
+                case ExpressionType.Assign:
+                case ExpressionType.AddAssign:
+                case ExpressionType.AddAssignChecked:
+                case ExpressionType.AndAssign:
+                case ExpressionType.DivideAssign:
+                case ExpressionType.ExclusiveOrAssign:
+                case ExpressionType.LeftShiftAssign:
+                case ExpressionType.ModuloAssign:
+                case ExpressionType.MultiplyAssign:
+                case ExpressionType.MultiplyAssignChecked:
+                case ExpressionType.OrAssign:
+                case ExpressionType.RightShiftAssign:
+                case ExpressionType.SubtractAssign:
+                case ExpressionType.SubtractAssignChecked:
+                case ExpressionType.PostIncrementAssign:
+                case ExpressionType.PreIncrementAssign:
+                case ExpressionType.PreDecrementAssign:
+                case ExpressionType.PostDecrementAssign:
+                case ExpressionType.OnesComplement:
+                case ExpressionType.Negate:
+                case ExpressionType.NegateChecked:
+                case ExpressionType.MemberAccess:
+                    return false;
+                case ExpressionType.And:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                case ExpressionType.Conditional:
+                case ExpressionType.Or:
+                case ExpressionType.Not:
+                case ExpressionType.OrElse:
+                case ExpressionType.AndAlso:
+                case ExpressionType.Coalesce:
+                case ExpressionType.Equal:
+                case ExpressionType.NotEqual:
+                    return true;
+                default:
+                    throw new Exception();
+            }
+        }
         public static string GetSymbol(this ExpressionType exp)
         {
             switch (exp)

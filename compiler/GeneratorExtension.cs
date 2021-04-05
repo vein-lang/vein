@@ -5,8 +5,10 @@
     using System.Linq;
     using System.Linq.Expressions;
     using emit;
+    using Sprache;
     using syntax;
-    
+    using wave.etc;
+
     public static class GeneratorExtension
     {
         public static void EmitUnary(this ILGenerator gen, UnaryExpressionSyntax node)
@@ -164,7 +166,43 @@
 
         public static WaveType DetermineType(this ExpressionSyntax exp, WaveModule module)
         {
+            if (exp.CanOptimization())
+                return exp.ForceOptimization().DetermineType(module);
+            if (exp is LiteralExpressionSyntax literal)
+                return literal.GetTypeCode().AsType();
+            if (exp is BinaryExpressionSyntax bin)
+            {
+                if (bin.OperatorType.IsLogic())
+                    return WaveTypeCode.TYPE_BOOLEAN.AsType();
+                var (lt, rt) = bin.Fusce(module);
 
+                if (lt == rt) return lt;
+
+                return ExplicitConversion(lt, rt);
+            }
+            if (exp is NewExpressionSyntax @new)
+                return module.FindType(@new.TargetType.Typeword.Identifier);
+            throw new NotImplementedException($"TODO");
+        }
+
+        public static (WaveType, WaveType) Fusce(this BinaryExpressionSyntax binary, WaveModule module)
+        {
+            var lt = binary.Left.DetermineType(module);
+            var rt = binary.Right.DetermineType(module);
+
+            return (lt, rt);
+        }
+
+
+
+        public static bool IsTypeCompatibility(WaveType t1, WaveType t2)
+        {
+            return false;
+        }
+
+        public static WaveType ExplicitConversion(WaveType t1, WaveType t2)
+        {
+            throw new NotImplementedException();
         }
 
         public static void EmitThrow(this ILGenerator generator, QualityTypeName type)
