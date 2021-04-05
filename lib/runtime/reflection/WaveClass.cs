@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+namespace insomnia.emit
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -36,6 +36,7 @@
             return method;
         }
 
+        public bool IsSpecial => Flags.HasFlag(ClassFlags.Special);
 
         public WaveMethod GetDefaultDtor() => GetOrCreateTor("dtor()");
         public WaveMethod GetDefaultCtor() => GetOrCreateTor("ctor()");

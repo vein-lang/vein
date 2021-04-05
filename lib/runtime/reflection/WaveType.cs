@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+namespace insomnia.emit
 {
     using System;
     using System.Collections.Generic;
@@ -71,6 +71,7 @@
     {
         public abstract string Name { get; protected set; }
         public abstract WaveMemberKind Kind { get; }
+        public virtual bool IsSpecial { get; }
     }
     
     [Flags]

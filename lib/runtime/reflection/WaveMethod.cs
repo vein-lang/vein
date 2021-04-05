@@ -52,6 +52,7 @@
         public bool IsStatic => Flags.HasFlag(MethodFlags.Static);
         public bool IsPrivate => Flags.HasFlag(MethodFlags.Private);
         public bool IsExtern => Flags.HasFlag(MethodFlags.Extern);
+        public override bool IsSpecial => Flags.HasFlag(MethodFlags.Special);
         
         public sealed override string Name { get; protected set; }
         public string RawName => Name.Split('(').First();
