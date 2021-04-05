@@ -1,4 +1,4 @@
-namespace insomnia.compilation
+﻿namespace insomnia.compilation
 {
     using emit;
     using Spectre.Console;
@@ -407,6 +407,20 @@ namespace insomnia.compilation
 
             foreach (var pr in member.Body.Statements.SelectMany(x => x.ChildNodes.Concat(new []{x})))
                 AnalyzeStatement(pr, member);
+
+
+            var generator = method.GetGenerator();
+
+            foreach (var statement in member.Body.Statements)
+            {
+                try
+                {
+                    generator.EmitStatement(statement);
+                }
+                catch (Exception e)
+                {
+                }
+            }
         }
 
         private void AnalyzeStatement(BaseSyntax statement, MethodDeclarationSyntax member)
