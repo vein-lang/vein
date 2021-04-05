@@ -169,10 +169,12 @@ namespace insomnia.compilation
                 {
                     var clz = new ClassBuilder(module, result);
                     module.class_table.Add(clz);
+
+                    clz.Includes.AddRange(doc.Includes);
                     return clz;
                 }
             }
-            return module.DefineClass($"global::{doc.Name}/{member.Identifier}");
+            return module.DefineClass($"global::{doc.Name}/{member.Identifier}").WithIncludes(doc.Includes);
         }
 
         public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc)
