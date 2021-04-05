@@ -1,6 +1,7 @@
-namespace insomnia.emit
+﻿namespace insomnia.emit
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -91,7 +92,7 @@ namespace insomnia.emit
             
             binary.WriteTypeName(this.FullName, moduleBuilder);
             binary.Write((short)Flags);
-            binary.WriteTypeName(Parent.FullName, moduleBuilder);
+            binary.WriteTypeName(Parent?.FullName ?? this.FullName, moduleBuilder);
             binary.Write(Methods.Count);
             foreach (var method in Methods.OfType<IBaker>())
             {
