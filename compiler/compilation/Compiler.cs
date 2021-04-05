@@ -565,6 +565,8 @@ namespace insomnia.compilation
                                    $"class/struct/interface declaration.");
                         continue;
                     case WaveAnnotationKind.Special:
+                        flags |= ClassFlags.Special;
+                        continue;
                     case WaveAnnotationKind.Native:
                         continue;
                     case WaveAnnotationKind.Readonly when !clazz.IsStruct:
@@ -585,22 +587,19 @@ namespace insomnia.compilation
                 switch (mod.ModificatorKind.ToString().ToLower())
                 {
                     case "public":
-                        flags &= ClassFlags.Public;
+                        flags |= ClassFlags.Public;
                         continue;
                     case "private":
-                        flags &= ClassFlags.Private;
+                        flags |= ClassFlags.Private;
                         continue;
                     case "static":
-                        flags &= ClassFlags.Static;
-                        continue;
-                    case "protected":
-                        flags &= ClassFlags.Protected;
+                        flags |= ClassFlags.Static;
                         continue;
                     case "internal":
-                        flags &= ClassFlags.Internal;
+                        flags |= ClassFlags.Internal;
                         continue;
                     case "abstract":
-                        flags &= ClassFlags.Abstract;
+                        flags |= ClassFlags.Abstract;
                         continue;
                     default:
                         errors.Add(
@@ -608,6 +607,78 @@ namespace insomnia.compilation
                         continue;
                 }
             }
+
+            return flags;
+        }
+
+        private FieldFlags GenerateFieldFlags(FieldDeclarationSyntax field)
+        {
+            var flags = (FieldFlags)0;
+
+            var annotation = field.Annotations;
+            var mods = field.Modifiers;
+
+            foreach (var kind in annotation.Select(x => x.AnnotationKind))
+            {
+                switch (kind)
+                {
+                    case WaveAnnotationKind.Virtual:
+                        flags |= FieldFlags.Virtual;
+                        continue;
+                    case WaveAnnotationKind.Special:
+                        flags |= FieldFlags.Special;
+                        continue;
+                    case WaveAnnotationKind.Native:
+                        continue;
+                    case WaveAnnotationKind.Readonly:
+                        flags |= FieldFlags.Readonly;
+                        continue;
+                    case WaveAnnotationKind.Getter:
+                    case WaveAnnotationKind.Setter:
+                        //errors.Add($"In [orange]'{field.Field.Identifier}'[/] field [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
+                        continue;
+                    default:
+                        errors.Add(
+                            $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
+                        continue;
+                }
+            }
+
+            foreach (var mod in mods)
+            {
+                switch (mod.ModificatorKind.ToString().ToLower())
+                {
+                    case "public":
+                        flags |= FieldFlags.Public;
+                        continue;
+                    case "static":
+                        flags |= FieldFlags.Static;
+                        continue;
+                    case "protected":
+                        flags |= FieldFlags.Protected;
+                        continue;
+                    case "internal":
+                        flags |= FieldFlags.Internal;
+                        continue;
+                    case "override":
+                        flags |= FieldFlags.Override;
+                        continue;
+                    case "abstract":
+                        flags |= FieldFlags.Abstract;
+                        continue;
+                    case "const":
+                        flags |= FieldFlags.Literal;
+                        continue;
+                    default:
+                        errors.Add($"In [orange]'{field.Field.Identifier}'[/] field [red bold]{mod}[/] is not supported [orange bold]modificator[/].");
+                        continue;
+                }
+            }
+
+
+            //if (flags.HasFlag(FieldFlags.Private) && flags.HasFlag(MethodFlags.Public))
+            //    errors.Add($"Modificator [red bold]public[/] cannot be combined with [red bold]private[/] in [orange]'{field.Field.Identifier}'[/] field.");
+
 
             return flags;
         }
@@ -624,9 +695,11 @@ namespace insomnia.compilation
                 switch (kind)
                 {
                     case WaveAnnotationKind.Virtual:
-                        flags &= MethodFlags.Virtual;
+                        flags |= MethodFlags.Virtual;
                         continue;
                     case WaveAnnotationKind.Special:
+                        flags |= MethodFlags.Special;
+                        continue;
                     case WaveAnnotationKind.Native:
                         continue;
                     case WaveAnnotationKind.Readonly:
@@ -646,22 +719,22 @@ namespace insomnia.compilation
                 switch (mod.ModificatorKind.ToString().ToLower())
                 {
                     case "public":
-                        flags &= MethodFlags.Public;
+                        flags |= MethodFlags.Public;
                         continue;
                     case "extern":
-                        flags &= MethodFlags.Extern;
+                        flags |= MethodFlags.Extern;
                         continue;
                     case "private":
-                        flags &= MethodFlags.Private;
+                        flags |= MethodFlags.Private;
                         continue;
                     case "static":
-                        flags &= MethodFlags.Static;
+                        flags |= MethodFlags.Static;
                         continue;
                     case "protected":
-                        flags &= MethodFlags.Protected;
+                        flags |= MethodFlags.Protected;
                         continue;
                     case "internal":
-                        flags &= MethodFlags.Internal;
+                        flags |= MethodFlags.Internal;
                         continue;
                     default:
                         errors.Add($"In [orange]'{method.Identifier}'[/] method [red bold]{mod}[/] is not supported [orange bold]modificator[/].");
