@@ -1,4 +1,4 @@
-﻿namespace insomnia.compilation
+namespace insomnia.compilation
 {
     using emit;
     using Spectre.Console;
@@ -102,11 +102,13 @@
                 .Select(x => LinkClasses(x.Value))
                 .ToList()
                 .Pipe(z => z
-                    .Pipe(x => LinkMetadata(x.member, x.clazz, x.member.OwnerDocument))
-                    .Pipe(x => LinkMethods(x.member, x.clazz, x.member.OwnerDocument)
+                    .Pipe(LinkMetadata)
+                    .Pipe(x => LinkMethods(x)
                         .Transition(
                             methods => methods.ForEach(GenerateBody),
                             fields => fields.ForEach(GenerateField)))
+                    .Pipe(GenerateStaticCtor)
+                    .Pipe(GenerateCtor)
                     .Consume())
                 .Consume();
             if (errors.Count == 0)
@@ -212,8 +214,10 @@
             }
         }
 
-        public void LinkMetadata(ClassDeclarationSyntax member, WaveClass @class, DocumentDeclaration doc)
+        public void LinkMetadata((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
+            var (@class, member) = x;
+            var doc = member.OwnerDocument;
             @class.Flags = GenerateClassFlags(member);
             
             var owner = member.Inheritances.FirstOrDefault();
@@ -227,11 +231,13 @@
             @class.Parent = FetchType(owner, doc)?.AsClass();
         }
         public (
-            List<(WaveMethod method, MethodDeclarationSyntax syntax)> methods, 
+            List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods, 
             List<(WaveField field, FieldDeclarationSyntax syntax)>) 
-            LinkMethods(ClassDeclarationSyntax clazzSyntax, ClassBuilder clazz, DocumentDeclaration doc)
+            LinkMethods((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
-            var methods = new List<(WaveMethod method, MethodDeclarationSyntax syntax)>();
+            var (@class, clazzSyntax) = x;
+            var doc = clazzSyntax.OwnerDocument;
+            var methods = new List<(MethodBuilder method, MethodDeclarationSyntax syntax)>();
             var fields = new List<(WaveField field, FieldDeclarationSyntax syntax)>();
             foreach (var member in clazzSyntax.Members)
             {
@@ -249,12 +255,12 @@
                     case MethodDeclarationSyntax method:
                         ctx.WaveStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
                         method.OwnerClass = clazzSyntax;
-                        methods.Add(CompileMethod(method, clazz, doc));
+                        methods.Add(CompileMethod(method, @class, doc));
                         break;
                     case FieldDeclarationSyntax field:
                         ctx.WaveStatus($"Regeneration field [grey]'{field.Field.Identifier}'[/]");
                         field.OwnerClass = clazzSyntax;
-                        fields.Add(CompileField(field, clazz, doc));
+                        fields.Add(CompileField(field, @class, doc));
                         break;
                     default:
                         warnings.Add($"[grey]Member[/] '[yellow underline]{member.GetType().Name}[/]' [grey]is not supported.[/]");
@@ -264,7 +270,7 @@
             return (methods, fields);
         }
 
-        public (WaveMethod method, MethodDeclarationSyntax syntax) 
+        public (MethodBuilder method, MethodDeclarationSyntax syntax) 
             CompileMethod(MethodDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
             CompileAnnotation(member, doc);
@@ -273,11 +279,11 @@
 
             if (retType is null)
                 return default;
-
+            
             var args = GenerateArgument(member, doc);
             
             var method = clazz.DefineMethod(member.Identifier, GenerateMethodFlags(member), retType, args);
-
+            
             return (method, member);
         }
 
@@ -289,11 +295,106 @@
             if (fieldType is null)
                 return default;
 
-            var field = clazz.DefineField(member.Field.Identifier, FieldFlags.None, fieldType);
+            var field = clazz.DefineField(member.Field.Identifier, GenerateFieldFlags(member), fieldType);
             return (field, member);
         }
 
-        public void GenerateBody((WaveMethod method, MethodDeclarationSyntax member) t)
+        public void GenerateCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)
+        {
+            var (@class, member) = x;
+            ctx.WaveStatus($"Regenerate default ctor for [grey]'{member.Identifier}'[/].");
+            var ctor = @class.GetDefaultCtor() as MethodBuilder;
+            var doc = member.OwnerDocument;
+
+            if (ctor is null)
+            {
+                errors.Add($"[red bold]Class/struct '{@class.Name}' has problem with generate default ctor.[/] \n\t" +
+                           $"Please report the problem into 'https://github.com/0xF6/wave_lang/issues'." +
+                           $"in '[orange bold]{doc.FileEntity}[/]'.");
+                return;
+            }
+
+            var gen = ctor.GetGenerator();
+
+
+            var pctor = @class.Parent?.GetDefaultCtor();
+
+            if (pctor is not null) // for Object, ValueType
+                gen.Emit(OpCodes.CALL, pctor); // call parent ctor
+            var pregen = new List<(ExpressionSyntax exp, WaveField field)>();
+
+
+            foreach (var field in @class.Fields)
+            {
+                if (field.IsStatic)
+                    continue;
+                if (field.IsLiteral)
+                    continue;
+                var stx = member.Fields
+                    .SingleOrDefault(x => x.Field.Identifier.Equals(field.Name));
+                if (stx is null)
+                {
+                    errors.Add($"[red bold]Field '{field.Name}' in class/struct '{@class.Name}' has undefined.[/] \n\t" +
+                               $"in '[orange bold]{doc.FileEntity}[/]'.");
+                    continue;
+                }
+                pregen.Add((stx.Field.Expression, field));
+            }
+
+            foreach (var (exp, field) in pregen)
+            {
+                if (exp is null)
+                    gen.Emit(OpCodes.LDNULL);
+                else
+                    gen.EmitExpression(exp);
+                gen.Emit(OpCodes.STF, field);
+            }
+        }
+
+        public void GenerateStaticCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)
+        {
+            var (@class, member) = x;
+            ctx.WaveStatus($"Regenerate static ctor for [grey]'{member.Identifier}'[/].");
+            var ctor = @class.GetStaticCtor() as MethodBuilder;
+            var doc = member.OwnerDocument;
+
+            if (ctor is null)
+            {
+                errors.Add($"[red bold]Class/struct '{@class.Name}' has problem with generate static ctor.[/] \n\t" +
+                           $"Please report the problem into 'https://github.com/0xF6/wave_lang/issues'." +
+                           $"in '[orange bold]{doc.FileEntity}[/]'.");
+                return;
+            }
+
+            var gen = ctor.GetGenerator();
+            var pregen = new List<(ExpressionSyntax exp, WaveField field)>();
+
+            foreach (var field in @class.Fields)
+            {
+                if (!field.IsStatic)
+                    continue;
+                var stx = member.Fields
+                    .SingleOrDefault(x => x.Field.Identifier.Equals(field.Name));
+                if (stx is null)
+                {
+                    errors.Add($"[red bold]Field '{field.Name}' in class/struct '{@class.Name}' has undefined.[/] \n\t" +
+                               $"in '[orange bold]{doc.FileEntity}[/]'.");
+                    continue;
+                }
+                pregen.Add((stx.Field.Expression, field));
+            }
+
+            foreach (var (exp, field) in pregen)
+            {
+                if (exp is null)
+                    gen.Emit(OpCodes.LDNULL);
+                else
+                    gen.EmitExpression(exp);
+                gen.Emit(OpCodes.STSF, field);
+            }
+        }
+
+        public void GenerateBody((MethodBuilder method, MethodDeclarationSyntax member) t)
         {
             if (t == default)
             {
