@@ -25,7 +25,7 @@
         }
         
         public override string ToString() 
-            => $"{Owner.Name}::{Name}({Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(',')})";
+            => $"{Owner.Name}::{RawName}({Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(',')})";
     }
     
     
