@@ -1,10 +1,12 @@
-namespace insomnia.extensions
+﻿namespace insomnia.extensions
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using compilation;
     using emit;
+    using Spectre.Console;
     using Sprache;
     using syntax;
     using wave.etc;
@@ -261,49 +263,120 @@ namespace insomnia.extensions
 
         public static void EmitCreateObject(this ILGenerator gen, NewExpressionSyntax @new)
         {
-            var type = gen._methodBuilder.moduleBuilder.FindType(@new.TargetType.Typeword.Identifier,
-                gen._methodBuilder.classBuilder.Includes);
-            var module = gen._methodBuilder.moduleBuilder;
+            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            var type = context.ResolveType(@new.TargetType.Typeword);
+            
             foreach (var arg in @new.CtorArgs) 
                 gen.EmitExpression(arg);
             gen.Emit(OpCodes.NEWOBJ, type);
 
-            var ctor = type.FindMethod("ctor", @new.CtorArgs.DetermineTypes(module));
+            var ctor = type.FindMethod("ctor", @new.CtorArgs.DetermineTypes(context));
 
             gen.Emit(OpCodes.CALL, ctor);
         }
 
-        public static IEnumerable<WaveType> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, WaveModule module) 
-            => exps.Select(x => x.DetermineType(module));
+        public static IEnumerable<WaveType> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context) 
+            => exps.Select(x => x.DetermineType(context)).Where(x => x is not null /* if failed determine skip analyze */);
 
-        public static WaveType DetermineType(this ExpressionSyntax exp, WaveModule module)
+        public static WaveType DetermineType(this ExpressionSyntax exp, GeneratorContext context)
         {
-            if (exp.CanOptimization())
-                return exp.ForceOptimization().DetermineType(module);
+            if (exp.CanOptimizationApply())
+                return exp.ForceOptimization().DetermineType(context);
             if (exp is LiteralExpressionSyntax literal)
                 return literal.GetTypeCode().AsType();
             if (exp is BinaryExpressionSyntax bin)
             {
                 if (bin.OperatorType.IsLogic())
                     return WaveTypeCode.TYPE_BOOLEAN.AsType();
-                var (lt, rt) = bin.Fusce(module);
+                var (lt, rt) = bin.Fusce(context);
 
-                if (lt == rt) return lt;
-
-                return ExplicitConversion(lt, rt);
+                return lt == rt ? lt : ExplicitConversion(lt, rt);
             }
             if (exp is NewExpressionSyntax @new)
-                return module.FindType(@new.TargetType.Typeword.Identifier);
-            throw new NotImplementedException($"TODO");
+                return context.ResolveType(@new.TargetType.Typeword);
+            if (exp is MemberAccessExpression member)
+                return member.ResolveType(context);
+            context.LogError($"Cannot determine expression.", exp);
+            return null;
         }
 
-        public static (WaveType, WaveType) Fusce(this BinaryExpressionSyntax binary, WaveModule module)
+        public static WaveType ResolveType(this MemberAccessExpression member, GeneratorContext context)
         {
-            var lt = binary.Left.DetermineType(module);
-            var rt = binary.Right.DetermineType(module);
+            var chain = member.GetChain().ToArray();
+            var lastToken = chain.Last();
+
+            if (lastToken is MethodInvocationExpression method)
+                return method.ResolveReturnType(context, chain);
+            if (lastToken is IndexerExpression)
+            {
+                context.LogError($"indexer is not support.", lastToken);
+                return null;
+            }
+            if (lastToken is OperatorExpressionSyntax)
+                return chain.SkipLast(1).ResolveMemberType(context);
+            if (lastToken is IdentifierExpression)
+                return chain.ResolveMemberType(context);
+            context.LogError($"Cannot determine expression.", lastToken);
+            return null;
+        }
+
+        public static (WaveType, WaveType) Fusce(this BinaryExpressionSyntax binary, GeneratorContext context)
+        {
+            var lt = binary.Left.DetermineType(context);
+            var rt = binary.Right.DetermineType(context);
 
             return (lt, rt);
         }
+
+        public static WaveType ResolveMemberType(this IEnumerable<ExpressionSyntax> chain, GeneratorContext context)
+        {
+            var t = default(WaveType);
+            var prev_id = default(IdentifierExpression);
+            using var enumerator = chain.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                var exp = enumerator.Current;
+                if (exp is not IdentifierExpression id)
+                {
+                    context.LogError($"Incorrect state of expression.", exp);
+                    return null;
+                }
+
+                t = t is null ? 
+                    context.ResolveScopedIdentifierType(id) : 
+                    context.ResolveField(t, prev_id, id)?.FieldType;
+                prev_id = id;
+            }
+
+            return t;
+        }
+
+        public static WaveType ResolveReturnType(this MethodInvocationExpression member,
+            GeneratorContext context, IEnumerable<ExpressionSyntax> chain)
+        {
+            var t = default(WaveType);
+            var prev_id = default(IdentifierExpression);
+            var enumerator = chain.ToArray();
+            for (var i = 0; i != enumerator.Length; i++)
+            {
+                var exp = enumerator[i] as IdentifierExpression;
+
+                if (i + 1 == enumerator.Length-1)
+                    return context.ResolveMethod(t ?? context.CurrentMethod.Owner.AsType(), prev_id, exp, member)
+                        ?.ReturnType;
+                t = t is null ? 
+                    context.ResolveScopedIdentifierType(exp) : 
+                    context.ResolveField(t, prev_id, exp)?.FieldType;
+                prev_id = exp;
+            }
+
+            context.LogError($"Incorrect state of expression.", member);
+            return null;
+        }
+
+
+        
 
 
 
@@ -471,14 +544,14 @@ namespace insomnia.extensions
             var @class = generator._methodBuilder.classBuilder;
             var @method = generator._methodBuilder;
 
-            if (statement.Expression is Unnamed02ExpressionSyntax unnamed02)
+            if (statement.Expression is MemberAccessExpression unnamed02)
             {
                 var type = generator
                     ._methodBuilder
                     .moduleBuilder
-                    .FindType(unnamed02.Pe.ExpressionString, @class.Includes);
+                    .FindType(unnamed02.Start.ExpressionString, @class.Includes);
 
-                var methodName = unnamed02.Dd.First().ExpressionString;
+                var methodName = unnamed02.Chain.First().ExpressionString;
 
                 var call_method = type.FindMethod(methodName);
 
