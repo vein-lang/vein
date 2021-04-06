@@ -1,8 +1,11 @@
 ﻿namespace wc_test
 {
+    using System;
     using Sprache;
     using System.Linq;
     using insomnia;
+    using insomnia.emit;
+    using insomnia.extensions;
     using insomnia.stl;
     using insomnia.syntax;
     using Xunit;
@@ -267,8 +270,41 @@
         [InlineData("auto")]
         public void KeywordIsNotIdentifier(string key) 
             => Assert.Throws<WaveParseException>(() => Wave.Identifier.ParseWave(key));
-        
-        
+
+        [Theory]
+        [InlineData("foo.bar.zet", 3)]
+        [InlineData("foo.bar.zet()", 4)]
+        [InlineData("zet()", 2)]
+        [InlineData("zet++", 2)]
+        [InlineData("zet->foo()", 3)]
+        [InlineData("zet.foo()[2]", 4)]
+        public void MemberOrMethodTest(string key, int chainLen)
+        {
+            var result = Wave.QualifiedExpression.End().ParseWave(key) as MemberAccessExpression;
+
+            Assert.NotNull(result);
+
+            var chain = result.GetChain().ToArray();
+
+
+            Assert.Equal(chainLen, chain.Length);
+        }
+        [Fact]
+        public void ValidateChainMember()
+        {
+            var key = $"zet.foo()[2]";
+            var result = Wave.QualifiedExpression.End().ParseWave(key) as MemberAccessExpression;
+
+            Assert.NotNull(result);
+
+            var chain = result.GetChain().ToArray();
+
+
+            Assert.IsType<IdentifierExpression>(chain[0]); // zet
+            Assert.IsType<IdentifierExpression>(chain[1]); // foo
+            Assert.IsType<MethodInvocationExpression>(chain[2]); // ()
+            Assert.IsType<BracketExpression>(chain[3]); // []
+        }
         [Theory]
         [InlineData("class", null, true)]
         [InlineData("true", "true", false)]
