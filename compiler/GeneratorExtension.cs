@@ -1,4 +1,4 @@
-﻿namespace insomnia.extensions
+namespace insomnia.extensions
 {
     using System;
     using System.Collections.Generic;
@@ -8,6 +8,112 @@
     using Sprache;
     using syntax;
     using wave.etc;
+
+    public class GeneratorContext
+    {
+        internal WaveModuleBuilder Module { get; set; }
+        internal Dictionary<QualityTypeName, ClassBuilder> Classes { get; } = new ();
+        internal DocumentDeclaration Document { get; set; }
+
+        public List<string> Errors = new ();
+
+        public Dictionary<WaveMethod, WaveScope> Scopes { get; } = new();
+
+        public WaveMethod CurrentMethod { get; set; }
+        public WaveScope CurrentScope { get; set; }
+        
+        public GeneratorContext LogError(string err, ExpressionSyntax exp)
+        {
+            var pos = exp.Transform.pos;
+            var diff_err = exp.Transform.DiffErrorFull(Document);
+            Errors.Add($"[red bold]{err.EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
+                       $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
+                       $"in '[orange bold]{Document.FileEntity}[/]'."+
+                       $"{diff_err}");
+            return this;
+        }
+
+        public WaveType ResolveType(TypeSyntax targetTypeTypeword) 
+            => Module.FindType(targetTypeTypeword.Identifier, Classes[CurrentMethod.Owner.FullName].Includes);
+
+        public WaveType ResolveScopedIdentifierType(IdentifierExpression id)
+        {
+            if (CurrentScope.HasVariable(id))
+                return CurrentScope.variables[id];
+            if (CurrentMethod.Owner.ContainsField(id))
+                return CurrentMethod.Owner.ResolveField(id)?.FieldType;
+            var modType = Module.FindType(id.ExpressionString, Classes[CurrentMethod.Owner.FullName].Includes);
+            if (modType is not null)
+                return modType;
+            this.LogError($"The name '{id}' does not exist in the current context.", id);
+            return null;
+        }
+        public WaveField ResolveField(WaveType targetType, IdentifierExpression target, IdentifierExpression id)
+        {
+            var field = targetType.FindField(id.ExpressionString);
+
+            if (field is not null)
+                return field;
+            this.LogError($"'{targetType.FullName.NameWithoutAsm}' does not contain " +
+                          $"a definition for '{target.ExpressionString}' and " +
+                          $"no extension method '{id.ExpressionString}' accepting " +
+                          $"a first argument of type '{targetType.FullName.NameWithoutAsm}' could be found.", id);
+            return null;
+        }
+        public WaveMethod ResolveMethod(
+            WaveType targetType, 
+            IdentifierExpression target, 
+            IdentifierExpression id, 
+            MethodInvocationExpression invocation)
+        {
+            var method = targetType.FindMethod(id.ExpressionString, invocation.Arguments.DetermineTypes(this));
+            if (method is not null)
+                return method;
+            if (target is not null)
+                this.LogError($"'{targetType.FullName.NameWithoutAsm}' does not contain " +
+                          $"a definition for '{target.ExpressionString}' and " +
+                          $"no extension method '{id.ExpressionString}' accepting " +
+                          $"a first argument of type '{targetType.FullName.NameWithoutAsm}' could be found.", id);
+            else
+                this.LogError($"The name '{id}' does not exist in the current context.", id);
+            return null;
+        }
+    }
+
+    public class WaveScope
+    {
+        public WaveScope TopScope { get; }
+        public List<WaveScope> Scopes { get; } = new ();
+        public GeneratorContext Context { get; }
+
+        public Dictionary<IdentifierExpression, WaveType> variables { get; } = new();
+
+
+        public WaveScope(GeneratorContext gen, WaveScope owner = null)
+        {
+            this.Context = gen;
+            if (owner is null) 
+                return;
+            this.TopScope = owner;
+            owner.Scopes.Add(this);
+        }
+
+        public WaveScope EnterScope() => new (Context, this);
+
+        public bool HasVariable(IdentifierExpression id) 
+            => variables.ContainsKey(id);
+
+        public WaveScope DefineVariable(IdentifierExpression id, WaveType type)
+        {
+            if (HasVariable(id))
+            {
+                Context.LogError($"A local variable named '{id}' is already defined in this scope", id);
+                return this;
+            }
+            variables.Add(id, type);
+            return this;
+        }
+    }
 
     public static class GeneratorExtension
     {
