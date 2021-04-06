@@ -28,13 +28,62 @@
         public override bool IsClass => !IsPrimitive;
     }
     
-    public abstract class WaveType : WaveMember
+    public abstract class WaveType : WaveMember, IEquatable<WaveType>
     {
+        // autogen wtf 
+        #region Equality members
+
+        public bool Equals(WaveType other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(Members, other.Members) && 
+                   classFlags == other.classFlags && 
+                   TypeCode == other.TypeCode && 
+                   Equals(Parent, other.Parent) && 
+                   Equals(FullName, other.FullName) && 
+                   IsArray == other.IsArray && 
+                   IsSealed == other.IsSealed && 
+                   IsClass == other.IsClass && 
+                   IsPublic == other.IsPublic && 
+                   IsStatic == other.IsStatic && 
+                   IsPrivate == other.IsPrivate && 
+                   IsPrimitive == other.IsPrimitive;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((WaveType) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(Members);
+            hashCode.Add(classFlags);
+            hashCode.Add((int) TypeCode);
+            hashCode.Add(Parent);
+            hashCode.Add(FullName);
+            hashCode.Add(IsArray);
+            hashCode.Add(IsSealed);
+            hashCode.Add(IsClass);
+            hashCode.Add(IsPublic);
+            hashCode.Add(IsStatic);
+            hashCode.Add(IsPrivate);
+            hashCode.Add(IsPrimitive);
+            return hashCode.ToHashCode();
+        }
+
+        #endregion
+
         public string Namespace => FullName.Namespace;
         public List<WaveMember> Members { get; } = new();
         protected internal ClassFlags? classFlags { get; set; }
         public WaveTypeCode TypeCode { get; protected set; }
-        public WaveType Parent { get; protected set; }
+        public WaveType Parent { get; protected internal set; }
 
         public override string Name
         {
@@ -67,9 +116,14 @@
         public override string ToString() => $"[{FullName}]";
 
         public WaveMethod FindMethod(string name, IEnumerable<WaveType> args_types)
-        {
-            throw new NotImplementedException();
-        }
+            => this.Members.OfType<WaveMethod>().FirstOrDefault(x => 
+                x.RawName.Equals(name) && 
+                x.Arguments.Select(z => z.Type).SequenceEqual(args_types)
+                );
+
+        public WaveField FindField(string name) 
+            => this.Members.OfType<WaveField>().FirstOrDefault(x => x.Name.Equals(name));
+
         public WaveMethod FindMethod(string name)
         {
             foreach (var member in Members)
