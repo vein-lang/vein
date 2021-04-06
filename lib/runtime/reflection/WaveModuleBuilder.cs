@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.IO;
     using System.Linq;
     using System.Text;
@@ -55,6 +56,8 @@
         /// </summary>
         public ClassBuilder DefineClass(QualityTypeName name)
         {
+            if (class_table.Any(x => x.FullName.Equals(name)))
+                throw new DuplicateNameException($"Class '{name}' already defined.");
             InternString(name.Name);
             InternString(name.Namespace);
             InternString(name.AssemblyName);
