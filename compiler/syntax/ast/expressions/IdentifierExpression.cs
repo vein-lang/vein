@@ -1,8 +1,9 @@
 ﻿namespace insomnia.syntax
 {
+    using System;
     using Sprache;
 
-    public class IdentifierExpression : ExpressionSyntax, IPositionAware<IdentifierExpression>
+    public class IdentifierExpression : ExpressionSyntax, IPositionAware<IdentifierExpression>, IEquatable<IdentifierExpression>
     {
         public IdentifierExpression(string name) : base(name) 
             => this.ExpressionString = name;
@@ -12,5 +13,29 @@
             base.SetPos(startPos, length);
             return this;
         }
+        
+        public bool Equals(IdentifierExpression other)
+        {
+            if (other is null)
+                return false;
+            return this.ExpressionString == other.ExpressionString;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((IdentifierExpression) obj);
+        }
+
+        public override int GetHashCode() 
+            => this.ExpressionString.GetHashCode();
+
+        public static bool operator ==(IdentifierExpression left, IdentifierExpression right) 
+            => Equals(left, right);
+
+        public static bool operator !=(IdentifierExpression left, IdentifierExpression right) 
+            => !Equals(left, right);
     }
 }
