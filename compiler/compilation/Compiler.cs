@@ -197,7 +197,7 @@
             {
                 foreach (var (exp, index) in annotation.Args.Select((x, y) => (x, y)))
                 {
-                    if (exp.CanOptimization())
+                    if (exp.CanOptimizationApply())
                     {
                         var optimized = exp.ForceOptimization();
                         var converter = optimized.GetTypeCode().GetConverter();
@@ -206,7 +206,7 @@
                     }
                     else
                     {
-                        var diff_err = DiffErrorFull(annotation.Transform, doc);
+                        var diff_err = annotation.Transform.DiffErrorFull(doc);
                         errors.Add($"[red bold]Annotations require compile-time constant.[/] \n\t" +
                                    $"at '[orange bold]{annotation.Transform.pos.Line} line, {annotation.Transform.pos.Column} column[/]' \n\t" +
                                    $"in '[orange bold]{doc.FileEntity}[/]'." +
@@ -248,7 +248,7 @@
                     case IPassiveParseTransition transition when member.IsBrokenToken:
                         var e = transition.Error;
                         var pos = member.Transform.pos;
-                        var err_line = DiffErrorFull(member.Transform, doc);
+                        var err_line = member.Transform.DiffErrorFull(doc);
                         errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
                                    $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
                                    $"in '[orange bold]{doc.FileEntity}[/]'." +
@@ -430,38 +430,11 @@
             var doc = member.OwnerClass.OwnerDocument;
             var pos = statement.Transform.pos;
             var e = transition.Error;
-            var diff_err = DiffErrorFull(statement.Transform, doc);
+            var diff_err = statement.Transform.DiffErrorFull(doc);
             errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
                        $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
                        $"in '[orange bold]{doc.FileEntity}[/]'."+
                        $"{diff_err}");
-        }
-
-        private static string DiffErrorFull(Transform t, DocumentDeclaration doc)
-        {
-            try
-            {
-                var (diff, arrow_line) = DiffError(t, doc);
-                return $"\n\t[grey] {diff.EscapeMarkup().EscapeArgumentSymbols()} [/]\n\t[red] {arrow_line.EscapeMarkup().EscapeArgumentSymbols()} [/]";
-            }
-            catch
-            {
-                return ""; // TODO analytic
-            }
-        }
-        private static (string line, string arrow_line) DiffError(Transform t, DocumentDeclaration doc)
-        {
-            var line = doc.SourceLines[t.pos.Line].Length < t.len ? 
-                t.pos.Line - 1 : 
-                /*t.pos.Line*/throw new Exception("cannot detect line");
-
-            var original = doc.SourceLines[line];
-            var err_line = original[(t.pos.Column - 1)..];
-            var space1 = original[..(t.pos.Column - 1)];
-            var space2 = (t.pos.Column - 1) + t.len > original.Length ? "" : original[((t.pos.Column - 1) + t.len)..];
-
-            return (original,
-                $"{new string(' ', space1.Length)}{new string('^', err_line.Length)}{new string(' ', space2.Length)}");
         }
         public void GenerateField((WaveField field, FieldDeclarationSyntax member) t)
         {
@@ -486,7 +459,7 @@
                 {
                     if (!field.FieldType.TypeCode.CanImplicitlyCast(numeric))
                     {
-                        var diff_err = DiffErrorFull(literal.Transform, doc);
+                        var diff_err = literal.Transform.DiffErrorFull(doc);
                         
                         var value = numeric.GetTypeCode();
                         var variable = member.Type.Identifier;
@@ -503,7 +476,7 @@
                 }
                 else if (literal.GetTypeCode() != field.FieldType.TypeCode)
                 {
-                    var diff_err = DiffErrorFull(literal.Transform, doc);
+                    var diff_err = literal.Transform.DiffErrorFull(doc);
                     errors.Add(
                         $"[red bold]Cannot implicitly convert type[/] " +
                         $"'[purple underline]{literal.GetTypeCode().AsType().Name}[/]' to " +
@@ -523,7 +496,7 @@
 
                 if (assigner is NewExpressionSyntax)
                 {
-                    var diff_err = DiffErrorFull(assigner.Transform, doc);
+                    var diff_err = assigner.Transform.DiffErrorFull(doc);
                     errors.Add(
                         $"[red bold]The expression being assigned to[/] '[purple underline]{member.Field.Identifier}[/]' [red bold]must be constant[/]. \n\t" +
                         $"at '[orange bold]{assigner.Transform.pos.Line} line, {assigner.Transform.pos.Column} column[/]' \n\t" +

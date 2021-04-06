@@ -6,7 +6,7 @@
 
     internal static class ExpressionExtension
     {
-        public static bool CanOptimization(this ExpressionSyntax exp)
+        public static bool CanOptimizationApply(this ExpressionSyntax exp)
         {
             if (exp.HasOptimized)
                 return false;

@@ -365,9 +365,9 @@
                 ).Token()
                 from bk1 in bracket_expression.Many()
                 from s4 in Parse.Char('!').Token().Optional()
-                select FlatIfEmptyOrNull(new Unnamed01ExpressionSyntax(cc, bk1))
+                select FlatIfEmptyOrNull(new ChainAccessExpression(cc, bk1))
             ).Token().Many()
-            select FlatIfEmptyOrNull(new Unnamed02ExpressionSyntax(pe, bk, dd));
+            select FlatIfEmptyOrNull(new MemberAccessExpression(pe, bk, dd));
 
         private Parser<ExpressionSyntax> UnaryOperator(string op) =>
             from o in Parse.String(op).Token()

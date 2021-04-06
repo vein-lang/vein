@@ -45,17 +45,17 @@
                 return new BinaryExpressionSyntax(exp, coalescing, "?:");
             return exp;
         }
-        private ExpressionSyntax FlatIfEmptyOrNull(Unnamed01ExpressionSyntax exp)
+        private ExpressionSyntax FlatIfEmptyOrNull(ChainAccessExpression exp)
         {
-            if (exp.bk1.EmptyIfNull().Count() == 0)
-                return exp.cc;
+            if (!exp.Other.EmptyIfNull().Any())
+                return exp.Start;
             return exp;
         }
         // fucking shit
-        private ExpressionSyntax FlatIfEmptyOrNull(Unnamed02ExpressionSyntax exp)
+        private ExpressionSyntax FlatIfEmptyOrNull(MemberAccessExpression exp)
         {
-            if (exp.Bk.EmptyIfNull().Count() == 0 && exp.Dd.EmptyIfNull().Count() == 0)
-                return exp.Pe;
+            if (exp.IndexerAccess.EmptyIfNull().Count() == 0 && exp.Chain.EmptyIfNull().Count() == 0)
+                return exp.Start;
             return exp;
         }
         private ExpressionSyntax FlatIfEmptyOrNull<T>(ExpressionSyntax exp, (string op, T exp)[] data) where T : ExpressionSyntax
