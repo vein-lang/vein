@@ -117,6 +117,12 @@ namespace insomnia.extensions
 
     public static class GeneratorExtension
     {
+        public static bool ContainsField(this WaveClass @class, IdentifierExpression id) 
+            => @class.Fields.Any(x => x.Name.Equals(id.ExpressionString));
+
+        public static WaveField ResolveField(this WaveClass @class, IdentifierExpression id) 
+            => @class.Fields.FirstOrDefault(x => x.Name.Equals(id.ExpressionString));
+
         public static void EmitUnary(this ILGenerator gen, UnaryExpressionSyntax node)
         {
             if (node.OperatorType == ExpressionType.NegateChecked && node.Operand.GetTypeCode().HasInteger())
