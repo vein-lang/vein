@@ -2,6 +2,7 @@
 {
     using System;
     using System.Buffers.Binary;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -427,5 +428,10 @@
             Array.Copy(arr, objArray, arr.Length);
             return objArray;
         }
+
+        public Dictionary<string, object> Metadata { get; } = new();
+
+        public T ConsumeFromMetadata<T>(string key) where T : class => Metadata[key] as T;
+        public void StoreIntoMetadata(string key, object o) => Metadata.Add(key, o);
     }
 }
