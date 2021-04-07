@@ -1,7 +1,9 @@
 ﻿namespace insomnia.syntax
 {
     using System;
+    using System.Linq;
     using compilation;
+    using MoreLinq;
     using Spectre.Console;
 
     public static class ErrorDiff
@@ -18,8 +20,39 @@
                 return ""; // TODO analytic
             }
         }
+
+        private static (string line, string arrow_line) NewDiffError(Transform t, DocumentDeclaration doc)
+        {
+            var line = doc.SourceLines[t.pos.Line].Length < t.len ? 
+                t.pos.Line - 1 : 
+                /*t.pos.Line*/throw new Exception("cannot detect line");
+
+            var original = doc.SourceLines[line];
+
+            int takeLen()
+            {
+                var r = original.Skip(t.pos.Column - 1).Take(t.len).ToArray().Last();
+                if (r == ' ' || r == ';' || r == ',')
+                    return t.len - 1;
+                return t.len;
+            }
+
+            var err_line = original.Skip(t.pos.Column-1).Take(takeLen()).ToArray();
+            var space1 = original[..(t.pos.Column - 1)];
+            var space2 = (t.pos.Column - 1) + t.len > original.Length ? "" : original[((t.pos.Column - 1) + t.len)..];
+
+            return (original,
+                $"{new string(' ', space1.Length)}{new string('^', err_line.Length)}{new string(' ', space2.Length)}");
+        }
+
         public static (string line, string arrow_line) DiffError(this Transform t, DocumentDeclaration doc)
         {
+            try
+            {
+                return NewDiffError(t, doc);
+            }
+            catch { }
+
             var line = doc.SourceLines[t.pos.Line].Length < t.len ? 
                 t.pos.Line - 1 : 
                 /*t.pos.Line*/throw new Exception("cannot detect line");
