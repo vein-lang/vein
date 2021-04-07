@@ -9,7 +9,7 @@ namespace insomnia.syntax
     {
         protected internal virtual Parser<MemberDeclarationSyntax> ClassMemberDeclaration =>
             from member in
-                MethodOrPropertyDeclaration.Token()
+                CtorDeclaration.Or(MethodOrPropertyDeclaration).Token()
                     .OrPreview(FieldDeclaration.Token())
                     .Commented(this)
             select member.Value
@@ -80,6 +80,13 @@ namespace insomnia.syntax
             from member in MethodParametersAndBody.Select(c => c as MemberDeclarationSyntax)
                 .XOr(PropertyAccessors)
             select member.WithName(name).WithProperties(dec);
+
+        protected internal virtual Parser<MemberDeclarationSyntax> CtorDeclaration =>
+            from dec in MemberDeclarationHeading
+            from kw in KeywordExpression("new").Return("ctor").Or(
+                KeywordExpression("delete").Return("dtor"))
+            from member in CtorParametersAndBody.Select(c => c as MemberDeclarationSyntax)
+            select member.WithName(kw).WithProperties(dec);
         
         // example: @TestFixture public static class Program { static void main() {} }
         public virtual Parser<ClassDeclarationSyntax> ClassDeclaration =>

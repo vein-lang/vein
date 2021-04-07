@@ -170,6 +170,18 @@
                 ReturnType = type
             };
 
+        protected internal virtual Parser<MethodDeclarationSyntax> CtorParametersAndBody =>
+            from parameters in MethodParameters
+            from methodBody in Block.Or(Parse.Char(';').Return(new EmptyBlockSyntax()))
+                .Token().Positioned()
+            select new MethodDeclarationSyntax
+            {
+                Parameters = parameters,
+                Body = methodBody,
+                ReturnType = new TypeSyntax("Void")
+                    .SetPos(new Position(0,0,0), 0) as TypeSyntax
+            };
+
         // foo.bar.zet
         protected internal virtual Parser<MemberAccessSyntax> MemberAccessExpression =>
             from identifier in QualifiedIdentifier
