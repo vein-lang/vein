@@ -87,7 +87,7 @@
         protected internal virtual Parser<ParameterSyntax> explicit_anonymous_function_parameter =>
             from i in Identifier
             from d in Parse.Char(':')
-            from t in TypeExpression
+            from t in TypeExpression.Token().Positioned()
             select new ParameterSyntax(t.Typeword, i);
 
         protected internal virtual Parser<ParameterSyntax> implicit_anonymous_function_parameter =>
@@ -183,12 +183,12 @@
 
         protected internal virtual Parser<ExpressionSyntax> AsTypePattern =>
             from key in Keyword("as").Token()
-            from ty in TypeExpression.Token()
+            from ty in TypeExpression.Token().Positioned()
             select new AsTypePatternExpression(ty);
 
         protected internal virtual Parser<ExpressionSyntax> IsTypePattern =>
             from key in Keyword("is").Token()
-            from ty in TypeExpression.Token()
+            from ty in TypeExpression.Token().Positioned()
             select new IsTypePatternExpression(ty);
 
 
@@ -279,7 +279,7 @@
             select new PointerSpecifierValue(h.IsDefined);
 
         protected internal virtual Parser<TypeExpression> TypeExpression =>
-            from type in BaseType.Or(namespace_or_type_name.Token())
+            from type in BaseType.Or(namespace_or_type_name.Token()).Positioned()
             from meta in nullable_specifier
                 .Or(rank_specifier)
                 .Or(pointer_specifier)
@@ -332,7 +332,7 @@
 
         protected internal virtual Parser<ExpressionSyntax> new_expression =>
             KeywordExpression("new").Token().Then(_ =>
-                from type in TypeExpression
+                from type in TypeExpression.Token().Positioned()
                 from creation_expression in object_creation_expression
                 select new NewExpressionSyntax(type, creation_expression)
                 ).Positioned().Token();
