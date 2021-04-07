@@ -1,7 +1,5 @@
 ﻿namespace insomnia.syntax
 {
-    using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using Sprache;
@@ -72,12 +70,6 @@
             }
 
             return e;
-        }
-        private ExpressionSyntax FlatIfEmptyOrNull(ExpressionSyntax exp, IEnumerable<ExpressionSyntax> exps, string op)
-        {
-            if (exps.EmptyIfNull().Count() == 0)
-                return exp;
-            return new BinaryExpressionSyntax(exp, new MultipleBinaryChainExpressionSyntax(exps), op);
         }
 
         #endregion

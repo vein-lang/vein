@@ -113,7 +113,7 @@
             WaveCore.Types.All.FirstOrDefault(x => x.FullName == name);
         
         
-        public override string ToString() => $"[{FullName}]";
+        public override string ToString() => $"[{FullName.NameWithNS}]";
 
         public WaveMethod FindMethod(string name, IEnumerable<WaveType> args_types)
             => this.Members.OfType<WaveMethod>().FirstOrDefault(x => 

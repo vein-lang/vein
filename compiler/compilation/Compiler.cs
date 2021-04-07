@@ -1,7 +1,12 @@
 ﻿namespace insomnia.compilation
 {
     using emit;
+    using extensions;
+    using fs;
+    using MoreLinq;
+    using project;
     using Spectre.Console;
+    using Sprache;
     using stl;
     using syntax;
     using System;
@@ -9,15 +14,10 @@
     using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Text;
     using System.Threading;
-    using extensions;
-    using fs;
-    using MoreLinq;
-    using project;
-    using Sprache;
     using wave.etc;
     using static Spectre.Console.AnsiConsole;
-    using Console = System.Console;
 
     public static class Extensions
     {
@@ -66,6 +66,7 @@
         public readonly List<string> warnings = new ();
         public readonly List<string> errors = new ();
         private WaveModuleBuilder module;
+        private GeneratorContext Context;
 
         private void ProcessFiles(FileInfo[] files)
         {
@@ -95,7 +96,11 @@
                 }
             }
 
+            Context = new GeneratorContext();
+
             module = new WaveModuleBuilder(Project.Name);
+
+            Context.Module = module;
 
             Ast.Select(x => (x.Key, x.Value))
                 .Pipe(x => ctx.WaveStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
@@ -107,10 +112,11 @@
                         .Transition(
                             methods => methods.ForEach(GenerateBody),
                             fields => fields.ForEach(GenerateField)))
-                    .Pipe(GenerateStaticCtor)
                     .Pipe(GenerateCtor)
+                    .Pipe(GenerateStaticCtor)
                     .Consume())
                 .Consume();
+            errors.AddRange(Context.Errors);
             if (errors.Count == 0)
                 WriteOutput(module);
         }
@@ -149,12 +155,14 @@
                 {
                     ctx.WaveStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
                     clazz.OwnerDocument = doc;
-                    classes.Add((CompileClass(clazz, doc), clazz));
+                    var result = CompileClass(clazz, doc);
+                    Context.Classes.Add(result.FullName, result);
+                    classes.Add((result, clazz));
                 }
                 else
                     warnings.Add($"[grey]Member[/] [yellow underline]'{member.GetType().Name}'[/] [grey]is not supported.[/]");
             }
-
+            
             return classes;
         }
 
@@ -304,6 +312,7 @@
         public void GenerateCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
             var (@class, member) = x;
+            Context.Document = member.OwnerDocument;
             ctx.WaveStatus($"Regenerate default ctor for [grey]'{member.Identifier}'[/].");
             var ctor = @class.GetDefaultCtor() as MethodBuilder;
             var doc = member.OwnerDocument;
@@ -316,11 +325,15 @@
                 return;
             }
 
+            Context.CurrentMethod = ctor;
+
             var gen = ctor.GetGenerator();
+
+            gen.StoreIntoMetadata("context", Context);
 
 
             var pctor = @class.Parent?.GetDefaultCtor();
-
+            
             if (pctor is not null) // for Object, ValueType
                 gen.Emit(OpCodes.CALL, pctor); // call parent ctor
             var pregen = new List<(ExpressionSyntax exp, WaveField field)>();
@@ -367,8 +380,12 @@
                            $"in '[orange bold]{doc.FileEntity}[/]'.");
                 return;
             }
+            Context.CurrentMethod = ctor;
 
             var gen = ctor.GetGenerator();
+
+            gen.StoreIntoMetadata("context", Context);
+
             var pregen = new List<(ExpressionSyntax exp, WaveField field)>();
 
             foreach (var field in @class.Fields)
@@ -408,9 +425,12 @@
             foreach (var pr in member.Body.Statements.SelectMany(x => x.ChildNodes.Concat(new []{x})))
                 AnalyzeStatement(pr, member);
 
-
+            
             var generator = method.GetGenerator();
 
+            Context.CurrentMethod = method;
+            generator.StoreIntoMetadata("context", generator);
+            
             foreach (var statement in member.Body.Statements)
             {
                 try
@@ -538,18 +558,21 @@
         {
             var flags = (ClassFlags) 0;
 
-            var annotation = clazz.Annotations;
+            var annotations = clazz.Annotations;
             var mods = clazz.Modifiers;
 
-            foreach (var kind in annotation.Select(s => s.AnnotationKind))
+            foreach (var annotation in annotations)
             {
+                var kind = annotation.AnnotationKind;
                 switch (kind)
                 {
                     case WaveAnnotationKind.Getter:
                     case WaveAnnotationKind.Setter:
                     case WaveAnnotationKind.Virtual:
-                        errors.Add($"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
-                                   $"class/struct/interface declaration.");
+                        PrintError(
+                            $"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
+                            $"class/struct/interface declaration.",
+                            annotation, clazz.OwnerDocument);
                         continue;
                     case WaveAnnotationKind.Special:
                         flags |= ClassFlags.Special;
@@ -557,14 +580,18 @@
                     case WaveAnnotationKind.Native:
                         continue;
                     case WaveAnnotationKind.Readonly when !clazz.IsStruct:
-                        errors.Add($"[orange bold]Annotation[/] [red bold]{kind}[/] can only be applied to a structure declaration.");
+                        PrintError(
+                            $"[orange bold]Annotation[/] [red bold]{kind}[/] can only be applied to a structure declaration.",
+                            annotation, clazz.OwnerDocument);
                         continue;
                     case WaveAnnotationKind.Readonly when clazz.IsStruct:
                         // TODO
                         continue;
                     default:
-                        errors.Add(
-                            $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
+                        PrintError(
+                            $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{kind}[/] " +
+                            $"is not supported [orange bold]annotation[/].",
+                            annotation, clazz.OwnerDocument);
                         continue;
                 }
             }
@@ -588,6 +615,8 @@
                     case "abstract":
                         flags |= ClassFlags.Abstract;
                         continue;
+                    case "extern":
+                        continue;
                     default:
                         errors.Add(
                             $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{mod}[/] is not supported [orange bold]modificator[/].");
@@ -602,12 +631,12 @@
         {
             var flags = (FieldFlags)0;
 
-            var annotation = field.Annotations;
+            var annotations = field.Annotations;
             var mods = field.Modifiers;
 
-            foreach (var kind in annotation.Select(x => x.AnnotationKind))
+            foreach (var annotation in annotations)
             {
-                switch (kind)
+                switch (annotation.AnnotationKind)
                 {
                     case WaveAnnotationKind.Virtual:
                         flags |= FieldFlags.Virtual;
@@ -625,8 +654,10 @@
                         //errors.Add($"In [orange]'{field.Field.Identifier}'[/] field [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
                         continue;
                     default:
-                        errors.Add(
-                            $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
+                        PrintError(
+                            $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{annotation.AnnotationKind}[/] " +
+                            $"is not supported [orange bold]annotation[/].",
+                            annotation, field.OwnerClass.OwnerDocument);
                         continue;
                 }
             }
@@ -635,6 +666,8 @@
             {
                 switch (mod.ModificatorKind.ToString().ToLower())
                 {
+                    case "private":
+                        continue;
                     case "public":
                         flags |= FieldFlags.Public;
                         continue;
@@ -657,7 +690,10 @@
                         flags |= FieldFlags.Literal;
                         continue;
                     default:
-                        errors.Add($"In [orange]'{field.Field.Identifier}'[/] field [red bold]{mod}[/] is not supported [orange bold]modificator[/].");
+                        PrintError(
+                            $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{mod.ModificatorKind}[/] " +
+                            $"is not supported [orange bold]modificator[/].",
+                            mod, field.OwnerClass.OwnerDocument);
                         continue;
                 }
             }
@@ -670,16 +706,42 @@
             return flags;
         }
 
+        private void PrintError(string text, BaseSyntax posed, DocumentDeclaration doc)
+        {
+            var strBuilder = new StringBuilder();
+            
+            strBuilder.Append($"{text.EscapeArgumentSymbols()}\n");
+            if (posed is not null)
+            {
+                strBuilder.Append(
+                    $"\tat '[orange bold]{posed.Transform.pos.Line} line, {posed.Transform.pos.Column} column[/]' \n");
+            }
+
+            if (doc is not null)
+            {
+                strBuilder.Append(
+                    $"\tin '[orange bold]{doc.FileEntity}[/]'.");
+            }
+
+            if (posed is not null && doc is not null)
+            {
+                var diff_err = posed.Transform.DiffErrorFull(doc);
+                strBuilder.Append($"\t\t{diff_err}");
+            }
+
+            errors.Add(strBuilder.ToString());
+        }
+
         private MethodFlags GenerateMethodFlags(MethodDeclarationSyntax method)
         {
             var flags = (MethodFlags)0;
 
-            var annotation = method.Annotations;
+            var annotations = method.Annotations;
             var mods = method.Modifiers;
 
-            foreach (var kind in annotation.Select(x => x.AnnotationKind))
+            foreach (var annotation in annotations)
             {
-                switch (kind)
+                switch (annotation.AnnotationKind)
                 {
                     case WaveAnnotationKind.Virtual:
                         flags |= MethodFlags.Virtual;
@@ -692,11 +754,16 @@
                     case WaveAnnotationKind.Readonly:
                     case WaveAnnotationKind.Getter:
                     case WaveAnnotationKind.Setter:
-                        errors.Add($"In [orange]'{method.Identifier}'[/] method [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
+                        PrintError(
+                            $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.AnnotationKind}[/] " +
+                            $"is not supported [orange bold]annotation[/].",
+                            annotation, method.OwnerClass.OwnerDocument);
                         continue;
                     default:
-                        errors.Add(
-                            $"In [orange]'{method.Identifier}'[/] method [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
+                        PrintError(
+                            $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.AnnotationKind}[/] " +
+                            $"is not supported [orange bold]annotation[/].",
+                            annotation, method.OwnerClass.OwnerDocument);
                         continue;
                 }
             }
@@ -724,14 +791,20 @@
                         flags |= MethodFlags.Internal;
                         continue;
                     default:
-                        errors.Add($"In [orange]'{method.Identifier}'[/] method [red bold]{mod}[/] is not supported [orange bold]modificator[/].");
+                        PrintError(
+                            $"In [orange]'{method.Identifier}'[/] method [red bold]{mod}[/] " +
+                            $"is not supported [orange bold]modificator[/].",
+                            mod, method.OwnerClass.OwnerDocument);
                         continue;
                 }
             }
 
 
             if (flags.HasFlag(MethodFlags.Private) && flags.HasFlag(MethodFlags.Public))
-                errors.Add($"Modificator [red bold]public[/] cannot be combined with [red bold]private[/] in [orange]'{method.Identifier}'[/] method.");
+                PrintError(
+                    $"Modificator [red bold]public[/] cannot be combined with [red bold]private[/] " +
+                    $"in [orange]'{method.Identifier}'[/] method.",
+                    method.ReturnType, method.OwnerClass.OwnerDocument);
 
 
             return flags;
@@ -748,7 +821,7 @@
         {
             if (context == null)
                 throw new ArgumentNullException(nameof (context));
-            Thread.Sleep(100); // so, i need it :(
+            Thread.Sleep(10); // so, i need it :(
             context.Status = status;
             return context;
         }

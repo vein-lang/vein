@@ -45,7 +45,7 @@
 
         public string AssemblyName => fullName.Split("%").SkipLast(1).Join();
 
-        public string NameWithoutAsm => fullName.Split("%").Skip(1).Join();
+        public string NameWithNS => fullName.Split("%").Skip(1).Join();
         
         public QualityTypeName(string asmName, string name, string ns) : this($"{asmName}%{ns}/{name}") { }
         
