@@ -6,33 +6,48 @@
     public partial class WaveSyntax
     {
         protected internal virtual Parser<StatementSyntax> Statement =>
-            from statement in Block.Select(s => s as StatementSyntax)
-                .PreviewMultiple(
-                    IfStatement,
-                    WhileStatement, 
-                    ReturnStatement, 
-                    FailStatement, 
-                    DeleteStatement,
-                    VariableDeclaration).Positioned()
-                //.Or(IfStatement)
-                ////.Or(DoStatement)
-                ////.Or(ForEachStatement)
-                ////.Or(ForStatement)
-                //.Or(WhileStatement)
-                ////.Or(BreakStatement)
-                ////.Or(ContinueStatement)
-                ////.Or(TryCatchFinallyStatement)
-                //.Or(ReturnStatement)
-                //.Or(FailStatement)
-                //.Or(DeleteStatement)
-                //.Or(VariableDeclaration)
-                //.Or(SwitchStatement)
-                //.Or(UnknownGenericStatement)
+            from statement in 
+                declarationStatement.OrPreview(embedded_statement)
                 .Commented(this)
             select statement.Value
                 .WithLeadingComments(statement.LeadingComments)
                 .WithTrailingComments(statement.TrailingComments);
         
+        protected internal virtual Parser<ExpressionSyntax> local_variable_initializer =>
+            QualifiedExpression; // TODO array init
+
+        protected internal virtual Parser<LocalVariableDeclaration> local_variable_declarator =>
+            from id in IdentifierExpression
+            from body in (
+                from assign in Parse.Char('=').Token()
+                from init in local_variable_initializer
+                select init
+            ).Optional()
+            select new LocalVariableDeclaration(id, body);
+
+        protected internal virtual Parser<LocalVariableDeclaration> local_variable_declaration =>
+            from a in KeywordExpression("auto")
+            from decl in local_variable_declarator.Token()
+            select decl;
+
+        protected internal virtual Parser<StatementSyntax> declarationStatement =>
+            local_variable_declaration.Then(x => Parse.Char(';').Token().Return(x));
+
+
+        protected internal virtual Parser<StatementSyntax> embedded_statement =>
+            Block.Or(simple_embedded_statement);
+
+        protected internal virtual Parser<StatementSyntax> simple_embedded_statement => 
+            Parse.Char(';').Token().Return((StatementSyntax)new EmptyStatementSyntax())
+            .Or(QualifiedExpression.Then(x => Parse.Char(';').Token().Return(new QualifiedExpressionStatement(x))))
+            .Or(IfStatement)
+            .Or(WhileStatement)
+            .Or(ReturnStatement)
+            .Or(FailStatement)
+            .Or(DeleteStatement);
+
+
+
         protected internal virtual Parser<ReturnStatementSyntax> ReturnStatement =>
             from expression in KeywordExpressionStatement("return")
             select new ReturnStatementSyntax
