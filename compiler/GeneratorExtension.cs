@@ -1,4 +1,4 @@
-﻿namespace insomnia.extensions
+namespace insomnia.extensions
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +7,6 @@
     using compilation;
     using emit;
     using Spectre.Console;
-    using Sprache;
     using syntax;
     using wave.etc;
 
@@ -56,10 +55,10 @@
 
             if (field is not null)
                 return field;
-            this.LogError($"'{targetType.FullName.NameWithoutAsm}' does not contain " +
+            this.LogError($"'{targetType.FullName.NameWithNS}' does not contain " +
                           $"a definition for '{target.ExpressionString}' and " +
                           $"no extension method '{id.ExpressionString}' accepting " +
-                          $"a first argument of type '{targetType.FullName.NameWithoutAsm}' could be found.", id);
+                          $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
             return null;
         }
         public WaveMethod ResolveMethod(
@@ -72,10 +71,10 @@
             if (method is not null)
                 return method;
             if (target is not null)
-                this.LogError($"'{targetType.FullName.NameWithoutAsm}' does not contain " +
+                this.LogError($"'{targetType.FullName.NameWithNS}' does not contain " +
                           $"a definition for '{target.ExpressionString}' and " +
                           $"no extension method '{id.ExpressionString}' accepting " +
-                          $"a first argument of type '{targetType.FullName.NameWithoutAsm}' could be found.", id);
+                          $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
             else
                 this.LogError($"The name '{id}' does not exist in the current context.", id);
             return null;
@@ -258,19 +257,39 @@
                 return;
             }
 
+            if (expr is ArgumentExpression arg)
+            {
+                gen.EmitExpression(arg.Value);
+                return;
+            }
+
             throw new NotImplementedException();
         }
+
 
         public static void EmitCreateObject(this ILGenerator gen, NewExpressionSyntax @new)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
             var type = context.ResolveType(@new.TargetType.Typeword);
+
+            if (type.IsStatic)
+            {
+                context.LogError($"Cannot create an instance of the static class '{type}'", @new.TargetType);
+                return;
+            }
             
             foreach (var arg in @new.CtorArgs) 
                 gen.EmitExpression(arg);
             gen.Emit(OpCodes.NEWOBJ, type);
-
             var ctor = type.FindMethod("ctor", @new.CtorArgs.DetermineTypes(context));
+            
+            if (ctor is null)
+            {
+                context.LogError(
+                    $"'{type}' does not contain a constructor that takes '{@new.CtorArgs.Count}' arguments.",
+                    @new.TargetType);
+                return;
+            }
 
             gen.Emit(OpCodes.CALL, ctor);
         }
