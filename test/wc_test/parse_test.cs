@@ -573,8 +573,39 @@
             Wave.CompilationUnit.End().ParseWave(
             "#use \"stl.lib\"\n" +
                "public class Foo {" +
-               "public main(): void {}" +
+               "public master(): void {}" +
                "}");
+        }
+
+        [Fact]
+        public void CtorAndDtorTest()
+        {
+            Wave.CompilationUnit.End().ParseWave(
+                "#use \"stl.lib\"\n" +
+                "public class Foo {" +
+                "public new() {}" +
+                "}");
+            Wave.CompilationUnit.End().ParseWave(
+                "#use \"stl.lib\"\n" +
+                "public class Foo {" +
+                "public delete() {}" +
+                "}");
+            Wave.CompilationUnit.End().ParseWave(
+                "#use \"stl.lib\"\n" +
+                "public class Foo {" +
+                "public new(s:S) {}" +
+                "}");
+        }
+        [Fact]
+        public void AssignVariableTest()
+        {
+            Wave.QualifiedExpression.End().ParseWave("x = x");
+        }
+
+        [Fact]
+        public void MethodWithAssignVariableTest()
+        {
+            Wave.Statement.End().ParseWave("x = x;");
         }
 
         [Fact]
