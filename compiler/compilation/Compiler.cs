@@ -18,16 +18,6 @@
     using System.Threading;
     using wave.etc;
     using static Spectre.Console.AnsiConsole;
-
-    public static class Extensions
-    {
-        public static void Transition<T1, T2>(this (T1 t1, T2 t2) tuple, Action<T1> ft1, Action<T2> ft2)
-        {
-            ft1(tuple.t1);
-            ft2(tuple.t2);
-        }
-    }
-
     public class Compiler
     {
         public static Compiler Process(FileInfo[] entity, WaveProject project)

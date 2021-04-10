@@ -37,5 +37,12 @@
 		<PackageReference Include="Serilog" Version="2.10.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
 		<PackageReference Include="BinaryTools.Elf" Version="0.3.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+		<PackageReference Include="Pastel" Version="2.1.0" />
+		<PackageReference Include="Spectre.Console" Version="0.37.0" />
+		<PackageReference Include="Sprache" Version="2.3.2-develop-00043" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\lib\projectsystem\projectsystem.csproj" />
 	</ItemGroup>
 </Project>

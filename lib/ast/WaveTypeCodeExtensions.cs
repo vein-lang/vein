@@ -1,7 +1,7 @@
 ﻿namespace insomnia.compilation
 {
     using emit;
-    using extensions;
+    using wave.extensions;
     using syntax;
 
     internal static class WaveTypeCodeExtensions
