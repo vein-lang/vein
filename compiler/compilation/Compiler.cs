@@ -1,14 +1,8 @@
 ﻿namespace insomnia.compilation
 {
-    using emit;
-    using extensions;
     using wave.fs;
     using MoreLinq;
-    using project;
     using Spectre.Console;
-    using Sprache;
-    using stl;
-    using syntax;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -16,7 +10,13 @@
     using System.Linq.Expressions;
     using System.Text;
     using System.Threading;
-    using wave.etc;
+    using ishtar;
+    using ishtar.emit;
+    using wave.extensions;
+    using wave.project;
+    using wave.runtime;
+    using wave.stl;
+    using wave.syntax;
     using static Spectre.Console.AnsiConsole;
     public class Compiler
     {

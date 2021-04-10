@@ -1,12 +1,12 @@
-﻿namespace insomnia.cmd
+﻿namespace wave.cmd
 {
-    using System;
     using System.IO;
     using System.Linq;
-    using compilation;
+    using insomnia.compilation;
     using project;
     using Spectre.Console;
     using Spectre.Console.Cli;
+
     public class CompileSettings : CommandSettings
     {
         [CommandArgument(0, "[PROJECT]")]

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -14,7 +12,7 @@ using Newtonsoft.Json;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using insomnia;
-using insomnia.cmd;
+using wave.cmd;
 using static insomnia._term;
 using static System.Console;
 using static Spectre.Console.AnsiConsole;

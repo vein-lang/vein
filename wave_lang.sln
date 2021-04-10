@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wave.common", "backend\Comm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wave.ast", "lib\ast\wave.ast.csproj", "{C81A560B-DF7A-4085-9417-2A7B4E58AE87}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "projectsystem", "lib\projectsystem\projectsystem.csproj", "{5D7842C7-A8C3-440E-8715-7C99E48F6D7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wave.project", "lib\projectsystem\wave.project.csproj", "{5D7842C7-A8C3-440E-8715-7C99E48F6D7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
