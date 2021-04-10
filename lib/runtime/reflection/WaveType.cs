@@ -137,6 +137,9 @@
             return null;
         }
 
+        public static bool operator ==(WaveType t1, WaveTypeCode t2) => t1?.TypeCode == t2;
+        public static bool operator !=(WaveType t1, WaveTypeCode t2) => !(t1 == t2);
+
         public static bool operator ==(WaveType t1, WaveType t2)
         {
             if (t1 is null || t2 is null)
