@@ -445,6 +445,8 @@ namespace insomnia.extensions
                 generator.EmitReturn(ret1);
             else if (statement is IfStatementSyntax theIf)
                 generator.EmitIfElse(theIf);
+            else if (statement is WhileStatementSyntax @while)
+                generator.EmitWhileStatement(@while);
             else
                 throw new NotImplementedException();
         }
@@ -583,6 +585,28 @@ namespace insomnia.extensions
                 generator.Emit(OpCodes.RET);
                 return;
             }
+        }
+
+        public static void EmitWhileStatement(this ILGenerator gen, WhileStatementSyntax @while)
+        {
+            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            var start = gen.DefineLabel();
+            var end = gen.DefineLabel();
+            var expType = @while.Expression.DetermineType(ctx);
+            gen.UseLabel(start);
+            if (expType == WaveTypeCode.TYPE_BOOLEAN)
+            {
+                gen.EmitExpression(@while.Expression);
+                gen.Emit(OpCodes.JMP_F, end);
+            }
+            else // todo implicit boolean
+            {
+                ctx.LogError($"Cannot implicitly convert type '{expType}' to 'Boolean'", @while.Expression);
+                return;
+            }
+            gen.EmitStatement(@while.Statement);
+            gen.Emit(OpCodes.JMP, start);
+            gen.UseLabel(end);
         }
     }
 }
