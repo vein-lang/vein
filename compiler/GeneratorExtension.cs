@@ -395,15 +395,6 @@ namespace insomnia.extensions
         }
 
 
-        
-
-
-
-        public static bool IsTypeCompatibility(WaveType t1, WaveType t2)
-        {
-            return false;
-        }
-
         public static WaveType ExplicitConversion(WaveType t1, WaveType t2)
         {
             throw new NotImplementedException();
@@ -419,7 +410,9 @@ namespace insomnia.extensions
         public static void EmitIfElse(this ILGenerator generator, IfStatementSyntax ifStatement)
         {
             var elseLabel = generator.DefineLabel();
-            
+            var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
+            var expType = ifStatement.Expression.DetermineType(ctx);
+
             if (ifStatement.Expression is BoolLiteralExpressionSyntax @bool)
             {
                 if (@bool.Value)
@@ -427,18 +420,23 @@ namespace insomnia.extensions
                 else
                     generator.Emit(OpCodes.JMP, elseLabel);
             }
-            
-            
-            
+            else if (expType.TypeCode == WaveTypeCode.TYPE_BOOLEAN)
+            {
+                generator.EmitExpression(ifStatement.Expression);
+                generator.Emit(OpCodes.JMP_F, elseLabel);
+                generator.EmitStatement(ifStatement.ThenStatement);
+            }
+            else
+            {
+                ctx.LogError($"Cannot implicitly convert type '{expType}' to 'Boolean'", ifStatement.Expression);
+                return;
+            }
             generator.UseLabel(elseLabel);
 
             if (ifStatement.ElseStatement is null)
                 return;
 
-            if (ifStatement.ElseStatement is ReturnStatementSyntax ret2)
-                generator.EmitReturn(ret2);
-            else
-                throw new NotImplementedException();
+            generator.EmitStatement(ifStatement.ElseStatement);
         }
 
         public static void EmitStatement(this ILGenerator generator, StatementSyntax statement)
@@ -574,7 +572,7 @@ namespace insomnia.extensions
 
                 var call_method = type.FindMethod(methodName);
 
-                generator.Emit(OpCodes.CALL, method);
+                generator.Emit(OpCodes.CALL, call_method);
                 generator.Emit(OpCodes.RET);
                 return;
             }
