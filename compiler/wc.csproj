@@ -32,10 +32,6 @@
     <PackageReference Include="System.CommandLine.Rendering" Version="0.3.0-alpha.20574.7" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\runtime\runtime.csproj" />
-    <ProjectReference Include="..\projectsystem\projectsystem.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="etc\" />
   </ItemGroup>
 </Project>

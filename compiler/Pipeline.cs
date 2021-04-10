@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using System.IO;
     using emit;
-    using fs;
+    using wave.fs;
 
     public class Pipeline : Command
     {

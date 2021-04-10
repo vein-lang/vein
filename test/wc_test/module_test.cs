@@ -6,7 +6,7 @@
     using System.Linq;
     using insomnia;
     using insomnia.emit;
-    using insomnia.fs;
+    using wave.fs;
     using insomnia.project;
     using Xunit;
 

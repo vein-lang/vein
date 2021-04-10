@@ -9,7 +9,7 @@ namespace wc_test
     using insomnia;
     using insomnia.emit;
     using insomnia.extensions;
-    using insomnia.fs;
+    using wave.fs;
     using insomnia.stl;
     using insomnia.syntax;
     using Xunit;

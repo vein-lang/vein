@@ -14,6 +14,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\compiler\wc.csproj" />
-    <ProjectReference Include="..\..\projectsystem\projectsystem.csproj" />
   </ItemGroup>
 </Project>

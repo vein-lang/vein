@@ -4,7 +4,7 @@
     using System.IO;
     using System.Text;
     using insomnia.emit;
-    using insomnia.fs;
+    using wave.fs;
     using Xunit;
     public class ElfTest
     {
