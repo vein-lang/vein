@@ -1,11 +1,7 @@
-﻿using System.Reflection;
-
-namespace insomnia.syntax
+﻿namespace insomnia.syntax
 {
     using System;
-    using System.Globalization;
     using System.Linq;
-    using extensions;
     using Sprache;
     using stl;
 

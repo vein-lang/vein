@@ -6,9 +6,9 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using exceptions;
     using MoreLinq;
     using Serilog;
+    using wave.exceptions;
 
     public class WaveModuleBuilder : WaveModule, IBaker
     {

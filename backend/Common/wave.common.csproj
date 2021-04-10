@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<RootNamespace>wave</RootNamespace>
-		<Version>0.4.877</Version>
+		<Version>0.4.882</Version>
 		<AssemblyName>wave.common.runtime</AssemblyName>
 		<PackageIconUrl>https://raw.githubusercontent.com/0xF6/wave_lang/master/ide_ext/vscode/images/icon.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/0xF6/wave_lang</PackageProjectUrl>
@@ -41,8 +41,5 @@
 		<PackageReference Include="Pastel" Version="2.1.0" />
 		<PackageReference Include="Spectre.Console" Version="0.37.0" />
 		<PackageReference Include="Sprache" Version="2.3.2-develop-00043" />
-	</ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\..\lib\projectsystem\projectsystem.csproj" />
 	</ItemGroup>
 </Project>
