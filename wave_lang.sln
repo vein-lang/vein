@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "projectsystem", "projectsys
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "project_system_test", "test\project_system_test\project_system_test.csproj", "{F6B36C4B-9F93-42D3-A3C1-D01A03AD3BCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "insomnia.common", "lib\insomnia.common\insomnia.common.csproj", "{EDC4287A-E55D-483A-A97B-13E275E3EC9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wave.common", "lib\insomnia.common\wave.common.csproj", "{EDC4287A-E55D-483A-A97B-13E275E3EC9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

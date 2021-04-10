@@ -36,6 +36,6 @@
 	  </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\insomnia.common\insomnia.common.csproj" />
+    <ProjectReference Include="..\insomnia.common\wave.common.csproj" />
   </ItemGroup>
 </Project>
