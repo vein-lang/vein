@@ -1,7 +1,8 @@
-﻿namespace insomnia.syntax
+﻿namespace wave.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
+    using extensions;
     using Sprache;
     using stl;
 

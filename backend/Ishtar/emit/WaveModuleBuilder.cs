@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+﻿namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -6,9 +6,13 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using extensions;
+    using insomnia;
     using MoreLinq;
     using Serilog;
     using wave.exceptions;
+    using wave.extensions;
+    using wave.runtime;
 
     public class WaveModuleBuilder : WaveModule, IBaker
     {

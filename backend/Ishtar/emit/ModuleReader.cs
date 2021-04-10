@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+﻿namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +7,9 @@
     using System.Text;
     using extensions;
     using insomnia;
-    
+    using wave.extensions;
+    using wave.runtime;
+
     internal static class BinaryExtension
     {
         public static string ReadInsomniaString(this BinaryReader reader)

@@ -1,7 +1,8 @@
-﻿namespace insomnia.runtime.emit
+﻿namespace ishtar.emit
 {
     using System;
-    
+    using runtime.runtime.emit;
+
     public readonly struct OpCode : IEquatable<OpCode>
     {
         private readonly OpCodeValue value;

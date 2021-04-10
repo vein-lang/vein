@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+﻿namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -6,6 +6,8 @@
     using System.Linq;
     using System.Text;
     using extensions;
+    using wave.extensions;
+    using wave.runtime;
 
     public class ClassBuilder : WaveClass, IBaker
     {
@@ -127,6 +129,28 @@
             str.AppendLine("}");
             return str.ToString();
         }
+
+        #region Overrides of WaveClass
+
+        protected override WaveMethod GetOrCreateTor(string name, bool isStatic = false)
+        {
+            var ctor =  base.GetOrCreateTor(name, isStatic);
+            if (ctor is not null)
+                return ctor;
+
+            var flags = MethodFlags.Public;
+
+            if (isStatic)
+                flags |= MethodFlags.Static;
+
+            ctor = DefineMethod(name, flags, WaveTypeCode.TYPE_VOID.AsType());
+            moduleBuilder.InternString(ctor.Name);
+            Methods.Add(ctor);
+            
+            return ctor;
+        }
+
+        #endregion
 
         public ulong? FindMemberField(FieldName field) 
             => throw new NotImplementedException();

@@ -1,11 +1,10 @@
-﻿namespace insomnia.syntax
+﻿namespace wave.syntax
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text.RegularExpressions;
+    using extensions;
     using Sprache;
-    using stl;
 
     public abstract class BaseSyntax : IPositionAware<BaseSyntax>, IPassiveParseTransition
     {

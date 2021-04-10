@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+﻿namespace wave.runtime
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -43,33 +43,15 @@
         public bool IsStatic => Flags.HasFlag(ClassFlags.Static);
         public bool IsInternal => Flags.HasFlag(ClassFlags.Internal);
 
-        public WaveMethod GetDefaultDtor() => GetOrCreateTor("dtor()");
-        public WaveMethod GetDefaultCtor() => GetOrCreateTor("ctor()");
+        public virtual WaveMethod GetDefaultDtor() => GetOrCreateTor("dtor()");
+        public virtual WaveMethod GetDefaultCtor() => GetOrCreateTor("ctor()");
         
-        public WaveMethod GetStaticCtor() => GetOrCreateTor("type_ctor()", true);
+        public virtual WaveMethod GetStaticCtor() => GetOrCreateTor("type_ctor()", true);
 
 
-        private WaveMethod GetOrCreateTor(string name, bool isStatic = false)
+        protected virtual WaveMethod GetOrCreateTor(string name, bool isStatic = false)
         {
-            var ctor = FindMethod(name);
-            if (ctor is not null)
-                return ctor;
-
-            var flags = MethodFlags.Public;
-
-            if (isStatic)
-                flags |= MethodFlags.Static;
-
-            if (this is ClassBuilder builder)
-            {
-                ctor = builder.DefineMethod(name, flags, WaveTypeCode.TYPE_VOID.AsType());
-                builder.moduleBuilder.InternString(ctor.Name);
-            }
-            else
-                ctor = new WaveMethod(name, flags, WaveTypeCode.TYPE_VOID.AsType(), this);
-            Methods.Add(ctor);
-            
-            return ctor;
+            return FindMethod(name);
         }
 
         internal WaveMethod FindMethod(string name) 

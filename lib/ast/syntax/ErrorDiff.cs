@@ -1,9 +1,8 @@
-﻿namespace insomnia.syntax
+﻿namespace wave.syntax
 {
     using System;
     using System.Linq;
-    using compilation;
-    using MoreLinq;
+    using ishtar;
     using Spectre.Console;
 
     public static class ErrorDiff

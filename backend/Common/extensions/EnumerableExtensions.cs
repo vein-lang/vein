@@ -1,4 +1,4 @@
-﻿namespace insomnia
+﻿namespace wave.extensions
 {
     using System;
     using System.Collections;

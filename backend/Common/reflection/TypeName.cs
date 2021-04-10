@@ -1,9 +1,11 @@
-﻿namespace insomnia.emit
+﻿namespace wave.runtime
 {
     using System;
     using System.Linq;
     using System.Security;
     using System.Text.RegularExpressions;
+    using extensions;
+
     [Obsolete]
     public record RuntimeToken(string text, ulong Value)
     {

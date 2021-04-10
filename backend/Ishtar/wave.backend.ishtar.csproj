@@ -7,11 +7,17 @@
 		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
 		<Description>Wave Lang backend for Ishtar VM</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<AssemblyName>wave.ishtar</AssemblyName>
+		<AssemblyName>wave.backend.ishtar</AssemblyName>
 		<RootNamespace>wave.ishtar</RootNamespace>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(Configuration) == 'Debug'">
 		<BumpPatch>true</BumpPatch>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Ivy.Versioning" Version="3.1.0">
@@ -23,5 +29,9 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\..\lib\ast\wave.ast.csproj" />
 	  <ProjectReference Include="..\Common\wave.common.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Include="..\..\metadata\opcodes.def.cs" Link="emit\opcodes.def.cs" />
+		<Compile Include="..\..\metadata\opcodes.list.def.cs" Link="emit\opcodes.list.def.cs" />
 	</ItemGroup>
 </Project>

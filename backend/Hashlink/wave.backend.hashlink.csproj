@@ -7,7 +7,7 @@
 		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
 		<Description>Wave Lang backend for Hashlink VM</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<AssemblyName>wave.hashlink</AssemblyName>
+		<AssemblyName>wave.backend.hashlink</AssemblyName>
 		<RootNamespace>wave.hashlink</RootNamespace>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(Configuration) == 'Debug'">

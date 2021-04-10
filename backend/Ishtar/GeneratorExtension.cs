@@ -1,14 +1,13 @@
-namespace insomnia.extensions
+namespace ishtar
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using compilation;
     using emit;
+    using wave.runtime;
     using Spectre.Console;
-    using syntax;
-    using wave.etc;
+    using wave.syntax;
 
     public class GeneratorContext
     {

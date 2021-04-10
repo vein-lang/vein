@@ -7,7 +7,7 @@
 		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
 		<Description>Wave Lang backend for llvm</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<AssemblyName>wave.llvm</AssemblyName>
+		<AssemblyName>wave.backend.llvm</AssemblyName>
 		<RootNamespace>wave.llvm</RootNamespace>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(Configuration) == 'Debug'">

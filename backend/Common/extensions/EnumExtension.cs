@@ -1,9 +1,8 @@
-﻿namespace insomnia
+﻿namespace wave.extensions
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using runtime.emit;
 
     public static class EnumExtension
     {
@@ -23,7 +22,5 @@
             Enumerable.Range(i.Start.Value, i.End.Value).GetEnumerator();
         public static bool InRange(this Range range, int value) 
             => value >= range.Start.Value && value <= range.End.Value;
-        public static bool InRange(this OpCode opcode, OpCodeValue start, OpCodeValue end)
-            => ((ushort) start..(ushort) end).InRange(opcode.Value);
     }
 }

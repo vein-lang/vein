@@ -6,7 +6,8 @@
     using System.Linq;
     using System.Text;
     using BinaryTools.Elf;
-    using emit;
+    using extensions;
+    using ishtar.emit;
     using static BinaryTools.Elf.ElfSectionType;
 
 

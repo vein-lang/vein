@@ -1,29 +1,29 @@
-﻿namespace insomnia
+﻿namespace ishtar
 {
     using System;
     using System.Drawing;
     using System.Threading.Tasks;
     using System.IO;
-    using emit;
+    using wave.runtime;
     using wave.fs;
 
     public class Pipeline : Command
     {
         public async Task<int> GenerateRuntimeAsync()
         {
-            Console.WriteLine($"{":gear:".Emoji()} Initialized regeneration runtime libraries...");
+            //Console.WriteLine($"{":gear:".Emoji()} Initialized regeneration runtime libraries...");
 
             
-            var stllib = new WaveModuleBuilder("stl");
-            Console.WriteLine($"{":smoking:".Emoji()} Generate stl.lib...");
+            //var stllib = new WaveModuleBuilder("stl");
+            //Console.WriteLine($"{":smoking:".Emoji()} Generate stl.lib...");
             
-            BuiltinGen.GenerateConsole(stllib);
+            //BuiltinGen.GenerateConsole(stllib);
             
-            var asm = new InsomniaAssembly(stllib);
-            InsomniaAssembly.WriteTo(asm, 
-                new DirectoryInfo(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any"));
-            await File.WriteAllTextAsync(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any\stl.wll.il",
-                stllib.BakeDebugString());
+            //var asm = new InsomniaAssembly(stllib);
+            //InsomniaAssembly.WriteTo(asm, 
+            //    new DirectoryInfo(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any"));
+            //await File.WriteAllTextAsync(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any\stl.wll.il",
+            //    stllib.BakeDebugString());
 
             return await Success();
         }
@@ -48,12 +48,12 @@
         protected static Task<int> Fail(int status) => Task.FromResult(status);
         protected static Task<int> Fail(string text)
         {
-            Console.WriteLine($"{":x:".Emoji()} {text.Color(Color.Red)}");
+            //Console.WriteLine($"{":x:".Emoji()} {text.Color(Color.Red)}");
             return Fail();
         }
         protected static Task<int> Success(string text)
         {
-            Console.WriteLine($"{":heavy_check_mark:".Emoji()} {text.Color(Color.GreenYellow)}");
+            //Console.WriteLine($"{":heavy_check_mark:".Emoji()} {text.Color(Color.GreenYellow)}");
             return Success();
         }
     }

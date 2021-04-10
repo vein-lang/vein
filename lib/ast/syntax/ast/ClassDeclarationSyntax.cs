@@ -1,8 +1,9 @@
-﻿namespace insomnia.syntax
+﻿namespace wave.syntax
 {
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
+    using extensions;
     using stl;
 
     public class ClassDeclarationSyntax : MemberDeclarationSyntax

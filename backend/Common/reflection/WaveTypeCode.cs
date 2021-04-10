@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+﻿namespace wave.runtime
 {
     using System;
     using static WaveTypeCode;

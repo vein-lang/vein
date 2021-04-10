@@ -7,7 +7,7 @@
 		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
 		<Description>Wave Lang backend for CLR</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<AssemblyName>wave.clr</AssemblyName>
+		<AssemblyName>wave.backend.clr</AssemblyName>
 		<RootNamespace>wave.clr</RootNamespace>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(Configuration) == 'Debug'">

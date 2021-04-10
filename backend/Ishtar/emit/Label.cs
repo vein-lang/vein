@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+﻿namespace ishtar.emit
 {
     using System;
 

@@ -1,8 +1,8 @@
-﻿namespace insomnia.syntax
+﻿namespace wave.syntax
 {
     using System;
     using System.Linq.Expressions;
-    using emit;
+    using runtime;
 
     public static class WaveExpression
     {

@@ -1,4 +1,4 @@
-﻿namespace insomnia.runtime.emit
+﻿namespace ishtar.emit
 {
     public enum FlowControl
     {

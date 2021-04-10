@@ -1,4 +1,4 @@
-﻿namespace insomnia.syntax
+﻿namespace wave.syntax
 {
     using Sprache;
     using System.Collections;

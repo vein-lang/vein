@@ -1,9 +1,10 @@
-﻿namespace insomnia.emit
+﻿namespace wave.runtime
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using extensions;
     using static WaveTypeCode;
 
     public record FieldName(string fullName)

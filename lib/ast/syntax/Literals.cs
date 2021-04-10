@@ -1,9 +1,10 @@
-﻿namespace insomnia.syntax
+﻿namespace wave.syntax
 {
     using System;
     using System.Linq;
     using Sprache;
     using stl;
+    using wave.extensions;
 
     public partial class WaveSyntax
     {

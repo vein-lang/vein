@@ -1,4 +1,4 @@
-﻿namespace insomnia.project.@internal
+﻿namespace wave.project.@internal
 {
     using wave.common;
     using Serilog;

@@ -1,8 +1,8 @@
-﻿namespace wave.etc
+﻿namespace ishtar
 {
     using System;
-    using insomnia.syntax;
     using Sprache;
+    using wave.syntax;
 
     internal static class ExpressionExtension
     {

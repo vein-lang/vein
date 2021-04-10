@@ -1,8 +1,9 @@
-﻿namespace insomnia.emit
+﻿namespace wave.runtime
 {
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using extensions;
 
     public class WaveMethod : WaveMethodBase
     {

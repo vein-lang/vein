@@ -1,8 +1,9 @@
-﻿namespace insomnia.emit.extensions
+﻿namespace ishtar.emit.extensions
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using wave.runtime;
 
     public static class QualityTypeEx
     {

@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using insomnia.emit;
+using wave.runtime;
 
 [assembly: InternalsVisibleTo("wc_test")]
 [assembly: InternalsVisibleTo("wc")]

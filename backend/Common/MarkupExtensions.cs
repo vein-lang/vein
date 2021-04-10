@@ -1,4 +1,4 @@
-﻿namespace insomnia.compilation
+﻿namespace ishtar
 {
     public static class MarkupExtensions
     {

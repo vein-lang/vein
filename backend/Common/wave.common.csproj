@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<RootNamespace>wave</RootNamespace>
-		<Version>0.4.882</Version>
+		<Version>0.4.891</Version>
 		<AssemblyName>wave.common.runtime</AssemblyName>
 		<PackageIconUrl>https://raw.githubusercontent.com/0xF6/wave_lang/master/ide_ext/vscode/images/icon.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/0xF6/wave_lang</PackageProjectUrl>
@@ -16,10 +16,6 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
-	<ItemGroup>
-	  <Compile Include="..\..\metadata\opcodes.def.cs" Link="reflection\opcodes.def.cs" />
-	  <Compile Include="..\..\metadata\opcodes.list.def.cs" Link="reflection\opcodes.list.def.cs" />
-	</ItemGroup>
 	<ItemGroup>
 		<SupportedPlatform Include="Linux" />
 		<SupportedPlatform Include="macOS" />

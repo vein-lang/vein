@@ -1,4 +1,4 @@
-﻿namespace insomnia.runtime.emit
+﻿namespace runtime.runtime.emit
 {
     public enum ControlChain
     {

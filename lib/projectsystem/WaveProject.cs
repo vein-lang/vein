@@ -1,13 +1,12 @@
-﻿namespace insomnia.project
+﻿namespace wave.project
 {
     using System;
-    using emit;
-    using wave.fs;
     using System.Xml.Serialization;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Xml;
+    using runtime;
     using @internal;
     using MoreLinq;
     using Sprache;
@@ -66,7 +65,7 @@
         public IEnumerable<FileInfo> Libs =>
             RootPath.EnumerateFiles("*.wll", SearchOption.AllDirectories);
 
-
+        /*
         public WaveModule ResolveDep(string name, Version version, List<WaveModule> deps)
         {
             var file = FindModule(name, version);
@@ -90,12 +89,12 @@
                 module.Name, module.Version, module.class_table.Count);
 
             return module;
-        }
+        }*/
 
-        private FileInfo FindModule(string name, Version version)
+        private FileInfo FindModule(string name)
         {
             // first, find in sdk folders
-            var file = FindModuleInSDK(name, version);
+            var file = FindModuleInSDK(name);
 
 
             if (file is not null)
@@ -107,7 +106,7 @@
             return null;
         }
 
-        private FileInfo FindModuleInSDK(string name, Version version)
+        private FileInfo FindModuleInSDK(string name)
         {
             try
             {
@@ -116,15 +115,7 @@
                     .Pipe(x => Journal.logger.Information("[FindModuleInSDK] analyze file '{x}'.", x))
                     .ToArray();
 
-                var assemblies = files.Select(x => 
-                    (x, InsomniaAssembly.LoadFromFile(x.FullName)))
-                    .Pipe(x => Journal.logger
-                        .Information("[FindModuleInSDK] Loaded insomnia assembly '{Name}', '{Version}'.", 
-                            x.Item2.Name, x.Item2.Version))
-                    .ToArray();
-
-                return assemblies.Single(x => x.Item2.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
-                                              && x.Item2.Version.Equals(version)).x;
+                return files.Single(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
             }
             catch (Exception e)
             {

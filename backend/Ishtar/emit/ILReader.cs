@@ -1,8 +1,9 @@
-﻿namespace insomnia.emit
+﻿namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using wave.extensions;
 
     internal static unsafe class ILReader
     {

@@ -1,6 +1,7 @@
-﻿namespace insomnia.syntax
+﻿namespace wave.syntax
 {
     using System.Linq;
+    using extensions;
     using Sprache;
 
     public class TypeExpression : ExpressionSyntax, IPositionAware<TypeExpression>

@@ -1,4 +1,4 @@
-﻿namespace insomnia.project
+﻿namespace wave.project
 {
     using System.Collections.Generic;
     using System.Linq;

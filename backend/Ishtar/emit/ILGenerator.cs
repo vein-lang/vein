@@ -1,4 +1,4 @@
-﻿namespace insomnia.emit
+﻿namespace ishtar.emit
 {
     using System;
     using System.Buffers.Binary;
@@ -8,8 +8,8 @@
     using System.Runtime.CompilerServices;
     using System.Text;
     using extensions;
-    using runtime.emit;
-    using static OpCodeValue;
+    using wave.runtime;
+    using static ishtar.OpCodeValue;
 
     public class ILGenerator
     {
@@ -167,7 +167,7 @@
         {
             throw new NotImplementedException();
 
-            if (opcode.Value != (int) LDF)
+            if (opcode.Value != (int) OpCodes.LDF.Value)
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
             
             var (token, direction) = this.FindFieldToken(field);
