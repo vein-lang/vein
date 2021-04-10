@@ -18,6 +18,9 @@ public struct Quaternion : ValueType
 
     new (x: Float, y: Float, z: Float, w: Float)
     {
-        X = x;
+        this.X = x;
+        this.Y = y;
+        this.Z = z;
+        this.W = w;
     }
 }

@@ -613,5 +613,14 @@
         {
             Wave.UseSyntax.End().ParseWave("#use \"boo\"");
         }
+
+        [Theory]
+        [InlineData("this.x = 22")]
+        [InlineData("this.x.w.d = 22")]
+        [InlineData("this.x.w.d = zo.fo()")]
+        [InlineData("this.x.w.d = zo.fo(1,2,3)")]
+        [InlineData("this.x.w.d = zo.fo(1,2,3, this.x.w.d)")]
+        public void ThisAccessTest(string str)
+            => Wave.QualifiedExpression.End().ParseWave(str);
     }
 }

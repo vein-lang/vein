@@ -1,6 +1,6 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/Hierarchy/Build/SolBuilderDuo/UseMsbuildSolutionBuilder/@EntryValue">No</s:String>
-	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\ls-mi\AppData\Local\Temp\JetBrains\ReSharperPlatformVs16\vAny_2f0168d6\CoverageData\_wave_lang.-64232578\Snapshot\snapshot.utdcvr</s:String>
+	
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ea9527bb_002Df09a_002D47ae_002Da566_002D2ed94c911f58/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="F04" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.expression_test.F04&lt;/TestId&gt;&#xD;
