@@ -1,4 +1,4 @@
-﻿namespace ishtar.emit
+namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -15,17 +15,28 @@
         public static string ReadInsomniaString(this BinaryReader reader)
         {
             var size = reader.ReadInt32();
-            var magic = reader.ReadByte();
-            if (magic != 0x45)
-                throw new InvalidOperationException("Cannot read string from binary stream. [magic flag invalid]");
+            reader.ValidateMagicFlag();
             return Encoding.UTF8.GetString(reader.ReadBytes(size));
         }
         public static void WriteInsomniaString(this BinaryWriter writer, string value)
         {
             var body = Encoding.UTF8.GetBytes(value);
             writer.Write(body.Length);
-            writer.Write((byte)0x45);
+            writer.WriteMagicFlag();
             writer.Write(body);
+        }
+
+        public static void ValidateMagicFlag(this BinaryReader reader)
+        {
+            var m1 = reader.ReadInt32();
+            var m2 = reader.ReadInt32();
+            if (m1 != 0x13 || m2 != 0x37)
+                throw new InvalidOperationException("Cannot read string from binary stream. [magic flag invalid]");
+        }
+        public static void WriteMagicFlag(this BinaryWriter writer)
+        {
+            writer.Write(0x13);
+            writer.Write(0x37);
         }
     }
 
