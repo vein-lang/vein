@@ -89,15 +89,15 @@ inline void init_default()
 
     wave_core->exception_class = new WaveClass(new TypeName(L"corlib%global::wave/lang/Exception"), wave_core->object_class);
     
-    corlib->classList->push_back(wave_core->object_class);
-    corlib->classList->push_back(wave_core->value_class);
-    corlib->classList->push_back(wave_core->void_class);
-    corlib->classList->push_back(wave_core->native_class);
-    corlib->classList->push_back(wave_core->string_class);
-    corlib->classList->push_back(wave_core->console_class);
-    corlib->classList->push_back(wave_core->i4_class);
-    corlib->classList->push_back(wave_core->i8_class);
-    corlib->classList->push_back(wave_core->exception_class);
+    corlib->class_table->push_back(wave_core->object_class);
+    corlib->class_table->push_back(wave_core->value_class);
+    corlib->class_table->push_back(wave_core->void_class);
+    corlib->class_table->push_back(wave_core->native_class);
+    corlib->class_table->push_back(wave_core->string_class);
+    corlib->class_table->push_back(wave_core->console_class);
+    corlib->class_table->push_back(wave_core->i4_class);
+    corlib->class_table->push_back(wave_core->i8_class);
+    corlib->class_table->push_back(wave_core->exception_class);
 
     classes_ref = {
         CREATE_REF(object_class),
@@ -117,7 +117,7 @@ inline void init_default()
 
 inline void init_strings_phase_1()
 {
-    for(auto* clazz : *wave_core->corlib->classList)
+    for(auto* clazz : *wave_core->corlib->class_table)
         processStrings(clazz, wave_core->corlib);
 }
 // ORDER 2
@@ -167,6 +167,6 @@ inline void init_tables()
 // ORDER 4
 inline void init_strings_phase_2()
 {
-    for(auto* clazz : *wave_core->corlib->classList)
+    for(auto* clazz : *wave_core->corlib->class_table)
         processStrings(clazz, wave_core->corlib);
 }
