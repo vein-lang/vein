@@ -1,4 +1,4 @@
-﻿namespace ishtar.emit
+﻿namespace wave.ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -55,6 +55,9 @@
         {
             moduleBuilder.InternString(name);
             var method = new MethodBuilder(this, name, returnType, args);
+
+            if (Methods.Any(x => x.Name == method.Name))
+                throw new Exception($"Method '{method.Name}' in class '{Name}' already defined.");
             Methods.Add(method);
             return method;
         }
@@ -81,6 +84,8 @@
         {
             var field = new WaveField(this, new FieldName(name, this.Name), flags, fieldType);
             moduleBuilder.InternFieldName(field.FullName);
+            if (Fields.Any(x => x.Name == name))
+                throw new Exception($"Field '{name}' in class '{Name}' already defined.");
             Fields.Add(field);
             return field;
         }
@@ -145,7 +150,6 @@
 
             ctor = DefineMethod(name, flags, WaveTypeCode.TYPE_VOID.AsType());
             moduleBuilder.InternString(ctor.Name);
-            Methods.Add(ctor);
             
             return ctor;
         }

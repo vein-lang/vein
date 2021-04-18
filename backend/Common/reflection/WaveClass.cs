@@ -11,7 +11,7 @@
         public ClassFlags Flags { get; set; }
         public WaveClass Parent { get; set; }
         public readonly List<WaveField> Fields = new();
-        public readonly List<WaveMethod> Methods = new();
+        public List<WaveMethod> Methods { get; set; } = new();
         public WaveTypeCode TypeCode { get; set; } = WaveTypeCode.TYPE_CLASS;
         
         internal WaveClass(QualityTypeName name, WaveClass parent)
@@ -32,6 +32,10 @@
         {
             var method = new WaveMethod(name, flags, returnType, this, args);
             method.Arguments.AddRange(args);
+
+            if (Methods.Any(x => x.Name.Equals(method.Name)))
+                return Methods.First(x => x.Name.Equals(method.Name));
+
             Methods.Add(method);
             return method;
         }
@@ -49,14 +53,9 @@
         public virtual WaveMethod GetStaticCtor() => GetOrCreateTor("type_ctor()", true);
 
 
-        protected virtual WaveMethod GetOrCreateTor(string name, bool isStatic = false)
-        {
-            return FindMethod(name);
-        }
+        protected virtual WaveMethod GetOrCreateTor(string name, bool isStatic = false) 
+            => Methods.FirstOrDefault(x => x.IsStatic == isStatic && x.Name.Equals(name));
 
-        internal WaveMethod FindMethod(string name) 
-            => Methods.FirstOrDefault(method => method.Name == name);
-        
         public override string ToString() 
             => $"{FullName}, {Flags} ({Parent.FullName})";
     }

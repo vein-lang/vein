@@ -136,16 +136,6 @@
             CharClass = new WaveClass(Types.CharType, ValueTypeClass);
             ArrayClass = new WaveClass(Types.ArrayType, ObjectClass);
             ExceptionClass = new WaveClass(Types.ExceptionType, ObjectClass);
-            
-            
-            ObjectClass.DefineMethod("getHashCode", Types.Int32Type, 
-                MethodFlags.Virtual | MethodFlags.Public);
-            ObjectClass.DefineMethod("toString", Types.StringType,
-                MethodFlags.Virtual | MethodFlags.Public);
-            ArrayClass.DefineMethod("resize", Types.ArrayType,
-                MethodFlags.Public | MethodFlags.Extern | MethodFlags.Static,
-                ("arr", WaveTypeCode.TYPE_ARRAY), ("newSize", WaveTypeCode.TYPE_I4));
-            ExceptionClass.DefineMethod("ctor", WaveTypeCode.TYPE_VOID.AsType(), MethodFlags.Public);
         }
         
         static WaveCore()
