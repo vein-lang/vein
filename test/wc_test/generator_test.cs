@@ -6,12 +6,12 @@ namespace wc_test
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using insomnia;
-    using insomnia.emit;
-    using insomnia.extensions;
+    using ishtar;
     using wave.fs;
-    using insomnia.stl;
-    using insomnia.syntax;
+    using wave.ishtar.emit;
+    using wave.runtime;
+    using wave.stl;
+    using wave.syntax;
     using Xunit;
     using Xunit.Abstractions;
     
@@ -182,16 +182,6 @@ namespace wc_test
             
             
             Assert.Throws<FieldIsNotDeclaredException>(() => actual.EmitReturn(ret));
-        }
-        
-        
-        [Fact]
-        public void BuiltinGenTest()
-        {
-            var module = new WaveModuleBuilder(Guid.NewGuid().ToString());
-            BuiltinGen.GenerateConsole(module);
-            module.BakeByteArray();
-            module.BakeDebugString();
         }
         
         public static ILGenerator CreateGenerator(params WaveArgumentRef[] args)

@@ -1,8 +1,9 @@
 ﻿namespace wc_test
 {
     using System;
-    using insomnia;
-    using insomnia.emit;
+    using ishtar;
+    using wave.ishtar.emit;
+    using wave.runtime;
     using Xunit;
 
     public class il_test

@@ -3,7 +3,6 @@
     using System;
     using System.IO;
     using System.Text;
-    using insomnia.emit;
     using wave.fs;
     using Xunit;
     public class ElfTest

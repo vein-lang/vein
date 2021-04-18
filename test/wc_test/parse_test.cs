@@ -4,10 +4,8 @@
     using Sprache;
     using System.Linq;
     using insomnia;
-    using insomnia.emit;
-    using insomnia.extensions;
-    using insomnia.stl;
-    using insomnia.syntax;
+    using wave.stl;
+    using wave.syntax;
     using Xunit;
     using Xunit.Abstractions;
 

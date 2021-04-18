@@ -2,7 +2,7 @@
 namespace ishtar 
 {
 	using global::wave.runtime;
-	using global::ishtar.emit;
+	using global::wave.ishtar.emit;
 	using global::System.Collections.Generic;
 	public static class OpCodes 
 	{

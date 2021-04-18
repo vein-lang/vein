@@ -5,9 +5,9 @@
     using System.IO;
     using System.Linq;
     using Sprache;
-    using insomnia.emit;
-    using insomnia.stl;
-    using insomnia.syntax;
+    using wave.ishtar.emit;
+    using wave.stl;
+    using wave.syntax;
     using Xunit;
     public class FetchWaveSource : IEnumerable<object[]>
     {

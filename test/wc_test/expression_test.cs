@@ -2,12 +2,12 @@
 {
     using System;
     using System.Linq;
-    using insomnia.emit;
-    using insomnia.extensions;
-    using insomnia.stl;
-    using insomnia.syntax;
+    using ishtar;
     using Sprache;
-    using wave.etc;
+    using wave.ishtar.emit;
+    using wave.runtime;
+    using wave.stl;
+    using wave.syntax;
     using Xunit;
     using Xunit.Abstractions;
 
