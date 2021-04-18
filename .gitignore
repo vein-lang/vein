@@ -47,3 +47,5 @@ compiler/antrl/generated/
 wave.std/bin/
 
 bin/
+
+*.*~
