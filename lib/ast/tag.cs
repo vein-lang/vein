@@ -5,3 +5,4 @@
 [assembly: InternalsVisibleTo("wave.backend.llvm")]
 [assembly: InternalsVisibleTo("wave.backend.hashlink")]
 [assembly: InternalsVisibleTo("wc")]
+[assembly: InternalsVisibleTo("wc_test")]
