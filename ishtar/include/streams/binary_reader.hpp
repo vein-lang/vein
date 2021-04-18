@@ -57,20 +57,17 @@ public:
     wstring ReadInsomniaString() const noexcept(false)
     {
         const auto size = Read4();
-        const auto magic = ReadByte();
-        if (magic != 0x45)
-            throw InvalidOperationException("Cannot read string from binary stream. [magic flag invalid]");
+        ValidateMagicFlag();
         auto* const body = ReadBytes(size);
         return BytesToUTF8(body, size);
     }
-    [[nodiscard]]
-    TypeName* ReadTypeName(const function<wstring(int z)> getConst) const noexcept(false)
-    {
-        const auto asmIdx = getConst(Read4());
-        const auto nameIdx = getConst(Read4());
-        const auto nsIdx = getConst(Read4());
 
-        return new TypeName(asmIdx, nameIdx, nsIdx);
+    void ValidateMagicFlag() const
+    {
+        const int m1 = Read4();
+        const int m2 = Read4();
+         if (m1 != 0x13 || m2 != 0x37)
+            throw InvalidOperationException("Cannot read string from binary stream. [magic flag invalid]");
     }
 
     [[nodiscard]]
