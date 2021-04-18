@@ -11,7 +11,7 @@
     using System.Text;
     using System.Threading;
     using ishtar;
-    using ishtar.emit;
+    using wave.ishtar.emit;
     using wave.extensions;
     using wave.project;
     using wave.runtime;
