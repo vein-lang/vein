@@ -47,6 +47,21 @@ public:
             return make_tuple(Nullable<K>::Value, Nullable<V>::Value);
         }
     }
+    [[nodiscard]] V GetOrDefault(K key) noexcept(true)
+    {
+        Predicate<tuple<K, V>> predicate = [this, key](tuple<K, V> t) {
+            return std::get<0>(t) == key;
+        };
+        try
+        {
+            return this->First(predicate);
+        }
+        catch (SequenceContainsNoElements)
+        {
+            return Nullable<V>::Value;
+        }
+    }
+
     [[nodiscard]] tuple<K, V> FirstOrDefault() noexcept(true)
     {
         try
