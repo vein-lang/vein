@@ -12,20 +12,49 @@
 using namespace std;
 
 
-
+class ConstStorage
+{
+    
+};
 
 struct WaveModule
 {
     wstring name;
-    dictionary<int, wstring>* strings;
-    list_t<WaveClass*>* classList;
+    
+    list_t<WaveClass*>* class_table;
     list_t<WaveModule*>* deps;
+
+    wstring* VERSION;
+
+    dictionary<int, wstring>* strings_table;
+    dictionary<int, TypeName*>* types_table;
+    dictionary<int, FieldName*>* fields_table;
+
+    ConstStorage* const_table;
+
+    WaveModule(const wstring Name)
+    {
+        strings_table = new dictionary<int, wstring>;
+        types_table = new dictionary<int, TypeName*>;
+        fields_table = new dictionary<int, FieldName*>;
+        class_table = new list_t<WaveClass*>;
+        deps = new list_t<WaveModule*>;
+        const_table = new ConstStorage();
+        name = Name;
+    }
 
     [[nodiscard]]
     wstring GetConstByIndex(int index) const noexcept(false)
     {
-        if (strings->contains(index))
-            return strings->at(index);
+        if (strings_table->contains(index))
+            return strings_table->at(index);
+        throw AggregateException(fmt::format(L"Index '{0}' not found in module '{1}'.", index, name));
+    }
+    [[nodiscard]]
+    wstring* GetRefConstByIndex(int index) const noexcept(false)
+    {
+        if (strings_table->contains(index))
+            return &strings_table->at(index);
         throw AggregateException(fmt::format(L"Index '{0}' not found in module '{1}'.", index, name));
     }
     int32_t GetStringConstant(const wstring& str) const noexcept(false)
@@ -33,12 +62,12 @@ struct WaveModule
         if (str.empty())
             throw ArgumentNullException(L"GetStringConstant:: [str is empty]");
         auto key = static_cast<int32_t>(hash_gen<wstring>::getHashCode(str));
-        if (!strings->contains(key))
-            strings->insert({key, str});
-        if (!equality<wstring>::equal(strings->at(key), str))
+        if (!strings_table->contains(key))
+            strings_table->insert({key, str});
+        if (!equality<wstring>::equal(strings_table->at(key), str))
             throw CollisionDetectedException(fmt::format(
                 L"Detected collisions of string constant. '{0}' and '{1}'.\n Please report this issue into {2}.",
-                str, strings->at(key),
+                str, strings_table->at(key),
                 L"https://github.com/0xF6/wave_lang/issues"));
         return key;
     }
@@ -57,15 +86,6 @@ struct WaveModule
         b |= static_cast<uint32_t>(i1);
         return b;
     }
-
-
-    WaveModule(const wstring Name)
-    {
-        strings = new dictionary<int, wstring>;
-        classList = new list_t<WaveClass*>;
-        deps = new list_t<WaveModule*>;
-        name = Name;
-    }
     
     WaveType* FindType(TypeName* type, bool findExternally = false) const noexcept(false)
     {
@@ -73,8 +93,8 @@ struct WaveModule
             return equality<TypeName*>::equal(type, s->FullName);
         };
         if (!findExternally)
-            return AsType(classList->First(filter));
-        auto* result = classList->FirstOrDefault(filter);
+            return AsType(class_table->First(filter));
+        auto* result = class_table->FirstOrDefault(filter);
         if (result != nullptr)
             return AsType(result);
         
@@ -93,8 +113,8 @@ struct WaveModule
             return equality<TypeName*>::equal(type, s->FullName);
         };
         if (!findExternally)
-            return classList->First(filter);
-        auto* result = classList->FirstOrDefault(filter);
+            return class_table->First(filter);
+        auto* result = class_table->FirstOrDefault(filter);
         if (result != nullptr)
             return result;
         
@@ -129,7 +149,7 @@ struct WaveModule
     [[nodiscard]]
     WaveMethod* GetEntryPoint() const
     {
-        for(auto* c : *classList)
+        for(auto* c : *class_table)
         {
             for(auto* m : *c->Methods)
             {
