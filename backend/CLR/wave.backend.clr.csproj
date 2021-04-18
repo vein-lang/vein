@@ -18,5 +18,9 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Lokad.ILPack" Version="0.1.6" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Common\wave.common.csproj" />
 	</ItemGroup>
 </Project>
