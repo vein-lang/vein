@@ -39,12 +39,12 @@ static WaveObject* i_call_get_Platform()
 
 /****************              end builtin                ****************/
 
-#include "../metadata/internal.args.def"
+#include "../../metadata/internal.args.def"
 
 #define FE_CALL(name, type_name, link, argsize) internal_##name,
 
 enum {
-    #include "../metadata/internal.def"
+    #include "../../metadata/internal.def"
     internal_last
 };
 #undef FE_CALL
@@ -53,7 +53,7 @@ enum {
 
 
 static const wchar_t* internal_call_names[] = {
-    #include "../metadata/internal.def"
+    #include "../../metadata/internal.def"
     nullptr
 };
 
@@ -62,7 +62,7 @@ static const wchar_t* internal_call_names[] = {
 #define FE_CALL(name, type_name, link, argsize) type_name,
 
 static const wstring internal_call_functions_direction[] = {
-    #include "../metadata/internal.def"
+    #include "../../metadata/internal.def"
     L"<null>"
 };
 
@@ -71,7 +71,7 @@ static const wstring internal_call_functions_direction[] = {
 #define FE_CALL(name, type_name, link, argsize) &link,
 
 static const wpointer internal_call_functions[] = {
-    #include "../metadata/internal.def"
+    #include "../../metadata/internal.def"
     nullptr
 };
 #undef FE_CALL
@@ -79,7 +79,7 @@ static const wpointer internal_call_functions[] = {
 #define FE_CALL(name, type_name, link, argsize) argsize,
 
 static const unsigned char internal_call_function_args_size[] = {
-    #include "../metadata/internal.def"
+    #include "../../metadata/internal.def"
     0
 };
 
@@ -89,7 +89,7 @@ static const unsigned char internal_call_function_args_size[] = {
 
 //[[clang::no_destroy]]
 static const void* internal_call_function_args_refs[] = {
-    #include "../metadata/internal.def"
+    #include "../../metadata/internal.def"
     nullptr
 };
 

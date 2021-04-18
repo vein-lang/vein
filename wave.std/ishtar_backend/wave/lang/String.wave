@@ -8,7 +8,7 @@ public class String : Object
     //[native, getter]
     //public extern this[index: Int32]: Char;
     [native, getter]
-    public extern Length: Int32;
+    public /*extern*/ Length: Int32;
 
     public EndsWith(value: Char): Boolean
     {

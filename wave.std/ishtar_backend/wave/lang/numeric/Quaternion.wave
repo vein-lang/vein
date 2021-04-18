@@ -4,7 +4,7 @@
 
 public struct Quaternion : ValueType
 {
-    public static Zero: Quaternion = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+    //public static Zero: Quaternion = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
 
     public X: Float;
     public Y: Float;

@@ -86,7 +86,6 @@ void setup(int argc, char* argv[]) {
     std::cout << "Elapsed: " << duration_ms / 1000.0f << " seconds." << std::endl;
 }
 
-
 void loop() {
 }
 void exec_method(CallFrame* invocation)
@@ -98,7 +97,7 @@ void exec_method(CallFrame* invocation)
     auto* mh = invocation->method->data.header;
     auto* args = invocation->args;
 
-    function<wstring(int z)> get_const_string = [_module](const int w) {
+    function get_const_string = [_module](const int w) {
         return _module->GetConstByIndex(w);
     };
 
@@ -234,7 +233,7 @@ void exec_method(CallFrame* invocation)
             case CALL:
             {
                 ++ip;
-                auto callctx = static_cast<CALL_CONTEXT>(static_cast<uint32_t>(*ip));
+                auto callctx = static_cast<CALL_CONTEXT>(*ip);
 
                 if (callctx == CALL_CONTEXT::THIS_CALL)
                 {

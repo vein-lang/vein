@@ -26,19 +26,19 @@ template <> struct fmt::formatter<half>: formatter<string_view> {
 };
 
 enum WaveOpCode {
-    #include "../metadata/opcodes.def"
+    #include "../../metadata/opcodes.def"
 	LAST
 };
 #undef OP_DEF
 #define OP_DEF(x, y, z) #x,
 inline const char* opcodes [] = {
-	#include "../metadata/opcodes.def"
+	#include "../../metadata/opcodes.def"
 	"LAST"
 };
 #undef OP_DEF
 #define OP_DEF(x, y, z) z,
 inline const unsigned char opcode_size [] = {
-	#include "../metadata/opcodes.def"
+	#include "../../metadata/opcodes.def"
 	0
 };
 #undef OP_DEF
