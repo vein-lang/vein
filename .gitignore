@@ -45,3 +45,5 @@ compiler/antrl/.antlr/
 compiler/antrl/generated/
 
 wave.std/bin/
+
+bin/
