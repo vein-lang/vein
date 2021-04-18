@@ -1,4 +1,4 @@
-﻿namespace ishtar.emit.extensions
+﻿namespace wave.ishtar.emit.extensions
 {
     using System;
     using System.IO;

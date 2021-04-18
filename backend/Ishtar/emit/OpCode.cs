@@ -1,7 +1,8 @@
-﻿namespace ishtar.emit
+﻿namespace wave.ishtar.emit
 {
     using System;
-    using runtime.runtime.emit;
+    using global::ishtar;
+    using global::runtime.runtime.emit;
 
     public readonly struct OpCode : IEquatable<OpCode>
     {

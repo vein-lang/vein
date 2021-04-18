@@ -1,4 +1,4 @@
-﻿namespace ishtar.emit
+﻿namespace wave.ishtar.emit
 {
     using System;
     using System.Buffers.Binary;
@@ -8,8 +8,9 @@
     using System.Runtime.CompilerServices;
     using System.Text;
     using extensions;
+    using global::ishtar;
     using wave.runtime;
-    using static ishtar.OpCodeValue;
+    using static global::ishtar.OpCodeValue;
 
     public class ILGenerator
     {

@@ -4,7 +4,7 @@ namespace ishtar
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using emit;
+    using wave.ishtar.emit;
     using wave.runtime;
     using Spectre.Console;
     using wave.syntax;

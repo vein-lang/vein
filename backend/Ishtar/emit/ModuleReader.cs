@@ -1,4 +1,4 @@
-namespace ishtar.emit
+﻿namespace wave.ishtar.emit
 {
     using System;
     using System.Collections.Generic;
