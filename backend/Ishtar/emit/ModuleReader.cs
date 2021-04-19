@@ -139,7 +139,7 @@
                 var name = FieldName.Resolve(binary.ReadInt32(), module);
                 var type_name = binary.ReadTypeName(module);
                 var type = module.FindType(type_name, true);
-                var flags = (FieldFlags) binary.ReadByte();
+                var flags = (FieldFlags) binary.ReadInt16();
                 var method = new WaveField(@class, name, flags, type);
                 @class.Fields.Add(method);
             }

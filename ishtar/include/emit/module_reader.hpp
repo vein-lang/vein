@@ -153,7 +153,6 @@ auto decodeIL(BinaryReader* reader, int* offset) noexcept(false)
     return il_result;
 }
 
-
 [[nodiscard]]
 auto* readArguments(BinaryReader* reader, WaveModule* m) noexcept
 {
@@ -178,7 +177,7 @@ WaveMethod* readMethod(BinaryReader* reader, WaveClass* clazz, WaveModule* m) no
 {
 
     const auto idx = reader->Read4();
-    const auto flags = static_cast<MethodFlags>(reader->ReadByte());
+    const auto flags = static_cast<MethodFlags>(reader->Read2());
     const auto bodySize = reader->Read4();
     const auto stackSize = reader->ReadByte();
     const auto locals = reader->ReadByte();
@@ -233,12 +232,8 @@ WaveMethod* readMethod(BinaryReader* reader, WaveClass* clazz, WaveModule* m) no
 [[nodiscard]]
 WaveClass* readClass(BinaryReader* reader, WaveModule* m) noexcept(false)
 {
-    function<wstring(int z)> wn = [m](const int w) {
-        return m->GetConstByIndex(w);
-    };
-
     auto* const className = ReadTypeName(m, reader);
-    const auto flags = static_cast<ClassFlags>(reader->ReadByte());
+    const auto flags = static_cast<ClassFlags>(reader->Read2());
 
     auto* const parentName = ReadTypeName(m, reader);
     const auto len = reader->Read4();
@@ -266,8 +261,7 @@ WaveClass* readClass(BinaryReader* reader, WaveModule* m) noexcept(false)
         auto* fname = ReadFieldName(m, reader);
         const auto tname = ReadTypeName(m, reader);
         auto* const return_type = m->FindType(tname, true);
-        const auto fflags = static_cast<FieldFlags>(reader->ReadByte());
-        //auto litVal = reader->ReadBytes(0);
+        const auto fflags = static_cast<FieldFlags>(reader->Read2());
         auto* field = new WaveField(clazz, fname, fflags, return_type);
         clazz->Fields->push_back(field);
     }
