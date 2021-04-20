@@ -7,6 +7,7 @@
 #include "WaveModue.hpp"
 #include "streams/memory_stream.hpp"
 #include "streams/binary_reader.hpp"
+#include "utils/string.eq.hpp"
 
 
 struct ILWrapper
@@ -238,11 +239,20 @@ WaveClass* readClass(BinaryReader* reader, WaveModule* m) noexcept(false)
     auto* const parentName = ReadTypeName(m, reader);
     const auto len = reader->Read4();
 
-    auto* const parent = m->FindType(parentName, true);
-    auto* clazz = new WaveClass(className, AsClass(parent));
+    WaveClass* parent_class = nullptr;
+
+    if (!equals(className->FullName, parentName->FullName, CompareFlag::NONE))
+    {
+        auto* const parent = m->FindType(parentName, true);
+        parent_class = AsClass(parent);
+    }
+
+    
+    auto* clazz = new WaveClass(className, parent_class);
     clazz->Flags = flags;
     printf("\t\t\tclass name: '%ws'\n", className->FullName.c_str());
-    printf("\t\t\tclass parent: '%ws'\n", parent->get_full_name()->FullName.c_str());
+    if (parent_class != nullptr)
+        printf("\t\t\tclass parent: '%ws'\n", parent_class->FullName->FullName.c_str());
     printf("\t\t\t[construct method table] size: %d\n", len);
     for (auto i = 0; i != len; i++)
     {
