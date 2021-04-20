@@ -19,8 +19,8 @@
             
             //BuiltinGen.GenerateConsole(stllib);
             
-            //var asm = new InsomniaAssembly(stllib);
-            //InsomniaAssembly.WriteTo(asm, 
+            //var asm = new IshtarAssembly(stllib);
+            //IshtarAssembly.WriteTo(asm, 
             //    new DirectoryInfo(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any"));
             //await File.WriteAllTextAsync(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any\stl.wll.il",
             //    stllib.BakeDebugString());

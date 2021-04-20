@@ -54,11 +54,11 @@ public:
         };
         try
         {
-            return this->First(predicate);
+            return std::get<1>(this->First(predicate));
         }
         catch (SequenceContainsNoElements)
         {
-            return Nullable<V>::Value;
+            return (V)Nullable<V>::Value;
         }
     }
 

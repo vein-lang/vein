@@ -54,7 +54,7 @@ void setup(int argc, char* argv[]) {
     auto* val = 
         //readILfromElf("C:\\Program Files (x86)\\WaveLang\\sdk\\0.1-preview\\runtimes\\any\\stl.wll");
         //readILfromElf("C:\\Users\\ls-mi\\Desktop\\satl.wll");
-        readILfromElf("C:\\Users\\ls-mi\\Desktop\\satl.wll");
+        readILfromElf("C:\\wavelib\\set2.wll");
     auto list = new list_t<WaveModule*>();
     list->push_back(wave_core->corlib);
     auto m = readModule(val->bytes.data(), val->size, list);

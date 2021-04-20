@@ -24,7 +24,7 @@
         }
     }
 
-    public partial class InsomniaAssembly
+    public partial class IshtarAssembly
     {
         public string Name { get; init; }
 
@@ -54,18 +54,18 @@
         }
 
 
-        public InsomniaAssembly(WaveModuleBuilder module) 
+        public IshtarAssembly(WaveModuleBuilder module) 
             => this.InsertModule(module);
 
-        internal InsomniaAssembly()
+        internal IshtarAssembly()
         {
         }
 
         /// <exception cref="BadImageFormatException"/>
-        public static InsomniaAssembly LoadFromFile(FileInfo file)
+        public static IshtarAssembly LoadFromFile(FileInfo file)
             => LoadFromFile(file.FullName);
         /// <exception cref="BadImageFormatException"/>
-        public static InsomniaAssembly LoadFromFile(string file)
+        public static IshtarAssembly LoadFromFile(string file)
         {
             using var fs = File.OpenRead(file);
             using var br = new BinaryReader(fs);
@@ -117,7 +117,7 @@
                 sections[i] = (tmp.name, reader.ReadBytes(reader.ReadInt32()));
             }
             
-            return new InsomniaAssembly
+            return new IshtarAssembly
             {
                 Sections = sections, 
                 Name = Path.GetFileNameWithoutExtension(file),
@@ -131,12 +131,12 @@
             WriteTo(this, file.FullName);
         }
 
-        public static void WriteTo(InsomniaAssembly asm, DirectoryInfo directory)
+        public static void WriteTo(IshtarAssembly asm, DirectoryInfo directory)
         {
             var file = new FileInfo(Path.Combine(directory.FullName, $"{asm.Name}.wll"));
             WriteTo(asm, file.FullName);
         }
-        internal static void WriteTo(InsomniaAssembly asm, string file)
+        internal static void WriteTo(IshtarAssembly asm, string file)
         {
             using var memory = new MemoryStream();
             using var writer = new BinaryWriter(memory);

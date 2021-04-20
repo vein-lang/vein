@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>0.4.933</Version>
 		<Authors>Yuuki Wesp</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
@@ -25,6 +26,7 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="ExpressiveParser" Version="2.4.0" />
+		<PackageReference Include="morelinq" Version="3.3.2" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\lib\ast\wave.ast.csproj" />

@@ -11,13 +11,13 @@
         public void ElfReadTest()
         {
             var file = GetTempFile();
-            var asm = new InsomniaAssembly
+            var asm = new IshtarAssembly
             {
                 Name = "wave_test"
             };
             asm.AddSegment((".code", Encoding.ASCII.GetBytes("IL_CODE")));
-            InsomniaAssembly.WriteTo(asm, file);
-            var result = InsomniaAssembly.LoadFromFile(file);
+            IshtarAssembly.WriteTo(asm, file);
+            var result = IshtarAssembly.LoadFromFile(file);
             var (_, body) = result.Sections[0];
             Assert.Equal("IL_CODE", Encoding.ASCII.GetString(body));
             var f_mem = new MemoryStream(File.ReadAllBytes(file));
@@ -34,13 +34,13 @@
         public void ElfReadManual()
         {
             var file = @"C:\Users\ls-mi\Desktop\wave.elf";
-            var asm = new InsomniaAssembly
+            var asm = new IshtarAssembly
             {
                 Name = "wave_test"
             };
             asm.AddSegment((".code", Encoding.ASCII.GetBytes("IL_CODE")));
-            InsomniaAssembly.WriteTo(asm, file);
-            var result = InsomniaAssembly.LoadFromFile(file);
+            IshtarAssembly.WriteTo(asm, file);
+            var result = IshtarAssembly.LoadFromFile(file);
         }
 
         public string GetTempFile() => Path.Combine(Path.GetTempPath(), "wave_test", Path.GetTempFileName());

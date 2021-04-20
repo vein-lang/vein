@@ -60,11 +60,11 @@ namespace wc_test
             //File.WriteAllText(@"C:\Users\ls-mi\Desktop\wave.il", 
             //    module.BakeDebugString());
             
-            var asm = new InsomniaAssembly{Name = "woodo"};
+            var asm = new IshtarAssembly{Name = "woodo"};
             
             asm.AddSegment((".code", method.BakeByteArray()));
             
-            //InsomniaAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+            //IshtarAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
 
         }
 
@@ -91,11 +91,11 @@ namespace wc_test
             var body_module = module.BakeByteArray();
 
 
-            var asm = new InsomniaAssembly();
+            var asm = new IshtarAssembly();
             
             asm.AddSegment((".code", body_module));
             
-            //InsomniaAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+            //IshtarAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
         }
         [Fact]
         public void AST2ILTest()
@@ -395,11 +395,11 @@ puts after - before;*/
             var body_module = module.BakeByteArray();
 
 
-            var asm = new InsomniaAssembly { Name = module.Name };
+            var asm = new IshtarAssembly { Name = module.Name };
             
             asm.AddSegment((".code", body_module));
             
-            InsomniaAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+            IshtarAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
             File.WriteAllText($@"C:\Users\ls-mi\Desktop\{module.Name}.wvil", module.BakeDebugString());
         }
     }

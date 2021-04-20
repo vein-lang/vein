@@ -127,9 +127,9 @@
             var wil_data = builder.BakeByteArray();
 
 
-            var asm = new InsomniaAssembly(builder);
+            var asm = new IshtarAssembly(builder);
 
-            InsomniaAssembly.WriteTo(asm, asm_file.FullName);
+            IshtarAssembly.WriteTo(asm, asm_file.FullName);
 
             File.WriteAllBytes(wil_file.FullName, wil_data);
         }

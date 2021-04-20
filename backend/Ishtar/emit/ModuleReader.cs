@@ -14,29 +14,29 @@
     {
         public static string ReadInsomniaString(this BinaryReader reader)
         {
-            var size = reader.ReadInt32();
             reader.ValidateMagicFlag();
+            var size = reader.ReadInt32();
             return Encoding.UTF8.GetString(reader.ReadBytes(size));
         }
         public static void WriteInsomniaString(this BinaryWriter writer, string value)
         {
+            writer.WriteMagicFlag();
             var body = Encoding.UTF8.GetBytes(value);
             writer.Write(body.Length);
-            writer.WriteMagicFlag();
             writer.Write(body);
         }
 
         public static void ValidateMagicFlag(this BinaryReader reader)
         {
-            var m1 = reader.ReadInt32();
-            var m2 = reader.ReadInt32();
-            if (m1 != 0x13 || m2 != 0x37)
+            var m1 = reader.ReadByte();
+            var m2 = reader.ReadByte();
+            if (m1 != 0xFF || m2 != 0xFF)
                 throw new InvalidOperationException("Cannot read string from binary stream. [magic flag invalid]");
         }
         public static void WriteMagicFlag(this BinaryWriter writer)
         {
-            writer.Write(0x13);
-            writer.Write(0x37);
+            writer.Write((byte)0xFF);
+            writer.Write((byte)0xFF);
         }
     }
 
@@ -55,9 +55,16 @@
             // read strings table
             foreach (var _ in ..reader.ReadInt32())
             {
-                var key = reader.ReadInt32();
-                var value = reader.ReadInsomniaString();
-                module.strings_table.Add(key, value);
+                try
+                {
+                    var key = reader.ReadInt32();
+                    var value = reader.ReadInsomniaString();
+                    module.strings_table.Add(key, value);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
             }
             // read types table
             foreach (var _ in ..reader.ReadInt32())

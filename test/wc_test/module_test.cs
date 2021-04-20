@@ -50,12 +50,12 @@
         public void WriteTest()
         {
             var verSR = new Version(2, 2, 2, 2);
-            var moduleSR = new WaveModuleBuilder("blank", verSR);
+            var moduleSR = new WaveModuleBuilder("set1", verSR);
             {
                 moduleSR.Deps.AddRange(GetDeps());
 
 
-                var @class = moduleSR.DefineClass("blank%global::wave/lang/SR");
+                var @class = moduleSR.DefineClass("set1%global::wave/lang/SR");
 
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
@@ -69,20 +69,20 @@
                 moduleSR.BakeByteArray();
                 moduleSR.BakeDebugString();
 
-                var blank = new InsomniaAssembly (moduleSR) { Name = "blank", Version = verSR};
+                var blank = new IshtarAssembly (moduleSR) { Name = "set1", Version = verSR};
             
 
-                InsomniaAssembly.WriteTo(blank, new DirectoryInfo("C:/wave-lang-temp"));
+                IshtarAssembly.WriteTo(blank, new DirectoryInfo("C:/wavelib"));
             }
 
 
             {
                 var ver = new Version(2, 2, 2, 2);
-                var module = new WaveModuleBuilder("aspera", ver);
+                var module = new WaveModuleBuilder("set2", ver);
                 module.Deps.AddRange(GetDeps());
 
 
-                var @class = module.DefineClass("aspera%global::wave/lang/DR");
+                var @class = module.DefineClass("set2%global::wave/lang/DR");
 
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
@@ -98,18 +98,39 @@
 
                 module.Deps.Add(moduleSR);
 
-                var blank = new InsomniaAssembly (module) { Name = "aspera", Version = ver};
+                var blank = new IshtarAssembly (module) { Name = "set2", Version = ver};
             
 
-                InsomniaAssembly.WriteTo(blank, new DirectoryInfo("C:/wave-lang-temp"));
+                IshtarAssembly.WriteTo(blank, new DirectoryInfo("C:/wavelib"));
             }
+        }
+
+        [Fact]
+        public void ReadTest()
+        {
+            var target = new FileInfo(@"C:/wavelib/set2.wll");
+
+            var insm = IshtarAssembly.LoadFromFile(target);
+            var deps = GetDeps();
+
+            var (_, bytes) = insm.Sections.First();
+
+            var sdk = new WaveSDK(new WaveProject(new FileInfo(@"C:\wavelib\foo.ww"), new XML.Project()
+            {
+                Sdk = "default"
+            }));
+
+
+            var resolver = new AssemblyResolver(sdk.RootPath);
+
+            var result = ModuleReader.Read(bytes, deps, (x,z) => resolver.ResolveDep(x,z,deps));
         }
         
         [Fact]
         public void ReaderTest()
         {
             var deps = GetDeps();
-            var f = InsomniaAssembly.LoadFromFile(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\std\aspera.wll");
+            var f = IshtarAssembly.LoadFromFile(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\std\aspera.wll");
             var (_, bytes) = f.Sections.First();
 
             var sdk = new WaveSDK(new WaveProject(new FileInfo(@"C:\wave-lang-temp\foo.ww"), new XML.Project()

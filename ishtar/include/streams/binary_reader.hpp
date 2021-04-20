@@ -56,8 +56,8 @@ public:
     [[nodiscard]]
     wstring ReadInsomniaString() const noexcept(false)
     {
-        const auto size = Read4();
         ValidateMagicFlag();
+        const auto size = Read4();
         auto* const body = ReadBytes(size);
         return BytesToUTF8(body, size);
     }
@@ -66,7 +66,7 @@ public:
     {
         const int m1 = Read4();
         const int m2 = Read4();
-         if (m1 != 0x13 || m2 != 0x37)
+         if (m1 != 0xFF || m2 != 0xFF)
             throw InvalidOperationException("Cannot read string from binary stream. [magic flag invalid]");
     }
 
