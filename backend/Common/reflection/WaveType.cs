@@ -84,6 +84,7 @@
         protected internal ClassFlags? classFlags { get; set; }
         public WaveTypeCode TypeCode { get; protected set; }
         public WaveType Parent { get; protected internal set; }
+        public WaveModule Owner { get; set; }
 
         public override string Name
         {
@@ -124,13 +125,15 @@
         public WaveField FindField(string name) 
             => this.Members.OfType<WaveField>().FirstOrDefault(x => x.Name.Equals(name));
 
-        public WaveMethod FindMethod(string name)
+        public WaveMethod FindMethod(string name, Func<WaveMethod, bool> eq = null)
         {
+            eq ??= s => s.RawName.Equals(name);
+
             foreach (var member in Members)
             {
                 if (member is not WaveMethod method)
                     continue;
-                if (method.RawName.Equals(name))
+                if (eq(method))
                     return method;
             }
 
