@@ -1,4 +1,4 @@
-use std::{collections::HashMap, pin::Pin};
+use std::{collections::HashMap};
 
 use crate::emit::
 {
@@ -9,7 +9,7 @@ use crate::emit::
 
 pub struct IshtarContext
 {
-    pub modules_cache: Pin<Box<HashMap<String, IshtarModule>>>,
-    pub classes_cache: Pin<Box<HashMap<String, IshtarClass>>>,
-    pub loaded_assemlies: Pin<Box<HashMap<String, IshtarAssembly>>>,
+    pub modules_cache: *const HashMap<*const str, *const IshtarModule>,
+    pub classes_cache: *const HashMap<*const str, *const IshtarClass>,
+    pub loaded_assemlies: *const HashMap<*const str, *const IshtarAssembly>,
 }
