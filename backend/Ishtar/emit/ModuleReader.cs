@@ -122,7 +122,7 @@
             var len = binary.ReadInt32();
 
             var parent = module.FindType(parentIdx, true);
-            var @class = new WaveClass(className, parent.AsClass())
+            var @class = new WaveClass(className, parent.AsClass(), module)
             {
                 Flags = flags
             };
