@@ -49,17 +49,9 @@ public:
     }
     [[nodiscard]] V GetOrDefault(K key) noexcept(true)
     {
-        Predicate<tuple<K, V>> predicate = [this, key](tuple<K, V> t) {
-            return std::get<0>(t) == key;
-        };
-        try
-        {
-            return std::get<1>(this->First(predicate));
-        }
-        catch (SequenceContainsNoElements)
-        {
-            return (V)Nullable<V>::Value;
-        }
+        if (this->contains(key))
+            return this->at(key);
+        return nullptr;
     }
 
     [[nodiscard]] tuple<K, V> FirstOrDefault() noexcept(true)
