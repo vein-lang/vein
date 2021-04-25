@@ -239,86 +239,89 @@ puts after - before;*/
             var module = new WaveModuleBuilder("satl");
             var clazz = module.DefineClass("satl%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-
-            clazz.DefineField("zopa", FieldFlags.Public, WaveTypeCode.TYPE_I4.AsType());
+            
             
             var fib = clazz.DefineMethod("fib", 
                 MethodFlags.Public | MethodFlags.Static,
-                WaveTypeCode.TYPE_I8.AsType(), ("x", WaveTypeCode.TYPE_BOOLEAN));
+                WaveTypeCode.TYPE_I8.AsType(), ("x", WaveTypeCode.TYPE_I8));
 
             var fibGen = fib.GetGenerator();
 
-            fibGen.Emit(OpCodes.LDC_I8_1);
-            fibGen.Emit(OpCodes.LDC_I8_1);
-            fibGen.Emit(OpCodes.EQL);
+            //fibGen.Emit(OpCodes.LDC_I8_1);
+            //fibGen.Emit(OpCodes.LDC_I8_1);
+            //fibGen.Emit(OpCodes.EQL);
+            //fibGen.Emit(OpCodes.RET);
+
+            var label_if_1 = fibGen.DefineLabel();
+            var label_if_2 = fibGen.DefineLabel();
+            var for_1 = fibGen.DefineLabel();
+            var for_body = fibGen.DefineLabel();
+
+            // if (x == 0) return 0;
+            fibGen.Emit(OpCodes.LDARG_0);
+            fibGen.Emit(OpCodes.JMP_T, label_if_1);
+            fibGen.Emit(OpCodes.LDC_I8_0);
             fibGen.Emit(OpCodes.RET);
+            fibGen.UseLabel(label_if_1);
+            fibGen.Emit(OpCodes.NOP);
+            // if (x == 1) return 1;
+            fibGen.Emit(OpCodes.LDARG_0);
+            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.JMP_NN, label_if_2);
+            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.RET);
+            fibGen.UseLabel(label_if_2);
+            fibGen.Emit(OpCodes.NOP);
+            // var first, second, nth, i = 0;
+            fibGen.Emit(OpCodes.LOC_INIT, new[]
+            {
+                WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8,
+                WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8
+            });
+            // second, nth = 1; i = 2;
+            fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_1);
+            fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_2);
+            fibGen.Emit(OpCodes.LDC_I8_2); fibGen.Emit(OpCodes.STLOC_3);
 
-            //var label_if_1 = fibGen.DefineLabel();
-            //var label_if_2 = fibGen.DefineLabel();
-            //var for_1 = fibGen.DefineLabel();
-            //var for_body = fibGen.DefineLabel();
-            
-            //// if (x == 0) return 0;
-            //fibGen.Emit(OpCodes.LDARG_0);
-            //fibGen.Emit(OpCodes.JMP_T, label_if_1);
-            //fibGen.Emit(OpCodes.LDC_I8_0);
-            //fibGen.Emit(OpCodes.RET);
-            //fibGen.UseLabel(label_if_1);
-            //// if (x == 1) return 1;
-            //fibGen.Emit(OpCodes.LDARG_0);
-            //fibGen.Emit(OpCodes.LDC_I8_1);
-            //fibGen.Emit(OpCodes.JMP_NN, label_if_2);
-            //fibGen.Emit(OpCodes.LDC_I8_1);
-            //fibGen.Emit(OpCodes.RET);
-            //fibGen.UseLabel(label_if_2);
-            //// var first, second, nth, i = 0;
-            //fibGen.Emit(OpCodes.LOC_INIT, new[]
-            //{
-            //    WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8, 
-            //    WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8
-            //});
-            //// second, nth = 1; i = 2;
-            //fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_1);
-            //fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_2);
-            //fibGen.Emit(OpCodes.LDC_I8_2); fibGen.Emit(OpCodes.STLOC_3);
-            
-            //// for
-            //// 
-            //fibGen.Emit(OpCodes.JMP, for_1);
-            //fibGen.UseLabel(for_body);
-            //fibGen.Emit(OpCodes.LDLOC_0);
-            //fibGen.Emit(OpCodes.LDLOC_1);
-            //fibGen.Emit(OpCodes.ADD);
-            //fibGen.Emit(OpCodes.STLOC_2);
-            
-            //fibGen.Emit(OpCodes.LDLOC_1);
-            //fibGen.Emit(OpCodes.STLOC_0);
-            
-            //fibGen.Emit(OpCodes.LDLOC_2);
-            //fibGen.Emit(OpCodes.STLOC_1);
-            
-            //// i++
-            //fibGen.Emit(OpCodes.LDLOC_3);
-            //fibGen.Emit(OpCodes.LDC_I8_1);
-            //fibGen.Emit(OpCodes.ADD);
-            //fibGen.Emit(OpCodes.STLOC_3);
+            // for
+            // 
+            fibGen.Emit(OpCodes.JMP, for_1);
+            fibGen.UseLabel(for_body);
+            fibGen.Emit(OpCodes.NOP);
+            fibGen.Emit(OpCodes.LDLOC_0);
+            fibGen.Emit(OpCodes.LDLOC_1);
+            fibGen.Emit(OpCodes.ADD);
+            fibGen.Emit(OpCodes.STLOC_2);
 
-            //// var exceptionType =
-            ////    module.FindType(new QualityTypeName("corlib%global::wave/lang/Exception")).AsClass();
-            
-            ////fibGen.Emit(OpCodes.NEWOBJ, exceptionType.FullName);
-            ////fibGen.Emit(OpCodes.CALL, exceptionType.FindMethod("ctor()"));
+            fibGen.Emit(OpCodes.LDLOC_1);
+            fibGen.Emit(OpCodes.STLOC_0);
+
+            fibGen.Emit(OpCodes.LDLOC_2);
+            fibGen.Emit(OpCodes.STLOC_1);
+
+            // i++
+            fibGen.Emit(OpCodes.LDLOC_3);
+            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.ADD);
+            fibGen.Emit(OpCodes.STLOC_3);
+
+            // var exceptionType =
+            //    module.FindType(new QualityTypeName("corlib%global::wave/lang/Exception")).AsClass();
+
+            //fibGen.Emit(OpCodes.NEWOBJ, exceptionType.FullName);
+            //fibGen.Emit(OpCodes.CALL, exceptionType.FindMethod("ctor()"));
             //fibGen.Emit(OpCodes.THROW);
 
 
-            //// i <= n
-            //fibGen.UseLabel(for_1);
-            //fibGen.Emit(OpCodes.LDARG_0);
-            //fibGen.Emit(OpCodes.LDLOC_3);
-            //fibGen.Emit(OpCodes.JMP_LQ, for_body);
-            //// return nth;
-            //fibGen.Emit(OpCodes.LDLOC_2);
-            //fibGen.Emit(OpCodes.RET);
+            // i <= n
+            fibGen.UseLabel(for_1);
+            fibGen.Emit(OpCodes.NOP);
+            fibGen.Emit(OpCodes.LDARG_0);
+            fibGen.Emit(OpCodes.LDLOC_3);
+            fibGen.Emit(OpCodes.JMP_LQ, for_body);
+            // return nth;
+            fibGen.Emit(OpCodes.LDLOC_2);
+            fibGen.Emit(OpCodes.RET);
             /*
         fibGen.Emit(OpCodes.LDARG_0);
         fibGen.Emit(OpCodes.STLOC_0);
@@ -379,13 +382,12 @@ puts after - before;*/
             /* 0x00000019 2A            IL_0019: ret
              */
 
-            var method = clazz.DefineMethod("master", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType());
-            method.Flags = MethodFlags.Public | MethodFlags.Static;
+            var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static, WaveTypeCode.TYPE_VOID.AsType());
             var body = method.GetGenerator();
             
             
             
-            body.Emit(OpCodes.LDC_I8_S, (long)1073741823/**/);
+            body.Emit(OpCodes.LDC_I8_S, (long)120/**/);
             body.Emit(OpCodes.CALL, fib);
             body.Emit(OpCodes.DUMP_0);
             body.Emit(OpCodes.RET);

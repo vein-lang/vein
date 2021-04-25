@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wave.ast", "lib\ast\wave.as
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wave.project", "lib\projectsystem\wave.project.csproj", "{5D7842C7-A8C3-440E-8715-7C99E48F6D7D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wave.backend.ishtar.light", "backend\wave.backend.ishtar.light\wave.backend.ishtar.light.csproj", "{109BF2DC-CE46-48B6-B3D1-C993F15605A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,18 @@ Global
 		{5D7842C7-A8C3-440E-8715-7C99E48F6D7D}.Release|x64.Build.0 = Release|Any CPU
 		{5D7842C7-A8C3-440E-8715-7C99E48F6D7D}.Release|x86.ActiveCfg = Release|Any CPU
 		{5D7842C7-A8C3-440E-8715-7C99E48F6D7D}.Release|x86.Build.0 = Release|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Debug|x64.Build.0 = Debug|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Debug|x86.Build.0 = Debug|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Release|x64.ActiveCfg = Release|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Release|x64.Build.0 = Release|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Release|x86.ActiveCfg = Release|Any CPU
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -150,6 +164,7 @@ Global
 		{A81D3445-631D-48DC-8254-7D9844A9F06D} = {F1A3DE9B-263D-4F44-9A88-9ED37E9A9330}
 		{7121D4A8-F14F-4AC4-A1A8-9890911FBA4A} = {F1A3DE9B-263D-4F44-9A88-9ED37E9A9330}
 		{B1769D83-42F7-499B-977B-BDE51398EDC6} = {F1A3DE9B-263D-4F44-9A88-9ED37E9A9330}
+		{109BF2DC-CE46-48B6-B3D1-C993F15605A2} = {F1A3DE9B-263D-4F44-9A88-9ED37E9A9330}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2BB3994-6F65-4E41-BA44-6258F00A3A28}
