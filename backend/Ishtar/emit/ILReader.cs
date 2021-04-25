@@ -40,6 +40,13 @@
             {
                 var opcode = (OpCodeValue) bin.ReadUInt16();
 
+                if ((ushort) opcode == 65280)
+                {
+                    bin.ReadByte();
+                    *offset = (int) mem.Position;
+                    return (list, d);
+                }
+
                 if ((ushort) opcode == 0xFFFF)
                 {
                     *offset = (int) mem.Position;
@@ -56,9 +63,15 @@
                 var value = OpCodes.all[opcode];
                 
                 d.Add((int)mem.Position-sizeof(ushort), (list.Count, opcode));
-                
+                Console.WriteLine($"{value.Name}, {value.Size}");
                 switch (value.Size)
                 {
+                    case 9 when value.Value == (ushort)OpCodeValue.CALL:
+                        // 1+4+4
+                        list.Add((uint)bin.ReadByte());
+                        list.Add((uint)bin.ReadInt32());
+                        list.Add((uint)bin.ReadInt32());
+                        break;
                     case 0:
                         continue;
                     case sizeof(byte):
