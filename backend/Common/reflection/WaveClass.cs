@@ -13,11 +13,14 @@
         public readonly List<WaveField> Fields = new();
         public List<WaveMethod> Methods { get; set; } = new();
         public WaveTypeCode TypeCode { get; set; } = WaveTypeCode.TYPE_CLASS;
+
+        public WaveModule Owner { get; set; }
         
-        internal WaveClass(QualityTypeName name, WaveClass parent)
+        internal WaveClass(QualityTypeName name, WaveClass parent, WaveModule module)
         {
             this.FullName = name;
             this.Parent = parent;
+            this.Owner = module;
         }
         internal WaveClass(WaveType type, WaveClass parent)
         {

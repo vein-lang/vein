@@ -14,7 +14,7 @@
         }
         public static WaveClass AsClass(this WaveType type)
         {
-            var result = new WaveClass(type.FullName, type.Parent?.AsClass())
+            var result = new WaveClass(type.FullName, type.Parent?.AsClass(), type.Owner)
             {
                 Flags = type.classFlags ?? ClassFlags.None, 
                 TypeCode = type.TypeCode
