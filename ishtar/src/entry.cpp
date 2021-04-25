@@ -277,17 +277,6 @@ void exec_method(CallFrame* invocation)
                         *sp = *child_frame->returnValue;
                         sp++;
                     }
-                    
-
-                    try
-                    {
-                        throw 228;
-                    }
-                    catch(int& ex)
-                    {
-                        
-                    }
-
                     delete[] method_args;
                     delete child_frame;
                     break;
