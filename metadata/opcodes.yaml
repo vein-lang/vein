@@ -27,10 +27,12 @@
       description: Load in64 constant into stack.
       range: true
       override-size: 8
-- DUMP.0:
-    description: Debug operation.
-- DUMP.1:
-    description: Debug operation.
+- RESERVED.0:
+    description: Reserved operation.
+- RESERVED.1:
+    description: Reserved operation.
+- RESERVED.2:
+    description: Reserved operation.
 - RET:
     description: Return operation.
 - CALL:

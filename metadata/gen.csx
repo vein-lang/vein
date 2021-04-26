@@ -138,7 +138,7 @@ void gen_cs_props(StringBuilder builder)
     builder.AppendLine(header);
     builder.AppendLine("namespace ishtar \n{");
     builder.AppendLine("\tusing global::wave.runtime;");
-    builder.AppendLine("\tusing global::ishtar.emit;");
+    builder.AppendLine("\tusing global::wave.ishtar.emit;");
     builder.AppendLine("\tusing global::System.Collections.Generic;");
     builder.AppendLine("\tpublic static class OpCodes \n\t{");
     foreach(var i in ops.Select((x, y) => (x.name, y, x.override_size, get(x.flow), get(x.chain))))

@@ -273,327 +273,334 @@ namespace ishtar
 		/// </summary>
 		public static OpCode LDC_I8_S = new (0x25, 0x0200001F);
 		/// <summary>
-		/// Debug operation.
+		/// Reserved operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode DUMP_0 = new (0x26, 0x0000001F);
+		public static OpCode RESERVED_0 = new (0x26, 0x0000001F);
 		/// <summary>
-		/// Debug operation.
+		/// Reserved operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode DUMP_1 = new (0x27, 0x0000001F);
+		public static OpCode RESERVED_1 = new (0x27, 0x0000001F);
+		/// <summary>
+		/// Reserved operation.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static OpCode RESERVED_2 = new (0x28, 0x0000001F);
 		/// <summary>
 		/// Return operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode RET = new (0x28, 0x0000001F);
+		public static OpCode RET = new (0x29, 0x0000001F);
 		/// <summary>
 		/// Call operation.
 		/// size: 9
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode CALL = new (0x29, 0x0240001F);
+		public static OpCode CALL = new (0x2A, 0x0240001F);
 		/// <summary>
 		/// Load NULL into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDNULL = new (0x2A, 0x0000001F);
+		public static OpCode LDNULL = new (0x2B, 0x0000001F);
 		/// <summary>
 		/// Load value from field in instance into stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDF = new (0x2B, 0x0200001F);
+		public static OpCode LDF = new (0x2C, 0x0200001F);
 		/// <summary>
 		/// Load value from static field into stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDSF = new (0x2C, 0x0200001F);
+		public static OpCode LDSF = new (0x2D, 0x0200001F);
 		/// <summary>
 		/// Stage into instance field value from stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode STF = new (0x2D, 0x0200001F);
+		public static OpCode STF = new (0x2E, 0x0200001F);
 		/// <summary>
 		/// Stage into static field value from stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode STSF = new (0x2E, 0x0200001F);
+		public static OpCode STSF = new (0x2F, 0x0200001F);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDLOC_0 = new (0x2F, 0x0000001F);
+		public static OpCode LDLOC_0 = new (0x30, 0x0000001F);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDLOC_1 = new (0x30, 0x0000001F);
+		public static OpCode LDLOC_1 = new (0x31, 0x0000001F);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDLOC_2 = new (0x31, 0x0000001F);
+		public static OpCode LDLOC_2 = new (0x32, 0x0000001F);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDLOC_3 = new (0x32, 0x0000001F);
+		public static OpCode LDLOC_3 = new (0x33, 0x0000001F);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDLOC_4 = new (0x33, 0x0000001F);
+		public static OpCode LDLOC_4 = new (0x34, 0x0000001F);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDLOC_5 = new (0x34, 0x0000001F);
+		public static OpCode LDLOC_5 = new (0x35, 0x0000001F);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 1
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDLOC_S = new (0x35, 0x0040001F);
+		public static OpCode LDLOC_S = new (0x36, 0x0040001F);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode STLOC_0 = new (0x36, 0x0000001F);
+		public static OpCode STLOC_0 = new (0x37, 0x0000001F);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode STLOC_1 = new (0x37, 0x0000001F);
+		public static OpCode STLOC_1 = new (0x38, 0x0000001F);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode STLOC_2 = new (0x38, 0x0000001F);
+		public static OpCode STLOC_2 = new (0x39, 0x0000001F);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode STLOC_3 = new (0x39, 0x0000001F);
+		public static OpCode STLOC_3 = new (0x3A, 0x0000001F);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode STLOC_4 = new (0x3A, 0x0000001F);
+		public static OpCode STLOC_4 = new (0x3B, 0x0000001F);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode STLOC_5 = new (0x3B, 0x0000001F);
+		public static OpCode STLOC_5 = new (0x3C, 0x0000001F);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 1
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode STLOC_S = new (0x3C, 0x0040001F);
+		public static OpCode STLOC_S = new (0x3D, 0x0040001F);
 		/// <summary>
 		/// Initialization locals stack.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LOC_INIT = new (0x3D, 0x0100001F);
+		public static OpCode LOC_INIT = new (0x3E, 0x0100001F);
 		/// <summary>
 		/// (part of LOD.INIT) Initialization locals slot as derrived type.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LOC_INIT_X = new (0x3E, 0x0100001F);
+		public static OpCode LOC_INIT_X = new (0x3F, 0x0100001F);
 		/// <summary>
 		/// Duplicate memory from stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode DUP = new (0x3F, 0x0000001F);
+		public static OpCode DUP = new (0x40, 0x0000001F);
 		/// <summary>
 		/// XOR Operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode XOR = new (0x40, 0x0000001F);
+		public static OpCode XOR = new (0x41, 0x0000001F);
 		/// <summary>
 		/// OR Operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode OR = new (0x41, 0x0000001F);
+		public static OpCode OR = new (0x42, 0x0000001F);
 		/// <summary>
 		/// AND Operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode AND = new (0x42, 0x0000001F);
+		public static OpCode AND = new (0x43, 0x0000001F);
 		/// <summary>
 		/// Shift Right Operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode SHR = new (0x43, 0x0000001F);
+		public static OpCode SHR = new (0x44, 0x0000001F);
 		/// <summary>
 		/// Shift Left Operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode SHL = new (0x44, 0x0000001F);
+		public static OpCode SHL = new (0x45, 0x0000001F);
 		/// <summary>
 		/// Convertation operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode CONV_R4 = new (0x45, 0x0000001F);
+		public static OpCode CONV_R4 = new (0x46, 0x0000001F);
 		/// <summary>
 		/// Convertation operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode CONV_R8 = new (0x46, 0x0000001F);
+		public static OpCode CONV_R8 = new (0x47, 0x0000001F);
 		/// <summary>
 		/// Convertation operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode CONV_I4 = new (0x47, 0x0000001F);
+		public static OpCode CONV_I4 = new (0x48, 0x0000001F);
 		/// <summary>
 		/// Throw exception operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode THROW = new (0x48, 0x0000001F);
+		public static OpCode THROW = new (0x49, 0x0000001F);
 		/// <summary>
 		/// New object Operation.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode NEWOBJ = new (0x49, 0x0100001F);
+		public static OpCode NEWOBJ = new (0x4A, 0x0100001F);
 		/// <summary>
 		/// Compare two value, when values are equal 1 (int32) stage into stack, otherwise 0 (int32).
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode EQL = new (0x4A, 0x0000001F);
+		public static OpCode EQL = new (0x4B, 0x0000001F);
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode JMP = new (0x4B, 0x0100001F);
+		public static OpCode JMP = new (0x4C, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode JMP_LQ = new (0x4C, 0x0100001F);
+		public static OpCode JMP_LQ = new (0x4D, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode JMP_L = new (0x4D, 0x0100001F);
+		public static OpCode JMP_L = new (0x4E, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode JMP_HQ = new (0x4E, 0x0100001F);
+		public static OpCode JMP_HQ = new (0x4F, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode JMP_H = new (0x4F, 0x0100001F);
+		public static OpCode JMP_H = new (0x50, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode JMP_NQ = new (0x50, 0x0100001F);
+		public static OpCode JMP_NQ = new (0x51, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode JMP_NN = new (0x51, 0x0100001F);
+		public static OpCode JMP_NN = new (0x52, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode JMP_F = new (0x52, 0x0100001F);
+		public static OpCode JMP_F = new (0x53, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode JMP_T = new (0x53, 0x0100001F);
+		public static OpCode JMP_T = new (0x54, 0x0100001F);
 
 		public static Dictionary<OpCodeValue, OpCode> all = new ()
 		{
@@ -635,8 +642,9 @@ namespace ishtar
 			{OpCodeValue.LDC_I8_4, LDC_I8_4},
 			{OpCodeValue.LDC_I8_5, LDC_I8_5},
 			{OpCodeValue.LDC_I8_S, LDC_I8_S},
-			{OpCodeValue.DUMP_0, DUMP_0},
-			{OpCodeValue.DUMP_1, DUMP_1},
+			{OpCodeValue.RESERVED_0, RESERVED_0},
+			{OpCodeValue.RESERVED_1, RESERVED_1},
+			{OpCodeValue.RESERVED_2, RESERVED_2},
 			{OpCodeValue.RET, RET},
 			{OpCodeValue.CALL, CALL},
 			{OpCodeValue.LDNULL, LDNULL},
