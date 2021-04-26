@@ -40,12 +40,12 @@
             {
                 var opcode = (OpCodeValue) bin.ReadUInt16();
 
-                if ((ushort) opcode == 65280)
-                {
-                    bin.ReadByte();
-                    *offset = (int) mem.Position;
-                    return (list, d);
-                }
+                //if ((ushort) opcode == 65280)
+                // {
+                //    bin.ReadByte();
+                //    *offset = (int) mem.Position;
+                //    return (list, d);
+                //}
 
                 if ((ushort) opcode == 0xFFFF)
                 {
@@ -66,11 +66,26 @@
                 Console.WriteLine($"{value.Name}, {value.Size}");
                 switch (value.Size)
                 {
-                    case 9 when value.Value == (ushort)OpCodeValue.CALL:
+                    // call
+                    case var _ when value.Value == (ushort)OpCodeValue.CALL:
                         // 1+4+4
                         list.Add((uint)bin.ReadByte());
                         list.Add((uint)bin.ReadInt32());
                         list.Add((uint)bin.ReadInt32());
+                        break;
+                    case var _ when value.Value == (ushort)OpCodeValue.LOC_INIT:
+                        list.Add((uint)bin.ReadInt32()); // size
+                        break;
+                    case var _ when value.Value == (ushort)OpCodeValue.LOC_INIT_X:
+                        list.Add((uint)bin.ReadInt32()); // type_index
+                        break;
+                    case var _ when value is 
+                        { Value: (ushort)OpCodeValue.LDF  } or 
+                        { Value: (ushort)OpCodeValue.STF  } or
+                        { Value: (ushort)OpCodeValue.STSF } or
+                        { Value: (ushort)OpCodeValue.LDSF }:
+                        list.Add((uint)bin.ReadInt32()); // name_index
+                        list.Add((uint)bin.ReadInt32()); // type_index
                         break;
                     case 0:
                         continue;
@@ -89,12 +104,6 @@
                         break;
                     case sizeof(decimal):
                         list.Add((uint)bin.ReadInt32());
-                        list.Add((uint)bin.ReadInt32());
-                        list.Add((uint)bin.ReadInt32());
-                        list.Add((uint)bin.ReadInt32());
-                        break;
-                    case sizeof(byte) + sizeof(int) + sizeof(long):
-                        list.Add((uint)bin.ReadByte());
                         list.Add((uint)bin.ReadInt32());
                         list.Add((uint)bin.ReadInt32());
                         list.Add((uint)bin.ReadInt32());
