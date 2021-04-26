@@ -12,8 +12,10 @@
             => types.Add(type);
         public void Push(WaveType type) 
             => types.Add(type.FullName);
+        public void Push(WaveClass type) 
+            => types.Add(type.FullName);
         public void Push(WaveTypeCode type)
-            => types.Add(type.AsType().FullName);
+            => types.Add(type.AsClass().FullName);
 
 
         #region Implementation of IEnumerable
@@ -28,6 +30,13 @@
         
         
         public static implicit operator LocalsBuilder(WaveType[] arr)
+        {
+            var l = new LocalsBuilder();
+            foreach (var type in arr) 
+                l.Push(type);
+            return l;
+        }
+        public static implicit operator LocalsBuilder(WaveClass[] arr)
         {
             var l = new LocalsBuilder();
             foreach (var type in arr) 

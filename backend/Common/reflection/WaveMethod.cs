@@ -7,7 +7,7 @@
 
     public class WaveMethod : WaveMethodBase
     {
-        public WaveType ReturnType { get; set; }
+        public WaveClass ReturnType { get; set; }
         public WaveClass Owner { get; set; }
         public readonly Dictionary<int, WaveArgumentRef> Locals = new();
 
@@ -15,9 +15,9 @@
         
         internal WaveMethod(string name, MethodFlags flags, params WaveArgumentRef[] args)
             : base(name, flags, args) =>
-            this.ReturnType = WaveTypeCode.TYPE_VOID.AsType();
+            this.ReturnType = WaveTypeCode.TYPE_VOID.AsClass();
 
-        internal WaveMethod(string name, MethodFlags flags, WaveType returnType, WaveClass owner,
+        internal WaveMethod(string name, MethodFlags flags, WaveClass returnType, WaveClass owner,
             params WaveArgumentRef[] args)
             : base(name, flags, args)
         {

@@ -38,7 +38,7 @@
     [DebuggerDisplay("{ToString()}")]
     public class WaveField : WaveMember
     {
-        public WaveField(WaveClass owner, FieldName fullName, FieldFlags flags, WaveType fieldType)
+        public WaveField(WaveClass owner, FieldName fullName, FieldFlags flags, WaveClass fieldType)
         {
             this.Owner = owner;
             this.FullName = fullName;
@@ -46,7 +46,7 @@
             this.FieldType = fieldType;
         }
         public FieldName FullName { get; protected internal set; }
-        public WaveType FieldType { get; set; }
+        public WaveClass FieldType { get; set; }
         public FieldFlags Flags { get; set; }
         public WaveClass Owner { get; set; }
         

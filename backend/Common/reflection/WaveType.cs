@@ -91,7 +91,29 @@
             get => FullName.Name;
             protected set => throw new NotImplementedException();
         }
+        public WaveMethod FindMethod(string name, IEnumerable<WaveClass> args_types)
+            => this.Members.OfType<WaveMethod>().FirstOrDefault(x => 
+                x.RawName.Equals(name) && 
+                x.Arguments.Select(z => z.Type).SequenceEqual(args_types)
+            );
 
+        public WaveField FindField(string name) 
+            => this.Members.OfType<WaveField>().FirstOrDefault(x => x.Name.Equals(name));
+
+        public WaveMethod FindMethod(string name, Func<WaveMethod, bool> eq = null)
+        {
+            eq ??= s => s.RawName.Equals(name);
+
+            foreach (var member in Members)
+            {
+                if (member is not WaveMethod method)
+                    continue;
+                if (eq(method))
+                    return method;
+            }
+
+            return null;
+        }
 
         public abstract QualityTypeName FullName { get; }
 
@@ -115,31 +137,7 @@
         
         
         public override string ToString() => $"[{FullName.NameWithNS}]";
-
-        public WaveMethod FindMethod(string name, IEnumerable<WaveType> args_types)
-            => this.Members.OfType<WaveMethod>().FirstOrDefault(x => 
-                x.RawName.Equals(name) && 
-                x.Arguments.Select(z => z.Type).SequenceEqual(args_types)
-                );
-
-        public WaveField FindField(string name) 
-            => this.Members.OfType<WaveField>().FirstOrDefault(x => x.Name.Equals(name));
-
-        public WaveMethod FindMethod(string name, Func<WaveMethod, bool> eq = null)
-        {
-            eq ??= s => s.RawName.Equals(name);
-
-            foreach (var member in Members)
-            {
-                if (member is not WaveMethod method)
-                    continue;
-                if (eq(method))
-                    return method;
-            }
-
-            return null;
-        }
-
+        
         public static bool operator ==(WaveType t1, WaveTypeCode t2) => t1?.TypeCode == t2;
         public static bool operator !=(WaveType t1, WaveTypeCode t2) => !(t1 == t2);
 

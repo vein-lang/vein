@@ -36,7 +36,7 @@
         /// <summary>
         /// Try find type by name (without namespace) with namespace includes.
         /// </summary>
-        public WaveType TryFindType(string typename, List<string> includes)
+        public WaveClass TryFindType(string typename, List<string> includes)
         {
             try
             {
@@ -51,10 +51,10 @@
         /// Find type by name (without namespace) with namespace includes.
         /// </summary>
         /// <exception cref="TypeNotFoundException"></exception>
-        public WaveType FindType(string typename, List<string> includes)
+        public WaveClass FindType(string typename, List<string> includes)
         {
             var result = class_table.Where(x => includes.Contains(x.FullName.Namespace)).
-                FirstOrDefault(x => x.Name.Equals(typename))?.AsType();
+                FirstOrDefault(x => x.Name.Equals(typename));
             if (result is not null)
                 return result;
             foreach (var module in Deps)
@@ -72,12 +72,12 @@
         /// <remarks>
         /// Support find in external deps.
         /// </remarks>
-        public WaveType FindType(QualityTypeName type, bool findExternally = false)
+        public WaveClass FindType(QualityTypeName type, bool findExternally = false)
         {
             bool filter(WaveClass x) => x!.FullName.Equals(type);
             if (!findExternally)
-                return class_table.First(filter).AsType();
-            var result = class_table.FirstOrDefault(filter)?.AsType();
+                return class_table.First(filter);
+            var result = class_table.FirstOrDefault(filter);
             if (result is not null)
                 return result;
             

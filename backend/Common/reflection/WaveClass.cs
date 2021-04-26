@@ -1,5 +1,6 @@
 ﻿namespace wave.runtime
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -13,7 +14,7 @@
         public readonly List<WaveField> Fields = new();
         public List<WaveMethod> Methods { get; set; } = new();
         public WaveTypeCode TypeCode { get; set; } = WaveTypeCode.TYPE_CLASS;
-
+        public bool IsPrimitive => TypeCode != WaveTypeCode.TYPE_CLASS && TypeCode != WaveTypeCode.TYPE_NONE;
         public WaveModule Owner { get; set; }
         
         internal WaveClass(QualityTypeName name, WaveClass parent, WaveModule module)
@@ -28,10 +29,9 @@
             this.Parent = parent;
             this.TypeCode = type.TypeCode;
         }
-        
         protected WaveClass() {  }
         
-        internal WaveMethod DefineMethod(string name, WaveType returnType, MethodFlags flags, params WaveArgumentRef[] args)
+        internal WaveMethod DefineMethod(string name, WaveClass returnType, MethodFlags flags, params WaveArgumentRef[] args)
         {
             var method = new WaveMethod(name, flags, returnType, this, args);
             method.Arguments.AddRange(args);
@@ -61,5 +61,28 @@
 
         public override string ToString() 
             => $"{FullName}, {Flags} ({Parent.FullName})";
+
+
+        public WaveMethod FindMethod(string name, IEnumerable<WaveClass> args_types)
+            => this.Methods.FirstOrDefault(x => 
+                x.RawName.Equals(name) && 
+                x.Arguments.Select(z => z.Type).SequenceEqual(args_types)
+            );
+
+        public WaveField FindField(string name) 
+            => this.Fields.FirstOrDefault(x => x.Name.Equals(name));
+
+        public WaveMethod FindMethod(string name, Func<WaveMethod, bool> eq = null)
+        {
+            eq ??= s => s.RawName.Equals(name);
+
+            foreach (var member in Methods)
+            {
+                if (eq(member))
+                    return member;
+            }
+
+            return null;
+        }
     }
 }

@@ -33,10 +33,10 @@ namespace ishtar
             return this;
         }
 
-        public WaveType ResolveType(TypeSyntax targetTypeTypeword) 
+        public WaveClass ResolveType(TypeSyntax targetTypeTypeword) 
             => Module.FindType(targetTypeTypeword.Identifier, Classes[CurrentMethod.Owner.FullName].Includes);
 
-        public WaveType ResolveScopedIdentifierType(IdentifierExpression id)
+        public WaveClass ResolveScopedIdentifierType(IdentifierExpression id)
         {
             if (CurrentScope.HasVariable(id))
                 return CurrentScope.variables[id];
@@ -48,7 +48,7 @@ namespace ishtar
             this.LogError($"The name '{id}' does not exist in the current context.", id);
             return null;
         }
-        public WaveField ResolveField(WaveType targetType, IdentifierExpression target, IdentifierExpression id)
+        public WaveField ResolveField(WaveClass targetType, IdentifierExpression target, IdentifierExpression id)
         {
             var field = targetType.FindField(id.ExpressionString);
 
@@ -61,7 +61,7 @@ namespace ishtar
             return null;
         }
         public WaveMethod ResolveMethod(
-            WaveType targetType, 
+            WaveClass targetType, 
             IdentifierExpression target, 
             IdentifierExpression id, 
             MethodInvocationExpression invocation)
@@ -86,7 +86,7 @@ namespace ishtar
         public List<WaveScope> Scopes { get; } = new ();
         public GeneratorContext Context { get; }
 
-        public Dictionary<IdentifierExpression, WaveType> variables { get; } = new();
+        public Dictionary<IdentifierExpression, WaveClass> variables { get; } = new();
 
 
         public WaveScope(GeneratorContext gen, WaveScope owner = null)
@@ -103,7 +103,7 @@ namespace ishtar
         public bool HasVariable(IdentifierExpression id) 
             => variables.ContainsKey(id);
 
-        public WaveScope DefineVariable(IdentifierExpression id, WaveType type)
+        public WaveScope DefineVariable(IdentifierExpression id, WaveClass type)
         {
             if (HasVariable(id))
             {
@@ -316,19 +316,19 @@ namespace ishtar
             gen.Emit(OpCodes.CALL, ctor);
         }
 
-        public static IEnumerable<WaveType> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context) 
+        public static IEnumerable<WaveClass> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context) 
             => exps.Select(x => x.DetermineType(context)).Where(x => x is not null /* if failed determine skip analyze */);
 
-        public static WaveType DetermineType(this ExpressionSyntax exp, GeneratorContext context)
+        public static WaveClass DetermineType(this ExpressionSyntax exp, GeneratorContext context)
         {
             if (exp.CanOptimizationApply())
                 return exp.ForceOptimization().DetermineType(context);
             if (exp is LiteralExpressionSyntax literal)
-                return literal.GetTypeCode().AsType();
+                return literal.GetTypeCode().AsClass();
             if (exp is BinaryExpressionSyntax bin)
             {
                 if (bin.OperatorType.IsLogic())
-                    return WaveTypeCode.TYPE_BOOLEAN.AsType();
+                    return WaveTypeCode.TYPE_BOOLEAN.AsClass();
                 var (lt, rt) = bin.Fusce(context);
 
                 return lt == rt ? lt : ExplicitConversion(lt, rt);
@@ -341,7 +341,7 @@ namespace ishtar
             return null;
         }
 
-        public static WaveType ResolveType(this MemberAccessExpression member, GeneratorContext context)
+        public static WaveClass ResolveType(this MemberAccessExpression member, GeneratorContext context)
         {
             var chain = member.GetChain().ToArray();
             var lastToken = chain.Last();
@@ -361,7 +361,7 @@ namespace ishtar
             return null;
         }
 
-        public static (WaveType, WaveType) Fusce(this BinaryExpressionSyntax binary, GeneratorContext context)
+        public static (WaveClass, WaveClass) Fusce(this BinaryExpressionSyntax binary, GeneratorContext context)
         {
             var lt = binary.Left.DetermineType(context);
             var rt = binary.Right.DetermineType(context);
@@ -369,9 +369,9 @@ namespace ishtar
             return (lt, rt);
         }
 
-        public static WaveType ResolveMemberType(this IEnumerable<ExpressionSyntax> chain, GeneratorContext context)
+        public static WaveClass ResolveMemberType(this IEnumerable<ExpressionSyntax> chain, GeneratorContext context)
         {
-            var t = default(WaveType);
+            var t = default(WaveClass);
             var prev_id = default(IdentifierExpression);
             using var enumerator = chain.GetEnumerator();
 
@@ -393,10 +393,10 @@ namespace ishtar
             return t;
         }
 
-        public static WaveType ResolveReturnType(this MethodInvocationExpression member,
+        public static WaveClass ResolveReturnType(this MethodInvocationExpression member,
             GeneratorContext context, IEnumerable<ExpressionSyntax> chain)
         {
-            var t = default(WaveType);
+            var t = default(WaveClass);
             var prev_id = default(IdentifierExpression);
             var enumerator = chain.ToArray();
             for (var i = 0; i != enumerator.Length; i++)
@@ -404,7 +404,7 @@ namespace ishtar
                 var exp = enumerator[i] as IdentifierExpression;
 
                 if (i + 1 == enumerator.Length-1)
-                    return context.ResolveMethod(t ?? context.CurrentMethod.Owner.AsType(), prev_id, exp, member)
+                    return context.ResolveMethod(t ?? context.CurrentMethod.Owner, prev_id, exp, member)
                         ?.ReturnType;
                 t = t is null ? 
                     context.ResolveScopedIdentifierType(exp) : 
@@ -417,7 +417,7 @@ namespace ishtar
         }
 
 
-        public static WaveType ExplicitConversion(WaveType t1, WaveType t2)
+        public static WaveClass ExplicitConversion(WaveClass t1, WaveClass t2)
         {
             throw new NotImplementedException();
         }
@@ -616,7 +616,7 @@ namespace ishtar
             var end = gen.DefineLabel();
             var expType = @while.Expression.DetermineType(ctx);
             gen.UseLabel(start);
-            if (expType == WaveTypeCode.TYPE_BOOLEAN)
+            if (expType.FullName == WaveTypeCode.TYPE_BOOLEAN.AsClass().FullName)
             {
                 gen.EmitExpression(@while.Expression);
                 gen.Emit(OpCodes.JMP_F, end);

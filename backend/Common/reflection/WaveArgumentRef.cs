@@ -4,7 +4,7 @@
 
     public class WaveArgumentRef
     {
-        public WaveType Type { get; set; }
+        public WaveClass Type { get; set; }
         [Obsolete]
         public RuntimeToken Token => RuntimeToken.Create(Name);
         public string Name { get; set; }
@@ -17,7 +17,7 @@
             return new WaveArgumentRef
             {
                 Name = name,
-                Type = code.AsType()
+                Type = code.AsClass()
             };
         }
         public static implicit operator WaveArgumentRef((string name, WaveTypeCode code) data)
@@ -26,7 +26,7 @@
             return new WaveArgumentRef
             {
                 Name = name,
-                Type = code.AsType()
+                Type = code.AsClass()
             };
         }
     }

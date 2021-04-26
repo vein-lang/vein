@@ -27,25 +27,25 @@
                 ArrayType,
                 ExceptionType
             };
-            public static WaveType ObjectType { get; private set; }
-            public static WaveType ValueType { get; private set; }
-            public static WaveType VoidType { get; private set; }
-            public static WaveType StringType { get; private set; }
-            public static WaveType ByteType { get; private set; }
-            public static WaveType Int32Type { get; private set; }
-            public static WaveType Int16Type { get; private set; }
-            public static WaveType Int64Type { get; private set; }
-            public static WaveType UInt32Type { get; private set; }
-            public static WaveType UInt16Type { get; private set; }
-            public static WaveType UInt64Type { get; private set; }
-            public static WaveType HalfType { get; private set; }
-            public static WaveType FloatType { get; private set; }
-            public static WaveType DoubleType { get; private set; }
-            public static WaveType DecimalType { get; private set; }
-            public static WaveType CharType { get; private set; }
-            public static WaveType BoolType { get; private set; }
-            public static WaveType ArrayType { get; private set; }
-            public static WaveType ExceptionType { get; private set; }
+            public static WaveType ObjectType { get; internal set; }
+            public static WaveType ValueType { get; internal set; }
+            public static WaveType VoidType { get; internal set; }
+            public static WaveType StringType { get; internal set; }
+            public static WaveType ByteType { get; internal set; }
+            public static WaveType Int32Type { get; internal set; }
+            public static WaveType Int16Type { get; internal set; }
+            public static WaveType Int64Type { get; internal set; }
+            public static WaveType UInt32Type { get; internal set; }
+            public static WaveType UInt16Type { get; internal set; }
+            public static WaveType UInt64Type { get; internal set; }
+            public static WaveType HalfType { get; internal set; }
+            public static WaveType FloatType { get; internal set; }
+            public static WaveType DoubleType { get; internal set; }
+            public static WaveType DecimalType { get; internal set; }
+            public static WaveType CharType { get; internal set; }
+            public static WaveType BoolType { get; internal set; }
+            public static WaveType ArrayType { get; internal set; }
+            public static WaveType ExceptionType { get; internal set; }
 
             internal static void Init()
             {

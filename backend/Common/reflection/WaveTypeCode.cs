@@ -163,50 +163,50 @@
         public static bool HasInteger(this WaveTypeCode code) =>
             HasSigned(code) || HasUnsigned(code);
 
-        public static WaveType AsType(this WaveTypeCode code)
+        public static WaveClass AsClass(this WaveTypeCode code)
         {
-            WaveCore.Types.Init();
             switch (code)
             {
                 case TYPE_CHAR:
-                    return WaveCore.Types.CharType;
-                case TYPE_I1:
+                    return WaveCore.CharClass;
+                case TYPE_I1: // TODO
                 case TYPE_U1:
-                    return WaveCore.Types.ByteType;
+                    return WaveCore.ByteClass;
                 case TYPE_U2:
-                    return WaveCore.Types.UInt16Type;
+                    return WaveCore.UInt16Class;
                 case TYPE_U4:
-                    return WaveCore.Types.UInt32Type;
+                    return WaveCore.UInt32Class;
                 case TYPE_U8:
-                    return WaveCore.Types.UInt64Type;
+                    return WaveCore.UInt64Class;
                 case TYPE_R8:
-                    return WaveCore.Types.DoubleType;
+                    return WaveCore.DoubleClass;
                 case TYPE_R4:
-                    return WaveCore.Types.FloatType;
+                    return WaveCore.FloatClass;
                 case TYPE_R2:
-                    return WaveCore.Types.HalfType;
+                    return WaveCore.HalfClass;
                 case TYPE_ARRAY:
-                    return WaveCore.Types.ArrayType;
+                    return WaveCore.ArrayClass;
                 case TYPE_BOOLEAN:
-                    return WaveCore.Types.BoolType;
+                    return WaveCore.BoolClass;
                 case TYPE_NONE:
                 case TYPE_CLASS:
                     throw new Exception();
                 case TYPE_VOID:
-                    return WaveCore.Types.VoidType;
+                    return WaveCore.VoidClass;
                 case TYPE_OBJECT:
-                    return WaveCore.Types.ObjectType;
+                    return WaveCore.ObjectClass;
                 case TYPE_I2:
-                    return WaveCore.Types.Int16Type;
+                    return WaveCore.Int16Class;
                 case TYPE_I4:
-                    return WaveCore.Types.Int32Type;
+                    return WaveCore.Int32Class;
                 case TYPE_I8:
-                    return WaveCore.Types.Int64Type;
+                    return WaveCore.Int64Class;
                 case TYPE_STRING:
-                    return WaveCore.Types.StringType;
+                    return WaveCore.StringClass;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(code), code, null);
             }
         }
+        
     }
 }

@@ -32,13 +32,13 @@
         {
             this.FullName = name;
             moduleBuilder = module;
-            this.Parent = parent.AsType().AsClass();
+            this.Parent = parent.AsClass();
         }
-        internal ClassBuilder(WaveModuleBuilder module, QualityTypeName name, WaveType parent)
+        internal ClassBuilder(WaveModuleBuilder module, QualityTypeName name, WaveClass parent)
         {
             this.FullName = name;
             moduleBuilder = module;
-            this.Parent = parent.AsClass();
+            this.Parent = parent;
         }
         /// <summary>
         /// Get class <see cref="QualityTypeName"/>.
@@ -51,7 +51,7 @@
         /// <remarks>
         /// Method name will be interned.
         /// </remarks>
-        public MethodBuilder DefineMethod(string name, WaveType returnType, params WaveArgumentRef[] args)
+        public MethodBuilder DefineMethod(string name, WaveClass returnType, params WaveArgumentRef[] args)
         {
             moduleBuilder.InternString(name);
             var method = new MethodBuilder(this, name, returnType, args);
@@ -67,7 +67,7 @@
         /// <remarks>
         /// Method name will be interned.
         /// </remarks>
-        public MethodBuilder DefineMethod(string name, MethodFlags flags, WaveType returnType, params WaveArgumentRef[] args)
+        public MethodBuilder DefineMethod(string name, MethodFlags flags, WaveClass returnType, params WaveArgumentRef[] args)
         {
             var method = this.DefineMethod(name, returnType, args);
             method.Owner = this;
@@ -80,7 +80,7 @@
         /// <remarks>
         /// Field name will be interned.
         /// </remarks>
-        public WaveField DefineField(string name, FieldFlags flags, WaveType fieldType)
+        public WaveField DefineField(string name, FieldFlags flags, WaveClass fieldType)
         {
             var field = new WaveField(this, new FieldName(name, this.Name), flags, fieldType);
             moduleBuilder.InternFieldName(field.FullName);
@@ -148,7 +148,7 @@
             if (isStatic)
                 flags |= MethodFlags.Static;
 
-            ctor = DefineMethod(name, flags, WaveTypeCode.TYPE_VOID.AsType());
+            ctor = DefineMethod(name, flags, WaveTypeCode.TYPE_VOID.AsClass());
             moduleBuilder.InternString(ctor.Name);
             
             return ctor;
