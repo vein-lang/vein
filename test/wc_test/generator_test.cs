@@ -30,7 +30,7 @@ namespace wc_test
             var module = new WaveModuleBuilder("xuy");
             var clazz = module.DefineClass("xuy%global::wave/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,WaveTypeCode.TYPE_VOID.AsClass(), ("x", WaveTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var gen = method.GetGenerator();
             
@@ -74,7 +74,7 @@ namespace wc_test
             var module = new WaveModuleBuilder("xuy");
             var clazz = module.DefineClass("global::wave/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType(), ("x", WaveTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsClass(), ("x", WaveTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var body = method.GetGenerator();
             
@@ -83,7 +83,7 @@ namespace wc_test
             body.Emit(OpCodes.ADD);
             body.Emit(OpCodes.LDC_I4_S, 2);
             body.Emit(OpCodes.XOR);
-            body.Emit(OpCodes.DUMP_0);
+            body.Emit(OpCodes.RESERVED_0);
             body.Emit(OpCodes.LDF, "x");
             body.Emit(OpCodes.RET);
 
@@ -114,7 +114,7 @@ namespace wc_test
 
                     foreach (var methodMember in classMember.Methods)
                     {
-                        var method = @class.DefineMethod(methodMember.Identifier, WaveTypeCode.TYPE_VOID.AsType());
+                        var method = @class.DefineMethod(methodMember.Identifier, WaveTypeCode.TYPE_VOID.AsClass());
                         var generator = method.GetGenerator();
 
                         foreach (var statement in methodMember.Body.Statements)
@@ -188,7 +188,7 @@ namespace wc_test
         {
             var module = new WaveModuleBuilder(Guid.NewGuid().ToString());
             var @class = module.DefineClass("global::foo/bar");
-            var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsType(), args);
+            var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsClass(), args);
             return method.GetGenerator();
         }
         [Fact]
@@ -243,7 +243,7 @@ puts after - before;*/
             
             var fib = clazz.DefineMethod("fib", 
                 MethodFlags.Public | MethodFlags.Static,
-                WaveTypeCode.TYPE_I8.AsType(), ("x", WaveTypeCode.TYPE_I8));
+                WaveTypeCode.TYPE_I8.AsClass(), ("x", WaveTypeCode.TYPE_I8));
 
             var fibGen = fib.GetGenerator();
 
@@ -260,34 +260,31 @@ puts after - before;*/
             // if (x == 0) return 0;
             fibGen.Emit(OpCodes.LDARG_0);
             fibGen.Emit(OpCodes.JMP_T, label_if_1);
-            fibGen.Emit(OpCodes.LDC_I8_0);
+            fibGen.Emit(OpCodes.LDC_I4_0);
             fibGen.Emit(OpCodes.RET);
             fibGen.UseLabel(label_if_1);
-            fibGen.Emit(OpCodes.NOP);
             // if (x == 1) return 1;
             fibGen.Emit(OpCodes.LDARG_0);
-            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.LDC_I4_1);
             fibGen.Emit(OpCodes.JMP_NN, label_if_2);
-            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.LDC_I4_1);
             fibGen.Emit(OpCodes.RET);
             fibGen.UseLabel(label_if_2);
-            fibGen.Emit(OpCodes.NOP);
             // var first, second, nth, i = 0;
             fibGen.Emit(OpCodes.LOC_INIT, new[]
             {
-                WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8,
-                WaveTypeCode.TYPE_I8, WaveTypeCode.TYPE_I8
+                WaveTypeCode.TYPE_I4, WaveTypeCode.TYPE_I4,
+                WaveTypeCode.TYPE_I4, WaveTypeCode.TYPE_I4
             });
             // second, nth = 1; i = 2;
-            fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_1);
-            fibGen.Emit(OpCodes.LDC_I8_1); fibGen.Emit(OpCodes.STLOC_2);
-            fibGen.Emit(OpCodes.LDC_I8_2); fibGen.Emit(OpCodes.STLOC_3);
+            fibGen.Emit(OpCodes.LDC_I4_1); fibGen.Emit(OpCodes.STLOC_1);
+            fibGen.Emit(OpCodes.LDC_I4_1); fibGen.Emit(OpCodes.STLOC_2);
+            fibGen.Emit(OpCodes.LDC_I4_2); fibGen.Emit(OpCodes.STLOC_3);
 
             // for
             // 
             fibGen.Emit(OpCodes.JMP, for_1);
             fibGen.UseLabel(for_body);
-            fibGen.Emit(OpCodes.NOP);
             fibGen.Emit(OpCodes.LDLOC_0);
             fibGen.Emit(OpCodes.LDLOC_1);
             fibGen.Emit(OpCodes.ADD);
@@ -301,7 +298,7 @@ puts after - before;*/
 
             // i++
             fibGen.Emit(OpCodes.LDLOC_3);
-            fibGen.Emit(OpCodes.LDC_I8_1);
+            fibGen.Emit(OpCodes.LDC_I4_1);
             fibGen.Emit(OpCodes.ADD);
             fibGen.Emit(OpCodes.STLOC_3);
 
@@ -322,74 +319,17 @@ puts after - before;*/
             // return nth;
             fibGen.Emit(OpCodes.LDLOC_2);
             fibGen.Emit(OpCodes.RET);
-            /*
-        fibGen.Emit(OpCodes.LDARG_0);
-        fibGen.Emit(OpCodes.STLOC_0);
-        fibGen.Emit(OpCodes.LDC_I4_S, 20);
-        fibGen.Emit(OpCodes.LDLOC_0);
-        fibGen.Emit(OpCodes.JMP_L, label);      // if (n < 2) 
-        fibGen.Emit(OpCodes.LDC_I4_S, 228);
-        fibGen.Emit(OpCodes.RET);               // return n;
-        fibGen.UseLabel(label);
-        fibGen.Emit(OpCodes.LDC_I4_S, 1448);
-        fibGen.Emit(OpCodes.RET);
-         .locals { [0]: int32 }
-        fibGen.Emit(OpCodes.LOC_INIT, new[] { WaveTypeCode.TYPE_I4 });
-        fibGen.Emit(OpCodes.LDARG_0);           // n from args
-        fibGen.Emit(OpCodes.LDC_I4_2);          // load 2
-        fibGen.Emit(OpCodes.JMP_L, label);      // if (n < 2) 
-        fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
-        fibGen.Emit(OpCodes.RET);               // return n;
-        fibGen.UseLabel(label);                 // end if
-        fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
-        fibGen.Emit(OpCodes.LDC_I4_1);          // load '1'
-        fibGen.Emit(OpCodes.SUB);               // n - 1
-        fibGen.Emit(OpCodes.CALL, fib);     // call fib(n - 1)
-        fibGen.Emit(OpCodes.LDARG_0);           // ref 'n'
-        fibGen.Emit(OpCodes.LDC_I4_2);          // load '2'
-        fibGen.Emit(OpCodes.SUB);               //  n - 2
-        fibGen.Emit(OpCodes.CALL, fib);     // call fib(n - 2)
-        fibGen.Emit(OpCodes.STLOC_0);
-        fibGen.Emit(OpCodes.LDLOC_0);
-        fibGen.Emit(OpCodes.ADD);               // 'fib(n - 1)' + 'fib(n - 2)'
-        fibGen.Emit(OpCodes.RET);
-        */
-            /*
-             * /* (15,17)-(15,27) main.cs 
-            /* 0x00000000 02            IL_0000: ldarg.0
-            /* 0x00000001 18           IL_0001: ldc.i4.2
-            /* 0x00000002 2F02          IL_0002: bge.s     IL_0006
 
-            /* (16,21)-(16,30) main.cs 
-            /* 0x00000004 02            IL_0004: ldarg.0
-            /* 0x00000005 2A            IL_0005: ret
-
-            /* (17,17)-(17,34) main.cs 
-            /* 0x00000006 02            IL_0006: ldarg.0
-            /* 0x00000007 17            IL_0007: ldc.i4.1
-            /* 0x00000008 59            IL_0008: sub
-            /* 0x00000009 28????????   IL_0009: call      int32 Xuy::f(int32)
-            /* (18,17)-(18,34) main.cs 
-            /* 0x0000000E 02            IL_000E: ldarg.0
-            /* 0x0000000F 18            IL_000F: ldc.i4.2
-            /* 0x00000010 59            IL_0010: sub
-            /* 0x00000011 28????????    IL_0011: call      int32 Xuy::f(int32)
-            /* 0x00000016 0A            IL_0016: stloc.0
-            /* (19,17)-(19,33) main.cs 
-            /* 0x00000017 06            IL_0017: ldloc.0
-            /* 0x00000018 58            IL_0018: add
-            /* (20,17)-(20,28) main.cs 
-            /* 0x00000019 2A            IL_0019: ret
-             */
-
-            var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static, WaveTypeCode.TYPE_VOID.AsType());
+            var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
+                WaveTypeCode.TYPE_VOID.AsClass());
             var body = method.GetGenerator();
             
             
             
-            body.Emit(OpCodes.LDC_I8_S, (long)120/**/);
+            body.Emit(OpCodes.LDC_I4_S, 120/**/);
             body.Emit(OpCodes.CALL, fib);
-            body.Emit(OpCodes.DUMP_0);
+            body.Emit(OpCodes.RESERVED_0);
+            body.Emit(OpCodes.RESERVED_1);
             body.Emit(OpCodes.RET);
             //body.Emit(OpCodes.CALL);
 

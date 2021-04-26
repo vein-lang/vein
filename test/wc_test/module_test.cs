@@ -60,7 +60,7 @@
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
                 var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                    WaveTypeCode.TYPE_VOID.AsType());
+                    WaveTypeCode.TYPE_VOID.AsClass());
 
                 var gen = method.GetGenerator();
             
@@ -87,7 +87,7 @@
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
                 var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                    WaveTypeCode.TYPE_VOID.AsType());
+                    WaveTypeCode.TYPE_VOID.AsClass());
 
                 var gen = method.GetGenerator();
             

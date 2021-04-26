@@ -13,7 +13,7 @@
 
             var clazz = m.DefineClass("wa/zoo", ClassFlags.Public);
 
-            var method = clazz.DefineMethod("Asd", WaveTypeCode.TYPE_VOID.AsType(), MethodFlags.Public);
+            var method = clazz.DefineMethod("Asd", WaveTypeCode.TYPE_VOID.AsClass(), MethodFlags.Public);
         }
     }
 }
