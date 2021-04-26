@@ -12,6 +12,7 @@
     using wave.runtime;
     internal class RuntimeModuleReader : WaveModule
     {
+
         public static RuntimeModuleReader Read(byte[] arr, List<WaveModule> deps, Func<string, Version, WaveModule> resolver)
         {
             var module = new RuntimeModuleReader();
@@ -82,7 +83,7 @@
         }
 
 
-        public static WaveClass DecodeClass(byte[] arr, RuntimeModuleReader module)
+        public static RuntimeIshtarClass DecodeClass(byte[] arr, RuntimeModuleReader module)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -92,7 +93,7 @@
             var len = binary.ReadInt32();
 
             var parent = module.FindType(parentIdx, true);
-            var @class = new WaveClass(className, parent.AsClass(), module)
+            var @class = new RuntimeIshtarClass(className, parent, module)
             {
                 Flags = flags
             };
@@ -105,7 +106,7 @@
             }
 
             DecodeField(binary, @class, module);
-
+            
             return @class;
         }
         
@@ -117,12 +118,12 @@
                 var type_name = binary.ReadTypeName(module);
                 var type = module.FindType(type_name, true);
                 var flags = (FieldFlags) binary.ReadInt16();
-                var method = new WaveField(@class, name, flags, type);
+                var method = new RuntimeIshtarField(@class, name, flags, type);
                 @class.Fields.Add(method);
             }
         }
         
-        public static unsafe WaveMethod DecodeMethod(byte[] arr, WaveClass @class, RuntimeModuleReader module)
+        public static unsafe RuntimeIshtarMethod DecodeMethod(byte[] arr, WaveClass @class, RuntimeModuleReader module)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -134,7 +135,7 @@
             var retType = binary.ReadTypeName(module);
             var args = ReadArguments(binary, module);
             var body = binary.ReadBytes(bodysize);
-            var mth = new RuntimeWaveMethod(module.GetConstStringByIndex(idx), flags,
+            var mth = new RuntimeIshtarMethod(module.GetConstStringByIndex(idx), flags,
                 module.FindType(retType, true), 
                 @class, args.ToArray());
             var offset = 0;
@@ -148,7 +149,11 @@
             mth.Header.code_size = (uint)body_r.opcodes.Count;
             mth.Header.labels = labeles;
             mth.Header.labels_map = body_r.map.ToDictionary(x => x.Key,
-                x => new ILLabel() {opcode = x.Value.opcode, pos = x.Value.pos});
+                x => new ILLabel
+                {
+                    opcode = x.Value.opcode,
+                    pos = x.Value.pos
+                });
             return mth;
         }
 
