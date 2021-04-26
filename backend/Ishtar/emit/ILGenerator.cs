@@ -354,6 +354,7 @@ namespace wave.ishtar.emit
             using var mem = new MemoryStream();
             using var bin = new BinaryWriter(mem);
             
+            Array.Resize(ref _ilBody, _position);
             bin.Write(_ilBody);
             bin.Write((ushort)0xFFFF); // end frame
             bin.Write(_labels_count);
