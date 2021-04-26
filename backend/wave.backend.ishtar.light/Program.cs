@@ -11,21 +11,6 @@
     using runtime;
     using wave.ishtar.emit;
 
-    public static class ModuleEx
-    {
-        public static RuntimeWaveMethod GetEntryPoint(this WaveModule module)
-        {
-            foreach (var method in module.class_table.SelectMany(x => x.Methods))
-            {
-                if (!method.IsStatic)
-                    continue;
-                if (method.Name == "master()")
-                    return (RuntimeWaveMethod)method;
-            }
-
-            return null;
-        }
-    }
 
     internal class Program
     {
@@ -63,7 +48,7 @@
         }
         public static unsafe int Main(string[] args)
         {
-            WaveCore.Init();
+            IshtarCore.Init();
             if (args.Length < 1)
                 return -1;
             var entry = new FileInfo(args.First());
@@ -80,7 +65,13 @@
             resolver.AddSearchPath(new DirectoryInfo("./"));
 
             var module = RuntimeModuleReader.Read(code, deps, (s, version) => 
-                resolver.ResolveDep(s, version,deps ));
+                resolver.ResolveDep(s, version, deps));
+
+            foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())
+            {
+                @class.init_vtable();
+                VM.ValidateLastError();
+            }
 
             module.Deps.Add(deps.First());
 
@@ -90,7 +81,7 @@
             {
                 VM.FastFail(WaveNativeException.MISSING_METHOD, "Entry point is not defined.");
                 var empty = stackalloc uint[1];
-                entry_point = new RuntimeWaveMethod("master", MethodFlags.Public | MethodFlags.Static)
+                entry_point = new RuntimeIshtarMethod("master", MethodFlags.Public | MethodFlags.Static)
                 {
                     Header = new MetaMethodHeader
                     {
@@ -112,6 +103,11 @@
 
             var watcher = Stopwatch.StartNew();
             VM.exec_method(frame);
+
+            if (frame.exception is not null)
+                Console.WriteLine($"unhandled exception was thrown. \n" +
+                                  $"{frame.exception.stack_trace}");
+
             watcher.Stop();
             Console.WriteLine($"Elapsed: {watcher.Elapsed}");
             

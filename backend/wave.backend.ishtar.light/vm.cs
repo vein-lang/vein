@@ -1,12 +1,13 @@
 ﻿namespace ishtar
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
+    using System.Threading;
     using Microsoft.CodeAnalysis;
     using wave.runtime;
     using static OpCodeValue;
     using static wave.runtime.WaveTypeCode;
-
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
@@ -18,15 +19,22 @@
             => VMException = new NativeException { code = type, msg = msg, frame = frame };
 
 
-        public static void println(string str)
+        public static void ValidateLastError()
         {
-            Console.WriteLine(str);
+            if (VMException is not null)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                println($"native exception was thrown.\n\t" +
+                        $"[{VMException.code}]\n\t" +
+                        $"'{VMException.msg}'");
+                Console.ForegroundColor = ConsoleColor.White;
+                vm_shutdown();
+            }
         }
 
-        public static void vm_shutdown()
-        {
+        public static void println(string str) => Console.WriteLine(str);
 
-        }
+        public static void vm_shutdown() => Environment.Exit(-1);
 
         public static unsafe void exec_method(CallFrame invocation)
         {
@@ -39,29 +47,24 @@
             
             var ip = mh.code;
 
-            fixed(stackval* p = new stackval[mh.max_stack])
+            fixed (stackval* p = new stackval[mh.max_stack])
                 invocation.stack = p;
             fixed (stackval* p = new stackval[0])
                 locals = p;
-
             var stack = invocation.stack;
             var sp = stack;
             var start = (ip + 1) - 1;
             var end = mh.code + mh.code_size;
 
+            void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos - 1;
+
             while (true)
             {
-                //println($".{((OpCodeValue)(ushort)(*ip))}");
-                if (VMException is not null)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    println($"native exception was thrown.\n\t" +
-                            $"[{VMException.code}]\n\t" +
-                            $"'{VMException.msg}'");
-                    Console.ForegroundColor = ConsoleColor.White;
-                    vm_shutdown();
+                println($".{((OpCodeValue)(ushort)(*ip))}");
+                ValidateLastError();
+
+                if (invocation.exception is not null && invocation.level == 0)
                     return;
-                }
                 if (ip == end)
                 {
                     FastFail(WaveNativeException.END_EXECUTE_MEMORY, "unexpected end of executable memory.");
@@ -91,6 +94,7 @@
                     case DIV:
                         ++ip;
                         --sp;
+                        
                         A_OP(sp, 3, ip);
                         break;
                     case DUP:
@@ -143,7 +147,10 @@
                     case LDC_I8_S:
                         ++ip;
                         sp->type = TYPE_I8;
-                        sp->data.l = (long)(*ip); // TODO bug
+                        var t1 = *ip;
+                        ++ip;
+                        var t2 = *ip;
+                        sp->data.l = t2 << 32 | t1 & 0xffffffffL; 
                         ++ip;
                         ++sp;
                         break;
@@ -154,6 +161,14 @@
                         stack = null;
                         locals = null;
                         return;
+                    case LDNULL:
+                        sp->type = TYPE_OBJECT;
+                        ++sp;
+                        break;
+                    case THROW:
+                        break;
+                    case NEWOBJ:
+                        break;
                     case CALL:
                     {
                         ++ip;
@@ -186,14 +201,18 @@
 
                             if (child_frame.exception is not null)
                             {
-                                println($"unhandled exception was thrown. \n" +
-                                        $"[{child_frame.exception.value.clazz.FullName}] null reference exception\n" +
-                                        $"{child_frame.exception.stack_trace}");
-                                vm_shutdown();
-                                return;
+                                invocation.exception = child_frame.exception;
+                                method_args = null;
+                                child_frame = null;
+                                break;
                             }
-                            if (method.ReturnType.TypeCode != WaveTypeCode.TYPE_VOID)
+                            if (method.ReturnType.TypeCode != TYPE_VOID)
                             {
+                                if (child_frame.returnValue is null)
+                                {
+                                    FastFail(WaveNativeException.STATE_CORRUPT, "Method has return zero memory.");
+                                    continue;
+                                }
                                 *sp = *child_frame.returnValue;
                                 sp++;
                             }
@@ -234,8 +253,6 @@
                         var first = *sp;
                         --sp;
                         var second = *sp;
-
-                        void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos;
 
                         if (first.type == second.type)
                         {
@@ -301,9 +318,7 @@
                         ++ip;
                         --sp;
                         var first = *sp;
-
-                        void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos;
-
+                            
                         switch (first.type)
                             {
                                 case TYPE_I1:
@@ -365,8 +380,6 @@
                         var first = *sp;
                         --sp;
                         var second = *sp;
-
-                        void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos;
 
                         if (first.type == second.type)
                         {
@@ -435,8 +448,6 @@
                         --sp;
                         var second = *sp;
 
-                        void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos;
-
                         if (first.type == second.type)
                         {
                             switch (first.type)
@@ -498,7 +509,7 @@
                     } break;
                     case JMP:
                         ++ip;
-                        ip = start + mh.labels_map[mh.labels[(int) *ip]].pos;
+                        jump_now();
                         break;
                     case LDLOC_0:
                     case LDLOC_1:
@@ -524,15 +535,27 @@
                         #endif
                         ++ip;
                         break;
-                    case DUMP_0:
+                    case RESERVED_0:
                         ++ip;
                         println($"*** DUMP ***");
                         println($"sp[-1] {sp[0].type}");
                         println($"sp[-1] {sp[0].data.l} {sp[0].data.l:X8}");
                         break;
-                    default:
+                    case RESERVED_1:
                         ++ip;
-                        FastFail(WaveNativeException.STATE_CORRUPT, $"Unknown opcode: {*ip}");
+                        println($"*** DUMP ***");
+                        println($"sp[-1] {sp[0].type}");
+                        println($"sp[-1] {sp[0].data.l} {sp[0].data.l:X8}");
+                        println("*** BREAKED ***");
+                        Console.ReadKey();
+                        break;
+                    default:
+                        CallFrame.FillStackTrace(invocation);
+
+                        FastFail(WaveNativeException.STATE_CORRUPT, $"Unknown opcode: {*ip}\n" +
+                                                                    $"{ip - start}\n" +
+                                                                    $"{invocation.exception.stack_trace}");
+                        ++ip;
                         break;
                 }
             }

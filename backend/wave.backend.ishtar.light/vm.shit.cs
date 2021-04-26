@@ -15,11 +15,11 @@ namespace ishtar
         public static QualityTypeName readTypeName(uint index, WaveModule module) 
             => module.types_table.GetValueOrDefault((int)index);
 
-        public static RuntimeWaveMethod GetMethod(uint index, QualityTypeName owner, WaveModule module)
+        public static RuntimeIshtarMethod GetMethod(uint index, QualityTypeName owner, WaveModule module)
         {
             var clazz = module.FindType(owner);
             var name = module.GetConstStringByIndex((int) index);
-            return (RuntimeWaveMethod)clazz.FindMethod(name, method => method.Name.Equals(name));
+            return (RuntimeIshtarMethod)clazz.FindMethod(name, method => method.Name.Equals(name));
         }
 
         private static void A_OP(stackval* sp, int a_t, uint* ip)
