@@ -2,4 +2,4 @@
 
 [assembly: InternalsVisibleTo("wc")]
 [assembly: InternalsVisibleTo("wc_test")]
-[assembly: InternalsVisibleTo("wave.backend.ishtar.light")]
+[assembly: InternalsVisibleTo("ishtar")]
