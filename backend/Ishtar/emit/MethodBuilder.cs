@@ -17,7 +17,7 @@
         private readonly ILGenerator _generator;
 
 
-        internal MethodBuilder(ClassBuilder clazz, string name, WaveType returnType, params WaveArgumentRef[] args) 
+        internal MethodBuilder(ClassBuilder clazz, string name, WaveClass returnType, params WaveArgumentRef[] args) 
             : base(name, 0, returnType, clazz, args)
         {
             classBuilder = clazz;
