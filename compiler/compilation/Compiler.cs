@@ -228,7 +228,7 @@
             
             owner ??= new TypeSyntax("Object"); // TODO set for struct ValueType owner
 
-            @class.Parent = FetchType(owner, doc)?.AsClass();
+            @class.Parent = FetchType(owner, doc);
         }
         public (
             List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods, 
@@ -477,7 +477,7 @@
 
                         errors.Add(
                             $"[red bold]Cannot implicitly convert type[/] " +
-                            $"'[purple underline]{numeric.GetTypeCode().AsType().Name}[/]' to " +
+                            $"'[purple underline]{numeric.GetTypeCode().AsClass().Name}[/]' to " +
                             $"'[purple underline]{field.FieldType.Name}[/]'.\n\t" +
                             $"at '[orange bold]{numeric.Transform.pos.Line} line, {numeric.Transform.pos.Column} column[/]' \n\t" +
                             $"in '[orange bold]{doc.FileEntity}[/]'."+
@@ -489,7 +489,7 @@
                     var diff_err = literal.Transform.DiffErrorFull(doc);
                     errors.Add(
                         $"[red bold]Cannot implicitly convert type[/] " +
-                        $"'[purple underline]{literal.GetTypeCode().AsType().Name}[/]' to " +
+                        $"'[purple underline]{literal.GetTypeCode().AsClass().Name}[/]' to " +
                         $"'[purple underline]{member.Type.Identifier}[/]'.\n\t" +
                         $"at '[orange bold]{literal.Transform.pos.Line} line, {literal.Transform.pos.Column} column[/]' \n\t" +
                         $"in '[orange bold]{doc.FileEntity}[/]'."+
@@ -525,7 +525,7 @@
             }
             
         }
-        private WaveType FetchType(TypeSyntax typename, DocumentDeclaration doc)
+        private WaveClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
         {
             var retType = module.TryFindType(typename.Identifier, doc.Includes);
             
