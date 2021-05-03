@@ -1,4 +1,4 @@
-namespace ishtar
+﻿namespace ishtar
 {
     using System;
     using System.Runtime.CompilerServices;
@@ -15,7 +15,7 @@ namespace ishtar
     {
         public static NativeException VMException { get; set; }
 
-        public static void FastFail(WaveNativeException type, string msg, CallFrame frame = null) 
+        public static void FastFail(WNE type, string msg, CallFrame frame = null) 
             => VMException = new NativeException { code = type, msg = msg, frame = frame };
 
 
@@ -80,14 +80,14 @@ namespace ishtar
 
             while (true)
             {
-                println($".{((OpCodeValue)(ushort)(*ip))}");
+                println($"@@.{((OpCodeValue)(ushort)(*ip))} 0x{(nint)ip:X}");
                 ValidateLastError();
 
                 if (invocation.exception is not null && invocation.level == 0)
                     return;
                 if (ip == end)
                 {
-                    FastFail(WaveNativeException.END_EXECUTE_MEMORY, "unexpected end of executable memory.");
+                    FastFail(WNE.END_EXECUTE_MEMORY, "unexpected end of executable memory.");
                     continue;
                 }
 
@@ -234,7 +234,7 @@ namespace ishtar
                             {
                                 if (child_frame.returnValue is null)
                                 {
-                                    FastFail(WaveNativeException.STATE_CORRUPT, "Method has return zero memory.");
+                                    FastFail(WNE.STATE_CORRUPT, "Method has return zero memory.");
                                     continue;
                                 }
                                 *sp = *child_frame.returnValue;
@@ -573,16 +573,36 @@ namespace ishtar
                         println("*** BREAKED ***");
                         Console.ReadKey();
                         break;
+                    case LDC_STR:
+                    {
+                        ++ip;
+                        sp->type = TYPE_STRING;
+                        var str = _module.GetConstStringByIndex((int) *ip);
+                        sp->data.p = (IntPtr)IshtarGC.AllocString(str);
+                        ++sp;
+                        ++ip;
+
+                    } break;
                     default:
                         CallFrame.FillStackTrace(invocation);
 
-                        FastFail(WaveNativeException.STATE_CORRUPT, $"Unknown opcode: {*ip}\n" +
+                        FastFail(WNE.STATE_CORRUPT, $"Unknown opcode: {*ip}\n" +
                                                                     $"{ip - start}\n" +
                                                                     $"{invocation.exception.stack_trace}");
                         ++ip;
                         break;
                 }
             }
+        }
+
+
+
+        public static void Assert(bool conditional, WNE type, string msg, CallFrame frame = null)
+        {
+            if (conditional)
+                return;
+            FastFail(type, msg, frame);
+            ValidateLastError();
         }
     }
 
