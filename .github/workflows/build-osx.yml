@@ -1,4 +1,4 @@
-name: .NET
+name: AOT OSX Build
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -20,10 +20,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: AOT build
-      run: dotnet publish -r ubuntu-x64 -c Release
+      run: dotnet publish -r osx-x64 -c Release
       working-directory: ./backend/wave.backend.ishtar.light
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: ubuntu-aot-build
-        path: ./backend/wave.backend.ishtar.light/bin/Release/net6.0/ubuntu-x64/native
+        name: osx-aot-build
+        path: ./backend/wave.backend.ishtar.light/bin/Release/net6.0/osx-x64/native
+        if-no-files-found: error
