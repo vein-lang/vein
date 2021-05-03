@@ -48,6 +48,17 @@
             WaveCore.CharClass      = new RuntimeIshtarClass(WaveCore.Types.CharType    , WaveCore.ValueTypeClass);
             WaveCore.ArrayClass     = new RuntimeIshtarClass(WaveCore.Types.ArrayType   , WaveCore.ObjectClass);
             WaveCore.ExceptionClass = new RuntimeIshtarClass(WaveCore.Types.ExceptionType, WaveCore.ObjectClass);
+
+
+
+
+            (WaveCore.ValueTypeClass as RuntimeIshtarClass)
+                .DefineField("!!value", FieldFlags.Special,
+                WaveCore.ObjectClass);
+
+            (WaveCore.StringClass as RuntimeIshtarClass)
+                .DefineField("!!value", FieldFlags.Special,
+                    WaveCore.ObjectClass);
         }
     }
 }
