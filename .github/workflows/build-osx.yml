@@ -9,11 +9,11 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: osx-latest
 
     steps:
     - name: install pre-req
-      run: sudo apt-get install clang zlib1g-dev libkrb5-dev
+      run: xcode-select --install
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
@@ -22,10 +22,10 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: AOT build
-      run: dotnet publish -r ubuntu-x64 -c Release
+      run: dotnet publish -r osx-x64 -c Release
       working-directory: ./backend/wave.backend.ishtar.light
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: ubuntu-aot-build
+        name: osx-aot-build
         path: ./backend/wave.backend.ishtar.light/bin/Release/net6.0/ubuntu-x64/native
