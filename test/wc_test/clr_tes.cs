@@ -1,6 +1,6 @@
 ﻿namespace wc_test
 {
-    using wave.clr.emit;
+    using wave.ishtar.emit;
     using wave.runtime;
     using Xunit;
 
@@ -9,11 +9,11 @@
         [Fact]
         public void F1()
         {
-            var m = new WaveModuleBuilder("foo");
+            //var m = new WaveModuleBuilder("foo");
 
-            var clazz = m.DefineClass("wa/zoo", ClassFlags.Public);
+            //var clazz = m.DefineClass("wa/zoo", ClassFlags.Public);
 
-            var method = clazz.DefineMethod("Asd", WaveTypeCode.TYPE_VOID.AsClass(), MethodFlags.Public);
+            //var method = clazz.DefineMethod("Asd", WaveTypeCode.TYPE_VOID.AsClass(), MethodFlags.Public);
         }
     }
 }

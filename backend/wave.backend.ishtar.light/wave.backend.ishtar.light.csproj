@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Version>0.4.994</Version>
+		<Version>0.4.995</Version>
 		<AssemblyName>ishtar</AssemblyName>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

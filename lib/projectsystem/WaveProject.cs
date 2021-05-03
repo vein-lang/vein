@@ -1,14 +1,10 @@
 ﻿namespace wave.project
 {
-    using System;
     using System.Xml.Serialization;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Xml;
-    using runtime;
-    using @internal;
-    using MoreLinq;
     using Sprache;
     using static System.Environment;
     using static System.Environment.SpecialFolder;

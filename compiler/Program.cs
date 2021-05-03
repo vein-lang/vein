@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using Pastel;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -13,7 +12,6 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using insomnia;
 using wave.cmd;
-using static insomnia._term;
 using static System.Console;
 using static Spectre.Console.AnsiConsole;
 using Color = System.Drawing.Color;
@@ -31,8 +29,6 @@ if (Environment.GetEnvironmentVariable("WT_SESSION") == null && RuntimeInformati
     //Console.WriteLine($"\t@\tno windows-terminal: coloring, emoji and nier has disabled.");
     //ForegroundColor = ConsoleColor.White;
 }
-
-AppDomain.CurrentDomain.ProcessExit += (_, _) => { ConsoleExtensions.Disable(); };
 
 
 if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
@@ -55,7 +51,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
 
 
 
-var ver = FileVersionInfo.GetVersionInfo(typeof(_term).Assembly.Location).ProductVersion;
+var ver = FileVersionInfo.GetVersionInfo(typeof(ColorShim).Assembly.Location).ProductVersion;
 MarkupLine($"[grey]Wave compiler[/] [red]{ver}[/]");
 MarkupLine($"[grey]Copyright (C)[/] [cyan3]2021[/] [bold]Yuuki Wesp[/].\n\n");
 

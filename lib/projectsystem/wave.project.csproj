@@ -22,5 +22,6 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\backend\Common\wave.common.csproj" />
+	  <ProjectReference Include="..\ast\wave.ast.csproj" />
 	</ItemGroup>
 </Project>
