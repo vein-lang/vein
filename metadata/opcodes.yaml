@@ -15,6 +15,7 @@
 - LDC:
     description: Load constant into stack.
     variations: [F16, F8, F4, F2, STR]
+    override-size: 4
     I4:
       description: Load int32 constant into stack.
       range: true

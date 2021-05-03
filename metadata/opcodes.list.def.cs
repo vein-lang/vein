@@ -92,39 +92,39 @@ namespace ishtar
 		public static OpCode LDARG_S = new (0x0B, 0x0040001F);
 		/// <summary>
 		/// Load constant into stack.
-		/// size: 0
+		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDC_F16 = new (0x0C, 0x0000001F);
+		public static OpCode LDC_F16 = new (0x0C, 0x0100001F);
 		/// <summary>
 		/// Load constant into stack.
-		/// size: 0
+		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDC_F8 = new (0x0D, 0x0000001F);
+		public static OpCode LDC_F8 = new (0x0D, 0x0100001F);
 		/// <summary>
 		/// Load constant into stack.
-		/// size: 0
+		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDC_F4 = new (0x0E, 0x0000001F);
+		public static OpCode LDC_F4 = new (0x0E, 0x0100001F);
 		/// <summary>
 		/// Load constant into stack.
-		/// size: 0
+		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDC_F2 = new (0x0F, 0x0000001F);
+		public static OpCode LDC_F2 = new (0x0F, 0x0100001F);
 		/// <summary>
 		/// Load constant into stack.
-		/// size: 0
+		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static OpCode LDC_STR = new (0x10, 0x0000001F);
+		public static OpCode LDC_STR = new (0x10, 0x0100001F);
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// size: 0
