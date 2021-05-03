@@ -1,11 +1,11 @@
-#space "hello"
+#space "hello_world"
 
 #use "wave/lang"
 
 public class Program
 {
-    public static Master(args: string[]): void
+    public static master(args: string[]): void
     {
-        Out.print("Fuck you.");
+        Out.print("\u001b[36mHello World\u001b[0m, from Wave Lang with Love ✨✨✨!");
     }
 }
