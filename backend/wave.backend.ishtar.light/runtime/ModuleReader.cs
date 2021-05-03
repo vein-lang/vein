@@ -135,18 +135,44 @@
             var retType = binary.ReadTypeName(module);
             var args = ReadArguments(binary, module);
             var body = binary.ReadBytes(bodysize);
+
+            
             var mth = new RuntimeIshtarMethod(module.GetConstStringByIndex(idx), flags,
                 module.FindType(retType, true), 
                 @class, args.ToArray());
+
+            if (flags.HasFlag(MethodFlags.Extern))
+            {
+                var m = FFI.GetMethod(mth.Name);
+
+                if (m is null)
+                {
+                    VM.FastFail(WNE.TYPE_LOAD, $"Extern '{mth.Name}' method not found in native mapping.");
+                    VM.ValidateLastError();
+                    return null;
+                }
+
+                mth.PIInfo = m.PIInfo;
+
+                return mth;
+            }
+
+            
             var offset = 0;
             var body_r = ILReader.Deconstruct(body, &offset);
             var labeles = ILReader.DeconstructLabels(body, offset);
             
 
             mth.Header.max_stack = stacksize;
-            fixed(uint* p = body_r.opcodes.ToArray())
+
+            var pinned = GC.AllocateArray<uint>(body_r.opcodes.Count, true);
+            
+            for (var i = 0; i != body_r.opcodes.Count; i++)
+                pinned[i] = body_r.opcodes[i];
+            fixed(uint* p = pinned)
                 mth.Header.code = p;
-            mth.Header.code_size = (uint)body_r.opcodes.Count;
+
+            mth.Header.code_size = (uint)pinned.Length;
             mth.Header.labels = labeles;
             mth.Header.labels_map = body_r.map.ToDictionary(x => x.Key,
                 x => new ILLabel
