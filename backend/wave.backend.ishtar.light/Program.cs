@@ -6,9 +6,12 @@
     using System.IO;
     using System.Linq;
     using System.Net.Mail;
+    using System.Runtime.InteropServices;
+    using System.Text;
     using fs;
     using global::ishtar;
     using runtime;
+    using Spectre.Console;
     using wave.ishtar.emit;
 
 
@@ -48,7 +51,32 @@
         }
         public static unsafe int Main(string[] args)
         {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                Console.OutputEncoding = Encoding.Unicode;
             IshtarCore.Init();
+            foreach (var @class in WaveCore.All.OfType<RuntimeIshtarClass>()) 
+                @class.init_vtable();
+            IshtarGC.INIT();
+            FFI.InitFunctionTable();
+
+            //var i_t = WaveCore.Int32Class as RuntimeIshtarClass;
+
+            //i_t.init_vtable();
+
+            //var i = IshtarGC.AllocObject(i_t);
+
+
+            //var val = new stackval();
+
+            //val.type = WaveTypeCode.TYPE_I4;
+            //val.data.i = 1448;
+
+            //i->vtable[i_t.Field["!!value"].vtable_offset] = &val;
+
+
+            //IshtarGC.FreeObject(&i);
+
             if (args.Length < 1)
                 return -1;
             var entry = new FileInfo(args.First());
@@ -79,7 +107,7 @@
 
             if (entry_point is null)
             {
-                VM.FastFail(WaveNativeException.MISSING_METHOD, "Entry point is not defined.");
+                VM.FastFail(WNE.MISSING_METHOD, "Entry point is not defined.");
                 var empty = stackalloc uint[1];
                 entry_point = new RuntimeIshtarMethod("master", MethodFlags.Public | MethodFlags.Static)
                 {
