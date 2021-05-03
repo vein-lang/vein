@@ -84,7 +84,7 @@
         {
             var module = new WaveModuleBuilder(Guid.NewGuid().ToString());
             var @class = new ClassBuilder(module, $"{module.Name}%global::foo/bar");
-            var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsType(), args);
+            var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsClass(), args);
             return method.GetGenerator();
         }
     }

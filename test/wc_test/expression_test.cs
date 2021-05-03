@@ -143,10 +143,10 @@
 
             genCtx.Module = new WaveModuleBuilder("doo");
             var @class = genCtx.Module.DefineClass("global::wave/foo");
-            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType());
+            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new WaveScope(genCtx);
 
-            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("idi"), WaveTypeCode.TYPE_BOOLEAN.AsType());
+            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("idi"), WaveTypeCode.TYPE_BOOLEAN.AsClass());
 
             var key = $"idi";
             var id = Wave.QualifiedExpression.End().ParseWave(key) as IdentifierExpression;
@@ -168,7 +168,7 @@
 
             genCtx.Module = new WaveModuleBuilder("doo");
             var @class = genCtx.Module.DefineClass("global::wave/foo");
-            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType());
+            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new WaveScope(genCtx);
             
             var key = $"ata()";
@@ -196,14 +196,14 @@
             var @class = genCtx.Module.DefineClass("global::wave/foo");
             var anotherClass = genCtx.Module.DefineClass("global::wave/goo");
 
-            anotherClass.DefineMethod("gota", MethodFlags.Public, WaveTypeCode.TYPE_I1.AsType());
+            anotherClass.DefineMethod("gota", MethodFlags.Public, WaveTypeCode.TYPE_I1.AsClass());
 
             @class.Includes.Add("global::wave");
 
-            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsType());
+            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new WaveScope(genCtx);
 
-            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("ow"), anotherClass.AsType());
+            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("ow"), anotherClass);
             
             var result = Wave.QualifiedExpression
                     .End()

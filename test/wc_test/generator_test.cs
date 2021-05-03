@@ -1,4 +1,4 @@
-namespace wc_test
+﻿namespace wc_test
 {
     using System;
     using System.Collections;
@@ -7,6 +7,7 @@ namespace wc_test
     using System.IO;
     using System.Linq;
     using ishtar;
+    using Spectre.Console;
     using wave.fs;
     using wave.ishtar.emit;
     using wave.runtime;
@@ -231,6 +232,39 @@ puts after - before;*/
             //var a = f(int.MaxValue / 2);
             s.Stop();
             //_testOutputHelper.WriteLine($"{a}, {int.MaxValue / 2} {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
+        }
+        [Fact]
+        public void ManualGenCallExternFunction()
+        {
+            var module = new WaveModuleBuilder("hello_world");
+            var clazz = module.DefineClass("hello_world%global::wave/lang/program");
+            clazz.Flags = ClassFlags.Public | ClassFlags.Static;
+
+
+            var f_println = clazz.DefineMethod("@_println", 
+                MethodFlags.Extern, WaveTypeCode.TYPE_VOID.AsClass(),
+                ("val", WaveTypeCode.TYPE_STRING));
+
+
+            var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
+                WaveTypeCode.TYPE_VOID.AsClass());
+            var body = method.GetGenerator();
+            
+            body.Emit(OpCodes.LDC_STR, $"\u001b[36mHello World\u001b[0m, from Wave Lang with Love {Emoji.Known.Sparkles}{Emoji.Known.Sparkles}{Emoji.Known.Sparkles}!");
+            body.Emit(OpCodes.RESERVED_0);
+            body.Emit(OpCodes.CALL, f_println);
+            body.Emit(OpCodes.RET);
+
+
+            var body_module = module.BakeByteArray();
+
+
+            var asm = new IshtarAssembly { Name = module.Name };
+            
+            asm.AddSegment((".code", body_module));
+            
+            IshtarAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
+            File.WriteAllText($@"C:\Users\ls-mi\Desktop\{module.Name}.wvil", module.BakeDebugString());
         }
         
         [Fact]
