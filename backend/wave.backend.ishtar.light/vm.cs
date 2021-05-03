@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using System.Runtime.CompilerServices;
@@ -35,6 +35,26 @@
         public static void println(string str) => Console.WriteLine(str);
 
         public static void vm_shutdown() => Environment.Exit(-1);
+
+        public static unsafe void exec_method_native(CallFrame invocation)
+        {
+            var caller = (delegate*<CallFrame, IshtarObject**, IshtarObject*>) 
+                invocation.method.PIInfo.Addr;
+            var args_len = invocation.method.ArgLength;
+            var args = (IshtarObject**)Marshal.AllocHGlobal(sizeof(IshtarObject*) * args_len);
+            
+            for (var i = 0; i != args_len; i++)
+            {
+                var o = IshtarGC.AllocObject(WaveCore.ValueTypeClass as RuntimeIshtarClass);
+                o->vtable[0] = &invocation.args[i];
+                args[i] = o;
+            }
+
+            var result = caller(invocation, args);
+
+            if (invocation.method.ReturnType.TypeCode == TYPE_VOID)
+                return;
+        }
 
         public static unsafe void exec_method(CallFrame invocation)
         {
@@ -196,8 +216,10 @@
                             fixed(stackval* p = method_args)
                                 child_frame.args = p;
                             child_frame.method = method;
-
-                            exec_method(child_frame);
+                            if (method.IsExtern)
+                                exec_method_native(child_frame);
+                            else
+                                exec_method(child_frame);
 
                             if (child_frame.exception is not null)
                             {
