@@ -67,7 +67,7 @@ namespace ishtar
             
             var ip = mh.code;
 
-            fixed (stackval* p = new stackval[mh.max_stack])
+            fixed (stackval* p = GC.AllocateArray<stackval>(mh.max_stack, true))
                 invocation.stack = p;
             fixed (stackval* p = new stackval[0])
                 locals = p;
@@ -203,7 +203,9 @@ namespace ishtar
                             #if DEBUG_IL
                             printf("%%call %ws self function.\n", method->Name.c_str());
                             #endif
-                            var method_args = new stackval[method.ArgLength];
+
+
+                            var method_args = stackval.Alloc(method.ArgLength);
                             for (var i = 0; i != method.ArgLength; i++)
                             {
                                 var _a = method.Arguments[i];
@@ -249,7 +251,7 @@ namespace ishtar
                     {
                         ++ip;
                         var locals_size = *ip;
-                        fixed(stackval* p = new stackval[(int)locals_size])
+                        fixed(stackval* p = stackval.Alloc((int)locals_size))
                             locals = p;
                         ++ip;
                         for (var i = 0u; i != locals_size; i++)
@@ -593,6 +595,8 @@ namespace ishtar
     {
         public stack_union data;
         public WaveTypeCode type;
+
+        public static stackval[] Alloc(int size) => GC.AllocateArray<stackval>(size, true);
     }
     [StructLayout(LayoutKind.Explicit)] 
     public struct stack_union
