@@ -1,6 +1,7 @@
 ﻿namespace ishtar
 {
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
 
     public static unsafe class StringStorage
@@ -14,6 +15,8 @@
                 return (StrRef*)storage_r[value];
 
             var p = (StrRef*) Marshal.AllocHGlobal(sizeof(StrRef));
+            
+            Unsafe.InitBlock(p, 0, (uint)sizeof(StrRef));
             
             if (p == null)
             {

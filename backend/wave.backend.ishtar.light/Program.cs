@@ -5,13 +5,11 @@
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using System.Net.Mail;
     using System.Runtime.InteropServices;
     using System.Text;
     using fs;
     using global::ishtar;
     using runtime;
-    using Spectre.Console;
     using wave.ishtar.emit;
 
 

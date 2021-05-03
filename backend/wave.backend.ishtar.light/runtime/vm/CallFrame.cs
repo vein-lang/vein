@@ -7,7 +7,7 @@
         public CallFrame parent;
         public RuntimeIshtarMethod method;
         public stackval* returnValue;
-        public void* _this_;
+        public IshtarObject* _this_;
         public stackval* args;
         public stackval* stack;
         public int level;

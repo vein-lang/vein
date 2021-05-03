@@ -18,8 +18,7 @@
             //FFI.StaticTypeOf(current, &arg1, TYPE_STRING);
             var @class = arg1->Unpack();
 
-            var p = (StrRef*)@class.vtable[@class.Field["!!value"].vtable_offset];
-            p->index = 1;
+            var p = (StrRef*)arg1->vtable[@class.Field["!!value"].vtable_offset];
             var str = StrRef.Unwrap(p);
             
             Out.WriteLine();
@@ -34,19 +33,8 @@
         public static IshtarObject* FReadLine(CallFrame current, IshtarObject** args)
         {
             var result = In.ReadLine();
-
-            var p = StringStorage.Intern(result);
-            var v = new stackval
-            {
-                type = TYPE_STRING, data = { p = (nint) p }
-            };
-
-            var obj = IshtarGC.AllocObject(TYPE_STRING.AsRuntimeClass());
-            var clazz = obj->Unpack();
-            
-            obj->vtable[clazz.Field["!!value"].vtable_offset] = &v;
-            
-            return obj;
+            fixed (IshtarObject** p = &current._this_)
+                return IshtarGC.AllocString(result, p);
         }
 
 

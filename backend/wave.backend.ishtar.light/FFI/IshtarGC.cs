@@ -48,21 +48,26 @@
             heap.Enqueue((nint)p, 99);
         }
 
-
-        public static stackval* AllocValue(WaveClass @class)
+        public static stackval* AllocValue()
         {
-            if (!@class.IsPrimitive)
-                return null;
             var p = (stackval*) Marshal.AllocHGlobal(sizeof(stackval));
             GCStats.total_allocations++;
             GCStats.total_bytes_requested += (ulong)sizeof(stackval);
             val_heap.Enqueue((nint)p, 0);
             return p;
         }
+        public static stackval* AllocValue(WaveClass @class)
+        {
+            if (!@class.IsPrimitive)
+                return null;
+            var p = AllocValue();
+            p->type = @class.TypeCode;
+            return p;
+        }
 
         public static IshtarObject* AllocString(string str, IshtarObject** node = null)
         {
-            var arg = AllocObject(WaveTypeCode.TYPE_STRING.AsRuntimeClass());
+            var arg = AllocObject(WaveTypeCode.TYPE_STRING.AsRuntimeClass(), node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(arg->clazz);
             arg->vtable[clazz.Field["!!value"].vtable_offset] = StringStorage.Intern(str);
             return arg;
@@ -88,7 +93,7 @@
             GCStats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*);
             GCStats.total_bytes_requested += (ulong)sizeof(IshtarObject);
 
-            if (node is null)
+            if (node is null || *node is null)
                 fixed (IshtarObject** o = &root)
                     p->owner = o;
             else 

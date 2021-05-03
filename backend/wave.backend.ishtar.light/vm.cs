@@ -42,18 +42,38 @@
                 invocation.method.PIInfo.Addr;
             var args_len = invocation.method.ArgLength;
             var args = (IshtarObject**)Marshal.AllocHGlobal(sizeof(IshtarObject*) * args_len);
+
+            if (args == null)
+            {
+                FastFail(WNE.OUT_OF_MEMORY, "Cannot apply boxing memory.");
+                ValidateLastError();
+                return;
+            }
             
             for (var i = 0; i != args_len; i++)
             {
-                var o = IshtarGC.AllocObject(WaveCore.ValueTypeClass as RuntimeIshtarClass);
-                o->vtable[0] = &invocation.args[i];
-                args[i] = o;
+                var aa = &invocation.args[i];
+                if (aa->type != TYPE_OBJECT && aa->type != TYPE_STRING)
+                {
+                    var o = IshtarGC.AllocObject(WaveCore.ValueTypeClass as RuntimeIshtarClass);
+                    o->vtable[0] = aa;
+                    args[i] = o;
+                }
+                else
+                    args[i] = (IshtarObject*)aa->data.p;
+
+                aa = null;
             }
 
             var result = caller(invocation, args);
 
+            Marshal.FreeHGlobal((nint)args);
+
             if (invocation.method.ReturnType.TypeCode == TYPE_VOID)
                 return;
+            invocation.returnValue = IshtarGC.AllocValue();
+            invocation.returnValue->type = invocation.method.ReturnType.TypeCode;
+            invocation.returnValue->data.p = (nint)result;
         }
 
         public static unsafe void exec_method(CallFrame invocation)
@@ -562,16 +582,24 @@
                     case RESERVED_0:
                         ++ip;
                         println($"*** DUMP ***");
-                        println($"sp[-1] {sp[0].type}");
-                        println($"sp[-1] {sp[0].data.l} {sp[0].data.l:X8}");
+                        println($"\tsp[-1] {sp[0].type}");
+                        println($"\tsp[-1] {sp[0].data.l} {sp[0].data.l:X8}");
                         break;
                     case RESERVED_1:
                         ++ip;
                         println($"*** DUMP ***");
-                        println($"sp[-1] {sp[0].type}");
-                        println($"sp[-1] {sp[0].data.l} {sp[0].data.l:X8}");
+                        println($"\tsp[-1] {sp[0].type}");
+                        println($"\tsp[-1] {sp[0].data.l} {sp[0].data.l:X8}");
                         println("*** BREAKED ***");
                         Console.ReadKey();
+                        break;
+                    case RESERVED_2:
+                        ++ip;
+                        println($"*** GC DUMP ***");
+                        println($"\talive_objects: {IshtarGC.GCStats.alive_objects}");
+                        println($"\ttotal_allocations: {IshtarGC.GCStats.total_allocations}");
+                        println($"\ttotal_bytes_requested: {IshtarGC.GCStats.total_bytes_requested}");
+                        println($"*** END GC DUMP ***");
                         break;
                     case LDC_STR:
                     {
