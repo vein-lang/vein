@@ -1,4 +1,4 @@
-name: .NET
+name: AOT OSX Build
 
 on:
   push:
@@ -12,8 +12,6 @@ jobs:
     runs-on: macos-latest
 
     steps:
-    - name: install pre-req
-      run: xcode-select --install
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
