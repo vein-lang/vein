@@ -21,6 +21,8 @@ jobs:
         dotnet-version: 6.0.100-preview.3.21202.5
     - name: Restore dependencies
       run: dotnet restore
+    - name: Unit test
+      run: dotnet test
     - name: AOT build
       run: dotnet publish -r ubuntu-x64 -c Release
       working-directory: ./backend/wave.backend.ishtar.light
