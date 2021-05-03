@@ -1,6 +1,5 @@
 ﻿namespace ishtar
 {
-    using System;
     using Sprache;
     using wave.syntax;
 
@@ -10,7 +9,7 @@
         {
             if (exp.HasOptimized)
                 return false;
-            if (exp is ArgumentExpression arg)
+            if (exp is ArgumentExpression)
                 return true;
             if (exp is StringLiteralExpressionSyntax)
                 return true;

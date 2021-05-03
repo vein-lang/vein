@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>0.4.984</Version>
+		<Version>0.4.994</Version>
 		<Authors>Yuuki Wesp</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
@@ -27,9 +27,9 @@
 		</PackageReference>
 		<PackageReference Include="ExpressiveParser" Version="2.4.0" />
 		<PackageReference Include="morelinq" Version="3.3.2" />
+		<PackageReference Include="BinaryTools.Elf" Version="0.3.0" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\..\lib\ast\wave.ast.csproj" />
 	  <ProjectReference Include="..\Common\wave.common.csproj" />
 	</ItemGroup>
 	<ItemGroup>

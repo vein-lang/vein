@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.4.1282</Version>
+    <Version>0.4.1284</Version>
     <AssemblyName>wc</AssemblyName>
     <RootNamespace>wave</RootNamespace>
 	<OutputType>Exe</OutputType>
@@ -24,10 +24,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\backend\CLR\wave.backend.clr.csproj" />
-    <ProjectReference Include="..\backend\Hashlink\wave.backend.hashlink.csproj" />
-    <ProjectReference Include="..\backend\Ishtar\wave.backend.ishtar.csproj" />
-    <ProjectReference Include="..\backend\LLVM\wave.backend.llvm.csproj" />
+    <ProjectReference Include="..\backend\wave.backend.ishtar.generator\wave.backend.ishtar.generator.csproj" />
     <ProjectReference Include="..\lib\projectsystem\wave.project.csproj" />
   </ItemGroup>
 </Project>

@@ -245,6 +245,9 @@ puts after - before;*/
                 MethodFlags.Extern, WaveTypeCode.TYPE_VOID.AsClass(),
                 ("val", WaveTypeCode.TYPE_STRING));
 
+            var f_readln = clazz.DefineMethod("@_readline", 
+                MethodFlags.Extern, WaveTypeCode.TYPE_STRING.AsClass());
+
 
             var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
                 WaveTypeCode.TYPE_VOID.AsClass());
@@ -252,7 +255,11 @@ puts after - before;*/
             
             body.Emit(OpCodes.LDC_STR, $"\u001b[36mHello World\u001b[0m, from Wave Lang with Love {Emoji.Known.Sparkles}{Emoji.Known.Sparkles}{Emoji.Known.Sparkles}!");
             body.Emit(OpCodes.RESERVED_0);
+            body.Emit(OpCodes.RESERVED_2);
             body.Emit(OpCodes.CALL, f_println);
+            body.Emit(OpCodes.CALL, f_readln);
+            body.Emit(OpCodes.CALL, f_println);
+            body.Emit(OpCodes.RESERVED_2);
             body.Emit(OpCodes.RET);
 
 
