@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Text;
     using BinaryTools.Elf;
+    using BinaryTools.Elf.Io;
     using extensions;
     using ishtar.emit;
     using static BinaryTools.Elf.ElfSectionType;
@@ -69,7 +70,16 @@
         {
             using var fs = File.OpenRead(file);
             using var br = new BinaryReader(fs);
-            var elf = ElfFile.ReadElfFile(br);
+            var elf = default(ElfFile);
+
+            try
+            {
+                elf = ElfFile.ReadElfFile(br);
+            }
+            catch (FileFormatException e)
+            {
+                throw new BadImageFormatException($"File '{file}' has invalid.", e);
+            }
 
             if (elf.Sections.All(x => x.Type != Note))
                 throw new BadImageFormatException($"File '{file}' has invalid.", 
