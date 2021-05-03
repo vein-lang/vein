@@ -126,7 +126,7 @@ namespace wave.ishtar.emit
             this.EnsureCapacity<OpCode>(sizeof(int));
             InternalEmit(opcode);
             PutInteger4(token);
-            _debugBuilder.AppendLine($".{opcode.Name} '{str}'.0x{token:X8} /* ::{_position} */");
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} .0x{token:X8}");
         }
         /// <summary>
         /// Emit opcodes for stage\load value for field.

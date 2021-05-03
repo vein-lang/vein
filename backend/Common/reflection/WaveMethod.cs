@@ -44,10 +44,13 @@
         {
             if (Regex.IsMatch(this.Name, @"\S+\((.+)?\)"))
                 return;
-            this.Name = $"{this.Name}({Arguments.Select(x => x.Type.Name).Join(",")})";
+            this.Name = GetFullName(Name, Arguments);
         }
-        
-        
+
+        public static string GetFullName(string name, List<WaveArgumentRef> args) 
+            => $"{name}({args.Select(x => x.Type.Name).Join(",")})";
+
+
         public MethodFlags Flags { get; set; }
         
         public bool IsStatic => Flags.HasFlag(MethodFlags.Static);

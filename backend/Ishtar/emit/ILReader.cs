@@ -36,6 +36,9 @@
 
             var list = new List<uint>();
             var d = new Dictionary<int, (int pos, OpCodeValue opcode)>();
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine($"decode il...");
+            Console.ForegroundColor = ConsoleColor.White;
             while (mem.Position < mem.Length)
             {
                 var opcode = (OpCodeValue) bin.ReadUInt16();
@@ -50,6 +53,9 @@
                 if ((ushort) opcode == 0xFFFF)
                 {
                     *offset = (int) mem.Position;
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    Console.WriteLine($"success\n");
+                    Console.ForegroundColor = ConsoleColor.White;
                     return (list, d);
                 }
                 
@@ -63,7 +69,9 @@
                 var value = OpCodes.all[opcode];
                 
                 d.Add((int)mem.Position-sizeof(ushort), (list.Count, opcode));
-                Console.WriteLine($"{value.Name}, {value.Size}");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine($"... ({value.Name}, {value.Size})");
+                Console.ForegroundColor = ConsoleColor.White;
                 switch (value.Size)
                 {
                     // call
@@ -114,6 +122,9 @@
                             $"Check 'opcodes.def' and re-run 'gen.csx' for fix this error.");
                 }
             }
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine($"... success");
+            Console.ForegroundColor = ConsoleColor.White;
             return (list, d);
         }
     }

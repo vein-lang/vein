@@ -2,7 +2,7 @@
   "profiles": {
     "wave.backend.ishtar.light": {
       "commandName": "Project",
-      "commandLineArgs": ".\\satl.wll .\\satl.wll"
+      "commandLineArgs": ".\\hello_world.wll .\\hello_world.wll"
     }
   }
 }
