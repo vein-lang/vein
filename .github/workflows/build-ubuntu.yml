@@ -19,8 +19,11 @@ jobs:
         dotnet-version: 6.0.100-preview.3.21202.5
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
     - name: AOT build
       run: dotnet publish -r ubuntu-x64 -c Release
       working-directory: ./backend/wave.backend.ishtar.light
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: ubuntu-aot-build
+        path: ./backend/wave.backend.ishtar.light/bin/Release/net6.0/ubuntu-x64/native
