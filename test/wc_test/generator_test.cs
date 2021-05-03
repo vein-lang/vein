@@ -25,7 +25,7 @@
             _testOutputHelper = testOutputHelper;
         }
 
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void Test()
         {
             var module = new WaveModuleBuilder("xuy");
@@ -69,7 +69,7 @@
 
         }
 
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void TestIL()
         {
             var module = new WaveModuleBuilder("xuy");
@@ -98,7 +98,7 @@
             
             //IshtarAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
         }
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void AST2ILTest()
         {
             var w = new WaveSyntax();
@@ -127,7 +127,7 @@
             }
         }
         
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void ReturnStatementCompilation1()
         {
             var ret = new ReturnStatementSyntax
@@ -149,7 +149,7 @@
             Assert.Equal(expected.BakeByteArray(), actual.BakeByteArray());
         }
         
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void ReturnStatementCompilation2()
         {
             var ret = new ReturnStatementSyntax
@@ -171,7 +171,7 @@
             Assert.Equal(expected.BakeByteArray(), actual.BakeByteArray());
         }
         
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void ReturnStatementCompilation3()
         {
             var ret = new ReturnStatementSyntax
@@ -192,7 +192,7 @@
             var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsClass(), args);
             return method.GetGenerator();
         }
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void Fib()
         {
             /*let fib = fun (n) {
@@ -233,7 +233,7 @@ puts after - before;*/
             s.Stop();
             //_testOutputHelper.WriteLine($"{a}, {int.MaxValue / 2} {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
         }
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void ManualGenCallExternFunction()
         {
             var module = new WaveModuleBuilder("hello_world");
@@ -274,7 +274,7 @@ puts after - before;*/
             File.WriteAllText($@"C:\Users\ls-mi\Desktop\{module.Name}.wvil", module.BakeDebugString());
         }
         
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void ManualGen()
         {
             var module = new WaveModuleBuilder("satl");

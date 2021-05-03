@@ -46,7 +46,7 @@
             list.Add(stl);
             return list;
         }
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void WriteTest()
         {
             var verSR = new Version(2, 2, 2, 2);
@@ -105,7 +105,7 @@
             }
         }
 
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void ReadTest()
         {
             var target = new FileInfo(@"C:/wavelib/set2.wll");

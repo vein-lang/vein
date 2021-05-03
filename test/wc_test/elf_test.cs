@@ -30,7 +30,7 @@
             Assert.Equal("IL_CODE", Encoding.ASCII.GetString(bytes));
             File.Delete(file);
         }
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void ElfReadManual()
         {
             var file = @"C:\Users\ls-mi\Desktop\wave.elf";

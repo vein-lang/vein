@@ -23,7 +23,7 @@
     public class stl_compilation_test
     {
         
-        [Theory]
+        [Theory(Skip = "MANUAL")]
         [ClassData(typeof(FetchWaveSource))]
         public void FilesParse(string path)
         {
@@ -31,7 +31,7 @@
             Wave.CompilationUnit.End().ParseWave(code);
         }
 
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void FilesCompile()
         {
             var code = File.ReadAllText($"{FetchWaveSource.RootOfWaveStd}/wave/lang/Object.wave");
