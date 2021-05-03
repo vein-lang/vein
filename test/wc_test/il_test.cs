@@ -24,7 +24,7 @@
             Assert.Equal(OpCodes.DIV.Value, result[1]);
             Assert.Equal(OpCodes.LDARG_0.Value, result[2]);
         }
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void DeconstructOpcodes2()
         {
             var gen = CreateGenerator();

@@ -126,7 +126,7 @@
             var result = ModuleReader.Read(bytes, deps, (x,z) => resolver.ResolveDep(x,z,deps));
         }
         
-        [Fact]
+        [Fact(Skip = "MANUAL")]
         public void ReaderTest()
         {
             var deps = GetDeps();

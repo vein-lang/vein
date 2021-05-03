@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.4.1285</Version>
+    <Version>0.4.1291</Version>
     <AssemblyName>wc</AssemblyName>
     <RootNamespace>wave</RootNamespace>
 	<OutputType>Exe</OutputType>

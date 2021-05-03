@@ -12,13 +12,17 @@
             new ConcurrentDictionary<string, LoggerConfiguration>();
         private static readonly Func<string, LoggerConfiguration> _activator = defaultActivator;
         private static Action<LoggerConfiguration> _configurator;
+        private static readonly object guarder = new object();
         public static ILogger RegisterGroup(string groupName)
         {
-            if (storage.ContainsKey(groupName))
-                return storage[groupName].CreateLogger();
-            var logger = _activator(groupName);
-            storage.Add(groupName, logger);
-            return logger.CreateLogger();
+            lock (guarder)
+            {
+                if (storage.ContainsKey(groupName))
+                    return storage[groupName].CreateLogger();
+                var logger = _activator(groupName);
+                storage.Add(groupName, logger);
+                return logger.CreateLogger();
+            }
         }
 
 
