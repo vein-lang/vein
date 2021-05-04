@@ -34,85 +34,85 @@ namespace wave.ishtar.emit
 
         public virtual void Emit(OpCode opcode)
         {
-            _debugBuilder.AppendLine($".{opcode.Name} /* ::{_position} */");
             EnsureCapacity<OpCode>();
             InternalEmit(opcode);
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name}");
         }
         public virtual void Emit(OpCode opcode, byte arg)
         {
-            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.byte /* ::{_position} */");
             EnsureCapacity<OpCode>(sizeof(byte));
             InternalEmit(opcode);
             _ilBody[_position++] = arg;
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.byte");
         }
         public void Emit(OpCode opcode, sbyte arg)
         {
-            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.sbyte /* ::{_position} */");
             EnsureCapacity<OpCode>(sizeof(sbyte));
             InternalEmit(opcode);
             _ilBody[_position++] = (byte) arg;
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.sbyte");
         }
         public virtual void Emit(OpCode opcode, short arg)
         {
-            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.short /* ::{_position} */");
             EnsureCapacity<OpCode>(sizeof(short));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt16LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(short);
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.short");
         }
         
         public virtual void Emit(OpCode opcode, int arg)
         {
-            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.int /* ::{_position} */");
             EnsureCapacity<OpCode>(sizeof(int));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(int);
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.int");
         }
         public virtual void Emit(OpCode opcode, long arg)
         {
-            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.long /* ::{_position} */");
             EnsureCapacity<OpCode>(sizeof(long));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(long);
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.long");
         }
         
         public virtual void Emit(OpCode opcode, ulong arg)
         {
-            _debugBuilder.AppendLine($".{opcode.Name} 0x{arg:X8}.ulong /* ::{_position} */");
             EnsureCapacity<OpCode>(sizeof(ulong));
             InternalEmit(opcode);
             BinaryPrimitives.WriteUInt64LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(ulong);
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.ulong");
         }
 
         public virtual void Emit(OpCode opcode, float arg)
         {
-            _debugBuilder.AppendLine($".{opcode.Name} {arg}.float /* ::{_position} */");
             EnsureCapacity<OpCode>(sizeof(float));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), BitConverter.SingleToInt32Bits(arg));
             _position += sizeof(float);
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.float");
         }
 
         public virtual void Emit(OpCode opcode, double arg)
         {
-            _debugBuilder.AppendLine($".{opcode.Name} {arg}.double /* ::{_position} */");
             EnsureCapacity<OpCode>(sizeof(double));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), BitConverter.DoubleToInt64Bits(arg));
             _position += sizeof(double);
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.double");
         }
         
         public virtual void Emit(OpCode opcode, decimal arg)
         {
-            _debugBuilder.AppendLine($".{opcode.Name} {arg}.decimal /* ::{_position} */");
             EnsureCapacity<OpCode>(sizeof(decimal));
             InternalEmit(opcode);
             foreach (var i in decimal.GetBits(arg))
                 BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), i);
             _position += sizeof(decimal);
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.decimal");
         }
         /// <remarks>
         /// <see cref="string"/> will be interned.
@@ -152,7 +152,7 @@ namespace wave.ishtar.emit
             this.PutInteger4(nameIdx);
             this.PutInteger4(typeIdx);
             
-            _debugBuilder.AppendLine($".{opcode.Name} {field.Name} {field.FieldType} /* ::{_position} */");
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {field.Name} {field.FieldType}");
         }
         /// <summary>
         /// 
@@ -198,7 +198,7 @@ namespace wave.ishtar.emit
             };
             this.EnsureCapacity<OpCode>();
             this.InternalEmit(opcode);
-            _debugBuilder.AppendLine($".{opcode.Name} {field.Name}.{token:X8} /* ::{_position} */");
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {field.Name}.{token:X8}");
         }
         /// <summary>
         /// Emit branch instruction with label.
@@ -208,7 +208,7 @@ namespace wave.ishtar.emit
             this.EnsureCapacity<OpCode>(sizeof(int));
             this.InternalEmit(opcode);
             this.PutInteger4(label.Value);
-            _debugBuilder.AppendLine($".{opcode.Name} label(0x{label.Value:X}) /* ::{_position} */");
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} label(0x{label.Value:X})");
         }
         public virtual void Emit(OpCode opcode, WaveType type) 
             => Emit(opcode, type.FullName);
@@ -220,7 +220,7 @@ namespace wave.ishtar.emit
             this.EnsureCapacity<OpCode>(sizeof(int));
             this.InternalEmit(opcode);
             this.PutTypeName(type);
-            _debugBuilder.AppendLine($".{opcode.Name} [{type}] /* ::{_position} */");
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */.{opcode.Name} [{type}] ");
         }
         /// <summary>
         /// Emit LOC_INIT.
@@ -285,7 +285,7 @@ namespace wave.ishtar.emit
             
             this.PutInteger4(tokenIdx);
             this.PutTypeName(ownerIdx);
-            _debugBuilder.AppendLine($".{opcode.Name} {method} /* ::{_position} */");
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");
         }
         
         internal enum FieldDirection
