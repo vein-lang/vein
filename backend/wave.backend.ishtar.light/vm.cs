@@ -196,7 +196,16 @@ namespace ishtar
                     case THROW:
                         break;
                     case NEWOBJ:
-                        break;
+                    {
+                        ++ip;
+                        sp->type = TYPE_CLASS;
+                        sp->data.p = (nint)
+                        IshtarGC.AllocObject(
+                            (RuntimeIshtarClass) // TODO optimize search
+                            _module.FindType(_module.GetTypeNameByIndex((int)*ip), true));
+                        ++ip;
+                        ++sp;
+                    } break;
                     case CALL:
                     {
                         ++ip;
@@ -635,7 +644,7 @@ namespace ishtar
         public static stackval[] Alloc(int size) => GC.AllocateArray<stackval>(size, true);
     }
     [StructLayout(LayoutKind.Explicit)] 
-    public struct stack_union
+    public unsafe struct stack_union
     {
         [FieldOffset(0)] public sbyte b;
         [FieldOffset(0)] public short s;
