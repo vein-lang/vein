@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using System.Runtime.CompilerServices;
@@ -28,19 +28,23 @@
                         $"[{VMException.code}]\n\t" +
                         $"'{VMException.msg}'");
                 Console.ForegroundColor = ConsoleColor.White;
-                vm_shutdown();
+                shutdown();
             }
         }
 
-        public static void println(string str) => Console.WriteLine(str);
+        public static void println(string str)
+        {
+            return;
+            Console.WriteLine(str);
+        }
 
-        public static void vm_shutdown() => Environment.Exit(-1);
+        public static void shutdown(int exitCode = -1) => Environment.Exit(exitCode);
 
-        public static unsafe void exec_method_native(CallFrame invocation)
+        public static unsafe void exec_method_native(CallFrame frame)
         {
             var caller = (delegate*<CallFrame, IshtarObject**, IshtarObject*>) 
-                invocation.method.PIInfo.Addr;
-            var args_len = invocation.method.ArgLength;
+                frame.method.PIInfo.Addr;
+            var args_len = frame.method.ArgLength;
             var args = (IshtarObject**)Marshal.AllocHGlobal(sizeof(IshtarObject*) * args_len);
 
             if (args == null)
