@@ -1,10 +1,7 @@
 namespace ishtar
 {
     using System;
-    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using System.Threading;
-    using Microsoft.CodeAnalysis;
     using wave.runtime;
     using static OpCodeValue;
     using static wave.runtime.WaveTypeCode;
@@ -55,29 +52,17 @@ namespace ishtar
             }
             
             for (var i = 0; i != args_len; i++)
-            {
-                var aa = &invocation.args[i];
-                if (aa->type != TYPE_OBJECT && aa->type != TYPE_STRING)
-                {
-                    var o = IshtarGC.AllocObject(WaveCore.ValueTypeClass as RuntimeIshtarClass);
-                    o->vtable[0] = aa;
-                    args[i] = o;
-                }
-                else
-                    args[i] = (IshtarObject*)aa->data.p;
+                args[i] = IshtarGC.WrapValue(frame, &frame.args[i]);
 
-                aa = null;
-            }
-
-            var result = caller(invocation, args);
+            var result = caller(frame, args);
 
             Marshal.FreeHGlobal((nint)args);
 
-            if (invocation.method.ReturnType.TypeCode == TYPE_VOID)
+            if (frame.method.ReturnType.TypeCode == TYPE_VOID)
                 return;
-            invocation.returnValue = IshtarGC.AllocValue();
-            invocation.returnValue->type = invocation.method.ReturnType.TypeCode;
-            invocation.returnValue->data.p = (nint)result;
+            frame.returnValue = IshtarGC.AllocValue();
+            frame.returnValue->type = frame.method.ReturnType.TypeCode;
+            frame.returnValue->data.p = (nint)result;
         }
 
         public static unsafe void exec_method(CallFrame invocation)
@@ -90,7 +75,6 @@ namespace ishtar
             
             
             var ip = mh.code;
-
             fixed (stackval* p = GC.AllocateArray<stackval>(mh.max_stack, true))
                 invocation.stack = p;
             fixed (stackval* p = new stackval[0])
