@@ -15,8 +15,8 @@
             var arg1 = args[0];
 
             FFI.StaticValidate(current, &arg1);
-            //FFI.StaticTypeOf(current, &arg1, TYPE_STRING);
-            var @class = arg1->Unpack();
+            FFI.StaticTypeOf(current, &arg1, TYPE_STRING);
+            var @class = arg1->DecodeClass();
 
             var p = (StrRef*)arg1->vtable[@class.Field["!!value"].vtable_offset];
             var str = StrRef.Unwrap(p);
@@ -28,7 +28,7 @@
             return null;
         }
 
-        [IshtarExport(1, "@_readline")]
+        [IshtarExport(0, "@_readline")]
         [IshtarExportFlags(Public | Static)]
         public static IshtarObject* FReadLine(CallFrame current, IshtarObject** args)
         {
@@ -47,7 +47,6 @@
             new RuntimeIshtarMethod("@_readline", Public | Static | Extern, TYPE_STRING.AsClass())
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FReadLine)
                 .AddInto(table, x => x.Name);
-
         }
     }
 }
