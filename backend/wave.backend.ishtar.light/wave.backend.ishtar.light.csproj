@@ -4,8 +4,9 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Version>0.4.995</Version>
+		<Version>0.4.1002</Version>
 		<AssemblyName>ishtar</AssemblyName>
+		<DefineConstants>STATIC_VALIDATE_IL</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<TrimMode>link</TrimMode>
@@ -29,8 +30,5 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Common\wave.common.csproj" />
 	  <ProjectReference Include="..\Ishtar\wave.backend.ishtar.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="fs\elf\" />
 	</ItemGroup>
 </Project>

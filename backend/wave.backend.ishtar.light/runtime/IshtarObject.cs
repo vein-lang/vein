@@ -12,7 +12,7 @@
 
         public IshtarObject** owner;
 
-        public RuntimeIshtarClass Unpack()
+        public RuntimeIshtarClass DecodeClass()
         {
             if (clazz is null)
                 return null;

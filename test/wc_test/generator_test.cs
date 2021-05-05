@@ -233,33 +233,25 @@ puts after - before;*/
             s.Stop();
             //_testOutputHelper.WriteLine($"{a}, {int.MaxValue / 2} {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
         }
-        [Fact(Skip = "MANUAL")]
+        [Fact()]
         public void ManualGenCallExternFunction()
         {
             var module = new WaveModuleBuilder("hello_world");
             var clazz = module.DefineClass("hello_world%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-
-
-            var f_println = clazz.DefineMethod("@_println", 
-                MethodFlags.Extern, WaveTypeCode.TYPE_VOID.AsClass(),
-                ("val", WaveTypeCode.TYPE_STRING));
-
-            var f_readln = clazz.DefineMethod("@_readline", 
-                MethodFlags.Extern, WaveTypeCode.TYPE_STRING.AsClass());
-
+            
 
             var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
                 WaveTypeCode.TYPE_VOID.AsClass());
             var body = method.GetGenerator();
-            
-            body.Emit(OpCodes.LDC_STR, $"\u001b[36mHello World\u001b[0m, from Wave Lang with Love {Emoji.Known.Sparkles}{Emoji.Known.Sparkles}{Emoji.Known.Sparkles}!");
-            body.Emit(OpCodes.RESERVED_0);
+
+            var @while = body.DefineLabel();
+
+            body.UseLabel(@while);
+            body.Emit(OpCodes.NOP);
+            body.Emit(OpCodes.NEWOBJ, WaveCore.StringClass);
             body.Emit(OpCodes.RESERVED_2);
-            body.Emit(OpCodes.CALL, f_println);
-            body.Emit(OpCodes.CALL, f_readln);
-            body.Emit(OpCodes.CALL, f_println);
-            body.Emit(OpCodes.RESERVED_2);
+            body.Emit(OpCodes.JMP, @while);
             body.Emit(OpCodes.RET);
 
 

@@ -7,5 +7,6 @@ public class Program
     public static master(args: string[]): void
     {
         Out.print("\u001b[36mHello World\u001b[0m, from Wave Lang with Love ✨✨✨!");
+        Out.print(Out.readline());
     }
 }
