@@ -165,14 +165,13 @@
 
             mth.Header.max_stack = stacksize;
 
-            var pinned = GC.AllocateArray<uint>(body_r.opcodes.Count, true);
+            mth.Header.code = (uint*)Marshal.AllocHGlobal(sizeof(uint) * body_r.opcodes.Count);
             
             for (var i = 0; i != body_r.opcodes.Count; i++)
-                pinned[i] = body_r.opcodes[i];
-            fixed(uint* p = pinned)
-                mth.Header.code = p;
+                mth.Header.code[i] = body_r.opcodes[i];
 
-            mth.Header.code_size = (uint)pinned.Length;
+
+            mth.Header.code_size = (uint) body_r.opcodes.Count;
             mth.Header.labels = labeles;
             mth.Header.labels_map = body_r.map.ToDictionary(x => x.Key,
                 x => new ILLabel
