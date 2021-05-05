@@ -1,4 +1,4 @@
-namespace ishtar
+﻿namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
@@ -194,7 +194,16 @@ namespace ishtar
                         ++sp;
                         break;
                     case THROW:
-                        break;
+                        --sp;
+                        //if (sp->data.p == IntPtr.Zero)
+                        //    sp->data.p = 
+                        invocation.exception = new CallFrameException
+                        {
+                            last_ip = ip, 
+                            value = (IshtarObject*) sp->data.p
+                        };
+                        CallFrame.FillStackTrace(invocation);
+                        goto case RET;
                     case NEWOBJ:
                     {
                         ++ip;
@@ -592,6 +601,8 @@ namespace ishtar
                         break;
                     case RESERVED_2:
                         ++ip;
+                        if (1 == 1)
+                            break;
                         println($"*** GC DUMP ***");
                         println($"\talive_objects: {IshtarGC.GCStats.alive_objects}");
                         println($"\ttotal_allocations: {IshtarGC.GCStats.total_allocations}");
@@ -630,11 +641,6 @@ namespace ishtar
             ValidateLastError();
         }
     }
-
-    public class WaveObject
-    {
-        public WaveClass clazz;
-    };
     
     public struct stackval
     {
