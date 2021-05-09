@@ -60,7 +60,7 @@
             => Methods.FirstOrDefault(x => x.IsStatic == isStatic && x.Name.Equals(name));
 
         public override string ToString() 
-            => $"{FullName}, {Flags} ({Parent.FullName})";
+            => $"{FullName}, {Flags} ({Parent?.FullName})";
 
 
         public WaveMethod FindMethod(string name, IEnumerable<WaveClass> args_types)

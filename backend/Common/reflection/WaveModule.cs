@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using reflection;
 
     public class WaveModule
     {
@@ -72,7 +73,7 @@
         /// <remarks>
         /// Support find in external deps.
         /// </remarks>
-        public WaveClass FindType(QualityTypeName type, bool findExternally = false)
+        public WaveClass FindType(QualityTypeName type, bool findExternally = false, bool dropUnresolvedException = true)
         {
             bool filter(WaveClass x) => x!.FullName.Equals(type);
             if (!findExternally)
@@ -88,7 +89,9 @@
                     return result;
             }
 
-            throw new TypeNotFoundException($"'{type}' not found in modules and dependency assemblies.");
+            if (dropUnresolvedException)
+                throw new TypeNotFoundException($"'{type}' not found in modules and dependency assemblies.");
+            return new UnresolvedWaveClass(type);
         }
 
         internal void WriteToConstStorage<T>(FieldName field, T value) 

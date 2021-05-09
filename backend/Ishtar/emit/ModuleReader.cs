@@ -7,6 +7,7 @@
     using System.Text;
     using extensions;
     using insomnia;
+    using reflection;
     using wave.extensions;
     using wave.runtime;
 
@@ -102,6 +103,43 @@
                 module.class_table.Add(@class);
             }
 
+            // restore unresolved types
+            foreach (var @class in module.class_table)
+            {
+                if (@class.Parent is not UnresolvedWaveClass)
+                    continue;
+                @class.Parent = 
+                    @class.Parent.FullName != @class.FullName ? 
+                        module.FindType(@class.Parent.FullName, true) : 
+                        null;
+            }
+            // restore unresolved types
+            foreach (var @class in module.class_table)
+            {
+                foreach (var method in @class.Methods)
+                {
+                    if (method.ReturnType is not UnresolvedWaveClass)
+                        continue;
+                    method.ReturnType = module.FindType(method.ReturnType.FullName, true);
+                }
+
+                foreach (var method in @class.Methods)
+                {
+                    foreach (var argument in method.Arguments)
+                    {
+                        if (argument.Type is not UnresolvedWaveClass)
+                            continue;
+                        argument.Type = module.FindType(argument.Type.FullName, true);
+                    }
+                }
+                foreach (var field in @class.Fields)
+                {
+                    if (field.FieldType is not UnresolvedWaveClass)
+                        continue;
+                    field.FieldType = module.FindType(field.FieldType.FullName, true);
+                }
+            }
+
             var const_body_len = reader.ReadInt32();
             var const_body = reader.ReadBytes(const_body_len);
 
@@ -120,9 +158,8 @@
             var flags = (ClassFlags)binary.ReadInt16();
             var parentIdx = binary.ReadTypeName(module);
             var len = binary.ReadInt32();
-
-            var parent = module.FindType(parentIdx, true);
-            var @class = new WaveClass(className, parent, module)
+            
+            var @class = new WaveClass(className, module.FindType(parentIdx, true, false), module)
             {
                 Flags = flags
             };
@@ -145,7 +182,7 @@
             {
                 var name = FieldName.Resolve(binary.ReadInt32(), module);
                 var type_name = binary.ReadTypeName(module);
-                var type = module.FindType(type_name, true);
+                var type = module.FindType(type_name, true, false);
                 var flags = (FieldFlags) binary.ReadInt16();
                 var method = new WaveField(@class, name, flags, type);
                 @class.Fields.Add(method);
@@ -165,7 +202,7 @@
             var args = ReadArguments(binary, module);
             var _ = binary.ReadBytes(bodysize);
             return new WaveMethod(module.GetConstStringByIndex(idx), flags,
-                module.FindType(retType, true), 
+                module.FindType(retType, true, false), 
                 @class, args.ToArray());
         }
 
@@ -178,10 +215,10 @@
             {
                 var nIdx = binary.ReadInt32();
                 var type = binary.ReadTypeName(module);
-                args.Add(new WaveArgumentRef()
+                args.Add(new WaveArgumentRef
                 {
                     Name = module.GetConstStringByIndex(nIdx),
-                    Type = module.FindType(type, true)
+                    Type = module.FindType(type, true, false)
                 });
             }
             return args;
