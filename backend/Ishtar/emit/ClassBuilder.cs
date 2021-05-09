@@ -130,7 +130,7 @@
             }
             str.AppendLine("");
             foreach (var method in Methods.OfType<IBaker>().Select(method => method.BakeDebugString()))
-                str.AppendLine($"{method.Split("\n").Select(x => $"\t{x}").Join("\n")}");
+                str.AppendLine($"{method.Split("\n").Select(x => $"\t{x}").Join("\n").TrimEnd('\n')}");
             str.AppendLine("}");
             return str.ToString();
         }

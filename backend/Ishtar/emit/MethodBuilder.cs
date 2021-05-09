@@ -8,6 +8,7 @@
     using extensions;
     using wave.extensions;
     using wave.runtime;
+    using static runtime.MethodFlags;
 
     public class MethodBuilder : WaveMethod, IBaker
     {
@@ -36,7 +37,7 @@
             var idx = classBuilder.moduleBuilder.InternString(Name);
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
-            if (Flags.HasFlag(MethodFlags.Extern))
+            if (Flags.HasFlag(Extern))
             {
                 binary.Write(idx); // $method name
                 binary.Write((short)Flags); // $flags
@@ -78,21 +79,23 @@
         public string BakeDebugString()
         {
             var str = new StringBuilder();
-            var args = Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(',');
-            if (Flags.HasFlag(MethodFlags.Extern))
+            var args = Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(", ");
+            if (Flags.HasFlag(Extern))
             {
-                str.AppendLine($".method extern {RawName} ({args}) {Flags.EnumerateFlags().Except(new [] {MethodFlags.None}).Join(' ').ToLowerInvariant()};");
+                str.Append($".method extern {RawName} ({args}) {Flags.EnumerateFlags().Except(new [] {None, Extern}).Join(' ').ToLowerInvariant()}");
+                str.AppendLine($" -> {ReturnType.FullName.Name};");
                 return str.ToString();
             }
             var body = _generator.BakeDebugString();
             
-            str.AppendLine($".method {(IsSpecial ? "special" : "")} '{RawName}' ({args}) {Flags.EnumerateFlags().Except(new [] {MethodFlags.None}).Join(' ').ToLowerInvariant()}");
+            str.Append($".method {(IsSpecial ? "special" : "")} '{RawName}' ({args}) {Flags.EnumerateFlags().Except(new [] {None, Extern}).Join(' ').ToLowerInvariant()}");
+            str.AppendLine($" -> {ReturnType.FullName.Name}");
             str.AppendLine("{");
             str.AppendLine($"\t.size {_generator.ILOffset}");
             str.AppendLine($"\t.maxstack 0x{64:X8}");
-            str.AppendLine($"\t.locals 0x{24:X8}");
+            str.AppendLine($"\t.locals 0x{_generator.LocalsSize:X8}");
             str.AppendLine($"\t");
-            str.AppendLine($"{body.Split("\n").Select(x => $"\t{x}").Join("\n")}");
+            str.AppendLine($"{body.Split("\n").Select(x => $"\t{x}").Join("\n").TrimEnd('\n')}");
             str.AppendLine("}");
             return str.ToString();
         }
