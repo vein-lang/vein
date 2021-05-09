@@ -890,13 +890,25 @@
       <key>throw-statement</key>
       <dict>
         <key>begin</key>
-        <string>(?&lt;!\.)\b(fail)\b</string>
+        <string>(?&lt;!\.)\b(fail)([\w\W\d\D\s\n]+)(?=;)</string>
         <key>beginCaptures</key>
         <dict>
           <key>1</key>
           <dict>
             <key>name</key>
             <string>keyword.control.flow.fail.wave</string>
+          </dict>
+          <key>2</key>
+          <dict>
+            <key>name</key>
+            <string>wave.expression</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#expression</string>
+              </dict>
+            </array>
           </dict>
         </dict>
         <key>end</key>
@@ -994,7 +1006,7 @@
               <key>1</key>
               <dict>
                 <key>name</key>
-                <string>storage.type.wave</string>
+                <string>entity.name.type</string>
               </dict>
               <key>2</key>
               <dict>
@@ -1016,13 +1028,13 @@
               <key>2</key>
               <dict>
                 <key>name</key>
-                <string>storage.type.wave</string>
+                <string>entity.name.type</string>
               </dict>
             </dict>
           </dict>
           <dict>
             <key>name</key>
-            <string>storage.type.wave</string>
+            <string>entity.name.type</string>
             <key>match</key>
             <string>@?[_[:alpha:]][_[:alnum:]]*</string>
           </dict>
@@ -1262,7 +1274,111 @@ U[a-fA-F0-9]{,8} )</string>
         <array>
           <dict>
             <key>include</key>
+            <string>#preprocessor</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#comment</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#checked-unchecked-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#typeof-or-default-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#nameof-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#throw-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#interpolated-string</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#verbatim-interpolated-string</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#this-or-base-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#conditional-operator</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#expression-operators</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#await-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#query-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#as-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#is-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#anonymous-method-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#object-creation-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#array-creation-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#anonymous-object-creation-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#invocation-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#member-access-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#element-access-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#cast-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
             <string>#literal</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#parenthesized-expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#tuple-deconstruction-assignment</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#initializer-expression</string>
           </dict>
           <dict>
             <key>include</key>
@@ -1471,6 +1587,20 @@ U[a-fA-F0-9]{,8} )</string>
         <string>constant.character.escape.wave</string>
         <key>match</key>
         <string>\\(['"\\0abfnrtv]|x[0-9a-fA-F]{1,4}|U[0-9a-fA-F]{8}|u[0-9a-fA-F]{4})</string>
+      </dict>
+      <key>object-creation-expression</key>
+      <dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#object-creation-with-parameters</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#object-creation-expression-with-no-parameters</string>
+          </dict>
+        </array>
       </dict>
       <key>type</key>
       <dict>
@@ -2010,6 +2140,40 @@ U[a-fA-F0-9]{,8} )</string>
                 <string>#type</string>
               </dict>
             </array>
+          </dict>
+        </array>
+      </dict>
+      <key>object-creation-with-parameters</key>
+      <dict>
+        <key>begin</key>
+        <string>(new)\s+([_[:alpha:]][_[:alnum:]]*)(?=\()</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.other.new.wave</string>
+          </dict>
+          <key>2</key>
+          <dict>
+            <key>name</key>
+            <string>entity.name.type</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#type</string>
+              </dict>
+            </array>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?&lt;=\))</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#argument-list</string>
           </dict>
         </array>
       </dict>

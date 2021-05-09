@@ -318,7 +318,7 @@
             <key>name</key>
             <string>keyword.control.wave</string>
             <key>match</key>
-            <string>\.\b(string|global|this|table|s|t|f|method|base|using|field|auto|const|body|as|namespace|module|class)\b</string>
+            <string>\.\b(dep|string|global|this|table|s|t|f|method|base|using|field|auto|const|body|as|namespace|module|class)\b</string>
           </dict>
           <dict>
             <key>name</key>
@@ -356,7 +356,7 @@
         <array>
           <dict>
             <key>match</key>
-            <string>(as|byte|float|double|bool|string|void|([ui|i](nt16|nt32|nt64)))\b</string>
+            <string>(?i)(as|byte|float|double|bool|string|void|([ui|i](nt16|nt32|nt64)))\b</string>
             <key>name</key>
             <string>support.type.wave</string>
           </dict>

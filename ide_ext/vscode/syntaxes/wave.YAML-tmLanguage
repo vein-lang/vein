@@ -280,13 +280,17 @@ repository:
             - include: "#ref-modifier"
             - include: "#expression"
     throw-statement:
-        begin: '(?<!\.)\b(fail)\b'
+        begin: '(?<!\.)\b(fail)([\w\W\d\D\s\n]+)(?=;)'
         beginCaptures:
             "1":
                 name: keyword.control.flow.fail.wave
+            "2":
+                name: wave.expression
+                patterns:
+                  - { include: "#expression" }
         end: "(?=;)"
         patterns:
-            - include: "#expression"
+            - { include: "#expression" }
     type-builtin:
         patterns:
           - include: "#types"
@@ -316,13 +320,13 @@ repository:
                   "2": { name: punctuation.separator.coloncolon.wave }
             - match: '(@?[_[:alpha:]][_[:alnum:]]*)\s*(\.)'
               captures:
-                  "1": { name: storage.type.wave }
+                  "1": { name: entity.name.type }
                   "2": { name: punctuation.accessor.wave }
             - match: '(\.)\s*(@?[_[:alpha:]][_[:alnum:]]*)'
               captures:
                   "1": { name: punctuation.accessor.wave }
-                  "2": { name: storage.type.wave }
-            - name: storage.type.wave
+                  "2": { name: entity.name.type }
+            - name: entity.name.type
               match: "@?[_[:alpha:]][_[:alnum:]]*"
     type-arguments:
         begin: "<"
@@ -399,7 +403,33 @@ repository:
             - include: "#expression"
     expression:
         patterns:
+            - include: "#preprocessor"
+            - include: "#comment"
+            - include: "#checked-unchecked-expression"
+            - include: "#typeof-or-default-expression"
+            - include: "#nameof-expression"
+            - include: "#throw-expression"
+            - include: "#interpolated-string"
+            - include: "#verbatim-interpolated-string"
+            - include: "#this-or-base-expression"
+            - include: "#conditional-operator"
+            - include: "#expression-operators"
+            - include: "#await-expression"
+            - include: "#query-expression"
+            - include: "#as-expression"
+            - include: "#is-expression"
+            - include: "#anonymous-method-expression"
+            - include: "#object-creation-expression"
+            - include: "#array-creation-expression"
+            - include: "#anonymous-object-creation-expression"
+            - include: "#invocation-expression"
+            - include: "#member-access-expression"
+            - include: "#element-access-expression"
+            - include: "#cast-expression"
             - include: "#literal"
+            - include: "#parenthesized-expression"
+            - include: "#tuple-deconstruction-assignment"
+            - include: "#initializer-expression"
             - include: "#identifier"
     identifier:
         name: variable.other.readwrite.wave
@@ -472,6 +502,10 @@ repository:
     string-character-escape:
         name: constant.character.escape.wave
         match: '\\([''"\\0abfnrtv]|x[0-9a-fA-F]{1,4}|U[0-9a-fA-F]{8}|u[0-9a-fA-F]{4})'
+    object-creation-expression:
+        patterns:
+            - include: "#object-creation-with-parameters"
+            - include: "#object-creation-expression-with-no-parameters"
     type:
         name: meta.type.wave
         patterns:
@@ -665,4 +699,15 @@ repository:
                 - include: "#expression-body"
                 - include: "#block"
                 - include: "#type"
-            
+    object-creation-with-parameters:
+        begin: "(new)\s+([_[:alpha:]][_[:alnum:]]*)(?=\()"
+        beginCaptures:
+            "1":
+                name: keyword.other.new.wave
+            "2":
+                name: entity.name.type
+                patterns:
+                    - include: "#type"
+        end: '(?<=\))'
+        patterns:
+            - include: "#argument-list"

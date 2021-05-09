@@ -96,7 +96,7 @@ repository:
     keywords:
         patterns:
             - name: keyword.control.wave
-              match: '\.\b(string|global|this|table|s|t|f|method|base|using|field|auto|const|body|as|namespace|module|class)\b'
+              match: '\.\b(dep|string|global|this|table|s|t|f|method|base|using|field|auto|const|body|as|namespace|module|class)\b'
             - name: keyword.control.core.wave
               match: '\.\b(size|maxstack|locals)\b'
     storage-modifier:
@@ -108,7 +108,7 @@ repository:
           - include: "#types"
     types:
         patterns:
-            - match: '(as|byte|float|double|bool|string|void|([ui|i](nt16|nt32|nt64)))\b'
+            - match: '(?i)(as|byte|float|double|bool|string|void|([ui|i](nt16|nt32|nt64)))\b'
               name: support.type.wave
             - match: '\b%?(invalid)\b'
               name: invalid.deprecated
