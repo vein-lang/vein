@@ -5,12 +5,15 @@
     using Spectre.Console;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Text;
     using System.Threading;
     using ishtar;
+    using wave;
+    using wave.cmd;
     using wave.ishtar.emit;
     using wave.extensions;
     using wave.project;
@@ -20,9 +23,10 @@
     using static Spectre.Console.AnsiConsole;
     public class Compiler
     {
-        public static Compiler Process(FileInfo[] entity, WaveProject project)
+
+        public static Compiler Process(FileInfo[] entity, WaveProject project, CompileSettings flags)
         {
-            var c = new Compiler(project);
+            var c = new Compiler(project, flags);
             
             return Status()
                 .Spinner(Spinner.Known.Dots8Bit)
@@ -42,17 +46,23 @@
                 });
         }
 
-        public Compiler(WaveProject project)
+        public Compiler(WaveProject project, CompileSettings flags)
         {
+            _flags = flags;
             Project = project;
+            var pack = project.SDK.GetPackByAlias(project.Target);
+            resolver.AddSearchPath(new (project.WorkDir));
+            resolver.AddSearchPath(new (project.SDK.GetFullPath(pack)));
         }
 
         private WaveProject Project { get; set; }
 
+        private readonly CompileSettings _flags;
         private readonly WaveSyntax syntax = new();
-        private StatusContext ctx;
+        private readonly AssemblyResolver resolver = new ();
         private readonly Dictionary<FileInfo, string> Sources = new ();
         private readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
+        private StatusContext ctx;
         public readonly List<string> warnings = new ();
         public readonly List<string> errors = new ();
         private WaveModuleBuilder module;
@@ -60,6 +70,20 @@
 
         private void ProcessFiles(FileInfo[] files)
         {
+            if (_flags.IsNeedDebuggerAttach)
+            {
+                while (!Debugger.IsAttached)
+                {
+                    ctx.WaveStatus($"[green]Waiting debugger[/]...");
+                    Thread.Sleep(400);
+                }
+            }
+            var deps = new List<WaveModule>();
+            foreach (var (name, version) in Project.Packages)
+            {
+                ctx.WaveStatus($"Resolve [grey]'{name}, {version}'[/]...");
+                deps.Add(resolver.ResolveDep(name, version.Version, deps));
+            }
             foreach (var file in files)
             {
                 ctx.WaveStatus($"Read [grey]'{file.Name}'[/]...");
@@ -91,6 +115,7 @@
             module = new WaveModuleBuilder(Project.Name);
 
             Context.Module = module;
+            Context.Module.Deps.AddRange(deps);
 
             Ast.Select(x => (x.Key, x.Value))
                 .Pipe(x => ctx.WaveStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
@@ -109,6 +134,16 @@
             errors.AddRange(Context.Errors);
             if (errors.Count == 0)
                 WriteOutput(module);
+            MarkupLine($"Assembly: {module.Name}, {module.Version}");
+            if (_flags.PrintResultType)
+            {
+                var table = new Table();
+                table.AddColumn(new TableColumn("Type").Centered());
+                table.Border(TableBorder.Rounded);
+                foreach (var @class in module.class_table)
+                    table.AddRow(new Markup($"[blue]{@class.FullName.NameWithNS}[/]"));
+                AnsiConsole.Render(table);
+            }
         }
 
         public void WriteOutput(WaveModuleBuilder builder)

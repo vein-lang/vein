@@ -1,16 +1,27 @@
 ﻿namespace wave.cmd
 {
+    using System.ComponentModel;
     using System.IO;
     using System.Linq;
     using insomnia.compilation;
     using project;
     using Spectre.Console;
     using Spectre.Console.Cli;
+    using static Spectre.Console.AnsiConsole;
 
     public class CompileSettings : CommandSettings
     {
+        [Description("Path to wproj file")]
         [CommandArgument(0, "[PROJECT]")]
         public string Project { get; set; }
+
+        [Description("Display exported types table")]
+        [CommandOption("--print-result-types")]
+        public bool PrintResultType { get; set; }
+
+        [Description("Wait to attach debbugger [ONLY DEBUG COMPILER]")]
+        [CommandOption("--debugger|-d")]
+        public bool IsNeedDebuggerAttach { get; set; }
     }
     public class CompileCommand : Command<CompileSettings>
     {
@@ -19,55 +30,68 @@
             var name = Path.GetFileName(settings.Project);
             if (!File.Exists(settings.Project))
             {
-                AnsiConsole.MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] not found.");
+                MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] not found.");
                 return -1;
             }
             var project = WaveProject.LoadFrom(new(Path.GetFullPath(settings.Project)));
             
             if (!project.Sources.Any())
             {
-                AnsiConsole.MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] has empty.");
+                MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] has empty.");
                 return -1;
             }
 
-            
-            
+            if (project.SDK is null)
+            {
+                MarkupLine($"[red]ERR[/]: SDK is not installed.");
+                return -1;
+            }
 
+            project.Target ??= project.SDK.GetDefaultPack().Alias;
             
+            
+            MarkupLine($"[blue]INF[/]: Project [orange]'{name}'[/].");
+            MarkupLine($"[blue]INF[/]: SDK [orange]'{project.SDK.Name} v{project.SDK.Version}'[/].");
+            MarkupLine($"[blue]INF[/]: Target [orange]'{project.Target}'[/].");
 
-            var c = Compiler.Process(project.Sources.Select(x => new FileInfo(x)).ToArray(), project);
+
+            var c = Compiler.Process(project.Sources.Select(x => new FileInfo(x)).ToArray(), 
+                project, settings);
 
             if (c.errors.Count > 0)
             {
                 var rule1 = new Rule($"[yellow]{c.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
-                AnsiConsole.Render(rule1);
+                Render(rule1);
             }
             
             foreach (var error in c.errors)
-                AnsiConsole.MarkupLine($"[red]ERR[/]: {error}");
+                MarkupLine($"[red]ERR[/]: {error}");
 
             if (c.warnings.Count > 0)
             {
                 var rule2 = new Rule($"[yellow]{c.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
-                AnsiConsole.Render(rule2);
+                Render(rule2);
             }
 
             foreach (var warn in c.warnings)
-                AnsiConsole.MarkupLine($"[orange]WARN[/]: {warn}");
+                MarkupLine($"[orange]WARN[/]: {warn}");
             
-            AnsiConsole.MarkupLine($"\n\n\n");
+            if (!c.warnings.Any() && !c.errors.Any())
+                MarkupLine($"\n\n\n");
+            
             if (c.errors.Count > 0)
             {
+                
                 var rule3 = new Rule($"[red bold]COMPILATION FAILED[/]") {Style = Style.Parse("lime rapidblink")};
-                AnsiConsole.Render(rule3);
-                AnsiConsole.MarkupLine($"\n");
+                Render(rule3);
+                MarkupLine($"\n");
                 return -1;
             }
             else
             {
                 var rule3 = new Rule($"[green bold]COMPILATION SUCCESS[/]") {Style = Style.Parse("lime rapidblink")};
-                AnsiConsole.Render(rule3);
-                AnsiConsole.MarkupLine($"\n");
+                Render(rule3);
+                MarkupLine($"\n");
                 return 0;
             }
         }
