@@ -23,15 +23,23 @@
 
         public string Name { get; }
         public string WorkDir { get; }
+
+        public string Runtime
+        {
+            get => _project.Runtime;
+            internal set => _project.Runtime = value;
+        }
+
         public IEnumerable<string> Sources => Directory
             .GetFiles(WorkDir, "*.wave", SearchOption.AllDirectories)
             .Where(x => !x.EndsWith(".temp.wave"))
             .Where(x => !x.EndsWith(".generated.wave"));
 
         public IEnumerable<PackageReference> Packages =>
-            _project.Packages.Ref.Select(x => PackageReference.Parser.Parse(x.Name));
+            _project.Packages?.Ref?.Select(x => PackageReference.Parser.Parse(x.Name))
+            ?? new List<PackageReference>();
 
-        public WaveSDK SDK => new(this);
+        public WaveSDK SDK => WaveSDK.Resolve(_project.Sdk);
         
         
         public static WaveProject LoadFrom(FileInfo info)
@@ -45,20 +53,5 @@
             var p = (XML.Project)serializer.Deserialize(reader);
             return new WaveProject(info, p);
         }
-    }
-    
-    
-    public class WaveSDK
-    {
-        private readonly WaveProject _project;
-        internal WaveSDK(WaveProject project) => _project = project;
-
-        public string Name => _project._project.Sdk;
-
-        public DirectoryInfo RootPath => 
-            new (Path.Combine(GetFolderPath(ProgramFilesX86), "WaveLang", "sdk", "0.1-preview"));
-
-        public IEnumerable<FileInfo> Libs =>
-            RootPath.EnumerateFiles("*.wll", SearchOption.AllDirectories);
     }
 }

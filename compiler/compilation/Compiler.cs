@@ -50,7 +50,7 @@
         {
             _flags = flags;
             Project = project;
-            var pack = project.SDK.GetPackByAlias(project.Target);
+            var pack = project.SDK.GetPackByAlias(project.Runtime);
             resolver.AddSearchPath(new (project.WorkDir));
             resolver.AddSearchPath(new (project.SDK.GetFullPath(pack)));
         }
@@ -134,7 +134,7 @@
             errors.AddRange(Context.Errors);
             if (errors.Count == 0)
                 WriteOutput(module);
-            MarkupLine($"Assembly: {module.Name}, {module.Version}");
+            MarkupLine($"[blue]INF[/]: Result assembly [orange]'{module.Name}, {module.Version}'[/].");
             if (_flags.PrintResultType)
             {
                 var table = new Table();

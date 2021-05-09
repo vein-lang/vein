@@ -22,6 +22,8 @@
         {
             [XmlElement(ElementName="target")]
             public string Target { get; set; }
+            [XmlElement(ElementName="runtime")]
+            public string Runtime { get; set; }
             [XmlElement(ElementName="packages")]
             public Packages Packages { get; set; }
             [XmlAttribute(AttributeName="sdk")]

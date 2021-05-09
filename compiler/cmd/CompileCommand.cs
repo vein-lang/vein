@@ -47,12 +47,12 @@
                 return -1;
             }
 
-            project.Target ??= project.SDK.GetDefaultPack().Alias;
+            project.Runtime ??= project.SDK.GetDefaultPack().Alias;
             
             
             MarkupLine($"[blue]INF[/]: Project [orange]'{name}'[/].");
             MarkupLine($"[blue]INF[/]: SDK [orange]'{project.SDK.Name} v{project.SDK.Version}'[/].");
-            MarkupLine($"[blue]INF[/]: Target [orange]'{project.Target}'[/].");
+            MarkupLine($"[blue]INF[/]: Runtime [orange]'{project.Runtime}'[/].");
 
 
             var c = Compiler.Process(project.Sources.Select(x => new FileInfo(x)).ToArray(), 
