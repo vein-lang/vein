@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using ishtar;
+    using wave;
     using wave.fs;
     using wave.ishtar.emit;
     using wave.project;
@@ -121,9 +122,9 @@
             }));
 
 
-            var resolver = new AssemblyResolver(sdk.RootPath);
+           // var resolver = new AssemblyResolver(sdk.RootPath);
 
-            var result = ModuleReader.Read(bytes, deps, (x,z) => resolver.ResolveDep(x,z,deps));
+            //var result = ModuleReader.Read(bytes, deps, (x,z) => resolver.ResolveDep(x,z,deps));
         }
         
         [Fact(Skip = "MANUAL")]

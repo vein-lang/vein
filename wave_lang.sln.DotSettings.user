@@ -3,27 +3,7 @@
 	
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ea9527bb_002Df09a_002D47ae_002Da566_002D2ed94c911f58/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="F04" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.expression_test.F04&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.expression_test.F05&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.expression_test.F06&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.expression_test.F01&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.MemberOrMethodTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.ValidateChainMember&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.ValidateType&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.ValidateMethodType&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.expression_test.ValidateMethodType&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.expression_test.DetermineOtherMethodType&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test.MemberFailTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.parse_test&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.clr_test.F1&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.module_test.WriteTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.module_test.ReadTest&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.ManualGen&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.vtable_experement.F3&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.vtable_experement.F4&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.generator_test.ManualGenCallExternFunction&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.il_test.DeconstructOpcodes1&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net5.0::wc_test.expression_test.DetermineVariableType&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net6.0::wc_test.project_struct_test.LoadSDKJson&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
