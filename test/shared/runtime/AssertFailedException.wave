@@ -1,0 +1,6 @@
+#space "wave/lang"
+
+public class AssertFailedException : Exception
+{
+    
+}

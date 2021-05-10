@@ -1,0 +1,6 @@
+#space "wave/lang"
+
+public class Application
+{
+    public extern static exit(code: int32): void;
+}

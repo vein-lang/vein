@@ -1,0 +1,6 @@
+<project sdk="default">
+    <target>runtime_test</target>
+    <packages>
+        <ref name="wcorlib, 1.0.0.0"/>
+    </packages>
+</project>

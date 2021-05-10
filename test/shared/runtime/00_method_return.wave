@@ -1,0 +1,28 @@
+#space "test"
+
+#use "wave/lang"
+
+
+public class MethodReturnTest
+{
+    public f00(): int32
+    {
+        return 1;
+    }
+    public f01(): int32
+    {
+        return 1 + 1;
+    }
+    public f02(): int32
+    {
+        return 1 * 1 + 1;
+    }
+    public f03(): int32
+    {
+        return 1 * 1 + 4 / 2;
+    }
+    public f04(): int32
+    {
+        return 1 * 1 + 4 / 2;
+    }
+}
