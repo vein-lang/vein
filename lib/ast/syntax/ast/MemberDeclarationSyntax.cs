@@ -18,7 +18,7 @@
         public List<ModificatorSyntax> Modifiers { get; set; } = new();
 
         public virtual MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName) => this;
-        public virtual MemberDeclarationSyntax WithName(string name) => this;
+        public virtual MemberDeclarationSyntax WithName(IdentifierExpression name) => this;
         
 
         public new MemberDeclarationSyntax SetPos(Position startPos, int length)

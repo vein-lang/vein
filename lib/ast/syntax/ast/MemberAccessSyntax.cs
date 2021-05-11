@@ -1,11 +1,12 @@
 ﻿namespace wave.syntax
 {
     using System.Collections.Generic;
+    using System.Linq;
 
     public class MemberAccessSyntax : ExpressionSyntax
     {
-        public string MemberName { get; set; }
-        public string[] MemberChain { get; set; }
+        public IdentifierExpression MemberName { get; set; }
+        public IdentifierExpression[] MemberChain { get; set; }
         
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
         public override SyntaxType Kind => SyntaxType.MemberAccessExpression;
@@ -16,7 +17,7 @@
             {
                 if (MemberChain is null || MemberChain.Length == 0)
                     return $"{MemberName}";
-                return $"{string.Join(".", MemberChain)}.{MemberName}";
+                return $"{string.Join(".", MemberChain.Select(x => x.ExpressionString))}.{MemberName}";
             }
         }
     }

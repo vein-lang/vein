@@ -5,12 +5,12 @@
 
     public class ParameterSyntax : BaseSyntax, IPositionAware<ParameterSyntax>
     {
-        public ParameterSyntax(string type, string identifier)
+        public ParameterSyntax(IdentifierExpression type, IdentifierExpression identifier)
             : this(new TypeSyntax(type), identifier)
         {
         }
 
-        public ParameterSyntax(TypeSyntax type, string identifier)
+        public ParameterSyntax(TypeSyntax type, IdentifierExpression identifier)
         {
             Type = type;
             Identifier = identifier;
@@ -24,7 +24,7 @@
 
         public TypeSyntax Type { get; set; }
 
-        public string Identifier { get; set; }
+        public IdentifierExpression Identifier { get; set; }
 
         public bool IsNeedDetectType => Type is null;
         

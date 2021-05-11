@@ -8,7 +8,7 @@
 
     public class TypeSyntax : BaseSyntax, IPositionAware<TypeSyntax>
     {
-        public TypeSyntax(IEnumerable<string> qualifiedName)
+        public TypeSyntax(IEnumerable<IdentifierExpression> qualifiedName)
         {
             Namespaces = qualifiedName.ToList();
 
@@ -20,7 +20,7 @@
             Transform = new Transform(new Position(0, 0, 0), 0);
         }
 
-        public TypeSyntax(params string[] qualifiedName)
+        public TypeSyntax(params IdentifierExpression[] qualifiedName)
             : this(qualifiedName.AsEnumerable())
         {
         }
@@ -37,9 +37,9 @@
         public override IEnumerable<BaseSyntax> ChildNodes =>
             TypeParameters.Where(n => n != null);
 
-        public List<string> Namespaces { get; set; }
+        public List<IdentifierExpression> Namespaces { get; set; }
 
-        public string Identifier { get; set; }
+        public IdentifierExpression Identifier { get; set; }
 
         public List<TypeSyntax> TypeParameters { get; set; }
         public bool IsArray { get; set; }
@@ -53,7 +53,7 @@
         {
             var result = $"global::";
             if (Namespaces.Any())
-                result = $"{result}{Namespaces.Join("/")}/";
+                result = $"{result}{Namespaces.Select(x => x.ExpressionString).Join("/")}/";
             result = $"{result}{Identifier}";
             if (IsPointer)
                 result = $"{result}{new string('*', PointerRank)}";

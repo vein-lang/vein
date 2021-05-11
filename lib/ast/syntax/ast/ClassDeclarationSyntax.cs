@@ -34,7 +34,7 @@
         public override IEnumerable<BaseSyntax> ChildNodes =>
             base.ChildNodes.Concat(Inheritances).Concat(Members).Where(n => n != null);
 
-        public string Identifier { get; set; }
+        public IdentifierExpression Identifier { get; set; }
 
         public virtual bool IsInterface { get; set; }
         public virtual bool IsStruct { get; set; }

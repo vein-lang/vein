@@ -17,7 +17,7 @@
 
         public TypeSyntax ReturnType { get; set; }
 
-        public string Identifier { get; set; }
+        public IdentifierExpression Identifier { get; set; }
 
         public List<ParameterSyntax> Parameters { get; set; } = new();
 
@@ -32,7 +32,7 @@
             return this;
         }
         
-        public override MemberDeclarationSyntax WithName(string name)
+        public override MemberDeclarationSyntax WithName(IdentifierExpression name)
         {
             Identifier = name;
             return this;

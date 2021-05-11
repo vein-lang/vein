@@ -30,7 +30,7 @@
             return this;
         }
         
-        public override MemberDeclarationSyntax WithName(string name)
+        public override MemberDeclarationSyntax WithName(IdentifierExpression name)
         {
             Field.Identifier = name;
             return this;
@@ -95,7 +95,7 @@
 
         public TypeSyntax Type { get; set; }
 
-        public string Identifier { get; set; }
+        public IdentifierExpression Identifier { get; set; }
 
         public List<AccessorDeclarationSyntax> Accessors { get; set; } = new();
 
@@ -136,7 +136,7 @@
 
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);
 
-        public string Identifier { get; set; }
+        public IdentifierExpression Identifier { get; set; }
 
         public ExpressionSyntax Expression
         {

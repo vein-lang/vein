@@ -31,30 +31,31 @@
         protected internal virtual Parser<string> Identifier =>
             RawIdentifier.Token().Named("Identifier");
         
-        protected internal virtual Parser<IEnumerable<string>> QualifiedIdentifier =>
-            Identifier.DelimitedBy(Parse.Char('.').Token())
+        protected internal virtual Parser<IEnumerable<IdentifierExpression>> QualifiedIdentifier =>
+            IdentifierExpression.DelimitedBy(Parse.Char('.').Token())
                 .Named("QualifiedIdentifier");
         
         internal virtual Parser<string> Keyword(string text) =>
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(text);
+        
         internal virtual Parser<WaveAnnotationKind> Keyword(WaveAnnotationKind value) =>
             Parse.IgnoreCase(value.ToString().ToLowerInvariant()).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not())
                 .Return(value);
         
         protected internal virtual Parser<TypeSyntax> SystemType =>
-            Keyword("byte").Or(
-                    Keyword("sbyte")).Or(
-                    Keyword("int16")).Or(
-                    Keyword("uint16")).Or(
-                    Keyword("int32")).Or(
-                    Keyword("uint32")).Or(
-                    Keyword("int64")).Or(
-                    Keyword("uint64")).Or(
-                    Keyword("bool")).Or(
-                    Keyword("string")).Or(
-                    Keyword("char")).Or(
-                    Keyword("void"))
-                .Token().Select(n => new TypeSyntax(n.Capitalize()))
+            KeywordExpression("byte").Or(
+                    KeywordExpression("sbyte")).Or(
+                    KeywordExpression("int16")).Or(
+                    KeywordExpression("uint16")).Or(
+                    KeywordExpression("int32")).Or(
+                    KeywordExpression("uint32")).Or(
+                    KeywordExpression("int64")).Or(
+                    KeywordExpression("uint64")).Or(
+                    KeywordExpression("bool")).Or(
+                    KeywordExpression("string")).Or(
+                    KeywordExpression("char")).Or(
+                    KeywordExpression("void"))
+                .Token().Select(n => new TypeSyntax(n))
                 .Named("SystemType");
 
         protected internal virtual Parser<ModificatorSyntax> Modifier =>
@@ -105,7 +106,7 @@
         
         internal virtual Parser<ParameterSyntax> ParameterDeclaration =>
             from modifiers in Modifier.Token().Many().Commented(this)
-            from name in Identifier.Commented(this)
+            from name in IdentifierExpression.Commented(this)
             from @as in Parse.Char(':').Token().Commented(this)
             from type in TypeReference.Token().Positioned().Commented(this)
             select new ParameterSyntax(type.Value, name.Value)
@@ -146,7 +147,7 @@
         // public static void Hello() {}
         protected internal virtual Parser<MethodDeclarationSyntax> MethodDeclaration =>
             from heading in MemberDeclarationHeading
-            from name in Identifier
+            from name in IdentifierExpression
             from methodBody in MethodParametersAndBody
             select new MethodDeclarationSyntax(heading)
             {
@@ -179,7 +180,7 @@
             {
                 Parameters = parameters,
                 Body = methodBody,
-                ReturnType = new TypeSyntax("Void")
+                ReturnType = new TypeSyntax(new IdentifierExpression("Void").SetPos(new Position(0,0,0), 0))
                     .SetPos(new Position(0,0,0), 0) as TypeSyntax
             };
 

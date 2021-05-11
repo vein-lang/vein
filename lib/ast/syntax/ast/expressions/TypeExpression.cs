@@ -8,7 +8,8 @@
     {
         public TypeSyntax Typeword { get; set; }
 
-        public TypeExpression(TypeSyntax typeword) : base(typeword.Identifier) => this.Typeword = typeword;
+        public TypeExpression(TypeSyntax typeword) : base(typeword.Identifier.ExpressionString) 
+            => this.Typeword = typeword;
 
         public new TypeExpression SetPos(Position startPos, int length)
         {
@@ -18,7 +19,7 @@
 
         public TypeExpression WithMetadata(ExpressionSettingSyntax[] settings)
         {
-            Typeword.PointerRank = settings.OfExactType<PointerSpecifierValue>().Where(x => x.HasPointer).Count();
+            Typeword.PointerRank = settings.OfExactType<PointerSpecifierValue>().Count(x => x.HasPointer);
             Typeword.ArrayRank = settings.OfExactType<RankSpecifierValue>().Sum(x => x.Rank);
             return this;
         }

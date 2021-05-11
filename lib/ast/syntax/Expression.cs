@@ -86,13 +86,13 @@
             implicit_anonymous_function_parameter.Token().Positioned().ChainForward(Parse.Char(',').Token())
                 .Select(x => x.ToArray());
         protected internal virtual Parser<ParameterSyntax> explicit_anonymous_function_parameter =>
-            from i in Identifier
+            from i in IdentifierExpression
             from d in Parse.Char(':')
             from t in TypeExpression.Token().Positioned()
             select new ParameterSyntax(t.Typeword, i);
 
         protected internal virtual Parser<ParameterSyntax> implicit_anonymous_function_parameter =>
-            from i in Identifier
+            from i in IdentifierExpression
             select new ParameterSyntax((TypeSyntax)null, i);
 
         #endregion
@@ -215,24 +215,24 @@
             select exps;
 
         protected internal virtual Parser<IdentifierExpression> IdentifierExpression =>
-            RawIdentifier.Token().Named("Identifier").Select(x => new IdentifierExpression(x));
-        internal virtual Parser<KeywordExpression> KeywordExpression(string text) =>
-            Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(new KeywordExpression(text));
+            RawIdentifier.Token().Named("Identifier").Select(x => new IdentifierExpression(x)).Positioned();
+        internal virtual Parser<IdentifierExpression> KeywordExpression(string text) =>
+            Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(new IdentifierExpression(text)).Positioned();
 
         protected internal virtual Parser<TypeExpression> SystemTypeExpression =>
-            Keyword("byte").Or(
-                    Keyword("sbyte")).Or(
-                    Keyword("int16")).Or(
-                    Keyword("uint16")).Or(
-                    Keyword("int32")).Or(
-                    Keyword("uint32")).Or(
-                    Keyword("int64")).Or(
-                    Keyword("uint64")).Or(
-                    Keyword("bool")).Or(
-                    Keyword("string")).Or(
-                    Keyword("char")).Or(
-                    Keyword("void"))
-                .Token().Select(n => new TypeExpression(new TypeSyntax(n.Capitalize())))
+            KeywordExpression("byte").Or(
+                    KeywordExpression("sbyte")).Or(
+                    KeywordExpression("int16")).Or(
+                    KeywordExpression("uint16")).Or(
+                    KeywordExpression("int32")).Or(
+                    KeywordExpression("uint32")).Or(
+                    KeywordExpression("int64")).Or(
+                    KeywordExpression("uint64")).Or(
+                    KeywordExpression("bool")).Or(
+                    KeywordExpression("string")).Or(
+                    KeywordExpression("char")).Or(
+                    KeywordExpression("void"))
+                .Token().Select(n => new TypeExpression(new TypeSyntax(n)))
                 .Named("SystemType").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> argument =>
@@ -266,7 +266,7 @@
 
         protected internal virtual Parser<TypeSyntax> BaseType =>
             SystemType.Or(
-                from @void in Keyword("void").Token()
+                from @void in KeywordExpression("void").Token()
                 from a in Parse.Char('*').Token()
                 select new TypeSyntax(@void) { IsPointer = true });
         protected internal virtual Parser<ExpressionSettingSyntax> rank_specifier =>
@@ -289,12 +289,14 @@
 
 
         protected internal virtual Parser<TypeSyntax> namespace_or_type_name =>
-            from id in qualified_alias_member.Or(Identifier)
-            from chain in Parse.Char('/').Token().Then(_ => Identifier.Token()).Many()
+            from id in qualified_alias_member.Or(IdentifierExpression)
+            from chain in Parse.Char('/').Token().Then(_ => IdentifierExpression.Token()).Many()
             select new QualifiedAliasSyntax(chain.EmptyIfNull().ToArray(), id);
 
-        protected internal virtual Parser<string> qualified_alias_member =>
-            Identifier.Then(x => Parse.String("::").Token().Return($"{x}::")).Then(x => Identifier.Select(z => $"{x}{z}"));
+        protected internal virtual Parser<IdentifierExpression> qualified_alias_member =>
+            Identifier.Then(x => Parse.String("::").Token().Return($"{x}::"))
+                .Then(x => Identifier.Select(z => $"{x}{z}"))
+                .Select(x => new IdentifierExpression(x)).Positioned();
 
 
         protected internal virtual Parser<ExpressionSyntax> bracket_expression =>
@@ -393,7 +395,7 @@
 
     public class QualifiedAliasSyntax : TypeSyntax
     {
-        public QualifiedAliasSyntax(string[] namespaces, string id)
+        public QualifiedAliasSyntax(IdentifierExpression[] namespaces, IdentifierExpression id)
         {
             this.Identifier = id;
             this.Namespaces.AddRange(namespaces);

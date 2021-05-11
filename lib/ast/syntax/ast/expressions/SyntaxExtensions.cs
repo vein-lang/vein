@@ -82,8 +82,11 @@
         private static List<T> Concat<T>(List<T> first, List<T> second) =>
             first.EmptyIfNull().Concat(second.EmptyIfNull()).ToList();
 
-        public static bool IsConstructor(this MethodDeclarationSyntax method, string className) =>
+        public static bool IsConstructor(this MethodDeclarationSyntax method, IdentifierExpression className) =>
             method is ConstructorDeclarationSyntax ||
             method.Identifier == className;
+        public static bool IsConstructor(this MethodDeclarationSyntax method, string className) =>
+            method is ConstructorDeclarationSyntax ||
+            method.Identifier.ExpressionString == className;
     }
 }

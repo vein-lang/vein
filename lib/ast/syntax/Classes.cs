@@ -17,7 +17,7 @@ namespace wave.syntax
                 .WithTrailingComments(member.TrailingComments);
 
         protected internal virtual Parser<ParameterSyntax> NameAndType =>
-            from name in Identifier.Optional()
+            from name in IdentifierExpression.Optional()
             from @as in Parse.Char(':').Token().Commented(this)
             from type in TypeReference.Token().Positioned()
             select new ParameterSyntax(type, name.GetOrDefault());
@@ -40,7 +40,7 @@ namespace wave.syntax
         // example: private static x, y, z: int = 3;
         protected internal virtual Parser<FieldDeclarationSyntax> FieldDeclaration =>
             from heading in MemberDeclarationHeading.Token()
-            from identifier in Identifier.Commented(this)
+            from identifier in IdentifierExpression.Commented(this)
             from twodot in Parse.Char(':').Token()
             from type in TypeReference.Token().Positioned()
             from expression in Parse.Char('=').Token().Then(_ => QualifiedExpression).Positioned().Optional()
@@ -76,15 +76,15 @@ namespace wave.syntax
         // method or property declaration starting with the type and name
         protected internal virtual Parser<MemberDeclarationSyntax> MethodOrPropertyDeclaration =>
             from dec in MemberDeclarationHeading
-            from name in Identifier
+            from name in IdentifierExpression
             from member in MethodParametersAndBody.Select(c => c as MemberDeclarationSyntax)
                 .XOr(PropertyAccessors)
             select member.WithName(name).WithProperties(dec);
 
         protected internal virtual Parser<MemberDeclarationSyntax> CtorDeclaration =>
             from dec in MemberDeclarationHeading
-            from kw in KeywordExpression("new").Return("ctor").Or(
-                KeywordExpression("delete").Return("dtor"))
+            from kw in KeywordExpression("new").Or(
+                KeywordExpression("delete"))
             from member in CtorParametersAndBody.Select(c => c as MemberDeclarationSyntax)
             select member.WithName(kw).WithProperties(dec);
         
@@ -100,7 +100,7 @@ namespace wave.syntax
                 Parse.IgnoreCase("class").Text().Token()
                     .Or(Parse.IgnoreCase("interface").Text().Token())
                     .Or(Parse.IgnoreCase("struct").Text().Token())
-            from className in Identifier.Token()
+            from className in IdentifierExpression.Token().Positioned()
             from interfaces in Parse.IgnoreCase(":").Token().Then(t => TypeReference.Positioned().DelimitedBy(Parse.Char(',').Token())).Optional()
             from skippedComments in CommentParser.AnyComment.Token().Many()
             from openBrace in Parse.Char('{').Token()
@@ -118,11 +118,11 @@ namespace wave.syntax
             }
             select ClassDeclarationSyntax.Create(null, classBody);
 
-        private IEnumerable<MemberDeclarationSyntax> ConvertConstructors(IEnumerable<MemberDeclarationSyntax> members, string className)
+        private IEnumerable<MemberDeclarationSyntax> ConvertConstructors(IEnumerable<MemberDeclarationSyntax> members, IdentifierExpression className)
         {
             foreach (var member in members)
             {
-                if (member is MethodDeclarationSyntax m && m.IsConstructor(className))
+                if (member is MethodDeclarationSyntax m && m.IsConstructor(className.ExpressionString))
                 {
                     yield return new ConstructorDeclarationSyntax(m);
                     continue;

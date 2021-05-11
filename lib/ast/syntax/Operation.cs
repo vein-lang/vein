@@ -89,7 +89,7 @@
         protected internal virtual Parser<MethodDeclarationSyntax> OperationDeclaration =>
             from heading in MemberDeclarationHeading
             from _ in Keyword("operation")
-            from name in Identifier
+            from name in IdentifierExpression
             from methodBody in OperationParametersAndBody
             select new MethodDeclarationSyntax(heading)
             {
