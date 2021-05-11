@@ -2,7 +2,6 @@
 
 public class Assert
 {
-    [only("DEBUG")]
     public static Eq(i1: int32, i2: int32, msg: string): void
     {
         if (i1 != i2)
