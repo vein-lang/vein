@@ -115,7 +115,7 @@
 
                     foreach (var methodMember in classMember.Methods)
                     {
-                        var method = @class.DefineMethod(methodMember.Identifier, WaveTypeCode.TYPE_VOID.AsClass());
+                        var method = @class.DefineMethod(methodMember.Identifier.ExpressionString, WaveTypeCode.TYPE_VOID.AsClass());
                         var generator = method.GetGenerator();
 
                         foreach (var statement in methodMember.Body.Statements)
