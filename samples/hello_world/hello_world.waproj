@@ -1,6 +1,6 @@
-<project sdk="wave">
-    <target>hello_world</target>
+<project sdk="default">
+    <target>helloworld</target>
     <packages>
-        <ref name="wcorlib"/>
-    <packages/>
+        <ref name="wcorlib, 1.0.0.0"/>
+    </packages>
 </project>
