@@ -56,6 +56,13 @@
                 .Select(JsonConvert.DeserializeObject<WaveSDK>)
                 .FirstOrDefault(x => x.Name.Equals(name));
         }
+
+        public FileInfo GetHostApplicationFile(SDKPack sdkPack) =>
+            SDKRoot.SubDirectory("sdk")
+                .SubDirectory($"{Name}-v{Version}")
+                .SubDirectory(sdkPack.Name)
+                .SubDirectory("host")
+                .SingleFileByPattern("host.*");
     }
     public enum PackKind
     {

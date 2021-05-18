@@ -1,6 +1,7 @@
 ﻿namespace wave.project
 {
     using System.IO;
+    using System.Linq;
 
     public static class FileEntityEx
     {
@@ -14,7 +15,12 @@
             return dir;
         }
 
+        public static FileInfo SingleFileByPattern(this DirectoryInfo info, string pattern)
+            => info.GetFiles(pattern, SearchOption.TopDirectoryOnly).Single();
+
         public static string ReadToEnd(this FileInfo info) 
             => File.ReadAllText(info.FullName);
+        public static byte[] ReadAllBytes(this FileInfo info) 
+            => File.ReadAllBytes(info.FullName);
     }
 }
