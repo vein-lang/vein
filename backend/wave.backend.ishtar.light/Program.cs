@@ -1,4 +1,4 @@
-﻿namespace wave.backend.ishtar.light
+namespace wave.backend.ishtar.light
 {
     using System;
     using System.Collections.Generic;
@@ -58,35 +58,27 @@
             IshtarGC.INIT();
             FFI.InitFunctionTable();
 
-            //var i_t = WaveCore.Int32Class as RuntimeIshtarClass;
-
-            //i_t.init_vtable();
-
-            //var i = IshtarGC.AllocObject(i_t);
-
-
-            //var val = new stackval();
-
-            //val.type = WaveTypeCode.TYPE_I4;
-            //val.data.i = 1448;
-
-            //i->vtable[i_t.Field["!!value"].vtable_offset] = &val;
-
-
-            //IshtarGC.FreeObject(&i);
-
-            if (args.Length < 1)
-                return -1;
-            var entry = new FileInfo(args.First());
-            Console.WriteLine(args.First());
-            if (!entry.Exists)
-                return -2;
-            var asm = IshtarAssembly.LoadFromFile(entry);
-            var (_, code) = asm.Sections.First();
-            var deps = GetDeps();
-
+            var masterModule = default(IshtarAssembly);
             var resolver = new AssemblyResolver();
 
+            if (AssemblyBundle.IsBundle(out var bundle))
+            {
+                masterModule = bundle.Assemblies.First();
+                resolver.AddInMemory(bundle);
+            }
+            else
+            {
+                if (args.Length < 1)
+                    return -1;
+                var entry = new FileInfo(args.First());
+                if (!entry.Exists)
+                    return -2;
+                masterModule = IshtarAssembly.LoadFromFile(entry);
+            }
+            
+            var (_, code) = masterModule.Sections.First();
+            var deps = GetDeps();
+            
             resolver.AddSearchPath(new DirectoryInfo("/WaveLang"));
             resolver.AddSearchPath(new DirectoryInfo("./"));
 
@@ -138,6 +130,60 @@
             Console.WriteLine($"Elapsed: {watcher.Elapsed}");
             
             return 0;
+        }
+
+
+        
+    }
+
+
+    public class AssemblyBundle
+    {
+        public FileInfo MainModulePath { get; set; }
+        public List<byte> MainModuleBytes { get; set; }
+
+        public List<IshtarAssembly> Assemblies { get; private set; }
+
+
+        public static bool IsBundle(out AssemblyBundle bundle)
+        {
+            var current = Process.GetCurrentProcess()?.MainModule?.FileName;
+            bundle = null;
+            if (string.IsNullOrEmpty(current))
+            {
+                VM.FastFail(WNE.STATE_CORRUPT, "Current executable has corrupted. [process file not found]");
+                VM.ValidateLastError();
+                return false;
+            }
+
+            var bytes = File.ReadAllBytes(current).ToList();
+            var magicBytes = bytes.TakeLast(2).ToArray();
+
+            if (BitConverter.ToInt16(magicBytes, 0) != 0x7ABC)
+                return false;
+            bundle = new AssemblyBundle
+            {
+                MainModuleBytes = bytes, 
+                MainModulePath = new FileInfo(current)
+            }.UnpackAssemblies();
+            
+            return true;
+        }
+
+
+        private AssemblyBundle UnpackAssemblies()
+        {
+            Assemblies = new List<IshtarAssembly>();
+
+
+            var offset_bytes = MainModuleBytes.SkipLast(sizeof(short)).TakeLast(sizeof(int)).ToArray();
+            var offset = BitConverter.ToInt32(offset_bytes);
+
+            var input = MainModuleBytes.SkipLast(sizeof(short) + sizeof(int)).Skip(offset).ToArray();
+            using var mem = new MemoryStream(input); // todo multiple modules
+            Assemblies.Add(IshtarAssembly.LoadFromMemory(mem));
+
+            return this;
         }
     }
 }
