@@ -1,15 +1,15 @@
 ﻿namespace wave.pipes
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
+    using System.Threading;
     using cmd;
     using fs;
     using insomnia.compilation;
     using ishtar.emit;
     using MoreLinq;
     using project;
+    using Spectre.Console;
 
     public class WriteOutputPipe : CompilerPipeline
     {
@@ -37,32 +37,6 @@
         public override int Order => 0;
     }
 
-    public class SingleFileOutputPipe : CompilerPipeline
-    {
-        public override void Action()
-        {
-            var current_binary = OutputBinaryPath.ReadAllBytes();
-            var host = Project.SDK.
-                GetHostApplicationFile(Project.SDK.
-                        GetPackByAlias(Project.Runtime));
-
-            var host_bytes = host.ReadAllBytes().ToList();
-            var offset = host_bytes.Count;
-
-            host_bytes.AddRange(current_binary);
-            
-            host_bytes.AddRange(BitConverter.GetBytes(offset));
-            // magic number (for detect single file exe)
-            host_bytes.AddRange(BitConverter.GetBytes((short)0x7ABC)); 
-
-            File.WriteAllBytes(Path.Combine(OutputDirectory.FullName, host.Name), host_bytes.ToArray());
-        }
-
-        public override bool CanApply(CompileSettings flags) => flags.HasSingleFile;
-
-        public override int Order => 999;
-    }
-
 
     public abstract class CompilerPipeline
     {
@@ -77,6 +51,7 @@
 
         public abstract void Action();
 
+        
 
         public abstract bool CanApply(CompileSettings flags);
         public abstract int Order { get; }
@@ -99,12 +74,13 @@
             {
                 if (!pipe.CanApply(compiler._flags))
                     continue;
-
+                compiler.Status.WaveStatus($"Apply '{pipe.GetType().Name}' pipeline...");
                 pipe.Project = lastPipe?.Project ?? compiler.Project;
                 pipe.Assembly = lastPipe?.Assembly;
                 pipe.Module = lastPipe?.Module ?? compiler.module;
 
                 pipe.Action();
+                Thread.Sleep(400);
 
                 lastPipe = pipe;
             }
