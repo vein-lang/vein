@@ -20,7 +20,7 @@ namespace wave.backend.ishtar.light
             var list = new List<WaveModule>();
 
 
-            var stl = new WaveModuleBuilder("stl", new Version(2,3));
+            var stl = new WaveModuleBuilder("wcorlib", new Version(1,0));
 
             foreach (var type in WaveCore.Types.All) 
                 stl.InternTypeName(type.FullName);
