@@ -1,7 +1,7 @@
 <!-- Logo -->
 <p align="center">
   <a href="#">
-    <img src="https://raw.githubusercontent.com/0xF6/wave_lang/master/splash.png">
+    <img src="https://user-images.githubusercontent.com/13326808/118315186-dba9dc80-b4fd-11eb-8d2f-32e8313ba6a7.png">
   </a>
 </p>
 
