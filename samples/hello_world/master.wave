@@ -4,9 +4,10 @@
 
 public class Program
 {
-    public static master(args: string[]): void
+    public static master(): void
     {
-        Out.print("\u001b[36mHello World\u001b[0m, from Wave Lang with Love ✨✨✨!");
-        Out.print(Out.readline());
+        @_println("\u001b[36mHello World\u001b[0m, from Wave Lang with Love ✨✨✨!");
     }
+
+    public static extern @_println(value: String): void;
 }
