@@ -1,4 +1,4 @@
-namespace wave.backend.ishtar.light
+﻿namespace wave.backend.ishtar.light
 {
     using System;
     using System.Collections.Generic;
@@ -7,6 +7,7 @@ namespace wave.backend.ishtar.light
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
+    using System.Threading;
     using fs;
     using global::ishtar;
     using runtime;
@@ -100,15 +101,8 @@ namespace wave.backend.ishtar.light
             if (entry_point is null)
             {
                 VM.FastFail(WNE.MISSING_METHOD, "Entry point is not defined.");
-                var empty = stackalloc uint[1];
-                entry_point = new RuntimeIshtarMethod("master", MethodFlags.Public | MethodFlags.Static)
-                {
-                    Header = new MetaMethodHeader
-                    {
-                        code = empty,
-                        code_size = 1
-                    }
-                };
+                VM.ValidateLastError();
+                return -280;
             }
 
             var args_ = stackalloc stackval[1];
