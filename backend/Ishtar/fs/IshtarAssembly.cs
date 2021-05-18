@@ -66,10 +66,13 @@
         public static IshtarAssembly LoadFromFile(FileInfo file)
             => LoadFromFile(file.FullName);
         /// <exception cref="BadImageFormatException"/>
-        public static IshtarAssembly LoadFromFile(string file)
+        public static IshtarAssembly LoadFromMemory(MemoryStream stream) 
+            => LoadFromStream(stream, "unnamed-module.wll");
+
+        /// <exception cref="BadImageFormatException"/>
+        private static IshtarAssembly LoadFromStream(Stream stream, string name)
         {
-            using var fs = File.OpenRead(file);
-            using var br = new BinaryReader(fs);
+            using var br = new BinaryReader(stream);
             var elf = default(ElfFile);
 
             try
@@ -78,21 +81,21 @@
             }
             catch (FileFormatException e)
             {
-                throw new BadImageFormatException($"File '{file}' has invalid.", e);
+                throw new BadImageFormatException($"File '{name}' has invalid.", e);
             }
 
             if (elf.Sections.All(x => x.Type != Note))
-                throw new BadImageFormatException($"File '{file}' has invalid.", 
+                throw new BadImageFormatException($"File '{name}' has invalid.", 
                     new ImageSegmentNotFoundException("elf .note segment not found."));
             if (elf.Sections.All(x => x.Type != ProgBits))
-                throw new BadImageFormatException($"File '{file}' has invalid.", 
+                throw new BadImageFormatException($"File '{name}' has invalid.", 
                     new ImageSegmentNotFoundException("elf .progBits segment not found."));
             
             var noteSection = elf.Sections.Single(x => x is { Type: Note });
-            var keyCode = Encoding.ASCII.GetString(noteSection.ReadFrom(fs));
+            var keyCode = Encoding.ASCII.GetString(noteSection.ReadFrom(stream));
             
             if (keyCode != "insomnia")
-                throw new BadImageFormatException($"File '{file}' is not insomnia image.");
+                throw new BadImageFormatException($"File '{name}' is not insomnia image.");
 
             var strings = elf.Sections.Single(x => x is { Type: StrTab }) as ElfStringTable;
             var metadata = new InsomniaAssemblyMetadata
@@ -107,7 +110,7 @@
 
             var ilCodeSection = elf.Sections.Single(x => x is { Type: ProgBits });
 
-            using var memory = new MemoryStream(ilCodeSection.ReadFrom(fs));
+            using var memory = new MemoryStream(ilCodeSection.ReadFrom(stream));
             using var reader = new BinaryReader(memory);
 
 
@@ -130,9 +133,15 @@
             return new IshtarAssembly
             {
                 Sections = sections, 
-                Name = Path.GetFileNameWithoutExtension(file),
+                Name = Path.GetFileNameWithoutExtension(name),
                 metadata = metadata
             };
+        }
+        /// <exception cref="BadImageFormatException"/>
+        public static IshtarAssembly LoadFromFile(string file)
+        {
+            using var fs = File.OpenRead(file);
+            return LoadFromStream(fs, file);
         }
 
         public void WriteTo(DirectoryInfo directory)
