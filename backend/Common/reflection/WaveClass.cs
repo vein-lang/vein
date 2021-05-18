@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    public class WaveClass
+    public class WaveClass : IEquatable<WaveClass>
     {
         public QualityTypeName FullName { get; set; }
         public string Name => FullName.Name;
@@ -64,10 +64,15 @@
 
 
         public WaveMethod FindMethod(string name, IEnumerable<WaveClass> args_types)
-            => this.Methods.FirstOrDefault(x => 
-                x.RawName.Equals(name) && 
-                x.Arguments.Select(z => z.Type).SequenceEqual(args_types)
-            );
+            => this.Methods.FirstOrDefault(x =>
+            {
+                var nameHas = x.RawName.Equals(name);
+                var argsHas = x.Arguments.Select(z => z.Type).SequenceEqual(args_types);
+
+                return nameHas
+                       && argsHas
+                       ;
+            });
 
         public WaveField FindField(string name) 
             => this.Fields.FirstOrDefault(x => x.Name.Equals(name));
@@ -84,5 +89,32 @@
 
             return null;
         }
+
+        #region Equality members
+
+        public bool Equals(WaveClass other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(FullName, other.FullName) && 
+                   Equals(Parent, other.Parent);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((WaveClass) obj);
+        }
+
+        public override int GetHashCode() 
+            => HashCode.Combine(FullName, Parent);
+
+        public static bool operator ==(WaveClass left, WaveClass right) => Equals(left, right);
+
+        public static bool operator !=(WaveClass left, WaveClass right) => !Equals(left, right);
+
+        #endregion
     }
 }
