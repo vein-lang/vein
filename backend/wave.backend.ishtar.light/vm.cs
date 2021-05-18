@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
@@ -31,7 +31,6 @@
 
         public static void println(string str)
         {
-            return;
             Console.WriteLine(str);
         }
 
