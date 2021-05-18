@@ -33,7 +33,7 @@
                 .Spinner(Spinner.Known.Dots8Bit)
                 .Start("Processing...", ctx =>
                 {
-                    c.ctx = ctx;
+                    c.Status = ctx;
                     try
                     {
                         c.ProcessFiles(entity);
@@ -63,7 +63,7 @@
         internal readonly AssemblyResolver resolver = new ();
         internal readonly Dictionary<FileInfo, string> Sources = new ();
         internal readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
-        internal StatusContext ctx;
+        internal StatusContext Status;
         public readonly List<string> warnings = new ();
         public readonly List<string> errors = new ();
         internal WaveModuleBuilder module;
@@ -75,25 +75,25 @@
             {
                 while (!Debugger.IsAttached)
                 {
-                    ctx.WaveStatus($"[green]Waiting debugger[/]...");
+                    Status.WaveStatus($"[green]Waiting debugger[/]...");
                     Thread.Sleep(400);
                 }
             }
             var deps = new List<WaveModule>();
             foreach (var (name, version) in Project.Packages)
             {
-                ctx.WaveStatus($"Resolve [grey]'{name}, {version}'[/]...");
+                Status.WaveStatus($"Resolve [grey]'{name}, {version}'[/]...");
                 deps.Add(resolver.ResolveDep(name, version.Version, deps));
             }
             foreach (var file in files)
             {
-                ctx.WaveStatus($"Read [grey]'{file.Name}'[/]...");
+                Status.WaveStatus($"Read [grey]'{file.Name}'[/]...");
                 Sources.Add(file, File.ReadAllText(file.FullName));
             }
 
             foreach (var (key, value) in Sources)
             {
-                ctx.WaveStatus($"Compile [grey]'{key.Name}'[/]...");
+                Status.WaveStatus($"Compile [grey]'{key.Name}'[/]...");
                 try
                 {
                     var result = syntax.CompilationUnit.ParseWave(value);
@@ -119,7 +119,7 @@
             Context.Module.Deps.AddRange(deps);
 
             Ast.Select(x => (x.Key, x.Value))
-                .Pipe(x => ctx.WaveStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
+                .Pipe(x => Status.WaveStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
                 .Select(x => LinkClasses(x.Value))
                 .ToList()
                 .Pipe(z => z
@@ -179,7 +179,7 @@
             {
                 if (member is ClassDeclarationSyntax clazz)
                 {
-                    ctx.WaveStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
+                    Status.WaveStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
                     clazz.OwnerDocument = doc;
                     var result = CompileClass(clazz, doc);
                     Context.Classes.Add(result.FullName, result);
@@ -290,12 +290,12 @@
                                    $"{err_line}");
                         break;
                     case MethodDeclarationSyntax method:
-                        ctx.WaveStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
+                        Status.WaveStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
                         method.OwnerClass = clazzSyntax;
                         methods.Add(CompileMethod(method, @class, doc));
                         break;
                     case FieldDeclarationSyntax field:
-                        ctx.WaveStatus($"Regeneration field [grey]'{field.Field.Identifier}'[/]");
+                        Status.WaveStatus($"Regeneration field [grey]'{field.Field.Identifier}'[/]");
                         field.OwnerClass = clazzSyntax;
                         fields.Add(CompileField(field, @class, doc));
                         break;
@@ -342,7 +342,7 @@
         {
             var (@class, member) = x;
             Context.Document = member.OwnerDocument;
-            ctx.WaveStatus($"Regenerate default ctor for [grey]'{member.Identifier}'[/].");
+            Status.WaveStatus($"Regenerate default ctor for [grey]'{member.Identifier}'[/].");
             var ctor = @class.GetDefaultCtor() as MethodBuilder;
             var doc = member.OwnerDocument;
 
@@ -398,7 +398,7 @@
         public void GenerateStaticCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
             var (@class, member) = x;
-            ctx.WaveStatus($"Regenerate static ctor for [grey]'{member.Identifier}'[/].");
+            Status.WaveStatus($"Regenerate static ctor for [grey]'{member.Identifier}'[/].");
             var ctor = @class.GetStaticCtor() as MethodBuilder;
             var doc = member.OwnerDocument;
 
