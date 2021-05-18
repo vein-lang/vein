@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>0.4.1046</Version>
+		<Version>0.4.1048</Version>
 		<Authors>Yuuki Wesp</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
