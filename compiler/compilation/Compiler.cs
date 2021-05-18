@@ -1,4 +1,4 @@
-namespace insomnia.compilation
+﻿namespace insomnia.compilation
 {
     using wave.fs;
     using MoreLinq;
@@ -16,6 +16,7 @@ namespace insomnia.compilation
     using wave.cmd;
     using wave.ishtar.emit;
     using wave.extensions;
+    using wave.pipes;
     using wave.project;
     using wave.runtime;
     using wave.stl;
@@ -133,7 +134,7 @@ namespace insomnia.compilation
                 .Consume();
             errors.AddRange(Context.Errors);
             if (errors.Count == 0)
-                WriteOutput(module);
+                PipelineRunner.Run(this);
             MarkupLine($"[blue]INF[/]: Result assembly [orange]'{module.Name}, {module.Version}'[/].");
             if (_flags.PrintResultType)
             {
@@ -196,7 +197,7 @@ namespace insomnia.compilation
             CompileAnnotation(member, doc);
             if (module.Name.Equals("wcorlib"))
             {
-                var result = WaveCore.All.FirstOrDefault(x => x.FullName.Name.Equals(member.Identifier));
+                var result = WaveCore.All.FirstOrDefault(x => x.FullName.Name.Equals(member.Identifier.ExpressionString));
                
                 if (result is not null)
                 {
@@ -207,7 +208,7 @@ namespace insomnia.compilation
                     return clz;
                 }
             }
-            return module.DefineClass($"global::{doc.Name}/{member.Identifier}").WithIncludes(doc.Includes);
+            return module.DefineClass($"global::{doc.Name}/{member.Identifier.ExpressionString}").WithIncludes(doc.Includes);
         }
 
         public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc)
@@ -258,10 +259,11 @@ namespace insomnia.compilation
             var owner = member.Inheritances.FirstOrDefault();
 
             // ignore core base types
-            if (member.Identifier is "Object" or "ValueType") // TODO
+            if (member.Identifier.ExpressionString is "Object" or "ValueType") // TODO
                 return;
             
-            owner ??= new TypeSyntax("Object"); // TODO set for struct ValueType owner
+            // TODO set for struct ValueType owner
+            owner ??= new TypeSyntax(new IdentifierExpression("Object")); 
 
             @class.Parent = FetchType(owner, doc);
         }
@@ -317,8 +319,10 @@ namespace insomnia.compilation
             
             var args = GenerateArgument(member, doc);
             
-            var method = clazz.DefineMethod(member.Identifier, GenerateMethodFlags(member), retType, args);
-            
+            var method = clazz.DefineMethod(member.Identifier.ExpressionString, GenerateMethodFlags(member), retType, args);
+
+            method.Owner = clazz;
+
             return (method, member);
         }
 
@@ -330,7 +334,7 @@ namespace insomnia.compilation
             if (fieldType is null)
                 return default;
 
-            var field = clazz.DefineField(member.Field.Identifier, GenerateFieldFlags(member), fieldType);
+            var field = clazz.DefineField(member.Field.Identifier.ExpressionString, GenerateFieldFlags(member), fieldType);
             return (field, member);
         }
 
@@ -371,7 +375,7 @@ namespace insomnia.compilation
                 if (field.IsLiteral)
                     continue;
                 var stx = member.Fields
-                    .SingleOrDefault(x => x.Field.Identifier.Equals(field.Name));
+                    .SingleOrDefault(x => x.Field.Identifier.ExpressionString.Equals(field.Name));
                 if (stx is null)
                 {
                     errors.Add($"[red bold]Field '{field.Name}' in class/struct '{@class.Name}' has undefined.[/] \n\t" +
@@ -418,7 +422,7 @@ namespace insomnia.compilation
                 if (!field.IsStatic)
                     continue;
                 var stx = member.Fields
-                    .SingleOrDefault(x => x.Field.Identifier.Equals(field.Name));
+                    .SingleOrDefault(x => x.Field.Identifier.ExpressionString.Equals(field.Name));
                 if (stx is null)
                 {
                     errors.Add($"[red bold]Field '{field.Name}' in class/struct '{@class.Name}' has undefined.[/] \n\t" +
@@ -454,7 +458,7 @@ namespace insomnia.compilation
             var generator = method.GetGenerator();
 
             Context.CurrentMethod = method;
-            generator.StoreIntoMetadata("context", generator);
+            generator.StoreIntoMetadata("context", Context);
             
             foreach (var statement in member.Body.Statements)
             {
@@ -464,8 +468,10 @@ namespace insomnia.compilation
                 }
                 catch (Exception e)
                 {
+                    errors.Add($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]GenerateBody(...);[/]");
                 }
             }
+            generator.Emit(OpCodes.RET);
         }
 
         private void AnalyzeStatement(BaseSyntax statement, MethodDeclarationSyntax member)
@@ -560,9 +566,36 @@ namespace insomnia.compilation
             }
             
         }
+
+        private void ApplyTypeWord(TypeSyntax syntax)
+        {
+            syntax.Identifier.ExpressionString = syntax.Identifier.ExpressionString switch
+            {
+                "int64" => "Int64",
+                "int32" => "Int32",
+                "int16" => "Int16",
+                "byte" => "Byte",
+                "string" => "String",
+                "bool" => "Boolean",
+                "boolean" => "Boolean",
+                "uint64" => "UInt64",
+                "uint32" => "UInt32",
+                "uint16" => "Uint16",
+                "sbyte" => "SByte",
+                "half" => "Half",
+                "float" => "Float",
+                "double" => "Double",
+                "decimal" => "Decimal",
+                "char" => "Char",
+                "void" => "Void",
+                _ => syntax.Identifier.ExpressionString
+            };
+        }
+
         private WaveClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
         {
-            var retType = module.TryFindType(typename.Identifier, doc.Includes);
+            ApplyTypeWord(typename);
+            var retType = module.TryFindType(typename.Identifier.ExpressionString, doc.Includes);
             
             if (retType is null) 
                 errors.Add($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]' \n\t" +
@@ -576,7 +609,7 @@ namespace insomnia.compilation
             if (method.Parameters.Count == 0)
                 return Array.Empty<WaveArgumentRef>();
             return method.Parameters.Select(parameter => new WaveArgumentRef
-                {Type = FetchType(parameter.Type, doc), Name = parameter.Identifier})
+                {Type = FetchType(parameter.Type, doc), Name = parameter.Identifier.ExpressionString})
                 .ToArray();
         }
         private ClassFlags GenerateClassFlags(ClassDeclarationSyntax clazz)

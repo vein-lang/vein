@@ -37,5 +37,8 @@
 
         public static bool operator !=(IdentifierExpression left, IdentifierExpression right) 
             => !Equals(left, right);
+
+        public override string ToString() =>
+            ExpressionString;
     }
 }

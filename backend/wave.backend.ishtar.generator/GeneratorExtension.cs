@@ -2,12 +2,15 @@ namespace ishtar
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Text.RegularExpressions;
     using wave.ishtar.emit;
     using wave.runtime;
     using Spectre.Console;
     using wave.syntax;
+    using Xunit;
 
     public class GeneratorContext
     {
@@ -34,7 +37,8 @@ namespace ishtar
         }
 
         public WaveClass ResolveType(TypeSyntax targetTypeTypeword) 
-            => Module.FindType(targetTypeTypeword.Identifier, Classes[CurrentMethod.Owner.FullName].Includes);
+            => Module.FindType(targetTypeTypeword.Identifier.ExpressionString,
+                Classes[CurrentMethod.Owner.FullName].Includes);
 
         public WaveClass ResolveScopedIdentifierType(IdentifierExpression id)
         {
@@ -469,8 +473,28 @@ namespace ishtar
                 generator.EmitIfElse(theIf);
             else if (statement is WhileStatementSyntax @while)
                 generator.EmitWhileStatement(@while);
+            else if (statement is QualifiedExpressionStatement {Value: MemberAccessExpression} qes)
+                generator.EmitCall((MemberAccessExpression) qes.Value);
             else
                 throw new NotImplementedException();
+        }
+
+        public static void EmitCall(this ILGenerator generator, MemberAccessExpression qes)
+        {
+            var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
+
+            Assert.IsType<IdentifierExpression>(qes.Start);
+            var chain = qes.Chain.ToArray();
+            var args = (MethodInvocationExpression) chain[0];
+            var method = ctx.ResolveMethod(ctx.CurrentMethod.Owner, null, qes.Start as IdentifierExpression,
+                (MethodInvocationExpression)chain[0]);
+
+            foreach (var arg in args.Arguments)
+            {
+                generator.EmitExpression(arg);
+            }
+            
+            generator.Emit(OpCodes.CALL, method);
         }
         public static void EmitNumericLiteral(this ILGenerator generator, NumericLiteralExpressionSyntax literal)
         {
@@ -542,11 +566,16 @@ namespace ishtar
             if (literal is NumericLiteralExpressionSyntax numeric)
                 generator.EmitNumericLiteral(numeric);
             else if (literal is StringLiteralExpressionSyntax stringLiteral)
-                generator.Emit(OpCodes.LDC_STR, stringLiteral.Value);
+                generator.Emit(OpCodes.LDC_STR, UnEscapeSymbols(stringLiteral.Value));
             else if (literal is BoolLiteralExpressionSyntax boolLiteral)
                 generator.Emit(boolLiteral.Value ? OpCodes.LDC_I2_1 : OpCodes.LDC_I2_0);
             else if (literal is NullLiteralExpressionSyntax)
                 generator.Emit(OpCodes.LDNULL);
+        }
+
+        private static string UnEscapeSymbols(string str)
+        {
+            return Regex.Unescape(str);
         }
         
         public static void EmitReturn(this ILGenerator generator, ReturnStatementSyntax statement)
