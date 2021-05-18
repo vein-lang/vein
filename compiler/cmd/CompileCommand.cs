@@ -19,6 +19,10 @@
         [CommandOption("--print-result-types")]
         public bool PrintResultType { get; set; }
 
+        [Description("Compile into single file")]
+        [CommandOption("--single-file|-s")]
+        public bool HasSingleFile { get; set; }
+
         [Description("Wait to attach debbugger [ONLY DEBUG COMPILER]")]
         [CommandOption("--debugger|-d")]
         public bool IsNeedDebuggerAttach { get; set; }
