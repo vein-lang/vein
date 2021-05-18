@@ -1,4 +1,4 @@
-namespace ishtar
+﻿namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
@@ -636,7 +636,7 @@ namespace ishtar
         {
             if (conditional)
                 return;
-            FastFail(type, msg, frame);
+            FastFail(type, $"static assert failed: '{msg}'", frame);
             ValidateLastError();
         }
     }
