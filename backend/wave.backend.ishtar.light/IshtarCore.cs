@@ -5,7 +5,7 @@
 
     public class IshtarCore
     {
-        public static void Init()
+        public static void INIT()
         {
             var asmName = "corlib%";
             WaveCore.Types.ObjectType      = new WaveTypeImpl($"{asmName}global::wave/lang/Object"   , WaveTypeCode.TYPE_OBJECT);

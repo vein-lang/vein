@@ -87,7 +87,8 @@
                 _ => throw new InvalidOperationException($"Cannot fetch converter for {code}.")
             };
         }
-        public static Func<string, object> GetConverter(this WaveField field) 
+
+        public static Func<string, object> GetConverter(this WaveField field)
             => GetConverter(field.FieldType.TypeCode);
     }
 }

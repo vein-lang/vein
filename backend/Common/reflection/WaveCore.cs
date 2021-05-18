@@ -54,7 +54,7 @@
                 ValueType       = new WaveTypeImpl($"{asmName}global::wave/lang/ValueType", WaveTypeCode.TYPE_CLASS);
                 VoidType        = new WaveTypeImpl($"{asmName}global::wave/lang/Void"     , WaveTypeCode.TYPE_VOID);
                 StringType      = new WaveTypeImpl($"{asmName}global::wave/lang/String"   , WaveTypeCode.TYPE_STRING);
-                ByteType        = new WaveTypeImpl($"{asmName}global::wave/lang/Byte"    , WaveTypeCode.TYPE_I1);
+                ByteType        = new WaveTypeImpl($"{asmName}global::wave/lang/Byte"     , WaveTypeCode.TYPE_I1);
                 Int16Type       = new WaveTypeImpl($"{asmName}global::wave/lang/Int16"    , WaveTypeCode.TYPE_I2);
                 Int32Type       = new WaveTypeImpl($"{asmName}global::wave/lang/Int32"    , WaveTypeCode.TYPE_I4);
                 Int64Type       = new WaveTypeImpl($"{asmName}global::wave/lang/Int64"    , WaveTypeCode.TYPE_I8);

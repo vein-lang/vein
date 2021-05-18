@@ -1,4 +1,4 @@
-﻿namespace insomnia.compilation
+namespace insomnia.compilation
 {
     using wave.fs;
     using MoreLinq;
@@ -55,18 +55,18 @@
             resolver.AddSearchPath(new (project.SDK.GetFullPath(pack)));
         }
 
-        private WaveProject Project { get; set; }
+        internal WaveProject Project { get; set; }
 
-        private readonly CompileSettings _flags;
-        private readonly WaveSyntax syntax = new();
-        private readonly AssemblyResolver resolver = new ();
-        private readonly Dictionary<FileInfo, string> Sources = new ();
-        private readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
-        private StatusContext ctx;
+        internal readonly CompileSettings _flags;
+        internal readonly WaveSyntax syntax = new();
+        internal readonly AssemblyResolver resolver = new ();
+        internal readonly Dictionary<FileInfo, string> Sources = new ();
+        internal readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
+        internal StatusContext ctx;
         public readonly List<string> warnings = new ();
         public readonly List<string> errors = new ();
-        private WaveModuleBuilder module;
-        private GeneratorContext Context;
+        internal WaveModuleBuilder module;
+        internal GeneratorContext Context;
 
         private void ProcessFiles(FileInfo[] files)
         {

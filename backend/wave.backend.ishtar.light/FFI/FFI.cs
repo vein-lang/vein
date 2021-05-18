@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -9,7 +9,7 @@
     {
         public static Dictionary<string, RuntimeIshtarMethod> method_table = new();
 
-        public static void InitFunctionTable()
+        public static void INIT()
         {
             FE_Out.InitTable(method_table);
         }

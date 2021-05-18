@@ -26,11 +26,10 @@
     {
         private static async Task Main(string[] args)
         {
-            HoverHandler.GetWordByCharIndex("foo bar zoo doo", 6);
-            Debugger.Launch();
-            while (!Debugger.IsAttached)
+            //Debugger.Launch();
+            //while (!Debugger.IsAttached)
             {
-                await Task.Delay(100);
+            //    await Task.Delay(100);
             }
 
             Log.Logger = new LoggerConfiguration()

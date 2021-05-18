@@ -49,14 +49,16 @@ namespace wave.backend.ishtar.light
         }
         public static unsafe int Main(string[] args)
         {
+            //while (!Debugger.IsAttached)
+            //    Thread.Sleep(200);
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Console.OutputEncoding = Encoding.Unicode;
-            IshtarCore.Init();
+            IshtarCore.INIT();
             foreach (var @class in WaveCore.All.OfType<RuntimeIshtarClass>()) 
                 @class.init_vtable();
             IshtarGC.INIT();
-            FFI.InitFunctionTable();
+            FFI.INIT();
 
             var masterModule = default(IshtarAssembly);
             var resolver = new AssemblyResolver();

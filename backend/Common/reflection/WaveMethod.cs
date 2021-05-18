@@ -48,7 +48,7 @@
         }
 
         public static string GetFullName(string name, List<WaveArgumentRef> args) 
-            => $"{name}({args.Select(x => x.Type.Name).Join(",")})";
+            => $"{name}({args.Select(x => x.Type?.Name).Join(",")})";
 
 
         public MethodFlags Flags { get; set; }

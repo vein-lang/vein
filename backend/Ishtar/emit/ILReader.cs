@@ -10,6 +10,9 @@
     {
         public static List<int> DeconstructLabels(byte[] arr, int offset)
         {
+            if (arr.Length == 0)
+                return new ();
+
             using var mem = new MemoryStream(arr);
             using var bin = new BinaryReader(mem);
 
