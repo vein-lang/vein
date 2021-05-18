@@ -6,10 +6,12 @@
     using System.Linq;
     using fs;
     using runtime;
+    using wave.ishtar.emit;
 
     public class AssemblyResolver : IAssemblyResolver
     {
         private readonly List<DirectoryInfo> search_paths = new ();
+        private AssemblyBundle assemblyBundle;
         public AssemblyResolver()
         {
             
@@ -21,17 +23,43 @@
             return this;
         }
 
+        public AssemblyResolver AddInMemory(AssemblyBundle bundle)
+        {
+            assemblyBundle = bundle;
+            return this;
+        }
+
         public WaveModule ResolveDep(string name, Version version, List<WaveModule> deps)
         {
+            var asm = Find(name, version, deps);
+            
+            var mod = ModuleReader.Read(asm.Sections.First().data, deps, 
+                (s, v) => ResolveDep(s, v, deps));
+
+            return mod;
+        }
+
+        public IshtarAssembly Find(string name, Version version, List<WaveModule> deps)
+        {
             var file = FindInPaths(name);
-            if (file is null)
-            {
+
+            if (file is not null)
+                return IshtarAssembly.LoadFromFile(file);
+            var asm = FindInBundle(name);
+
+            if (asm is not null)
+                return asm;
+
+            throw new FileNotFoundException(name);
+        }
+
+        private IshtarAssembly FindInBundle(string name)
+        {
+            if (assemblyBundle is null)
                 return null;
-            }
 
-            var asm = IshtarAssembly.LoadFromFile(file);
-
-            return null;
+            return assemblyBundle.Assemblies.Single(x =>
+                x.Name.Equals($"{name}.wll", StringComparison.InvariantCultureIgnoreCase));
         }
 
         private FileInfo FindInPaths(string name)
@@ -48,7 +76,7 @@
             }
             catch (Exception e)
             {
-                return null;
+                throw;
             }
         }
     }
