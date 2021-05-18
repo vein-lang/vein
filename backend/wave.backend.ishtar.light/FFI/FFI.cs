@@ -1,4 +1,4 @@
-namespace ishtar
+﻿namespace ishtar
 {
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -43,7 +43,7 @@ namespace ishtar
         {
             StaticValidate(*arg1);
             var @class = (*arg1)->DecodeClass();
-            VM.Assert(@class.TypeCode != code, WNE.MISSING_METHOD, "", current);
+            VM.Assert(@class.TypeCode == code, WNE.TYPE_MISMATCH, "@class.TypeCode == code", current);
         }
 
         public static RuntimeIshtarMethod GetMethod(string FullName) 
