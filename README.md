@@ -7,11 +7,11 @@
 
 <!-- Name -->
 <h1 align="center">
- ⚡️☢️ Wave Lang 🌊⚡️
+ ⚡️☢️ Mana Lang 🌊⚡️
 </h1>
 <!-- desc -->
 <h4 align="center">
-  [research] Wave language with just-in-time compilation into machine instructions which are then executed on ESP/ARM controllers or standalone OS
+  Mana is an open source high-level strictly-typed programming language with a standalone OS, arm and quantum computing support.
 </h4>
 
 <!-- classic badges -->
@@ -19,9 +19,9 @@
   <a href="#">
     <img src="http://img.shields.io/:license-MIT-blue.svg">
   </a>
-<a href="https://app.fossa.com/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang?ref=badge_small" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang.svg?type=small"/></a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2F0xF6%2Fmana_lang?ref=badge_small" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2F0xF6%2Fmana_lang.svg?type=small"/></a>
   <a href="https://github.com/0xF6/wave_lang/releases">
-    <img src="https://img.shields.io/github/release/0xF6/wave_lang.svg?logo=github&style=flat">
+    <img src="https://img.shields.io/github/release/0xF6/mana_lang.svg?logo=github&style=flat">
   </a>
 </p>
 
