@@ -24,7 +24,7 @@
             // magic number (for detect single file exe)
             host_bytes.AddRange(BitConverter.GetBytes((short)0x7ABC));
 
-            var binary_name = $"{Project.Name}.{Path.GetExtension(host.FullName)}";
+            var binary_name = $"{Project.Name}{Path.GetExtension(host.FullName)}";
 
             File.WriteAllBytes(Path.Combine(OutputDirectory.FullName, binary_name), host_bytes.ToArray());
         }
