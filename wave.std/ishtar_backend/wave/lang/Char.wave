@@ -1,9 +1,0 @@
-#space "wave/lang"
-
-
-[special, readonly]
-public struct Char : ValueType
-{
-    [native]
-    private _value: Char;
-}

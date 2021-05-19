@@ -1,6 +1,6 @@
-﻿namespace wave.syntax
+﻿namespace mana.syntax
 {
-    public enum WaveAnnotationKind
+    public enum ManaAnnotationKind
     {
         Special,
         Virtual,

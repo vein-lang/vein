@@ -1,4 +1,4 @@
-﻿namespace wave.fs
+﻿namespace mana.fs
 {
     using System.IO;
 

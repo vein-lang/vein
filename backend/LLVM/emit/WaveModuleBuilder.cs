@@ -10,15 +10,15 @@
     using runtime;
     using Serilog;
 
-    public class WaveModuleBuilder : WaveModule, IBaker
+    public class ManaModuleBuilder : ManaModule, IBaker
     {
-        private ILogger logger => Journal.Get(nameof(WaveModule));
+        private ILogger logger => Journal.Get(nameof(ManaModule));
         internal LLVMModuleRef @ref;
 
-        public WaveModuleBuilder(string name) : base(name) 
+        public ManaModuleBuilder(string name) : base(name) 
             => @ref = LLVM.ModuleCreateWithName(name);
 
-        public WaveModuleBuilder(string name, Version ver) : base(name, ver) 
+        public ManaModuleBuilder(string name, Version ver) : base(name, ver) 
             => @ref = LLVM.ModuleCreateWithName(name);
 
 
@@ -124,7 +124,7 @@
             return key;
         }
         
-        internal (int, QualityTypeName) GetMethodToken(WaveMethod method) => 
+        internal (int, QualityTypeName) GetMethodToken(ManaMethod method) => 
             (this.InternString(method.Name), method.Owner.FullName);
 
         #region Implementation of IBaker

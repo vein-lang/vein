@@ -3,7 +3,7 @@
     using System;
     using System.IO;
     using System.Text;
-    using wave.fs;
+    using mana.fs;
     using Xunit;
     public class ElfTest
     {

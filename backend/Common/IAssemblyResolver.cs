@@ -1,4 +1,4 @@
-﻿namespace wave
+﻿namespace mana
 {
     using System;
     using System.Collections.Generic;
@@ -6,6 +6,6 @@
 
     public interface IAssemblyResolver
     {
-        WaveModule ResolveDep(string name, Version version, List<WaveModule> deps);
+        ManaModule ResolveDep(string name, Version version, List<ManaModule> deps);
     }
 }

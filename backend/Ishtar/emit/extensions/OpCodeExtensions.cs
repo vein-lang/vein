@@ -1,7 +1,7 @@
-﻿namespace wave.ishtar.emit.extensions
+﻿namespace mana.ishtar.emit.extensions
 {
     using global::ishtar;
-    using wave.extensions;
+    using mana.extensions;
 
     public static class OpCodeExtensions
     {

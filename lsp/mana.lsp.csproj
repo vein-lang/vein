@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Authors>Yuuki Wesp</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
+		<Description>LSP for Moe Lang</Description>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<AssemblyName>manalsp</AssemblyName>
+		<RootNamespace>mana.lsp</RootNamespace>
+		<OutputType>WinExe</OutputType>
+	</PropertyGroup>
+	<PropertyGroup Condition="$(Configuration) == 'Debug'">
+		<BumpPatch>true</BumpPatch>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Ivy.Versioning" Version="3.1.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+		<PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.1" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
+		<PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
+		<PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
+		<PackageReference Include="System.IO" Version="4.3.0" />
+		<PackageReference Include="System.Runtime.Handles" Version="4.3.0" />
+		<PackageReference Include="System.Text.Encoding" Version="4.3.0" />
+		<PackageReference Include="System.Text.Encoding.Extensions" Version="4.3.0" />
+		<PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+		<PackageReference Include="System.IO.Pipelines" Version="4.7.3" />
+		<PackageReference Include="Nerdbank.Streams" Version="2.6.81" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\lib\ast\mana.ast.csproj" />
+	</ItemGroup>
+</Project>

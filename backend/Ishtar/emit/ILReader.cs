@@ -1,10 +1,10 @@
-﻿namespace wave.ishtar.emit
+﻿namespace mana.ishtar.emit
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using global::ishtar;
-    using wave.extensions;
+    using mana.extensions;
 
     internal static unsafe class ILReader
     {

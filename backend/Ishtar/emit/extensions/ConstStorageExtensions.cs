@@ -1,9 +1,9 @@
-﻿namespace wave.ishtar.emit.extensions
+﻿namespace mana.ishtar.emit.extensions
 {
     using System;
     using System.IO;
     using System.Text;
-    using wave.runtime;
+    using mana.runtime;
 
     public static class ConstStorageExtensions
     {

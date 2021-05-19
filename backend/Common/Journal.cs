@@ -1,7 +1,7 @@
 ﻿namespace insomnia
 {
     using System.Collections.Generic;
-    using wave.common;
+    using mana.common;
     using Serilog;
 
     internal class Journal

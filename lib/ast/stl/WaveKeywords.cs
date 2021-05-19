@@ -1,8 +1,8 @@
-﻿namespace wave.stl
+﻿namespace mana.stl
 {
     using System.Collections.Generic;
 
-    public class WaveKeywords
+    public class ManaKeywords
     {
         public static List<string> list = new()
         {

@@ -4,59 +4,59 @@
     using System.Runtime.Serialization;
     using Sprache;
     using ishtar;
-    using wave.runtime;
-    using wave.syntax;
+    using mana.runtime;
+    using mana.syntax;
     using Xunit;
 
     public class compatible_number_test
     {
         [Theory]
-        [InlineData(WaveTypeCode.TYPE_R4, WaveTypeCode.TYPE_R8)]
-        [InlineData(WaveTypeCode.TYPE_R4, WaveTypeCode.TYPE_R16)]
-        [InlineData(WaveTypeCode.TYPE_R8, WaveTypeCode.TYPE_R16)]
-        [InlineData(WaveTypeCode.TYPE_R16, WaveTypeCode.TYPE_R4)]
-        [InlineData(WaveTypeCode.TYPE_R16, WaveTypeCode.TYPE_R8)]
-        [InlineData(WaveTypeCode.TYPE_U2, WaveTypeCode.TYPE_U4)]
-        [InlineData(WaveTypeCode.TYPE_U2, WaveTypeCode.TYPE_U8)]
-        [InlineData(WaveTypeCode.TYPE_U2, WaveTypeCode.TYPE_I8)]
-        [InlineData(WaveTypeCode.TYPE_U2, WaveTypeCode.TYPE_I4)]
-        public void CompatibleFalse(WaveTypeCode variable, WaveTypeCode value) 
+        [InlineData(ManaTypeCode.TYPE_R4, ManaTypeCode.TYPE_R8)]
+        [InlineData(ManaTypeCode.TYPE_R4, ManaTypeCode.TYPE_R16)]
+        [InlineData(ManaTypeCode.TYPE_R8, ManaTypeCode.TYPE_R16)]
+        [InlineData(ManaTypeCode.TYPE_R16, ManaTypeCode.TYPE_R4)]
+        [InlineData(ManaTypeCode.TYPE_R16, ManaTypeCode.TYPE_R8)]
+        [InlineData(ManaTypeCode.TYPE_U2, ManaTypeCode.TYPE_U4)]
+        [InlineData(ManaTypeCode.TYPE_U2, ManaTypeCode.TYPE_U8)]
+        [InlineData(ManaTypeCode.TYPE_U2, ManaTypeCode.TYPE_I8)]
+        [InlineData(ManaTypeCode.TYPE_U2, ManaTypeCode.TYPE_I4)]
+        public void CompatibleFalse(ManaTypeCode variable, ManaTypeCode value) 
             => Assert.False(variable.IsCompatibleNumber(value));
 
         [Theory]
-        [InlineData(WaveTypeCode.TYPE_I4, WaveTypeCode.TYPE_U1)]
-        [InlineData(WaveTypeCode.TYPE_I4, WaveTypeCode.TYPE_I1)]
-        public void CompatibleTrue(WaveTypeCode variable, WaveTypeCode value) 
+        [InlineData(ManaTypeCode.TYPE_I4, ManaTypeCode.TYPE_U1)]
+        [InlineData(ManaTypeCode.TYPE_I4, ManaTypeCode.TYPE_I1)]
+        public void CompatibleTrue(ManaTypeCode variable, ManaTypeCode value) 
             => Assert.True(variable.IsCompatibleNumber(value));
 
         [Theory]
-        [InlineData(typeof(SByteLiteralExpressionSyntax), WaveTypeCode.TYPE_I1)]
-        [InlineData(typeof(Int16LiteralExpressionSyntax), WaveTypeCode.TYPE_I2)]
-        [InlineData(typeof(Int32LiteralExpressionSyntax), WaveTypeCode.TYPE_I4)]
-        [InlineData(typeof(Int64LiteralExpressionSyntax), WaveTypeCode.TYPE_I8)]
-        [InlineData(typeof(ByteLiteralExpressionSyntax), WaveTypeCode.TYPE_U1)]
-        [InlineData(typeof(UInt16LiteralExpressionSyntax), WaveTypeCode.TYPE_U2)]
-        [InlineData(typeof(UInt32LiteralExpressionSyntax), WaveTypeCode.TYPE_U4)]
-        [InlineData(typeof(UInt64LiteralExpressionSyntax), WaveTypeCode.TYPE_U8)]
-        [InlineData(typeof(SingleLiteralExpressionSyntax), WaveTypeCode.TYPE_R4)]
-        [InlineData(typeof(DoubleLiteralExpressionSyntax), WaveTypeCode.TYPE_R8)]
-        [InlineData(typeof(DecimalLiteralExpressionSyntax), WaveTypeCode.TYPE_R16)]
-        public void TypeCodeValidTest(Type t, WaveTypeCode code) 
+        [InlineData(typeof(SByteLiteralExpressionSyntax), ManaTypeCode.TYPE_I1)]
+        [InlineData(typeof(Int16LiteralExpressionSyntax), ManaTypeCode.TYPE_I2)]
+        [InlineData(typeof(Int32LiteralExpressionSyntax), ManaTypeCode.TYPE_I4)]
+        [InlineData(typeof(Int64LiteralExpressionSyntax), ManaTypeCode.TYPE_I8)]
+        [InlineData(typeof(ByteLiteralExpressionSyntax), ManaTypeCode.TYPE_U1)]
+        [InlineData(typeof(UInt16LiteralExpressionSyntax), ManaTypeCode.TYPE_U2)]
+        [InlineData(typeof(UInt32LiteralExpressionSyntax), ManaTypeCode.TYPE_U4)]
+        [InlineData(typeof(UInt64LiteralExpressionSyntax), ManaTypeCode.TYPE_U8)]
+        [InlineData(typeof(SingleLiteralExpressionSyntax), ManaTypeCode.TYPE_R4)]
+        [InlineData(typeof(DoubleLiteralExpressionSyntax), ManaTypeCode.TYPE_R8)]
+        [InlineData(typeof(DecimalLiteralExpressionSyntax), ManaTypeCode.TYPE_R16)]
+        public void TypeCodeValidTest(Type t, ManaTypeCode code) 
             => Assert.Equal(code, CreateExpressionByType(t).GetTypeCode());
 
         [Theory]
-        [InlineData(WaveTypeCode.TYPE_U1, (byte)22)]
-        [InlineData(WaveTypeCode.TYPE_I1, (sbyte)-22)]
-        [InlineData(WaveTypeCode.TYPE_I2, short.MaxValue / 2)]
-        [InlineData(WaveTypeCode.TYPE_I4, int.MaxValue / 2)]
-        [InlineData(WaveTypeCode.TYPE_I8, long.MaxValue / 2)]
-        [InlineData(WaveTypeCode.TYPE_I8, long.MinValue / 2)]
-        [InlineData(WaveTypeCode.TYPE_I4, int.MinValue / 2)]
-        [InlineData(WaveTypeCode.TYPE_I2, short.MinValue / 2)]
-        [InlineData(WaveTypeCode.TYPE_U2, ushort.MaxValue)]
-        [InlineData(WaveTypeCode.TYPE_U4, uint.MaxValue)]
-        [InlineData(WaveTypeCode.TYPE_U8, ulong.MaxValue)]
-        public void DetectTypeCode(WaveTypeCode code, object value)
+        [InlineData(ManaTypeCode.TYPE_U1, (byte)22)]
+        [InlineData(ManaTypeCode.TYPE_I1, (sbyte)-22)]
+        [InlineData(ManaTypeCode.TYPE_I2, short.MaxValue / 2)]
+        [InlineData(ManaTypeCode.TYPE_I4, int.MaxValue / 2)]
+        [InlineData(ManaTypeCode.TYPE_I8, long.MaxValue / 2)]
+        [InlineData(ManaTypeCode.TYPE_I8, long.MinValue / 2)]
+        [InlineData(ManaTypeCode.TYPE_I4, int.MinValue / 2)]
+        [InlineData(ManaTypeCode.TYPE_I2, short.MinValue / 2)]
+        [InlineData(ManaTypeCode.TYPE_U2, ushort.MaxValue)]
+        [InlineData(ManaTypeCode.TYPE_U4, uint.MaxValue)]
+        [InlineData(ManaTypeCode.TYPE_U8, ulong.MaxValue)]
+        public void DetectTypeCode(ManaTypeCode code, object value)
         {
             var str = value.ToString();
             var result =

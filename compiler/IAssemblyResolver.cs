@@ -1,4 +1,4 @@
-﻿namespace wave
+﻿namespace mana
 {
     using System;
     using System.Collections.Generic;
@@ -22,7 +22,7 @@
             return this;
         }
 
-        public WaveModule ResolveDep(string name, Version version, List<WaveModule> deps)
+        public ManaModule ResolveDep(string name, Version version, List<ManaModule> deps)
         {
             var file = FindInPaths(name);
             if (file is null)

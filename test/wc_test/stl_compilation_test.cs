@@ -5,16 +5,16 @@
     using System.IO;
     using System.Linq;
     using Sprache;
-    using wave.ishtar.emit;
-    using wave.stl;
-    using wave.syntax;
+    using mana.ishtar.emit;
+    using mana.stl;
+    using mana.syntax;
     using Xunit;
-    public class FetchWaveSource : IEnumerable<object[]>
+    public class FetchManaSource : IEnumerable<object[]>
     {
-        public const string RootOfWaveStd = "./../../../../../wave.std";
+        public const string RootOfManaStd = "./../../../../../wave.std";
         
         public IEnumerator<object[]> GetEnumerator() => 
-            Directory.EnumerateFiles($"{RootOfWaveStd}", "*.wave", SearchOption.AllDirectories)
+            Directory.EnumerateFiles($"{RootOfManaStd}", "*.wave", SearchOption.AllDirectories)
                 .Select(x => new object[]{x}).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -24,22 +24,22 @@
     {
         
         [Theory(Skip = "MANUAL")]
-        [ClassData(typeof(FetchWaveSource))]
+        [ClassData(typeof(FetchManaSource))]
         public void FilesParse(string path)
         {
             var code = File.ReadAllText(path);
-            Wave.CompilationUnit.End().ParseWave(code);
+            Mana.CompilationUnit.End().ParseMana(code);
         }
 
         [Fact(Skip = "MANUAL")]
         public void FilesCompile()
         {
-            var code = File.ReadAllText($"{FetchWaveSource.RootOfWaveStd}/wave/lang/Object.wave");
-            var doc = Wave.CompilationUnit.End().ParseWave(code);
-            var module = new WaveModuleBuilder("wcorlib");
+            var code = File.ReadAllText($"{FetchManaSource.RootOfManaStd}/wave/lang/Object.wave");
+            var doc = Mana.CompilationUnit.End().ParseMana(code);
+            var module = new ManaModuleBuilder("wcorlib");
             //doc.CompileInto(module);
         }
 
-        public WaveSyntax Wave => new();
+        public ManaSyntax Mana => new();
     }
 }

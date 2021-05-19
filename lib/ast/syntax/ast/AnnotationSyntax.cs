@@ -1,4 +1,4 @@
-﻿namespace wave.syntax
+﻿namespace mana.syntax
 {
     using System;
     using System.Collections.Generic;
@@ -8,11 +8,11 @@
 
     public class AnnotationSyntax : BaseSyntax, IPositionAware<AnnotationSyntax>
     {
-        public AnnotationSyntax(WaveAnnotationKind kind) 
+        public AnnotationSyntax(ManaAnnotationKind kind) 
             => this.AnnotationKind = kind;
-        public AnnotationSyntax(WaveAnnotationKind kind, IOption<ExpressionSyntax[]> args) 
+        public AnnotationSyntax(ManaAnnotationKind kind, IOption<ExpressionSyntax[]> args) 
             => (AnnotationKind, Args) = (kind, args.GetOrEmpty().ToArray());
-        public WaveAnnotationKind AnnotationKind { get; }
+        public ManaAnnotationKind AnnotationKind { get; }
         public ExpressionSyntax[] Args { get; } = Array.Empty<ExpressionSyntax>();
         public override SyntaxType Kind => SyntaxType.Annotation;
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;

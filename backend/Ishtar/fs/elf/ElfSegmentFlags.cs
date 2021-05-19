@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace wave.fs.elf
+namespace mana.fs.elf
 {
     [Flags]
     public enum ElfSegmentFlags

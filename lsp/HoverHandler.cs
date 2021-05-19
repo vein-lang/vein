@@ -8,12 +8,12 @@
     using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
     using OmniSharp.Extensions.LanguageServer.Protocol.Document;
     using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-    using wave.stl;
-    using wave.syntax;
+    using mana.stl;
+    using mana.syntax;
 
     public class HoverHandler : HoverHandlerBase
     {
-        private static WaveSyntax _syntax = new();
+        private static ManaSyntax _syntax = new();
 
         #region Overrides of Base<HoverRegistrationOptions,HoverCapability>
 
@@ -28,7 +28,7 @@
         {
             var content = await File.ReadAllTextAsync(DocumentUri.GetFileSystemPath(request.TextDocument.Uri), cancellationToken);
             await Task.Yield();
-            var result = _syntax.CompilationUnit.ParseWave(content);
+            var result = _syntax.CompilationUnit.ParseMana(content);
 
             var lines = content.Split('\n');
 

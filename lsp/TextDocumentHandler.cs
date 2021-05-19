@@ -18,7 +18,7 @@
 
         private readonly DocumentSelector _documentSelector = new(
             new DocumentFilter {
-                Pattern = "**/*.wave"
+                Pattern = "**/*.mana"
             }
         );
 
@@ -68,6 +68,6 @@
         };
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) 
-            => new(uri, "wave");
+            => new(uri, "mana");
     }
 }

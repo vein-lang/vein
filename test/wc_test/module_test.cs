@@ -5,26 +5,26 @@
     using System.IO;
     using System.Linq;
     using ishtar;
-    using wave;
-    using wave.fs;
-    using wave.ishtar.emit;
-    using wave.project;
-    using wave.runtime;
+    using mana;
+    using mana.fs;
+    using mana.ishtar.emit;
+    using mana.project;
+    using mana.runtime;
     using Xunit;
 
     public class module_test
     {
         
-        public static List<WaveModule> GetDeps()
+        public static List<ManaModule> GetDeps()
         {
-            var list = new List<WaveModule>();
+            var list = new List<ManaModule>();
 
 
-            var stl = new WaveModuleBuilder("stl", new Version(2,3));
+            var stl = new ManaModuleBuilder("stl", new Version(2,3));
 
-            foreach (var type in WaveCore.Types.All) 
+            foreach (var type in ManaCore.Types.All) 
                 stl.InternTypeName(type.FullName);
-            foreach (var type in WaveCore.All)
+            foreach (var type in ManaCore.All)
             {
                 stl.InternTypeName(type.FullName);
                 stl.InternString(type.Name);
@@ -51,7 +51,7 @@
         public void WriteTest()
         {
             var verSR = new Version(2, 2, 2, 2);
-            var moduleSR = new WaveModuleBuilder("set1", verSR);
+            var moduleSR = new ManaModuleBuilder("set1", verSR);
             {
                 moduleSR.Deps.AddRange(GetDeps());
 
@@ -61,7 +61,7 @@
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
                 var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                    WaveTypeCode.TYPE_VOID.AsClass());
+                    ManaTypeCode.TYPE_VOID.AsClass());
 
                 var gen = method.GetGenerator();
             
@@ -79,7 +79,7 @@
 
             {
                 var ver = new Version(2, 2, 2, 2);
-                var module = new WaveModuleBuilder("set2", ver);
+                var module = new ManaModuleBuilder("set2", ver);
                 module.Deps.AddRange(GetDeps());
 
 
@@ -88,7 +88,7 @@
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
                 var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                    WaveTypeCode.TYPE_VOID.AsClass());
+                    ManaTypeCode.TYPE_VOID.AsClass());
 
                 var gen = method.GetGenerator();
             
@@ -116,7 +116,7 @@
 
             var (_, bytes) = insm.Sections.First();
 
-            var sdk = new WaveSDK(new WaveProject(new FileInfo(@"C:\wavelib\foo.ww"), new XML.Project()
+            var sdk = new ManaSDK(new ManaProject(new FileInfo(@"C:\wavelib\foo.ww"), new XML.Project()
             {
                 Sdk = "default"
             }));
@@ -131,10 +131,10 @@
         public void ReaderTest()
         {
             var deps = GetDeps();
-            var f = IshtarAssembly.LoadFromFile(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\std\aspera.wll");
+            var f = IshtarAssembly.LoadFromFile(@"C:\Program Files (x86)\ManaLang\sdk\0.1-preview\std\aspera.wll");
             var (_, bytes) = f.Sections.First();
 
-            var sdk = new WaveSDK(new WaveProject(new FileInfo(@"C:\wave-lang-temp\foo.ww"), new XML.Project()
+            var sdk = new ManaSDK(new ManaProject(new FileInfo(@"C:\wave-lang-temp\foo.ww"), new XML.Project()
             {
                 Sdk = "default"
             }));

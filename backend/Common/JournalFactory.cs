@@ -1,4 +1,4 @@
-﻿namespace wave.common
+﻿namespace mana.common
 {
     using System;
     using System.Collections.Concurrent;

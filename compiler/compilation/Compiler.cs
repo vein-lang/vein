@@ -1,6 +1,6 @@
 ﻿namespace insomnia.compilation
 {
-    using wave.fs;
+    using mana.fs;
     using MoreLinq;
     using Spectre.Console;
     using System;
@@ -12,20 +12,20 @@
     using System.Text;
     using System.Threading;
     using ishtar;
-    using wave;
-    using wave.cmd;
-    using wave.ishtar.emit;
-    using wave.extensions;
-    using wave.pipes;
-    using wave.project;
-    using wave.runtime;
-    using wave.stl;
-    using wave.syntax;
+    using mana;
+    using mana.cmd;
+    using mana.ishtar.emit;
+    using mana.extensions;
+    using mana.pipes;
+    using mana.project;
+    using mana.runtime;
+    using mana.stl;
+    using mana.syntax;
     using static Spectre.Console.AnsiConsole;
     public class Compiler
     {
 
-        public static Compiler Process(FileInfo[] entity, WaveProject project, CompileSettings flags)
+        public static Compiler Process(FileInfo[] entity, ManaProject project, CompileSettings flags)
         {
             var c = new Compiler(project, flags);
             
@@ -47,7 +47,7 @@
                 });
         }
 
-        public Compiler(WaveProject project, CompileSettings flags)
+        public Compiler(ManaProject project, CompileSettings flags)
         {
             _flags = flags;
             Project = project;
@@ -56,17 +56,17 @@
             resolver.AddSearchPath(new (project.SDK.GetFullPath(pack)));
         }
 
-        internal WaveProject Project { get; set; }
+        internal ManaProject Project { get; set; }
 
         internal readonly CompileSettings _flags;
-        internal readonly WaveSyntax syntax = new();
+        internal readonly ManaSyntax syntax = new();
         internal readonly AssemblyResolver resolver = new ();
         internal readonly Dictionary<FileInfo, string> Sources = new ();
         internal readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
         internal StatusContext Status;
         public readonly List<string> warnings = new ();
         public readonly List<string> errors = new ();
-        internal WaveModuleBuilder module;
+        internal ManaModuleBuilder module;
         internal GeneratorContext Context;
 
         private void ProcessFiles(FileInfo[] files)
@@ -75,35 +75,35 @@
             {
                 while (!Debugger.IsAttached)
                 {
-                    Status.WaveStatus($"[green]Waiting debugger[/]...");
+                    Status.ManaStatus($"[green]Waiting debugger[/]...");
                     Thread.Sleep(400);
                 }
             }
-            var deps = new List<WaveModule>();
+            var deps = new List<ManaModule>();
             foreach (var (name, version) in Project.Packages)
             {
-                Status.WaveStatus($"Resolve [grey]'{name}, {version}'[/]...");
+                Status.ManaStatus($"Resolve [grey]'{name}, {version}'[/]...");
                 deps.Add(resolver.ResolveDep(name, version.Version, deps));
             }
             foreach (var file in files)
             {
-                Status.WaveStatus($"Read [grey]'{file.Name}'[/]...");
+                Status.ManaStatus($"Read [grey]'{file.Name}'[/]...");
                 Sources.Add(file, File.ReadAllText(file.FullName));
             }
 
             foreach (var (key, value) in Sources)
             {
-                Status.WaveStatus($"Compile [grey]'{key.Name}'[/]...");
+                Status.ManaStatus($"Compile [grey]'{key.Name}'[/]...");
                 try
                 {
-                    var result = syntax.CompilationUnit.ParseWave(value);
+                    var result = syntax.CompilationUnit.ParseMana(value);
                     result.FileEntity = key;
                     result.SourceText = value;
                     // apply root namespace into includes
                     result.Includes.Add($"global::{result.Name}");
                     Ast.Add(key, result);
                 }
-                catch (WaveParseException e)
+                catch (ManaParseException e)
                 {
                     errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}[/] \n\t" +
                                $"at '[orange bold]{e.Position.Line} line, {e.Position.Column} column[/]' \n\t" +
@@ -113,13 +113,13 @@
 
             Context = new GeneratorContext();
 
-            module = new WaveModuleBuilder(Project.Name);
+            module = new ManaModuleBuilder(Project.Name);
 
             Context.Module = module;
             Context.Module.Deps.AddRange(deps);
 
             Ast.Select(x => (x.Key, x.Value))
-                .Pipe(x => Status.WaveStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
+                .Pipe(x => Status.ManaStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
                 .Select(x => LinkClasses(x.Value))
                 .ToList()
                 .Pipe(z => z
@@ -147,7 +147,7 @@
             }
         }
 
-        public void WriteOutput(WaveModuleBuilder builder)
+        public void WriteOutput(ManaModuleBuilder builder)
         {
             var dirInfo = new DirectoryInfo(Path.Combine(Project.WorkDir, "bin"));
 
@@ -179,7 +179,7 @@
             {
                 if (member is ClassDeclarationSyntax clazz)
                 {
-                    Status.WaveStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
+                    Status.ManaStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
                     clazz.OwnerDocument = doc;
                     var result = CompileClass(clazz, doc);
                     Context.Classes.Add(result.FullName, result);
@@ -197,7 +197,7 @@
             CompileAnnotation(member, doc);
             if (module.Name.Equals("wcorlib"))
             {
-                var result = WaveCore.All.FirstOrDefault(x => x.FullName.Name.Equals(member.Identifier.ExpressionString));
+                var result = ManaCore.All.FirstOrDefault(x => x.FullName.Name.Equals(member.Identifier.ExpressionString));
                
                 if (result is not null)
                 {
@@ -269,13 +269,13 @@
         }
         public (
             List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods, 
-            List<(WaveField field, FieldDeclarationSyntax syntax)>) 
+            List<(ManaField field, FieldDeclarationSyntax syntax)>) 
             LinkMethods((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
             var (@class, clazzSyntax) = x;
             var doc = clazzSyntax.OwnerDocument;
             var methods = new List<(MethodBuilder method, MethodDeclarationSyntax syntax)>();
-            var fields = new List<(WaveField field, FieldDeclarationSyntax syntax)>();
+            var fields = new List<(ManaField field, FieldDeclarationSyntax syntax)>();
             foreach (var member in clazzSyntax.Members)
             {
                 switch (member)
@@ -290,12 +290,12 @@
                                    $"{err_line}");
                         break;
                     case MethodDeclarationSyntax method:
-                        Status.WaveStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
+                        Status.ManaStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
                         method.OwnerClass = clazzSyntax;
                         methods.Add(CompileMethod(method, @class, doc));
                         break;
                     case FieldDeclarationSyntax field:
-                        Status.WaveStatus($"Regeneration field [grey]'{field.Field.Identifier}'[/]");
+                        Status.ManaStatus($"Regeneration field [grey]'{field.Field.Identifier}'[/]");
                         field.OwnerClass = clazzSyntax;
                         fields.Add(CompileField(field, @class, doc));
                         break;
@@ -326,7 +326,7 @@
             return (method, member);
         }
 
-        public (WaveField field, FieldDeclarationSyntax member)
+        public (ManaField field, FieldDeclarationSyntax member)
             CompileField(FieldDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
             var fieldType = FetchType(member.Type, doc);
@@ -342,7 +342,7 @@
         {
             var (@class, member) = x;
             Context.Document = member.OwnerDocument;
-            Status.WaveStatus($"Regenerate default ctor for [grey]'{member.Identifier}'[/].");
+            Status.ManaStatus($"Regenerate default ctor for [grey]'{member.Identifier}'[/].");
             var ctor = @class.GetDefaultCtor() as MethodBuilder;
             var doc = member.OwnerDocument;
 
@@ -365,7 +365,7 @@
             
             if (pctor is not null) // for Object, ValueType
                 gen.Emit(OpCodes.CALL, pctor); // call parent ctor
-            var pregen = new List<(ExpressionSyntax exp, WaveField field)>();
+            var pregen = new List<(ExpressionSyntax exp, ManaField field)>();
 
 
             foreach (var field in @class.Fields)
@@ -398,7 +398,7 @@
         public void GenerateStaticCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
             var (@class, member) = x;
-            Status.WaveStatus($"Regenerate static ctor for [grey]'{member.Identifier}'[/].");
+            Status.ManaStatus($"Regenerate static ctor for [grey]'{member.Identifier}'[/].");
             var ctor = @class.GetStaticCtor() as MethodBuilder;
             var doc = member.OwnerDocument;
 
@@ -415,7 +415,7 @@
 
             gen.StoreIntoMetadata("context", Context);
 
-            var pregen = new List<(ExpressionSyntax exp, WaveField field)>();
+            var pregen = new List<(ExpressionSyntax exp, ManaField field)>();
 
             foreach (var field in @class.Fields)
             {
@@ -487,7 +487,7 @@
                        $"in '[orange bold]{doc.FileEntity}[/]'."+
                        $"{diff_err}");
         }
-        public void GenerateField((WaveField field, FieldDeclarationSyntax member) t)
+        public void GenerateField((ManaField field, FieldDeclarationSyntax member) t)
         {
             if (t == default)
             {
@@ -592,7 +592,7 @@
             };
         }
 
-        private WaveClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
+        private ManaClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
         {
             ApplyTypeWord(typename);
             var retType = module.TryFindType(typename.Identifier.ExpressionString, doc.Includes);
@@ -604,11 +604,11 @@
             return retType;
         }
         
-        private WaveArgumentRef[] GenerateArgument(MethodDeclarationSyntax method, DocumentDeclaration doc)
+        private ManaArgumentRef[] GenerateArgument(MethodDeclarationSyntax method, DocumentDeclaration doc)
         {
             if (method.Parameters.Count == 0)
-                return Array.Empty<WaveArgumentRef>();
-            return method.Parameters.Select(parameter => new WaveArgumentRef
+                return Array.Empty<ManaArgumentRef>();
+            return method.Parameters.Select(parameter => new ManaArgumentRef
                 {Type = FetchType(parameter.Type, doc), Name = parameter.Identifier.ExpressionString})
                 .ToArray();
         }
@@ -624,25 +624,25 @@
                 var kind = annotation.AnnotationKind;
                 switch (kind)
                 {
-                    case WaveAnnotationKind.Getter:
-                    case WaveAnnotationKind.Setter:
-                    case WaveAnnotationKind.Virtual:
+                    case ManaAnnotationKind.Getter:
+                    case ManaAnnotationKind.Setter:
+                    case ManaAnnotationKind.Virtual:
                         PrintError(
                             $"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
                             $"class/struct/interface declaration.",
                             annotation, clazz.OwnerDocument);
                         continue;
-                    case WaveAnnotationKind.Special:
+                    case ManaAnnotationKind.Special:
                         flags |= ClassFlags.Special;
                         continue;
-                    case WaveAnnotationKind.Native:
+                    case ManaAnnotationKind.Native:
                         continue;
-                    case WaveAnnotationKind.Readonly when !clazz.IsStruct:
+                    case ManaAnnotationKind.Readonly when !clazz.IsStruct:
                         PrintError(
                             $"[orange bold]Annotation[/] [red bold]{kind}[/] can only be applied to a structure declaration.",
                             annotation, clazz.OwnerDocument);
                         continue;
-                    case WaveAnnotationKind.Readonly when clazz.IsStruct:
+                    case ManaAnnotationKind.Readonly when clazz.IsStruct:
                         // TODO
                         continue;
                     default:
@@ -696,19 +696,19 @@
             {
                 switch (annotation.AnnotationKind)
                 {
-                    case WaveAnnotationKind.Virtual:
+                    case ManaAnnotationKind.Virtual:
                         flags |= FieldFlags.Virtual;
                         continue;
-                    case WaveAnnotationKind.Special:
+                    case ManaAnnotationKind.Special:
                         flags |= FieldFlags.Special;
                         continue;
-                    case WaveAnnotationKind.Native:
+                    case ManaAnnotationKind.Native:
                         continue;
-                    case WaveAnnotationKind.Readonly:
+                    case ManaAnnotationKind.Readonly:
                         flags |= FieldFlags.Readonly;
                         continue;
-                    case WaveAnnotationKind.Getter:
-                    case WaveAnnotationKind.Setter:
+                    case ManaAnnotationKind.Getter:
+                    case ManaAnnotationKind.Setter:
                         //errors.Add($"In [orange]'{field.Field.Identifier}'[/] field [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
                         continue;
                     default:
@@ -801,17 +801,17 @@
             {
                 switch (annotation.AnnotationKind)
                 {
-                    case WaveAnnotationKind.Virtual:
+                    case ManaAnnotationKind.Virtual:
                         flags |= MethodFlags.Virtual;
                         continue;
-                    case WaveAnnotationKind.Special:
+                    case ManaAnnotationKind.Special:
                         flags |= MethodFlags.Special;
                         continue;
-                    case WaveAnnotationKind.Native:
+                    case ManaAnnotationKind.Native:
                         continue;
-                    case WaveAnnotationKind.Readonly:
-                    case WaveAnnotationKind.Getter:
-                    case WaveAnnotationKind.Setter:
+                    case ManaAnnotationKind.Readonly:
+                    case ManaAnnotationKind.Getter:
+                    case ManaAnnotationKind.Setter:
                         PrintError(
                             $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.AnnotationKind}[/] " +
                             $"is not supported [orange bold]annotation[/].",
@@ -869,13 +869,13 @@
         }
     }
 
-    public static class WaveStatusContextEx
+    public static class ManaStatusContextEx
     {
         /// <summary>Sets the status message.</summary>
         /// <param name="context">The status context.</param>
         /// <param name="status">The status message.</param>
         /// <returns>The same instance so that multiple calls can be chained.</returns>
-        public static StatusContext WaveStatus(this StatusContext context, string status)
+        public static StatusContext ManaStatus(this StatusContext context, string status)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof (context));

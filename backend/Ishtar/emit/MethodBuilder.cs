@@ -1,4 +1,4 @@
-﻿namespace wave.ishtar.emit
+﻿namespace mana.ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -6,19 +6,19 @@
     using System.Linq;
     using System.Text;
     using extensions;
-    using wave.extensions;
-    using wave.runtime;
+    using mana.extensions;
+    using mana.runtime;
     using static runtime.MethodFlags;
 
-    public class MethodBuilder : WaveMethod, IBaker
+    public class MethodBuilder : ManaMethod, IBaker
     {
         internal readonly ClassBuilder classBuilder;
-        internal WaveModuleBuilder moduleBuilder 
+        internal ManaModuleBuilder moduleBuilder 
             => classBuilder?.moduleBuilder;
         private readonly ILGenerator _generator;
 
 
-        internal MethodBuilder(ClassBuilder clazz, string name, WaveClass returnType, params WaveArgumentRef[] args) 
+        internal MethodBuilder(ClassBuilder clazz, string name, ManaClass returnType, params ManaArgumentRef[] args) 
             : base(name, 0, returnType, clazz, args)
         {
             classBuilder = clazz;
@@ -111,17 +111,17 @@
             getLocal(@ref)?.arg?.Token?.Value;
         internal int? GetLocalIndex(FieldName @ref) 
             => getLocal(@ref)?.idx;
-        private (int idx, WaveArgumentRef arg)? getLocal(FieldName @ref)
+        private (int idx, ManaArgumentRef arg)? getLocal(FieldName @ref)
         {
             var (key, value) = Locals
                 .FirstOrDefault(x
                     => x.Value.Name.Equals(@ref.Name, StringComparison.CurrentCultureIgnoreCase));
             return value != null ? (key, value) : default;
         }
-        private (int idx, WaveArgumentRef type)? getArg(FieldName @ref)
+        private (int idx, ManaArgumentRef type)? getArg(FieldName @ref)
         {
             var result = Arguments.Select((x, i) => (i, x)).FirstOrDefault(x => x.x.Name.Equals(@ref.Name, StringComparison.CurrentCultureIgnoreCase));
-            return result.x is null ? default((int idx, WaveArgumentRef type)?) : result;
+            return result.x is null ? default((int idx, ManaArgumentRef type)?) : result;
         }
         #endregion
     }

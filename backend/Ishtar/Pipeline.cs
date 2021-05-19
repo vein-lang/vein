@@ -4,8 +4,8 @@
     using System.Drawing;
     using System.Threading.Tasks;
     using System.IO;
-    using wave.runtime;
-    using wave.fs;
+    using mana.runtime;
+    using mana.fs;
 
     public class Pipeline : Command
     {
@@ -14,15 +14,15 @@
             //Console.WriteLine($"{":gear:".Emoji()} Initialized regeneration runtime libraries...");
 
             
-            //var stllib = new WaveModuleBuilder("stl");
+            //var stllib = new ManaModuleBuilder("stl");
             //Console.WriteLine($"{":smoking:".Emoji()} Generate stl.lib...");
             
             //BuiltinGen.GenerateConsole(stllib);
             
             //var asm = new IshtarAssembly(stllib);
             //IshtarAssembly.WriteTo(asm, 
-            //    new DirectoryInfo(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any"));
-            //await File.WriteAllTextAsync(@"C:\Program Files (x86)\WaveLang\sdk\0.1-preview\runtimes\any\stl.wll.il",
+            //    new DirectoryInfo(@"C:\Program Files (x86)\ManaLang\sdk\0.1-preview\runtimes\any"));
+            //await File.WriteAllTextAsync(@"C:\Program Files (x86)\ManaLang\sdk\0.1-preview\runtimes\any\stl.wll.il",
             //    stllib.BakeDebugString());
 
             return await Success();

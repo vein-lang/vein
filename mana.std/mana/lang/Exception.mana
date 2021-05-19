@@ -1,0 +1,8 @@
+#space "moe/lang"
+
+
+[special]
+public class Exception : Object
+{
+    public message: String;
+}

@@ -1,0 +1,432 @@
+scopeName: source.mana.il
+uuid: 19235ffd-7ef3-454e-916e-8771e38d9560
+fileTypes:
+    - lay
+name: "Mana IL Language"
+patterns:
+    - include: "#comment"
+    - include: "#preprocessor"
+    - include: "#operators"
+    - include: "#numbers"
+    - include: "#keywords"
+    - include: "#strings"
+    - include: "#interpolated-string"
+    - include: "#storage-types"
+    - include: "#storage-modifier"
+    - include: "#backslash-escapes"
+    - include: "#types"
+    - include: "#literal"
+    - include: "#opcodes-literal"
+repository:
+    declarations:
+        patterns:
+            - include: "#type-declarations"
+            - include: "#punctuation-semicolon"
+    comment:
+        patterns:
+            - name: comment.line.double-slash.documentation.mana
+              begin: '(?:^)(?>\s*)(\/\/[!\/]+)'
+              beginCaptures:
+                  "1": { name: punctuation.definition.comment.documentation.mana }
+              end: '(?<=\n)(?<!\\\n)'
+              patterns:
+                  - { include: "#line_continuation_character" }
+            - match: '(\/\*[!*]+(?=\s))(.+)([!*]*\*\/)'
+              captures:
+                  "1": { name: punctuation.definition.comment.begin.documentation.mana }
+                  "2": { name: punctuation.definition.comment.end.documentation.mana }
+              name: comment.block.documentation.mana
+            - name: comment.block.documentation.mana
+              begin: '((?>\s*)\/\*[!*]+(?:(?:\n|$)|(?=\s)))'
+              beginCaptures:
+                  "1": {  name: punctuation.definition.comment.begin.documentation.mana }
+              end: '([!*]*\*\/)'
+              endCaptures:
+                  "1": { name: punctuation.definition.comment.end.documentation.mana }
+            - match: '^\/\* =(\s*.*?)\s*= \*\/$\n?'
+              captures:
+                  "1": { name: meta.toc-list.banner.block.c }
+              name: comment.block.banner.mana
+            - name: comment.block.mana
+              begin: '(\/\*)'
+              beginCaptures:
+                  "1": { name: punctuation.definition.comment.begin.mana }
+              end: '(\*\/)'
+              endCaptures:
+                  "1": { name: punctuation.definition.comment.end.mana }
+            - match: '^\/\/ =(\s*.*?)\s*=$\n?'
+              captures:
+                  "1": { name: meta.toc-list.banner.line.mana }
+              name: comment.line.banner.mana
+            - begin: '((?:^[ \t]+)?)(?=\/\/)'
+              beginCaptures:
+                  "1": { name: punctuation.whitespace.comment.leading.mana }
+              end: '(?!\G)'
+    preprocessor:
+        begin: '^\s*((#)\s*(use|load))\b\s*'
+        beginCaptures:
+            "1": 
+              name: punctuation.separator.hash.mana
+        end: '(?=(?://|/\*))|(?<!\\)(?=\n)'
+        name: meta.preprocessor.mana
+    operators:
+        patterns:
+            - match: '(?<![\w$])(sizeof)(?![\w$])'
+              name: keyword.operator.sizeof.mana
+            - match: "--"
+              name: keyword.operator.decrement.mana
+            - match: \+\+
+              name: keyword.operator.increment.mana
+            - match: '%=|\+=|-=|\*=|(?<!\()/='
+              name: keyword.operator.assignment.compound.mana
+            - match: '&=|\^=|<<=|>>=|\|='
+              name: keyword.operator.assignment.compound.bitwise.mana
+            - match: "<<|>>"
+              name: keyword.operator.bitwise.shift.mana
+            - match: "!=|<=|>=|==|<|>"
+              name: keyword.operator.comparison.mana
+            - match: '&&|!|\|\|'
+              name: keyword.operator.logical.mana
+            - match: '&|\||\^|~'
+              name: keyword.operator.mana
+            - match: "="
+              name: keyword.operator.assignment.mana
+            - match: '%|\*|/|-|\+'
+              name: keyword.operator.mana
+    keywords:
+        patterns:
+            - name: keyword.control.mana
+              match: '\.\b(dep|string|global|this|table|s|t|f|method|base|using|field|auto|const|body|as|namespace|module|class)\b'
+            - name: keyword.control.core.mana
+              match: '\.\b(size|maxstack|locals)\b'
+    storage-modifier:
+        patterns:
+            - name: storage.modifier
+              match: '\b(gc|new|delete|public|protected|internal|private|static|readonly|const|extern)\b'
+    type-builtin:
+        patterns:
+          - include: "#types"
+    types:
+        patterns:
+            - match: '(?i)(as|byte|float|double|bool|string|void|([ui|i](nt16|nt32|nt64)))\b'
+              name: support.type.mana
+            - match: '\b%?(invalid)\b'
+              name: invalid.deprecated
+    punctuation-hash:
+        name: punctuation.separator.hash.mana
+        match: "#"
+    punctuation-comma:
+        name: punctuation.separator.comma.mana
+        match: ","
+    punctuation-semicolon:
+        name: punctuation.terminator.statement.mana
+        match: ;
+    punctuation-accessor:
+        name: punctuation.accessor.mana
+        match: \.
+    type-name:
+        patterns:
+            - match: '(@?[_[:alpha:]][_[:alnum:]]*)\s*(\:\:)'
+              captures:
+                  "1": { name: entity.name.type.alias.mana }
+                  "2": { name: punctuation.separator.coloncolon.mana }
+            - match: '(@?[_[:alpha:]][_[:alnum:]]*)\s*(\.)'
+              captures:
+                  "1": { name: storage.type.mana }
+                  "2": { name: punctuation.accessor.mana }
+            - match: '(\.)\s*(@?[_[:alpha:]][_[:alnum:]]*)'
+              captures:
+                  "1": { name: punctuation.accessor.mana }
+                  "2": { name: storage.type.mana }
+            - name: storage.type.mana
+              match: "@?[_[:alpha:]][_[:alnum:]]*"
+    type-arguments:
+        begin: "<"
+        beginCaptures:
+            "0":
+                name: punctuation.definition.typeparameters.begin.mana
+        end: ">"
+        endCaptures:
+            "0":
+                name: punctuation.definition.typeparameters.end.mana
+        patterns:
+            - include: "#comment"
+            - include: "#type"
+            - include: "#punctuation-comma"
+    line_continuation_character:
+        patterns:
+            - match: (\\)\n
+              captures:
+                  "1": { name: constant.character.escape.line-continuation.mana }
+    backslash-escapes:
+        match: "(?x)\\\\ (\n\\\\\t\t\t |\n[abefnprtv'\"?]   |\n[0-3][0-7]{,2}\t |\n[4-7]\\d?\t\t|\nx[a-fA-F0-9]{,2} |\nu[a-fA-F0-9]{,4} |\nU[a-fA-F0-9]{,8} )"
+        name: constant.character.escape.mana
+    strings:
+        patterns:
+            - begin: '"'
+              beginCaptures:
+                  "0": { name: punctuation.definition.string.begin.mana }
+              end: '"'
+              endCaptures:
+                  "0": { name: punctuation.definition.string.end.mana }
+              name: string.quoted.double.mana
+              patterns:
+                  - { include: "#string_escaped_char" }
+                  - { include: "#string_placeholder" }
+                  - { include: "#line_continuation_character" }
+            - begin: "'"
+              beginCaptures:
+                  "0": { name: punctuation.definition.string.begin.mana }
+              end: "'"
+              endCaptures:
+                  "0": { name: punctuation.definition.string.end.mana }
+              name: string.quoted.single.mana
+              patterns:
+                  - { include: "#string_escaped_char" }
+                  - { include: "#line_continuation_character" }
+    interpolated-string:
+        name: string.quoted.double.mana
+        begin: '\$"'
+        beginCaptures:
+            "0":
+                name: punctuation.definition.string.begin.mana
+        end: '(")|((?:[^\\\n])$)'
+        endCaptures:
+            "1":
+                name: punctuation.definition.string.end.mana
+            "2":
+                name: invalid.illegal.newline.mana
+        patterns:
+            - include: "#string-character-escape"
+            - include: "#interpolation"   
+    interpolation:
+        name: meta.interpolation.mana
+        begin: '(?<=[^\{]|^)((?:\{\{)*)(\{)(?=[^\{])'
+        beginCaptures:
+            "1":
+                name: string.quoted.double.mana
+            "2":
+                name: punctuation.definition.interpolation.begin.mana
+        end: '\}'
+        endCaptures:
+            "0":
+                name: punctuation.definition.interpolation.end.mana
+        patterns:
+            - include: "#expression"
+    expression:
+        patterns:
+            - include: "#literal"
+            - include: "#identifier"
+    identifier:
+        name: variable.other.readwrite.mana
+        match: "@?[_[:alpha:]][_[:alnum:]]*"
+    literal:
+        patterns:
+            - include: "#boolean-literal"
+            - include: "#null-literal"
+            - include: "#numeric-literal"
+            - include: "#char-literal"
+            - include: "#string-literal"
+            - include: "#verbatim-string-literal"
+            - include: "#tuple-literal"
+    boolean-literal:
+        patterns:
+            - name: constant.language.boolean.true.mana
+              match: '(?<!\.)\btrue\b'
+            - name: constant.language.boolean.false.mana
+              match: '(?<!\.)\bfalse\b'
+    null-literal:
+        name: constant.language.null.mana
+        match: '(?<!\.)\bnull\b'
+    opcodes-literal:
+        name: constant.numeric.decimal.mana
+        match: "\..+(\s|\')$"
+    numeric-literal:
+        patterns:
+            - name: constant.numeric.hex.mana
+              match: '\b0(x|X)[0-9a-fA-F_]+(U|u|L|l|UL|Ul|uL|ul|LU|Lu|lU|lu)?\b'
+            - name: constant.numeric.binary.mana
+              match: '\b0(b|B)[01_]+(U|u|L|l|UL|Ul|uL|ul|LU|Lu|lU|lu)?\b'
+            - name: constant.numeric.decimal.mana
+              match: '\b([0-9_]+)?\.[0-9_]+((e|E)[0-9]+)?(F|f|D|d|M|m)?\b'
+            - name: constant.numeric.decimal.mana
+              match: '\b[0-9_]+(e|E)[0-9_]+(F|f|D|d|M|m)?\b'
+            - name: constant.numeric.decimal.mana
+              match: '\b[0-9_]+(F|f|D|d|M|m)\b'
+    char-literal:
+        name: string.quoted.single.mana
+        begin: "'"
+        beginCaptures:
+            "0":
+                name: punctuation.definition.char.begin.mana
+        end: '(\'')|((?:[^\\\n])$)'
+        endCaptures:
+            "1":
+                name: punctuation.definition.char.end.mana
+            "2":
+                name: invalid.illegal.newline.mana
+        patterns:
+            - include: "#char-character-escape"
+    char-character-escape:
+        name: constant.character.escape.mana
+        match: '\\([''"\\0abfnrtv]|x[0-9a-fA-F]{1,4}|u[0-9a-fA-F]{4})'
+    string-literal:
+        name: string.quoted.double.mana
+        begin: '(?<!@)"'
+        beginCaptures:
+            "0":
+                name: punctuation.definition.string.begin.mana
+        end: '(")|((?:[^\\\n])$)'
+        endCaptures:
+            "1":
+                name: punctuation.definition.string.end.mana
+            "2":
+                name: invalid.illegal.newline.mana
+        patterns:
+            - include: "#string-character-escape"
+    string-character-escape:
+        name: constant.character.escape.mana
+        match: '\\([''"\\0abfnrtv]|x[0-9a-fA-F]{1,4}|U[0-9a-fA-F]{8}|u[0-9a-fA-F]{4})'
+    type:
+        name: meta.type.mana
+        patterns:
+            - include: "#comment"
+            - include: "#ref-modifier"
+            - include: "#readonly-modifier"
+            - include: "#type-builtin"
+            - include: "#type-name"
+            - include: "#type-arguments"
+            - include: "#type-array-suffix"
+    operation-declaration:
+        begin: \b(operation)\s+(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)
+        beginCaptures:
+            "1":
+                name: keyword.control.mana
+            "2":
+                name: entity.name.function.mana
+        end: '(?<=\})'
+        patterns:
+            - include: "#comment"
+            - include: "#gc-modifier"
+            - include: "#sync-modifier"
+            - include: "#body-operation-statament"
+    method-declaration:
+        begin: "(?x)(?<return_type>  (?<type_name>    (?:      (?:ref\s+(?:readonly\s+)?)?       (?:        (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)?        (?<name_and_type_args>           \g<identifier>\s*          (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)?        )        (?:\s*\.\s*\g<name_and_type_args>)* |        (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\))      )      (?:\s*\?\s*)?       (?:\s*\[(?:\s*,\s*)*\]\s*)*     )  )\s+)(?<interface_name>\g<type_name>\s*\.\s*)?(\g<identifier>)\s*(<([^<>]+)>)?\s*(?=\()"
+        beginCaptures:
+            "1":
+                patterns:
+                    - { include: "#type" }
+            "7":
+                patterns:
+                    - { include: "#type" }
+                    - { include: "#punctuation-accessor" }
+            "8":
+                name: entity.name.function.mana
+            "9":
+                patterns:
+                    - { include: "#type-parameter-list" }
+        end: '(?<=\})|(?=;)'
+        patterns:
+            - include: "#comment"
+            - include: "#parenthesized-parameter-list"
+            - include: "#generic-constraints"
+            - include: "#expression-body"
+            - include: "#block"
+    field-declaration:
+        begin: "(?x)(?<typename>(?:(?:(?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?<nameandtypeargs>\g<identifier>\s*(?<typeargs>\s*<(?:[^<>]|\g<typeargs>)+>\s*)?      )      (?:\s*\.\s*\g<nameandtypeargs>)* | (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)))(?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ))\s+(\g<identifier>)\s* (?!=>|==)(?=,|;|=|$)"
+        beginCaptures:
+            "1":
+                patterns:
+                    - { include: "#type" }
+            "6":
+                name: entity.name.variable.field.mana
+        end: "(?=;)"
+        patterns:
+            - name: entity.name.variable.field.mana
+              match: "@?[_[:alpha:]][_[:alnum:]]*"
+            - include: "#punctuation-comma"
+            - include: "#comment"
+            - include: "#variable-initializer"
+            - include: "#class-or-struct-members"
+    argument-list:
+        begin: \(
+        beginCaptures:
+            "0":
+                name: punctuation.parenthesis.open.mana
+        end: \)
+        endCaptures:
+            "0":
+                name: punctuation.parenthesis.close.mana
+        patterns:
+            - include: "#argument"
+            - include: "#punctuation-comma"
+    declaration-expression-local:
+        match: "(?x) (?: \b(auto)\b| (?<type_name> (?: (?: (?:(?<identifier>@?[_[:alpha:]][_[:alnum:]]*)\s*\:\:\s*)? (?<name_and_type_args> \g<identifier>\s* (?<type_args>\s*<(?:[^<>]|\g<type_args>)+>\s*)? ) (?:\s*\.\s*\g<name_and_type_args>)* | (?<tuple>\s*\((?:[^\(\)]|\g<tuple>)+\)) ) (?:\s*\?\s*)? (?:\s*\[(?:\s*,\s*)*\]\s*)* ) ) )\s+ (\g<identifier>)\b\s* (?=[,)\]])"
+        captures:
+            "1":
+                name: keyword.other.var.mana
+            "2":
+                patterns:
+                    - include: "#type"
+            "7":
+                name: entity.name.variable.local.mana
+    argument:
+        patterns:
+            - name: storage.modifier.mana
+              match: \b(ref|out|in)\b
+            - include: "#declaration-expression-local"
+    parenthesized-parameter-list:
+        begin: (\()
+        beginCaptures:
+            "0":
+                name: punctuation.parenthesis.open.mana
+        end: (\))
+        endCaptures:
+            "0":
+                name: punctuation.parenthesis.close.mana
+        patterns:
+            - include: "#comment"
+            - include: "#attribute-section"
+            - include: "#parameter"
+            - include: "#punctuation-comma"
+            - include: "#variable-initializer"
+    gc-modifier:
+        name: entity.operation.gc.mana
+        match: (?x)(gc)\s+(((nocontrol|auto)\;))
+        beginCaptures:
+            "1":
+                name: keyword.control.gc.mana
+            "4":
+                name: keyword.control.gc.mana
+    sync-modifier:
+        name: entity.operation.sync.mana
+        match: (?x)(sync)\s+(((nocontrol|auto|inheritable)\;)|\{)
+        beginCaptures:
+            "1":
+                name: keyword.control.sync.mana
+            "4":
+                name: keyword.control.sync.mana
+    body-operation-statament:
+        begin: \b(body)\s+
+        beginCaptures:
+            "1":
+                name: keyword.control.body.mana
+        end: '(?<=\})'
+        patterns:
+            - begin: '\{'
+              beginCaptures:
+                  "0": { name: punctuation.curlybrace.open.mana }
+              end: '\}'
+              endCaptures:
+                  "0": { name: punctuation.curlybrace.close.mana }
+              patterns:
+                - include: "#literal"
+                - include: "#interpolated-string"
+                - include: "#comment"
+                - include: "#punctuation-accessor"
+                - include: "#parenthesized-parameter-list"
+                - include: "#generic-constraints"
+                - include: "#expression-body"
+                - include: "#block"
+                - include: "#type"
+            

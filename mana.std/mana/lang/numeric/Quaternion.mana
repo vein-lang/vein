@@ -1,0 +1,26 @@
+#space "moe/lang/numeric"
+
+#use "moe/lang"
+
+public struct Quaternion : ValueType
+{
+    //public static Zero: Quaternion = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f);
+
+    public X: Float;
+    public Y: Float;
+    public Z: Float;
+    public W: Float;
+
+    public IsZero(): Boolean
+    {
+        return X + Y + Z + W == 0;
+    }
+
+    new (x: Float, y: Float, z: Float, w: Float)
+    {
+        this.X = x;
+        this.Y = y;
+        this.Z = z;
+        this.W = w;
+    }
+}

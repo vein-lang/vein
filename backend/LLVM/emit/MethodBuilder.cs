@@ -3,17 +3,17 @@
     using LLVMSharp;
     using runtime;
 
-    public class MethodBuilder : WaveMethod, IBaker
+    public class MethodBuilder : ManaMethod, IBaker
     {
         internal readonly ClassBuilder classBuilder;
-        internal WaveModuleBuilder moduleBuilder 
+        internal ManaModuleBuilder moduleBuilder 
             => classBuilder?.moduleBuilder;
 
 
         private LLVMValueRef @ref;
 
 
-        internal MethodBuilder(ClassBuilder clazz, string name, WaveType returnType, params WaveArgumentRef[] args) 
+        internal MethodBuilder(ClassBuilder clazz, string name, ManaType returnType, params ManaArgumentRef[] args) 
             : base(name, 0, returnType, clazz, args)
         {
             classBuilder = clazz;

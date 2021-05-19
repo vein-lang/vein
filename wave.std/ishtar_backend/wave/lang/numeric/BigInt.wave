@@ -1,7 +1,0 @@
-#space "wave/lang/numeric"
-
-#use "wave/lang"
-
-public struct BigInt : ValueType
-{
-}

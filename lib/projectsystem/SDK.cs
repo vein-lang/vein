@@ -1,4 +1,4 @@
-﻿namespace wave.project
+﻿namespace mana.project
 {
     using System;
     using System.IO;
@@ -6,7 +6,7 @@
     using System.Runtime.InteropServices;
     using Newtonsoft.Json;
 
-    public class WaveSDK
+    public class ManaSDK
     {
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -19,7 +19,7 @@
         public SDKPack[] Packs { get; set; }
 
         internal static DirectoryInfo SDKRoot =>
-            new (Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".wave"));
+            new (Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".mana"));
 
         public string GetFullPath(SDKPack sdkPack) =>
             SDKRoot.SubDirectory("sdk")
@@ -43,7 +43,7 @@
             Packs.FirstOrDefault(x => x.Alias.Equals(alias)) ??
             throw new DirectoryNotFoundException($"Pack '{alias}' not installed in '{Name}' sdk.");
 
-        public static WaveSDK? Resolve(string name)
+        public static ManaSDK? Resolve(string name)
         {
             if (!SDKRoot.Exists)
                 throw new Exception($"Sdk is not installed.");
@@ -53,7 +53,7 @@
                 .EnumerateFiles("*.manifest.json")
                 .Select(json => json.FullName)
                 .Select(File.ReadAllText)
-                .Select(JsonConvert.DeserializeObject<WaveSDK>)
+                .Select(JsonConvert.DeserializeObject<ManaSDK>)
                 .FirstOrDefault(x => x.Name.Equals(name));
         }
 

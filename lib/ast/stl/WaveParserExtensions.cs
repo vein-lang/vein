@@ -1,4 +1,4 @@
-﻿namespace wave.stl
+﻿namespace mana.stl
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@
     using System.Threading;
     using Sprache;
 
-    public static class WaveParserExtensions
+    public static class ManaParserExtensions
     {
         internal static Action<string> _log = s => {};
         static int _instance;
@@ -29,14 +29,14 @@
         public static IEnumerable<T> GetOrEmpty<T>(this IOption<IEnumerable<T>> option) 
             => option.GetOrElse(Array.Empty<T>());
 
-        public static T ParseWave<T>(this Parser<T> parser, string input)
+        public static T ParseMana<T>(this Parser<T> parser, string input)
         {
             var result = parser.TryParse(input);
             if (result.WasSuccessful)
             {
                 return result.Value;
             }
-            throw new WaveParseException(result.Message, 
+            throw new ManaParseException(result.Message, 
                 new Position(result.Remainder.Position, result.Remainder.Line, result.Remainder.Column));
         }
 
@@ -127,9 +127,9 @@
         IComment CommentParser { get; }
     }
     
-    public class WaveParseException : ParseException
+    public class ManaParseException : ParseException
     {
-        public WaveParseException(string message, Position pos)
+        public ManaParseException(string message, Position pos)
             : base($"{message} at {pos}", pos)
         {
             this.ErrorMessage = message;

@@ -1,10 +1,10 @@
-﻿namespace wave.syntax
+﻿namespace mana.syntax
 {
     using System.Linq;
     using Sprache;
     using stl;
 
-    public partial class WaveSyntax
+    public partial class ManaSyntax
     {
         // example: SomeValue
         protected internal virtual Parser<EnumMemberDeclarationSyntax> EnumMember =>

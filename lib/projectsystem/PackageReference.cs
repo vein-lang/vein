@@ -1,4 +1,4 @@
-﻿namespace wave.project
+﻿namespace mana.project
 {
     using System.Collections.Generic;
     using System.Linq;

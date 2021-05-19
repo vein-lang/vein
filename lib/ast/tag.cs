@@ -1,10 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("wave.backend.ishtar")]
-[assembly: InternalsVisibleTo("wave.backend.ishtar.generator")]
-[assembly: InternalsVisibleTo("wave.backend.clr")]
-[assembly: InternalsVisibleTo("wave.backend.llvm")]
-[assembly: InternalsVisibleTo("wave.backend.hashlink")]
-[assembly: InternalsVisibleTo("wc")]
-[assembly: InternalsVisibleTo("moelsp")]
-[assembly: InternalsVisibleTo("wc_test")]
+[assembly: InternalsVisibleTo("mana.backend.ishtar")]
+[assembly: InternalsVisibleTo("mana.backend.ishtar.generator")]
+[assembly: InternalsVisibleTo("mana.backend.clr")]
+[assembly: InternalsVisibleTo("mana.backend.llvm")]
+[assembly: InternalsVisibleTo("mana.backend.hashlink")]
+[assembly: InternalsVisibleTo("manac")]
+[assembly: InternalsVisibleTo("manalsp")]
+[assembly: InternalsVisibleTo("manac_test")]

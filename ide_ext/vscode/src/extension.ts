@@ -30,13 +30,13 @@ function activate(context) {
         // run: { command: serverExe, args: ['-lsp', '-d'] },
         run: {
             command: serverExe,
-            args: ["O:/wave_vm/lsp/bin/Debug/net6.0/moelsp.dll"],
+            args: ["O:/mana_lang/lsp/bin/Debug/net6.0/manalsp.dll"],
             transport: TransportKind.pipe,
         },
         // debug: { command: serverExe, args: ['-lsp', '-d'] }
         debug: {
             command: serverExe,
-            args: ["O:/wave_vm/lsp/bin/Debug/net6.0/moelsp.dll"],
+            args: ["O:/mana_lang/lsp/bin/Debug/net6.0/manalsp.dll"],
             transport: TransportKind.pipe,
             runtime: "",
         },
@@ -45,19 +45,19 @@ function activate(context) {
         // Register the server for plain text documents
         documentSelector: [
             {
-                pattern: "**/*.wave",
+                pattern: "**/*.mana",
             }
         ],
         progressOnInitialization: true,
         synchronize: {
             // Synchronize the setting section 'languageServerExample' to the server
-            configurationSection: "WaveLSP",
-            fileEvents: workspace.createFileSystemWatcher("**/*.wave"),
+            configurationSection: "ManaLSP",
+            fileEvents: workspace.createFileSystemWatcher("**/*.mana"),
         },
     };
 
     // Create the language client and start the client.
-    client = new LanguageClient("WaveLSP", "Wave Language Server", serverOptions, clientOptions);
+    client = new LanguageClient("ManaLSP", "Mana Language Server", serverOptions, clientOptions);
     client.registerProposedFeatures();
     client.trace = Trace.Verbose;
     let disposable = client.start();
@@ -68,7 +68,7 @@ function activate(context) {
     const commandHandler = () => {
         client.stop();
     };
-    context.subscriptions.push(commands.registerCommand("editor.action.shutdownWaveLSP", commandHandler));
+    context.subscriptions.push(commands.registerCommand("editor.action.shutdownManaLSP", commandHandler));
 }
 
 exports.activate = activate;

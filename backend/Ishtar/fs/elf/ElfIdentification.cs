@@ -1,4 +1,4 @@
-﻿namespace wave.fs.elf
+﻿namespace mana.fs.elf
 {
     public struct ElfIdentification
     {

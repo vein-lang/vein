@@ -1,4 +1,4 @@
-﻿namespace wave.pipes
+﻿namespace mana.pipes
 {
     using System.Collections.Generic;
     using System.IO;
@@ -45,8 +45,8 @@
         protected FileInfo OutputBinaryPath => 
             new FileInfo(Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wll"));
 
-        protected internal WaveModuleBuilder Module { get; set; }
-        protected internal WaveProject Project { get; set; }
+        protected internal ManaModuleBuilder Module { get; set; }
+        protected internal ManaProject Project { get; set; }
         protected internal IshtarAssembly Assembly { get; set; }
 
         public abstract void Action();
@@ -74,7 +74,7 @@
             {
                 if (!pipe.CanApply(compiler._flags))
                     continue;
-                compiler.Status.WaveStatus($"Apply '{pipe.GetType().Name}' pipeline...");
+                compiler.Status.ManaStatus($"Apply '{pipe.GetType().Name}' pipeline...");
                 pipe.Project = lastPipe?.Project ?? compiler.Project;
                 pipe.Assembly = lastPipe?.Assembly;
                 pipe.Module = lastPipe?.Module ?? compiler.module;

@@ -2,8 +2,8 @@
 {
     using System;
     using ishtar;
-    using wave.ishtar.emit;
-    using wave.runtime;
+    using mana.ishtar.emit;
+    using mana.runtime;
     using Xunit;
 
     public class il_test
@@ -80,11 +80,11 @@
         }
         
         
-        public static ILGenerator CreateGenerator(params WaveArgumentRef[] args)
+        public static ILGenerator CreateGenerator(params ManaArgumentRef[] args)
         {
-            var module = new WaveModuleBuilder(Guid.NewGuid().ToString());
+            var module = new ManaModuleBuilder(Guid.NewGuid().ToString());
             var @class = new ClassBuilder(module, $"{module.Name}%global::foo/bar");
-            var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsClass(), args);
+            var method = @class.DefineMethod("foo", ManaTypeCode.TYPE_VOID.AsClass(), args);
             return method.GetGenerator();
         }
     }

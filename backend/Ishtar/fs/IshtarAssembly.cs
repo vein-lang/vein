@@ -1,4 +1,4 @@
-﻿namespace wave.fs
+﻿namespace mana.fs
 {
     using System;
     using System.Collections.Generic;
@@ -43,7 +43,7 @@
 
         private InsomniaAssemblyMetadata metadata = new ();
 
-        private void InsertModule(WaveModuleBuilder module)
+        private void InsertModule(ManaModuleBuilder module)
         {
             if (module is null)
                 throw new ArgumentNullException(nameof(module));
@@ -55,7 +55,7 @@
         }
 
 
-        public IshtarAssembly(WaveModuleBuilder module) 
+        public IshtarAssembly(ManaModuleBuilder module) 
             => this.InsertModule(module);
 
         internal IshtarAssembly()

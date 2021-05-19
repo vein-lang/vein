@@ -1,4 +1,4 @@
-﻿namespace wave.ishtar.emit
+﻿namespace mana.ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -6,12 +6,12 @@
     using System.Linq;
     using System.Text;
     using extensions;
-    using wave.extensions;
-    using wave.runtime;
+    using mana.extensions;
+    using mana.runtime;
 
-    public class ClassBuilder : WaveClass, IBaker
+    public class ClassBuilder : ManaClass, IBaker
     {
-        internal WaveModuleBuilder moduleBuilder;
+        internal ManaModuleBuilder moduleBuilder;
 
         public List<string> Includes { get; set; } = new ();
 
@@ -21,20 +21,20 @@
             return this;
         }
 
-        internal ClassBuilder(WaveModuleBuilder module, WaveClass clazz)
+        internal ClassBuilder(ManaModuleBuilder module, ManaClass clazz)
         {
             this.moduleBuilder = module;
             this.FullName = clazz.FullName;
             this.Parent = clazz.Parent;
             this.TypeCode = clazz.TypeCode;
         }
-        internal ClassBuilder(WaveModuleBuilder module, QualityTypeName name, WaveTypeCode parent = WaveTypeCode.TYPE_OBJECT)
+        internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, ManaTypeCode parent = ManaTypeCode.TYPE_OBJECT)
         {
             this.FullName = name;
             moduleBuilder = module;
             this.Parent = parent.AsClass();
         }
-        internal ClassBuilder(WaveModuleBuilder module, QualityTypeName name, WaveClass parent)
+        internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, ManaClass parent)
         {
             this.FullName = name;
             moduleBuilder = module;
@@ -51,7 +51,7 @@
         /// <remarks>
         /// Method name will be interned.
         /// </remarks>
-        public MethodBuilder DefineMethod(string name, WaveClass returnType, params WaveArgumentRef[] args)
+        public MethodBuilder DefineMethod(string name, ManaClass returnType, params ManaArgumentRef[] args)
         {
             moduleBuilder.InternString(name);
             var method = new MethodBuilder(this, name, returnType, args);
@@ -67,7 +67,7 @@
         /// <remarks>
         /// Method name will be interned.
         /// </remarks>
-        public MethodBuilder DefineMethod(string name, MethodFlags flags, WaveClass returnType, params WaveArgumentRef[] args)
+        public MethodBuilder DefineMethod(string name, MethodFlags flags, ManaClass returnType, params ManaArgumentRef[] args)
         {
             var method = this.DefineMethod(name, returnType, args);
             method.Owner = this;
@@ -80,9 +80,9 @@
         /// <remarks>
         /// Field name will be interned.
         /// </remarks>
-        public WaveField DefineField(string name, FieldFlags flags, WaveClass fieldType)
+        public ManaField DefineField(string name, FieldFlags flags, ManaClass fieldType)
         {
-            var field = new WaveField(this, new FieldName(name, this.Name), flags, fieldType);
+            var field = new ManaField(this, new FieldName(name, this.Name), flags, fieldType);
             moduleBuilder.InternFieldName(field.FullName);
             if (Fields.Any(x => x.Name == name))
                 throw new Exception($"Field '{name}' in class '{Name}' already defined.");
@@ -135,9 +135,9 @@
             return str.ToString();
         }
 
-        #region Overrides of WaveClass
+        #region Overrides of ManaClass
 
-        protected override WaveMethod GetOrCreateTor(string name, bool isStatic = false)
+        protected override ManaMethod GetOrCreateTor(string name, bool isStatic = false)
         {
             var ctor =  base.GetOrCreateTor(name, isStatic);
             if (ctor is not null)
@@ -148,7 +148,7 @@
             if (isStatic)
                 flags |= MethodFlags.Static;
 
-            ctor = DefineMethod(name, flags, WaveTypeCode.TYPE_VOID.AsClass());
+            ctor = DefineMethod(name, flags, ManaTypeCode.TYPE_VOID.AsClass());
             moduleBuilder.InternString(ctor.Name);
             
             return ctor;

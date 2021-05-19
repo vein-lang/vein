@@ -1,12 +1,12 @@
 #space "hello_world"
 
-#use "wave/lang"
+#use "moe/lang"
 
 public class Program
 {
     public static master(): void
     {
-        @_println("\u001b[36mHello World\u001b[0m, from Wave Lang with Love ✨✨✨!");
+        @_println("\u001b[36mHello World\u001b[0m, from Moe Lang with Love ✨✨✨!");
     }
 
     public static extern @_println(value: String): void;

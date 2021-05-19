@@ -1,4 +1,4 @@
-﻿namespace wave.syntax
+﻿namespace mana.syntax
 {
     using System.Linq;
     using System.Linq.Expressions;
@@ -6,7 +6,7 @@
     using insomnia;
     using Sprache;
 
-    public partial class WaveSyntax
+    public partial class ManaSyntax
     {
         #region Wrappers
 

@@ -1,8 +1,0 @@
-#space "wave/lang"
-
-
-public static class Out
-{
-    [native("internal.h","i_call_Out_print")]
-    public extern static print(value: String): Void;
-}

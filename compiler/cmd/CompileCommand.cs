@@ -1,4 +1,4 @@
-﻿namespace wave.cmd
+﻿namespace mana.cmd
 {
     using System.ComponentModel;
     using System.IO;
@@ -37,7 +37,7 @@
                 MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] not found.");
                 return -1;
             }
-            var project = WaveProject.LoadFrom(new(Path.GetFullPath(settings.Project)));
+            var project = ManaProject.LoadFrom(new(Path.GetFullPath(settings.Project)));
             
             if (!project.Sources.Any())
             {

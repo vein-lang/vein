@@ -7,14 +7,14 @@
     using System.Reflection.Emit;
     using runtime;
 
-    public static class WaveTypeStorage
+    public static class ManaTypeStorage
     {
         public static Dictionary<QualityTypeName, Type> Types = new();
 
 
         public static ModuleBuilder CLRModule;
 
-        public static Type Intern(WaveType type)
+        public static Type Intern(ManaType type)
         {
             if (CLRModule is null)
                 throw new Exception($"Please set clr module.");
@@ -26,7 +26,7 @@
                 type.classFlags.AsCLR(), Intern(type.Parent));
 
 
-            foreach (var method in type.Members.OfType<WaveMethodBuilder>())
+            foreach (var method in type.Members.OfType<ManaMethodBuilder>())
             {
                 var clr_method = t.DefineMethod(method.RawName, method.Flags.AsCLR(), CallingConventions.Standard,
                     method.ReturnType.AsCLR(), method.Arguments.AsCLR());
@@ -36,7 +36,7 @@
                 gen.Emit(OpCodes.Ret);
             }
 
-            foreach (var field in type.Members.OfType<WaveField>())
+            foreach (var field in type.Members.OfType<ManaField>())
                 t.DefineField(field.Name, field.FieldType.AsCLR(), field.Flags.AsCLR());
             Types.Add(type.FullName, t);
             return t;
@@ -45,9 +45,9 @@
 
     public static class AsCLRExtensions
     {
-        public static Type[] AsCLR(this IEnumerable<WaveArgumentRef> args)
+        public static Type[] AsCLR(this IEnumerable<ManaArgumentRef> args)
             => args.Select(x => x.Type.AsCLR()).ToArray();
-        public static Type AsCLR(this WaveType type)
+        public static Type AsCLR(this ManaType type)
         {
             var result = Type.GetType(type.FullName.NameWithNS);
             if (result is null)
@@ -55,7 +55,7 @@
             return result;
         }
 
-        public static Type BakeCLRType(this WaveType type) => WaveTypeStorage.Intern(type);
+        public static Type BakeCLRType(this ManaType type) => ManaTypeStorage.Intern(type);
 
         public static MethodAttributes AsCLR(this MethodFlags f)
         {

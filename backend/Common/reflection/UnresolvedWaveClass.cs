@@ -1,10 +1,10 @@
-﻿namespace wave.reflection
+﻿namespace mana.reflection
 {
     using runtime;
 
-    public class UnresolvedWaveClass : WaveClass
+    public class UnresolvedManaClass : ManaClass
     {
-        public UnresolvedWaveClass(QualityTypeName fullName) 
+        public UnresolvedManaClass(QualityTypeName fullName) 
             => this.FullName = fullName;
     }
 }

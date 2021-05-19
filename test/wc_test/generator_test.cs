@@ -8,11 +8,11 @@
     using System.Linq;
     using ishtar;
     using Spectre.Console;
-    using wave.fs;
-    using wave.ishtar.emit;
-    using wave.runtime;
-    using wave.stl;
-    using wave.syntax;
+    using mana.fs;
+    using mana.ishtar.emit;
+    using mana.runtime;
+    using mana.stl;
+    using mana.syntax;
     using Xunit;
     using Xunit.Abstractions;
     
@@ -28,10 +28,10 @@
         [Fact(Skip = "MANUAL")]
         public void Test()
         {
-            var module = new WaveModuleBuilder("xuy");
-            var clazz = module.DefineClass("xuy%global::wave/lang/svack_pidars");
+            var module = new ManaModuleBuilder("xuy");
+            var clazz = module.DefineClass("xuy%global::mana/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,WaveTypeCode.TYPE_VOID.AsClass(), ("x", WaveTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,ManaTypeCode.TYPE_VOID.AsClass(), ("x", ManaTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var gen = method.GetGenerator();
             
@@ -58,7 +58,7 @@
             module.BakeDebugString();
             
             
-            //File.WriteAllText(@"C:\Users\ls-mi\Desktop\wave.il", 
+            //File.WriteAllText(@"C:\Users\ls-mi\Desktop\mana.il", 
             //    module.BakeDebugString());
             
             var asm = new IshtarAssembly{Name = "woodo"};
@@ -72,10 +72,10 @@
         [Fact(Skip = "MANUAL")]
         public void TestIL()
         {
-            var module = new WaveModuleBuilder("xuy");
-            var clazz = module.DefineClass("global::wave/lang/svack_pidars");
+            var module = new ManaModuleBuilder("xuy");
+            var clazz = module.DefineClass("global::mana/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, WaveTypeCode.TYPE_VOID.AsClass(), ("x", WaveTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, ManaTypeCode.TYPE_VOID.AsClass(), ("x", ManaTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var body = method.GetGenerator();
             
@@ -101,21 +101,21 @@
         [Fact(Skip = "MANUAL")]
         public void AST2ILTest()
         {
-            var w = new WaveSyntax();
-            var ast = w.CompilationUnit.ParseWave(
+            var w = new ManaSyntax();
+            var ast = w.CompilationUnit.ParseMana(
                 " class Program { main(): void { if(ze()) return x; else { return d();  } } }");
 
-            var module = new WaveModuleBuilder("foo");
+            var module = new ManaModuleBuilder("foo");
 
             foreach (var member in ast.Members)
             {
                 if (member is ClassDeclarationSyntax classMember)
                 {
-                    var @class = module.DefineClass($"global::wave/lang/{classMember.Identifier}");
+                    var @class = module.DefineClass($"global::mana/lang/{classMember.Identifier}");
 
                     foreach (var methodMember in classMember.Methods)
                     {
-                        var method = @class.DefineMethod(methodMember.Identifier.ExpressionString, WaveTypeCode.TYPE_VOID.AsClass());
+                        var method = @class.DefineMethod(methodMember.Identifier.ExpressionString, ManaTypeCode.TYPE_VOID.AsClass());
                         var generator = method.GetGenerator();
 
                         foreach (var statement in methodMember.Body.Statements)
@@ -158,11 +158,11 @@
             };
 
 
-            var actual = CreateGenerator(("x", WaveTypeCode.TYPE_STRING));
+            var actual = CreateGenerator(("x", ManaTypeCode.TYPE_STRING));
             
             actual.EmitReturn(ret);
             
-            var expected = CreateGenerator(("x", WaveTypeCode.TYPE_STRING));
+            var expected = CreateGenerator(("x", ManaTypeCode.TYPE_STRING));
 
             expected.Emit(OpCodes.LDF, new FieldName("x"));
             expected.Emit(OpCodes.RET);
@@ -185,11 +185,11 @@
             Assert.Throws<FieldIsNotDeclaredException>(() => actual.EmitReturn(ret));
         }
         
-        public static ILGenerator CreateGenerator(params WaveArgumentRef[] args)
+        public static ILGenerator CreateGenerator(params ManaArgumentRef[] args)
         {
-            var module = new WaveModuleBuilder(Guid.NewGuid().ToString());
+            var module = new ManaModuleBuilder(Guid.NewGuid().ToString());
             var @class = module.DefineClass("global::foo/bar");
-            var method = @class.DefineMethod("foo", WaveTypeCode.TYPE_VOID.AsClass(), args);
+            var method = @class.DefineMethod("foo", ManaTypeCode.TYPE_VOID.AsClass(), args);
             return method.GetGenerator();
         }
         [Fact(Skip = "MANUAL")]
@@ -236,20 +236,20 @@ puts after - before;*/
         [Fact()]
         public void ManualGenCallExternFunction()
         {
-            var module = new WaveModuleBuilder("hello_world");
+            var module = new ManaModuleBuilder("hello_world");
             var clazz = module.DefineClass("hello_world%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             
 
             var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
-                WaveTypeCode.TYPE_VOID.AsClass());
+                ManaTypeCode.TYPE_VOID.AsClass());
             var body = method.GetGenerator();
 
             var @while = body.DefineLabel();
 
             body.UseLabel(@while);
             body.Emit(OpCodes.NOP);
-            body.Emit(OpCodes.NEWOBJ, WaveCore.StringClass);
+            body.Emit(OpCodes.NEWOBJ, ManaCore.StringClass);
             body.Emit(OpCodes.RESERVED_2);
             body.Emit(OpCodes.JMP, @while);
             body.Emit(OpCodes.RET);
@@ -269,14 +269,14 @@ puts after - before;*/
         [Fact(Skip = "MANUAL")]
         public void ManualGen()
         {
-            var module = new WaveModuleBuilder("satl");
+            var module = new ManaModuleBuilder("satl");
             var clazz = module.DefineClass("satl%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             
             
             var fib = clazz.DefineMethod("fib", 
                 MethodFlags.Public | MethodFlags.Static,
-                WaveTypeCode.TYPE_I8.AsClass(), ("x", WaveTypeCode.TYPE_I8));
+                ManaTypeCode.TYPE_I8.AsClass(), ("x", ManaTypeCode.TYPE_I8));
 
             var fibGen = fib.GetGenerator();
 
@@ -306,8 +306,8 @@ puts after - before;*/
             // var first, second, nth, i = 0;
             fibGen.Emit(OpCodes.LOC_INIT, new[]
             {
-                WaveTypeCode.TYPE_I4, WaveTypeCode.TYPE_I4,
-                WaveTypeCode.TYPE_I4, WaveTypeCode.TYPE_I4
+                ManaTypeCode.TYPE_I4, ManaTypeCode.TYPE_I4,
+                ManaTypeCode.TYPE_I4, ManaTypeCode.TYPE_I4
             });
             // second, nth = 1; i = 2;
             fibGen.Emit(OpCodes.LDC_I4_1); fibGen.Emit(OpCodes.STLOC_1);
@@ -354,7 +354,7 @@ puts after - before;*/
             fibGen.Emit(OpCodes.RET);
 
             var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
-                WaveTypeCode.TYPE_VOID.AsClass());
+                ManaTypeCode.TYPE_VOID.AsClass());
             var body = method.GetGenerator();
             
             

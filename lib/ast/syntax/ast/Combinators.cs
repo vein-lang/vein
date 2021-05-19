@@ -1,4 +1,4 @@
-﻿namespace wave.syntax
+﻿namespace mana.syntax
 {
     using Sprache;
     using System.Collections;

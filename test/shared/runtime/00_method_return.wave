@@ -1,6 +1,6 @@
 #space "test"
 
-#use "wave/lang"
+#use "moe/lang"
 
 
 public class MethodReturnTest

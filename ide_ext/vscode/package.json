@@ -1,7 +1,7 @@
 {
-	"name": "wave-language",
-	"displayName": "Wave Language",
-	"description": "Wave developmemnt environment",
+	"name": "mana-language",
+	"displayName": "Mana Language",
+	"description": "Mana developmemnt environment",
 	"version": "0.4.1326",
 	"icon": "images/icon.png",
 	"galleryBanner": {
@@ -11,12 +11,12 @@
 	"publisher": "rijndael",
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/0xF6/wave_vm/issues"
+		"url": "https://github.com/0xF6/mana_lang/issues"
 	},
-	"homepage": "https://github.com/0xF6/wave_vm/",
+	"homepage": "https://github.com/0xF6/mana_lang/",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/0xF6/wave_vm.git"
+		"url": "https://github.com/0xF6/mana_lang.git"
 	},
 	"engines": {
 		"vscode": "^1.31.0"
@@ -32,7 +32,7 @@
 		"language"
 	],
 	"activationEvents": [
-		"onLanguage:wave",
+		"onLanguage:mana",
 		"onCommand:extension.target.create",
 		"onCommand:extension.target.select",
 		"onCommand:extension.target.run",
@@ -42,42 +42,42 @@
 	"contributes": {
 		"languages": [
 			{
-				"id": "wave",
+				"id": "mana",
 				"aliases": [
-					"wave"
+					"mana"
 				],
 				"extensions": [
-					".wave"
+					".mana"
 				],
-				"configuration": "./wave.configuration.json"
+				"configuration": "./mana.configuration.json"
 			},
 			{
-				"id": "wvil",
+				"id": "lay",
 				"aliases": [
-					"wvil"
+					"lay"
 				],
 				"extensions": [
-					".wvil"
+					".lay"
 				],
-				"configuration": "./wvil.configuration.json"
+				"configuration": "./lay.configuration.json"
 			}
 		],
 		"grammars": [
 			{
-				"language": "wave",
-				"scopeName": "source.wave",
-				"path": "./syntaxes/wave.tmLanguage"
+				"language": "mana",
+				"scopeName": "source.mana",
+				"path": "./syntaxes/mana.tmLanguage"
 			},
 			{
-				"language": "wvil",
-				"scopeName": "source.wave.il",
-				"path": "./syntaxes/wvil.tmLanguage"
+				"language": "lay",
+				"scopeName": "source.mana.il",
+				"path": "./syntaxes/lay.tmLanguage"
 			}
 		],
 		"commands": [
 			{
-			  "command": "editor.action.shutdownWaveLSP",
-			  "title": "Stop Wave LSP"
+			  "command": "editor.action.shutdownManaLSP",
+			  "title": "Stop Mana LSP"
 			}
 		]
 	},

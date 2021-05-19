@@ -1,4 +1,4 @@
-#space "wave/lang"
+#space "moe/lang"
 
 public class AssertFailedException : Exception
 {

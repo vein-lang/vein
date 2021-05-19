@@ -1,4 +1,4 @@
-namespace wave.fs
+namespace mana.fs
 {
     using System.IO;
     using System;
@@ -148,7 +148,7 @@ namespace wave.fs
     {
         public Version Version { get; set; } = new (1, 0, 0, 0);
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
-        public string TargetFramework { get; set; } = "WaveStandard,Version=v1.0";
+        public string TargetFramework { get; set; } = "ManaStandard,Version=v1.0";
 
         public Dictionary<string, string> OtherMeta { get; } = new();
     }

@@ -60,7 +60,7 @@
         }
 
         public DocumentSymbolRegistrationOptions GetRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new DocumentSymbolRegistrationOptions {
-            DocumentSelector = DocumentSelector.ForLanguage("wave")
+            DocumentSelector = DocumentSelector.ForLanguage("mana")
         };
     }
 }

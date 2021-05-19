@@ -1,4 +1,4 @@
-﻿namespace wave.ishtar.emit
+﻿namespace mana.ishtar.emit
 {
     using System;
     using global::ishtar;

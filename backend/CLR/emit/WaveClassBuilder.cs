@@ -4,20 +4,20 @@
     using System.Reflection.Emit;
     using runtime;
 
-    public class WaveClassBuilder : WaveClass, IBaker
+    public class ManaClassBuilder : ManaClass, IBaker
     {
-        internal WaveModuleBuilder moduleBuilder;
+        internal ManaModuleBuilder moduleBuilder;
         internal TypeBuilder classBuilder;
 
         public List<string> Includes { get; set; } = new ();
 
-        internal WaveClassBuilder WithIncludes(List<string> includes)
+        internal ManaClassBuilder WithIncludes(List<string> includes)
         {
             Includes.AddRange(includes);
             return this;
         }
 
-        internal WaveClassBuilder(WaveModuleBuilder module, WaveClass clazz, TypeBuilder typeBuilder)
+        internal ManaClassBuilder(ManaModuleBuilder module, ManaClass clazz, TypeBuilder typeBuilder)
         {
             this.moduleBuilder = module;
             this.FullName = clazz.FullName;
@@ -25,14 +25,14 @@
             this.TypeCode = clazz.TypeCode;
             this.classBuilder = typeBuilder;
         }
-        internal WaveClassBuilder(WaveModuleBuilder module, QualityTypeName name, TypeBuilder typeBuilder, WaveTypeCode parent = WaveTypeCode.TYPE_OBJECT)
+        internal ManaClassBuilder(ManaModuleBuilder module, QualityTypeName name, TypeBuilder typeBuilder, ManaTypeCode parent = ManaTypeCode.TYPE_OBJECT)
         {
             this.FullName = name;
             moduleBuilder = module;
             this.Parent = parent.AsType().AsClass();
             this.classBuilder = typeBuilder;
         }
-        internal WaveClassBuilder(WaveModuleBuilder module, QualityTypeName name, TypeBuilder typeBuilder, WaveType parent)
+        internal ManaClassBuilder(ManaModuleBuilder module, QualityTypeName name, TypeBuilder typeBuilder, ManaType parent)
         {
             this.FullName = name;
             moduleBuilder = module;
@@ -50,9 +50,9 @@
         /// <remarks>
         /// Method name will be interned.
         /// </remarks>
-        public WaveMethodBuilder DefineMethod(string name, WaveType returnType, MethodFlags flags, params WaveArgumentRef[] args)
+        public ManaMethodBuilder DefineMethod(string name, ManaType returnType, MethodFlags flags, params ManaArgumentRef[] args)
         {
-            var method = new WaveMethodBuilder(this, name, returnType, flags, args);
+            var method = new ManaMethodBuilder(this, name, returnType, flags, args);
             Methods.Add(method);
             method.Owner = this;
             return method;
@@ -63,9 +63,9 @@
         /// <remarks>
         /// Field name will be interned.
         /// </remarks>
-        public WaveField DefineField(string name, FieldFlags flags, WaveType fieldType)
+        public ManaField DefineField(string name, FieldFlags flags, ManaType fieldType)
         {
-            var field = new WaveField(this, new FieldName(name, this.Name), flags, fieldType);
+            var field = new ManaField(this, new FieldName(name, this.Name), flags, fieldType);
             Fields.Add(field);
             return field;
         }

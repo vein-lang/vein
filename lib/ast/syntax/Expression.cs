@@ -1,4 +1,4 @@
-    namespace wave.syntax
+    namespace mana.syntax
 {
     using System;
     using System.Collections.Generic;
@@ -8,7 +8,7 @@
     using Sprache;
     using stl;
 
-    public partial class WaveSyntax
+    public partial class ManaSyntax
     {
         protected internal virtual Parser<BlockSyntax> Block =>
             from comments in CommentParser.AnyComment.Token().Many()

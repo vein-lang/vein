@@ -1,0 +1,7 @@
+#space "moe/lang/numeric"
+
+#use "moe/lang"
+
+public struct BigInt : ValueType
+{
+}

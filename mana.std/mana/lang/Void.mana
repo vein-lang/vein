@@ -1,0 +1,5 @@
+#space "moe/lang"
+
+
+[special, readonly]
+public struct Void : ValueType { }

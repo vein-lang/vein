@@ -1,4 +1,4 @@
-﻿namespace wave.runtime
+﻿namespace mana.runtime
 {
     using System.Collections;
     using System.Collections.Generic;
@@ -10,11 +10,11 @@
         private readonly IList<QualityTypeName> types = new List<QualityTypeName>();
         public void Push(QualityTypeName type) 
             => types.Add(type);
-        public void Push(WaveType type) 
+        public void Push(ManaType type) 
             => types.Add(type.FullName);
-        public void Push(WaveClass type) 
+        public void Push(ManaClass type) 
             => types.Add(type.FullName);
-        public void Push(WaveTypeCode type)
+        public void Push(ManaTypeCode type)
             => types.Add(type.AsClass().FullName);
 
 
@@ -29,21 +29,21 @@
         #endregion
         
         
-        public static implicit operator LocalsBuilder(WaveType[] arr)
+        public static implicit operator LocalsBuilder(ManaType[] arr)
         {
             var l = new LocalsBuilder();
             foreach (var type in arr) 
                 l.Push(type);
             return l;
         }
-        public static implicit operator LocalsBuilder(WaveClass[] arr)
+        public static implicit operator LocalsBuilder(ManaClass[] arr)
         {
             var l = new LocalsBuilder();
             foreach (var type in arr) 
                 l.Push(type);
             return l;
         }
-        public static implicit operator LocalsBuilder(WaveTypeCode[] arr)
+        public static implicit operator LocalsBuilder(ManaTypeCode[] arr)
         {
             var l = new LocalsBuilder();
             foreach (var type in arr) 

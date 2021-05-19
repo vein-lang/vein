@@ -1,0 +1,12 @@
+#space "moe/lang"
+
+
+[special]
+public class Object
+{
+    [virtual]
+    public toString(): String
+    {
+        return "<Object>";
+    }
+}

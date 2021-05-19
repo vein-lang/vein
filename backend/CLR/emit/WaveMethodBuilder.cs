@@ -4,16 +4,16 @@
     using System.Reflection.Emit;
     using runtime;
 
-    public class WaveMethodBuilder : WaveMethod, IBaker
+    public class ManaMethodBuilder : ManaMethod, IBaker
     {
-        internal readonly WaveClassBuilder classBuilder;
-        internal WaveModuleBuilder moduleBuilder 
+        internal readonly ManaClassBuilder classBuilder;
+        internal ManaModuleBuilder moduleBuilder 
             => classBuilder?.moduleBuilder;
 
         internal MethodBuilder clr_method_builder;
 
 
-        public WaveMethodBuilder(WaveClassBuilder clazz, string name, WaveType returnType, MethodFlags flags, params WaveArgumentRef[] args) 
+        public ManaMethodBuilder(ManaClassBuilder clazz, string name, ManaType returnType, MethodFlags flags, params ManaArgumentRef[] args) 
             : base(name, flags, returnType, clazz, args)
         {
             classBuilder = clazz;

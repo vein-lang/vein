@@ -1,11 +1,11 @@
-﻿namespace wave.syntax
+﻿namespace mana.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
     using Sprache;
     using stl;
 
-    public partial class WaveSyntax
+    public partial class ManaSyntax
     {
         /// <example>
         /// -> typeName

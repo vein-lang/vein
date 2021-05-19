@@ -12,13 +12,13 @@
     using OmniSharp.Extensions.LanguageServer.Protocol.Document;
     using OmniSharp.Extensions.LanguageServer.Protocol.Models;
     using Sprache;
-    using wave.stl;
-    using wave.syntax;
+    using mana.stl;
+    using mana.syntax;
 
     public class SemanticTokensHandler : SemanticTokensHandlerBase
     {
         private readonly ILogger _logger;
-        private readonly WaveSyntax _syntax = new();
+        private readonly ManaSyntax _syntax = new();
 
         public SemanticTokensHandler(ILogger<SemanticTokensHandler> logger) =>
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -60,7 +60,7 @@
             await Task.Yield();
 
 
-            var result = _syntax.CompilationUnit.End().ParseWave(content);
+            var result = _syntax.CompilationUnit.End().ParseMana(content);
 
 
             foreach (var directive in result.Directives)
@@ -122,7 +122,7 @@
         }
 
         protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, ClientCapabilities clientCapabilities) => new SemanticTokensRegistrationOptions {
-            DocumentSelector = DocumentSelector.ForLanguage("wave"),
+            DocumentSelector = DocumentSelector.ForLanguage("mana"),
             Legend = new SemanticTokensLegend() {
                 TokenModifiers = capability.TokenModifiers,
                 TokenTypes = capability.TokenTypes

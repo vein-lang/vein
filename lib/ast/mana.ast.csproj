@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Authors>Yuuki Wesp</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
+		<Description>Collections of classes and structures for AST WaveLang.</Description>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<AssemblyName>mana.ast</AssemblyName>
+		<RootNamespace>mana.ast</RootNamespace>
+	</PropertyGroup>
+	<PropertyGroup Condition="$(Configuration) == 'Debug'">
+		<BumpPatch>true</BumpPatch>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Ivy.Versioning" Version="3.1.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="morelinq" Version="3.3.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+		<PackageReference Include="NuGet.Versioning" Version="5.5.1" />
+		<PackageReference Include="Sprache" Version="2.3.2-develop-00043" />
+		<PackageReference Include="Spectre.Console" Version="0.37.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\backend\Common\mana.common.csproj" />
+	</ItemGroup>
+</Project>

@@ -1,4 +1,4 @@
-﻿namespace wave.pipes
+﻿namespace mana.pipes
 {
     using System;
     using System.IO;

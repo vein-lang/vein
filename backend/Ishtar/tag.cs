@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("wc")]
-[assembly: InternalsVisibleTo("wc_test")]
+[assembly: InternalsVisibleTo("manac")]
+[assembly: InternalsVisibleTo("manac_test")]
 [assembly: InternalsVisibleTo("ishtar")]
-[assembly: InternalsVisibleTo("wave.backend.ishtar.generator")]
+[assembly: InternalsVisibleTo("mana.backend.ishtar.generator")]

@@ -1,8 +1,8 @@
-﻿namespace wave.syntax
+﻿namespace mana.syntax
 {
     using Sprache;
 
-    public partial class WaveSyntax
+    public partial class ManaSyntax
     {
         internal virtual Parser<DirectiveType> DirectiveDeclarator(DirectiveType type) =>
             from start in Parse.Char('#')

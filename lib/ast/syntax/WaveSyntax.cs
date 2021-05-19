@@ -1,4 +1,4 @@
-﻿namespace wave.syntax
+﻿namespace mana.syntax
 {
     using System;
     using System.Collections.Generic;
@@ -17,7 +17,7 @@
             return $"{char.ToUpperInvariant(target[0])}{target.Remove(0, 1)}";
         }
     }
-    public partial class WaveSyntax : ICommentParserProvider
+    public partial class ManaSyntax : ICommentParserProvider
     {
         public virtual IComment CommentParser => new CommentParser();
         
@@ -25,7 +25,7 @@
         
         protected internal virtual Parser<string> RawIdentifier =>
             from identifier in Parse.Identifier(Parse.Letter.Or(Parse.Chars("_@")), Parse.LetterOrDigit.Or(Parse.Char('_')))
-            where !WaveKeywords.list.Contains(identifier)
+            where !ManaKeywords.list.Contains(identifier)
             select identifier;
 
         protected internal virtual Parser<string> Identifier =>
@@ -38,7 +38,7 @@
         internal virtual Parser<string> Keyword(string text) =>
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(text);
         
-        internal virtual Parser<WaveAnnotationKind> Keyword(WaveAnnotationKind value) =>
+        internal virtual Parser<ManaAnnotationKind> Keyword(ManaAnnotationKind value) =>
             Parse.IgnoreCase(value.ToString().ToLowerInvariant()).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not())
                 .Return(value);
         
@@ -74,13 +74,13 @@
             .Named("Modifier")
             .Positioned();
 
-        protected internal virtual Parser<WaveAnnotationKind> Annotation =>
-            Keyword(WaveAnnotationKind.Getter)
-                .Or(Keyword(WaveAnnotationKind.Setter))
-                .Or(Keyword(WaveAnnotationKind.Native))
-                .Or(Keyword(WaveAnnotationKind.Readonly))
-                .Or(Keyword(WaveAnnotationKind.Special))
-                .Or(Keyword(WaveAnnotationKind.Virtual))
+        protected internal virtual Parser<ManaAnnotationKind> Annotation =>
+            Keyword(ManaAnnotationKind.Getter)
+                .Or(Keyword(ManaAnnotationKind.Setter))
+                .Or(Keyword(ManaAnnotationKind.Native))
+                .Or(Keyword(ManaAnnotationKind.Readonly))
+                .Or(Keyword(ManaAnnotationKind.Special))
+                .Or(Keyword(ManaAnnotationKind.Virtual))
                 .Token().Named("Annotation");
         
         internal virtual Parser<TypeSyntax> NonGenericType =>

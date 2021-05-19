@@ -4,51 +4,51 @@
     using LLVMSharp;
     using runtime;
 
-    public static class WaveTypeExtensions
+    public static class ManaTypeExtensions
     {
-        public static LLVMTypeRef AsLLVM(this WaveType type)
+        public static LLVMTypeRef AsLLVM(this ManaType type)
         {
             if (type.IsPrimitive)
                 return type.TypeCode.AsLLVM();
             return default;
         }
-        public static LLVMTypeRef AsLLVM(this WaveTypeCode type)
+        public static LLVMTypeRef AsLLVM(this ManaTypeCode type)
         {
             switch (type)
             {
-                case WaveTypeCode.TYPE_VOID:
+                case ManaTypeCode.TYPE_VOID:
                     return LLVM.VoidType();
-                case WaveTypeCode.TYPE_OBJECT:
+                case ManaTypeCode.TYPE_OBJECT:
                     throw new NotImplementedException();
-                case WaveTypeCode.TYPE_BOOLEAN:
+                case ManaTypeCode.TYPE_BOOLEAN:
                     return LLVM.Int1Type();
-                case WaveTypeCode.TYPE_CHAR:
+                case ManaTypeCode.TYPE_CHAR:
                     throw new NotImplementedException();
-                case WaveTypeCode.TYPE_I1:
+                case ManaTypeCode.TYPE_I1:
                     return LLVM.Int8Type();
-                case WaveTypeCode.TYPE_U1:
+                case ManaTypeCode.TYPE_U1:
                     return LLVM.Int8Type();
-                case WaveTypeCode.TYPE_I2:
+                case ManaTypeCode.TYPE_I2:
                     return LLVM.Int16Type();
-                case WaveTypeCode.TYPE_U2:
+                case ManaTypeCode.TYPE_U2:
                     throw new NotImplementedException();
-                case WaveTypeCode.TYPE_I4:
+                case ManaTypeCode.TYPE_I4:
                     return LLVM.Int32Type();
-                case WaveTypeCode.TYPE_U4:
+                case ManaTypeCode.TYPE_U4:
                     throw new NotImplementedException();
-                case WaveTypeCode.TYPE_I8:
+                case ManaTypeCode.TYPE_I8:
                     return LLVM.Int64Type();
-                case WaveTypeCode.TYPE_U8:
+                case ManaTypeCode.TYPE_U8:
                     throw new NotImplementedException();
-                case WaveTypeCode.TYPE_R2:
+                case ManaTypeCode.TYPE_R2:
                     return LLVM.HalfType();
-                case WaveTypeCode.TYPE_R4:
+                case ManaTypeCode.TYPE_R4:
                     return LLVM.FloatType();
-                case WaveTypeCode.TYPE_R8:
+                case ManaTypeCode.TYPE_R8:
                     return LLVM.DoubleType();
-                case WaveTypeCode.TYPE_R16:
+                case ManaTypeCode.TYPE_R16:
                     return LLVM.FP128Type();
-                case WaveTypeCode.TYPE_STRING:
+                case ManaTypeCode.TYPE_STRING:
                     throw new NotImplementedException();
             }
             throw new ArgumentOutOfRangeException(nameof(type), type, null);

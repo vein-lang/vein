@@ -1,6 +1,6 @@
-﻿namespace wave.project.@internal
+﻿namespace mana.project.@internal
 {
-    using wave.common;
+    using mana.common;
     using Serilog;
 
     internal class Journal

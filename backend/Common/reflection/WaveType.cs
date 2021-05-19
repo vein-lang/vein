@@ -1,39 +1,39 @@
-﻿namespace wave.runtime
+﻿namespace mana.runtime
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
 
     
-    internal sealed class WaveTypeImpl : WaveType
+    internal sealed class ManaTypeImpl : ManaType
     {
         public override QualityTypeName FullName { get; }
         
-        public WaveTypeImpl(QualityTypeName typeName, WaveTypeCode code)
+        public ManaTypeImpl(QualityTypeName typeName, ManaTypeCode code)
         {
             this.FullName = typeName;
             this.TypeCode = code;
         }
-        public WaveTypeImpl(QualityTypeName typeName, WaveTypeCode code, ClassFlags flags) 
+        public ManaTypeImpl(QualityTypeName typeName, ManaTypeCode code, ClassFlags flags) 
             : this(typeName, code) 
             => this.classFlags = flags;
-        public WaveTypeImpl(QualityTypeName typeName, WaveTypeCode code, ClassFlags flags, WaveType parent) 
+        public ManaTypeImpl(QualityTypeName typeName, ManaTypeCode code, ClassFlags flags, ManaType parent) 
             : this(typeName, code, flags) =>
             this.Parent = parent;
 
         public override bool IsStatic => classFlags?.HasFlag(ClassFlags.Static) ?? false;
         public override bool IsPublic => classFlags?.HasFlag(ClassFlags.Public) ?? false;
         public override bool IsPrivate => classFlags?.HasFlag(ClassFlags.Private) ?? false;
-        public override bool IsPrimitive => TypeCode != WaveTypeCode.TYPE_CLASS && TypeCode != WaveTypeCode.TYPE_NONE;
+        public override bool IsPrimitive => TypeCode != ManaTypeCode.TYPE_CLASS && TypeCode != ManaTypeCode.TYPE_NONE;
         public override bool IsClass => !IsPrimitive;
     }
     
-    public abstract class WaveType : WaveMember, IEquatable<WaveType>
+    public abstract class ManaType : ManaMember, IEquatable<ManaType>
     {
         // autogen wtf 
         #region Equality members
 
-        public bool Equals(WaveType other)
+        public bool Equals(ManaType other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -56,7 +56,7 @@
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((WaveType) obj);
+            return Equals((ManaType) obj);
         }
 
         public override int GetHashCode()
@@ -80,33 +80,33 @@
         #endregion
 
         public string Namespace => FullName.Namespace;
-        public List<WaveMember> Members { get; } = new();
+        public List<ManaMember> Members { get; } = new();
         protected internal ClassFlags? classFlags { get; set; }
-        public WaveTypeCode TypeCode { get; protected set; }
-        public WaveType Parent { get; protected internal set; }
-        public WaveModule Owner { get; set; }
+        public ManaTypeCode TypeCode { get; protected set; }
+        public ManaType Parent { get; protected internal set; }
+        public ManaModule Owner { get; set; }
 
         public override string Name
         {
             get => FullName.Name;
             protected set => throw new NotImplementedException();
         }
-        public WaveMethod FindMethod(string name, IEnumerable<WaveClass> args_types)
-            => this.Members.OfType<WaveMethod>().FirstOrDefault(x => 
+        public ManaMethod FindMethod(string name, IEnumerable<ManaClass> args_types)
+            => this.Members.OfType<ManaMethod>().FirstOrDefault(x => 
                 x.RawName.Equals(name) && 
                 x.Arguments.Select(z => z.Type).SequenceEqual(args_types)
             );
 
-        public WaveField FindField(string name) 
-            => this.Members.OfType<WaveField>().FirstOrDefault(x => x.Name.Equals(name));
+        public ManaField FindField(string name) 
+            => this.Members.OfType<ManaField>().FirstOrDefault(x => x.Name.Equals(name));
 
-        public WaveMethod FindMethod(string name, Func<WaveMethod, bool> eq = null)
+        public ManaMethod FindMethod(string name, Func<ManaMethod, bool> eq = null)
         {
             eq ??= s => s.RawName.Equals(name);
 
             foreach (var member in Members)
             {
-                if (member is not WaveMethod method)
+                if (member is not ManaMethod method)
                     continue;
                 if (eq(method))
                     return method;
@@ -125,41 +125,41 @@
         public virtual bool IsPrivate { get; protected set; } = false;
         public virtual bool IsPrimitive { get; protected set; } = false;
         
-        public override WaveMemberKind Kind => WaveMemberKind.Type;
+        public override ManaMemberKind Kind => ManaMemberKind.Type;
 
 
-        public static implicit operator WaveType(string typeName) =>
-            new WaveTypeImpl(typeName, WaveTypeCode.TYPE_CLASS);
+        public static implicit operator ManaType(string typeName) =>
+            new ManaTypeImpl(typeName, ManaTypeCode.TYPE_CLASS);
         
         
-        public static WaveType ByName(QualityTypeName name) => 
-            WaveCore.Types.All.FirstOrDefault(x => x.FullName == name);
+        public static ManaType ByName(QualityTypeName name) => 
+            ManaCore.Types.All.FirstOrDefault(x => x.FullName == name);
         
         
         public override string ToString() => $"[{FullName.NameWithNS}]";
         
-        public static bool operator ==(WaveType t1, WaveTypeCode t2) => t1?.TypeCode == t2;
-        public static bool operator !=(WaveType t1, WaveTypeCode t2) => !(t1 == t2);
+        public static bool operator ==(ManaType t1, ManaTypeCode t2) => t1?.TypeCode == t2;
+        public static bool operator !=(ManaType t1, ManaTypeCode t2) => !(t1 == t2);
 
-        public static bool operator ==(WaveType t1, WaveType t2)
+        public static bool operator ==(ManaType t1, ManaType t2)
         {
             if (t1 is null || t2 is null)
                 return false;
             return t1.FullName.fullName.Equals(t2.FullName.fullName);
         }
 
-        public static bool operator !=(WaveType t1, WaveType t2) => !(t1 == t2);
+        public static bool operator !=(ManaType t1, ManaType t2) => !(t1 == t2);
     }
 
-    public abstract class WaveMember
+    public abstract class ManaMember
     {
         public abstract string Name { get; protected set; }
-        public abstract WaveMemberKind Kind { get; }
+        public abstract ManaMemberKind Kind { get; }
         public virtual bool IsSpecial { get; }
     }
     
     [Flags]
-    public enum WaveMemberKind
+    public enum ManaMemberKind
     {
         Ctor    = 1 << 1,
         Dtor    = 1 << 2,

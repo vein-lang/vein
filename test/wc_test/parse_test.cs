@@ -4,8 +4,8 @@
     using Sprache;
     using System.Linq;
     using insomnia;
-    using wave.stl;
-    using wave.syntax;
+    using mana.stl;
+    using mana.syntax;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -16,22 +16,22 @@
         public parse_test(ITestOutputHelper logger)
         {
             _logger = logger;
-            WaveParserExtensions._log = s => _logger.WriteLine(s);
+            ManaParserExtensions._log = s => _logger.WriteLine(s);
         }
 
-        public static WaveSyntax Wave => new();
+        public static ManaSyntax Mana => new();
         
         [Fact]
         public void CommentParseTest()
         {
-            var a = new WaveSyntax();
-            Assert.Equal(" bla ", a.CommentParser.AnyComment.ParseWave("/* bla */"));
-            Assert.Equal(" bla", a.CommentParser.AnyComment.ParseWave("// bla"));
+            var a = new ManaSyntax();
+            Assert.Equal(" bla ", a.CommentParser.AnyComment.ParseMana("/* bla */"));
+            Assert.Equal(" bla", a.CommentParser.AnyComment.ParseMana("// bla"));
         }
         [Fact]
         public void VariableStatementTest()
         {
-            Wave.Block.End().ParseWave(@"{
+            Mana.Block.End().ParseMana(@"{
     auto f: Int32 = 12;
 
     return 1;
@@ -42,10 +42,10 @@
         [Fact]
         public void IdentifierParseTest()
         {
-            var a = new WaveSyntax();
-            Assert.Equal("id", a.Identifier.ParseWave("id"));
-            Assert.Throws<WaveParseException>(() => a.Identifier.ParseWave("4"));
-            Assert.Throws<WaveParseException>(() => a.Identifier.ParseWave("public"));
+            var a = new ManaSyntax();
+            Assert.Equal("id", a.Identifier.ParseMana("id"));
+            Assert.Throws<ManaParseException>(() => a.Identifier.ParseMana("4"));
+            Assert.Throws<ManaParseException>(() => a.Identifier.ParseMana("public"));
         }
         
         [Theory]
@@ -56,7 +56,7 @@
         [InlineData("static c: int", "c", "int", 1, "static")]
         public void ParameterDeclarationParseTest(string parseStr, string name, string type, int lenMod, string mod)
         {
-            var result = new WaveSyntax().ParameterDeclaration.ParseWave(parseStr);
+            var result = new ManaSyntax().ParameterDeclaration.ParseMana(parseStr);
             
             Assert.Equal(name, result.Identifier);
             Assert.Equal(type, result.Type.Identifier);
@@ -74,14 +74,14 @@
         [InlineData("43534")]
         [InlineData("):s")]
         public void ParameterDeclarationParseTestFail(string parseStr) => 
-            Assert.Throws<WaveParseException>(() => new WaveSyntax().ParameterDeclaration.ParseWave(parseStr));
+            Assert.Throws<ManaParseException>(() => new ManaSyntax().ParameterDeclaration.ParseMana(parseStr));
 
         [Fact]
         public void OperationParametersAndBodyTest()
         {
-            var a = new WaveSyntax();
+            var a = new ManaSyntax();
             var d = a.OperationDeclaration
-                .ParseWave(@"operation test[x: int32] -> int32 
+                .ParseMana(@"operation test[x: int32] -> int32 
                     {
                         body 
                         { 
@@ -95,19 +95,19 @@
         }
         [Fact]
         public void QualifiedExpressionNewTest() 
-            => Wave.QualifiedExpression.ParseWave("new Foo()");
+            => Mana.QualifiedExpression.ParseMana("new Foo()");
 
         [Theory]
         [InlineData("foo: Type;")]
         [InlineData("[special] foo: Type;")]
         [InlineData("[special] public foo: Type;")]
         public void FieldTest00(string str) 
-            => Wave.FieldDeclaration.ParseWave(str);
+            => Mana.FieldDeclaration.ParseMana(str);
 
         [Fact]
         public void InvalidTokenFieldParse()
         {
-            var result = Wave.CompilationUnit.ParseWave(
+            var result = Mana.CompilationUnit.ParseMana(
                 @"#space ""wave/lang""
                 [special]
                 public class String : Object {
@@ -128,9 +128,9 @@
         [Fact]
         public void MethodParametersAndBodyTest()
         {
-            var a = new WaveSyntax();
+            var a = new ManaSyntax();
             var d = a.MethodDeclaration
-                .ParseWave("public test(x: int32): void { }");
+                .ParseMana("public test(x: int32): void { }");
             Assert.Equal("test", d.Identifier);
             Assert.Equal("void", d.ReturnType.Identifier.ToLower());
         }
@@ -139,16 +139,16 @@
         public void FooAoo()
         {
             AppFlags.Set("exp_simplify_optimize", false);
-            var result = Wave.QualifiedExpression.End().ParseWave("1 + 2 - 3 * 4 / 5 ^^ 2");
+            var result = Mana.QualifiedExpression.End().ParseMana("1 + 2 - 3 * 4 / 5 ^^ 2");
             _logger.WriteLine(result.ToString());
         }
         
         [Fact]
         public void FullsetMethodParametersAndBodyTest()
         {
-            var a = new WaveSyntax();
+            var a = new ManaSyntax();
             var d = a.ClassDeclaration
-                .ParseWave("public class DDD { public test(x: int32): void { } }");
+                .ParseMana("public class DDD { public test(x: int32): void { } }");
             
             Assert.False(d.IsStruct);
             Assert.False(d.IsInterface);
@@ -178,76 +178,76 @@
         [InlineData("operation name[i: s, x: w]", "name", true)]
         public void MethodParametersTest(string parseStr, string name, bool needFail)
         {
-            var a = new WaveSyntax();
+            var a = new ManaSyntax();
             var d = default(MethodDeclarationSyntax);
             
             if (needFail)
             {
-                Assert.Throws<WaveParseException>(() =>
+                Assert.Throws<ManaParseException>(() =>
                 {
                     d = a.OperationDeclaration
-                        .ParseWave(parseStr + "{body{}}");
+                        .ParseMana(parseStr + "{body{}}");
                 });
             }
             else
             {
                 d = a.OperationDeclaration
-                    .ParseWave(parseStr + "{body{}}");
+                    .ParseMana(parseStr + "{body{}}");
                 Assert.Equal(name, d.Identifier);
             }
         }
         [Fact]
         public void UseDirectiveTest()
         {
-            var a = new WaveSyntax();
+            var a = new ManaSyntax();
             var d = a.UseSyntax
-                .ParseWave("#use \"stl.lib\"") as UseSyntax;
+                .ParseMana("#use \"stl.lib\"") as UseSyntax;
             Assert.Equal("stl.lib", d.Value.Token);
         }
         
         [Fact]
         public void SpaceDirectiveTest()
         {
-            var a = new WaveSyntax();
+            var a = new ManaSyntax();
             var d = a.SpaceSyntax
-                .ParseWave("#space \"foo\"");
+                .ParseMana("#space \"foo\"");
             Assert.Equal("foo", d.Value.Token);
         }
         
         [Fact]
         public void AnnotationTest()
         {
-            var a = new WaveSyntax();
-            var d = a.AnnotationExpression.End().ParseWave("[special, native]");
+            var a = new ManaSyntax();
+            var d = a.AnnotationExpression.End().ParseMana("[special, native]");
             Assert.Equal(2, d.Length);
         }
         [Fact]
         public void MemberFailTest()
         {
             var result = 
-                Wave.ClassMemberDeclaration.End().ParseWave("public const MaxValue Int16 = 32767;");
+                Mana.ClassMemberDeclaration.End().ParseMana("public const MaxValue Int16 = 32767;");
             _logger.WriteLine($"type: {result.GetType()}");
         }
         [Fact]
         public void FieldTest() 
-            => Wave.FieldDeclaration.ParseWave("public const MaxValue: Int16 = 32767;");
+            => Mana.FieldDeclaration.ParseMana("public const MaxValue: Int16 = 32767;");
 
         [Fact]
         public void FieldWithAnnotationTest() 
-            => Wave.FieldDeclaration.ParseWave("[native] private _value: Int16;");
+            => Mana.FieldDeclaration.ParseMana("[native] private _value: Int16;");
 
         [Fact]
         public void ExpressionTest()
         {
-            var result = Wave.Statement.ParseWave(@"return (this.$indexer.at(Length - 1) == value);");
+            var result = Mana.Statement.ParseMana(@"return (this.$indexer.at(Length - 1) == value);");
             Assert.True(result.IsBrokenToken);
-            result = Wave.Statement.ParseWave(@"return (this.indexer.at(Length - 1) == value);");
+            result = Mana.Statement.ParseMana(@"return (this.indexer.at(Length - 1) == value);");
             Assert.False(result.IsBrokenToken);
         }
         [Fact]
         public void MethodTest00()
         {
-            Wave.MethodDeclaration.ParseWave(@"public EndsWith(value: Char): Boolean
+            Mana.MethodDeclaration.ParseMana(@"public EndsWith(value: Char): Boolean
             {
                 if (Length - 1 < Length)
                     return false;
@@ -257,7 +257,7 @@
         [Fact]
         public void ReturnParseTest00()
         {
-            Assert.False(Wave.Statement.ParseWave(@"return this == value;").IsBrokenToken);
+            Assert.False(Mana.Statement.ParseMana(@"return this == value;").IsBrokenToken);
         }
         
         [Theory]
@@ -267,7 +267,7 @@
         [InlineData("static")]
         [InlineData("auto")]
         public void KeywordIsNotIdentifier(string key) 
-            => Assert.Throws<WaveParseException>(() => Wave.Identifier.ParseWave(key));
+            => Assert.Throws<ManaParseException>(() => Mana.Identifier.ParseMana(key));
 
         [Theory]
         [InlineData("foo.bar.zet", 3)]
@@ -278,7 +278,7 @@
         [InlineData("zet.foo()[2]", 4)]
         public void MemberOrMethodTest(string key, int chainLen)
         {
-            var result = Wave.QualifiedExpression.End().ParseWave(key) as MemberAccessExpression;
+            var result = Mana.QualifiedExpression.End().ParseMana(key) as MemberAccessExpression;
 
             Assert.NotNull(result);
 
@@ -291,7 +291,7 @@
         public void ValidateChainMember()
         {
             var key = $"zet.foo()[2]";
-            var result = Wave.QualifiedExpression.End().ParseWave(key) as MemberAccessExpression;
+            var result = Mana.QualifiedExpression.End().ParseMana(key) as MemberAccessExpression;
 
             Assert.NotNull(result);
 
@@ -322,20 +322,20 @@
             var expr = default(LiteralExpressionSyntax);
             if (needFail)
             {
-                Assert.Throws<WaveParseException>(() =>
+                Assert.Throws<ManaParseException>(() =>
                 {
-                    expr = Wave.LiteralExpression.End().ParseWave(parseStr);
+                    expr = Mana.LiteralExpression.End().ParseMana(parseStr);
                 });
             }
             else
             {
-                expr = Wave.LiteralExpression.End().ParseWave(parseStr);
+                expr = Mana.LiteralExpression.End().ParseMana(parseStr);
                 Assert.NotNull(expr);
                 Assert.Equal(result, expr.Token);
             }
         }
         [Fact]
-        public void AccessMemberTest() => Wave.QualifiedExpression.End().ParseWave(@"44.govno");
+        public void AccessMemberTest() => Mana.QualifiedExpression.End().ParseMana(@"44.govno");
 
         [Theory]
         [InlineData("new s()")] // new exp
@@ -373,12 +373,12 @@
         [InlineData("hx = (asuint(min(asfloat(uux) * 1.92592994e-34f, 260042752.0f)) + 0x1000) >> 13", Skip = "todo")]
         [InlineData("basis1.x = 1.0f + sign * normal.x * normal.x * a")]
         [InlineData("hash = rol(state.x, 1) + rol(state.y, 7) + rol(state.z, 12) + rol(state.w, 18)")]
-        public void AllExpressionTest(string exp) => Wave.QualifiedExpression.End().ParseWave(exp);
+        public void AllExpressionTest(string exp) => Mana.QualifiedExpression.End().ParseMana(exp);
 
         [Fact]
         public void NewExpTest()
         {
-            var result = Wave.QualifiedExpression.End().ParseWave(@"new Foo()");
+            var result = Mana.QualifiedExpression.End().ParseMana(@"new Foo()");
             Assert.IsType<NewExpressionSyntax>(result);
 
             var exp = result as NewExpressionSyntax;
@@ -390,14 +390,14 @@
         [Fact]
         public void ExponentPartTest()
         {
-            Assert.Equal("e+23", Wave.ExponentPart.End().ParseWave("e+23"));
-            Assert.Equal("e-23", Wave.ExponentPart.End().ParseWave("e-23"));
+            Assert.Equal("e+23", Mana.ExponentPart.End().ParseMana("e+23"));
+            Assert.Equal("e-23", Mana.ExponentPart.End().ParseMana("e-23"));
         }
 
         [Fact]
         public void LiteralAssignedExpressionTest()
         {
-            var result = Wave.FieldDeclaration.End().ParseWave("foo: Int32 = -22;");
+            var result = Mana.FieldDeclaration.End().ParseMana("foo: Int32 = -22;");
             Assert.NotNull(result);
             Assert.Equal("Int32", result.Type.Identifier);
             Assert.Equal("foo", result.Field.Identifier);
@@ -410,24 +410,24 @@
         [InlineData("interface")]
         public void DeclarationCanDeclareMethods(string keyword)
         {
-            var cd = Wave.ClassDeclaration.Parse($"[special] {keyword} Program {{ [special] main(): void {{}} }}");
+            var cd = Mana.ClassDeclaration.Parse($"[special] {keyword} Program {{ [special] main(): void {{}} }}");
             Assert.True(cd.Methods.Any());
             Assert.Equal("Program", cd.Identifier);
-            Assert.Equal(WaveAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
+            Assert.Equal(ManaAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
 
             var md = cd.Methods.Single();
             Assert.Equal("Void", md.ReturnType.Identifier);
             Assert.Equal("main", md.Identifier);
-            Assert.Equal(WaveAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
+            Assert.Equal(ManaAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
             Assert.False(md.Parameters.Any());
             
-            Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave(" class Test { void Main }"));
-            Assert.Throws<WaveParseException>(() => Wave.ClassDeclaration.ParseWave("class Foo { int main() }"));
+            Assert.Throws<ManaParseException>(() => Mana.ClassDeclaration.ParseMana(" class Test { void Main }"));
+            Assert.Throws<ManaParseException>(() => Mana.ClassDeclaration.ParseMana("class Foo { int main() }"));
         }
         [Fact]
         public void InheritanceTest()
         {
-            var cd = Wave.ClassDeclaration.Parse("class Program : Object {}");
+            var cd = Mana.ClassDeclaration.Parse("class Program : Object {}");
             
             Assert.Equal("Object", cd.Inheritances.Single().Identifier);
         }
@@ -435,7 +435,7 @@
         [Fact]
         public void FieldsTest()
         {
-            var cd = Wave.ClassDeclaration.Parse("class Program : Object { foo: foo; }");
+            var cd = Mana.ClassDeclaration.Parse("class Program : Object { foo: foo; }");
             
             Assert.Equal("Object", cd.Inheritances.Single().Identifier);
         }
@@ -452,7 +452,7 @@
         [InlineData("foo.bar.zoo(a, b, 4, zak.woo(a, b, 4))")]
         //[InlineData("global::foo.bar.zoo(a, b, 4, 4 + 4);")]
         public void InvocationTest(string parseStr) 
-            => Wave.QualifiedExpression.End().ParseWave(parseStr);
+            => Mana.QualifiedExpression.End().ParseMana(parseStr);
         [Theory]
         [InlineData("a")]
         [InlineData("b")]
@@ -461,7 +461,7 @@
         [InlineData("zak.woo()")]
         [InlineData("zak.woo(a, b, 4)")]
         public void ArgTest(string args)
-            => Wave.argument.End().ParseWave(args);
+            => Mana.argument.End().ParseMana(args);
         [Theory]
         [InlineData("a, b")]
         [InlineData("a, b, 4")]
@@ -470,7 +470,7 @@
         [InlineData("a, b, 4, zak.woo()")]
         [InlineData("a, b, 4, zak.woo(a, b, 4)")]
         public void ArgListTest(string args)
-            => Wave.argument_list.End().ParseWave(args);
+            => Mana.argument_list.End().ParseMana(args);
         [Theory]
         [InlineData("foo);")]
         [InlineData("foo.bar(")]
@@ -478,12 +478,12 @@
         [InlineData("foo.bar.zoo(a b, 4)")]
         [InlineData("foo.bar.zoo(a, b, 4, 4 $ 4)")]
         public void InvocationTestFail(string parseStr) 
-            => Assert.Throws<WaveParseException>(() => Wave.QualifiedExpression.End().ParseWave(parseStr));
+            => Assert.Throws<ManaParseException>(() => Mana.QualifiedExpression.End().ParseMana(parseStr));
         
         [Fact]
         public void GenericExpressionTest()
         {
-            var result = Wave.QualifiedExpression.ParseWave("foo.bar.zoo(zak.woo(a, b, c), a, b, c)");
+            var result = Mana.QualifiedExpression.ParseMana("foo.bar.zoo(zak.woo(a, b, c), a, b, c)");
         }
         
         [Theory]
@@ -553,7 +553,7 @@
         [InlineData("~-728565646 & ~-1896339527 && !-651565412 && ~-2116790075")]
         public void OperatorTest(string parseKey)
         {
-            var result = Wave.QualifiedExpression.End().ParseWave($"({parseKey})");
+            var result = Mana.QualifiedExpression.End().ParseMana($"({parseKey})");
             _logger.WriteLine(result?.ExpressionString);
         }
 
@@ -561,14 +561,14 @@
         [InlineData("native(\"foo\")")]
         public void AnnotationWithArgsTest(string str)
         {
-            var result = Wave.AnnotationSyntax.End().ParseWave(str);
+            var result = Mana.AnnotationSyntax.End().ParseMana(str);
             Assert.NotEmpty(result.Args);
         }
 
         [Fact]
         public void FooProgramTest()
         {
-            Wave.CompilationUnit.End().ParseWave(
+            Mana.CompilationUnit.End().ParseMana(
             "#use \"stl.lib\"\n" +
                "public class Foo {" +
                "public master(): void {}" +
@@ -578,17 +578,17 @@
         [Fact]
         public void CtorAndDtorTest()
         {
-            Wave.CompilationUnit.End().ParseWave(
+            Mana.CompilationUnit.End().ParseMana(
                 "#use \"stl.lib\"\n" +
                 "public class Foo {" +
                 "public new() {}" +
                 "}");
-            Wave.CompilationUnit.End().ParseWave(
+            Mana.CompilationUnit.End().ParseMana(
                 "#use \"stl.lib\"\n" +
                 "public class Foo {" +
                 "public delete() {}" +
                 "}");
-            Wave.CompilationUnit.End().ParseWave(
+            Mana.CompilationUnit.End().ParseMana(
                 "#use \"stl.lib\"\n" +
                 "public class Foo {" +
                 "public new(s:S) {}" +
@@ -597,19 +597,19 @@
         [Fact]
         public void AssignVariableTest()
         {
-            Wave.QualifiedExpression.End().ParseWave("x = x");
+            Mana.QualifiedExpression.End().ParseMana("x = x");
         }
 
         [Fact]
         public void MethodWithAssignVariableTest()
         {
-            Wave.Statement.End().ParseWave("x = x;");
+            Mana.Statement.End().ParseMana("x = x;");
         }
 
         [Fact]
         public void FooUseTest()
         {
-            Wave.UseSyntax.End().ParseWave("#use \"boo\"");
+            Mana.UseSyntax.End().ParseMana("#use \"boo\"");
         }
 
         [Theory]
@@ -619,6 +619,6 @@
         [InlineData("this.x.w.d = zo.fo(1,2,3)")]
         [InlineData("this.x.w.d = zo.fo(1,2,3, this.x.w.d)")]
         public void ThisAccessTest(string str)
-            => Wave.QualifiedExpression.End().ParseWave(str);
+            => Mana.QualifiedExpression.End().ParseMana(str);
     }
 }

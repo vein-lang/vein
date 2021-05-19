@@ -1,4 +1,4 @@
-﻿namespace wave.ishtar.emit
+﻿namespace mana.ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -8,8 +8,8 @@
     using extensions;
     using insomnia;
     using reflection;
-    using wave.extensions;
-    using wave.runtime;
+    using mana.extensions;
+    using mana.runtime;
 
     internal static class BinaryExtension
     {
@@ -41,9 +41,9 @@
         }
     }
 
-    internal class ModuleReader : WaveModule
+    internal class ModuleReader : ManaModule
     {
-        public static ModuleReader Read(byte[] arr, List<WaveModule> deps, Func<string, Version, WaveModule> resolver)
+        public static ModuleReader Read(byte[] arr, List<ManaModule> deps, Func<string, Version, ManaModule> resolver)
         {
             var module = new ModuleReader();
             using var mem = new MemoryStream(arr);
@@ -106,7 +106,7 @@
             // restore unresolved types
             foreach (var @class in module.class_table)
             {
-                if (@class.Parent is not UnresolvedWaveClass)
+                if (@class.Parent is not UnresolvedManaClass)
                     continue;
                 @class.Parent = 
                     @class.Parent.FullName != @class.FullName ? 
@@ -118,7 +118,7 @@
             {
                 foreach (var method in @class.Methods)
                 {
-                    if (method.ReturnType is not UnresolvedWaveClass)
+                    if (method.ReturnType is not UnresolvedManaClass)
                         continue;
                     method.ReturnType = module.FindType(method.ReturnType.FullName, true);
                 }
@@ -127,14 +127,14 @@
                 {
                     foreach (var argument in method.Arguments)
                     {
-                        if (argument.Type is not UnresolvedWaveClass)
+                        if (argument.Type is not UnresolvedManaClass)
                             continue;
                         argument.Type = module.FindType(argument.Type.FullName, true);
                     }
                 }
                 foreach (var field in @class.Fields)
                 {
-                    if (field.FieldType is not UnresolvedWaveClass)
+                    if (field.FieldType is not UnresolvedManaClass)
                         continue;
                     field.FieldType = module.FindType(field.FieldType.FullName, true);
                 }
@@ -150,7 +150,7 @@
         }
 
 
-        public static WaveClass DecodeClass(byte[] arr, ModuleReader module)
+        public static ManaClass DecodeClass(byte[] arr, ModuleReader module)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -159,7 +159,7 @@
             var parentIdx = binary.ReadTypeName(module);
             var len = binary.ReadInt32();
             
-            var @class = new WaveClass(className, module.FindType(parentIdx, true, false), module)
+            var @class = new ManaClass(className, module.FindType(parentIdx, true, false), module)
             {
                 Flags = flags
             };
@@ -176,7 +176,7 @@
             return @class;
         }
         
-        public static void DecodeField(BinaryReader binary, WaveClass @class, ModuleReader module)
+        public static void DecodeField(BinaryReader binary, ManaClass @class, ModuleReader module)
         {
             foreach (var _ in ..binary.ReadInt32())
             {
@@ -184,12 +184,12 @@
                 var type_name = binary.ReadTypeName(module);
                 var type = module.FindType(type_name, true, false);
                 var flags = (FieldFlags) binary.ReadInt16();
-                var method = new WaveField(@class, name, flags, type);
+                var method = new ManaField(@class, name, flags, type);
                 @class.Fields.Add(method);
             }
         }
         
-        public static WaveMethod DecodeMethod(byte[] arr, WaveClass @class, ModuleReader module)
+        public static ManaMethod DecodeMethod(byte[] arr, ManaClass @class, ModuleReader module)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -201,21 +201,21 @@
             var retType = binary.ReadTypeName(module);
             var args = ReadArguments(binary, module);
             var _ = binary.ReadBytes(bodysize);
-            return new WaveMethod(module.GetConstStringByIndex(idx), flags,
+            return new ManaMethod(module.GetConstStringByIndex(idx), flags,
                 module.FindType(retType, true, false), 
                 @class, args.ToArray());
         }
 
         
         
-        private static List<WaveArgumentRef> ReadArguments(BinaryReader binary, ModuleReader module)
+        private static List<ManaArgumentRef> ReadArguments(BinaryReader binary, ModuleReader module)
         {
-            var args = new List<WaveArgumentRef>();
+            var args = new List<ManaArgumentRef>();
             foreach (var _ in ..binary.ReadInt32())
             {
                 var nIdx = binary.ReadInt32();
                 var type = binary.ReadTypeName(module);
-                args.Add(new WaveArgumentRef
+                args.Add(new ManaArgumentRef
                 {
                     Name = module.GetConstStringByIndex(nIdx),
                     Type = module.FindType(type, true, false)

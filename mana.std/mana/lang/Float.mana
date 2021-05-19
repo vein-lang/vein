@@ -1,0 +1,9 @@
+#space "moe/lang"
+
+
+[special, readonly]
+public struct Float : ValueType
+{
+    [native]
+    private _value: Float;
+}

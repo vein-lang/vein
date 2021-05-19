@@ -1,4 +1,4 @@
-﻿namespace wave.extensions
+﻿namespace mana.extensions
 {
     using System;
     using System.Collections;

@@ -1,4 +1,4 @@
-﻿namespace wave.runtime
+﻿namespace mana.runtime
 {
     public interface IBaker
     {

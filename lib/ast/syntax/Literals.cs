@@ -1,12 +1,12 @@
-﻿namespace wave.syntax
+﻿namespace mana.syntax
 {
     using System;
     using System.Linq;
     using Sprache;
     using stl;
-    using wave.extensions;
+    using mana.extensions;
 
-    public partial class WaveSyntax
+    public partial class ManaSyntax
     {
         /// <example>
         /// "foo bar"

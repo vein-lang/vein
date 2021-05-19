@@ -1,4 +1,4 @@
-namespace wave.ishtar.emit
+namespace mana.ishtar.emit
 {
     using System;
     using System.Buffers.Binary;
@@ -9,7 +9,7 @@ namespace wave.ishtar.emit
     using System.Text;
     using extensions;
     using global::ishtar;
-    using wave.runtime;
+    using mana.runtime;
     using static global::ishtar.OpCodeValue;
 
     public class ILGenerator
@@ -138,7 +138,7 @@ namespace wave.ishtar.emit
         /// Only allowed <see cref="OpCodes.LDF"/>, <see cref="OpCodes.STF"/>,
         /// <see cref="OpCodes.STSF"/>, <see cref="OpCodes.LDSF"/>.
         /// </remarks>
-        public virtual void Emit(OpCode opcode, WaveField field)
+        public virtual void Emit(OpCode opcode, ManaField field)
         {
             if (new[] {OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF}.All(x => x != opcode))
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
@@ -210,9 +210,9 @@ namespace wave.ishtar.emit
             this.PutInteger4(label.Value);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} label(0x{label.Value:X})");
         }
-        public virtual void Emit(OpCode opcode, WaveType type) 
+        public virtual void Emit(OpCode opcode, ManaType type) 
             => Emit(opcode, type.FullName);
-        public virtual void Emit(OpCode opcode, WaveClass type) 
+        public virtual void Emit(OpCode opcode, ManaClass type) 
             => Emit(opcode, type.FullName);
 
         public virtual void Emit(OpCode opcode, QualityTypeName type)
@@ -261,7 +261,7 @@ namespace wave.ishtar.emit
         /// <remarks>
         /// Only <see cref="OpCodes.CALL"/>.
         /// </remarks>
-        public virtual void Emit(OpCode opcode, WaveMethod method)
+        public virtual void Emit(OpCode opcode, ManaMethod method)
         {
             if (method is null)
                 throw new ArgumentNullException(nameof (method));

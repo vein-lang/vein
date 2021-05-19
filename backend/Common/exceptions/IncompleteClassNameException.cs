@@ -1,4 +1,4 @@
-﻿namespace wave.exceptions
+﻿namespace mana.exceptions
 {
     using System;
 

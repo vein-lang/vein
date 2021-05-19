@@ -11,7 +11,7 @@
         public FoldingRangeRegistrationOptions GetRegistrationOptions() =>
             new()
             {
-                DocumentSelector = DocumentSelector.ForLanguage("wave")
+                DocumentSelector = DocumentSelector.ForLanguage("mana")
             };
 
         public Task<Container<FoldingRange>?> Handle(
@@ -33,7 +33,7 @@
         public FoldingRangeRegistrationOptions GetRegistrationOptions(FoldingRangeCapability capability, ClientCapabilities clientCapabilities) 
             => new()
         {
-            DocumentSelector = DocumentSelector.ForLanguage("wave")
+            DocumentSelector = DocumentSelector.ForLanguage("mana")
         };
     }
 }

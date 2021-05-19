@@ -1,0 +1,15 @@
+#space "moe/lang"
+
+
+[special, readonly]
+public struct Boolean : ValueType
+{
+    [native]
+    private _value: Boolean;
+
+    public const True: Boolean = true;
+    public const False: Boolean = false;
+
+    public const TrueString: String = "true";
+    public const FalseString: String = "false";
+}

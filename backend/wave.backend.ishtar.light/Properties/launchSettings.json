@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "wave.backend.ishtar.light": {
-      "commandName": "Project",
-      "commandLineArgs": ".\\hello_world.wll"
-    }
-  }
-}

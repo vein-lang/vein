@@ -1,13 +1,13 @@
-﻿namespace wave.ishtar.emit.extensions
+﻿namespace mana.ishtar.emit.extensions
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using wave.runtime;
+    using mana.runtime;
 
     public static class QualityTypeEx
     {
-        public static QualityTypeName ReadTypeName(this BinaryReader bin, WaveModule module)
+        public static QualityTypeName ReadTypeName(this BinaryReader bin, ManaModule module)
         {
             var typeIndex = bin.ReadInt32();
             
@@ -15,7 +15,7 @@
                    throw new Exception($"TypeName by index '{typeIndex}' not found in '{module.Name}' module.");
         }
         
-        public static void WriteTypeName(this BinaryWriter bin, QualityTypeName type, WaveModuleBuilder module)
+        public static void WriteTypeName(this BinaryWriter bin, QualityTypeName type, ManaModuleBuilder module)
         {
             var key = module.InternTypeName(type);
 

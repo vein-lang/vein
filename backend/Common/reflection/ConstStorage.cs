@@ -1,4 +1,4 @@
-﻿namespace wave.runtime
+﻿namespace mana.runtime
 {
     using System;
     using System.Collections.Generic;

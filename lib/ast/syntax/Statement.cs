@@ -1,9 +1,9 @@
-﻿namespace wave.syntax
+﻿namespace mana.syntax
 {
     using Sprache;
     using stl;
 
-    public partial class WaveSyntax
+    public partial class ManaSyntax
     {
         protected internal virtual Parser<StatementSyntax> Statement =>
             from statement in 

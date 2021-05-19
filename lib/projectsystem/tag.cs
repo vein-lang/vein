@@ -1,4 +1,4 @@
 ﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("project_system_test")]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("wc_test")]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("wc")]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("wave.backend.ishtar.generator")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("manac_test")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("manac")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("mana.backend.ishtar.generator")]

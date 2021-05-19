@@ -1,4 +1,4 @@
-#use "wave/lang"
+#use "moe/lang"
 
 
 public class Program
