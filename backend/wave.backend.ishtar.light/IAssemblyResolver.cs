@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using fs;
+    using global::ishtar;
     using runtime;
     using wave.ishtar.emit;
 
@@ -74,9 +75,11 @@
 
                 return files.Single(x => x.Name.Equals($"{name}.wll", StringComparison.InvariantCultureIgnoreCase));
             }
-            catch (Exception e)
+            catch (InvalidOperationException)
             {
-                throw;
+                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Assembly '{name}' cannot be loaded.");
+                VM.ValidateLastError();
+                return null;
             }
         }
     }
