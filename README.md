@@ -7,7 +7,7 @@
 
 <!-- Name -->
 <h1 align="center">
- ⚡️☢️ Mana Lang 🌊⚡️
+ ⚡️🔮 Mana Lang 🔮⚡️
 </h1>
 <!-- desc -->
 <h4 align="center">
