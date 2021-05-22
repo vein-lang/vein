@@ -40,6 +40,15 @@ namespace ishtar
             => Module.FindType(targetTypeTypeword.Identifier.ExpressionString,
                 Classes[CurrentMethod.Owner.FullName].Includes);
 
+        public (ManaArgumentRef, int index)? ResolveArgument(IdentifierExpression id)
+        {
+            foreach (var (argument, index) in CurrentMethod.Arguments.Select((x, i) => (x, i)))
+            {
+                if (argument.Name.Equals(id.ExpressionString))
+                    return (argument, index);
+            }
+            return null;
+        }
         public ManaClass ResolveScopedIdentifierType(IdentifierExpression id)
         {
             if (CurrentScope.HasVariable(id))
@@ -62,6 +71,30 @@ namespace ishtar
                           $"a definition for '{target.ExpressionString}' and " +
                           $"no extension method '{id.ExpressionString}' accepting " +
                           $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
+            return null;
+        }
+
+        public object TryFindVariable(IdentifierExpression id)
+        {
+            var field = CurrentMethod.Owner.FindField(id.ExpressionString);
+
+            if (field is not null)
+                return field;
+
+            var argument = ResolveArgument(id);
+
+            if (argument is not null)
+                return argument;
+            this.LogError($"The name '{id}' does not exist in the current context.", id);
+            return null;
+        }
+        public ManaField ResolveField(ManaClass targetType, IdentifierExpression id)
+        {
+            var field = targetType.FindField(id.ExpressionString);
+
+            if (field is not null)
+                return field;
+            this.LogError($"'{id}' is not resolved in this context.", id);
             return null;
         }
         public ManaMethod ResolveMethod(
