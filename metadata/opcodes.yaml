@@ -12,6 +12,8 @@
 - LDARG:
     description: Load into stack from argument.
     range: true
+- LD.THIS:
+    description: Load into stack current instance of object.
 - LDC:
     description: Load constant into stack.
     variations: [F16, F8, F4, F2, STR]
@@ -87,31 +89,63 @@
     override-size: 4
 - EQL:
     description: Compare two value, when values are equal 1 (int32) stage into stack, otherwise 0 (int32).
+    LQ:
+      description: Compare two value, 
+        when first value is less than or equal to second value stage 1 (int32) into stack, 
+        otherwise 0 (int32). (a <= b)
+    L:
+      description: Compare two value, 
+        when first value is less second value stage 1 (int32) into stack, 
+        otherwise 0 (int32). (a < b)
+    HQ:
+      description: Compare two value, 
+        when first value is greater than or equal to second value stage 1 (int32) into stack, 
+        otherwise 0 (int32). (a >= b)
+    H:
+      description: Compare two value, 
+        when first value is greater second value stage 1 (int32) into stack, 
+        otherwise 0 (int32). (a > b)
+    NQ:
+      description: Compare two value, 
+        when two integer/float is equal stage 1 (int32) into stack, 
+        otherwise 0 (int32). (a == b)
+    NN:
+      description: Compare two value, 
+        when two integer/float is not equal stage 1 (int32) into stack, 
+        otherwise 0 (int32). (a != b)
+    F:
+      description: Compare two value, 
+        when value has false, null or zero stage 1 (int32) into stack, 
+        otherwise 0 (int32). (!a)
+    T:
+      description: Compare two value, 
+        when value has true or either differs from null or from zero stage 1 (int32) into stack, 
+        otherwise 0 (int32). (a)
 - JMP:
     description: Control flow, jump onto label. (unconditional)
     use-root: true
     override-size: 4
     LQ:
       override-size: 4
-      description: Control flow, jump onto label when first value is less than or equal to second value.
+      description: Control flow, jump onto label when first value is less than or equal to second value. (a <= b)
     L:
       override-size: 4
-      description: Control flow, jump onto label when first value is less second value.
+      description: Control flow, jump onto label when first value is less second value. (a < b)
     HQ:
       override-size: 4
-      description: Control flow, jump onto label when first value is greater than or equal to second value.
+      description: Control flow, jump onto label when first value is greater than or equal to second value. (a >= b)
     H:
       override-size: 4
-      description: Control flow, jump onto label when first value is greater second value.
+      description: Control flow, jump onto label when first value is greater second value. (a > b)
     NQ:
       override-size: 4
-      description: Control flow, jump onto label when two integer/float is equal.
+      description: Control flow, jump onto label when two integer/float is equal. (a == b)
     NN:
       override-size: 4
-      description: Control flow, jump onto label when two integer/float is not equal.
+      description: Control flow, jump onto label when two integer/float is not equal. (a != b)
     F:
       override-size: 4
-      description: Control flow, jump onto label when value has false, null or zero.
+      description: Control flow, jump onto label when value has false, null or zero. (!a)
     T:
       override-size: 4
-      description: Control flow, jump onto label when value has true or either differs from null or from zero.
+      description: Control flow, jump onto label when value has true or either differs from null or from zero. (a)

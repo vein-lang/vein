@@ -52,296 +52,328 @@ namespace ishtar
 		/// </summary>
 		LDARG_S = 0x0B,
 		/// <summary>
-		/// Load constant into stack.
+		/// Load into stack current instance of object.
 		/// </summary>
-		LDC_F16 = 0x0C,
+		LD_THIS = 0x0C,
 		/// <summary>
 		/// Load constant into stack.
 		/// </summary>
-		LDC_F8 = 0x0D,
+		LDC_F16 = 0x0D,
 		/// <summary>
 		/// Load constant into stack.
 		/// </summary>
-		LDC_F4 = 0x0E,
+		LDC_F8 = 0x0E,
 		/// <summary>
 		/// Load constant into stack.
 		/// </summary>
-		LDC_F2 = 0x0F,
+		LDC_F4 = 0x0F,
 		/// <summary>
 		/// Load constant into stack.
 		/// </summary>
-		LDC_STR = 0x10,
+		LDC_F2 = 0x10,
+		/// <summary>
+		/// Load constant into stack.
+		/// </summary>
+		LDC_STR = 0x11,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_0 = 0x11,
+		LDC_I4_0 = 0x12,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_1 = 0x12,
+		LDC_I4_1 = 0x13,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_2 = 0x13,
+		LDC_I4_2 = 0x14,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_3 = 0x14,
+		LDC_I4_3 = 0x15,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_4 = 0x15,
+		LDC_I4_4 = 0x16,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_5 = 0x16,
+		LDC_I4_5 = 0x17,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_S = 0x17,
+		LDC_I4_S = 0x18,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_0 = 0x18,
+		LDC_I2_0 = 0x19,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_1 = 0x19,
+		LDC_I2_1 = 0x1A,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_2 = 0x1A,
+		LDC_I2_2 = 0x1B,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_3 = 0x1B,
+		LDC_I2_3 = 0x1C,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_4 = 0x1C,
+		LDC_I2_4 = 0x1D,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_5 = 0x1D,
+		LDC_I2_5 = 0x1E,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_S = 0x1E,
+		LDC_I2_S = 0x1F,
 		/// <summary>
 		/// Load in64 constant into stack.
 		/// </summary>
-		LDC_I8_0 = 0x1F,
+		LDC_I8_0 = 0x20,
 		/// <summary>
 		/// Load in64 constant into stack.
 		/// </summary>
-		LDC_I8_1 = 0x20,
+		LDC_I8_1 = 0x21,
 		/// <summary>
 		/// Load in64 constant into stack.
 		/// </summary>
-		LDC_I8_2 = 0x21,
+		LDC_I8_2 = 0x22,
 		/// <summary>
 		/// Load in64 constant into stack.
 		/// </summary>
-		LDC_I8_3 = 0x22,
+		LDC_I8_3 = 0x23,
 		/// <summary>
 		/// Load in64 constant into stack.
 		/// </summary>
-		LDC_I8_4 = 0x23,
+		LDC_I8_4 = 0x24,
 		/// <summary>
 		/// Load in64 constant into stack.
 		/// </summary>
-		LDC_I8_5 = 0x24,
+		LDC_I8_5 = 0x25,
 		/// <summary>
 		/// Load in64 constant into stack.
 		/// </summary>
-		LDC_I8_S = 0x25,
+		LDC_I8_S = 0x26,
 		/// <summary>
 		/// Reserved operation.
 		/// </summary>
-		RESERVED_0 = 0x26,
+		RESERVED_0 = 0x27,
 		/// <summary>
 		/// Reserved operation.
 		/// </summary>
-		RESERVED_1 = 0x27,
+		RESERVED_1 = 0x28,
 		/// <summary>
 		/// Reserved operation.
 		/// </summary>
-		RESERVED_2 = 0x28,
+		RESERVED_2 = 0x29,
 		/// <summary>
 		/// Return operation.
 		/// </summary>
-		RET = 0x29,
+		RET = 0x2A,
 		/// <summary>
 		/// Call operation.
 		/// </summary>
-		CALL = 0x2A,
+		CALL = 0x2B,
 		/// <summary>
 		/// Load NULL into stack.
 		/// </summary>
-		LDNULL = 0x2B,
+		LDNULL = 0x2C,
 		/// <summary>
 		/// Load value from field in instance into stack.
 		/// </summary>
-		LDF = 0x2C,
+		LDF = 0x2D,
 		/// <summary>
 		/// Load value from static field into stack.
 		/// </summary>
-		LDSF = 0x2D,
+		LDSF = 0x2E,
 		/// <summary>
 		/// Stage into instance field value from stack.
 		/// </summary>
-		STF = 0x2E,
+		STF = 0x2F,
 		/// <summary>
 		/// Stage into static field value from stack.
 		/// </summary>
-		STSF = 0x2F,
+		STSF = 0x30,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_0 = 0x30,
+		LDLOC_0 = 0x31,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_1 = 0x31,
+		LDLOC_1 = 0x32,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_2 = 0x32,
+		LDLOC_2 = 0x33,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_3 = 0x33,
+		LDLOC_3 = 0x34,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_4 = 0x34,
+		LDLOC_4 = 0x35,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_5 = 0x35,
+		LDLOC_5 = 0x36,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_S = 0x36,
+		LDLOC_S = 0x37,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_0 = 0x37,
+		STLOC_0 = 0x38,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_1 = 0x38,
+		STLOC_1 = 0x39,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_2 = 0x39,
+		STLOC_2 = 0x3A,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_3 = 0x3A,
+		STLOC_3 = 0x3B,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_4 = 0x3B,
+		STLOC_4 = 0x3C,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_5 = 0x3C,
+		STLOC_5 = 0x3D,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_S = 0x3D,
+		STLOC_S = 0x3E,
 		/// <summary>
 		/// Initialization locals stack.
 		/// </summary>
-		LOC_INIT = 0x3E,
+		LOC_INIT = 0x3F,
 		/// <summary>
 		/// (part of LOD.INIT) Initialization locals slot as derrived type.
 		/// </summary>
-		LOC_INIT_X = 0x3F,
+		LOC_INIT_X = 0x40,
 		/// <summary>
 		/// Duplicate memory from stack.
 		/// </summary>
-		DUP = 0x40,
+		DUP = 0x41,
 		/// <summary>
 		/// XOR Operation.
 		/// </summary>
-		XOR = 0x41,
+		XOR = 0x42,
 		/// <summary>
 		/// OR Operation.
 		/// </summary>
-		OR = 0x42,
+		OR = 0x43,
 		/// <summary>
 		/// AND Operation.
 		/// </summary>
-		AND = 0x43,
+		AND = 0x44,
 		/// <summary>
 		/// Shift Right Operation.
 		/// </summary>
-		SHR = 0x44,
+		SHR = 0x45,
 		/// <summary>
 		/// Shift Left Operation.
 		/// </summary>
-		SHL = 0x45,
+		SHL = 0x46,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_R4 = 0x46,
+		CONV_R4 = 0x47,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_R8 = 0x47,
+		CONV_R8 = 0x48,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_I4 = 0x48,
+		CONV_I4 = 0x49,
 		/// <summary>
 		/// Throw exception operation.
 		/// </summary>
-		THROW = 0x49,
+		THROW = 0x4A,
 		/// <summary>
 		/// New object Operation.
 		/// </summary>
-		NEWOBJ = 0x4A,
+		NEWOBJ = 0x4B,
 		/// <summary>
-		/// Compare two value, when values are equal 1 (int32) stage into stack, otherwise 0 (int32).
+		/// Compare two value, when first value is less than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a <= b)
 		/// </summary>
-		EQL = 0x4B,
+		EQL_LQ = 0x4C,
+		/// <summary>
+		/// Compare two value, when first value is less second value stage 1 (int32) into stack, otherwise 0 (int32). (a < b)
+		/// </summary>
+		EQL_L = 0x4D,
+		/// <summary>
+		/// Compare two value, when first value is greater than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a >= b)
+		/// </summary>
+		EQL_HQ = 0x4E,
+		/// <summary>
+		/// Compare two value, when first value is greater second value stage 1 (int32) into stack, otherwise 0 (int32). (a > b)
+		/// </summary>
+		EQL_H = 0x4F,
+		/// <summary>
+		/// Compare two value, when two integer/float is equal stage 1 (int32) into stack, otherwise 0 (int32). (a == b)
+		/// </summary>
+		EQL_NQ = 0x50,
+		/// <summary>
+		/// Compare two value, when two integer/float is not equal stage 1 (int32) into stack, otherwise 0 (int32). (a != b)
+		/// </summary>
+		EQL_NN = 0x51,
+		/// <summary>
+		/// Compare two value, when value has false, null or zero stage 1 (int32) into stack, otherwise 0 (int32). (!a)
+		/// </summary>
+		EQL_F = 0x52,
+		/// <summary>
+		/// Compare two value, when value has true or either differs from null or from zero stage 1 (int32) into stack, otherwise 0 (int32). (a)
+		/// </summary>
+		EQL_T = 0x53,
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// </summary>
-		JMP = 0x4C,
+		JMP = 0x54,
 		/// <summary>
-		/// Control flow, jump onto label when first value is less than or equal to second value.
+		/// Control flow, jump onto label when first value is less than or equal to second value. (a <= b)
 		/// </summary>
-		JMP_LQ = 0x4D,
+		JMP_LQ = 0x55,
 		/// <summary>
-		/// Control flow, jump onto label when first value is less second value.
+		/// Control flow, jump onto label when first value is less second value. (a < b)
 		/// </summary>
-		JMP_L = 0x4E,
+		JMP_L = 0x56,
 		/// <summary>
-		/// Control flow, jump onto label when first value is greater than or equal to second value.
+		/// Control flow, jump onto label when first value is greater than or equal to second value. (a >= b)
 		/// </summary>
-		JMP_HQ = 0x4F,
+		JMP_HQ = 0x57,
 		/// <summary>
-		/// Control flow, jump onto label when first value is greater second value.
+		/// Control flow, jump onto label when first value is greater second value. (a > b)
 		/// </summary>
-		JMP_H = 0x50,
+		JMP_H = 0x58,
 		/// <summary>
-		/// Control flow, jump onto label when two integer/float is equal.
+		/// Control flow, jump onto label when two integer/float is equal. (a == b)
 		/// </summary>
-		JMP_NQ = 0x51,
+		JMP_NQ = 0x59,
 		/// <summary>
-		/// Control flow, jump onto label when two integer/float is not equal.
+		/// Control flow, jump onto label when two integer/float is not equal. (a != b)
 		/// </summary>
-		JMP_NN = 0x52,
+		JMP_NN = 0x5A,
 		/// <summary>
-		/// Control flow, jump onto label when value has false, null or zero.
+		/// Control flow, jump onto label when value has false, null or zero. (!a)
 		/// </summary>
-		JMP_F = 0x53,
+		JMP_F = 0x5B,
 		/// <summary>
-		/// Control flow, jump onto label when value has true or either differs from null or from zero.
+		/// Control flow, jump onto label when value has true or either differs from null or from zero. (a)
 		/// </summary>
-		JMP_T = 0x54,
+		JMP_T = 0x5C,
 	}
 }
