@@ -111,3 +111,12 @@
     <img src="https://www.ko-fi.com/img/githubbutton_sm.svg">
   </a>
 </p>
+
+
+# Special Thanks
+
+<p align="center">
+  <a href="https://www.jetbrains.com/?from=mana_lang">
+    <img height="128" wight="128" src="https://raw.githubusercontent.com/0xF6/mana_lang/master/.github/images/jetbrains-variant-3.png">
+  </a>
+</p>
