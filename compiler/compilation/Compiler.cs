@@ -1,4 +1,4 @@
-namespace insomnia.compilation
+﻿namespace insomnia.compilation
 {
     using mana.fs;
     using MoreLinq;
@@ -14,6 +14,7 @@ namespace insomnia.compilation
     using ishtar;
     using mana;
     using mana.cmd;
+    using mana.exceptions;
     using mana.ishtar.emit;
     using mana.extensions;
     using mana.pipes;
@@ -21,7 +22,10 @@ namespace insomnia.compilation
     using mana.runtime;
     using mana.stl;
     using mana.syntax;
+    using static mana.runtime.ManaTypeCode;
     using static Spectre.Console.AnsiConsole;
+    using Console = System.Console;
+
     public class Compiler
     {
 
@@ -422,6 +426,8 @@ namespace insomnia.compilation
 
             foreach (var field in @class.Fields)
             {
+                // skip non-static field,
+                // they do not need to be initialized in the static constructor
                 if (!field.IsStatic)
                     continue;
                 var stx = member.Fields
