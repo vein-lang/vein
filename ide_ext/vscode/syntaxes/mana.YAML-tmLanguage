@@ -96,7 +96,7 @@ repository:
     storage-modifier:
         patterns:
             - name: storage.modifier
-              match: '\b(gc|new|delete|native|virtual|getter|setter|public|special|protected|internal|private|static|readonly|const|extern|auto|extensions)\b'
+              match: '\b(gc|new|delete|native|virtual|forwarded|getter|setter|public|special|protected|internal|private|static|readonly|const|extern|auto|extensions)\b'
     union-declaration:
         begin: \b(union)\s+
         beginCaptures:
