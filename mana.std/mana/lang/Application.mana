@@ -1,4 +1,4 @@
-#space "moe/lang"
+#space "mana/lang"
 
 [native("internal.h")]
 public static class Application

@@ -1,4 +1,4 @@
-#space "moe/lang"
+#space "mana/lang"
 
 internal static class IEEEConsts
 {

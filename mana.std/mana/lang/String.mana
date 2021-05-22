@@ -1,6 +1,6 @@
-#space "moe/lang"
+#space "mana/lang"
 
-[special]
+[special, forwarded]
 public class String : Object
 {
     [native]

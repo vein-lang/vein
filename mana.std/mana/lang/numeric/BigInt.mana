@@ -1,6 +1,6 @@
-#space "moe/lang/numeric"
+#space "mana/lang/numeric"
 
-#use "moe/lang"
+#use "mana/lang"
 
 public struct BigInt : ValueType
 {

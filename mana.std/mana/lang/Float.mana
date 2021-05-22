@@ -1,7 +1,7 @@
-#space "moe/lang"
+#space "mana/lang"
 
 
-[special, readonly]
+[special, readonly, forwarded]
 public struct Float : ValueType
 {
     [native]

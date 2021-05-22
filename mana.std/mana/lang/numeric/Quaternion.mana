@@ -1,6 +1,6 @@
-#space "moe/lang/numeric"
+#space "mana/lang/numeric"
 
-#use "moe/lang"
+#use "mana/lang"
 
 public struct Quaternion : ValueType
 {
@@ -18,9 +18,9 @@ public struct Quaternion : ValueType
 
     new (x: Float, y: Float, z: Float, w: Float)
     {
-        this.X = x;
-        this.Y = y;
-        this.Z = z;
-        this.W = w;
+        X = x;
+        Y = y;
+        Z = z;
+        W = w;
     }
 }
