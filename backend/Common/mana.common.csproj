@@ -2,11 +2,11 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<RootNamespace>mana</RootNamespace>
-		<Version>0.4.1046</Version>
+		<Version>0.4.1058</Version>
 		<AssemblyName>mana.common.runtime</AssemblyName>
-		<PackageIconUrl>https://raw.githubusercontent.com/0xF6/wave_lang/master/ide_ext/vscode/images/icon.png</PackageIconUrl>
-		<PackageProjectUrl>https://github.com/0xF6/wave_lang</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/0xF6/wave_lang</RepositoryUrl>
+		<PackageIconUrl>https://raw.githubusercontent.com/0xF6/mana_lang/master/ide_ext/vscode/images/icon.png</PackageIconUrl>
+		<PackageProjectUrl>https://github.com/0xF6/mana_lang</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/0xF6/mana_lang</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>

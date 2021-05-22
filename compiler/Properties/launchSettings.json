@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "wc": {
+    "compile mana std": {
       "commandName": "Project",
-      "commandLineArgs": "compile O:\\wave_vm\\samples\\hello_world\\hello_world.waproj --EF:+exp_simplify_optimize --single-file"
+      "commandLineArgs": "compile O:\\wave_vm\\mana.std\\corlib.waproj --EF:+exp_simplify_optimize"
     }
   }
 }
