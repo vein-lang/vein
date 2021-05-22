@@ -297,6 +297,24 @@ namespace ishtar
                 return;
             }
 
+            if (expr is BinaryExpressionSyntax bin)
+            {
+                gen.EmitBinaryExpression(bin);
+                return;
+            }
+
+            if (expr is IdentifierExpression @ref)
+            {
+                gen.EmitIdentifierReference(@ref);
+                return;
+            }
+
+            if (expr is MemberAccessExpression {Start: IdentifierExpression { ExpressionString: "this" }})
+            {
+                gen.EmitThis();
+                return;
+            }
+
             throw new NotImplementedException();
         }
 
