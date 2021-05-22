@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using exceptions;
     using extensions;
     using static ManaTypeCode;
 
@@ -35,7 +36,6 @@
         
         public override string ToString() => $"{Class}.{Name}";
     }
-    [DebuggerDisplay("{ToString()}")]
     public class ManaField : ManaMember
     {
         public ManaField(ManaClass owner, FieldName fullName, FieldFlags flags, ManaClass fieldType)
@@ -71,7 +71,7 @@
             if (new [] { TYPE_U1, TYPE_U2, TYPE_U4, TYPE_U8 }.Any(x => x == code))
                 throw new NotSupportedException("Unsigned integer is not support.");
 
-            return (code) switch
+            Func<string, object> result = (code) switch
             {
                 (TYPE_BOOLEAN)  => (x) => bool.Parse(x),
                 (TYPE_CHAR)     => (x) => char.Parse(x),
@@ -84,11 +84,36 @@
                 (TYPE_R8)       => (x) => double.Parse(x),
                 (TYPE_R16)      => (x) => decimal.Parse(x),
                 (TYPE_STRING)   => (x) => x,
-                _ => throw new InvalidOperationException($"Cannot fetch converter for {code}.")
+                _ => throw new NotSupportedException($"Cannot fetch converter for {code}.")
             };
+
+            return WrapConverter(result, code);
         }
 
+        private static Func<string, object> WrapConverter(Func<string, object> actor, ManaTypeCode typeCode) => x =>
+        {
+            try
+            {
+                return actor(x);
+            }
+            catch (OverflowException e)
+            {
+                throw new ValueWasIncorrectException(x, typeCode, e);
+            }
+        };
+
         public static Func<string, object> GetConverter(this ManaField field)
-            => GetConverter(field.FieldType.TypeCode);
+        {
+            try
+            {
+                return GetConverter(field.FieldType.TypeCode);
+            }
+            catch (NotSupportedException)
+            {
+                throw new ConvertNotSupportedException(field);
+            }
+        }
     }
+
+    
 }
