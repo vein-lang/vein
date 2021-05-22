@@ -22,5 +22,8 @@
             base.SetPos(startPos, length);
             return this;
         }
+        
+        public override string ToString() => $"Annotation '{AnnotationKind}'";
+        
     }
 }

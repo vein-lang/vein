@@ -81,6 +81,7 @@
                 .Or(Keyword(ManaAnnotationKind.Readonly))
                 .Or(Keyword(ManaAnnotationKind.Special))
                 .Or(Keyword(ManaAnnotationKind.Virtual))
+                .Or(Keyword(ManaAnnotationKind.Forwarded))
                 .Token().Named("Annotation");
         
         internal virtual Parser<TypeSyntax> NonGenericType =>

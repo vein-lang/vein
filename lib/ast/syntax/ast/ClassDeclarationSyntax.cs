@@ -39,6 +39,8 @@
         public virtual bool IsInterface { get; set; }
         public virtual bool IsStruct { get; set; }
 
+        public bool IsForwardedType => Annotations.Any(x => x.AnnotationKind == ManaAnnotationKind.Forwarded);
+
         public List<TypeSyntax> Inheritances { get; set; } = new();
         
         public List<string> InnerComments { get; set; } = new();
@@ -52,5 +54,8 @@
         public List<PropertyDeclarationSyntax> Properties => Members.OfType<PropertyDeclarationSyntax>().ToList();
 
         public DocumentDeclaration OwnerDocument { get; set; }
+
+        
+        public override string ToString() => $"Class '{Identifier}'";
     }
 }

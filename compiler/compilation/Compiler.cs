@@ -1,4 +1,4 @@
-﻿namespace insomnia.compilation
+namespace insomnia.compilation
 {
     using mana.fs;
     using MoreLinq;
@@ -195,9 +195,10 @@
         public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc)
         {
             CompileAnnotation(member, doc);
-            if (module.Name.Equals("wcorlib"))
+            if (member.IsForwardedType)
             {
-                var result = ManaCore.All.FirstOrDefault(x => x.FullName.Name.Equals(member.Identifier.ExpressionString));
+                var result = ManaCore.All.
+                    FirstOrDefault(x => x.FullName.Name.Equals(member.Identifier.ExpressionString));
                
                 if (result is not null)
                 {
@@ -207,6 +208,8 @@
                     clz.Includes.AddRange(doc.Includes);
                     return clz;
                 }
+
+                throw new ForwardedTypeNotDefinedException(member.Identifier.ExpressionString);
             }
             return module.DefineClass($"global::{doc.Name}/{member.Identifier.ExpressionString}").WithIncludes(doc.Includes);
         }
@@ -644,6 +647,8 @@
                         continue;
                     case ManaAnnotationKind.Readonly when clazz.IsStruct:
                         // TODO
+                        continue;
+                    case ManaAnnotationKind.Forwarded:
                         continue;
                     default:
                         PrintError(

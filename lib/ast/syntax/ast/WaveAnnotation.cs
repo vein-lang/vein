@@ -7,6 +7,7 @@
         Native,
         Getter,
         Setter,
-        Readonly
+        Readonly,
+        Forwarded
     }
 }
