@@ -352,7 +352,7 @@ namespace insomnia.compilation
             if (ctor is null)
             {
                 errors.Add($"[red bold]Class/struct '{@class.Name}' has problem with generate default ctor.[/] \n\t" +
-                           $"Please report the problem into 'https://github.com/0xF6/wave_lang/issues'." +
+                           $"Please report the problem into 'https://github.com/0xF6/mana_lang/issues'." +
                            $"in '[orange bold]{doc.FileEntity}[/]'.");
                 return;
             }
@@ -408,7 +408,7 @@ namespace insomnia.compilation
             if (ctor is null)
             {
                 errors.Add($"[red bold]Class/struct '{@class.Name}' has problem with generate static ctor.[/] \n\t" +
-                           $"Please report the problem into 'https://github.com/0xF6/wave_lang/issues'." +
+                           $"Please report the problem into 'https://github.com/0xF6/mana_lang/issues'." +
                            $"in '[orange bold]{doc.FileEntity}[/]'.");
                 return;
             }

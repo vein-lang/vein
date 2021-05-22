@@ -57,7 +57,7 @@
                 VM.FastFail(WNE.ACCESS_VIOLATION, 
                     "Scalar value type cannot be extracted.\n" +
                     "Invalid memory address is possible.\n" +
-                    "Please report the problem into https://github.com/0xF6/wave_lang/issues.", 
+                    "Please report the problem into https://github.com/0xF6/mana_lang/issues.", 
                     frame);
                 VM.ValidateLastError();
             }
