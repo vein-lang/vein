@@ -318,6 +318,56 @@ namespace ishtar
             throw new NotImplementedException();
         }
 
+        public static void EmitThis(this ILGenerator gen) => gen.Emit(OpCodes.LD_THIS);
+
+        public static void EmitIdentifierReference(this ILGenerator gen, IdentifierExpression id)
+        {
+            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
+            var entity = context.TryFindVariable(id);
+
+            if (entity is null) return;
+
+            if (entity is ManaField field)
+                gen.Emit(field.IsStatic ? OpCodes.LDSF : OpCodes.LDF, field);
+            if (entity is Nullable<(ManaArgumentRef arg, int index)>)
+            {
+                var (arg, index) = ((ManaArgumentRef arg, int index))entity;
+                gen.Emit(OpCodes.LDARG_S, index + 1); // todo apply variants
+            }
+        }
+
+        public static void EmitBinaryExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
+        {
+            if (bin.OperatorType == ExpressionType.Assign)
+            {
+                gen.EmitAssignExpression(bin);
+                return;
+            }
+
+            var left = bin.Left;
+            var right = bin.Right;
+
+            gen.EmitExpression(left);
+            gen.EmitBinaryOperator(bin.OperatorType);
+            gen.EmitExpression(right);
+        }
+
+        public static void EmitAssignExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
+        {
+            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
+            if (bin.Left is IdentifierExpression id)
+            {
+                var field = context.ResolveField(context.CurrentMethod.Owner, id);
+                gen.EmitExpression(bin.Right);
+                gen.Emit(field.IsStatic ? OpCodes.STSF : OpCodes.STF, field);
+                return;
+            }
+
+            throw new NotSupportedException();
+        }
+
         public static bool CanImplicitlyCast(this ManaTypeCode code, NumericLiteralExpressionSyntax numeric)
         {
             if (code.IsCompatibleNumber(numeric.GetTypeCode()))
@@ -535,8 +585,10 @@ namespace ishtar
                 generator.EmitIfElse(theIf);
             else if (statement is WhileStatementSyntax @while)
                 generator.EmitWhileStatement(@while);
-            else if (statement is QualifiedExpressionStatement {Value: MemberAccessExpression} qes)
-                generator.EmitCall((MemberAccessExpression) qes.Value);
+            else if (statement is QualifiedExpressionStatement {Value: MemberAccessExpression} qes1)
+                generator.EmitCall((MemberAccessExpression) qes1.Value);
+            else if (statement is QualifiedExpressionStatement {Value: BinaryExpressionSyntax} qes2)
+                generator.EmitBinaryExpression((BinaryExpressionSyntax)qes2.Value);
             else
                 throw new NotImplementedException();
         }
