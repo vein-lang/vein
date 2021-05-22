@@ -177,7 +177,7 @@ namespace ishtar
         }
         
         
-        public static void EmitBinaryOperator(this ILGenerator gen, ExpressionType op, ManaTypeCode leftType, ManaTypeCode rightType, ManaTypeCode resultType)
+        public static void EmitBinaryOperator(this ILGenerator gen, ExpressionType op, ManaTypeCode leftType = ManaTypeCode.TYPE_CLASS, ManaTypeCode rightType = ManaTypeCode.TYPE_CLASS, ManaTypeCode resultType = ManaTypeCode.TYPE_CLASS)
         {
             switch (op)
             {
@@ -201,14 +201,25 @@ namespace ishtar
                 case ExpressionType.OrElse:
                     gen.Emit(OpCodes.OR);
                     return;
+                case ExpressionType.LessThan:
+                    gen.Emit(OpCodes.EQL_L);
+                    return;
+                case ExpressionType.LessThanOrEqual:
+                    gen.Emit(OpCodes.EQL_LQ);
+                    return;
+                case ExpressionType.GreaterThan:
+                    gen.Emit(OpCodes.EQL_H);
+                    return;
+                case ExpressionType.GreaterThanOrEqual:
+                    gen.Emit(OpCodes.EQL_HQ);
+                    return;
                 case ExpressionType.NotEqual:
                     if (leftType == ManaTypeCode.TYPE_BOOLEAN)
                         goto case ExpressionType.ExclusiveOr;
-                    gen.Emit(OpCodes.EQL);
-                    gen.Emit(OpCodes.LDC_I4_0);
-                    goto case ExpressionType.Equal;
+                    gen.Emit(OpCodes.EQL_F);
+                    return;
                 case ExpressionType.Equal:
-                    gen.Emit(OpCodes.EQL);
+                    gen.Emit(OpCodes.EQL_T);
                     return;
                 case ExpressionType.ExclusiveOr:
                     gen.Emit(OpCodes.XOR);
