@@ -474,7 +474,12 @@ namespace insomnia.compilation
                     errors.Add($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]GenerateBody(...);[/]");
                 }
             }
-            generator.Emit(OpCodes.RET);
+            // fucking shit fucking
+            // VM needs the end-of-method notation, which is RETURN.
+            // but in case of the VOID method, user may not write it
+            // and i didnt think of anything smarter than checking last OpCode
+            if (generator._opcodes.Last() != OpCodes.RET.Value && method.ReturnType.TypeCode == TYPE_VOID)
+                generator.Emit(OpCodes.RET);
         }
 
         private void AnalyzeStatement(BaseSyntax statement, MethodDeclarationSyntax member)
