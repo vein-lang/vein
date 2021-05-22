@@ -39,7 +39,7 @@
         }
         public BinaryExpressionSyntax(ExpressionSyntax first, ExpressionSyntax last, string op)
         {
-            this.OperatorType = op.ToExpressionType();
+            this.OperatorType = op.ToExpressionType(true);
             this.Left = first;
             this.Right = last;
         }

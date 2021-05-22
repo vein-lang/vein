@@ -375,7 +375,7 @@
         private Parser<ExpressionSyntax> UnaryOperator(string op) =>
             from o in Parse.String(op).Token()
             from u in Parse.Ref(() => unary_expression)
-            select new UnaryExpressionSyntax() { Operand = u, OperatorType = op.ToExpressionType() };
+            select new UnaryExpressionSyntax { Operand = u, OperatorType = op.ToExpressionType(false) };
 
 
 

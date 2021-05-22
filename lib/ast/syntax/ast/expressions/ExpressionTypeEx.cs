@@ -6,10 +6,11 @@
 
     public static class ExpressionTypeEx
     {
-        public static ExpressionType ToExpressionType(this string str)
-        {
-            return Enum.GetValues<ExpressionType>().Select(x => (GetSymbol(x), x)).Where(x => x.Item1 != null).First(x => x.Item1.Equals(str)).x;
-        }
+        public static ExpressionType ToExpressionType(this string str, bool isBinary) =>
+            Enum.GetValues<ExpressionType>()
+                .Select(x => (GetSymbol(x, isBinary), x))
+                .Where(x => x.Item1 != null)
+                .First(x => x.Item1.Equals(str)).x;
 
         public static bool IsLogic(this ExpressionType exp)
         {
@@ -68,7 +69,7 @@
                     throw new Exception();
             }
         }
-        public static string GetSymbol(this ExpressionType exp)
+        public static string GetSymbol(this ExpressionType exp, bool isBinary = true)
         {
             switch (exp)
             {
@@ -106,8 +107,6 @@
                 case ExpressionType.Multiply:
                 case ExpressionType.MultiplyChecked:
                     return "*";
-                case ExpressionType.Not:
-                    return "!";
                 case ExpressionType.Or:
                     return "|";
                 case ExpressionType.OrElse:
@@ -142,21 +141,23 @@
                 case ExpressionType.SubtractAssign:
                 case ExpressionType.SubtractAssignChecked:
                     return "-=";
-                case ExpressionType.PostIncrementAssign:
-                case ExpressionType.PreIncrementAssign:
-                    return "++";
-                case ExpressionType.PreDecrementAssign:
-                case ExpressionType.PostDecrementAssign:
-                    return "--";
-                case ExpressionType.OnesComplement:
-                    return "~";
-                case ExpressionType.Negate:
-                case ExpressionType.NegateChecked:
-                    return "-";
                 case ExpressionType.MemberAccess:
                     return ".";
                 case ExpressionType.Conditional:
                     return "?:";
+                case ExpressionType.Not:
+                    return "!";
+                case ExpressionType.PostIncrementAssign when !isBinary:
+                case ExpressionType.PreIncrementAssign when !isBinary:
+                    return "++";
+                case ExpressionType.PreDecrementAssign when !isBinary:
+                case ExpressionType.PostDecrementAssign when !isBinary:
+                    return "--";
+                case ExpressionType.OnesComplement when !isBinary:
+                    return "~";
+                case ExpressionType.Negate when !isBinary:
+                case ExpressionType.NegateChecked when !isBinary:
+                    return "-";
                 default:
                     return null;
             }
