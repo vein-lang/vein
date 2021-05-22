@@ -23,8 +23,8 @@
         private static (string line, string arrow_line) NewDiffError(Transform t, DocumentDeclaration doc)
         {
             var line = doc.SourceLines[t.pos.Line].Length < t.len ? 
-                t.pos.Line - 1 : 
-                /*t.pos.Line*/throw new Exception("cannot detect line");
+                t.pos.Line : 
+                t.pos.Line - 1;
 
             var original = doc.SourceLines[line];
 
