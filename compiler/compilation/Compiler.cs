@@ -120,17 +120,17 @@ namespace insomnia.compilation
 
             Ast.Select(x => (x.Key, x.Value))
                 .Pipe(x => Status.ManaStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
-                .Select(x => LinkClasses(x.Value))
+                .SelectMany(x => LinkClasses(x.Value))
                 .ToList()
-                .Pipe(z => z
-                    .Pipe(LinkMetadata)
-                    .Pipe(x => LinkMethods(x)
-                        .Transition(
-                            methods => methods.ForEach(GenerateBody),
-                            fields => fields.ForEach(GenerateField)))
-                    .Pipe(GenerateCtor)
-                    .Pipe(GenerateStaticCtor)
-                    .Consume())
+                .Pipe(LinkMetadata)
+                .Select(x => (LinkMethods(x), x))
+                .ToList()
+                .Pipe(x => x.Item1.Transition(
+                    methods => methods.ForEach(GenerateBody),
+                    fields => fields.ForEach(GenerateField)))
+                .Select(x => x.x)
+                .Pipe(GenerateCtor)
+                .Pipe(GenerateStaticCtor)
                 .Consume();
             errors.AddRange(Context.Errors);
             if (errors.Count == 0)
@@ -316,7 +316,7 @@ namespace insomnia.compilation
             CompileAnnotation(member, doc);
 
             var retType = FetchType(member.ReturnType, doc);
-
+            
             if (retType is null)
                 return default;
             
@@ -459,7 +459,7 @@ namespace insomnia.compilation
 
             
             var generator = method.GetGenerator();
-
+            Context.Document = member.OwnerClass.OwnerDocument;
             Context.CurrentMethod = method;
             generator.StoreIntoMetadata("context", Context);
             
@@ -543,7 +543,6 @@ namespace insomnia.compilation
 
             var clazz = field.Owner;
             
-
             if (member.Modifiers.Any(x => x.ModificatorKind == ModificatorKind.Const))
             {
                 var assigner = member.Field.Expression;
@@ -559,15 +558,20 @@ namespace insomnia.compilation
                     return;
                 }
 
-                var converter = field.GetConverter();
+                try
+                {
+                    var converter = field.GetConverter();
 
-                if (assigner is UnaryExpressionSyntax { OperatorType: ExpressionType.Negate } negate)
-                    module.WriteToConstStorage(field.FullName, converter(negate.ExpressionString.Trim('(', ')'))); // shit
-                else
-                    module.WriteToConstStorage(field.FullName, converter(assigner.ExpressionString));
-
+                    if (assigner is UnaryExpressionSyntax { OperatorType: ExpressionType.Negate } negate)
+                        module.WriteToConstStorage(field.FullName, converter($"-{negate.ExpressionString.Trim('(', ')')}")); // shit
+                    else
+                        module.WriteToConstStorage(field.FullName, converter(assigner.ExpressionString));
+                }
+                catch (ValueWasIncorrectException e)
+                {
+                    throw new MaybeMismatchTypeException(field, e);
+                }
             }
-            
         }
 
         private void ApplyTypeWord(TypeSyntax syntax)
