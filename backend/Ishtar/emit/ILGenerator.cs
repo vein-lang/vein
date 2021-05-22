@@ -16,6 +16,7 @@ namespace mana.ishtar.emit
     {
         private byte[] _ilBody;
         private int _position;
+        internal List<ushort> _opcodes = new List<ushort>();
         internal readonly MethodBuilder _methodBuilder;
         private readonly StringBuilder _debugBuilder = new ();
         
@@ -398,6 +399,7 @@ namespace mana.ishtar.emit
             var num = opcode.Value;
             BinaryPrimitives.WriteUInt16LittleEndian(_ilBody.AsSpan(_position), num);
             _position += sizeof(ushort);
+            _opcodes.Add(num);
             //this.UpdateStackSize(opcode, opcode.StackChange());
         }
         internal void EnsureCapacity<_>(params int[] sizes) where _ : struct
