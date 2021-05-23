@@ -48,6 +48,9 @@ namespace ishtar
         public ManaClass ResolveType(TypeSyntax targetTypeTypeword) 
             => Module.FindType(targetTypeTypeword.Identifier.ExpressionString,
                 Classes[CurrentMethod.Owner.FullName].Includes);
+        public ManaClass ResolveType(IdentifierExpression targetTypeTypeword) 
+            => Module.FindType(targetTypeTypeword.ExpressionString,
+                Classes[CurrentMethod.Owner.FullName].Includes);
 
         public (ManaArgumentRef, int index)? ResolveArgument(IdentifierExpression id)
         {
