@@ -12,6 +12,12 @@
   </a>
 </p>
 
+<p align="center">
+  <a href="#">
+    <img height="128" wight="128"  src="https://user-images.githubusercontent.com/13326808/119276104-a13cef80-bc21-11eb-9f34-227b029831d9.png">
+  </a>
+</p>
+
 <!-- Name -->
 <h1 align="center">
  ⚡️🔮 Mana Lang 🔮⚡️
@@ -25,6 +31,9 @@
 <p align="center">
   <a href="https://www.codacy.com/gh/0xF6/mana_lang/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=0xF6/mana_lang&amp;utm_campaign=Badge_Grade">
     <img src="https://app.codacy.com/project/badge/Grade/9dc3cb6f384747c39d0b83241e725de2">
+  </a>
+  <a href="https://www.codacy.com/gh/0xF6/mana_lang/dashboard?utm_source=github.com&utm_medium=referral&utm_content=0xF6/mana_lang&utm_campaign=Badge_Coverage">
+    <img src="https://app.codacy.com/project/badge/Coverage/9dc3cb6f384747c39d0b83241e725de2">
   </a>
   <a href="#">
     <img src="http://img.shields.io/:license-MIT-blue.svg">
