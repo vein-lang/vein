@@ -100,6 +100,13 @@
             {
                 var body = reader.ReadBytes(reader.ReadInt32());
                 var @class = DecodeClass(body, module);
+
+                if (@class.IsSpecial)
+                {
+                    if (ManaCore.All.Any(x => x.FullName == @class.FullName))
+                        TypeForwarder.Indicate(@class);
+                }
+
                 module.class_table.Add(@class);
             }
 
@@ -163,6 +170,7 @@
             {
                 Flags = flags
             };
+
             foreach (var _ in ..len)
             {
                 var body = 
