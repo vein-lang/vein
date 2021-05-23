@@ -36,6 +36,15 @@ namespace ishtar
             return this;
         }
 
+        public ManaScope CreateScope()
+        {
+            if (CurrentScope is not null)
+                return CurrentScope.EnterScope();
+            CurrentScope = new ManaScope(this);
+            Scopes.Add(CurrentMethod, CurrentScope);
+            return CurrentScope;
+        }
+
         public ManaClass ResolveType(TypeSyntax targetTypeTypeword) 
             => Module.FindType(targetTypeTypeword.Identifier.ExpressionString,
                 Classes[CurrentMethod.Owner.FullName].Includes);
