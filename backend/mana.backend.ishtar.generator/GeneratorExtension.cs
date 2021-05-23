@@ -85,6 +85,8 @@ namespace ishtar
                           $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
             return null;
         }
+        public ManaField ResolveField(IdentifierExpression id) 
+            => CurrentMethod.Owner.FindField(id.ExpressionString);
 
         public ManaField ResolveField(ManaClass targetType, IdentifierExpression id)
         {
@@ -111,6 +113,18 @@ namespace ishtar
                           $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
             else
                 this.LogError($"The name '{id}' does not exist in the current context.", id);
+            return null;
+        }
+
+        public ManaMethod ResolveMethod(
+            ManaClass targetType, 
+            IdentifierExpression id, 
+            MethodInvocationExpression invocation)
+        {
+            var method = targetType.FindMethod(id.ExpressionString, invocation.Arguments.DetermineTypes(this));
+            if (method is not null)
+                return method;
+            this.LogError($"The name '{id}' does not exist in the current context.", id);
             return null;
         }
     }
