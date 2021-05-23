@@ -86,20 +86,6 @@ namespace ishtar
             return null;
         }
 
-        public object TryFindVariable(IdentifierExpression id)
-        {
-            var field = CurrentMethod.Owner.FindField(id.ExpressionString);
-
-            if (field is not null)
-                return field;
-
-            var argument = ResolveArgument(id);
-
-            if (argument is not null)
-                return argument;
-            this.LogError($"The name '{id}' does not exist in the current context.", id);
-            return null;
-        }
         public ManaField ResolveField(ManaClass targetType, IdentifierExpression id)
         {
             var field = targetType.FindField(id.ExpressionString);
