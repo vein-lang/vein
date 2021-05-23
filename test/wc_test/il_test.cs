@@ -40,6 +40,26 @@
             Assert.Equal(OpCodes.LDC_I4_S.Value, result[2]);
             Assert.Equal((uint)228, result[3]);
         }
+
+        [Fact]
+        public unsafe void LocalsGeneratorTest()
+        {
+            var gen = CreateGenerator();
+
+            gen.Emit(OpCodes.RET);
+            gen.Emit(OpCodes.AND);
+            gen.EnsureLocal("foo1", ManaTypeCode.TYPE_I8.AsClass());
+            gen.Emit(OpCodes.LDC_I8_3);
+            gen.Emit(OpCodes.STLOC_0);
+            gen.EnsureLocal("foo2", ManaTypeCode.TYPE_I4.AsClass());
+            gen.Emit(OpCodes.LDC_I4_3);
+            gen.Emit(OpCodes.STLOC_1);
+
+            
+            var str = gen.BakeDebugString();
+            var bytes = gen.BakeByteArray();
+            var (result, _) = ILReader.Deconstruct(bytes);
+        }
         
         
         [Fact]

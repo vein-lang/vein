@@ -146,7 +146,7 @@
             genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, ManaTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new ManaScope(genCtx);
 
-            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("idi"), ManaTypeCode.TYPE_BOOLEAN.AsClass());
+            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("idi"), ManaTypeCode.TYPE_BOOLEAN.AsClass(), 0);
 
             var key = $"idi";
             var id = Sytnax.QualifiedExpression.End().ParseMana(key) as IdentifierExpression;
@@ -203,7 +203,7 @@
             genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, ManaTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new ManaScope(genCtx);
 
-            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("ow"), anotherClass);
+            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("ow"), anotherClass, 0);
             
             var result = Sytnax.QualifiedExpression
                     .End()

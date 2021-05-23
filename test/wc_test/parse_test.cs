@@ -31,12 +31,36 @@
         [Fact]
         public void VariableStatementTest()
         {
-            Mana.Block.End().ParseMana(@"{
+            var result = Mana.Block.End().ParseMana(@"{
     auto f: Int32 = 12;
 
     return 1;
     return 2;
 }");
+            Assert.False(result.IsBrokenToken);
+            foreach (var statement in result.Statements) 
+                Assert.False(statement.IsBrokenToken);
+        }
+
+        [Fact]
+        public void SingleVariableTest()
+        {
+            var result = Mana.VariableDeclaration.End().ParseMana($"auto f: Int32 = 12;");
+        }
+
+        [Fact]
+        public void VariableInFunctionTest()
+        {
+            var result = Mana.MethodDeclaration.End().ParseMana(@"public Foo(): Int32 {
+    auto f = 12;
+
+    return f;
+}");
+            Assert.False(result.IsBrokenToken);
+            var statements = result.Body.Statements;
+
+            Assert.IsType<LocalVariableDeclaration>(statements[0]);
+            Assert.IsType<ReturnStatementSyntax>(statements[1]);
         }
         
         [Fact]
@@ -58,8 +82,8 @@
         {
             var result = new ManaSyntax().ParameterDeclaration.ParseMana(parseStr);
             
-            Assert.Equal(name, result.Identifier);
-            Assert.Equal(type, result.Type.Identifier);
+            Assert.Equal(name, result.Identifier.ToString());
+            Assert.Equal(type, result.Type.Identifier.ToString());
             Assert.Equal(lenMod, result.Modifiers.Count);
             if(mod is not null)
                 Assert.Equal(mod, result.Modifiers[0].ModificatorKind.ToString().ToLower());
@@ -89,8 +113,8 @@
                         }
                         gc auto;
                     }");
-            Assert.Equal("test", d.Identifier);
-            Assert.Equal("int32", d.ReturnType.Identifier.ToLower());
+            Assert.Equal("test", d.Identifier.ToString());
+            Assert.Equal("int32", d.ReturnType.Identifier.ToString().ToLower());
             Assert.Equal(SyntaxType.ReturnStatement, d.Body.Statements.First().Kind);
         }
         [Fact]
@@ -131,8 +155,8 @@
             var a = new ManaSyntax();
             var d = a.MethodDeclaration
                 .ParseMana("public test(x: int32): void { }");
-            Assert.Equal("test", d.Identifier);
-            Assert.Equal("void", d.ReturnType.Identifier.ToLower());
+            Assert.Equal("test", d.Identifier.ToString());
+            Assert.Equal("void", d.ReturnType.Identifier.ToString().ToLower());
         }
 
         [Fact]
@@ -152,16 +176,16 @@
             
             Assert.False(d.IsStruct);
             Assert.False(d.IsInterface);
-            Assert.Equal("DDD", d.Identifier);
+            Assert.Equal("DDD", d.Identifier.ToString());
             Assert.Contains(d.Modifiers, x => x.ModificatorKind == ModificatorKind.Public);
             var method = d.Methods.Single();
-            Assert.Equal("test", method.Identifier);
+            Assert.Equal("test", method.Identifier.ToString());
             Assert.Contains(method.Modifiers, x => x.ModificatorKind == ModificatorKind.Public);
-            Assert.Equal("void", method.ReturnType.Identifier.ToLower());
+            Assert.Equal("void", method.ReturnType.Identifier.ToString().ToLower());
             
             var @params = method.Parameters.Single();
-            Assert.Equal("x", @params.Identifier);
-            Assert.Equal("int32", @params.Type.Identifier.ToLower());
+            Assert.Equal("x", @params.Identifier.ToString());
+            Assert.Equal("int32", @params.Type.Identifier.ToString().ToLower());
         }
 
         
@@ -193,7 +217,7 @@
             {
                 d = a.OperationDeclaration
                     .ParseMana(parseStr + "{body{}}");
-                Assert.Equal(name, d.Identifier);
+                Assert.Equal(name, d.Identifier.ToString());
             }
         }
         [Fact]
@@ -399,8 +423,8 @@
         {
             var result = Mana.FieldDeclaration.End().ParseMana("foo: Int32 = -22;");
             Assert.NotNull(result);
-            Assert.Equal("Int32", result.Type.Identifier);
-            Assert.Equal("foo", result.Field.Identifier);
+            Assert.Equal("Int32", result.Type.Identifier.ToString());
+            Assert.Equal("foo", result.Field.Identifier.ToString());
             Assert.Equal("(-22)", result.Field.Expression.ExpressionString);
             Assert.IsType<UnaryExpressionSyntax>(result.Field.Expression);
         }
@@ -412,12 +436,12 @@
         {
             var cd = Mana.ClassDeclaration.Parse($"[special] {keyword} Program {{ [special] main(): void {{}} }}");
             Assert.True(cd.Methods.Any());
-            Assert.Equal("Program", cd.Identifier);
+            Assert.Equal("Program", cd.Identifier.ToString());
             Assert.Equal(ManaAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
 
             var md = cd.Methods.Single();
-            Assert.Equal("Void", md.ReturnType.Identifier);
-            Assert.Equal("main", md.Identifier);
+            Assert.Equal("Void", md.ReturnType.Identifier.ToString());
+            Assert.Equal("main", md.Identifier.ToString());
             Assert.Equal(ManaAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
             Assert.False(md.Parameters.Any());
             
@@ -429,7 +453,7 @@
         {
             var cd = Mana.ClassDeclaration.Parse("class Program : Object {}");
             
-            Assert.Equal("Object", cd.Inheritances.Single().Identifier);
+            Assert.Equal("Object", cd.Inheritances.Single().Identifier.ToString());
         }
         
         [Fact]
@@ -437,7 +461,7 @@
         {
             var cd = Mana.ClassDeclaration.Parse("class Program : Object { foo: foo; }");
             
-            Assert.Equal("Object", cd.Inheritances.Single().Identifier);
+            Assert.Equal("Object", cd.Inheritances.Single().Identifier.ToString());
         }
         
         [Theory]

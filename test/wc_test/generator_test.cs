@@ -304,11 +304,10 @@ puts after - before;*/
             fibGen.Emit(OpCodes.RET);
             fibGen.UseLabel(label_if_2);
             // var first, second, nth, i = 0;
-            fibGen.Emit(OpCodes.LOC_INIT, new[]
-            {
-                ManaTypeCode.TYPE_I4, ManaTypeCode.TYPE_I4,
-                ManaTypeCode.TYPE_I4, ManaTypeCode.TYPE_I4
-            });
+            fibGen.EnsureLocal("first", ManaTypeCode.TYPE_I4.AsClass());
+            fibGen.EnsureLocal("second", ManaTypeCode.TYPE_I4.AsClass());
+            fibGen.EnsureLocal("nth", ManaTypeCode.TYPE_I4.AsClass());
+            fibGen.EnsureLocal("i", ManaTypeCode.TYPE_I4.AsClass());
             // second, nth = 1; i = 2;
             fibGen.Emit(OpCodes.LDC_I4_1); fibGen.Emit(OpCodes.STLOC_1);
             fibGen.Emit(OpCodes.LDC_I4_1); fibGen.Emit(OpCodes.STLOC_2);

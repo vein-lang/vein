@@ -109,17 +109,17 @@
         [Fact(Skip = "MANUAL")]
         public void ReadTest()
         {
-            var target = new FileInfo(@"C:/wavelib/set2.wll");
+            //var target = new FileInfo(@"C:/wavelib/set2.wll");
 
-            var insm = IshtarAssembly.LoadFromFile(target);
-            var deps = GetDeps();
+            //var insm = IshtarAssembly.LoadFromFile(target);
+            //var deps = GetDeps();
 
-            var (_, bytes) = insm.Sections.First();
+            //var (_, bytes) = insm.Sections.First();
 
-            var sdk = new ManaSDK(new ManaProject(new FileInfo(@"C:\wavelib\foo.ww"), new XML.Project()
-            {
-                Sdk = "default"
-            }));
+            //var sdk = new ManaSDK(new ManaProject(new FileInfo(@"C:\wavelib\foo.ww"), new XML.Project()
+            //{
+            //    Sdk = "default"
+            //}));
 
 
            // var resolver = new AssemblyResolver(sdk.RootPath);
@@ -130,14 +130,14 @@
         [Fact(Skip = "MANUAL")]
         public void ReaderTest()
         {
-            var deps = GetDeps();
-            var f = IshtarAssembly.LoadFromFile(@"C:\Program Files (x86)\ManaLang\sdk\0.1-preview\std\aspera.wll");
-            var (_, bytes) = f.Sections.First();
+            //var deps = GetDeps();
+            //var f = IshtarAssembly.LoadFromFile(@"C:\Program Files (x86)\ManaLang\sdk\0.1-preview\std\aspera.wll");
+            //var (_, bytes) = f.Sections.First();
 
-            var sdk = new ManaSDK(new ManaProject(new FileInfo(@"C:\wave-lang-temp\foo.ww"), new XML.Project()
-            {
-                Sdk = "default"
-            }));
+            //var sdk = new ManaSDK(new ManaProject(new FileInfo(@"C:\wave-lang-temp\foo.ww"), new XML.Project()
+            //{
+            //    Sdk = "default"
+            //}));
 
             
 
