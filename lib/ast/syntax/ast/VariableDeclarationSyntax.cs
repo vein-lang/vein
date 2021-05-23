@@ -22,11 +22,13 @@
         public override SyntaxType Kind => SyntaxType.VariableDeclaration;
 
         public override IEnumerable<BaseSyntax> ChildNodes =>
-            GetNodes(Type).Concat(new [] {Variables}).Where(n => n != null);
+            GetNodes(Type).Concat(new [] {Variable}).Where(n => n != null);
 
-        public TypeSyntax Type { get; set; }
+        public TypeExpression Type { get; set; }
 
-        public VariableDeclaratorSyntax Variables { get; set; }
+        public IdentifierExpression Variable { get; set; }
+
+        public ExpressionSyntax ExpressionValue { get; set; }
         
 
         public new VariableDeclarationSyntax SetPos(Position startPos, int length)
