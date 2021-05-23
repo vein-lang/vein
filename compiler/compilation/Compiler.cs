@@ -1,4 +1,4 @@
-namespace insomnia.compilation
+﻿namespace insomnia.compilation
 {
     using mana.fs;
     using MoreLinq;
@@ -468,6 +468,7 @@ namespace insomnia.compilation
             var generator = method.GetGenerator();
             Context.Document = member.OwnerClass.OwnerDocument;
             Context.CurrentMethod = method;
+            Context.CreateScope();
             generator.StoreIntoMetadata("context", Context);
             
             foreach (var statement in member.Body.Statements)
