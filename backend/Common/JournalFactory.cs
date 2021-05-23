@@ -5,11 +5,12 @@
     using System.Collections.Generic;
     using System.IO;
     using Serilog;
-    
+    using Serilog.Core;
+
     public static class JournalFactory
     {
-        private static readonly IDictionary<string, LoggerConfiguration> storage = 
-            new ConcurrentDictionary<string, LoggerConfiguration>();
+        private static readonly IDictionary<string, Logger> storage = 
+            new ConcurrentDictionary<string, Logger>();
         private static readonly Func<string, LoggerConfiguration> _activator = defaultActivator;
         private static Action<LoggerConfiguration> _configurator;
         private static readonly object guarder = new object();
@@ -18,10 +19,10 @@
             lock (guarder)
             {
                 if (storage.ContainsKey(groupName))
-                    return storage[groupName].CreateLogger();
-                var logger = _activator(groupName);
+                    return storage[groupName];
+                var logger = _activator(groupName).CreateLogger();
                 storage.Add(groupName, logger);
-                return logger.CreateLogger();
+                return logger;
             }
         }
 
