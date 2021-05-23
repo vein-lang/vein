@@ -619,6 +619,9 @@ namespace ishtar
 
         public static void EmitStatement(this ILGenerator generator, StatementSyntax statement)
         {
+            if (statement.IsBrokenToken)
+                return;
+
             if (statement is ReturnStatementSyntax ret1)
                 generator.EmitReturn(ret1);
             else if (statement is IfStatementSyntax theIf)
