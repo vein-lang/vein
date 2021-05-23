@@ -29,5 +29,13 @@
             var key = getConst(type);
             gen.PutInteger4(key);
         }
+
+        public static void PutTypeNameInto(this ILGenerator gen, QualityTypeName type, BinaryWriter writer)
+        {
+            Func<QualityTypeName, int> getConst = gen._methodBuilder.moduleBuilder.InternTypeName;
+
+            var key = getConst(type);
+            writer.Write(key);
+        }
     }
 }
