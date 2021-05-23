@@ -23,6 +23,9 @@
 
 <!-- classic badges -->
 <p align="center">
+  <a href="https://www.codacy.com/gh/0xF6/mana_lang/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=0xF6/mana_lang&amp;utm_campaign=Badge_Grade">
+    <img src="https://app.codacy.com/project/badge/Grade/9dc3cb6f384747c39d0b83241e725de2">
+  </a>
   <a href="#">
     <img src="http://img.shields.io/:license-MIT-blue.svg">
   </a>
