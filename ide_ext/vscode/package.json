@@ -42,8 +42,9 @@
 	"contributes": {
 		"languages": [
 			{
-				"id": "mana",
+				"id": "Mana",
 				"aliases": [
+					"Mana",
 					"mana"
 				],
 				"extensions": [
@@ -52,24 +53,32 @@
 				"configuration": "./mana.configuration.json"
 			},
 			{
-				"id": "lay",
+				"id": "Lay",
 				"aliases": [
-					"lay"
+					"Lay",
+					"lay",
+					"mil"
 				],
 				"extensions": [
-					".lay"
+					".lay",
+					".mana.il"
 				],
 				"configuration": "./lay.configuration.json"
+			},
+			{
+				"id": "xml",
+				"aliases": ["waproj"],
+				"extensions": [".waproj"]
 			}
 		],
 		"grammars": [
 			{
-				"language": "mana",
+				"language": "Mana",
 				"scopeName": "source.mana",
 				"path": "./syntaxes/mana.tmLanguage"
 			},
 			{
-				"language": "lay",
+				"language": "Lay",
 				"scopeName": "source.mana.il",
 				"path": "./syntaxes/lay.tmLanguage"
 			}
