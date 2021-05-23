@@ -94,7 +94,7 @@ namespace ishtar
 
             if (field is not null)
                 return field;
-            this.LogError($"'{id}' is not resolved in this context.", id);
+            this.LogError($"The name '{id}' does not exist in the current context.", id);
             return null;
         }
         public ManaMethod ResolveMethod(
