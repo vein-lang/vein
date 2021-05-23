@@ -233,7 +233,7 @@ puts after - before;*/
             s.Stop();
             //_testOutputHelper.WriteLine($"{a}, {int.MaxValue / 2} {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
         }
-        [Fact()]
+        [Fact(Skip = "MANUAL")]
         public void ManualGenCallExternFunction()
         {
             var module = new ManaModuleBuilder("hello_world");

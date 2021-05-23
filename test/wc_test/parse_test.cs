@@ -32,7 +32,7 @@
         public void VariableStatementTest()
         {
             var result = Mana.Block.End().ParseMana(@"{
-    auto f: Int32 = 12;
+    auto f = 12;
 
     return 1;
     return 2;
@@ -423,7 +423,7 @@
         {
             var result = Mana.FieldDeclaration.End().ParseMana("foo: Int32 = -22;");
             Assert.NotNull(result);
-            Assert.Equal("Int32", result.Type.Identifier.ToString());
+            Assert.Equal("int32", result.Type.Identifier.ToString());
             Assert.Equal("foo", result.Field.Identifier.ToString());
             Assert.Equal("(-22)", result.Field.Expression.ExpressionString);
             Assert.IsType<UnaryExpressionSyntax>(result.Field.Expression);
@@ -440,7 +440,7 @@
             Assert.Equal(ManaAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
 
             var md = cd.Methods.Single();
-            Assert.Equal("Void", md.ReturnType.Identifier.ToString());
+            Assert.Equal("void", md.ReturnType.Identifier.ToString());
             Assert.Equal("main", md.Identifier.ToString());
             Assert.Equal(ManaAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
             Assert.False(md.Parameters.Any());
