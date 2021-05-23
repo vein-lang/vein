@@ -323,13 +323,22 @@ namespace ishtar
                 return;
             }
 
-            if (expr is MemberAccessExpression {Start: IdentifierExpression { ExpressionString: "this" }})
+            if (expr is MemberAccessExpression {Start: IdentifierExpression} member)
             {
-                gen.EmitThis();
+                if (member.Start is IdentifierExpression {ExpressionString: "this"})
+                    gen.EmitThis();
+                else
+                    gen.EmitIdentifierAccess(member);
                 return;
             }
 
             throw new NotImplementedException();
+        }
+
+        public static void EmitIdentifierAccess(this ILGenerator gen, MemberAccessExpression member)
+        {
+            Assert.IsType<IdentifierExpression>(member.Start);
+            gen.EmitCall(member);
         }
 
         public static void EmitThis(this ILGenerator gen) => gen.Emit(OpCodes.LD_THIS);
@@ -337,18 +346,35 @@ namespace ishtar
         public static void EmitIdentifierReference(this ILGenerator gen, IdentifierExpression id)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
-
-            var entity = context.TryFindVariable(id);
-
-            if (entity is null) return;
-
-            if (entity is ManaField field)
-                gen.Emit(field.IsStatic ? OpCodes.LDSF : OpCodes.LDF, field);
-            if (entity is Nullable<(ManaArgumentRef arg, int index)>)
+            
+            // first order: search variable
+            if (context.CurrentScope.HasVariable(id))
             {
-                var (arg, index) = ((ManaArgumentRef arg, int index))entity;
-                gen.Emit(OpCodes.LDARG_S, index + 1); // todo apply variants
+                var index = context.CurrentScope.locals_index[id];
+                var type = context.CurrentScope.variables[id];
+                gen.WriteDebugMetadata($"/* access local, var: '{id}', index: '{index}', type: '{type.FullName.NameWithNS}' */");
+                gen.Emit(OpCodes.LDLOC_S, index);
+                return;
             }
+
+            // second order: search argument
+            var args = context.ResolveArgument(id);
+            if (args is not null)
+            {
+                var (_, index) = args.Value;
+                gen.Emit(OpCodes.LDARG_S, index + 1); // todo apply variants
+                return;
+            }
+
+            // third order: find field
+            var field = context.ResolveField(id);
+            if (field is not null)
+            {
+                gen.Emit(field.IsStatic ? OpCodes.LDSF : OpCodes.LDF, field);
+                return;
+            }
+
+            context.LogError($"The name '{id}' does not exist in the current context.", id);
         }
 
         public static void EmitBinaryExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
@@ -603,8 +629,39 @@ namespace ishtar
                 generator.EmitCall((MemberAccessExpression) qes1.Value);
             else if (statement is QualifiedExpressionStatement {Value: BinaryExpressionSyntax} qes2)
                 generator.EmitBinaryExpression((BinaryExpressionSyntax)qes2.Value);
+            else if (statement is LocalVariableDeclaration localVariable)
+                generator.EmitLocalVariable(localVariable);
             else
                 throw new NotImplementedException();
+        }
+
+        public static void EmitLocalVariable(this ILGenerator generator, LocalVariableDeclaration localVar)
+        {
+            var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
+            var scope = ctx.CurrentScope;
+            
+            if (localVar.Body.IsEmpty)
+            {
+                ctx.LogError($"Implicitly-typed local variable must be initialized.", localVar);
+                return;
+            }
+
+            var exp = localVar.Body.Get();
+            var type = exp.DetermineType(scope.Context);
+
+
+            var locIndex = generator.EnsureLocal(localVar.Identifier.ExpressionString, type);
+
+            if (locIndex < 0)
+            {
+                ctx.LogError($"Too many variables in '{ctx.CurrentMethod.Name}' function.", localVar);
+                return;
+            }
+
+            scope.DefineVariable(localVar.Identifier, type, locIndex);
+
+            generator.EmitExpression(exp);
+            generator.Emit(OpCodes.STLOC_S, locIndex); // TODO optimization for STLOC_0,1,2 and etc
         }
 
         public static void EmitCall(this ILGenerator generator, MemberAccessExpression qes)
