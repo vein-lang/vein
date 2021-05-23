@@ -491,8 +491,14 @@ namespace ishtar
             }
             if (exp is NewExpressionSyntax @new)
                 return context.ResolveType(@new.TargetType.Typeword);
+            if (exp is ArgumentExpression {Value: MemberAccessExpression} arg)
+                return (arg.Value as MemberAccessExpression).ResolveType(context);
             if (exp is MemberAccessExpression member)
                 return member.ResolveType(context);
+            if (exp is ArgumentExpression {Value: IdentifierExpression} arg1)
+                return arg1.Value.DetermineType(context);
+            if (exp is IdentifierExpression id)
+                return context.ResolveScopedIdentifierType(id);
             context.LogError($"Cannot determine expression.", exp);
             return null;
         }
@@ -673,17 +679,109 @@ namespace ishtar
 
             Assert.IsType<IdentifierExpression>(qes.Start);
             var chain = qes.Chain.ToArray();
-            var args = (MethodInvocationExpression) chain[0];
-            var method = ctx.ResolveMethod(ctx.CurrentMethod.Owner, null, qes.Start as IdentifierExpression,
-                (MethodInvocationExpression)chain[0]);
 
-            foreach (var arg in args.Arguments)
+            if (chain.Length == 1)
             {
-                generator.EmitExpression(arg);
+                generator.EmitLocalCall((IdentifierExpression)qes.Start, (MethodInvocationExpression) chain[0]);
+                return;
             }
-            
-            generator.Emit(OpCodes.CALL, method);
+
+            if (chain.Length == 2)
+            {
+                if (generator.HasClassIdentifier((IdentifierExpression) qes.Start))
+                {
+                    generator.EmitGlobalCall((IdentifierExpression)qes.Start, 
+                        chain[0] as IdentifierExpression, chain[1] as MethodInvocationExpression);
+                }
+                else
+                {
+                    generator.EmitReferencedCall((IdentifierExpression) qes.Start, 
+                        chain[0] as IdentifierExpression, chain[1] as MethodInvocationExpression);
+                }
+                return;
+            }
+
+            throw new NotSupportedException();
         }
+
+        public static bool HasClassIdentifier(this ILGenerator gen, IdentifierExpression id)
+        {
+            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            
+            if (context.CurrentScope.HasVariable(id))
+                return false;
+            if (context.ResolveArgument(id) is not null)
+                return false;
+            if (context.ResolveField(id) is not null)
+                return false;
+
+            return true;
+        }
+
+        public static void EmitReferencedCall(this ILGenerator gen, IdentifierExpression variable, IdentifierExpression func,
+            MethodInvocationExpression args)
+        {
+            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            var clazz = ctx.ResolveScopedIdentifierType(variable);
+
+            var method = ctx.ResolveMethod(clazz, func, args);
+
+            if (method is null)
+            {
+                ctx.LogError($"'{clazz.FullName.NameWithNS}' does not contain a definition for '{func}'.", func);
+                return;
+            }
+            gen.EmitIdentifierReference(variable);
+            foreach (var arg in args.Arguments) 
+                gen.EmitExpression(arg);
+            
+            gen.Emit(OpCodes.CALL, method);
+        }
+
+        public static void EmitGlobalCall(this ILGenerator gen, IdentifierExpression className, IdentifierExpression name,
+            MethodInvocationExpression args)
+        {
+            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            var clazz = ctx.ResolveType(className);
+
+            if (clazz is null)
+            {
+                ctx.LogError($"The name '{className}' does not exist in the current context.", className);
+                return;
+            }
+
+            var method = ctx.ResolveMethod(clazz, name, args);
+
+            if (method is null)
+            {
+                ctx.LogError($"'{clazz.FullName.NameWithNS}' does not contain a definition for '{name}'.", name);
+                return;
+            }
+
+            foreach (var arg in args.Arguments) 
+                gen.EmitExpression(arg);
+
+            gen.Emit(OpCodes.CALL, method);
+        }
+        private static void EmitLocalCall(this ILGenerator gen, IdentifierExpression name,
+            MethodInvocationExpression args)
+        {
+            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            var method = ctx.ResolveMethod(ctx.CurrentMethod.Owner, name, args);
+
+            if (method is null)
+            {
+                ctx.LogError($"'{ctx.CurrentMethod.Owner.FullName.NameWithNS}' does not contain a definition for '{name}'.", name);
+                return;
+            }
+            gen.EmitThis();
+
+            foreach (var arg in args.Arguments) 
+                gen.EmitExpression(arg);
+
+            gen.Emit(OpCodes.CALL, method);
+        }
+
         public static void EmitNumericLiteral(this ILGenerator generator, NumericLiteralExpressionSyntax literal)
         {
             switch (literal)
