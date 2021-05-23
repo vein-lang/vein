@@ -281,6 +281,8 @@ namespace mana.ishtar.emit
                 sizeof(int) /* ownerIdx */);
             this.InternalEmit(opcode);
             
+
+            /* todo: remove directing call flag */
             if (method.Owner.FullName == this._methodBuilder.Owner.FullName)
                 this.PutByte((byte)CallContext.THIS_CALL);
             else if (method.IsExtern)
@@ -294,7 +296,12 @@ namespace mana.ishtar.emit
             this.PutTypeName(ownerIdx);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");
         }
-        
+
+        internal void WriteDebugMetadata(string str)
+        {
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ {str}");
+        }
+
         internal enum FieldDirection
         {
             Arg,
