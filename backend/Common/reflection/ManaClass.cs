@@ -64,15 +64,16 @@
 
 
         public ManaMethod FindMethod(string name, IEnumerable<ManaClass> args_types)
-            => this.Methods.FirstOrDefault(x =>
+        {
+            var result = this.Methods.FirstOrDefault(x =>
             {
                 var nameHas = x.RawName.Equals(name);
                 var argsHas = x.Arguments.Select(z => z.Type).SequenceEqual(args_types);
 
-                return nameHas
-                       && argsHas
-                       ;
+                return nameHas && argsHas;
             });
+            return result ?? Parent?.FindMethod(name, args_types);
+        }
 
         public ManaField FindField(string name) 
             => this.Fields.FirstOrDefault(x => x.Name.Equals(name));
