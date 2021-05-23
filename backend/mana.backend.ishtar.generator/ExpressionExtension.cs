@@ -9,8 +9,8 @@
         {
             if (exp.HasOptimized)
                 return false;
-            if (exp is ArgumentExpression)
-                return true;
+            if (exp is ArgumentExpression arg)
+                return arg.Value.CanOptimizationApply();
             if (exp is StringLiteralExpressionSyntax)
                 return true;
 
