@@ -157,10 +157,10 @@ void gen_cs_props(StringBuilder builder)
             builder.AppendLine($"\t\t/// {note}");
             builder.AppendLine($"\t\t/// </remarks>");
         }
-        builder.AppendLine($"\t\tpublic static OpCode {i.name.Replace(".", "_")} "+
+        builder.AppendLine($"\t\tpublic static readonly OpCode {i.name.Replace(".", "_")} "+
         $"= new (0x{i.y:X2}, 0x{CreateFlag(i.override_size ?? 0, i.Item4, i.Item5):X8});");
     }
-    builder.AppendLine("\n\t\tpublic static Dictionary<OpCodeValue, OpCode> all = new ()");
+    builder.AppendLine("\n\t\tpublic static readonly Dictionary<OpCodeValue, OpCode> all = new ()");
     builder.AppendLine("\t\t{");
     foreach(var i in ops.Select((x, y) => x.name))
         builder.AppendLine($"\t\t\t{{OpCodeValue.{i.Replace(".", "_")}, {i.Replace(".", "_")}}},");
