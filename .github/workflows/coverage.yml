@@ -1,0 +1,32 @@
+name: coverage
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100-preview.3.21202.5
+    - name: Install DotCover
+      run: dotnet tool install JetBrains.dotCover.GlobalTool -g
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet dotcover test --no-build --dcReportType=XML
+    - name: Codacy Coverage Reporter
+      uses: codacy/codacy-coverage-reporter-action@1.0.0
+      with:
+        api-token: ${{ secrets.CODACY_API_KEY }}
+        coverage-reports: dotCover.Output.xml
