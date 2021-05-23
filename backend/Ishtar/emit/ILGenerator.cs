@@ -232,27 +232,33 @@ namespace mana.ishtar.emit
         /// <br/>
         /// <see cref="OpCodes.LOC_INIT_X"/> will be automatic generated.
         /// </remarks>
-        public virtual void Emit(OpCode opcode, LocalsBuilder locals)
+        private void WriteLocals(BinaryWriter bin)
         {
-            if (opcode.Value != (int) LOC_INIT)
-                throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
-            var size = locals.Count();
+            if (LocalsSize == 0)
+                return;
+            var size = LocalsBuilder.Count();
             
-            this.EnsureCapacity<OpCode>(sizeof(int) + (sizeof(int) + sizeof(ushort)) * size);
-            this.InternalEmit(opcode);
-            this.PutInteger4(size);
-            foreach(var t in locals)
+            bin.Write((ushort)OpCodes.LOC_INIT.Value);
+            bin.Write((int)size);
+            foreach(var t in LocalsBuilder)
             {
-                this.InternalEmit(OpCodes.LOC_INIT_X);
-                this.PutTypeName(t);
-                this.LocalsSize++;
+                bin.Write((ushort)OpCodes.LOC_INIT.Value);
+                this.PutTypeNameInto(t, bin);
             }
-            var str = new StringBuilder();
-            str.AppendLine(".locals { ");
-            foreach(var (t, i) in locals.Select((x, y) => (x, y)))
-                str.AppendLine($"\t[{i}]: {t.Name}");
-            str.Append("};");
-            _debugBuilder.AppendLine($"{str}");
+        }
+
+        public LocalsBuilder LocalsBuilder { get; } = new ();
+        /// <summary>
+        /// Ensure local slot
+        /// </summary>
+        /// <returns>
+        /// Index of local variable slot
+        /// </returns>
+        public virtual int EnsureLocal(string key, ManaClass clazz)
+        {
+            LocalsBuilder.Mark(LocalsSize, key);
+            LocalsBuilder.Push(clazz);
+            return LocalsSize++;
         }
         /// <summary>
         /// Emit call.
@@ -356,6 +362,7 @@ namespace mana.ishtar.emit
             using var bin = new BinaryWriter(mem);
             
             Array.Resize(ref _ilBody, _position);
+            WriteLocals(bin);
             bin.Write(_ilBody);
             bin.Write((ushort)0xFFFF); // end frame
             bin.Write(_labels_count);
