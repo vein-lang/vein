@@ -136,6 +136,7 @@ namespace ishtar
         public GeneratorContext Context { get; }
 
         public Dictionary<IdentifierExpression, ManaClass> variables { get; } = new();
+        public Dictionary<IdentifierExpression, int> locals_index { get; } = new();
 
 
         public ManaScope(GeneratorContext gen, ManaScope owner = null)
@@ -152,7 +153,7 @@ namespace ishtar
         public bool HasVariable(IdentifierExpression id) 
             => variables.ContainsKey(id);
 
-        public ManaScope DefineVariable(IdentifierExpression id, ManaClass type)
+        public ManaScope DefineVariable(IdentifierExpression id, ManaClass type, int localIndex)
         {
             if (HasVariable(id))
             {
@@ -160,6 +161,7 @@ namespace ishtar
                 return this;
             }
             variables.Add(id, type);
+            locals_index.Add(id, localIndex);
             return this;
         }
     }
