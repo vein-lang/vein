@@ -1,0 +1,17 @@
+#space "flow_branch"
+
+#use "mana/lang"
+
+public class Program
+{
+    public static test(): void
+    {
+        auto o = "new Object()";
+
+        Out.print(o);
+
+        auto o1 = 12;
+
+        Out.print(o1.toString());
+    }
+}
