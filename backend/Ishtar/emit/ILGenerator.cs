@@ -373,8 +373,8 @@ namespace mana.ishtar.emit
             return mem.ToArray();
         }
 
-        internal string BakeDebugString()
-            => _position == 0 ? "" : _debugBuilder.ToString();
+        internal string BakeDebugString() 
+            => _position == 0 ? "" : $"{LocalsBuilder}\n{_debugBuilder}";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PutInteger4(int value)
