@@ -3,5 +3,9 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=ea9527bb_002Df09a_002D47ae_002Da566_002D2ed94c911f58/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="F04" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net6.0::wc_test.project_struct_test.LoadSDKJson&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net6.0::wc_test.parse_test.VariableStatementTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net6.0::wc_test.parse_test.VariableInFunctionTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net6.0::wc_test.parse_test.SingleVariableTest&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::8759A35D-DA78-4577-ACE0-E575CC744652::net6.0::wc_test.il_test.LocalsGeneratorTest&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

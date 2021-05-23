@@ -3,6 +3,14 @@
     "compile mana std": {
       "commandName": "Project",
       "commandLineArgs": "compile O:\\wave_vm\\mana.std\\corlib.waproj --EF:+exp_simplify_optimize"
+    },
+    "compile hello world": {
+      "commandName": "Project",
+      "commandLineArgs": "compile O:\\wave_vm\\samples\\hello_world\\hello_world.waproj"
+    },
+    "compile flowbranch": {
+      "commandName": "Project",
+      "commandLineArgs": "compile O:\\wave_vm\\samples\\flowbranch\\flowbranch.waproj"
     }
   }
 }
