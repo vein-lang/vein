@@ -157,31 +157,36 @@
                 return mth;
             }
 
-            
+            ConstructIL(mth, body, stacksize);
+
+            return mth;
+        }
+
+
+        internal static unsafe void ConstructIL(RuntimeIshtarMethod method, byte[] body, short stacksize)
+        {
             var offset = 0;
             var body_r = ILReader.Deconstruct(body, &offset);
             var labeles = ILReader.DeconstructLabels(body, offset);
             
 
-            mth.Header.max_stack = stacksize;
+            method.Header.max_stack = stacksize;
 
-            mth.Header.code = (uint*)Marshal.AllocHGlobal(sizeof(uint) * body_r.opcodes.Count);
+            method.Header.code = (uint*)Marshal.AllocHGlobal(sizeof(uint) * body_r.opcodes.Count);
             
             for (var i = 0; i != body_r.opcodes.Count; i++)
-                mth.Header.code[i] = body_r.opcodes[i];
+                method.Header.code[i] = body_r.opcodes[i];
 
 
-            mth.Header.code_size = (uint) body_r.opcodes.Count;
-            mth.Header.labels = labeles;
-            mth.Header.labels_map = body_r.map.ToDictionary(x => x.Key,
+            method.Header.code_size = (uint) body_r.opcodes.Count;
+            method.Header.labels = labeles;
+            method.Header.labels_map = body_r.map.ToDictionary(x => x.Key,
                 x => new ILLabel
                 {
                     opcode = x.Value.opcode,
                     pos = x.Value.pos
                 });
-            return mth;
         }
-
         
         
         private static List<ManaArgumentRef> ReadArguments(BinaryReader binary, RuntimeModuleReader module)
