@@ -31,32 +31,38 @@
             }
         }
 
+        private static object guarder = new object();
+
         public unsafe CallFrame Execute(Action<ILGenerator> ctor, short stack_size = 48, [CallerMemberName] string caller = "")
         {
-            var guid = Guid.NewGuid().ToString().Where(char.IsLetter).Join();
-            var _method = _class.DefineMethod($"master_{caller}_{guid}", MethodFlags.Public | MethodFlags.Static,
-                ManaTypeCode.TYPE_VOID.AsClass());
-
-            var gen = _method.GetGenerator();
-            ctor(gen);
-            var code = gen.BakeByteArray();
-            var args_ = stackalloc stackval[1];
-            
-            var entry_point = new RuntimeIshtarMethod($"master_{caller}_{guid}", MethodFlags.Public | MethodFlags.Static,
-                ManaTypeCode.TYPE_VOID.AsClass()) { Owner = _class };
-
-            entry_point.Owner.Owner = _module;
-            
-            RuntimeModuleReader.ConstructIL(entry_point, code, stack_size);
-
-            var frame = new CallFrame
+            lock (guarder)
             {
-                args = args_, 
-                method = entry_point, 
-                level = 0
-            };
-            VM.exec_method(frame);
-            return frame;
+                VM.VMException = null;
+                var guid = Guid.NewGuid().ToString().Where(char.IsLetter).Join();
+                var _method = _class.DefineMethod($"master_{caller}_{guid}", MethodFlags.Public | MethodFlags.Static,
+                    ManaTypeCode.TYPE_VOID.AsClass());
+
+                var gen = _method.GetGenerator();
+                ctor(gen);
+                var code = gen.BakeByteArray();
+                var args_ = stackalloc stackval[1];
+            
+                var entry_point = new RuntimeIshtarMethod($"master_{caller}_{guid}", MethodFlags.Public | MethodFlags.Static,
+                    ManaTypeCode.TYPE_VOID.AsClass()) { Owner = _class };
+
+                entry_point.Owner.Owner = _module;
+            
+                RuntimeModuleReader.ConstructIL(entry_point, code, stack_size);
+
+                var frame = new CallFrame
+                {
+                    args = args_, 
+                    method = entry_point, 
+                    level = 0
+                };
+                VM.exec_method(frame);
+                return frame;
+            }
         }
         
         void IDisposable.Dispose()
