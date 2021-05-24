@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Version>0.4.1044</Version>
+		<Version>0.4.1050</Version>
 		<AssemblyName>ishtar</AssemblyName>
 		<DefineConstants>STATIC_VALIDATE_IL</DefineConstants>
 	</PropertyGroup>
