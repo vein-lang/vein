@@ -9,3 +9,4 @@
 [assembly: InternalsVisibleTo("mana.ast")]
 [assembly: InternalsVisibleTo("manac")]
 [assembly: InternalsVisibleTo("manac_test")]
+[assembly: InternalsVisibleTo("ishtar_test")]

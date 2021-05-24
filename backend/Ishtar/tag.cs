@@ -4,3 +4,4 @@
 [assembly: InternalsVisibleTo("manac_test")]
 [assembly: InternalsVisibleTo("ishtar")]
 [assembly: InternalsVisibleTo("mana.backend.ishtar.generator")]
+[assembly: InternalsVisibleTo("ishtar_test")]

@@ -21,6 +21,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\backend\mana.backend.ishtar.light\mana.backend.ishtar.light.csproj" />
     <ProjectReference Include="..\..\compiler\manac.csproj" />
   </ItemGroup>
 </Project>
