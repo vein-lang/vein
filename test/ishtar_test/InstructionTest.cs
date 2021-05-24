@@ -1,13 +1,7 @@
 ﻿namespace ishtar_test
 {
-    using System;
-    using System.Linq;
-    using System.Runtime.CompilerServices;
     using ishtar;
-    using mana.backend.ishtar.light;
-    using mana.ishtar.emit;
     using mana.runtime;
-    using mana.extensions;
     using Xunit;
 
     public class InstructionTest : IshtarContext
@@ -103,6 +97,27 @@
             Assert.Equal(code, (*result.returnValue).type);
             Assert.Equal(5 * 5, (*result.returnValue).data.l);
         }
+
+        [Fact]
+        public unsafe void LDSTR_Test()
+        {
+            var targetStr = "the string";
+            var result = Execute((gen) =>
+            {
+                gen.Emit(OpCodes.LDC_STR, targetStr);
+                gen.Emit(OpCodes.RET);
+            });
+            Validate();
+            Assert.Equal(ManaTypeCode.TYPE_STRING, (*result.returnValue).type);
+
+            var obj = (IshtarObject*) result.returnValue->data.p;
+            var @class = obj->DecodeClass();
+            var p = (StrRef*)obj->vtable[@class.Field["!!value"].vtable_offset];
+            var str = StrRef.Unwrap(p);
+            Assert.Equal(targetStr, str);
+        }
+
+
         
         protected override void StartUp()
         {
@@ -112,68 +127,5 @@
         protected override void Shutdown()
         {
         }
-    }
-
-    public abstract class IshtarContext : IDisposable
-    {
-        private static ManaModuleBuilder _module;
-        private static ClassBuilder _class;
-        protected IshtarContext()
-        {
-            if (VM.allow_shutdown_process)
-            {
-                VM.allow_shutdown_process = false;
-                IshtarCore.INIT();
-                foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>()) 
-                    @class.init_vtable();
-                IshtarGC.INIT();
-                FFI.INIT();
-                _module = new ManaModuleBuilder("tst");
-                _class = _module.DefineClass("global::test/testClass");
-                // ReSharper disable once VirtualMemberCallInConstructor
-                StartUp();
-            }
-        }
-
-        public unsafe CallFrame Execute(Action<ILGenerator> ctor, short stack_size = 48, [CallerMemberName] string caller = "")
-        {
-            var guid = Guid.NewGuid().ToString().Where(char.IsLetter).Join();
-            var _method = _class.DefineMethod($"master_{caller}_{guid}", MethodFlags.Public | MethodFlags.Static,
-                ManaTypeCode.TYPE_VOID.AsClass());
-            var gen = _method.GetGenerator();
-            ctor(gen);
-            var code = gen.BakeByteArray();
-            var args_ = stackalloc stackval[1];
-            
-            var entry_point = new RuntimeIshtarMethod($"master_{caller}_{guid}", MethodFlags.Public | MethodFlags.Static,
-                ManaTypeCode.TYPE_VOID.AsClass()) { Owner = _class };
-            
-            RuntimeModuleReader.ConstructIL(entry_point, code, stack_size);
-
-            var frame = new CallFrame
-            {
-                args = args_, 
-                method = entry_point, 
-                level = 0
-            };
-            VM.exec_method(frame);
-            return frame;
-        }
-        
-        void IDisposable.Dispose()
-        {
-            Shutdown();
-        }
-
-        protected void Validate()
-        {
-            if (VM.VMException is not null)
-                Assert.False(true, $"native exception was thrown.\n\t" +
-                                   $"[{VM.VMException.code}]\n\t" +
-                                   $"'{VM.VMException.msg}'");
-        }
-        
-        protected abstract void StartUp();
-        protected abstract void Shutdown();
     }
 }
