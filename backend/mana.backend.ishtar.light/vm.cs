@@ -1,4 +1,4 @@
-namespace ishtar
+﻿namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
@@ -34,7 +34,13 @@ namespace ishtar
             Console.WriteLine(str);
         }
 
-        public static void shutdown(int exitCode = -1) => Environment.Exit(exitCode);
+        internal static bool allow_shutdown_process = true;
+
+        public static void shutdown(int exitCode = -1)
+        {
+            if (allow_shutdown_process)
+                Environment.Exit(exitCode);
+        }
 
         public static unsafe void exec_method_native(CallFrame frame)
         {
