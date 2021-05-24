@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
@@ -143,6 +143,17 @@
                         ++sp;
                         ++ip;
                         break;
+                    case LDC_I2_0:
+                    case LDC_I2_1:
+                    case LDC_I2_2:
+                    case LDC_I2_3:
+                    case LDC_I2_5:
+                        sp->type = TYPE_I2;
+                        sp->data.i = (int)(*ip) - (int)LDC_I2_0;
+                        ++ip;
+                        ++sp;
+                        break;
+
                     case LDC_I4_0:
                     case LDC_I4_1:
                     case LDC_I4_2:
@@ -163,6 +174,13 @@
                         sp->data.l = (*ip) - (long)LDC_I8_0;
                         ++sp;
                         ++ip;
+                        break;
+                    case LDC_I2_S:
+                        ++ip;
+                        sp->type = TYPE_I2;
+                        sp->data.i = (int)(*ip);
+                        ++ip;
+                        ++sp;
                         break;
                     case LDC_I4_S:
                         ++ip;
