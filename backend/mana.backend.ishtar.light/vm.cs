@@ -15,6 +15,8 @@
         public static void FastFail(WNE type, string msg, CallFrame frame = null) 
             => VMException = new NativeException { code = type, msg = msg, frame = frame };
 
+        public static event Action<NativeException> ValidateLastErrorEvent;
+
 
         public static void ValidateLastError()
         {
@@ -25,6 +27,7 @@
                         $"[{VMException.code}]\n\t" +
                         $"'{VMException.msg}'");
                 Console.ForegroundColor = ConsoleColor.White;
+                ValidateLastErrorEvent?.Invoke(VMException);
                 shutdown();
             }
         }
