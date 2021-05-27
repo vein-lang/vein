@@ -12,26 +12,55 @@
 
     public abstract class IshtarContext : IDisposable
     {
-        private static ManaModuleBuilder _module;
-        private static ClassBuilder _class;
-        protected IshtarContext()
+        private static ClassBuilder _class_instance;
+        private static ManaModuleBuilder _module_instance;
+        private static ClassBuilder _class
         {
-            if (VM.allow_shutdown_process)
+            get
             {
-                VM.allow_shutdown_process = false;
-                IshtarCore.INIT();
-                foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>()) 
-                    @class.init_vtable();
-                IshtarGC.INIT();
-                FFI.INIT();
-                _module = new ManaModuleBuilder("tst");
-                _class = _module.DefineClass("global::test/testClass");
-                // ReSharper disable once VirtualMemberCallInConstructor
-                StartUp();
+                if (_class_instance is null)
+                    return _class_instance = _module.DefineClass("global::test/testClass");
+                return _class_instance;
+            }
+        }
+        private static ManaModuleBuilder _module
+        {
+            get
+            {
+                if (_module_instance is null)
+                    return _module_instance = new ManaModuleBuilder("tst");
+                return _module_instance;
             }
         }
 
-        private static object guarder = new object();
+        private static bool isInited = false;
+
+        protected IshtarContext()
+        {
+            lock (guarder)
+            {
+                if (!isInited)
+                {
+                    VM.allow_shutdown_process = false;
+                    IshtarCore.INIT();
+                    foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>()) 
+                        @class.init_vtable();
+                    IshtarGC.INIT();
+                    FFI.INIT();
+                    // ReSharper disable once VirtualMemberCallInConstructor
+                    StartUp();
+                    isInited = true;
+                    VM.ValidateLastErrorEvent += VMOnValidateLastErrorEvent;
+                }
+            }
+        }
+
+        private static void VMOnValidateLastErrorEvent(NativeException obj) =>
+            Assert.False(true, $"native exception was thrown.\n\t" +
+                               $"[{obj.code}]\n\t" +
+                               $"'{obj.msg}'");
+
+        private static readonly object guarder = new ();
 
         public unsafe CallFrame Execute(Action<ILGenerator> ctor, short stack_size = 48, [CallerMemberName] string caller = "")
         {
@@ -67,15 +96,12 @@
         
         void IDisposable.Dispose()
         {
+            VM.ValidateLastErrorEvent -= VMOnValidateLastErrorEvent;
             Shutdown();
         }
 
         protected void Validate()
         {
-            if (VM.VMException is not null)
-                Assert.False(true, $"native exception was thrown.\n\t" +
-                                   $"[{VM.VMException.code}]\n\t" +
-                                   $"'{VM.VMException.msg}'");
         }
         
         protected abstract void StartUp();

@@ -1,5 +1,6 @@
 ﻿namespace ishtar_test
 {
+    using System;
     using ishtar;
     using mana.runtime;
     using Xunit;
@@ -14,6 +15,8 @@
         {
             var result = Execute((gen) =>
             {
+                if (gen == null)
+                    throw new Exception("GENERATOR IS NULL");
                 gen.Emit(OpCodes.all[op]);
                 gen.Emit(OpCodes.all[op]);
                 gen.Emit(OpCodes.ADD);

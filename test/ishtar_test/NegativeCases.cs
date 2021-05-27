@@ -9,9 +9,11 @@
         [Fact]
         public unsafe void IncorrectPointerCrashTest()
         {
-            var invalid = new StrRef {index = 534534};
-            StrRef.Unwrap(&invalid);
-            Assert.Throws<FalseException>(Validate);
+            Assert.Throws<FalseException>(() =>
+            {
+                var invalid = new StrRef {index = 534534};
+                return StrRef.Unwrap(&invalid);
+            });
         }
 
 
