@@ -24,4 +24,7 @@
     <ProjectReference Include="..\..\backend\mana.backend.ishtar.light\mana.backend.ishtar.light.csproj" />
     <ProjectReference Include="..\..\compiler\manac.csproj" />
   </ItemGroup>
+	<ItemGroup>
+		<Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
 </Project>
