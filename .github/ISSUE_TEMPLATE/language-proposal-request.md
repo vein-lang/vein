@@ -9,7 +9,6 @@ assignees: '0xF6'
 
 ---
 name: Create a language specification
-about: For proposals that have been invited by a team member.
 title: "[proposal]: [FEATURE_NAME]"
 ---
 
