@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - name: Export Env
-      run: $env:CODACY_PROJECT_TOKEN=${{ secrets.CODACY_API_KEY }}
+      run: $env:CODACY_PROJECT_TOKEN="${{ secrets.CODACY_API_KEY }}"
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
