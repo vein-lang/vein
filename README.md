@@ -14,7 +14,7 @@
 
 <p align="center">
   <a href="#">
-    <img height="128" wight="128"  src="https://user-images.githubusercontent.com/13326808/119276104-a13cef80-bc21-11eb-9f34-227b029831d9.png">
+    <img height="128" wight="128" src="https://user-images.githubusercontent.com/13326808/119747309-2252eb80-be9b-11eb-8bcc-2613658162a7.png">
   </a>
 </p>
 
