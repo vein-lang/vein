@@ -1,4 +1,4 @@
-namespace ishtar
+﻿namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
@@ -58,9 +58,9 @@ namespace ishtar
                 ValidateLastError();
                 return;
             }
-            
+
             for (var i = 0; i != args_len; i++)
-                args[i] = IshtarGC.WrapValue(frame, &frame.args[i]);
+                args[i] = IshtarMarshal.Boxing(frame, &frame.args[i]);
 
             var result = caller(frame, args);
 
@@ -269,7 +269,7 @@ namespace ishtar
                             ++ip;
                             var tokenIdx = *ip;
                             var owner = readTypeName(*++ip, _module);
-                            var method = GetMethod(tokenIdx, owner, _module);
+                            var method = GetMethod(tokenIdx, owner, _module, invocation);
                             #if DEBUG_IL
                             printf("%%call %ws self function.\n", method->Name.c_str());
                             #endif
@@ -658,7 +658,7 @@ namespace ishtar
                         ++ip;
                         sp->type = TYPE_STRING;
                         var str = _module.GetConstStringByIndex((int) *ip);
-                        sp->data.p = (IntPtr)IshtarGC.AllocString(str);
+                        sp->data.p = (nint)IshtarMarshal.ToIshtarObject(str);
                         ++sp;
                         ++ip;
 
