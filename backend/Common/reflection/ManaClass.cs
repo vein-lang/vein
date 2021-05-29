@@ -75,10 +75,10 @@
             return result ?? Parent?.FindMethod(name, args_types);
         }
 
-        public ManaField FindField(string name) 
-            => this.Fields.FirstOrDefault(x => x.Name.Equals(name));
+        public ManaField? FindField(FieldName name) 
+            => this.Fields.FirstOrDefault(x => x.FullName.Equals(name));
 
-        public ManaMethod FindMethod(string name, Func<ManaMethod, bool> eq = null)
+        public ManaMethod? FindMethod(string name, Func<ManaMethod, bool> eq = null)
         {
             eq ??= s => s.RawName.Equals(name);
 
