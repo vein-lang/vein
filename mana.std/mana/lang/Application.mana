@@ -3,11 +3,11 @@
 [native("internal.h")]
 public static class Application
 {
-    [native("internal.h", "i_call_get_Platform")]
-    private extern static getPlatform(): Object;
+    [native("internal.h", "@_get_os_value")]
+    private extern static @_get_os_value(): Int32;
 
     public static GetFrameworkName(): String
     {
-        return Application.getPlatform();
+        return "Application.getPlatform()";
     }
 }
