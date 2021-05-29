@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
@@ -215,6 +215,24 @@
                         stack = null;
                         locals = null;
                         return;
+                    case STSF:
+                    {
+                        var fieldIdx = *++ip;
+                        var @class = GetClass(*++ip, _module, invocation);
+                        var field = GetField(fieldIdx, @class, _module, invocation);
+
+                        @class.vtable[field.vtable_offset] = IshtarMarshal.Boxing(invocation, sp);
+                    }
+                    break;
+                    case LDSF:
+                    {
+                        var fieldIdx = *++ip;
+                        var @class = GetClass(*++ip, _module, invocation);
+                        var field = GetField(fieldIdx, @class, _module, invocation);
+
+                        *sp = IshtarMarshal.UnBoxing(invocation, (IshtarObject*)@class.vtable[field.vtable_offset]);
+                    }
+                    break;
                     case LDNULL:
                         sp->type = TYPE_OBJECT;
                         ++sp;
