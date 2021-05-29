@@ -12,6 +12,7 @@
         NONE = 0,
         MISSING_METHOD,
         MISSING_FIELD,
+        MISSING_TYPE,
         TYPE_LOAD,
         TYPE_MISMATCH,
         MEMBER_ACCESS,
