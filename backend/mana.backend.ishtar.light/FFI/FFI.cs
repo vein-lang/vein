@@ -12,6 +12,8 @@
         public static void INIT()
         {
             FE_Out.InitTable(method_table);
+            FE_Application.InitTable(method_table);
+            FE_IEEEConsts.InitTable(method_table);
         }
 
 
