@@ -15,12 +15,12 @@ public struct Quaternion : ValueType
     {
         return X + Y + Z + W == 0;
     }
-
+    /*
     new (x: Float, y: Float, z: Float, w: Float)
     {
         X = x;
         Y = y;
         Z = z;
         W = w;
-    }
+    }*/
 }
