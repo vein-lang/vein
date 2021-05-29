@@ -3,6 +3,7 @@ namespace ishtar
     using System;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
+    using mana.reflection;
     using Microsoft.CodeAnalysis;
     using mana.runtime;
     using static OpCodeValue;
@@ -15,11 +16,49 @@ namespace ishtar
         public static QualityTypeName readTypeName(uint index, ManaModule module) 
             => module.types_table.GetValueOrDefault((int)index);
 
-        public static RuntimeIshtarMethod GetMethod(uint index, QualityTypeName owner, ManaModule module)
+        public static RuntimeIshtarClass GetClass(uint index, ManaModule module, CallFrame frame)
+        {
+            var name = module.types_table.GetValueOrDefault((int)index);
+            Assert(name is not null, WNE.TYPE_LOAD, $"Cant find '{index}' in class_table.", frame);
+            var type = module.FindType(name, true, false);
+            if (type is UnresolvedManaClass)
+            {
+                FastFail(WNE.MISSING_TYPE, $"Cant load '{name.NameWithNS}' in '{name.AssemblyName}'", frame);
+                ValidateLastError();
+                return null;
+            }
+            Assert(type is RuntimeIshtarClass, WNE.TYPE_LOAD, $"metadata is corrupted.");
+            return type as RuntimeIshtarClass;
+        }
+
+        public static RuntimeIshtarMethod GetMethod(uint index, QualityTypeName owner, ManaModule module, CallFrame frame)
         {
             var clazz = module.FindType(owner);
             var name = module.GetConstStringByIndex((int) index);
-            return (RuntimeIshtarMethod)clazz.FindMethod(name, method => method.Name.Equals(name));
+
+            var method = clazz.FindMethod(name, m => m.Name.Equals(name));
+
+            if (method is null)
+            {
+                FastFail(WNE.MISSING_METHOD, $"Method '{name}' not found in '{clazz.FullName.NameWithNS}'", frame);
+                ValidateLastError();
+                return null;
+            }
+            Assert(method is RuntimeIshtarMethod, WNE.MISSING_METHOD, $"metadata is corrupted.");
+            return (RuntimeIshtarMethod)method;
+        }
+        public static RuntimeIshtarField GetField(uint index, RuntimeIshtarClass owner, ManaModule module, CallFrame frame)
+        {
+            var name = module.GetFieldNameByIndex((int) index);
+            var field = owner.FindField(name);
+
+            if (field is null)
+            {
+                FastFail(WNE.MISSING_FIELD, $"Field '{name}' not found in '{owner.FullName.NameWithNS}'", frame);
+                ValidateLastError();
+                return null;
+            }
+            return field;
         }
 
         private static void A_OP(stackval* sp, int a_t, uint* ip)
