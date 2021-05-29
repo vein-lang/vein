@@ -13,13 +13,13 @@
         public static IshtarObject* GetOSValue(CallFrame current, IshtarObject** args)
         {
             // TODO remove using RuntimeInformation
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) 
-                return IshtarGC.AllocInt(0);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return IshtarMarshal.ToIshtarObject(0, current);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                return IshtarGC.AllocInt(1);
+                return IshtarMarshal.ToIshtarObject(1, current);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                return IshtarGC.AllocInt(2);
-            return IshtarGC.AllocInt(-1);
+                return IshtarMarshal.ToIshtarObject(2, current);
+            return IshtarMarshal.ToIshtarObject(-1, current);
         }
 
 
@@ -32,10 +32,8 @@
             FFI.StaticValidate(current, &exitCode);
             FFI.StaticTypeOf(current, &exitCode, TYPE_I4);
             FFI.StaticValidateField(current, &exitCode, "!!value");
-
-            var clazz = exitCode->DecodeClass();
             
-            VM.shutdown((int)(int*)exitCode->vtable[clazz.Field["!!value"].vtable_offset]);
+            VM.shutdown(IshtarMarshal.ToDotnetInt32(exitCode, current));
 
             return null;
         }

@@ -18,8 +18,7 @@
             FFI.StaticTypeOf(current, &arg1, TYPE_STRING);
             var @class = arg1->DecodeClass();
 
-            var p = (StrRef*)arg1->vtable[@class.Field["!!value"].vtable_offset];
-            var str = StrRef.Unwrap(p);
+            var str = IshtarMarshal.ToDotnetString(arg1, current);
             
             Out.WriteLine();
             Out.WriteLine($"\t{str}");
@@ -32,9 +31,7 @@
         [IshtarExportFlags(Public | Static)]
         public static IshtarObject* FReadLine(CallFrame current, IshtarObject** args)
         {
-            var result = In.ReadLine();
-            fixed (IshtarObject** p = &current._this_)
-                return IshtarGC.AllocString(result, p);
+            return IshtarMarshal.ToIshtarObject(In.ReadLine());
         }
 
 
