@@ -48,62 +48,10 @@
             return p;
         }
 
-        public static IshtarObject* WrapValue(CallFrame frame, stackval* p, IshtarObject** node = null)
-        {
-            if (p->type is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY)
-                return (IshtarObject*)p->data.p;
-            if (p->type == TYPE_NONE || p->type > TYPE_ARRAY || p->type < TYPE_NONE)
-            {
-                VM.FastFail(WNE.ACCESS_VIOLATION, 
-                    "Scalar value type cannot be extracted.\n" +
-                    "Invalid memory address is possible.\n" +
-                    "Please report the problem into https://github.com/0xF6/mana_lang/issues.", 
-                    frame);
-                VM.ValidateLastError();
-            }
-
-            var clazz = p->type.AsRuntimeClass();
-            var obj = AllocObject(clazz, node);
-
-            FFI.StaticValidateField(frame, &obj, "!!value");
-
-            obj->vtable[clazz.Field["!!value"].vtable_offset] = p->type switch
-            {
-                TYPE_I1 => (sbyte*) p->data.b, TYPE_U1 => (byte  *) p->data.ub,
-                TYPE_I2 => (short*) p->data.s, TYPE_U2 => (ushort*) p->data.us,
-                TYPE_I4 => (int  *) p->data.i, TYPE_U4 => (uint  *) p->data.ui,
-                TYPE_I8 => (long *) p->data.l, TYPE_U8 => (ulong *) p->data.ul,
-                
-                TYPE_BOOLEAN => (int  *) p->data.i,
-                TYPE_CHAR    => (int  *) p->data.i,
-
-                _ => &*p
-            };
-
-            return obj;
-        }
         
-        public static IshtarObject* AllocString(string str, IshtarObject** node = null)
-        {
-            var arg = AllocObject(TYPE_STRING.AsRuntimeClass(), node);
-            var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(arg->clazz);
-            arg->vtable[clazz.Field["!!value"].vtable_offset] = StringStorage.Intern(str);
-            return arg;
-        }
-
-        public static IshtarObject* AllocInt(int value, IshtarObject** node = null)
-        {
-            var obj = AllocObject(TYPE_I4.AsRuntimeClass(), node);
-            var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
-            obj->vtable[clazz.Field["!!value"].vtable_offset] = (int*)value;
-
-            GCStats.alive_objects++;
-            GCStats.total_allocations++;
-            GCStats.total_bytes_requested += (ulong)sizeof(IshtarObject);
-
-            return obj;
-        }
-
+        
+        
+        
 
         public static IshtarObject* AllocObject(RuntimeIshtarClass @class, IshtarObject** node = null)
         {
@@ -137,8 +85,5 @@
             Marshal.FreeHGlobal((nint)(*obj));
             GCStats.alive_objects--;
         }
-
-
-
     }
 }
