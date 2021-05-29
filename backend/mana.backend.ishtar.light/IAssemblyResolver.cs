@@ -34,10 +34,9 @@
         {
             var asm = Find(name, version, deps);
             
-            var mod = ModuleReader.Read(asm.Sections.First().data, deps, 
-                (s, v) => ResolveDep(s, v, deps));
-
-            return mod;
+            var module = RuntimeModuleReader.Read(asm.Sections.First().data, deps, (s, v) => 
+                ResolveDep(s, v, deps));
+            return module;
         }
 
         public IshtarAssembly Find(string name, Version version, List<ManaModule> deps)
