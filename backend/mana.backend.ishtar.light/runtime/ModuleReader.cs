@@ -9,6 +9,7 @@
     using mana.extensions;
     using mana.ishtar.emit;
     using mana.ishtar.emit.extensions;
+    using mana.reflection;
     using mana.runtime;
     internal class RuntimeModuleReader : ManaModule
     {
@@ -71,6 +72,49 @@
                 var body = reader.ReadBytes(reader.ReadInt32());
                 var @class = DecodeClass(body, module);
                 module.class_table.Add(@class);
+
+                if (@class.IsSpecial)
+                {
+                    if (ManaCore.All.Any(x => x.FullName == @class.FullName))
+                        TypeForwarder.Indicate(@class);
+                }
+            }
+
+            // restore unresolved types
+            foreach (var @class in module.class_table)
+            {
+                if (@class.Parent is not UnresolvedManaClass)
+                    continue;
+                @class.Parent = 
+                    @class.Parent.FullName != @class.FullName ? 
+                        module.FindType(@class.Parent.FullName, true) : 
+                        null;
+            }
+            // restore unresolved types
+            foreach (var @class in module.class_table)
+            {
+                foreach (var method in @class.Methods)
+                {
+                    if (method.ReturnType is not UnresolvedManaClass)
+                        continue;
+                    method.ReturnType = module.FindType(method.ReturnType.FullName, true);
+                }
+
+                foreach (var method in @class.Methods)
+                {
+                    foreach (var argument in method.Arguments)
+                    {
+                        if (argument.Type is not UnresolvedManaClass)
+                            continue;
+                        argument.Type = module.FindType(argument.Type.FullName, true);
+                    }
+                }
+                foreach (var field in @class.Fields)
+                {
+                    if (field.FieldType is not UnresolvedManaClass)
+                        continue;
+                    field.FieldType = module.FindType(field.FieldType.FullName, true);
+                }
             }
 
             var const_body_len = reader.ReadInt32();
@@ -91,12 +135,13 @@
             var flags = (ClassFlags)binary.ReadInt16();
             var parentIdx = binary.ReadTypeName(module);
             var len = binary.ReadInt32();
-
-            var parent = module.FindType(parentIdx, true);
-            var @class = new RuntimeIshtarClass(className, parent, module)
+            
+            var @class = new RuntimeIshtarClass(className, 
+                module.FindType(parentIdx, true, false), module)
             {
                 Flags = flags
             };
+
             foreach (var _ in ..len)
             {
                 var body = 
@@ -106,7 +151,7 @@
             }
 
             DecodeField(binary, @class, module);
-            
+
             return @class;
         }
         
@@ -116,7 +161,7 @@
             {
                 var name = FieldName.Resolve(binary.ReadInt32(), module);
                 var type_name = binary.ReadTypeName(module);
-                var type = module.FindType(type_name, true);
+                var type = module.FindType(type_name, true, false);
                 var flags = (FieldFlags) binary.ReadInt16();
                 var method = new RuntimeIshtarField(@class, name, flags, type);
                 @class.Fields.Add(method);
@@ -138,7 +183,7 @@
 
             
             var mth = new RuntimeIshtarMethod(module.GetConstStringByIndex(idx), flags,
-                module.FindType(retType, true), 
+                module.FindType(retType, true, false), 
                 @class, args.ToArray());
 
             if (flags.HasFlag(MethodFlags.Extern))
@@ -196,10 +241,10 @@
             {
                 var nIdx = binary.ReadInt32();
                 var type = binary.ReadTypeName(module);
-                args.Add(new ManaArgumentRef()
+                args.Add(new ManaArgumentRef
                 {
                     Name = module.GetConstStringByIndex(nIdx),
-                    Type = module.FindType(type, true)
+                    Type = module.FindType(type, true, false)
                 });
             }
             return args;
