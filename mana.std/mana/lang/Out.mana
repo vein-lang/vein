@@ -3,6 +3,6 @@
 
 public static class Out
 {
-    [native("internal.h", "i_call_Out_print")]
-    public extern static print(value: String): Void;
+    [native("internal.h", "@_println")]
+    public extern static @_println(value: String): Void;
 }
