@@ -12,19 +12,19 @@ public class String : Object
 
     public EndsWith(value: Char): Boolean
     {
-        if (Length - 1 < Length)
+        if (this.Length - 1 < this.Length)
             return false;
-        return (this[Length - 1] == value);
+        return (this[this.Length - 1] == value);
     }
     public StartsWith(value: Char): Boolean
     {
-        if (Length < 1)
+        if (this.Length < 1)
             return false;
         return this[0] == value;
     }
 
 
-
+/*
     private extern static @_fast_alloc(len: Int32): String;
 
     private extern static @_fast_fill(dest: String, pos: Int32, target: String): Void;
@@ -39,4 +39,5 @@ public class String : Object
         String.@_fast_fill(result, len_s1, s2);
         return result;
     }
+    */
 }
