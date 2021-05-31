@@ -223,6 +223,7 @@
                         var field = GetField(fieldIdx, @class, _module, invocation);
 
                         @class.vtable[field.vtable_offset] = IshtarMarshal.Boxing(invocation, sp);
+                        ++ip;
                     }
                     break;
                     case LDSF:
@@ -233,6 +234,7 @@
 
                         *sp = IshtarMarshal.UnBoxing(invocation, (IshtarObject*)@class.vtable[field.vtable_offset]);
                         ++sp;
+                        ++ip;
                     }
                     break;
                     case LDNULL:
