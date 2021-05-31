@@ -14,7 +14,7 @@
         internal ManaModule(string name) => Name = name;
         internal ManaModule(string name, Version ver) => (Name, Version) = (name, ver);
 
-
+        protected internal List<Aspect> aspects { get; } = new();
         protected internal ConstStorage const_table { get; set; } = new();
         protected internal readonly List<ManaClass> class_table = new();
         protected internal readonly Dictionary<int, string> strings_table = new();
