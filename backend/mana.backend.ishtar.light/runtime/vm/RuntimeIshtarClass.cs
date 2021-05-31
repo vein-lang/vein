@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
+    using mana.reflection;
     using mana.runtime;
 
     public interface ITransitionAlignment<in TKey, out TValue>
@@ -14,7 +15,9 @@
 
     public unsafe class RuntimeIshtarClass : ManaClass, 
         ITransitionAlignment<string, RuntimeIshtarField>,
-        ITransitionAlignment<string, RuntimeIshtarMethod>
+        ITransitionAlignment<string, RuntimeIshtarMethod>, 
+        IVTableCollectible,
+        IDisposable
     {
         internal RuntimeIshtarClass(QualityTypeName name, ManaClass parent, ManaModule module)
             : base(name, parent, module) {}
@@ -41,11 +44,13 @@
             public void* slot1, slot2;
             public int* flags;
         }
+        
 
         public void init_vtable()
         {
             if (is_inited)
                 return;
+
             var p = Parent as RuntimeIshtarClass;
 
             if (p is not null)
@@ -205,5 +210,19 @@
                 return r ?? (Parent as RuntimeIshtarClass)?.Method[key];
             }
         }
+
+        #region IDisposable
+
+        private void ReleaseUnmanagedResources() 
+            => Marshal.FreeHGlobal((nint)vtable);
+
+        public void Dispose()
+        {
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
+        }
+        ~RuntimeIshtarClass() => ReleaseUnmanagedResources();
+
+        #endregion
     }
 }
