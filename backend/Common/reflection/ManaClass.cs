@@ -12,7 +12,7 @@
         public string Path => FullName.Namespace;
         public ClassFlags Flags { get; set; }
         public ManaClass Parent { get; set; }
-        public readonly List<ManaField> Fields = new();
+        public List<ManaField> Fields { get; } = new();
         public List<ManaMethod> Methods { get; set; } = new();
         public ManaTypeCode TypeCode { get; set; } = ManaTypeCode.TYPE_CLASS;
         public bool IsPrimitive => TypeCode != ManaTypeCode.TYPE_CLASS && TypeCode != ManaTypeCode.TYPE_NONE;
@@ -77,8 +77,9 @@
             return result ?? Parent?.FindMethod(name, args_types);
         }
 
-        public ManaField? FindField(FieldName name) 
-            => this.Fields.FirstOrDefault(x => x.FullName.Equals(name));
+        public ManaField? FindField(string name) => 
+            this.Fields.FirstOrDefault(x => x.Name.Equals(name)) ?? Parent?.FindField(name);
+
 
         public ManaMethod? FindMethod(string name, Func<ManaMethod, bool> eq = null)
         {
