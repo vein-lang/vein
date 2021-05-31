@@ -150,12 +150,50 @@
             var const_body_len = reader.ReadInt32();
             var const_body = reader.ReadBytes(const_body_len);
 
+            module.const_table = const_body.ToConstStorage();
+
             module.Name = module.GetConstStringByIndex(idx);
             module.Version = Version.Parse(module.GetConstStringByIndex(vdx));
+            DistributionAspects(module);
 
             return module;
         }
 
+        // shit, todo: refactoring
+        public static void DistributionAspects(ModuleReader module)
+        {
+            foreach (var aspect in module.aspects)
+            {
+                switch (aspect)
+                {
+                    case AspectOfClass classAspect:
+                    {
+                        foreach (var @class in module.class_table
+                            .Where(@class => @class.Name.Equals(classAspect.ClassName)))
+                            @class.Aspects.Add(aspect);
+                        break;
+                    }
+                    case AspectOfMethod methodAspect:
+                    {
+                        foreach (var method in module.class_table
+                            .Where(@class => @class.Name.Equals(methodAspect.ClassName))
+                            .SelectMany(@class => @class.Methods
+                                .Where(method => method.RawName.Equals(methodAspect.MethodName))))
+                            method.Aspects.Add(aspect);
+                        break;
+                    }
+                    case AspectOfField fieldAspect:
+                    {
+                        foreach (var field in module.class_table
+                            .Where(@class => @class.Name.Equals(fieldAspect.ClassName))
+                            .SelectMany(@class => @class.Fields
+                                .Where(field => field.Name.Equals(fieldAspect.FieldName))))
+                            field.Aspects.Add(aspect);
+                        break;
+                    }
+                }
+            }
+        }
 
         public static ManaClass DecodeClass(byte[] arr, ModuleReader module)
         {
