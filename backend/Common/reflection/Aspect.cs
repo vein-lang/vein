@@ -1,4 +1,4 @@
-﻿namespace mana.reflection
+namespace mana.reflection
 {
     using System;
     using System.Collections.Generic;
@@ -24,6 +24,7 @@
         public string ClassName { get; }
         public AspectOfClass(string name, string className) : base(name, AspectTarget.Class) 
             => ClassName = className;
+        public override string ToString() => $"Aspect '{Name}' for '{ClassName}' class";
     }
 
     public class AspectOfMethod : Aspect
@@ -35,6 +36,7 @@
             ClassName = className;
             MethodName = methodName;
         }
+        public override string ToString() => $"Aspect '{Name}' for '{ClassName}/{MethodName}(..)' method";
     }
     public class AspectOfField : Aspect
     {
@@ -45,6 +47,7 @@
             ClassName = className;
             FieldName = fieldName;
         }
+        public override string ToString() => $"Aspect '{Name}' for '{ClassName}/{FieldName}' field";
     }
 
     public class Aspect
@@ -68,12 +71,12 @@
         {
             AspectTarget getTarget(FieldName name)
             {
-                if (name.fullName.Contains("/class/"))
-                    return AspectTarget.Class;
                 if (name.fullName.Contains("/method/"))
                     return AspectTarget.Method;
                 if (name.fullName.Contains("/field/"))
                     return AspectTarget.Field;
+                if (name.fullName.Contains("/class/"))
+                    return AspectTarget.Class;
 
                 throw new UnknownAspectTargetException(name);
             }
