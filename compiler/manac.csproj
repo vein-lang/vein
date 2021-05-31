@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>0.4.1492</Version>
+    <Version>0.4.1520</Version>
     <AssemblyName>manac</AssemblyName>
     <RootNamespace>mana</RootNamespace>
 	<OutputType>Exe</OutputType>
