@@ -1,0 +1,187 @@
+﻿namespace mana.reflection
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using runtime;
+
+    public class AspectArgument
+    {
+        public Aspect Owner { get; }
+        public object Value { get; }
+        public int Index { get; }
+
+        public AspectArgument(Aspect aspect, object value, int index)
+        {
+            Owner = aspect;
+            Value = value;
+            Index = index;
+        }
+    }
+
+    public class AspectOfClass : Aspect
+    {
+        public string ClassName { get; }
+        public AspectOfClass(string name, string className) : base(name, AspectTarget.Class) 
+            => ClassName = className;
+    }
+
+    public class AspectOfMethod : Aspect
+    {
+        public string ClassName { get; }
+        public string MethodName { get; }
+        public AspectOfMethod(string name, string className, string methodName) : base(name, AspectTarget.Method)
+        {
+            ClassName = className;
+            MethodName = methodName;
+        }
+    }
+    public class AspectOfField : Aspect
+    {
+        public string ClassName { get; }
+        public string FieldName { get; }
+        public AspectOfField(string name, string className, string fieldName) : base(name, AspectTarget.Field)
+        {
+            ClassName = className;
+            FieldName = fieldName;
+        }
+    }
+
+    public class Aspect
+    {
+        public string Name { get; }
+        public AspectTarget Target { get; }
+
+        public List<AspectArgument> Arguments = new ();
+        public Aspect(string name, AspectTarget target)
+        {
+            Name = name;
+            Target = target;
+        }
+
+        internal void DefineArgument(int index, object value) 
+            => Arguments.Add(new AspectArgument(this, value, index));
+
+
+        // maybe overhead, need refactoring
+        public static Aspect[] Deconstruct(Dictionary<FieldName, object> dictionary)
+        {
+            AspectTarget getTarget(FieldName name)
+            {
+                if (name.fullName.Contains("/class/"))
+                    return AspectTarget.Class;
+                if (name.fullName.Contains("/method/"))
+                    return AspectTarget.Method;
+                if (name.fullName.Contains("/field/"))
+                    return AspectTarget.Field;
+
+                throw new UnknownAspectTargetException(name);
+            }
+
+            var aspects = new List<Aspect>();
+
+            // shit
+            var groups = 
+                dictionary.Where(x => x.Key.fullName.StartsWith("aspect/"))
+                    .Select(x => (getTarget(x.Key), x))
+                .GroupBy(x => x.Item1)
+                .ToArray();
+
+            var fields = new Dictionary<FieldName, object>();
+            var methods = new Dictionary<FieldName, object>();
+            var classes = new Dictionary<FieldName, object>();
+
+            foreach (var tuple in groups)
+            {
+                foreach (var (aspectTarget, (key, value)) in tuple)
+                {
+                    switch (aspectTarget)
+                    {
+                        case AspectTarget.Class:
+                            classes.Add(key, value);
+                            break;
+                        case AspectTarget.Field:
+                            fields.Add(key, value);
+                            break;
+                        case AspectTarget.Method:
+                            methods.Add(key, value);
+                            break;
+                    }
+                }
+            }
+
+
+            // rly shit
+            var groupClasses = classes.GroupBy(x =>
+                x.Key.fullName.Replace("aspect/", "")
+                    .Replace("/class", "")
+                    .Split('.').First());
+            var groupMethods = methods.GroupBy(x =>
+                x.Key.fullName.Replace("aspect/", "")
+                    .Replace("/class", "")
+                    .Replace("/method", "")
+                    .Split('.').First());
+            var groupFields = fields.GroupBy(x =>
+                x.Key.fullName.Replace("aspect/", "")
+                    .Replace("/class", "")
+                    .Replace("/field", "")
+                    .Split('.').First());
+
+            foreach (var groupClass in groupClasses)
+            {
+                var aspectName = groupClass.Key.Split('/').First();
+                var aspectClass = groupClass.Key.Split('/').Last();
+                var aspect = new AspectOfClass(aspectName, aspectClass);
+                foreach (var (key, value) in groupClass)
+                {
+                    var index = key.fullName.Split("._").Last();
+                    aspect.DefineArgument(int.Parse(index), value);
+                }
+                aspects.Add(aspect);
+            }
+            foreach (var groupMethod in groupMethods)
+            {
+                var aspectName = groupMethod.Key.Split('/')[0];
+                var aspectClass = groupMethod.Key.Split('/')[1];
+                var aspectMethod = groupMethod.Key.Split('/')[2];
+                var aspect = new AspectOfMethod(aspectName, aspectClass, aspectMethod);
+                foreach (var (key, value) in groupMethod)
+                {
+                    var index = key.fullName.Split("._").Last();
+                    aspect.DefineArgument(int.Parse(index), value);
+                }
+                aspects.Add(aspect);
+            }
+            foreach (var groupMethod in groupFields)
+            {
+                var aspectName = groupMethod.Key.Split('/')[0];
+                var aspectClass = groupMethod.Key.Split('/')[1];
+                var aspectField = groupMethod.Key.Split('/')[2];
+                var aspect = new AspectOfField(aspectName, aspectClass, aspectField);
+                foreach (var (key, value) in groupMethod)
+                {
+                    var index = key.fullName.Split("._").Last();
+                    aspect.DefineArgument(int.Parse(index), value);
+                }
+                aspects.Add(aspect);
+            }
+
+            return aspects.ToArray();
+        }
+    }
+
+    public class UnknownAspectTargetException : Exception
+    {
+        public UnknownAspectTargetException(string name) 
+            : base($"Unknown target: '{name}'") { }
+        public UnknownAspectTargetException(string name, string reason) 
+            : base($"Unknown target: '{name}', reason: '{reason}'") { }
+    }
+
+    public enum AspectTarget
+    {
+        Class,
+        Method,
+        Field
+    }
+}
