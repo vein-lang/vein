@@ -75,6 +75,9 @@
         /// </remarks>
         public ManaClass FindType(QualityTypeName type, bool findExternally = false, bool dropUnresolvedException = true)
         {
+            if (!findExternally)
+                findExternally = this.Name != type.AssemblyName;
+
             bool filter(ManaClass x) => x!.FullName.Equals(type);
             if (!findExternally)
                 return class_table.First(filter);
