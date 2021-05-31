@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
 		<RootNamespace>mana</RootNamespace>
-		<Version>0.4.1140</Version>
+		<Version>0.4.1159</Version>
 		<AssemblyName>mana.common.runtime</AssemblyName>
 		<PackageIconUrl>https://raw.githubusercontent.com/0xF6/mana_lang/master/ide_ext/vscode/images/icon.png</PackageIconUrl>
 		<PackageProjectUrl>https://github.com/0xF6/mana_lang</PackageProjectUrl>
