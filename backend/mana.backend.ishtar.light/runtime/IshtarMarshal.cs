@@ -110,7 +110,7 @@
             FFI.StaticTypeOf(frame, &obj, TYPE_STRING);
             var clazz = obj->DecodeClass();
             var p = (StrRef*)obj->vtable[clazz.Field["!!value"].vtable_offset];
-            return StrRef.Unwrap(p);
+            return StringStorage.GetString(p);
         }
 
         public static stackval UnBoxing(CallFrame frame, IshtarObject* obj)
