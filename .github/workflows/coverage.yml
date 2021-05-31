@@ -9,11 +9,11 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Export Env
-      run: export CODACY_PROJECT_TOKEN=${{ secrets.CODACY_API_KEY }}
+      run: $env:CODACY_PROJECT_TOKEN="${{ secrets.CODACY_API_KEY }}"
     - uses: actions/checkout@v2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
