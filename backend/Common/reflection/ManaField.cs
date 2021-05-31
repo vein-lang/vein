@@ -6,6 +6,7 @@
     using System.Linq;
     using exceptions;
     using extensions;
+    using reflection;
     using static ManaTypeCode;
 
     public record FieldName(string fullName)
@@ -49,6 +50,7 @@
         public ManaClass FieldType { get; set; }
         public FieldFlags Flags { get; set; }
         public ManaClass Owner { get; set; }
+        public List<Aspect> Aspects { get; } = new ();
         
         public override string Name
         {
