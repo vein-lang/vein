@@ -2,10 +2,12 @@
 {
     using System;
     using ishtar;
+    using mana.ishtar.emit;
     using mana.runtime;
     using Xunit;
+    using static mana.runtime.FieldFlags;
 
-    public class InstructionTest : IshtarContext
+    public class InstructionTest : IshtarTestBase
     {
         [Theory]
         [InlineData(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
@@ -13,7 +15,8 @@
         [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
         public unsafe void ADD_Test(OpCodeValue op, ManaTypeCode code)
         {
-            var result = Execute((gen) =>
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
             {
                 if (gen == null)
                     throw new Exception("GENERATOR IS NULL");
@@ -33,7 +36,8 @@
         [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
         public unsafe void SUB_Test(OpCodeValue op, ManaTypeCode code)
         {
-            var result = Execute((gen) =>
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
             {
                 gen.Emit(OpCodes.all[op]);
                 gen.Emit(OpCodes.all[op]);
@@ -53,7 +57,8 @@
         [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
         public unsafe void MUL_Test(OpCodeValue op, ManaTypeCode code)
         {
-            var result = Execute((gen) =>
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
             {
                 gen.Emit(OpCodes.all[op]);
                 gen.Emit(OpCodes.all[op]);
@@ -71,7 +76,8 @@
         [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
         public unsafe void DIV_Test(OpCodeValue op, ManaTypeCode code)
         {
-            var result = Execute((gen) =>
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
             {
                 gen.Emit(OpCodes.all[op]);
                 gen.Emit(OpCodes.all[op]);
@@ -89,7 +95,8 @@
         [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
         public unsafe void DUP_Test(OpCodeValue op, ManaTypeCode code)
         {
-            var result = Execute((gen) =>
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
             {
                 gen.Emit(OpCodes.all[op]);
                 gen.Emit(OpCodes.DUP);
@@ -105,7 +112,8 @@
         public unsafe void LDSTR_Test()
         {
             var targetStr = "the string";
-            var result = Execute((gen) =>
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
             {
                 gen.Emit(OpCodes.LDC_STR, targetStr);
                 gen.Emit(OpCodes.RET);
@@ -120,6 +128,27 @@
             Assert.Equal(targetStr, str);
         }
 
+
+        [Fact]
+        public unsafe void LDF_Test()
+        {
+            using var ctx = CreateContext();
+
+            ctx.OnClassBuild((@class, o) =>
+            {
+                o.field = @class.DefineField("TEST_FIELD", Public | Static, ManaTypeCode.TYPE_I4.AsClass());
+            });
+
+            var result = ctx.Execute((gen, storage) =>
+            {
+                gen.Emit(OpCodes.LDC_I4_S, 142);
+                gen.Emit(OpCodes.STSF, (RuntimeIshtarField)storage.field);
+                gen.Emit(OpCodes.LDSF, (RuntimeIshtarField)storage.field);
+                gen.Emit(OpCodes.RET);
+            });
+
+            Assert.Equal(142, result.returnValue->data.l);
+        }
 
         
         protected override void StartUp()

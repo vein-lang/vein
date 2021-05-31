@@ -4,7 +4,7 @@
     using Xunit;
     using Xunit.Sdk;
 
-    public class NegativeCases : IshtarContext
+    public class NegativeCases : IshtarTestBase
     {
         [Fact]
         public unsafe void IncorrectPointerCrashTest()
