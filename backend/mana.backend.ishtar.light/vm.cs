@@ -659,7 +659,7 @@
                         ++ip;
                         sp->type = TYPE_STRING;
                         var str = _module.GetConstStringByIndex((int) *ip);
-                        sp->data.p = (nint)IshtarMarshal.ToIshtarObject(str);
+                        sp->data.p = (nint)IshtarMarshal.ToIshtarObject(str, invocation);
                         ++sp;
                         ++ip;
 
