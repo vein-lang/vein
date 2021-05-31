@@ -217,16 +217,20 @@
             }
             return module.DefineClass($"global::{doc.Name}/{member.Identifier.ExpressionString}").WithIncludes(doc.Includes);
         }
-
+        public void CompileAnnotation(FieldDeclarationSyntax field, DocumentDeclaration doc)
+        {
+            CompileAnnotation(field.Annotations, x =>
+                $"aspect/{x.AnnotationKind}/class/{field.OwnerClass.Identifier}/field/{field.Field.Identifier}.", doc);
+        }
         public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc)
         {
             CompileAnnotation(method.Annotations, x =>
-                $"{method.OwnerClass.Identifier}_{method.Identifier}.annotation_{x.AnnotationKind}", doc);
+                $"aspect/{x.AnnotationKind}/class/{method.OwnerClass.Identifier}/method/{method.Identifier}.", doc);
         }
         public void CompileAnnotation(ClassDeclarationSyntax clazz, DocumentDeclaration doc)
         {
             CompileAnnotation(clazz.Annotations, x =>
-                $"{clazz.Identifier}.annotation_{x.AnnotationKind}", doc);
+                $"aspect/{x.AnnotationKind}/class/{clazz.Identifier}.", doc);
         }
 
         private void CompileAnnotation(
@@ -336,6 +340,8 @@
         public (ManaField field, FieldDeclarationSyntax member)
             CompileField(FieldDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
+            CompileAnnotation(member, doc);
+
             var fieldType = FetchType(member.Type, doc);
 
             if (fieldType is null)
