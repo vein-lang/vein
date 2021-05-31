@@ -4,12 +4,12 @@
 [special, readonly, forwarded]
 public struct Half : ValueType
 {
-    [native]
-    private _value: Half;
-
+    [native("!!value")]
+    private _value: ValueType;
+    /*
     public const MaxValue: Half = 65504h;
     public const MinValue: Half = -65504h;
-
+    */
     [getter]
     public static NaN: Half;
     [getter]

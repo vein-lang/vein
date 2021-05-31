@@ -4,6 +4,6 @@
 [special, readonly, forwarded]
 public struct Decimal : ValueType
 {
-    [native]
-    private _value: Decimal;
+    [native("!!value")]
+    private _value: ValueType;
 }

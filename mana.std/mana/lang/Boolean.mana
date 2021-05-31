@@ -4,8 +4,8 @@
 [special, readonly, forwarded]
 public struct Boolean : ValueType
 {
-    [native]
-    private _value: Boolean;
+    [native("!!value")]
+    private _value: ValueType;
 
     public const True: Boolean = true;
     public const False: Boolean = false;

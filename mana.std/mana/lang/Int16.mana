@@ -4,8 +4,8 @@
 [special, readonly, forwarded]
 public struct Int16 : ValueType
 {
-    [native]
-    private _value: Int16;
+    [native("!!value")]
+    private _value: ValueType;
 
     public const MaxValue: Int16 = 32767;
     public const MinValue: Int16 = -32768;

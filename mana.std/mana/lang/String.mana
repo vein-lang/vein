@@ -3,8 +3,8 @@
 [special, forwarded]
 public class String : Object
 {
-    [native]
-    private _value: String;
+    [native("!!value")]
+    private _value: ValueType;
     //[native, getter]
     //public extern this[index: Int32]: Char;
     [native, getter]

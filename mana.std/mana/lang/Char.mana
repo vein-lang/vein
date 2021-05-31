@@ -4,6 +4,6 @@
 [special, readonly, forwarded]
 public struct Char : ValueType
 {
-    [native]
-    private _value: Char;
+    [native("!!value")]
+    private _value: ValueType;
 }
