@@ -169,10 +169,10 @@ namespace ishtar
     public static class GeneratorExtension
     {
         public static bool ContainsField(this ManaClass @class, IdentifierExpression id) 
-            => @class.Fields.Any(x => x.Name.Equals(id.ExpressionString));
+            => @class.FindField(id.ExpressionString) != null;
 
         public static ManaField ResolveField(this ManaClass @class, IdentifierExpression id) 
-            => @class.Fields.FirstOrDefault(x => x.Name.Equals(id.ExpressionString));
+            => @class.FindField(id.ExpressionString);
 
         public static void EmitUnary(this ILGenerator gen, UnaryExpressionSyntax node)
         {
