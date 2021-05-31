@@ -1,9 +1,7 @@
 ﻿namespace ishtar
 {
-    public unsafe struct StrRef
+    public struct StrRef
     {
-        public static string Unwrap(StrRef* p) => StringStorage.GetString(p);
-
         public ulong index;
     }
 }
