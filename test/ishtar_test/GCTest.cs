@@ -4,12 +4,12 @@
     using mana.runtime;
     using Xunit;
 
-    public class GCTest : IshtarContext
+    public class GCTest : IshtarTestBase
     {
         [Fact]
         public unsafe void CorrectAllocateInt()
         {
-            var result = IshtarGC.AllocInt(12);
+            var result = IshtarMarshal.ToIshtarObject(1);
             IshtarGC.FreeObject(&result);
         }
 
@@ -23,7 +23,7 @@
         [Fact]
         public unsafe void CorrectAllocateString()
         {
-            var result = IshtarGC.AllocString("test");
+            var result = IshtarMarshal.ToIshtarObject("foo");
             IshtarGC.FreeObject(&result);
         }
 
