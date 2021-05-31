@@ -119,6 +119,7 @@
         {
             lock (guarder)
             {
+                VM.VMException = null;
                 if (!isInited)
                 {
                     VM.ValidateLastErrorEvent += VMOnValidateLastErrorEvent;
@@ -156,7 +157,6 @@
             => new (caller, _module);
         void IDisposable.Dispose()
         {
-            VM.ValidateLastErrorEvent -= VMOnValidateLastErrorEvent;
             Shutdown();
         }
 

@@ -5,7 +5,7 @@
 
     public class FECallTest : IshtarTestBase
     {
-        [Fact]
+        [Fact, TestPriority(9999)]
         public void Call_FE_Console_Println()
         {
             using var ctx = CreateContext();

@@ -122,10 +122,7 @@
             Assert.Equal(ManaTypeCode.TYPE_STRING, (*result.returnValue).type);
 
             var obj = (IshtarObject*) result.returnValue->data.p;
-            var @class = obj->DecodeClass();
-            var p = (StrRef*)obj->vtable[@class.Field["!!value"].vtable_offset];
-            var str = StrRef.Unwrap(p);
-            Assert.Equal(targetStr, str);
+            Assert.Equal(targetStr, IshtarMarshal.ToDotnetString(obj, null));
         }
 
 
@@ -138,6 +135,7 @@
             {
                 o.field = @class.DefineField("TEST_FIELD", Public | Static, ManaTypeCode.TYPE_I4.AsClass());
             });
+            
 
             var result = ctx.Execute((gen, storage) =>
             {

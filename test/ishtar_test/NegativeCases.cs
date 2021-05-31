@@ -6,13 +6,13 @@
 
     public class NegativeCases : IshtarTestBase
     {
-        [Fact(Skip = "floating state test, fix it")]
+        [Fact, TestPriority(9999)]
         public unsafe void IncorrectPointerCrashTest()
         {
             Assert.Throws<FalseException>(() =>
             {
-                var invalid = new StrRef {index = 534534};
-                return StrRef.Unwrap(&invalid);
+                var invalid = new StrRef {index = ulong.MaxValue};
+                return StringStorage.GetString(&invalid);
             });
         }
 
