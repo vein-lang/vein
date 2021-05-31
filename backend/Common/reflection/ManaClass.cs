@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using reflection;
 
     public class ManaClass : IEquatable<ManaClass>
     {
@@ -16,6 +17,7 @@
         public ManaTypeCode TypeCode { get; set; } = ManaTypeCode.TYPE_CLASS;
         public bool IsPrimitive => TypeCode != ManaTypeCode.TYPE_CLASS && TypeCode != ManaTypeCode.TYPE_NONE;
         public ManaModule Owner { get; set; }
+        public List<Aspect> Aspects { get; } = new ();
         
         internal ManaClass(QualityTypeName name, ManaClass parent, ManaModule module)
         {
