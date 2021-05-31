@@ -179,7 +179,7 @@
             WriteElf(memory.ToArray(), fs, asm.metadata);
 
             if (!string.IsNullOrEmpty(asm.DebugData)) 
-                File.WriteAllText($"{file}.wvil", asm.DebugData);
+                File.WriteAllText($"{file}.lay", asm.DebugData);
         }
     }
 }
