@@ -14,7 +14,7 @@
         public void* default_value;
 
 
-        public bool IsNeedReMapping(out int new_offset)
+        public bool init_mapping()
         {
             bool failMapping(int code)
             {
@@ -23,8 +23,7 @@
                 VM.ValidateLastError();
                 return false;
             }
-
-            new_offset = 0;
+            
             var nativeAspect = Aspects.FirstOrDefault(x => x.Name == "Native");
             if (nativeAspect is null)
                 return false;
@@ -46,7 +45,7 @@
             if (existField is not RuntimeIshtarField runtimeField)
                 return failMapping(4);
 
-            new_offset = runtimeField.vtable_offset;
+            vtable_offset = runtimeField.vtable_offset;
 
             return true;
         }

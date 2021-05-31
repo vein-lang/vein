@@ -162,8 +162,9 @@
                 }
             }
 
-
-
+            if (Fields.Count != 0) for (var i = 0; i != Fields.Count; i++)
+                (Fields[i] as RuntimeIshtarField)?.init_mapping();
+            
             is_inited = true;
         }
 
