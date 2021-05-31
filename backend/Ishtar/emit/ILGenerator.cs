@@ -148,7 +148,7 @@ namespace mana.ishtar.emit
             this.InternalEmit(opcode);
 
             var nameIdx = this._methodBuilder.moduleBuilder.InternFieldName(field.FullName);
-            var typeIdx = this._methodBuilder.moduleBuilder.InternTypeName(field.FieldType.FullName);
+            var typeIdx = this._methodBuilder.moduleBuilder.InternTypeName(field.Owner.FullName);
 
             this.PutInteger4(nameIdx);
             this.PutInteger4(typeIdx);
