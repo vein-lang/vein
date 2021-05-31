@@ -227,12 +227,12 @@
                     break;
                     case LDSF:
                     {
-                        --sp;
                         var fieldIdx = *++ip;
                         var @class = GetClass(*++ip, _module, invocation);
                         var field = GetField(fieldIdx, @class, _module, invocation);
 
                         *sp = IshtarMarshal.UnBoxing(invocation, (IshtarObject*)@class.vtable[field.vtable_offset]);
+                        ++sp;
                     }
                     break;
                     case LDNULL:

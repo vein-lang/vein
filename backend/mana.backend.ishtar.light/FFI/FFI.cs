@@ -29,7 +29,7 @@
         {
             StaticValidate(*arg1);
             var @class = (*arg1)->DecodeClass();
-            VM.Assert(@class.Fields.Any(x => x.Name.Equals(name)), WNE.TYPE_LOAD, 
+            VM.Assert(@class.FindField(name) != null, WNE.TYPE_LOAD, 
                 $"Field '{name}' not found in '{@class.Name}'.", current);
         }
         [Conditional("STATIC_VALIDATE_IL")]

@@ -52,13 +52,18 @@
 
 
 
-            (ManaCore.ValueTypeClass as RuntimeIshtarClass)
-                .DefineField("!!value", FieldFlags.Special,
-                ManaCore.ObjectClass);
+            INIT_ADDITIONAL_MAPPING();
+        }
 
+
+        public static void INIT_ADDITIONAL_MAPPING()
+        {
+            (ManaCore.ValueTypeClass as RuntimeIshtarClass)
+                !.DefineField("!!value", FieldFlags.Special | FieldFlags.Internal,
+                    ManaCore.ValueTypeClass);
             (ManaCore.StringClass as RuntimeIshtarClass)
-                .DefineField("!!value", FieldFlags.Special,
-                    ManaCore.ObjectClass);
+                !.DefineField("!!value", FieldFlags.Special | FieldFlags.Internal,
+                    ManaCore.ValueTypeClass);
         }
     }
 }

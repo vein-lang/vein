@@ -177,8 +177,8 @@
                 return field.default_value = IshtarGC.AllocValue(field.FieldType);
             return null;
         }
-        public new RuntimeIshtarField? FindField(FieldName name)
-            => Fields.FirstOrDefault(x => x.FullName.Equals(name)) as RuntimeIshtarField;
+        public new RuntimeIshtarField? FindField(string name)
+            => base.FindField(name) as RuntimeIshtarField;
         public RuntimeIshtarMethod? FindMethod(string fullyName) 
             => Methods.FirstOrDefault(method => method.Name.Equals(fullyName)) as RuntimeIshtarMethod;
 

@@ -6,11 +6,9 @@
     public unsafe class RuntimeIshtarField : ManaField
     {
         public RuntimeIshtarField(ManaClass owner, FieldName fullName, FieldFlags flags, ManaClass fieldType) : 
-            base(owner, fullName, flags, fieldType)
-        { }
-
-
-        public int vtable_offset = 0;
+            base(owner, fullName, flags, fieldType) { }
+        
+        public int vtable_offset;
         public void* default_value;
 
 
@@ -34,7 +32,7 @@
             if (arg is not string existName)
                 return failMapping(1);
 
-            var existField = Owner.Fields.FirstOrDefault(x => x.Name.Equals(existName));
+            var existField = Owner.FindField(existName);
 
             if (existField is null)
                 return failMapping(2);
@@ -49,5 +47,8 @@
 
             return true;
         }
+        
+
+        public override string ToString() => $"Field '{FullName}': '{FieldType.FullName.NameWithNS}'";
     }
 }

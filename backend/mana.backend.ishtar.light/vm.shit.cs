@@ -50,7 +50,7 @@ namespace ishtar
         public static RuntimeIshtarField GetField(uint index, RuntimeIshtarClass owner, ManaModule module, CallFrame frame)
         {
             var name = module.GetFieldNameByIndex((int) index);
-            var field = owner.FindField(name);
+            var field = owner.FindField(name.Name);
 
             if (field is null)
             {
