@@ -266,60 +266,57 @@
                     case CALL:
                     {
                         ++ip;
-                        var callctx = (CallContext)(*ip);
-                        if (callctx == CallContext.THIS_CALL)
+                        var call_ctx = (CallContext)(*ip);
+
+                        if (call_ctx is not (CallContext.THIS_CALL or CallContext.NATIVE_CALL))
+                            throw new NotImplementedException();
+                        var child_frame = new CallFrame();
+                        ++ip;
+                        var tokenIdx = *ip;
+                        var owner = readTypeName(*++ip, _module);
+                        var method = GetMethod(tokenIdx, owner, _module, invocation);
+                        #if DEBUG_IL
+                        printf("%%call %ws self function.\n", method->Name.c_str());
+                        #endif
+
+
+                        var method_args = stackval.Alloc(method.ArgLength);
+                        for (var i = 0; i != method.ArgLength; i++)
                         {
-                            var child_frame = new CallFrame();
-                            ++ip;
-                            var tokenIdx = *ip;
-                            var owner = readTypeName(*++ip, _module);
-                            var method = GetMethod(tokenIdx, owner, _module, invocation);
-                            #if DEBUG_IL
-                            printf("%%call %ws self function.\n", method->Name.c_str());
-                            #endif
+                            var _a = method.Arguments[i];
+                            // TODO, type eq validate
+                            --sp;
+                            method_args[i] = *sp;
+                        }
+                        child_frame.level = invocation.level + 1;
+                        child_frame.parent = invocation;
+                        fixed(stackval* p = method_args)
+                            child_frame.args = p;
+                        child_frame.method = method;
+                        if (method.IsExtern)
+                            exec_method_native(child_frame);
+                        else
+                            exec_method(child_frame);
 
-
-                            var method_args = stackval.Alloc(method.ArgLength);
-                            for (var i = 0; i != method.ArgLength; i++)
-                            {
-                                var _a = method.Arguments[i];
-                                // TODO, type eq validate
-                                --sp;
-                                method_args[i] = *sp;
-                            }
-                            child_frame.level = invocation.level + 1;
-                            child_frame.parent = invocation;
-                            fixed(stackval* p = method_args)
-                                child_frame.args = p;
-                            child_frame.method = method;
-                            if (method.IsExtern)
-                                exec_method_native(child_frame);
-                            else
-                                exec_method(child_frame);
-
-                            if (child_frame.exception is not null)
-                            {
-                                invocation.exception = child_frame.exception;
-                                method_args = null;
-                                child_frame = null;
-                                break;
-                            }
-                            if (method.ReturnType.TypeCode != TYPE_VOID)
-                            {
-                                if (child_frame.returnValue is null)
-                                {
-                                    FastFail(WNE.STATE_CORRUPT, "Method has return zero memory.");
-                                    continue;
-                                }
-                                *sp = *child_frame.returnValue;
-                                sp++;
-                            }
+                        if (child_frame.exception is not null)
+                        {
+                            invocation.exception = child_frame.exception;
                             method_args = null;
                             child_frame = null;
                             break;
                         }
-
-                        throw new NotImplementedException();
+                        if (method.ReturnType.TypeCode != TYPE_VOID)
+                        {
+                            if (child_frame.returnValue is null)
+                            {
+                                FastFail(WNE.STATE_CORRUPT, "Method has return zero memory.");
+                                continue;
+                            }
+                            *sp = *child_frame.returnValue;
+                            sp++;
+                        }
+                        method_args = null;
+                        child_frame = null;
                     } break;
                     case LOC_INIT:
                     {
