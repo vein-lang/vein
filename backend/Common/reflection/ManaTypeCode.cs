@@ -1,6 +1,8 @@
 ﻿namespace mana.runtime
 {
     using System;
+    using System.Reflection;
+    using exceptions;
     using static ManaTypeCode;
 
     public enum ManaTypeCode
@@ -29,6 +31,80 @@
 
     public static class ManaTypeCodeEx
     {
+        public static TypeCode ToCLRTypeCode(this ManaTypeCode type_code)
+        {
+            switch (type_code)
+            {
+                case TYPE_BOOLEAN:
+                    return TypeCode.Boolean;
+                case TYPE_CHAR:
+                    return TypeCode.Char;
+                case TYPE_I1:
+                    return TypeCode.SByte;
+                case TYPE_U1:
+                    return TypeCode.Byte;
+                case TYPE_I2:
+                    return TypeCode.Int16;
+                case TYPE_U2:
+                    return TypeCode.UInt16;
+                case TYPE_I4:
+                    return TypeCode.Int32;
+                case TYPE_U4:
+                    return TypeCode.UInt32;
+                case TYPE_I8:
+                    return TypeCode.Int64;
+                case TYPE_U8:
+                    return TypeCode.UInt64;
+                case TYPE_R4:
+                    return TypeCode.Single;
+                case TYPE_R8:
+                    return TypeCode.Double;
+                case TYPE_R16:
+                    return TypeCode.Decimal;
+                case TYPE_STRING:
+                    return TypeCode.String;
+            }
+
+            throw new NotSupportedException($"'{type_code}' cant convert to CLR type code.");
+        }
+        public static ManaTypeCode DetermineTypeCode<T>(this T value)
+        {
+            var clr_code = Type.GetTypeCode(value.GetType());
+
+            switch (clr_code)
+            {
+                case TypeCode.Boolean:
+                    return TYPE_BOOLEAN;
+                case TypeCode.Char:
+                    return TYPE_CHAR;
+                case TypeCode.SByte:
+                    return TYPE_I1;
+                case TypeCode.Byte:
+                    return TYPE_U1;
+                case TypeCode.Int16:
+                    return TYPE_I2;
+                case TypeCode.UInt16:
+                    return TYPE_U2;
+                case TypeCode.Int32:
+                    return TYPE_I4;
+                case TypeCode.UInt32:
+                    return TYPE_U4;
+                case TypeCode.Int64:
+                    return TYPE_I8;
+                case TypeCode.UInt64:
+                    return TYPE_U8;
+                case TypeCode.Single:
+                    return TYPE_R4;
+                case TypeCode.Double:
+                    return TYPE_R8;
+                case TypeCode.Decimal:
+                    return TYPE_R16;
+                case TypeCode.String:
+                    return TYPE_STRING;
+            }
+            throw new NotSupportedException($"'{clr_code}', '{value}', '{value.GetType()}' cant convert to Ishtar type code.");
+        }
+
         public static bool IsCompatibleNumber(this ManaTypeCode variable, ManaTypeCode assign)
         {
             if (variable == assign)
