@@ -4,12 +4,14 @@
     using System.Linq;
     using System.Text.RegularExpressions;
     using extensions;
+    using reflection;
 
     public class ManaMethod : ManaMethodBase
     {
         public ManaClass ReturnType { get; set; }
         public ManaClass Owner { get; set; }
         public readonly Dictionary<int, ManaArgumentRef> Locals = new();
+        public List<Aspect> Aspects { get; } = new ();
 
         protected ManaMethod() : base(null, 0) { }
         
