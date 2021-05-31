@@ -217,6 +217,7 @@
                         return;
                     case STSF:
                     {
+                        --sp;
                         var fieldIdx = *++ip;
                         var @class = GetClass(*++ip, _module, invocation);
                         var field = GetField(fieldIdx, @class, _module, invocation);
@@ -226,6 +227,7 @@
                     break;
                     case LDSF:
                     {
+                        --sp;
                         var fieldIdx = *++ip;
                         var @class = GetClass(*++ip, _module, invocation);
                         var field = GetField(fieldIdx, @class, _module, invocation);
