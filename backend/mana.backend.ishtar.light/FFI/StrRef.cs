@@ -1,7 +1,4 @@
 ﻿namespace ishtar
 {
-    public struct StrRef
-    {
-        public ulong index;
-    }
+    public struct StrRef { }
 }
