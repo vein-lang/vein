@@ -20,6 +20,9 @@ var deserializer = new DeserializerBuilder()
                 .WithNamingConvention(UnderscoredNamingConvention.Instance)  // see height_in_inches in sample yml 
                 .Build();
 var content = File.ReadAllText("opcodes.yaml");
+var version = int.Parse(File.ReadAllText("version"));
+version++;
+File.WriteAllText("version", $"{version}");
 var obj = deserializer.Deserialize<object>(content);
 var ops = new List<OpCode>();
 
@@ -141,6 +144,8 @@ void gen_cs_props(StringBuilder builder)
     builder.AppendLine("\tusing global::mana.ishtar.emit;");
     builder.AppendLine("\tusing global::System.Collections.Generic;");
     builder.AppendLine("\tpublic static class OpCodes \n\t{");
+
+    builder.AppendLine($"\t\tinternal static int SetVersion = {version};");
     foreach(var i in ops.Select((x, y) => (x.name, y, x.override_size, get(x.flow), get(x.chain))))
     {
         var desc = ops[i.y].description;
