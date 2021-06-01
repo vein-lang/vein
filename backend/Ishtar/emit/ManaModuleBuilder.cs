@@ -7,6 +7,7 @@
     using System.Linq;
     using System.Text;
     using extensions;
+    using global::ishtar;
     using insomnia;
     using MoreLinq;
     using Serilog;
@@ -141,6 +142,7 @@
 
             binary.Write(idx);
             binary.Write(vdx);
+            binary.Write(OpCodes.SetVersion);
 
             
 

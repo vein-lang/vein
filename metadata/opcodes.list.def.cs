@@ -6,6 +6,7 @@ namespace ishtar
 	using global::System.Collections.Generic;
 	public static class OpCodes 
 	{
+		internal static int SetVersion = 3;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0

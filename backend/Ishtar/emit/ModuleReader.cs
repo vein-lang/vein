@@ -5,7 +5,9 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using exceptions;
     using extensions;
+    using global::ishtar;
     using insomnia;
     using reflection;
     using mana.extensions;
@@ -52,7 +54,10 @@
 
             var idx = reader.ReadInt32(); // name index
             var vdx = reader.ReadInt32(); // version index
-           
+            var ilVersion = reader.ReadInt32();
+
+            if (ilVersion != OpCodes.SetVersion)
+                throw new ILCompatibleException(ilVersion, OpCodes.SetVersion);
             // read strings table
             foreach (var _ in ..reader.ReadInt32())
             {
