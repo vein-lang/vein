@@ -1,4 +1,4 @@
-namespace ishtar
+﻿namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
@@ -169,6 +169,39 @@ namespace ishtar
                         ++sp;
                         ++ip;
                         break;
+                    case LDC_F4:
+                        ++ip;
+                        sp->type = TYPE_R4;
+                        sp->data.f_r4 = BitConverter.Int32BitsToSingle((int)(*ip));
+                        ++ip;
+                        ++sp;
+                        break;
+                    case LDC_F8:
+                    {
+                        ++ip;
+                        sp->type = TYPE_R8;
+                        var t1 = (long)*ip;
+                        ++ip;
+                        var t2 = (long)*ip;
+                        sp->data.f = BitConverter.Int64BitsToDouble(t2 << 32 | t1 & 0xffffffffL);
+                        ++ip;
+                        ++sp;
+                    } break;
+                    case LDC_F16:
+                    {
+                        ++ip;
+                        sp->type = TYPE_R16;
+                        var bits = (int)*ip;
+                        var items = new int[bits];
+                        ++ip;
+                        foreach (var i in ..bits)
+                        {
+                            items[i] = (int) *ip;
+                            ++ip;
+                        }
+                        sp->data.d = new decimal(items);
+                        ++sp;
+                    } break;
                     case LDC_I2_S:
                         ++ip;
                         sp->type = TYPE_I2;
@@ -184,15 +217,16 @@ namespace ishtar
                         ++sp;
                         break;
                     case LDC_I8_S:
+                    {
                         ++ip;
                         sp->type = TYPE_I8;
-                        var t1 = *ip;
+                        var t1 = (long)*ip;
                         ++ip;
-                        var t2 = *ip;
-                        sp->data.l = t2 << 32 | t1 & 0xffffffffL; 
+                        var t2 = (long)*ip;
+                        sp->data.l = t2 << 32 | t1; 
                         ++ip;
                         ++sp;
-                        break;
+                    } break;
                     case RET:
                         ++ip;
                         --sp;
