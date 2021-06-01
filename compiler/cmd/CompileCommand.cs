@@ -23,7 +23,7 @@
         [CommandOption("--single-file|-s")]
         public bool HasSingleFile { get; set; }
 
-        [Description("Wait to attach debbugger [ONLY DEBUG COMPILER]")]
+        [Description("Wait to attach debbugger (ONLY DEBUG COMPILER)")]
         [CommandOption("--debugger|-d")]
         public bool IsNeedDebuggerAttach { get; set; }
     }
