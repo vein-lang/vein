@@ -90,6 +90,17 @@
                     case var _ when value.Value == (ushort)OpCodeValue.LOC_INIT_X:
                         list.Add((uint)bin.ReadInt32()); // type_index
                         break;
+                    case var _ when value.Value == (ushort)OpCodeValue.LDC_I8_S:
+                    case var _ when value.Value == (ushort)OpCodeValue.LDC_F8:
+                        list.Add((uint)bin.ReadInt32()); // slot 1
+                        list.Add((uint)bin.ReadInt32()); // slot 2
+                        break;
+                    case var _ when value.Value == (ushort)OpCodeValue.LDC_F16:
+                        var size = bin.ReadInt32();
+                        list.Add((uint) size); // size
+                        foreach (var _ in ..size) 
+                            list.Add((uint) bin.ReadInt32()); // slot 1
+                        break;
                     case var _ when value is 
                         { Value: (ushort)OpCodeValue.LDF  } or 
                         { Value: (ushort)OpCodeValue.STF  } or
@@ -110,12 +121,6 @@
                         list.Add((uint)bin.ReadInt32());
                         break;
                     case sizeof(long):
-                        list.Add((uint)bin.ReadInt32());
-                        list.Add((uint)bin.ReadInt32());
-                        break;
-                    case sizeof(decimal):
-                        list.Add((uint)bin.ReadInt32());
-                        list.Add((uint)bin.ReadInt32());
                         list.Add((uint)bin.ReadInt32());
                         list.Add((uint)bin.ReadInt32());
                         break;
