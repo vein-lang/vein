@@ -1,49 +1,34 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
     using mana.runtime;
     using static OpCodeValue;
     using static mana.runtime.ManaTypeCode;
+    using mana.extensions;
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
     public static unsafe partial class VM
     {
-        public static NativeException VMException { get; set; }
+        static VM()
+        {
+            watcher = new DefaultWatchDog();
+        }
+
+
+        public static volatile NativeException CurrentException;
+        public static volatile IWatchDog watcher;
 
         public static void FastFail(WNE type, string msg, CallFrame frame = null) 
-            => VMException = new NativeException { code = type, msg = msg, frame = frame };
+            => watcher?.FastFail(type, msg, frame);
+        public static void ValidateLastError() 
+            => watcher?.ValidateLastError();
 
-        public static event Action<NativeException> ValidateLastErrorEvent;
+        public static void println(string str) => Console.WriteLine(str);
 
-
-        public static void ValidateLastError()
-        {
-            if (VMException is not null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                println($"native exception was thrown.\n\t" +
-                        $"[{VMException.code}]\n\t" +
-                        $"'{VMException.msg}'");
-                Console.ForegroundColor = ConsoleColor.White;
-                ValidateLastErrorEvent?.Invoke(VMException);
-                shutdown();
-            }
-        }
-
-        public static void println(string str)
-        {
-            Console.WriteLine(str);
-        }
-
-        internal static bool allow_shutdown_process = true;
-
-        public static void shutdown(int exitCode = -1)
-        {
-            if (allow_shutdown_process)
-                Environment.Exit(exitCode);
-        }
+        public static void shutdown(int exitCode = -1) 
+            => Environment.Exit(exitCode);
 
         public static unsafe void exec_method_native(CallFrame frame)
         {
