@@ -90,6 +90,66 @@
         }
 
         [Theory]
+        [InlineData(6f, OpCodeValue.DIV)]
+        [InlineData(24f, OpCodeValue.MUL)]
+        [InlineData(10f, OpCodeValue.SUB)]
+        [InlineData(14f, OpCodeValue.ADD)]
+        public unsafe void Arithmetic_Float_Test(float expected, OpCodeValue actor)
+        {
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
+            {
+                gen.Emit(OpCodes.LDC_F4, 12f);
+                gen.Emit(OpCodes.LDC_F4, 2f);
+                gen.Emit(OpCodes.all[actor]);
+                gen.Emit(OpCodes.RET);
+            });
+            Validate();
+            Assert.Equal(ManaTypeCode.TYPE_R4, (*result.returnValue).type);
+            Assert.Equal(expected, (*result.returnValue).data.f_r4);
+        }
+
+        [Theory]
+        [InlineData(6, OpCodeValue.DIV)]
+        [InlineData(24, OpCodeValue.MUL)]
+        [InlineData(10, OpCodeValue.SUB)]
+        [InlineData(14, OpCodeValue.ADD)]
+        public unsafe void Arithmetic_Decimal_Test(int expected, OpCodeValue actor)
+        {
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
+            {
+                gen.Emit(OpCodes.LDC_F16, 12m);
+                gen.Emit(OpCodes.LDC_F16, 2m);
+                gen.Emit(OpCodes.all[actor]);
+                gen.Emit(OpCodes.RET);
+            });
+            Validate();
+            Assert.Equal(ManaTypeCode.TYPE_R16, (*result.returnValue).type);
+            Assert.Equal((decimal)expected, (*result.returnValue).data.d);
+        }
+
+        [Theory]
+        [InlineData(6, OpCodeValue.DIV)]
+        [InlineData(24, OpCodeValue.MUL)]
+        [InlineData(10, OpCodeValue.SUB)]
+        [InlineData(14, OpCodeValue.ADD)]
+        public unsafe void Arithmetic_Double_Test(int expected, OpCodeValue actor)
+        {
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
+            {
+                gen.Emit(OpCodes.LDC_F8, 12d);
+                gen.Emit(OpCodes.LDC_F8, 2d);
+                gen.Emit(OpCodes.all[actor]);
+                gen.Emit(OpCodes.RET);
+            });
+            Validate();
+            Assert.Equal(ManaTypeCode.TYPE_R8, (*result.returnValue).type);
+            Assert.Equal((double)expected, (*result.returnValue).data.f);
+        }
+
+        [Theory]
         [InlineData(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
         [InlineData(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
         [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
