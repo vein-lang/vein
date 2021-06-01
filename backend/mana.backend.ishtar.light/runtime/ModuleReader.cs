@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
+    using mana.exceptions;
     using mana.extensions;
     using mana.ishtar.emit;
     using mana.ishtar.emit.extensions;
@@ -23,6 +24,16 @@
 
             var idx = reader.ReadInt32(); // name index
             var vdx = reader.ReadInt32(); // version index
+            var ilVersion = reader.ReadInt32();
+
+            if (ilVersion != OpCodes.SetVersion)
+            {
+                var exp = new ILCompatibleException(ilVersion, OpCodes.SetVersion);
+                
+                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Unable to load assembly: '{exp.Message}'.");
+                VM.ValidateLastError();
+                return null;
+            }
            
             // read strings table
             foreach (var _ in ..reader.ReadInt32())
