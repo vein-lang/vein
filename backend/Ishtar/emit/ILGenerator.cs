@@ -110,9 +110,14 @@ namespace mana.ishtar.emit
         {
             EnsureCapacity<OpCode>(sizeof(decimal));
             InternalEmit(opcode);
-            foreach (var i in decimal.GetBits(arg))
+            var bits = decimal.GetBits(arg);
+            BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), bits.Length);
+            _position += sizeof(int);
+            foreach (var i in bits)
+            {
                 BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), i);
-            _position += sizeof(decimal);
+                _position += sizeof(int);
+            }
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.decimal");
         }
         /// <remarks>
