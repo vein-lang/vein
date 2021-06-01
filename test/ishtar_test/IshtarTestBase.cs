@@ -92,10 +92,13 @@
             _module = module;
             UID = Guid.NewGuid().ToString().Where(char.IsLetter).Join();
             _context = new ExpandoObject();
+            VM.watcher = new TestWatchDog();
         }
         public void Dispose()
         {
-            VM.VMException = null;
+            StringStorage.storage_l.Clear();
+            StringStorage.storage_r.Clear();
+            VM.CurrentException = null;
         }
     }
 
@@ -113,17 +116,14 @@
             }
         }
 
-        private static bool isInited = false;
+        private static volatile bool isInited = false;
 
         protected IshtarTestBase()
         {
             lock (guarder)
             {
-                VM.VMException = null;
                 if (!isInited)
                 {
-                    VM.ValidateLastErrorEvent += VMOnValidateLastErrorEvent;
-                    VM.allow_shutdown_process = false;
                     IshtarCore.INIT();
                     IshtarGC.INIT();
                     FFI.INIT();

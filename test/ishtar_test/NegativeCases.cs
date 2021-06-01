@@ -1,5 +1,6 @@
 ﻿namespace ishtar_test
 {
+    using System;
     using ishtar;
     using Xunit;
     using Xunit.Sdk;
@@ -9,10 +10,10 @@
         [Fact, TestPriority(9999)]
         public unsafe void IncorrectPointerCrashTest()
         {
-            Assert.Throws<FalseException>(() =>
+            Assert.Throws<WatchDogEffluentException>(() =>
             {
-                var invalid = new StrRef {index = ulong.MaxValue};
-                return StringStorage.GetString(&invalid);
+                var invalid = (StrRef*)ulong.MaxValue;
+                return StringStorage.GetString(invalid);
             });
         }
 
