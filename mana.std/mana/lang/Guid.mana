@@ -1,0 +1,23 @@
+#space "mana/lang"
+
+
+
+public struct Guid : ValueType
+{
+    [readonly]
+    public static Empty: Guid = new Guid();
+
+    private _a: Int32;
+    private _b: Int16;
+    private _c: Int16;
+    /*
+    private _d: Byte;
+    private _e: Byte;
+    private _f: Byte;
+    private _g: Byte;
+    private _h: Byte;
+    private _i: Byte;
+    private _j: Byte;
+    private _k: Byte;
+    */
+}
