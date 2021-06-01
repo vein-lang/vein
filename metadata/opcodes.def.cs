@@ -58,107 +58,107 @@ namespace ishtar
 		/// <summary>
 		/// Load constant into stack.
 		/// </summary>
-		LDC_F16 = 0x0D,
+		LDC_F4 = 0x0D,
 		/// <summary>
 		/// Load constant into stack.
 		/// </summary>
-		LDC_F8 = 0x0E,
+		LDC_F2 = 0x0E,
 		/// <summary>
 		/// Load constant into stack.
 		/// </summary>
-		LDC_F4 = 0x0F,
-		/// <summary>
-		/// Load constant into stack.
-		/// </summary>
-		LDC_F2 = 0x10,
-		/// <summary>
-		/// Load constant into stack.
-		/// </summary>
-		LDC_STR = 0x11,
+		LDC_STR = 0x0F,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_0 = 0x12,
+		LDC_I4_0 = 0x10,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_1 = 0x13,
+		LDC_I4_1 = 0x11,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_2 = 0x14,
+		LDC_I4_2 = 0x12,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_3 = 0x15,
+		LDC_I4_3 = 0x13,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_4 = 0x16,
+		LDC_I4_4 = 0x14,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_5 = 0x17,
+		LDC_I4_5 = 0x15,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_S = 0x18,
+		LDC_I4_S = 0x16,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_0 = 0x19,
+		LDC_I2_0 = 0x17,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_1 = 0x1A,
+		LDC_I2_1 = 0x18,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_2 = 0x1B,
+		LDC_I2_2 = 0x19,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_3 = 0x1C,
+		LDC_I2_3 = 0x1A,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_4 = 0x1D,
+		LDC_I2_4 = 0x1B,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_5 = 0x1E,
+		LDC_I2_5 = 0x1C,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_S = 0x1F,
+		LDC_I2_S = 0x1D,
 		/// <summary>
-		/// Load in64 constant into stack.
+		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_0 = 0x20,
+		LDC_I8_0 = 0x1E,
 		/// <summary>
-		/// Load in64 constant into stack.
+		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_1 = 0x21,
+		LDC_I8_1 = 0x1F,
 		/// <summary>
-		/// Load in64 constant into stack.
+		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_2 = 0x22,
+		LDC_I8_2 = 0x20,
 		/// <summary>
-		/// Load in64 constant into stack.
+		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_3 = 0x23,
+		LDC_I8_3 = 0x21,
 		/// <summary>
-		/// Load in64 constant into stack.
+		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_4 = 0x24,
+		LDC_I8_4 = 0x22,
 		/// <summary>
-		/// Load in64 constant into stack.
+		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_5 = 0x25,
+		LDC_I8_5 = 0x23,
 		/// <summary>
-		/// Load in64 constant into stack.
+		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_S = 0x26,
+		LDC_I8_S = 0x24,
+		/// <summary>
+		/// Load float64 constant into stack.
+		/// </summary>
+		LDC_F8 = 0x25,
+		/// <summary>
+		/// Load float128 constant into stack.
+		/// </summary>
+		LDC_F16 = 0x26,
 		/// <summary>
 		/// Reserved operation.
 		/// </summary>
