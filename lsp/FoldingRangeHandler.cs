@@ -20,7 +20,8 @@
         ) =>
             Task.FromResult(
                 new Container<FoldingRange>(
-                    new FoldingRange {
+                    new FoldingRange
+                    {
                         StartLine = 10,
                         EndLine = 20,
                         Kind = FoldingRangeKind.Region,
@@ -30,10 +31,10 @@
                 )
             );
 
-        public FoldingRangeRegistrationOptions GetRegistrationOptions(FoldingRangeCapability capability, ClientCapabilities clientCapabilities) 
+        public FoldingRangeRegistrationOptions GetRegistrationOptions(FoldingRangeCapability capability, ClientCapabilities clientCapabilities)
             => new()
-        {
-            DocumentSelector = DocumentSelector.ForLanguage("mana")
-        };
+            {
+                DocumentSelector = DocumentSelector.ForLanguage("mana")
+            };
     }
 }

@@ -9,14 +9,14 @@
     public abstract class BaseSyntax : IPositionAware<BaseSyntax>, IPassiveParseTransition
     {
         public abstract SyntaxType Kind { get; }
-        
+
         public abstract IEnumerable<BaseSyntax> ChildNodes { get; }
-        
+
         protected IEnumerable<BaseSyntax> GetNodes(params BaseSyntax[] nodes) =>
             nodes.EmptyIfNull().Where(n => n != null);
-        
+
         protected IEnumerable<BaseSyntax> NoChildren => Enumerable.Empty<BaseSyntax>();
-        
+
         public List<string> LeadingComments { get; set; } = new();
         public List<string> TrailingComments { get; set; } = new();
 
@@ -27,13 +27,13 @@
         {
             yield return this;
 
-            if (descendIntoChildren != null && !descendIntoChildren(this)) 
+            if (descendIntoChildren != null && !descendIntoChildren(this))
                 yield break;
             foreach (var child in ChildNodes)
-            foreach (var desc in child.DescendantNodesAndSelf(descendIntoChildren))
-                yield return desc;
+                foreach (var desc in child.DescendantNodesAndSelf(descendIntoChildren))
+                    yield return desc;
         }
-        
+
         public BaseSyntax SetPos(Position startPos, int length)
         {
             Transform = new Transform(startPos, length);
@@ -41,9 +41,9 @@
         }
 
         public bool IsBrokenToken => (this as IPassiveParseTransition).Error != null;
-        
+
         internal Transform Transform { get; set; }
-        
+
         PassiveParseError IPassiveParseTransition.Error { get; set; }
     }
 
@@ -57,7 +57,7 @@
 
     public record PassiveParseError(string Message, IEnumerable<string> Expectations)
     {
-        public string FormatExpectations() 
+        public string FormatExpectations()
             => Expectations.Select(x => $"'{x}'").Join(" or ");
     }
 }

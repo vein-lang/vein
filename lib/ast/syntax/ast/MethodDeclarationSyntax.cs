@@ -31,7 +31,7 @@
             Identifier = typeAndName.Identifier ?? typeAndName.Type.Identifier;
             return this;
         }
-        
+
         public override MemberDeclarationSyntax WithName(IdentifierExpression name)
         {
             Identifier = name;

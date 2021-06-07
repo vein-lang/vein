@@ -10,10 +10,10 @@
 
     public class AssemblyResolver : IAssemblyResolver
     {
-        private readonly List<DirectoryInfo> search_paths = new ();
+        private readonly List<DirectoryInfo> search_paths = new();
         public AssemblyResolver()
         {
-            
+
         }
 
         public AssemblyResolver AddSearchPath(DirectoryInfo dir)
@@ -31,8 +31,8 @@
             }
 
             var asm = IshtarAssembly.LoadFromFile(file);
-            
-            var mod = ModuleReader.Read(asm.Sections.First().data, deps, 
+
+            var mod = ModuleReader.Read(asm.Sections.First().data, deps,
                 (s, v) => ResolveDep(s, v, deps));
 
             return mod;
@@ -44,7 +44,7 @@
             {
                 var files = search_paths
                     .SelectMany(x => x.EnumerateFiles("*.wll"))
-                    .Where(x => 
+                    .Where(x =>
                         x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase))
                     .ToArray();
 

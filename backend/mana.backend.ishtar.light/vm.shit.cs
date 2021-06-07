@@ -8,12 +8,12 @@ namespace ishtar
     using mana.runtime;
     using static OpCodeValue;
     using static mana.runtime.ManaTypeCode;
-    
+
     public static unsafe partial class VM
     {
         private static void act<T>(ref T t1, ref T t2, A_OperationDelegate<T> actor) => actor(ref t1, ref t2);
 
-        public static QualityTypeName readTypeName(uint index, ManaModule module) 
+        public static QualityTypeName readTypeName(uint index, ManaModule module)
             => module.types_table.GetValueOrDefault((int)index);
 
         public static RuntimeIshtarClass GetClass(uint index, ManaModule module, CallFrame frame)
@@ -34,7 +34,7 @@ namespace ishtar
         public static RuntimeIshtarMethod GetMethod(uint index, QualityTypeName owner, ManaModule module, CallFrame frame)
         {
             var clazz = module.FindType(owner);
-            var name = module.GetConstStringByIndex((int) index);
+            var name = module.GetConstStringByIndex((int)index);
 
             var method = clazz.FindMethod(name, m => m.Name.Equals(name));
 
@@ -49,7 +49,7 @@ namespace ishtar
         }
         public static RuntimeIshtarField GetField(uint index, RuntimeIshtarClass owner, ManaModule module, CallFrame frame)
         {
-            var name = module.GetFieldNameByIndex((int) index);
+            var name = module.GetFieldNameByIndex((int)index);
             var field = owner.FindField(name.Name);
 
             if (field is null)
@@ -273,7 +273,7 @@ namespace ishtar
                     }
                 });
             else if (sp[-1].type == TYPE_NONE)
-                println($"@{(OpCodeValue) (*(ip - 1))} 'sp[-1]' incorrect stack type: {sp[-1].type}");
+                println($"@{(OpCodeValue)(*(ip - 1))} 'sp[-1]' incorrect stack type: {sp[-1].type}");
         }
     }
 }

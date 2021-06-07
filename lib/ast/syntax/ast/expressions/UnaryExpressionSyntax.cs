@@ -8,7 +8,7 @@
         public ExpressionSyntax Operand { get; set; }
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Operand);
         public override SyntaxType Kind => SyntaxType.PostfixUnaryExpression;
-        
+
         public override string ToString()
         {
             var str = new StringBuilder();
@@ -21,7 +21,7 @@
             str.Append(")");
             return str.ToString();
         }
-        
+
         public override string ExpressionString => ToString();
     }
 }

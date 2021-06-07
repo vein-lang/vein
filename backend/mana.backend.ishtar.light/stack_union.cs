@@ -3,7 +3,7 @@
     using System;
     using System.Runtime.InteropServices;
 
-    [StructLayout(LayoutKind.Explicit)] 
+    [StructLayout(LayoutKind.Explicit)]
     public unsafe struct stack_union
     {
         [FieldOffset(0)] public sbyte b;

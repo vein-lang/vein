@@ -25,7 +25,7 @@
         {
             if (root is not null)
                 return;
-            var p = (IshtarObject*) Marshal.AllocHGlobal(sizeof(IshtarObject));
+            var p = (IshtarObject*)Marshal.AllocHGlobal(sizeof(IshtarObject));
             GCStats.total_bytes_requested += (ulong)sizeof(IshtarObject);
             GCStats.alive_objects++;
             GCStats.total_allocations++;
@@ -34,7 +34,7 @@
 
         public static stackval* AllocValue()
         {
-            var p = (stackval*) Marshal.AllocHGlobal(sizeof(stackval));
+            var p = (stackval*)Marshal.AllocHGlobal(sizeof(stackval));
             GCStats.total_allocations++;
             GCStats.total_bytes_requested += (ulong)sizeof(stackval);
             return p;
@@ -48,17 +48,17 @@
             return p;
         }
 
-        
-        
-        
-        
+
+
+
+
 
         public static IshtarObject* AllocObject(RuntimeIshtarClass @class, IshtarObject** node = null)
         {
-            var p = (IshtarObject*) Marshal.AllocHGlobal(sizeof(IshtarObject));
+            var p = (IshtarObject*)Marshal.AllocHGlobal(sizeof(IshtarObject));
 
             Unsafe.InitBlock(p, 0, (uint)sizeof(IshtarObject));
-            
+
 
             p->vtable = (void**)Marshal.AllocHGlobal(new IntPtr(sizeof(void*) * (long)@class.computed_size));
             Unsafe.CopyBlock(p->vtable, @class.vtable, (uint)@class.computed_size * (uint)sizeof(void*));
@@ -72,7 +72,7 @@
             if (node is null || *node is null)
                 fixed (IshtarObject** o = &root)
                     p->owner = o;
-            else 
+            else
                 p->owner = node;
 
             return p;

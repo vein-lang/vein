@@ -21,7 +21,7 @@
         public string Token { get; set; }
 
         public LiteralType LiteralType { get; set; }
-        
+
         public override string ExpressionString => Token;
         public new LiteralExpressionSyntax SetPos(Position startPos, int length)
         {
@@ -29,7 +29,7 @@
             return this;
         }
     }
-    
+
     public sealed class StringLiteralExpressionSyntax : LiteralExpressionSyntax
     {
         public StringLiteralExpressionSyntax(string value)
@@ -40,7 +40,7 @@
 
         public string Value => Token;
     }
-    
+
     public sealed class NullLiteralExpressionSyntax : LiteralExpressionSyntax
     {
         public NullLiteralExpressionSyntax()
@@ -49,7 +49,7 @@
             this.LiteralType = LiteralType.Null;
         }
     }
-    
+
     public sealed class BoolLiteralExpressionSyntax : LiteralExpressionSyntax
     {
         public BoolLiteralExpressionSyntax(string value)
@@ -63,7 +63,7 @@
     public abstract class NumericLiteralExpressionSyntax : LiteralExpressionSyntax, IPositionAware<NumericLiteralExpressionSyntax>
     {
         protected NumericLiteralExpressionSyntax() => this.LiteralType = LiteralType.Numeric;
-        
+
         public new NumericLiteralExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
@@ -77,7 +77,7 @@
 
         public UndefinedIntegerNumericLiteral(string val) => this.Value = this.Token = this.ExpressionString = val;
     }
-    public abstract class NumericLiteralExpressionSyntax<T> : NumericLiteralExpressionSyntax 
+    public abstract class NumericLiteralExpressionSyntax<T> : NumericLiteralExpressionSyntax
         where T : IFormattable, IConvertible, IComparable<T>, IEquatable<T>, IComparable
     {
         protected NumericLiteralExpressionSyntax(T value)

@@ -5,6 +5,6 @@
         public ushort iflags;
         public void* Addr;
 
-        public static PInvokeInfo New(void* p) => new() {Addr = p};
+        public static PInvokeInfo New(void* p) => new() { Addr = p };
     }
 }

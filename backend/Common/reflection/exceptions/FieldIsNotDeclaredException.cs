@@ -6,7 +6,7 @@
     {
         public FieldIsNotDeclaredException(FieldName field) : base($"Field '{field.Name}' is not declared.")
         {
-            
+
         }
     }
 }

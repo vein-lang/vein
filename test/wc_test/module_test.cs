@@ -14,15 +14,15 @@
 
     public class module_test
     {
-        
+
         public static List<ManaModule> GetDeps()
         {
             var list = new List<ManaModule>();
 
 
-            var stl = new ManaModuleBuilder("stl", new Version(2,3));
+            var stl = new ManaModuleBuilder("stl", new Version(2, 3));
 
-            foreach (var type in ManaCore.Types.All) 
+            foreach (var type in ManaCore.Types.All)
                 stl.InternTypeName(type.FullName);
             foreach (var type in ManaCore.All)
             {
@@ -64,14 +64,14 @@
                     ManaTypeCode.TYPE_VOID.AsClass());
 
                 var gen = method.GetGenerator();
-            
+
                 gen.Emit(OpCodes.NOP);
 
                 moduleSR.BakeByteArray();
                 moduleSR.BakeDebugString();
 
-                var blank = new IshtarAssembly (moduleSR) { Name = "set1", Version = verSR};
-            
+                var blank = new IshtarAssembly(moduleSR) { Name = "set1", Version = verSR };
+
 
                 IshtarAssembly.WriteTo(blank, new DirectoryInfo("C:/wavelib"));
             }
@@ -91,7 +91,7 @@
                     ManaTypeCode.TYPE_VOID.AsClass());
 
                 var gen = method.GetGenerator();
-            
+
                 gen.Emit(OpCodes.NOP);
 
                 module.BakeByteArray();
@@ -99,8 +99,8 @@
 
                 module.Deps.Add(moduleSR);
 
-                var blank = new IshtarAssembly (module) { Name = "set2", Version = ver};
-            
+                var blank = new IshtarAssembly(module) { Name = "set2", Version = ver };
+
 
                 IshtarAssembly.WriteTo(blank, new DirectoryInfo("C:/wavelib"));
             }
@@ -122,11 +122,11 @@
             //}));
 
 
-           // var resolver = new AssemblyResolver(sdk.RootPath);
+            // var resolver = new AssemblyResolver(sdk.RootPath);
 
             //var result = ModuleReader.Read(bytes, deps, (x,z) => resolver.ResolveDep(x,z,deps));
         }
-        
+
         [Fact(Skip = "MANUAL")]
         public void ReaderTest()
         {
@@ -139,11 +139,11 @@
             //    Sdk = "default"
             //}));
 
-            
+
 
             //var result = ModuleReader.Read(bytes, deps, (x,z) => sdk.ResolveDep(x,z,deps));
-            
-            
+
+
             //Assert.Equal("aspera", result.Name);
             //Assert.NotEmpty(result.class_table);
             //var @class = result.class_table.First();

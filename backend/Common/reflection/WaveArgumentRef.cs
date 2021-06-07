@@ -8,9 +8,9 @@
         [Obsolete]
         public RuntimeToken Token => RuntimeToken.Create(Name);
         public string Name { get; set; }
-        
-        
-        
+
+
+
         public static implicit operator ManaArgumentRef((ManaTypeCode code, string name) data)
         {
             var (code, name) = data;

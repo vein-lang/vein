@@ -20,19 +20,19 @@
         public static volatile NativeException CurrentException;
         public static volatile IWatchDog watcher;
 
-        public static void FastFail(WNE type, string msg, CallFrame frame = null) 
+        public static void FastFail(WNE type, string msg, CallFrame frame = null)
             => watcher?.FastFail(type, msg, frame);
-        public static void ValidateLastError() 
+        public static void ValidateLastError()
             => watcher?.ValidateLastError();
 
         public static void println(string str) => Console.WriteLine(str);
 
-        public static void shutdown(int exitCode = -1) 
+        public static void shutdown(int exitCode = -1)
             => Environment.Exit(exitCode);
 
         public static unsafe void exec_method_native(CallFrame frame)
         {
-            var caller = (delegate*<CallFrame, IshtarObject**, IshtarObject*>) 
+            var caller = (delegate*<CallFrame, IshtarObject**, IshtarObject*>)
                 frame.method.PIInfo.Addr;
             var args_len = frame.method.ArgLength;
             var args = (IshtarObject**)Marshal.AllocHGlobal(sizeof(IshtarObject*) * args_len);
@@ -65,8 +65,8 @@
             var args = invocation.args;
 
             var locals = default(stackval*);
-            
-            
+
+
             var ip = mh.code;
             fixed (stackval* p = GC.AllocateArray<stackval>(mh.max_stack, true))
                 invocation.stack = p;
@@ -115,11 +115,11 @@
                     case DIV:
                         ++ip;
                         --sp;
-                        
+
                         A_OP(sp, 3, ip);
                         break;
                     case DUP:
-                        * sp = sp[-1];
+                        *sp = sp[-1];
                         ++sp;
                         ++ip;
                         break;
@@ -130,9 +130,9 @@
                     case LDARG_4:
                         *sp = args[(*ip) - (short)LDARG_0];
 
-                        #if DEBUG_IL
+#if DEBUG_IL
                         printf("load from args -> %s %d\n", VAL_NAMES[sp->type], sp->data.i);
-                        #endif
+#endif
 
                         ++sp;
                         ++ip;
@@ -177,31 +177,33 @@
                         ++sp;
                         break;
                     case LDC_F8:
-                    {
-                        ++ip;
-                        sp->type = TYPE_R8;
-                        var t1 = (long)*ip;
-                        ++ip;
-                        var t2 = (long)*ip;
-                        sp->data.f = BitConverter.Int64BitsToDouble(t2 << 32 | t1 & 0xffffffffL);
-                        ++ip;
-                        ++sp;
-                    } break;
-                    case LDC_F16:
-                    {
-                        ++ip;
-                        sp->type = TYPE_R16;
-                        var bits = (int)*ip;
-                        var items = new int[bits];
-                        ++ip;
-                        foreach (var i in ..bits)
                         {
-                            items[i] = (int) *ip;
                             ++ip;
+                            sp->type = TYPE_R8;
+                            var t1 = (long)*ip;
+                            ++ip;
+                            var t2 = (long)*ip;
+                            sp->data.f = BitConverter.Int64BitsToDouble(t2 << 32 | t1 & 0xffffffffL);
+                            ++ip;
+                            ++sp;
                         }
-                        sp->data.d = new decimal(items);
-                        ++sp;
-                    } break;
+                        break;
+                    case LDC_F16:
+                        {
+                            ++ip;
+                            sp->type = TYPE_R16;
+                            var bits = (int)*ip;
+                            var items = new int[bits];
+                            ++ip;
+                            foreach (var i in ..bits)
+                            {
+                                items[i] = (int)*ip;
+                                ++ip;
+                            }
+                            sp->data.d = new decimal(items);
+                            ++sp;
+                        }
+                        break;
                     case LDC_I2_S:
                         ++ip;
                         sp->type = TYPE_I2;
@@ -217,16 +219,17 @@
                         ++sp;
                         break;
                     case LDC_I8_S:
-                    {
-                        ++ip;
-                        sp->type = TYPE_I8;
-                        var t1 = (long)*ip;
-                        ++ip;
-                        var t2 = (long)*ip;
-                        sp->data.l = t2 << 32 | t1; 
-                        ++ip;
-                        ++sp;
-                    } break;
+                        {
+                            ++ip;
+                            sp->type = TYPE_I8;
+                            var t1 = (long)*ip;
+                            ++ip;
+                            var t2 = (long)*ip;
+                            sp->data.l = t2 << 32 | t1;
+                            ++ip;
+                            ++sp;
+                        }
+                        break;
                     case RET:
                         ++ip;
                         --sp;
@@ -235,27 +238,27 @@
                         locals = null;
                         return;
                     case STSF:
-                    {
-                        --sp;
-                        var fieldIdx = *++ip;
-                        var @class = GetClass(*++ip, _module, invocation);
-                        var field = GetField(fieldIdx, @class, _module, invocation);
+                        {
+                            --sp;
+                            var fieldIdx = *++ip;
+                            var @class = GetClass(*++ip, _module, invocation);
+                            var field = GetField(fieldIdx, @class, _module, invocation);
 
-                        @class.vtable[field.vtable_offset] = IshtarMarshal.Boxing(invocation, sp);
-                        ++ip;
-                    }
-                    break;
+                            @class.vtable[field.vtable_offset] = IshtarMarshal.Boxing(invocation, sp);
+                            ++ip;
+                        }
+                        break;
                     case LDSF:
-                    {
-                        var fieldIdx = *++ip;
-                        var @class = GetClass(*++ip, _module, invocation);
-                        var field = GetField(fieldIdx, @class, _module, invocation);
+                        {
+                            var fieldIdx = *++ip;
+                            var @class = GetClass(*++ip, _module, invocation);
+                            var field = GetField(fieldIdx, @class, _module, invocation);
 
-                        *sp = IshtarMarshal.UnBoxing(invocation, (IshtarObject*)@class.vtable[field.vtable_offset]);
-                        ++sp;
-                        ++ip;
-                    }
-                    break;
+                            *sp = IshtarMarshal.UnBoxing(invocation, (IshtarObject*)@class.vtable[field.vtable_offset]);
+                            ++sp;
+                            ++ip;
+                        }
+                        break;
                     case LDNULL:
                         sp->type = TYPE_OBJECT;
                         ++sp;
@@ -266,174 +269,177 @@
                         //    sp->data.p = 
                         invocation.exception = new CallFrameException
                         {
-                            last_ip = ip, 
-                            value = (IshtarObject*) sp->data.p
+                            last_ip = ip,
+                            value = (IshtarObject*)sp->data.p
                         };
                         CallFrame.FillStackTrace(invocation);
                         goto case RET;
                     case NEWOBJ:
-                    {
-                        ++ip;
-                        sp->type = TYPE_CLASS;
-                        sp->data.p = (nint)
-                        IshtarGC.AllocObject(
-                            (RuntimeIshtarClass) // TODO optimize search
-                            _module.FindType(_module.GetTypeNameByIndex((int)*ip), true));
-                        ++ip;
-                        ++sp;
-                    } break;
-                    case CALL:
-                    {
-                        ++ip;
-                        var call_ctx = (CallContext)(*ip);
-
-                        if (call_ctx is not (CallContext.THIS_CALL or CallContext.NATIVE_CALL))
-                            throw new NotImplementedException();
-                        var child_frame = new CallFrame();
-                        ++ip;
-                        var tokenIdx = *ip;
-                        var owner = readTypeName(*++ip, _module);
-                        var method = GetMethod(tokenIdx, owner, _module, invocation);
-                        #if DEBUG_IL
-                        printf("%%call %ws self function.\n", method->Name.c_str());
-                        #endif
-
-
-                        var method_args = stackval.Alloc(method.ArgLength);
-                        for (var i = 0; i != method.ArgLength; i++)
                         {
-                            var _a = method.Arguments[i];
-                            // TODO, type eq validate
-                            --sp;
-                            method_args[i] = *sp;
+                            ++ip;
+                            sp->type = TYPE_CLASS;
+                            sp->data.p = (nint)
+                            IshtarGC.AllocObject(
+                                (RuntimeIshtarClass) // TODO optimize search
+                                _module.FindType(_module.GetTypeNameByIndex((int)*ip), true));
+                            ++ip;
+                            ++sp;
                         }
-                        child_frame.level = invocation.level + 1;
-                        child_frame.parent = invocation;
-                        fixed(stackval* p = method_args)
-                            child_frame.args = p;
-                        child_frame.method = method;
-                        if (method.IsExtern)
-                            exec_method_native(child_frame);
-                        else
-                            exec_method(child_frame);
-
-                        if (child_frame.exception is not null)
+                        break;
+                    case CALL:
                         {
-                            invocation.exception = child_frame.exception;
+                            ++ip;
+                            var call_ctx = (CallContext)(*ip);
+
+                            if (call_ctx is not (CallContext.THIS_CALL or CallContext.NATIVE_CALL))
+                                throw new NotImplementedException();
+                            var child_frame = new CallFrame();
+                            ++ip;
+                            var tokenIdx = *ip;
+                            var owner = readTypeName(*++ip, _module);
+                            var method = GetMethod(tokenIdx, owner, _module, invocation);
+#if DEBUG_IL
+                        printf("%%call %ws self function.\n", method->Name.c_str());
+#endif
+
+
+                            var method_args = stackval.Alloc(method.ArgLength);
+                            for (var i = 0; i != method.ArgLength; i++)
+                            {
+                                var _a = method.Arguments[i];
+                                // TODO, type eq validate
+                                --sp;
+                                method_args[i] = *sp;
+                            }
+                            child_frame.level = invocation.level + 1;
+                            child_frame.parent = invocation;
+                            fixed (stackval* p = method_args)
+                                child_frame.args = p;
+                            child_frame.method = method;
+                            if (method.IsExtern)
+                                exec_method_native(child_frame);
+                            else
+                                exec_method(child_frame);
+
+                            if (child_frame.exception is not null)
+                            {
+                                invocation.exception = child_frame.exception;
+                                method_args = null;
+                                child_frame = null;
+                                break;
+                            }
+                            if (method.ReturnType.TypeCode != TYPE_VOID)
+                            {
+                                if (child_frame.returnValue is null)
+                                {
+                                    FastFail(WNE.STATE_CORRUPT, "Method has return zero memory.");
+                                    continue;
+                                }
+                                *sp = *child_frame.returnValue;
+                                sp++;
+                            }
                             method_args = null;
                             child_frame = null;
-                            break;
                         }
-                        if (method.ReturnType.TypeCode != TYPE_VOID)
-                        {
-                            if (child_frame.returnValue is null)
-                            {
-                                FastFail(WNE.STATE_CORRUPT, "Method has return zero memory.");
-                                continue;
-                            }
-                            *sp = *child_frame.returnValue;
-                            sp++;
-                        }
-                        method_args = null;
-                        child_frame = null;
-                    } break;
+                        break;
                     case LOC_INIT:
-                    {
-                        ++ip;
-                        var locals_size = *ip;
-                        fixed(stackval* p = stackval.Alloc((int)locals_size))
-                            locals = p;
-                        ++ip;
-                        for (var i = 0u; i != locals_size; i++)
                         {
-                            var type_name = readTypeName(*++ip, _module);
-                            var type = _module.FindType(type_name, true);
-                            if (type.IsPrimitive)
-                                locals[i].type = type.TypeCode;
-                            else
-                            {
-                                locals[i].type = TYPE_OBJECT;
-                                locals[i].data.p = new IntPtr(0);
-                            }
-
                             ++ip;
-                        }
-                    }
-                    break;
-                    case JMP_L:
-                    {
-                        ++ip;
-                        --sp;
-                        var first = *sp;
-                        --sp;
-                        var second = *sp;
-
-                        if (first.type == second.type)
-                        {
-                            switch (first.type)
+                            var locals_size = *ip;
+                            fixed (stackval* p = stackval.Alloc((int)locals_size))
+                                locals = p;
+                            ++ip;
+                            for (var i = 0u; i != locals_size; i++)
                             {
-                                case TYPE_I1:
-                                    if (first.data.b < second.data.b)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U1:
-                                    if (first.data.ub < second.data.ub)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_I2:
-                                    if (first.data.s < second.data.s)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U2:
-                                    if (first.data.us < second.data.us)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_I4:
-                                    if (first.data.i < second.data.i)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U4:
-                                    if (first.data.ui < second.data.ui)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_I8:
-                                    if (first.data.l < second.data.l)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U8:
-                                    if (first.data.ul < second.data.ul)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R2:
-                                    if (first.data.hf < second.data.hf)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R4:
-                                    if (first.data.f_r4 < second.data.f_r4)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R8:
-                                    if (first.data.f < second.data.f)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R16:
-                                    if (first.data.d < second.data.d)
-                                        jump_now();
-                                    else ++ip; break;
-                                default:
-                                    throw new NotImplementedException();
+                                var type_name = readTypeName(*++ip, _module);
+                                var type = _module.FindType(type_name, true);
+                                if (type.IsPrimitive)
+                                    locals[i].type = type.TypeCode;
+                                else
+                                {
+                                    locals[i].type = TYPE_OBJECT;
+                                    locals[i].data.p = new IntPtr(0);
+                                }
+
+                                ++ip;
                             }
                         }
-                        else
-                            throw new NotImplementedException();
-                    } break;
+                        break;
+                    case JMP_L:
+                        {
+                            ++ip;
+                            --sp;
+                            var first = *sp;
+                            --sp;
+                            var second = *sp;
+
+                            if (first.type == second.type)
+                            {
+                                switch (first.type)
+                                {
+                                    case TYPE_I1:
+                                        if (first.data.b < second.data.b)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U1:
+                                        if (first.data.ub < second.data.ub)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_I2:
+                                        if (first.data.s < second.data.s)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U2:
+                                        if (first.data.us < second.data.us)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_I4:
+                                        if (first.data.i < second.data.i)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U4:
+                                        if (first.data.ui < second.data.ui)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_I8:
+                                        if (first.data.l < second.data.l)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U8:
+                                        if (first.data.ul < second.data.ul)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R2:
+                                        if (first.data.hf < second.data.hf)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R4:
+                                        if (first.data.f_r4 < second.data.f_r4)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R8:
+                                        if (first.data.f < second.data.f)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R16:
+                                        if (first.data.d < second.data.d)
+                                            jump_now();
+                                        else ++ip; break;
+                                    default:
+                                        throw new NotImplementedException();
+                                }
+                            }
+                            else
+                                throw new NotImplementedException();
+                        }
+                        break;
                     case JMP_T:
-                    {
-                        ++ip;
-                        --sp;
-                        var first = *sp;
-                            
-                        switch (first.type)
+                        {
+                            ++ip;
+                            --sp;
+                            var first = *sp;
+
+                            switch (first.type)
                             {
                                 case TYPE_I1:
                                     if (first.data.b != 0)
@@ -486,141 +492,144 @@
                                 default:
                                     throw new NotImplementedException();
                             }
-                    } break;
+                        }
+                        break;
                     case JMP_LQ:
-                    {
-                        ++ip;
-                        --sp;
-                        var first = *sp;
-                        --sp;
-                        var second = *sp;
-
-                        if (first.type == second.type)
                         {
-                            switch (first.type)
+                            ++ip;
+                            --sp;
+                            var first = *sp;
+                            --sp;
+                            var second = *sp;
+
+                            if (first.type == second.type)
                             {
-                                case TYPE_I1:
-                                    if (first.data.b <= second.data.b)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U1:
-                                    if (first.data.ub <= second.data.ub)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_I2:
-                                    if (first.data.s <= second.data.s)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U2:
-                                    if (first.data.us <= second.data.us)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_I4:
-                                    if (first.data.i <= second.data.i)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U4:
-                                    if (first.data.ui <= second.data.ui)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_I8:
-                                    if (first.data.l <= second.data.l)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U8:
-                                    if (first.data.ul <= second.data.ul)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R2:
-                                    if (first.data.hf <= second.data.hf)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R4:
-                                    if (first.data.f_r4 <= second.data.f_r4)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R8:
-                                    if (first.data.f <= second.data.f)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R16:
-                                    if (first.data.d <= second.data.d)
-                                        jump_now();
-                                    else ++ip; break;
-                                default:
-                                    throw new NotImplementedException();
+                                switch (first.type)
+                                {
+                                    case TYPE_I1:
+                                        if (first.data.b <= second.data.b)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U1:
+                                        if (first.data.ub <= second.data.ub)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_I2:
+                                        if (first.data.s <= second.data.s)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U2:
+                                        if (first.data.us <= second.data.us)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_I4:
+                                        if (first.data.i <= second.data.i)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U4:
+                                        if (first.data.ui <= second.data.ui)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_I8:
+                                        if (first.data.l <= second.data.l)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U8:
+                                        if (first.data.ul <= second.data.ul)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R2:
+                                        if (first.data.hf <= second.data.hf)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R4:
+                                        if (first.data.f_r4 <= second.data.f_r4)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R8:
+                                        if (first.data.f <= second.data.f)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R16:
+                                        if (first.data.d <= second.data.d)
+                                            jump_now();
+                                        else ++ip; break;
+                                    default:
+                                        throw new NotImplementedException();
+                                }
                             }
+                            else
+                                throw new NotImplementedException();
                         }
-                        else
-                            throw new NotImplementedException();
-                    } break;
+                        break;
                     case JMP_NN:
-                    {
-                        ++ip;
-                        --sp;
-                        var first = *sp;
-                        --sp;
-                        var second = *sp;
-
-                        if (first.type == second.type)
                         {
-                            switch (first.type)
+                            ++ip;
+                            --sp;
+                            var first = *sp;
+                            --sp;
+                            var second = *sp;
+
+                            if (first.type == second.type)
                             {
-                                case TYPE_I1:
-                                    if (first.data.b != second.data.b)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U1:
-                                    if (first.data.ub != second.data.ub)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_I2:
-                                    if (first.data.s != second.data.s)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U2:
-                                    if (first.data.us != second.data.us)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_I4:
-                                    if (first.data.i != second.data.i)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U4:
-                                    if (first.data.ui != second.data.ui)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_I8:
-                                    if (first.data.l != second.data.l)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_U8:
-                                    if (first.data.ul != second.data.ul)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R2:
-                                    if (first.data.hf != second.data.hf)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R4:
-                                    if (first.data.f_r4 != second.data.f_r4)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R8:
-                                    if (first.data.f != second.data.f)
-                                        jump_now();
-                                    else ++ip; break;
-                                case TYPE_R16:
-                                    if (first.data.d != second.data.d)
-                                        jump_now();
-                                    else ++ip; break;
-                                default:
-                                    throw new NotImplementedException();
+                                switch (first.type)
+                                {
+                                    case TYPE_I1:
+                                        if (first.data.b != second.data.b)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U1:
+                                        if (first.data.ub != second.data.ub)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_I2:
+                                        if (first.data.s != second.data.s)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U2:
+                                        if (first.data.us != second.data.us)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_I4:
+                                        if (first.data.i != second.data.i)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U4:
+                                        if (first.data.ui != second.data.ui)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_I8:
+                                        if (first.data.l != second.data.l)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_U8:
+                                        if (first.data.ul != second.data.ul)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R2:
+                                        if (first.data.hf != second.data.hf)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R4:
+                                        if (first.data.f_r4 != second.data.f_r4)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R8:
+                                        if (first.data.f != second.data.f)
+                                            jump_now();
+                                        else ++ip; break;
+                                    case TYPE_R16:
+                                        if (first.data.d != second.data.d)
+                                            jump_now();
+                                        else ++ip; break;
+                                    default:
+                                        throw new NotImplementedException();
+                                }
                             }
+                            else
+                                throw new NotImplementedException();
                         }
-                        else
-                            throw new NotImplementedException();
-                    } break;
+                        break;
                     case JMP:
                         ++ip;
                         jump_now();
@@ -630,10 +639,10 @@
                     case LDLOC_2:
                     case LDLOC_3:
                     case LDLOC_4:
-                        * sp = locals[(*ip) - (int)LDLOC_0];
-                        #if DEBUG_IL
+                        *sp = locals[(*ip) - (int)LDLOC_0];
+#if DEBUG_IL
                         printf("load from locals -> %s %d\n", VAL_NAMES[sp->type], sp->data.i);
-                        #endif
+#endif
                         ++ip;
                         ++sp;
                         break;
@@ -644,9 +653,9 @@
                     case STLOC_4:
                         --sp;
                         locals[(*ip) - (int)STLOC_0] = *sp;
-                        #if DEBUG_IL
+#if DEBUG_IL
                         printf("load from locals -> %s %d\n", VAL_NAMES[sp->type], sp->data.i);
-                        #endif
+#endif
                         ++ip;
                         break;
                     case RESERVED_0:
@@ -674,15 +683,16 @@
                         println($"*** END GC DUMP ***");
                         break;
                     case LDC_STR:
-                    {
-                        ++ip;
-                        sp->type = TYPE_STRING;
-                        var str = _module.GetConstStringByIndex((int) *ip);
-                        sp->data.p = (nint)IshtarMarshal.ToIshtarObject(str, invocation);
-                        ++sp;
-                        ++ip;
+                        {
+                            ++ip;
+                            sp->type = TYPE_STRING;
+                            var str = _module.GetConstStringByIndex((int)*ip);
+                            sp->data.p = (nint)IshtarMarshal.ToIshtarObject(str, invocation);
+                            ++sp;
+                            ++ip;
 
-                    } break;
+                        }
+                        break;
                     default:
                         CallFrame.FillStackTrace(invocation);
 

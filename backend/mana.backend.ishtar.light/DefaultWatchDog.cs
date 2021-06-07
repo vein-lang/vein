@@ -10,7 +10,7 @@
         {
             lock (guarder)
             {
-                var result = new NativeException {code = type, msg = msg, frame = frame};
+                var result = new NativeException { code = type, msg = msg, frame = frame };
                 Interlocked.Exchange(ref VM.CurrentException, result);
             }
         }

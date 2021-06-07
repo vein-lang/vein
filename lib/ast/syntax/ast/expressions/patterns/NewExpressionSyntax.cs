@@ -17,7 +17,7 @@
             TargetType = type;
             CtorArgs = args.EmptyIfNull().ToList();
         }
-        
+
         public new NewExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);

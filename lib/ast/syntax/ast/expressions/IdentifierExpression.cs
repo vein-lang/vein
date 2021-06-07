@@ -5,7 +5,7 @@
 
     public class IdentifierExpression : ExpressionSyntax, IPositionAware<IdentifierExpression>, IEquatable<IdentifierExpression>
     {
-        public IdentifierExpression(string name) : base(name) 
+        public IdentifierExpression(string name) : base(name)
             => this.ExpressionString = name;
 
         public new IdentifierExpression SetPos(Position startPos, int length)
@@ -13,7 +13,7 @@
             base.SetPos(startPos, length);
             return this;
         }
-        
+
         public bool Equals(IdentifierExpression other)
         {
             if (other is null)
@@ -26,16 +26,16 @@
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((IdentifierExpression) obj);
+            return Equals((IdentifierExpression)obj);
         }
 
-        public override int GetHashCode() 
+        public override int GetHashCode()
             => this.ExpressionString.GetHashCode();
 
-        public static bool operator ==(IdentifierExpression left, IdentifierExpression right) 
+        public static bool operator ==(IdentifierExpression left, IdentifierExpression right)
             => Equals(left, right);
 
-        public static bool operator !=(IdentifierExpression left, IdentifierExpression right) 
+        public static bool operator !=(IdentifierExpression left, IdentifierExpression right)
             => !Equals(left, right);
 
         public override string ToString() =>

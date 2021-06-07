@@ -8,7 +8,7 @@
     {
         public TypeSyntax Typeword { get; set; }
 
-        public TypeExpression(TypeSyntax typeword) : base(typeword.Identifier.ExpressionString) 
+        public TypeExpression(TypeSyntax typeword) : base(typeword.Identifier.ExpressionString)
             => this.Typeword = typeword;
 
         public new TypeExpression SetPos(Position startPos, int length)

@@ -5,10 +5,10 @@
 
     public class MaybeMismatchTypeException : Exception
     {
-        public MaybeMismatchTypeException(ManaField field, ValueWasIncorrectException exp) 
+        public MaybeMismatchTypeException(ManaField field, ValueWasIncorrectException exp)
             : base($"field: '{field.FullName}'", exp)
         {
-            
+
         }
     }
 }

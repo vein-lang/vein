@@ -30,7 +30,7 @@
                 {
                     throw new ObjectIsNotValueType($"{e.Message}, '{value}', {value.GetType()}, '{key}'");
                 }
-               
+
             }
 
             return mem.ToArray(); // (int)Convert.ChangeType("12", typeof(int))

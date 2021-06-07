@@ -1,6 +1,6 @@
-﻿namespace mana.fs.elf 
+﻿namespace mana.fs.elf
 {
-    public enum ElfDataType : byte 
+    public enum ElfDataType : byte
     {
         None = 0,
         Lsb = 1,

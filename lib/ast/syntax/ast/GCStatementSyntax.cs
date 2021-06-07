@@ -16,8 +16,8 @@
             }
         }
 
-        public bool IsAuto { get;set; }
-        public bool IsNoControl { get;set; }
+        public bool IsAuto { get; set; }
+        public bool IsNoControl { get; set; }
         public new BlockSyntax Body { get; set; }
     }
 }

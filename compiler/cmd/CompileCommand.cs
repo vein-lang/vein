@@ -38,7 +38,7 @@
                 return -1;
             }
             var project = ManaProject.LoadFrom(new(Path.GetFullPath(settings.Project)));
-            
+
             if (!project.Sources.Any())
             {
                 MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] has empty.");
@@ -52,48 +52,48 @@
             }
 
             project.Runtime ??= project.SDK.GetDefaultPack().Alias;
-            
-            
+
+
             MarkupLine($"[blue]INF[/]: Project [orange]'{name}'[/].");
             MarkupLine($"[blue]INF[/]: SDK [orange]'{project.SDK.Name} v{project.SDK.Version}'[/].");
             MarkupLine($"[blue]INF[/]: Runtime [orange]'{project.Runtime}'[/].");
 
 
-            var c = Compiler.Process(project.Sources.Select(x => new FileInfo(x)).ToArray(), 
+            var c = Compiler.Process(project.Sources.Select(x => new FileInfo(x)).ToArray(),
                 project, settings);
 
             if (c.errors.Count > 0)
             {
-                var rule1 = new Rule($"[yellow]{c.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
+                var rule1 = new Rule($"[yellow]{c.errors.Count} error found[/]") { Style = Style.Parse("red rapidblink") };
                 Render(rule1);
             }
-            
+
             foreach (var error in c.errors)
                 MarkupLine($"[red]ERR[/]: {error}");
 
             if (c.warnings.Count > 0)
             {
-                var rule2 = new Rule($"[yellow]{c.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
+                var rule2 = new Rule($"[yellow]{c.warnings.Count} warning found[/]") { Style = Style.Parse("orange rapidblink") };
                 Render(rule2);
             }
 
             foreach (var warn in c.warnings)
                 MarkupLine($"[orange]WARN[/]: {warn}");
-            
+
             if (!c.warnings.Any() && !c.errors.Any())
                 MarkupLine($"\n\n\n");
-            
+
             if (c.errors.Count > 0)
             {
-                
-                var rule3 = new Rule($"[red bold]COMPILATION FAILED[/]") {Style = Style.Parse("lime rapidblink")};
+
+                var rule3 = new Rule($"[red bold]COMPILATION FAILED[/]") { Style = Style.Parse("lime rapidblink") };
                 Render(rule3);
                 MarkupLine($"\n");
                 return -1;
             }
             else
             {
-                var rule3 = new Rule($"[green bold]COMPILATION SUCCESS[/]") {Style = Style.Parse("lime rapidblink")};
+                var rule3 = new Rule($"[green bold]COMPILATION SUCCESS[/]") { Style = Style.Parse("lime rapidblink") };
                 Render(rule3);
                 MarkupLine($"\n");
                 return 0;

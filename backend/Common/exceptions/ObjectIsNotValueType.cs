@@ -6,7 +6,7 @@
     {
         public ObjectIsNotValueType(string msg) : base(msg)
         {
-            
+
         }
     }
 }

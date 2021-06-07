@@ -50,25 +50,25 @@
             internal static void Init()
             {
                 var asmName = "corlib%";
-                ObjectType      = new ManaTypeImpl($"{asmName}global::mana/lang/Object"   , ManaTypeCode.TYPE_OBJECT);
-                ValueType       = new ManaTypeImpl($"{asmName}global::mana/lang/ValueType", ManaTypeCode.TYPE_CLASS);
-                VoidType        = new ManaTypeImpl($"{asmName}global::mana/lang/Void"     , ManaTypeCode.TYPE_VOID);
-                StringType      = new ManaTypeImpl($"{asmName}global::mana/lang/String"   , ManaTypeCode.TYPE_STRING);
-                ByteType        = new ManaTypeImpl($"{asmName}global::mana/lang/Byte"     , ManaTypeCode.TYPE_I1);
-                Int16Type       = new ManaTypeImpl($"{asmName}global::mana/lang/Int16"    , ManaTypeCode.TYPE_I2);
-                Int32Type       = new ManaTypeImpl($"{asmName}global::mana/lang/Int32"    , ManaTypeCode.TYPE_I4);
-                Int64Type       = new ManaTypeImpl($"{asmName}global::mana/lang/Int64"    , ManaTypeCode.TYPE_I8);
-                UInt16Type      = new ManaTypeImpl($"{asmName}global::mana/lang/UInt16"   , ManaTypeCode.TYPE_U2);
-                UInt32Type      = new ManaTypeImpl($"{asmName}global::mana/lang/UInt32"   , ManaTypeCode.TYPE_U4);
-                UInt64Type      = new ManaTypeImpl($"{asmName}global::mana/lang/UInt64"   , ManaTypeCode.TYPE_U8);
-                HalfType        = new ManaTypeImpl($"{asmName}global::mana/lang/Half"     , ManaTypeCode.TYPE_R2);
-                FloatType       = new ManaTypeImpl($"{asmName}global::mana/lang/Float"    , ManaTypeCode.TYPE_R4);
-                DoubleType      = new ManaTypeImpl($"{asmName}global::mana/lang/Double"   , ManaTypeCode.TYPE_R8);
-                DecimalType     = new ManaTypeImpl($"{asmName}global::mana/lang/Decimal"  , ManaTypeCode.TYPE_R16);
-                CharType        = new ManaTypeImpl($"{asmName}global::mana/lang/Char"     , ManaTypeCode.TYPE_CHAR);
-                BoolType        = new ManaTypeImpl($"{asmName}global::mana/lang/Boolean"  , ManaTypeCode.TYPE_BOOLEAN);
-                ArrayType       = new ManaTypeImpl($"{asmName}global::mana/lang/Array"    , ManaTypeCode.TYPE_ARRAY);
-                ExceptionType   = new ManaTypeImpl($"{asmName}global::mana/lang/Exception", ManaTypeCode.TYPE_CLASS);
+                ObjectType = new ManaTypeImpl($"{asmName}global::mana/lang/Object", ManaTypeCode.TYPE_OBJECT);
+                ValueType = new ManaTypeImpl($"{asmName}global::mana/lang/ValueType", ManaTypeCode.TYPE_CLASS);
+                VoidType = new ManaTypeImpl($"{asmName}global::mana/lang/Void", ManaTypeCode.TYPE_VOID);
+                StringType = new ManaTypeImpl($"{asmName}global::mana/lang/String", ManaTypeCode.TYPE_STRING);
+                ByteType = new ManaTypeImpl($"{asmName}global::mana/lang/Byte", ManaTypeCode.TYPE_I1);
+                Int16Type = new ManaTypeImpl($"{asmName}global::mana/lang/Int16", ManaTypeCode.TYPE_I2);
+                Int32Type = new ManaTypeImpl($"{asmName}global::mana/lang/Int32", ManaTypeCode.TYPE_I4);
+                Int64Type = new ManaTypeImpl($"{asmName}global::mana/lang/Int64", ManaTypeCode.TYPE_I8);
+                UInt16Type = new ManaTypeImpl($"{asmName}global::mana/lang/UInt16", ManaTypeCode.TYPE_U2);
+                UInt32Type = new ManaTypeImpl($"{asmName}global::mana/lang/UInt32", ManaTypeCode.TYPE_U4);
+                UInt64Type = new ManaTypeImpl($"{asmName}global::mana/lang/UInt64", ManaTypeCode.TYPE_U8);
+                HalfType = new ManaTypeImpl($"{asmName}global::mana/lang/Half", ManaTypeCode.TYPE_R2);
+                FloatType = new ManaTypeImpl($"{asmName}global::mana/lang/Float", ManaTypeCode.TYPE_R4);
+                DoubleType = new ManaTypeImpl($"{asmName}global::mana/lang/Double", ManaTypeCode.TYPE_R8);
+                DecimalType = new ManaTypeImpl($"{asmName}global::mana/lang/Decimal", ManaTypeCode.TYPE_R16);
+                CharType = new ManaTypeImpl($"{asmName}global::mana/lang/Char", ManaTypeCode.TYPE_CHAR);
+                BoolType = new ManaTypeImpl($"{asmName}global::mana/lang/Boolean", ManaTypeCode.TYPE_BOOLEAN);
+                ArrayType = new ManaTypeImpl($"{asmName}global::mana/lang/Array", ManaTypeCode.TYPE_ARRAY);
+                ExceptionType = new ManaTypeImpl($"{asmName}global::mana/lang/Exception", ManaTypeCode.TYPE_CLASS);
             }
         }
         public static ManaClass ObjectClass;
@@ -113,7 +113,7 @@
             ArrayClass,
             ExceptionClass
         };
-        
+
         public static void Init()
         {
             Types.Init();
@@ -137,10 +137,10 @@
             ArrayClass = new ManaClass(Types.ArrayType, ObjectClass);
             ExceptionClass = new ManaClass(Types.ExceptionType, ObjectClass);
         }
-        
+
         static ManaCore()
         {
-            
+
         }
     }
 }

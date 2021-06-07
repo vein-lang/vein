@@ -8,7 +8,7 @@
 
     public static class ManaParserExtensions
     {
-        internal static Action<string> _log = s => {};
+        internal static Action<string> _log = s => { };
         static int _instance;
 
         public static Parser<T> Log<T>(this Parser<T> parser, string name)
@@ -23,10 +23,10 @@
                 return result;
             };
         }
-        
-        
-        
-        public static IEnumerable<T> GetOrEmpty<T>(this IOption<IEnumerable<T>> option) 
+
+
+
+        public static IEnumerable<T> GetOrEmpty<T>(this IOption<IEnumerable<T>> option)
             => option.GetOrElse(Array.Empty<T>());
 
         public static T ParseMana<T>(this Parser<T> parser, string input)
@@ -36,7 +36,7 @@
             {
                 return result.Value;
             }
-            throw new ManaParseException(result.Message, 
+            throw new ManaParseException(result.Message,
                 new Position(result.Remainder.Position, result.Remainder.Line, result.Remainder.Column));
         }
 
@@ -120,13 +120,13 @@
             };
         }
     }
-    
-    
+
+
     public interface ICommentParserProvider
     {
         IComment CommentParser { get; }
     }
-    
+
     public class ManaParseException : ParseException
     {
         public ManaParseException(string message, Position pos)

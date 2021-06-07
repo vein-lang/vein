@@ -17,8 +17,8 @@
         public ManaTypeCode TypeCode { get; set; } = ManaTypeCode.TYPE_CLASS;
         public bool IsPrimitive => TypeCode != ManaTypeCode.TYPE_CLASS && TypeCode != ManaTypeCode.TYPE_NONE;
         public ManaModule Owner { get; set; }
-        public List<Aspect> Aspects { get; } = new ();
-        
+        public List<Aspect> Aspects { get; } = new();
+
         internal ManaClass(QualityTypeName name, ManaClass parent, ManaModule module)
         {
             this.FullName = name;
@@ -31,8 +31,8 @@
             this.Parent = parent;
             this.TypeCode = type.TypeCode;
         }
-        protected ManaClass() {  }
-        
+        protected ManaClass() { }
+
         internal ManaMethod DefineMethod(string name, ManaClass returnType, MethodFlags flags, params ManaArgumentRef[] args)
         {
             var method = new ManaMethod(name, flags, returnType, this, args);
@@ -54,14 +54,14 @@
 
         public virtual ManaMethod GetDefaultDtor() => GetOrCreateTor("dtor()");
         public virtual ManaMethod GetDefaultCtor() => GetOrCreateTor("ctor()");
-        
+
         public virtual ManaMethod GetStaticCtor() => GetOrCreateTor("type_ctor()", true);
 
 
-        protected virtual ManaMethod GetOrCreateTor(string name, bool isStatic = false) 
+        protected virtual ManaMethod GetOrCreateTor(string name, bool isStatic = false)
             => Methods.FirstOrDefault(x => x.IsStatic == isStatic && x.Name.Equals(name));
 
-        public override string ToString() 
+        public override string ToString()
             => $"{FullName}, {Flags} ({Parent?.FullName})";
 
 
@@ -77,7 +77,7 @@
             return result ?? Parent?.FindMethod(name, args_types);
         }
 
-        public ManaField? FindField(string name) => 
+        public ManaField? FindField(string name) =>
             this.Fields.FirstOrDefault(x => x.Name.Equals(name)) ?? Parent?.FindField(name);
 
 
@@ -100,7 +100,7 @@
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(FullName, other.FullName) && 
+            return Equals(FullName, other.FullName) &&
                    Equals(Parent, other.Parent);
         }
 
@@ -109,10 +109,10 @@
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((ManaClass) obj);
+            return Equals((ManaClass)obj);
         }
 
-        public override int GetHashCode() 
+        public override int GetHashCode()
             => HashCode.Combine(FullName, Parent);
 
         public static bool operator ==(ManaClass left, ManaClass right) => Equals(left, right);

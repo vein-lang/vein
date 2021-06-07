@@ -14,7 +14,7 @@
 
         public string Identifier { get; set; }
     }
-    
+
     public class EnumDeclarationSyntax : MemberDeclarationSyntax
     {
         public EnumDeclarationSyntax(MemberDeclarationSyntax heading = null)

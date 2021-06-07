@@ -13,12 +13,12 @@
         {
             //Console.WriteLine($"{":gear:".Emoji()} Initialized regeneration runtime libraries...");
 
-            
+
             //var stllib = new ManaModuleBuilder("stl");
             //Console.WriteLine($"{":smoking:".Emoji()} Generate stl.lib...");
-            
+
             //BuiltinGen.GenerateConsole(stllib);
-            
+
             //var asm = new IshtarAssembly(stllib);
             //IshtarAssembly.WriteTo(asm, 
             //    new DirectoryInfo(@"C:\Program Files (x86)\ManaLang\sdk\0.1-preview\runtimes\any"));
@@ -39,8 +39,8 @@
 
 
     }
-    
-    
+
+
     public abstract class Command
     {
         protected static Task<int> Success() => Task.FromResult(0);

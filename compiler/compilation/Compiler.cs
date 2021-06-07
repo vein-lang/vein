@@ -32,7 +32,7 @@
         public static Compiler Process(FileInfo[] entity, ManaProject project, CompileSettings flags)
         {
             var c = new Compiler(project, flags);
-            
+
             return Status()
                 .Spinner(Spinner.Known.Dots8Bit)
                 .Start("Processing...", ctx =>
@@ -56,20 +56,20 @@
             _flags = flags;
             Project = project;
             var pack = project.SDK.GetPackByAlias(project.Runtime);
-            resolver.AddSearchPath(new (project.WorkDir));
-            resolver.AddSearchPath(new (project.SDK.GetFullPath(pack)));
+            resolver.AddSearchPath(new(project.WorkDir));
+            resolver.AddSearchPath(new(project.SDK.GetFullPath(pack)));
         }
 
         internal ManaProject Project { get; set; }
 
         internal readonly CompileSettings _flags;
         internal readonly ManaSyntax syntax = new();
-        internal readonly AssemblyResolver resolver = new ();
-        internal readonly Dictionary<FileInfo, string> Sources = new ();
+        internal readonly AssemblyResolver resolver = new();
+        internal readonly Dictionary<FileInfo, string> Sources = new();
         internal readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
         internal StatusContext Status;
-        public readonly List<string> warnings = new ();
-        public readonly List<string> errors = new ();
+        public readonly List<string> warnings = new();
+        public readonly List<string> errors = new();
         internal ManaModuleBuilder module;
         internal GeneratorContext Context;
 
@@ -178,7 +178,7 @@
         public List<(ClassBuilder clazz, ClassDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc)
         {
             var classes = new List<(ClassBuilder clazz, ClassDeclarationSyntax member)>();
-            
+
             foreach (var member in doc.Members)
             {
                 if (member is ClassDeclarationSyntax clazz)
@@ -192,7 +192,7 @@
                 else
                     warnings.Add($"[grey]Member[/] [yellow underline]'{member.GetType().Name}'[/] [grey]is not supported.[/]");
             }
-            
+
             return classes;
         }
 
@@ -203,7 +203,7 @@
             {
                 var result = ManaCore.All.
                     FirstOrDefault(x => x.FullName.Name.Equals(member.Identifier.ExpressionString));
-               
+
                 if (result is not null)
                 {
                     var clz = new ClassBuilder(module, result);
@@ -234,8 +234,8 @@
         }
 
         private void CompileAnnotation(
-            List<AnnotationSyntax> annotations, 
-            Func<AnnotationSyntax, string> nameGenerator, 
+            List<AnnotationSyntax> annotations,
+            Func<AnnotationSyntax, string> nameGenerator,
             DocumentDeclaration doc)
         {
             foreach (var annotation in annotations.Where(annotation => annotation.Args.Length != 0))
@@ -266,21 +266,21 @@
             var (@class, member) = x;
             var doc = member.OwnerDocument;
             @class.Flags = GenerateClassFlags(member);
-            
+
             var owner = member.Inheritances.FirstOrDefault();
 
             // ignore core base types
             if (member.Identifier.ExpressionString is "Object" or "ValueType") // TODO
                 return;
-            
+
             // TODO set for struct ValueType owner
-            owner ??= new TypeSyntax(new IdentifierExpression("Object")); 
+            owner ??= new TypeSyntax(new IdentifierExpression("Object"));
 
             @class.Parent = FetchType(owner, doc);
         }
         public (
-            List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods, 
-            List<(ManaField field, FieldDeclarationSyntax syntax)>) 
+            List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods,
+            List<(ManaField field, FieldDeclarationSyntax syntax)>)
             LinkMethods((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
             var (@class, clazzSyntax) = x;
@@ -318,18 +318,18 @@
             return (methods, fields);
         }
 
-        public (MethodBuilder method, MethodDeclarationSyntax syntax) 
+        public (MethodBuilder method, MethodDeclarationSyntax syntax)
             CompileMethod(MethodDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
             CompileAnnotation(member, doc);
 
             var retType = FetchType(member.ReturnType, doc);
-            
+
             if (retType is null)
                 return default;
-            
+
             var args = GenerateArgument(member, doc);
-            
+
             var method = clazz.DefineMethod(member.Identifier.ExpressionString, GenerateMethodFlags(member), retType, args);
 
             method.Owner = clazz;
@@ -375,7 +375,7 @@
 
 
             var pctor = @class.Parent?.GetDefaultCtor();
-            
+
             if (pctor is not null) // for Object, ValueType
                 gen.Emit(OpCodes.CALL, pctor); // call parent ctor
             var pregen = new List<(ExpressionSyntax exp, ManaField field)>();
@@ -467,16 +467,16 @@
             }
             var (method, member) = t;
 
-            foreach (var pr in member.Body.Statements.SelectMany(x => x.ChildNodes.Concat(new []{x})))
+            foreach (var pr in member.Body.Statements.SelectMany(x => x.ChildNodes.Concat(new[] { x })))
                 AnalyzeStatement(pr, member);
 
-            
+
             var generator = method.GetGenerator();
             Context.Document = member.OwnerClass.OwnerDocument;
             Context.CurrentMethod = method;
             Context.CreateScope();
             generator.StoreIntoMetadata("context", Context);
-            
+
             foreach (var statement in member.Body.Statements)
             {
                 try
@@ -500,7 +500,7 @@
 
         private void AnalyzeStatement(BaseSyntax statement, MethodDeclarationSyntax member)
         {
-            if (statement is not IPassiveParseTransition {IsBrokenToken: true} transition) 
+            if (statement is not IPassiveParseTransition { IsBrokenToken: true } transition)
                 return;
             var doc = member.OwnerClass.OwnerDocument;
             var pos = statement.Transform.pos;
@@ -508,7 +508,7 @@
             var diff_err = statement.Transform.DiffErrorFull(doc);
             errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
                        $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
-                       $"in '[orange bold]{doc.FileEntity}[/]'."+
+                       $"in '[orange bold]{doc.FileEntity}[/]'." +
                        $"{diff_err}");
         }
         public void GenerateField((ManaField field, FieldDeclarationSyntax member) t)
@@ -518,7 +518,7 @@
                 errors.Add($"[red bold]Unknown error[/] in [italic]GenerateBody(...);[/]");
                 return;
             }
-            
+
 
             var (field, member) = t;
             var doc = member.OwnerClass.OwnerDocument;
@@ -535,7 +535,7 @@
                     if (!field.FieldType.TypeCode.CanImplicitlyCast(numeric))
                     {
                         var diff_err = literal.Transform.DiffErrorFull(doc);
-                        
+
                         var value = numeric.GetTypeCode();
                         var variable = member.Type.Identifier;
                         var variable1 = field.FieldType.TypeCode;
@@ -545,7 +545,7 @@
                             $"'[purple underline]{numeric.GetTypeCode().AsClass().Name}[/]' to " +
                             $"'[purple underline]{field.FieldType.Name}[/]'.\n\t" +
                             $"at '[orange bold]{numeric.Transform.pos.Line} line, {numeric.Transform.pos.Column} column[/]' \n\t" +
-                            $"in '[orange bold]{doc.FileEntity}[/]'."+
+                            $"in '[orange bold]{doc.FileEntity}[/]'." +
                             $"{diff_err}");
                     }
                 }
@@ -557,13 +557,13 @@
                         $"'[purple underline]{literal.GetTypeCode().AsClass().Name}[/]' to " +
                         $"'[purple underline]{member.Type.Identifier}[/]'.\n\t" +
                         $"at '[orange bold]{literal.Transform.pos.Line} line, {literal.Transform.pos.Column} column[/]' \n\t" +
-                        $"in '[orange bold]{doc.FileEntity}[/]'."+
+                        $"in '[orange bold]{doc.FileEntity}[/]'." +
                         $"{diff_err}");
                 }
             }
 
             var clazz = field.Owner;
-            
+
             if (member.Modifiers.Any(x => x.ModificatorKind == ModificatorKind.Const))
             {
                 var assigner = member.Field.Expression;
@@ -574,7 +574,7 @@
                     errors.Add(
                         $"[red bold]The expression being assigned to[/] '[purple underline]{member.Field.Identifier}[/]' [red bold]must be constant[/]. \n\t" +
                         $"at '[orange bold]{assigner.Transform.pos.Line} line, {assigner.Transform.pos.Column} column[/]' \n\t" +
-                        $"in '[orange bold]{doc.FileEntity}[/]'."+
+                        $"in '[orange bold]{doc.FileEntity}[/]'." +
                         $"{diff_err}");
                     return;
                 }
@@ -624,25 +624,25 @@
         {
             ApplyTypeWord(typename);
             var retType = module.TryFindType(typename.Identifier.ExpressionString, doc.Includes);
-            
-            if (retType is null) 
+
+            if (retType is null)
                 errors.Add($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]' \n\t" +
                            $"at '[orange bold]{typename.Transform.pos.Line} line, {typename.Transform.pos.Column} column[/]' \n\t" +
                            $"in '[orange bold]{doc.FileEntity}[/]'.");
             return retType;
         }
-        
+
         private ManaArgumentRef[] GenerateArgument(MethodDeclarationSyntax method, DocumentDeclaration doc)
         {
             if (method.Parameters.Count == 0)
                 return Array.Empty<ManaArgumentRef>();
             return method.Parameters.Select(parameter => new ManaArgumentRef
-                {Type = FetchType(parameter.Type, doc), Name = parameter.Identifier.ExpressionString})
+            { Type = FetchType(parameter.Type, doc), Name = parameter.Identifier.ExpressionString })
                 .ToArray();
         }
         private ClassFlags GenerateClassFlags(ClassDeclarationSyntax clazz)
         {
-            var flags = (ClassFlags) 0;
+            var flags = (ClassFlags)0;
 
             var annotations = clazz.Annotations;
             var mods = clazz.Modifiers;
@@ -797,7 +797,7 @@
         private void PrintError(string text, BaseSyntax posed, DocumentDeclaration doc)
         {
             var strBuilder = new StringBuilder();
-            
+
             strBuilder.Append($"{text.EscapeArgumentSymbols()}\n");
             if (posed is not null)
             {
@@ -908,7 +908,7 @@
         public static StatusContext ManaStatus(this StatusContext context, string status)
         {
             if (context == null)
-                throw new ArgumentNullException(nameof (context));
+                throw new ArgumentNullException(nameof(context));
             Thread.Sleep(10); // so, i need it :(
             context.Status = status;
             return context;

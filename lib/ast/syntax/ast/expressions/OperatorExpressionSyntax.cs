@@ -6,7 +6,7 @@
     {
         public ExpressionType OperatorType { get; set; }
 
-        public OperatorExpressionSyntax()  { }
+        public OperatorExpressionSyntax() { }
 
         public OperatorExpressionSyntax(ExpressionType exp) => this.OperatorType = exp;
     }

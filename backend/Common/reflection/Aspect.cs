@@ -22,7 +22,7 @@ namespace mana.reflection
     public class AspectOfClass : Aspect
     {
         public string ClassName { get; }
-        public AspectOfClass(string name, string className) : base(name, AspectTarget.Class) 
+        public AspectOfClass(string name, string className) : base(name, AspectTarget.Class)
             => ClassName = className;
         public override string ToString() => $"Aspect '{Name}' for '{ClassName}' class";
     }
@@ -55,14 +55,14 @@ namespace mana.reflection
         public string Name { get; }
         public AspectTarget Target { get; }
 
-        public List<AspectArgument> Arguments = new ();
+        public List<AspectArgument> Arguments = new();
         public Aspect(string name, AspectTarget target)
         {
             Name = name;
             Target = target;
         }
 
-        internal void DefineArgument(int index, object value) 
+        internal void DefineArgument(int index, object value)
             => Arguments.Add(new AspectArgument(this, value, index));
 
 
@@ -84,7 +84,7 @@ namespace mana.reflection
             var aspects = new List<Aspect>();
 
             // shit
-            var groups = 
+            var groups =
                 dictionary.Where(x => x.Key.fullName.StartsWith("aspect/"))
                     .Select(x => (getTarget(x.Key), x))
                 .GroupBy(x => x.Item1)
@@ -175,9 +175,9 @@ namespace mana.reflection
 
     public class UnknownAspectTargetException : Exception
     {
-        public UnknownAspectTargetException(string name) 
+        public UnknownAspectTargetException(string name)
             : base($"Unknown target: '{name}'") { }
-        public UnknownAspectTargetException(string name, string reason) 
+        public UnknownAspectTargetException(string name, string reason)
             : base($"Unknown target: '{name}', reason: '{reason}'") { }
     }
 

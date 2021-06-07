@@ -5,9 +5,10 @@
 
     public unsafe class RuntimeIshtarField : ManaField
     {
-        public RuntimeIshtarField(ManaClass owner, FieldName fullName, FieldFlags flags, ManaClass fieldType) : 
-            base(owner, fullName, flags, fieldType) { }
-        
+        public RuntimeIshtarField(ManaClass owner, FieldName fullName, FieldFlags flags, ManaClass fieldType) :
+            base(owner, fullName, flags, fieldType)
+        { }
+
         public int vtable_offset;
         public void* default_value;
 
@@ -16,12 +17,12 @@
         {
             bool failMapping(int code)
             {
-                VM.FastFail(WNE.TYPE_LOAD, 
+                VM.FastFail(WNE.TYPE_LOAD,
                     $"Native aspect has incorrect mapping for '{FullName}' field. [0x{code:X}]");
                 VM.ValidateLastError();
                 return false;
             }
-            
+
             var nativeAspect = Aspects.FirstOrDefault(x => x.Name == "Native");
             if (nativeAspect is null)
                 return false;
@@ -47,7 +48,7 @@
 
             return true;
         }
-        
+
 
         public override string ToString() => $"Field '{FullName}': '{FieldType.FullName.NameWithNS}'";
     }

@@ -8,7 +8,7 @@
     public class InvocationExpressionSyntax : ExpressionSyntax
     {
         public override SyntaxType Kind => SyntaxType.InvocationExpression;
-        
+
         public string FunctionName { get; set; }
         public string[] MemberChain { get; set; }
 

@@ -22,7 +22,7 @@
         private readonly dynamic _context;
         private ClassBuilder @class;
         private RuntimeIshtarClass runtime_class;
-        private static readonly object guarder = new ();
+        private static readonly object guarder = new();
         internal string UID { get; }
 
         public IshtarTestContext WithStackSize(short size = 48)
@@ -62,9 +62,10 @@
                 var gen = _method.GetGenerator();
                 ctor(gen, _context);
                 var code = gen.BakeByteArray();
-                
+
                 var entry_point = new RuntimeIshtarMethod($"master_{_testCase}_{UID}", MethodFlags.Public | MethodFlags.Static,
-                    ManaTypeCode.TYPE_OBJECT.AsClass()) { Owner = runtime_class };
+                    ManaTypeCode.TYPE_OBJECT.AsClass())
+                { Owner = runtime_class };
 
                 entry_point.Owner.Owner = _module;
                 runtime_class.init_vtable();
@@ -78,8 +79,8 @@
             var args_ = stackalloc stackval[1];
             var frame = new CallFrame
             {
-                args = args_, 
-                method = entry, 
+                args = args_,
+                method = entry,
                 level = 0
             };
             VM.exec_method(frame);
@@ -111,7 +112,7 @@
             get
             {
                 if (_module_instance is null)
-                    return _module_instance = new ManaModuleBuilder("tst") { Deps = new List<ManaModule> { _corlib }};
+                    return _module_instance = new ManaModuleBuilder("tst") { Deps = new List<ManaModule> { _corlib } };
                 return _module_instance;
             }
         }
@@ -129,7 +130,7 @@
                     FFI.INIT();
                     _corlib = LoadCorLib();
                     IshtarCore.INIT_ADDITIONAL_MAPPING();
-                    foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>()) 
+                    foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>())
                         @class.init_vtable();
                     // ReSharper disable once VirtualMemberCallInConstructor
                     StartUp();
@@ -150,11 +151,11 @@
                                $"[{obj.code}]\n\t" +
                                $"'{obj.msg}'");
 
-        private static readonly object guarder = new ();
+        private static readonly object guarder = new();
 
 
         protected IshtarTestContext CreateContext([CallerMemberName] string caller = "<unnamed>")
-            => new (caller, _module);
+            => new(caller, _module);
         void IDisposable.Dispose()
         {
             Shutdown();
@@ -163,8 +164,8 @@
         protected void Validate()
         {
         }
-        
-        protected virtual void StartUp() {}
-        protected virtual void Shutdown() {}
+
+        protected virtual void StartUp() { }
+        protected virtual void Shutdown() { }
     }
 }

@@ -13,12 +13,12 @@
     public class MethodBuilder : ManaMethod, IBaker
     {
         internal readonly ClassBuilder classBuilder;
-        internal ManaModuleBuilder moduleBuilder 
+        internal ManaModuleBuilder moduleBuilder
             => classBuilder?.moduleBuilder;
         private readonly ILGenerator _generator;
 
 
-        internal MethodBuilder(ClassBuilder clazz, string name, ManaClass returnType, params ManaArgumentRef[] args) 
+        internal MethodBuilder(ClassBuilder clazz, string name, ManaClass returnType, params ManaArgumentRef[] args)
             : base(name, 0, returnType, clazz, args)
         {
             classBuilder = clazz;
@@ -49,9 +49,9 @@
                 binary.Write(new byte[0]); // IL Body
                 return mem.ToArray();
             }
-            
+
             var body = _generator.BakeByteArray();
-            
+
             binary.Write(idx); // $method name
             binary.Write((short)Flags); // $flags
             binary.Write(body.Length); // body size
@@ -63,7 +63,7 @@
 
             return mem.ToArray();
         }
-        
+
         private void WriteArguments(BinaryWriter binary)
         {
             binary.Write(ArgLength);
@@ -82,13 +82,13 @@
             var args = Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(", ");
             if (Flags.HasFlag(Extern))
             {
-                str.Append($".method extern {RawName} ({args}) {Flags.EnumerateFlags().Except(new [] {None, Extern}).Join(' ').ToLowerInvariant()}");
+                str.Append($".method extern {RawName} ({args}) {Flags.EnumerateFlags().Except(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
                 str.AppendLine($" -> {ReturnType.FullName.Name};");
                 return str.ToString();
             }
             var body = _generator.BakeDebugString();
-            
-            str.Append($".method {(IsSpecial ? "special" : "")} '{RawName}' ({args}) {Flags.EnumerateFlags().Except(new [] {None, Extern}).Join(' ').ToLowerInvariant()}");
+
+            str.Append($".method {(IsSpecial ? "special" : "")} '{RawName}' ({args}) {Flags.EnumerateFlags().Except(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
             str.AppendLine($" -> {ReturnType.FullName.Name}");
             str.AppendLine("{");
             str.AppendLine($"\t.size {_generator.ILOffset}");
@@ -109,7 +109,7 @@
 
         internal ulong? FindLocalField(FieldName @ref) =>
             getLocal(@ref)?.arg?.Token?.Value;
-        internal int? GetLocalIndex(FieldName @ref) 
+        internal int? GetLocalIndex(FieldName @ref)
             => getLocal(@ref)?.idx;
         private (int idx, ManaArgumentRef arg)? getLocal(FieldName @ref)
         {

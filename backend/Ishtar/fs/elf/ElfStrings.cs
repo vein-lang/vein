@@ -16,7 +16,7 @@
 
         public uint SaveString(string val)
         {
-            if (_offsets.TryGetValue(val, out var offset)) 
+            if (_offsets.TryGetValue(val, out var offset))
                 return offset;
             offset = (uint)_data.Count;
             var data = Encoding.ASCII.GetBytes(val);

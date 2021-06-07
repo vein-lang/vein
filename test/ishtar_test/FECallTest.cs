@@ -19,7 +19,7 @@
             ctx.Execute((gen, storage) =>
             {
                 gen.Emit(OpCodes.LDC_STR, "foo");
-                gen.Emit(OpCodes.CALL, (RuntimeIshtarMethod) storage.method);
+                gen.Emit(OpCodes.CALL, (RuntimeIshtarMethod)storage.method);
                 gen.Emit(OpCodes.RET);
             });
         }

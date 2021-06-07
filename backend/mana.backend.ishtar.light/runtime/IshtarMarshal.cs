@@ -16,7 +16,7 @@
             var obj = IshtarGC.AllocObject(TYPE_I4.AsRuntimeClass(), node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
             obj->vtable[clazz.Field["!!value"].vtable_offset] = (int*)dotnet_value;
-            
+
             return obj;
         }
         public static IshtarObject* ToIshtarObject(short dotnet_value, CallFrame frame = null, IshtarObject** node = null)
@@ -24,7 +24,7 @@
             var obj = IshtarGC.AllocObject(TYPE_I2.AsRuntimeClass(), node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
             obj->vtable[clazz.Field["!!value"].vtable_offset] = (short*)dotnet_value;
-            
+
             return obj;
         }
         public static IshtarObject* ToIshtarObject(byte dotnet_value, CallFrame frame = null, IshtarObject** node = null)
@@ -32,7 +32,7 @@
             var obj = IshtarGC.AllocObject(TYPE_I1.AsRuntimeClass(), node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
             obj->vtable[clazz.Field["!!value"].vtable_offset] = (int*)dotnet_value;
-            
+
             return obj;
         }
         public static IshtarObject* ToIshtarObject(long dotnet_value, CallFrame frame = null, IshtarObject** node = null)
@@ -40,7 +40,7 @@
             var obj = IshtarGC.AllocObject(TYPE_I8.AsRuntimeClass(), node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
             obj->vtable[clazz.Field["!!value"].vtable_offset] = (long*)dotnet_value;
-            
+
             return obj;
         }
         public static sbyte ToDotnetInt8(IshtarObject* obj, CallFrame frame)
@@ -126,10 +126,10 @@
 
             if (@class.TypeCode is TYPE_NONE or > TYPE_ARRAY or < TYPE_NONE)
             {
-                VM.FastFail(WNE.ACCESS_VIOLATION, 
+                VM.FastFail(WNE.ACCESS_VIOLATION,
                     "Scalar value type cannot be extracted.\n" +
                     "Invalid memory address is possible.\n" +
-                    "Please report the problem into https://github.com/0xF6/mana_lang/issues.", 
+                    "Please report the problem into https://github.com/0xF6/mana_lang/issues.",
                     frame);
                 VM.ValidateLastError();
                 return default;
@@ -168,10 +168,10 @@
                     val.data.i = ToDotnetChar(obj, frame);
                     break;
                 case TYPE_R8 or TYPE_R2 or TYPE_R16 or TYPE_R4:
-                    VM.FastFail(WNE.ACCESS_VIOLATION, 
+                    VM.FastFail(WNE.ACCESS_VIOLATION,
                         $"Scalar value type '{val.type}' cannot be extracted.\n" +
                         "Currently is not support.\n" +
-                        "Please report the problem into https://github.com/0xF6/mana_lang/issues.", 
+                        "Please report the problem into https://github.com/0xF6/mana_lang/issues.",
                         frame);
                     VM.ValidateLastError();
                     return default;
@@ -185,10 +185,10 @@
                 return (IshtarObject*)p->data.p;
             if (p->type is TYPE_NONE or > TYPE_ARRAY or < TYPE_NONE)
             {
-                VM.FastFail(WNE.ACCESS_VIOLATION, 
+                VM.FastFail(WNE.ACCESS_VIOLATION,
                     "Scalar value type cannot be extracted.\n" +
                     "Invalid memory address is possible.\n" +
-                    "Please report the problem into https://github.com/0xF6/mana_lang/issues.", 
+                    "Please report the problem into https://github.com/0xF6/mana_lang/issues.",
                     frame);
                 VM.ValidateLastError();
             }
@@ -200,13 +200,17 @@
 
             obj->vtable[clazz.Field["!!value"].vtable_offset] = p->type switch
             {
-                TYPE_I1 => (sbyte*) p->data.b, TYPE_U1 => (byte  *) p->data.ub,
-                TYPE_I2 => (short*) p->data.s, TYPE_U2 => (ushort*) p->data.us,
-                TYPE_I4 => (int  *) p->data.i, TYPE_U4 => (uint  *) p->data.ui,
-                TYPE_I8 => (long *) p->data.l, TYPE_U8 => (ulong *) p->data.ul,
-                
-                TYPE_BOOLEAN => (int  *) p->data.i,
-                TYPE_CHAR    => (int  *) p->data.i,
+                TYPE_I1 => (sbyte*)p->data.b,
+                TYPE_U1 => (byte*)p->data.ub,
+                TYPE_I2 => (short*)p->data.s,
+                TYPE_U2 => (ushort*)p->data.us,
+                TYPE_I4 => (int*)p->data.i,
+                TYPE_U4 => (uint*)p->data.ui,
+                TYPE_I8 => (long*)p->data.l,
+                TYPE_U8 => (ulong*)p->data.ul,
+
+                TYPE_BOOLEAN => (int*)p->data.i,
+                TYPE_CHAR => (int*)p->data.i,
 
                 _ => &*p
             };

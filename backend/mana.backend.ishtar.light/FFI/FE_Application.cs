@@ -28,11 +28,11 @@
         public static IshtarObject* Exit(CallFrame current, IshtarObject** args)
         {
             var exitCode = args[0];
-            
+
             FFI.StaticValidate(current, &exitCode);
             FFI.StaticTypeOf(current, &exitCode, TYPE_I4);
             FFI.StaticValidateField(current, &exitCode, "!!value");
-            
+
             VM.shutdown(IshtarMarshal.ToDotnetInt32(exitCode, current));
 
             return null;

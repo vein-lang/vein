@@ -20,7 +20,7 @@
             from closeQuote in Parse.Char('\"')
             from trailing in Parse.WhiteSpace.Many()
             select $"\"{string.Join(string.Empty, fragments)}\"";
-        
+
         /// <example>
         /// "str"
         /// </example>
@@ -49,7 +49,7 @@
             Double = 1 << 6
         }
 
-        private NumericLiteralExpressionSyntax TryParse<T, Z>(string str, Func<string, Z> parser) 
+        private NumericLiteralExpressionSyntax TryParse<T, Z>(string str, Func<string, Z> parser)
             where Z : IFormattable, IConvertible, IComparable<Z>, IEquatable<Z>, IComparable
             where T : NumericLiteralExpressionSyntax<Z>
         {
@@ -70,11 +70,11 @@
                 throw new ParseException(e.Message);
             }
 
-            var ctor = typeof(T).GetConstructor(new[] {typeof(Z)});
+            var ctor = typeof(T).GetConstructor(new[] { typeof(Z) });
 
             if (ctor is null)
                 return ErrorNumberLiteral(str, new Exception($"ctor not found for type '{typeof(T)}'"));
-            
+
             return (T)ctor.Invoke(new object?[] { parser(str) }); ;
         }
 
@@ -128,8 +128,8 @@
         // [lL]? [uU] | [uU]? [lL]
         private Parser<NumericSuffix> IntegerTypeSuffix =>
             (from l in Parse.Chars("lL").Optional()
-                from u in Parse.Chars("uU")
-                select l.IsDefined ? NumericSuffix.Long | NumericSuffix.Unsigned : NumericSuffix.Unsigned).Or(
+             from u in Parse.Chars("uU")
+             select l.IsDefined ? NumericSuffix.Long | NumericSuffix.Unsigned : NumericSuffix.Unsigned).Or(
                 from u in Parse.Chars("uU").Optional()
                 from l in Parse.Chars("lL")
                 select u.IsDefined ? NumericSuffix.Unsigned | NumericSuffix.Long : NumericSuffix.Long);
@@ -161,12 +161,12 @@
         /// </example>
         protected internal virtual Parser<NumericLiteralExpressionSyntax> FloatLiteralExpression =>
             (from f1block in NumberChainBlock
-                from dot in Parse.Char('.')
-                from f2block in NumberChainBlock.AtLeastOnce()
-                from exp in ExponentPart.Optional()
-                from suffix in FloatTypeSuffix.Optional()
-                select FromFloat($"{f1block}.{f2block.Join()}{exp.GetOrElse("")}",
-                    suffix.GetOrDefault())).Or(
+             from dot in Parse.Char('.')
+             from f2block in NumberChainBlock.AtLeastOnce()
+             from exp in ExponentPart.Optional()
+             from suffix in FloatTypeSuffix.Optional()
+             select FromFloat($"{f1block}.{f2block.Join()}{exp.GetOrElse("")}",
+                 suffix.GetOrDefault())).Or(
                     from block in NumberChainBlock
                     from other in FloatTypeSuffix.Select(x => ("", x)).Or(ExponentPart.Then(x =>
                         FloatTypeSuffix.Optional().Select(z => (x, z.GetOrDefault()))))
@@ -180,7 +180,7 @@
         protected internal virtual Parser<LiteralExpressionSyntax> IntLiteralExpression =>
             from number in NumberChainBlock
             from suffix in IntegerTypeSuffix.Optional()
-            select FromDefault(number, suffix.GetOrDefault()); 
+            select FromDefault(number, suffix.GetOrDefault());
 
         /// <example>
         /// true
@@ -196,7 +196,7 @@
         protected internal virtual Parser<LiteralExpressionSyntax> NullLiteralExpression =>
             from token in Keyword("null")
             select new NullLiteralExpressionSyntax();
-        
+
         /// <example>
         /// 1, true, 'hello'
         /// </example>

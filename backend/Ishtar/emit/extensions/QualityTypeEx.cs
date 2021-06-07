@@ -10,18 +10,18 @@
         public static QualityTypeName ReadTypeName(this BinaryReader bin, ManaModule module)
         {
             var typeIndex = bin.ReadInt32();
-            
-            return module.types_table.GetValueOrDefault(typeIndex) ?? 
+
+            return module.types_table.GetValueOrDefault(typeIndex) ??
                    throw new Exception($"TypeName by index '{typeIndex}' not found in '{module.Name}' module.");
         }
-        
+
         public static void WriteTypeName(this BinaryWriter bin, QualityTypeName type, ManaModuleBuilder module)
         {
             var key = module.InternTypeName(type);
 
             bin.Write(key);
         }
-        
+
         public static void PutTypeName(this ILGenerator gen, QualityTypeName type)
         {
             Func<QualityTypeName, int> getConst = gen._methodBuilder.moduleBuilder.InternTypeName;

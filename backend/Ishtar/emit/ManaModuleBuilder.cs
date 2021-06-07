@@ -19,7 +19,7 @@
     {
         private ILogger logger => Journal.Get(nameof(ManaModule));
 
-        public ManaModuleBuilder(string name) : base(name) {}
+        public ManaModuleBuilder(string name) : base(name) { }
         public ManaModuleBuilder(string name, Version ver) : base(name, ver) { }
 
         /// <summary>
@@ -77,7 +77,7 @@
 
             if (value is not null)
                 return key;
-            
+
             storage[key = storage.Count] = val;
             return key;
         }
@@ -89,7 +89,7 @@
         public int InternString(string str)
         {
             if (str == null)
-                throw new ArgumentNullException(nameof (str));
+                throw new ArgumentNullException(nameof(str));
             var key = _intern(strings_table, str);
 
 
@@ -103,7 +103,7 @@
         public int InternTypeName(QualityTypeName name)
         {
             if (name == null)
-                throw new ArgumentNullException(nameof (name));
+                throw new ArgumentNullException(nameof(name));
             var key = _intern(types_table, name);
 
             logger.Information("TypeName '{name}' baked by index: {key}", name, key);
@@ -116,15 +116,15 @@
         public int InternFieldName(FieldName name)
         {
             if (name == null)
-                throw new ArgumentNullException(nameof (name));
+                throw new ArgumentNullException(nameof(name));
 
             var key = _intern(fields_table, name);
 
             logger.Information("FieldName '{name}' baked by index: {key}", name, key);
             return key;
         }
-        
-        internal (int, QualityTypeName) GetMethodToken(ManaMethod method) => 
+
+        internal (int, QualityTypeName) GetMethodToken(ManaMethod method) =>
             (this.InternString(method.Name), method.Owner.FullName);
         /// <summary>
         /// Bake result into il byte code.
@@ -133,7 +133,7 @@
         {
             class_table.OfType<IBaker>().Pipe(x => x.BakeDebugString()).Consume();
             class_table.OfType<IBaker>().Pipe(x => x.BakeByteArray()).Consume();
-            
+
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
 
@@ -144,7 +144,7 @@
             binary.Write(vdx);
             binary.Write(OpCodes.SetVersion);
 
-            
+
 
 
             binary.Write(strings_table.Count);
@@ -203,13 +203,13 @@
 
             str.AppendLine("\n\t.table const");
             str.AppendLine("\t{");
-            foreach (var (key, value) in strings_table) 
+            foreach (var (key, value) in strings_table)
                 str.AppendLine($"\t\t.s {key:D6}:'{value}'");
 
-            foreach (var (key, value) in types_table) 
+            foreach (var (key, value) in types_table)
                 str.AppendLine($"\t\t.t {key:D6}:'{value}'");
 
-            foreach (var (key, value) in fields_table) 
+            foreach (var (key, value) in fields_table)
                 str.AppendLine($"\t\t.f {key:D6}:'{value}'");
             str.AppendLine("\t}\n");
 

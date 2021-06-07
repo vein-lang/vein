@@ -40,8 +40,8 @@
             ?? new List<PackageReference>();
 
         public ManaSDK SDK => ManaSDK.Resolve(_project.Sdk);
-        
-        
+
+
         public static ManaProject LoadFrom(FileInfo info)
         {
             var serializer = new XmlSerializer(typeof(XML.Project));

@@ -18,10 +18,10 @@ namespace mana.ishtar.emit
         private int _position;
         internal List<ushort> _opcodes = new List<ushort>();
         internal readonly MethodBuilder _methodBuilder;
-        private readonly StringBuilder _debugBuilder = new ();
-        
+        private readonly StringBuilder _debugBuilder = new();
+
         internal int LocalsSize { get; set; }
-        
+
         public virtual int ILOffset => _position;
 
         internal ILGenerator(MethodBuilder method) : this(method, 16) { }
@@ -50,7 +50,7 @@ namespace mana.ishtar.emit
         {
             EnsureCapacity<OpCode>(sizeof(sbyte));
             InternalEmit(opcode);
-            _ilBody[_position++] = (byte) arg;
+            _ilBody[_position++] = (byte)arg;
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.sbyte");
         }
         public virtual void Emit(OpCode opcode, short arg)
@@ -61,7 +61,7 @@ namespace mana.ishtar.emit
             _position += sizeof(short);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.short");
         }
-        
+
         public virtual void Emit(OpCode opcode, int arg)
         {
             EnsureCapacity<OpCode>(sizeof(int));
@@ -78,7 +78,7 @@ namespace mana.ishtar.emit
             _position += sizeof(long);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.long");
         }
-        
+
         public virtual void Emit(OpCode opcode, ulong arg)
         {
             EnsureCapacity<OpCode>(sizeof(ulong));
@@ -105,7 +105,7 @@ namespace mana.ishtar.emit
             _position += sizeof(double);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.double");
         }
-        
+
         public virtual void Emit(OpCode opcode, decimal arg)
         {
             EnsureCapacity<OpCode>(sizeof(decimal));
@@ -146,7 +146,7 @@ namespace mana.ishtar.emit
         /// </remarks>
         public virtual void Emit(OpCode opcode, ManaField field)
         {
-            if (new[] {OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF}.All(x => x != opcode))
+            if (new[] { OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF }.All(x => x != opcode))
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
 
             this.EnsureCapacity<OpCode>(sizeof(int) * 2);
@@ -157,7 +157,7 @@ namespace mana.ishtar.emit
 
             this.PutInteger4(nameIdx);
             this.PutInteger4(typeIdx);
-            
+
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {field.Name} {field.FieldType}");
         }
         /// <summary>
@@ -174,9 +174,9 @@ namespace mana.ishtar.emit
         {
             throw new NotImplementedException();
 
-            if (opcode.Value != (int) OpCodes.LDF.Value)
+            if (opcode.Value != (int)OpCodes.LDF.Value)
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
-            
+
             var (token, direction) = this.FindFieldToken(field);
 
             opcode = direction switch
@@ -216,9 +216,9 @@ namespace mana.ishtar.emit
             this.PutInteger4(label.Value);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} label(0x{label.Value:X})");
         }
-        public virtual void Emit(OpCode opcode, ManaType type) 
+        public virtual void Emit(OpCode opcode, ManaType type)
             => Emit(opcode, type.FullName);
-        public virtual void Emit(OpCode opcode, ManaClass type) 
+        public virtual void Emit(OpCode opcode, ManaClass type)
             => Emit(opcode, type.FullName);
 
         public virtual void Emit(OpCode opcode, QualityTypeName type)
@@ -242,17 +242,17 @@ namespace mana.ishtar.emit
             if (LocalsSize == 0)
                 return;
             var size = LocalsBuilder.Count();
-            
+
             bin.Write((ushort)OpCodes.LOC_INIT.Value);
             bin.Write((int)size);
-            foreach(var t in LocalsBuilder)
+            foreach (var t in LocalsBuilder)
             {
                 bin.Write((ushort)OpCodes.LOC_INIT.Value);
                 this.PutTypeNameInto(t, bin);
             }
         }
 
-        public LocalsBuilder LocalsBuilder { get; } = new ();
+        public LocalsBuilder LocalsBuilder { get; } = new();
         /// <summary>
         /// Ensure local slot
         /// </summary>
@@ -276,16 +276,16 @@ namespace mana.ishtar.emit
         public virtual void Emit(OpCode opcode, ManaMethod method)
         {
             if (method is null)
-                throw new ArgumentNullException(nameof (method));
+                throw new ArgumentNullException(nameof(method));
             if (opcode != OpCodes.CALL)
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
             var (tokenIdx, ownerIdx) = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
             this.EnsureCapacity<OpCode>(
-                sizeof(byte) /*CallContext */ + 
-                sizeof(int) /* tokenIdx */ + 
+                sizeof(byte) /*CallContext */ +
+                sizeof(int) /* tokenIdx */ +
                 sizeof(int) /* ownerIdx */);
             this.InternalEmit(opcode);
-            
+
 
             /* todo: remove directing call flag */
             if (method.Owner.FullName == this._methodBuilder.Owner.FullName)
@@ -294,9 +294,9 @@ namespace mana.ishtar.emit
                 this.PutByte((byte)CallContext.NATIVE_CALL);
             else if (method.IsStatic)
                 this.PutByte((byte)CallContext.STATIC_CALL);
-            else 
+            else
                 this.PutByte((byte)CallContext.BACKWARD_CALL);
-            
+
             this.PutInteger4(tokenIdx);
             this.PutTypeName(ownerIdx);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");
@@ -331,7 +331,7 @@ namespace mana.ishtar.emit
         /// <summary>
         /// Define multiple labels for future use.
         /// </summary>
-        public virtual Label[] DefineLabel(uint size) => 
+        public virtual Label[] DefineLabel(uint size) =>
             Enumerable.Range(0, (int)size).Select(_ => DefineLabel()).ToArray();
 
         /// <summary>
@@ -372,20 +372,20 @@ namespace mana.ishtar.emit
                 return new byte[0];
             using var mem = new MemoryStream();
             using var bin = new BinaryWriter(mem);
-            
+
             Array.Resize(ref _ilBody, _position);
             WriteLocals(bin);
             bin.Write(_ilBody);
             bin.Write((ushort)0xFFFF); // end frame
             bin.Write(_labels_count);
-            if (_labels_count == 0) 
+            if (_labels_count == 0)
                 return mem.ToArray();
-            foreach (var i in _labels) 
+            foreach (var i in _labels)
                 bin.Write(i);
             return mem.ToArray();
         }
 
-        internal string BakeDebugString() 
+        internal string BakeDebugString()
             => _position == 0 ? "" : $"{LocalsBuilder}\n{_debugBuilder}";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -412,7 +412,7 @@ namespace mana.ishtar.emit
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), value);
             _position += sizeof(long);
         }
-        
+
         internal void InternalEmit(OpCode opcode)
         {
             var num = opcode.Value;
@@ -432,7 +432,7 @@ namespace mana.ishtar.emit
                 return;
             IncreaseCapacity(size);
         }
-        
+
         private void IncreaseCapacity(int size)
         {
             var newsize = Math.Max(_ilBody.Length * 2, _position + size + 2);
@@ -442,9 +442,9 @@ namespace mana.ishtar.emit
             Array.Copy(_ilBody, numArray, _ilBody.Length);
             _ilBody = numArray;
         }
-        
-        
-        
+
+
+
         internal static T[] RepackArray<T>(T[] arr) => RepackArray<T>(arr, arr.Length * 2);
 
         internal static T[] RepackArray<T>(T[] arr, int newSize)

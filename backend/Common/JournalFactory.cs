@@ -9,7 +9,7 @@
 
     public static class JournalFactory
     {
-        private static readonly IDictionary<string, Logger> storage = 
+        private static readonly IDictionary<string, Logger> storage =
             new ConcurrentDictionary<string, Logger>();
         private static readonly Func<string, LoggerConfiguration> _activator = defaultActivator;
         private static Action<LoggerConfiguration> _configurator;
@@ -27,7 +27,7 @@
         }
 
 
-        public static void EnforceInitiator(Action<LoggerConfiguration> configurator) 
+        public static void EnforceInitiator(Action<LoggerConfiguration> configurator)
             => _configurator = configurator;
 
 
@@ -35,7 +35,7 @@
         {
             new DirectoryInfo(Folder).Create();
 
-            var result =  new LoggerConfiguration()
+            var result = new LoggerConfiguration()
                 .Enrich.WithProperty("group", groupName)
                 .WriteTo.File($"{Folder}/{groupName}.log", rollingInterval: RollingInterval.Day);
 

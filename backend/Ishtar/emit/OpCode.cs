@@ -8,7 +8,7 @@
     {
         private readonly OpCodeValue value;
         private readonly int flags;
-        
+
         internal OpCode(int value, int flags) : this((OpCodeValue)value, flags)
         {
         }
@@ -28,7 +28,7 @@
         {
             unchecked
             {
-                return ((int) value * 0x18D) ^ flags;
+                return ((int)value * 0x18D) ^ flags;
             }
         }
 
@@ -45,23 +45,23 @@
             get
             {
                 _cache_names ??= new string[Enum.GetValues(typeof(OpCodeValue)).Length];
-                return _cache_names[(ushort) value] ?? (_cache_names[(ushort) value] = Enum
+                return _cache_names[(ushort)value] ?? (_cache_names[(ushort)value] = Enum
                         .GetName(typeof(OpCodeValue), value)!
                     .ToLowerInvariant()
                     .Replace("_", "."));
             }
         }
 
-        public ushort Value => (ushort) this.value;
-        
-        
-        public ControlChain ControlChain => (ControlChain) (flags >> 0xC & 0x1F);
+        public ushort Value => (ushort)this.value;
 
-        public FlowControl FlowControl => (FlowControl) (flags >> 0x11 & 0x1F);
+
+        public ControlChain ControlChain => (ControlChain)(flags >> 0xC & 0x1F);
+
+        public FlowControl FlowControl => (FlowControl)(flags >> 0x11 & 0x1F);
 
         public int Size => flags >> 0x16 & 0x1F;
-        
-        internal static int CreateFlag(byte size, FlowControl flow, ControlChain chain) 
-            => ((int) chain << 0xC) | 0x1F | ((int) flow << 0x11) | 0x1F | (size << 22) | 0x1F;
+
+        internal static int CreateFlag(byte size, FlowControl flow, ControlChain chain)
+            => ((int)chain << 0xC) | 0x1F | ((int)flow << 0x11) | 0x1F | (size << 22) | 0x1F;
     }
 }

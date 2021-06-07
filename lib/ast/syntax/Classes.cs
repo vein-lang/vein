@@ -48,7 +48,7 @@ namespace mana.syntax
             select new FieldDeclarationSyntax(heading)
             {
                 Type = type,
-                Field = new ()
+                Field = new()
                 {
                     Identifier = identifier.Value,
                     Expression = expression.GetOrDefault(),
@@ -72,7 +72,7 @@ namespace mana.syntax
             from accessors in PropertyAccessor.Many()
             from closeBrace in Parse.Char('}').Token()
             select new PropertyDeclarationSyntax(accessors);
-        
+
         // method or property declaration starting with the type and name
         protected internal virtual Parser<MemberDeclarationSyntax> MethodOrPropertyDeclaration =>
             from dec in MemberDeclarationHeading
@@ -87,7 +87,7 @@ namespace mana.syntax
                 KeywordExpression("delete"))
             from member in CtorParametersAndBody.Select(c => c as MemberDeclarationSyntax)
             select member.WithName(kw).WithProperties(dec);
-        
+
         // example: @TestFixture public static class Program { static void main() {} }
         public virtual Parser<ClassDeclarationSyntax> ClassDeclaration =>
             from heading in MemberDeclarationHeading.Token()
@@ -96,7 +96,7 @@ namespace mana.syntax
 
         // example: class Program { void main() {} }
         protected internal virtual Parser<ClassDeclarationSyntax> ClassDeclarationBody =>
-            from @class in 
+            from @class in
                 Parse.IgnoreCase("class").Text().Token()
                     .Or(Parse.IgnoreCase("interface").Text().Token())
                     .Or(Parse.IgnoreCase("struct").Text().Token())

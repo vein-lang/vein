@@ -6,9 +6,9 @@
 
     public class WatchDogEffluentException : Exception
     {
-        public WatchDogEffluentException(NativeException exp) 
+        public WatchDogEffluentException(NativeException exp)
             : base($"native exception was thrown. [{exp.code}] '{exp.msg}'")
-        {}
+        { }
     }
     public class TestWatchDog : IWatchDog
     {
@@ -17,7 +17,7 @@
         {
             lock (guarder)
             {
-                var result = new NativeException {code = type, msg = msg, frame = frame};
+                var result = new NativeException { code = type, msg = msg, frame = frame };
                 throw new WatchDogEffluentException(result);
             }
         }

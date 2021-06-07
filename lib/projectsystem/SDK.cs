@@ -13,13 +13,13 @@
 
         [JsonProperty("version")]
         public string Version { get; set; }
-        
+
         [JsonProperty("packs")]
         [JsonConverter(typeof(PacksConverter))]
         public SDKPack[] Packs { get; set; }
 
         internal static DirectoryInfo SDKRoot =>
-            new (Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".mana"));
+            new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".mana"));
 
         public string GetFullPath(SDKPack sdkPack) =>
             SDKRoot.SubDirectory("sdk")

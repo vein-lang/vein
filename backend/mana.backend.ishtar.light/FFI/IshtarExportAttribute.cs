@@ -7,7 +7,7 @@
     {
         public IshtarExportAttribute(int argLen, string name)
         {
-            
-        } 
+
+        }
     }
 }

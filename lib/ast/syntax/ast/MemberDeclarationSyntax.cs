@@ -19,7 +19,7 @@
 
         public virtual MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName) => this;
         public virtual MemberDeclarationSyntax WithName(IdentifierExpression name) => this;
-        
+
 
         public new MemberDeclarationSyntax SetPos(Position startPos, int length)
         {

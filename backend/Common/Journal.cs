@@ -6,7 +6,7 @@
 
     internal class Journal
     {
-        private static readonly Dictionary<string, ILogger> loggers = new ();
+        private static readonly Dictionary<string, ILogger> loggers = new();
 
 
         public static ILogger Get(string name)

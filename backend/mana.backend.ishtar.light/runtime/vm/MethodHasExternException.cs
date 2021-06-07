@@ -2,5 +2,5 @@
 {
     using System;
 
-    public class MethodHasExternException : Exception {}
+    public class MethodHasExternException : Exception { }
 }

@@ -15,7 +15,7 @@
     using mana.syntax;
     using Xunit;
     using Xunit.Abstractions;
-    
+
     public class generator_test
     {
         private readonly ITestOutputHelper _testOutputHelper;
@@ -31,10 +31,10 @@
             var module = new ManaModuleBuilder("xuy");
             var clazz = module.DefineClass("xuy%global::mana/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,ManaTypeCode.TYPE_VOID.AsClass(), ("x", ManaTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, ManaTypeCode.TYPE_VOID.AsClass(), ("x", ManaTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var gen = method.GetGenerator();
-            
+
             var l1 = gen.DefineLabel();
             var l2 = gen.DefineLabel();
             gen.Emit(OpCodes.ADD);
@@ -56,15 +56,15 @@
 
 
             module.BakeDebugString();
-            
-            
+
+
             //File.WriteAllText(@"C:\Users\ls-mi\Desktop\mana.il", 
             //    module.BakeDebugString());
-            
-            var asm = new IshtarAssembly{Name = "woodo"};
-            
+
+            var asm = new IshtarAssembly { Name = "woodo" };
+
             asm.AddSegment((".code", method.BakeByteArray()));
-            
+
             //IshtarAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
 
         }
@@ -78,7 +78,7 @@
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, ManaTypeCode.TYPE_VOID.AsClass(), ("x", ManaTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var body = method.GetGenerator();
-            
+
             body.Emit(OpCodes.LDC_I4_S, 1448);
             body.Emit(OpCodes.LDC_I4_S, 228);
             body.Emit(OpCodes.ADD);
@@ -93,9 +93,9 @@
 
 
             var asm = new IshtarAssembly();
-            
+
             asm.AddSegment((".code", body_module));
-            
+
             //IshtarAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
         }
         [Fact(Skip = "MANUAL")]
@@ -126,7 +126,7 @@
                 }
             }
         }
-        
+
         [Fact(Skip = "MANUAL")]
         public void ReturnStatementCompilation1()
         {
@@ -137,18 +137,18 @@
 
 
             var actual = CreateGenerator();
-            
+
             actual.EmitReturn(ret);
-            
+
             var expected = CreateGenerator();
 
             expected.Emit(OpCodes.LDC_F4, 14.3f);
             expected.Emit(OpCodes.RET);
-            
-            
+
+
             Assert.Equal(expected.BakeByteArray(), actual.BakeByteArray());
         }
-        
+
         [Fact(Skip = "MANUAL")]
         public void ReturnStatementCompilation2()
         {
@@ -159,18 +159,18 @@
 
 
             var actual = CreateGenerator(("x", ManaTypeCode.TYPE_STRING));
-            
+
             actual.EmitReturn(ret);
-            
+
             var expected = CreateGenerator(("x", ManaTypeCode.TYPE_STRING));
 
             expected.Emit(OpCodes.LDF, new FieldName("x"));
             expected.Emit(OpCodes.RET);
-            
-            
+
+
             Assert.Equal(expected.BakeByteArray(), actual.BakeByteArray());
         }
-        
+
         [Fact(Skip = "MANUAL")]
         public void ReturnStatementCompilation3()
         {
@@ -178,13 +178,13 @@
             {
                 Expression = new ExpressionSyntax("x")
             };
-            
+
             var actual = CreateGenerator();
-            
-            
+
+
             Assert.Throws<FieldIsNotDeclaredException>(() => actual.EmitReturn(ret));
         }
-        
+
         public static ILGenerator CreateGenerator(params ManaArgumentRef[] args)
         {
             var module = new ManaModuleBuilder(Guid.NewGuid().ToString());
@@ -225,9 +225,9 @@ puts after - before;*/
                 }
                 return nth;
             }
-            
+
             var s = new Stopwatch();
-            
+
             s.Start();
             //var a = f(int.MaxValue / 2);
             s.Stop();
@@ -239,7 +239,7 @@ puts after - before;*/
             var module = new ManaModuleBuilder("hello_world");
             var clazz = module.DefineClass("hello_world%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            
+
 
             var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
                 ManaTypeCode.TYPE_VOID.AsClass());
@@ -259,22 +259,22 @@ puts after - before;*/
 
 
             var asm = new IshtarAssembly { Name = module.Name };
-            
+
             asm.AddSegment((".code", body_module));
-            
+
             IshtarAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
             File.WriteAllText($@"C:\Users\ls-mi\Desktop\{module.Name}.wvil", module.BakeDebugString());
         }
-        
+
         [Fact(Skip = "MANUAL")]
         public void ManualGen()
         {
             var module = new ManaModuleBuilder("satl");
             var clazz = module.DefineClass("satl%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            
-            
-            var fib = clazz.DefineMethod("fib", 
+
+
+            var fib = clazz.DefineMethod("fib",
                 MethodFlags.Public | MethodFlags.Static,
                 ManaTypeCode.TYPE_I8.AsClass(), ("x", ManaTypeCode.TYPE_I8));
 
@@ -355,9 +355,9 @@ puts after - before;*/
             var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
                 ManaTypeCode.TYPE_VOID.AsClass());
             var body = method.GetGenerator();
-            
-            
-            
+
+
+
             body.Emit(OpCodes.LDC_I4_S, 120/**/);
             body.Emit(OpCodes.CALL, fib);
             body.Emit(OpCodes.RESERVED_0);
@@ -370,9 +370,9 @@ puts after - before;*/
 
 
             var asm = new IshtarAssembly { Name = module.Name };
-            
+
             asm.AddSegment((".code", body_module));
-            
+
             IshtarAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
             File.WriteAllText($@"C:\Users\ls-mi\Desktop\{module.Name}.wvil", module.BakeDebugString());
         }

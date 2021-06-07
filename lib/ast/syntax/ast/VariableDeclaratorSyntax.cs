@@ -12,7 +12,7 @@
         public string Identifier { get; set; }
 
         public ExpressionSyntax Expression { get; set; }
-        
+
         public new VariableDeclaratorSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);

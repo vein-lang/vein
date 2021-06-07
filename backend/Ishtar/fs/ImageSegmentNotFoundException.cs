@@ -6,7 +6,7 @@
     {
         public ImageSegmentNotFoundException(string message) : base(message)
         {
-            
+
         }
     }
 }

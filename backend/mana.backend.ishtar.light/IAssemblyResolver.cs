@@ -11,11 +11,11 @@
 
     public class AssemblyResolver : IAssemblyResolver
     {
-        private readonly List<DirectoryInfo> search_paths = new ();
+        private readonly List<DirectoryInfo> search_paths = new();
         private AssemblyBundle assemblyBundle;
         public AssemblyResolver()
         {
-            
+
         }
 
         public AssemblyResolver AddSearchPath(DirectoryInfo dir)
@@ -33,8 +33,8 @@
         public ManaModule ResolveDep(string name, Version version, List<ManaModule> deps)
         {
             var asm = Find(name, version, deps);
-            
-            var module = RuntimeModuleReader.Read(asm.Sections.First().data, deps, (s, v) => 
+
+            var module = RuntimeModuleReader.Read(asm.Sections.First().data, deps, (s, v) =>
                 ResolveDep(s, v, deps));
             return module;
         }
@@ -68,7 +68,7 @@
             {
                 var files = search_paths
                     .SelectMany(x => x.EnumerateFiles("*.wll"))
-                    .Where(x => 
+                    .Where(x =>
                         x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase))
                     .ToArray();
 

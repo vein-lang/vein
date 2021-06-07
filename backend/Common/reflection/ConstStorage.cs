@@ -23,7 +23,7 @@
         }
 
         public object Get(FieldName name) => storage[name];
-        
-        
+
+
     }
 }

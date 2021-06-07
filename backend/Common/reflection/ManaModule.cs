@@ -8,7 +8,7 @@
     public class ManaModule
     {
         public string Name { get; protected set; }
-        public Version Version { get; protected set; } = new (1, 0, 0, 0);
+        public Version Version { get; protected set; } = new(1, 0, 0, 0);
         protected internal List<ManaModule> Deps { get; set; } = new();
 
         internal ManaModule(string name) => Name = name;
@@ -22,15 +22,15 @@
         protected internal readonly Dictionary<int, FieldName> fields_table = new();
 
         public string GetConstStringByIndex(int index) =>
-            strings_table.GetValueOrDefault(index) ?? 
+            strings_table.GetValueOrDefault(index) ??
             throw new AggregateException($"String by index  '{index}' not found in module '{Name}'.");
 
         public QualityTypeName GetTypeNameByIndex(int index) =>
-            types_table.GetValueOrDefault(index) ?? 
+            types_table.GetValueOrDefault(index) ??
             throw new AggregateException($"TypeName by index '{index}' not found in module '{Name}'.");
 
         public FieldName GetFieldNameByIndex(int index) =>
-            fields_table.GetValueOrDefault(index) ?? 
+            fields_table.GetValueOrDefault(index) ??
             throw new AggregateException($"FieldName by index '{index}' not found in module '{Name}'.");
 
 
@@ -84,7 +84,7 @@
             var result = class_table.FirstOrDefault(filter);
             if (result is not null)
                 return result;
-            
+
             foreach (var module in Deps)
             {
                 result = module.FindType(type, true);
@@ -97,7 +97,7 @@
             return new UnresolvedManaClass(type);
         }
 
-        internal void WriteToConstStorage<T>(FieldName field, T value) 
+        internal void WriteToConstStorage<T>(FieldName field, T value)
             => const_table.Stage(field, value);
 
         public T ReadFromConstStorage<T>(FieldName field)

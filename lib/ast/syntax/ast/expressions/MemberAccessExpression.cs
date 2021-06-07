@@ -25,12 +25,12 @@
         }
         public IEnumerable<ExpressionSyntax> GetChain()
         {
-            var prepacked = new[] {Start}.Concat(IndexerAccess).Concat(Chain).ToArray();
+            var prepacked = new[] { Start }.Concat(IndexerAccess).Concat(Chain).ToArray();
             var result = new List<ExpressionSyntax>();
             foreach (var syntax in prepacked)
             {
                 if (syntax is ChainAccessExpression chain)
-                    result.AddRange(new []{chain.Start}.Concat(chain.Other));
+                    result.AddRange(new[] { chain.Start }.Concat(chain.Other));
                 else
                     result.Add(syntax);
             }

@@ -2,11 +2,11 @@
 {
     using System;
 
-    public class InvalidLabelException : Exception 
+    public class InvalidLabelException : Exception
     {
         public InvalidLabelException() : base("Incorrect label position.")
         {
-            
+
         }
     }
 }

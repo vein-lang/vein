@@ -66,7 +66,7 @@
             foreach (var directive in result.Directives)
             {
                 var transform = directive.Transform;
-                builder.Push(transform.pos.Line, transform.pos.Pos, transform.len, SemanticTokenType.Macro, 
+                builder.Push(transform.pos.Line, transform.pos.Pos, transform.len, SemanticTokenType.Macro,
                     new List<SemanticTokenModifier>());
             }
 
@@ -75,25 +75,25 @@
                 if (member is ClassDeclarationSyntax clazz)
                 {
                     var transform = clazz.Identifier.Transform;
-                    builder.Push(transform.pos.Line, transform.pos.Pos, transform.len, SemanticTokenType.Class, 
+                    builder.Push(transform.pos.Line, transform.pos.Pos, transform.len, SemanticTokenType.Class,
                         SemanticTokenModifier.Static);
 
                     foreach (var method in clazz.Methods)
                     {
 
                         var transform2 = method.Identifier.Transform;
-                        builder.Push(transform2.pos.Line, transform2.pos.Pos, transform2.len, 
-                            SemanticTokenType.Class, 
+                        builder.Push(transform2.pos.Line, transform2.pos.Pos, transform2.len,
+                            SemanticTokenType.Class,
                             SemanticTokenModifier.Static);
                     }
                 }
-                
-                
+
+
             }
 
             //foreach (var (line, text) in content.Split('\n').Select((text, line) => (line, text)))
             //{
-                
+
             //    var parts = text.TrimEnd().Split(';', ' ', '.', '"', '(', ')');
             //    var index = 0;
             //    foreach (var part in parts)
@@ -121,13 +121,16 @@
             }
         }
 
-        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, ClientCapabilities clientCapabilities) => new SemanticTokensRegistrationOptions {
+        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, ClientCapabilities clientCapabilities) => new SemanticTokensRegistrationOptions
+        {
             DocumentSelector = DocumentSelector.ForLanguage("mana"),
-            Legend = new SemanticTokensLegend() {
+            Legend = new SemanticTokensLegend()
+            {
                 TokenModifiers = capability.TokenModifiers,
                 TokenTypes = capability.TokenTypes
             },
-            Full = new SemanticTokensCapabilityRequestFull {
+            Full = new SemanticTokensCapabilityRequestFull
+            {
                 Delta = true
             },
             Range = true

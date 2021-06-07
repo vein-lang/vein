@@ -6,7 +6,7 @@
     {
         public InvalidOpCodeException(string msg) : base(msg)
         {
-            
+
         }
     }
 }

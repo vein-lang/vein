@@ -15,23 +15,23 @@ namespace ishtar
     public class GeneratorContext
     {
         internal ManaModuleBuilder Module { get; set; }
-        internal Dictionary<QualityTypeName, ClassBuilder> Classes { get; } = new ();
+        internal Dictionary<QualityTypeName, ClassBuilder> Classes { get; } = new();
         internal DocumentDeclaration Document { get; set; }
 
-        public List<string> Errors = new ();
+        public List<string> Errors = new();
 
         public Dictionary<ManaMethod, ManaScope> Scopes { get; } = new();
 
         public ManaMethod CurrentMethod { get; set; }
         public ManaScope CurrentScope { get; set; }
-        
+
         public GeneratorContext LogError(string err, ExpressionSyntax exp)
         {
             var pos = exp.Transform.pos;
             var diff_err = exp.Transform.DiffErrorFull(Document);
             Errors.Add($"[red bold]{err.EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
                        $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
-                       $"in '[orange bold]{Document.FileEntity}[/]'."+
+                       $"in '[orange bold]{Document.FileEntity}[/]'." +
                        $"{diff_err}");
             return this;
         }
@@ -45,10 +45,10 @@ namespace ishtar
             return CurrentScope;
         }
 
-        public ManaClass ResolveType(TypeSyntax targetTypeTypeword) 
+        public ManaClass ResolveType(TypeSyntax targetTypeTypeword)
             => Module.FindType(targetTypeTypeword.Identifier.ExpressionString,
                 Classes[CurrentMethod.Owner.FullName].Includes);
-        public ManaClass ResolveType(IdentifierExpression targetTypeTypeword) 
+        public ManaClass ResolveType(IdentifierExpression targetTypeTypeword)
             => Module.FindType(targetTypeTypeword.ExpressionString,
                 Classes[CurrentMethod.Owner.FullName].Includes);
 
@@ -85,7 +85,7 @@ namespace ishtar
                           $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
             return null;
         }
-        public ManaField ResolveField(IdentifierExpression id) 
+        public ManaField ResolveField(IdentifierExpression id)
             => CurrentMethod.Owner.FindField(id.ExpressionString);
 
         public ManaField ResolveField(ManaClass targetType, IdentifierExpression id)
@@ -98,9 +98,9 @@ namespace ishtar
             return null;
         }
         public ManaMethod ResolveMethod(
-            ManaClass targetType, 
-            IdentifierExpression target, 
-            IdentifierExpression id, 
+            ManaClass targetType,
+            IdentifierExpression target,
+            IdentifierExpression id,
             MethodInvocationExpression invocation)
         {
             var method = targetType.FindMethod(id.ExpressionString, invocation.Arguments.DetermineTypes(this));
@@ -117,8 +117,8 @@ namespace ishtar
         }
 
         public ManaMethod ResolveMethod(
-            ManaClass targetType, 
-            IdentifierExpression id, 
+            ManaClass targetType,
+            IdentifierExpression id,
             MethodInvocationExpression invocation)
         {
             var method = targetType.FindMethod(id.ExpressionString, invocation.Arguments.DetermineTypes(this));
@@ -132,7 +132,7 @@ namespace ishtar
     public class ManaScope
     {
         public ManaScope TopScope { get; }
-        public List<ManaScope> Scopes { get; } = new ();
+        public List<ManaScope> Scopes { get; } = new();
         public GeneratorContext Context { get; }
 
         public Dictionary<IdentifierExpression, ManaClass> variables { get; } = new();
@@ -142,15 +142,15 @@ namespace ishtar
         public ManaScope(GeneratorContext gen, ManaScope owner = null)
         {
             this.Context = gen;
-            if (owner is null) 
+            if (owner is null)
                 return;
             this.TopScope = owner;
             owner.Scopes.Add(this);
         }
 
-        public ManaScope EnterScope() => new (Context, this);
+        public ManaScope EnterScope() => new(Context, this);
 
-        public bool HasVariable(IdentifierExpression id) 
+        public bool HasVariable(IdentifierExpression id)
             => variables.ContainsKey(id);
 
         public ManaScope DefineVariable(IdentifierExpression id, ManaClass type, int localIndex)
@@ -168,10 +168,10 @@ namespace ishtar
 
     public static class GeneratorExtension
     {
-        public static bool ContainsField(this ManaClass @class, IdentifierExpression id) 
+        public static bool ContainsField(this ManaClass @class, IdentifierExpression id)
             => @class.FindField(id.ExpressionString) != null;
 
-        public static ManaField ResolveField(this ManaClass @class, IdentifierExpression id) 
+        public static ManaField ResolveField(this ManaClass @class, IdentifierExpression id)
             => @class.FindField(id.ExpressionString);
 
         public static void EmitUnary(this ILGenerator gen, UnaryExpressionSyntax node)
@@ -189,8 +189,8 @@ namespace ishtar
                 //gen.EmitUnaryOperator(node.NodeType, node.Operand.Type, node.Type);
             }
         }
-        
-        
+
+
         public static void EmitBinaryOperator(this ILGenerator gen, ExpressionType op, ManaTypeCode leftType = ManaTypeCode.TYPE_CLASS, ManaTypeCode rightType = ManaTypeCode.TYPE_CLASS, ManaTypeCode resultType = ManaTypeCode.TYPE_CLASS)
         {
             switch (op)
@@ -272,7 +272,7 @@ namespace ishtar
                     throw new NotSupportedException($"{code}");
             }
         }
-        
+
         public static ManaTypeCode GetTypeCodeFromNumber(NumericLiteralExpressionSyntax number) =>
         number switch
         {
@@ -290,7 +290,7 @@ namespace ishtar
             DecimalLiteralExpressionSyntax => ManaTypeCode.TYPE_R16,
             _ => throw new NotSupportedException($"{number} is not support number.")
         };
-        
+
         public static void EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
         {
             if (expr is LiteralExpressionSyntax literal)
@@ -323,9 +323,9 @@ namespace ishtar
                 return;
             }
 
-            if (expr is MemberAccessExpression {Start: IdentifierExpression} member)
+            if (expr is MemberAccessExpression { Start: IdentifierExpression } member)
             {
-                if (member.Start is IdentifierExpression {ExpressionString: "this"})
+                if (member.Start is IdentifierExpression { ExpressionString: "this" })
                     gen.EmitThis();
                 else
                     gen.EmitIdentifierAccess(member);
@@ -346,7 +346,7 @@ namespace ishtar
         public static void EmitIdentifierReference(this ILGenerator gen, IdentifierExpression id)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
-            
+
             // first order: search variable
             if (context.CurrentScope.HasVariable(id))
             {
@@ -455,12 +455,12 @@ namespace ishtar
                 context.LogError($"Cannot create an instance of the static class '{type}'", @new.TargetType);
                 return;
             }
-            
-            foreach (var arg in @new.CtorArgs) 
+
+            foreach (var arg in @new.CtorArgs)
                 gen.EmitExpression(arg);
             gen.Emit(OpCodes.NEWOBJ, type);
             var ctor = type.FindMethod("ctor", @new.CtorArgs.DetermineTypes(context));
-            
+
             if (ctor is null)
             {
                 context.LogError(
@@ -472,7 +472,7 @@ namespace ishtar
             gen.Emit(OpCodes.CALL, ctor);
         }
 
-        public static IEnumerable<ManaClass> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context) 
+        public static IEnumerable<ManaClass> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context)
             => exps.Select(x => x.DetermineType(context)).Where(x => x is not null /* if failed determine skip analyze */);
 
         public static ManaClass DetermineType(this ExpressionSyntax exp, GeneratorContext context)
@@ -491,11 +491,11 @@ namespace ishtar
             }
             if (exp is NewExpressionSyntax @new)
                 return context.ResolveType(@new.TargetType.Typeword);
-            if (exp is ArgumentExpression {Value: MemberAccessExpression} arg)
+            if (exp is ArgumentExpression { Value: MemberAccessExpression } arg)
                 return (arg.Value as MemberAccessExpression).ResolveType(context);
             if (exp is MemberAccessExpression member)
                 return member.ResolveType(context);
-            if (exp is ArgumentExpression {Value: IdentifierExpression} arg1)
+            if (exp is ArgumentExpression { Value: IdentifierExpression } arg1)
                 return arg1.Value.DetermineType(context);
             if (exp is IdentifierExpression id)
                 return context.ResolveScopedIdentifierType(id);
@@ -546,8 +546,8 @@ namespace ishtar
                     return null;
                 }
 
-                t = t is null ? 
-                    context.ResolveScopedIdentifierType(id) : 
+                t = t is null ?
+                    context.ResolveScopedIdentifierType(id) :
                     context.ResolveField(t, prev_id, id)?.FieldType;
                 prev_id = id;
             }
@@ -565,11 +565,11 @@ namespace ishtar
             {
                 var exp = enumerator[i] as IdentifierExpression;
 
-                if (i + 1 == enumerator.Length-1)
+                if (i + 1 == enumerator.Length - 1)
                     return context.ResolveMethod(t ?? context.CurrentMethod.Owner, prev_id, exp, member)
                         ?.ReturnType;
-                t = t is null ? 
-                    context.ResolveScopedIdentifierType(exp) : 
+                t = t is null ?
+                    context.ResolveScopedIdentifierType(exp) :
                     context.ResolveField(t, prev_id, exp)?.FieldType;
                 prev_id = exp;
             }
@@ -634,9 +634,9 @@ namespace ishtar
                 generator.EmitIfElse(theIf);
             else if (statement is WhileStatementSyntax @while)
                 generator.EmitWhileStatement(@while);
-            else if (statement is QualifiedExpressionStatement {Value: MemberAccessExpression} qes1)
-                generator.EmitCall((MemberAccessExpression) qes1.Value);
-            else if (statement is QualifiedExpressionStatement {Value: BinaryExpressionSyntax} qes2)
+            else if (statement is QualifiedExpressionStatement { Value: MemberAccessExpression } qes1)
+                generator.EmitCall((MemberAccessExpression)qes1.Value);
+            else if (statement is QualifiedExpressionStatement { Value: BinaryExpressionSyntax } qes2)
                 generator.EmitBinaryExpression((BinaryExpressionSyntax)qes2.Value);
             else if (statement is LocalVariableDeclaration localVariable)
                 generator.EmitLocalVariable(localVariable);
@@ -648,7 +648,7 @@ namespace ishtar
         {
             var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
             var scope = ctx.CurrentScope;
-            
+
             if (localVar.Body.IsEmpty)
             {
                 ctx.LogError($"Implicitly-typed local variable must be initialized.", localVar);
@@ -682,20 +682,20 @@ namespace ishtar
 
             if (chain.Length == 1)
             {
-                generator.EmitLocalCall((IdentifierExpression)qes.Start, (MethodInvocationExpression) chain[0]);
+                generator.EmitLocalCall((IdentifierExpression)qes.Start, (MethodInvocationExpression)chain[0]);
                 return;
             }
 
             if (chain.Length == 2)
             {
-                if (generator.HasClassIdentifier((IdentifierExpression) qes.Start))
+                if (generator.HasClassIdentifier((IdentifierExpression)qes.Start))
                 {
-                    generator.EmitGlobalCall((IdentifierExpression)qes.Start, 
+                    generator.EmitGlobalCall((IdentifierExpression)qes.Start,
                         chain[0] as IdentifierExpression, chain[1] as MethodInvocationExpression);
                 }
                 else
                 {
-                    generator.EmitReferencedCall((IdentifierExpression) qes.Start, 
+                    generator.EmitReferencedCall((IdentifierExpression)qes.Start,
                         chain[0] as IdentifierExpression, chain[1] as MethodInvocationExpression);
                 }
                 return;
@@ -707,7 +707,7 @@ namespace ishtar
         public static bool HasClassIdentifier(this ILGenerator gen, IdentifierExpression id)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
-            
+
             if (context.CurrentScope.HasVariable(id))
                 return false;
             if (context.ResolveArgument(id) is not null)
@@ -732,9 +732,9 @@ namespace ishtar
                 return;
             }
             gen.EmitIdentifierReference(variable);
-            foreach (var arg in args.Arguments) 
+            foreach (var arg in args.Arguments)
                 gen.EmitExpression(arg);
-            
+
             gen.Emit(OpCodes.CALL, method);
         }
 
@@ -758,7 +758,7 @@ namespace ishtar
                 return;
             }
 
-            foreach (var arg in args.Arguments) 
+            foreach (var arg in args.Arguments)
                 gen.EmitExpression(arg);
 
             gen.Emit(OpCodes.CALL, method);
@@ -776,7 +776,7 @@ namespace ishtar
             }
             gen.EmitThis();
 
-            foreach (var arg in args.Arguments) 
+            foreach (var arg in args.Arguments)
                 gen.EmitExpression(arg);
 
             gen.Emit(OpCodes.CALL, method);
@@ -787,61 +787,61 @@ namespace ishtar
             switch (literal)
             {
                 case Int16LiteralExpressionSyntax i16:
-                {
-                    if (i16 is {Value: 0}) generator.Emit(OpCodes.LDC_I2_0);
-                    if (i16 is {Value: 1}) generator.Emit(OpCodes.LDC_I2_1);
-                    if (i16 is {Value: 2}) generator.Emit(OpCodes.LDC_I2_2);
-                    if (i16 is {Value: 3}) generator.Emit(OpCodes.LDC_I2_3);
-                    if (i16 is {Value: 4}) generator.Emit(OpCodes.LDC_I2_4);
-                    if (i16 is {Value: 5}) generator.Emit(OpCodes.LDC_I2_5);
-                    if (i16.Value > 5 || i16.Value < 0)
-                        generator.Emit(OpCodes.LDC_I2_S, i16.Value);
-                    break;
-                }
+                    {
+                        if (i16 is { Value: 0 }) generator.Emit(OpCodes.LDC_I2_0);
+                        if (i16 is { Value: 1 }) generator.Emit(OpCodes.LDC_I2_1);
+                        if (i16 is { Value: 2 }) generator.Emit(OpCodes.LDC_I2_2);
+                        if (i16 is { Value: 3 }) generator.Emit(OpCodes.LDC_I2_3);
+                        if (i16 is { Value: 4 }) generator.Emit(OpCodes.LDC_I2_4);
+                        if (i16 is { Value: 5 }) generator.Emit(OpCodes.LDC_I2_5);
+                        if (i16.Value > 5 || i16.Value < 0)
+                            generator.Emit(OpCodes.LDC_I2_S, i16.Value);
+                        break;
+                    }
                 case Int32LiteralExpressionSyntax i32:
-                {
-                    if (i32 is {Value: 0}) generator.Emit(OpCodes.LDC_I4_0);
-                    if (i32 is {Value: 1}) generator.Emit(OpCodes.LDC_I4_1);
-                    if (i32 is {Value: 2}) generator.Emit(OpCodes.LDC_I4_2);
-                    if (i32 is {Value: 3}) generator.Emit(OpCodes.LDC_I4_3);
-                    if (i32 is {Value: 4}) generator.Emit(OpCodes.LDC_I4_4);
-                    if (i32 is {Value: 5}) generator.Emit(OpCodes.LDC_I4_5);
-                    if (i32.Value > 5 || i32.Value < 0) 
-                        generator.Emit(OpCodes.LDC_I4_S, i32.Value);
-                    break;
-                }
+                    {
+                        if (i32 is { Value: 0 }) generator.Emit(OpCodes.LDC_I4_0);
+                        if (i32 is { Value: 1 }) generator.Emit(OpCodes.LDC_I4_1);
+                        if (i32 is { Value: 2 }) generator.Emit(OpCodes.LDC_I4_2);
+                        if (i32 is { Value: 3 }) generator.Emit(OpCodes.LDC_I4_3);
+                        if (i32 is { Value: 4 }) generator.Emit(OpCodes.LDC_I4_4);
+                        if (i32 is { Value: 5 }) generator.Emit(OpCodes.LDC_I4_5);
+                        if (i32.Value > 5 || i32.Value < 0)
+                            generator.Emit(OpCodes.LDC_I4_S, i32.Value);
+                        break;
+                    }
                 case Int64LiteralExpressionSyntax i64:
-                {
-                    if (i64 is {Value: 0}) generator.Emit(OpCodes.LDC_I8_0);
-                    if (i64 is {Value: 1}) generator.Emit(OpCodes.LDC_I8_1);
-                    if (i64 is {Value: 2}) generator.Emit(OpCodes.LDC_I8_2);
-                    if (i64 is {Value: 3}) generator.Emit(OpCodes.LDC_I8_3);
-                    if (i64 is {Value: 4}) generator.Emit(OpCodes.LDC_I8_4);
-                    if (i64 is {Value: 5}) generator.Emit(OpCodes.LDC_I8_5);
-                    if (i64.Value > 5 || i64.Value < 0)
-                        generator.Emit(OpCodes.LDC_I8_S, i64.Value);
-                    break;
-                }
+                    {
+                        if (i64 is { Value: 0 }) generator.Emit(OpCodes.LDC_I8_0);
+                        if (i64 is { Value: 1 }) generator.Emit(OpCodes.LDC_I8_1);
+                        if (i64 is { Value: 2 }) generator.Emit(OpCodes.LDC_I8_2);
+                        if (i64 is { Value: 3 }) generator.Emit(OpCodes.LDC_I8_3);
+                        if (i64 is { Value: 4 }) generator.Emit(OpCodes.LDC_I8_4);
+                        if (i64 is { Value: 5 }) generator.Emit(OpCodes.LDC_I8_5);
+                        if (i64.Value > 5 || i64.Value < 0)
+                            generator.Emit(OpCodes.LDC_I8_S, i64.Value);
+                        break;
+                    }
                 case DecimalLiteralExpressionSyntax f128:
-                {
-                    generator.Emit(OpCodes.LDC_F16, f128.Value);
-                    break;
-                }
+                    {
+                        generator.Emit(OpCodes.LDC_F16, f128.Value);
+                        break;
+                    }
                 case DoubleLiteralExpressionSyntax f64:
-                {
-                    generator.Emit(OpCodes.LDC_F8, f64.Value);
-                    break;
-                }
+                    {
+                        generator.Emit(OpCodes.LDC_F8, f64.Value);
+                        break;
+                    }
                 case SingleLiteralExpressionSyntax f32:
-                {
-                    generator.Emit(OpCodes.LDC_F4, f32.Value);
-                    break;
-                }
+                    {
+                        generator.Emit(OpCodes.LDC_F4, f32.Value);
+                        break;
+                    }
                 case HalfLiteralExpressionSyntax h32:
-                {
-                    generator.Emit(OpCodes.LDC_F2, h32.Value);
-                    break;
-                }
+                    {
+                        generator.Emit(OpCodes.LDC_F2, h32.Value);
+                        break;
+                    }
                 default:
                     throw new NotImplementedException();
             }
@@ -863,7 +863,7 @@ namespace ishtar
         {
             return Regex.Unescape(str);
         }
-        
+
         public static void EmitReturn(this ILGenerator generator, ReturnStatementSyntax statement)
         {
             if (statement is not { Expression: { } })

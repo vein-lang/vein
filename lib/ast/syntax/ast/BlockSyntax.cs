@@ -44,7 +44,7 @@
         public IEnumerator GetEnumerator() => ((IEnumerable)Statements).GetEnumerator();
 
         IEnumerator<StatementSyntax> IEnumerable<StatementSyntax>.GetEnumerator() => Statements.GetEnumerator();
-        
+
         public new BlockSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);

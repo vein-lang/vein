@@ -4,7 +4,7 @@
 
     public class UnresolvedManaClass : ManaClass
     {
-        public UnresolvedManaClass(QualityTypeName fullName) 
+        public UnresolvedManaClass(QualityTypeName fullName)
             => this.FullName = fullName;
     }
 }

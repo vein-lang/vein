@@ -22,8 +22,8 @@
 
         private static (string line, string arrow_line) NewDiffError(Transform t, DocumentDeclaration doc)
         {
-            var line = doc.SourceLines[t.pos.Line].Length < t.len ? 
-                t.pos.Line : 
+            var line = doc.SourceLines[t.pos.Line].Length < t.len ?
+                t.pos.Line :
                 t.pos.Line - 1;
 
             var original = doc.SourceLines[line];
@@ -36,7 +36,7 @@
                 return t.len;
             }
 
-            var err_line = original.Skip(t.pos.Column-1).Take(takeLen()).ToArray();
+            var err_line = original.Skip(t.pos.Column - 1).Take(takeLen()).ToArray();
             var space1 = original[..(t.pos.Column - 1)];
             var space2 = (t.pos.Column - 1) + t.len > original.Length ? "" : original[((t.pos.Column - 1) + t.len)..];
 
@@ -52,8 +52,8 @@
             }
             catch { }
 
-            var line = doc.SourceLines[t.pos.Line].Length < t.len ? 
-                t.pos.Line - 1 : 
+            var line = doc.SourceLines[t.pos.Line].Length < t.len ?
+                t.pos.Line - 1 :
                 /*t.pos.Line*/throw new Exception("cannot detect line");
 
             var original = doc.SourceLines[line];

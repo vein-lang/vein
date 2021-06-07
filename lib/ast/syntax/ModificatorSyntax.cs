@@ -25,7 +25,7 @@
         public ModificatorKind ModificatorKind { get; }
 
 
-        public ModificatorSyntax(string mod) 
+        public ModificatorSyntax(string mod)
             => this.ModificatorKind = Enum.Parse<ModificatorKind>(mod, true);
 
         public new ModificatorSyntax SetPos(Position startPos, int length)

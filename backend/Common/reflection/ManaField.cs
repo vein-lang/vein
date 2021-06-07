@@ -13,9 +13,9 @@
     {
         public string Name => fullName.Split('.').Last();
         public string Class => fullName.Split('.').SkipLast(1).Join();
-        
+
         [Obsolete]
-        public RuntimeToken Token 
+        public RuntimeToken Token
             => RuntimeToken.Create(fullName);
 
 
@@ -25,7 +25,7 @@
 
         public FieldName(string name, string className) : this($"{className}.{name}") { }
 
-        public static FieldName Construct(ManaClass owner, string name) 
+        public static FieldName Construct(ManaClass owner, string name)
             => new(name, owner.FullName.Name);
 
         public static FieldName Resolve(int index, ManaModule module)
@@ -34,7 +34,7 @@
                         throw new Exception($"FieldName by index '{index}' not found in '{module.Name}' module.");
             return value;
         }
-        
+
         public override string ToString() => $"{Class}.{Name}";
     }
     public class ManaField : ManaMember
@@ -50,16 +50,16 @@
         public ManaClass FieldType { get; set; }
         public FieldFlags Flags { get; set; }
         public ManaClass Owner { get; set; }
-        public List<Aspect> Aspects { get; } = new ();
-        
+        public List<Aspect> Aspects { get; } = new();
+
         public override string Name
         {
             get => FullName.Name;
             protected set => throw new NotImplementedException();
         }
         public override ManaMemberKind Kind => ManaMemberKind.Field;
-        
-        
+
+
         public bool IsLiteral => this.Flags.HasFlag(FieldFlags.Literal);
         public bool IsStatic => this.Flags.HasFlag(FieldFlags.Static);
         public bool IsPublic => this.Flags.HasFlag(FieldFlags.Public);
@@ -70,22 +70,22 @@
     {
         public static Func<string, object> GetConverter(this ManaTypeCode code)
         {
-            if (new [] { TYPE_U1, TYPE_U2, TYPE_U4, TYPE_U8 }.Any(x => x == code))
+            if (new[] { TYPE_U1, TYPE_U2, TYPE_U4, TYPE_U8 }.Any(x => x == code))
                 throw new NotSupportedException("Unsigned integer is not support.");
 
             Func<string, object> result = (code) switch
             {
-                (TYPE_BOOLEAN)  => (x) => bool.Parse(x),
-                (TYPE_CHAR)     => (x) => char.Parse(x),
-                (TYPE_I1)       => (x) => byte.Parse(x),
-                (TYPE_I2)       => (x) => short.Parse(x),
-                (TYPE_I4)       => (x) => int.Parse(x),
-                (TYPE_I8)       => (x) => long.Parse(x),
-                (TYPE_R2)       => (x) => Half.Parse(x),
-                (TYPE_R4)       => (x) => float.Parse(x),
-                (TYPE_R8)       => (x) => double.Parse(x),
-                (TYPE_R16)      => (x) => decimal.Parse(x),
-                (TYPE_STRING)   => (x) => x,
+                (TYPE_BOOLEAN) => (x) => bool.Parse(x),
+                (TYPE_CHAR) => (x) => char.Parse(x),
+                (TYPE_I1) => (x) => byte.Parse(x),
+                (TYPE_I2) => (x) => short.Parse(x),
+                (TYPE_I4) => (x) => int.Parse(x),
+                (TYPE_I8) => (x) => long.Parse(x),
+                (TYPE_R2) => (x) => Half.Parse(x),
+                (TYPE_R4) => (x) => float.Parse(x),
+                (TYPE_R8) => (x) => double.Parse(x),
+                (TYPE_R16) => (x) => decimal.Parse(x),
+                (TYPE_STRING) => (x) => x,
                 _ => throw new NotSupportedException($"Cannot fetch converter for {code}.")
             };
 
@@ -117,5 +117,5 @@
         }
     }
 
-    
+
 }

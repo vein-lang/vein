@@ -8,7 +8,7 @@
     {
         public IshtarExportFlagsAttribute(MethodFlags flags)
         {
-            
-        } 
+
+        }
     }
 }

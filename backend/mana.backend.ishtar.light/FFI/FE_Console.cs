@@ -19,7 +19,7 @@
             var @class = arg1->DecodeClass();
 
             var str = IshtarMarshal.ToDotnetString(arg1, current);
-            
+
             Out.WriteLine();
             Out.WriteLine($"\t{str}");
             Out.WriteLine();
