@@ -75,7 +75,7 @@ namespace mana.syntax
             if (ctor is null)
                 return ErrorNumberLiteral(str, new Exception($"ctor not found for type '{typeof(T)}'"));
 
-            return (T)ctor.Invoke(new object?[] { parser(str) }); ;
+            return (T)ctor.Invoke(new object[] { parser(str) }); ;
         }
 
         private NumericLiteralExpressionSyntax ErrorNumberLiteral(string value, Exception e)

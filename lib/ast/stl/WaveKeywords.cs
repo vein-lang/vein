@@ -2,7 +2,7 @@ namespace mana.stl
 {
     using System.Collections.Generic;
 
-    public class ManaKeywords
+    public static class ManaKeywords
     {
         public static readonly List<string> list = new()
         {

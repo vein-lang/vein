@@ -35,7 +35,7 @@ namespace mana.runtime
             }
         }
     }
-
+    public class InvalidTypeNameException : Exception { public InvalidTypeNameException(string msg) : base(msg) { } }
     public record QualityTypeName(string fullName)
     {
         public string Name => fullName.Split('/').Last();
@@ -54,7 +54,7 @@ namespace mana.runtime
         public static implicit operator QualityTypeName(string name)
         {
             if (!Regex.IsMatch(name, @"(.+)\%global::(.+)\/(.+)"))
-                throw new Exception($"'{name}' is not valid type name.");
+                throw new InvalidTypeNameException($"'{name}' is not valid type name.");
             return new QualityTypeName(name);
         }
 

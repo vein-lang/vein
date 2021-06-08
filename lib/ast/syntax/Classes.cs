@@ -37,7 +37,7 @@ namespace mana.syntax
                 Identifier = typeAndName.Identifier,
                 Accessors = accessors.Accessors,
             };
-        // example: private static x, y, z: int = 3;
+        /// example: private static x, y, z: int = 3;
         protected internal virtual Parser<FieldDeclarationSyntax> FieldDeclaration =>
             from heading in MemberDeclarationHeading.Token()
             from identifier in IdentifierExpression.Commented(this)
@@ -55,7 +55,7 @@ namespace mana.syntax
                     LeadingComments = identifier.LeadingComments.ToList()
                 },
             };
-        // examples: get; private set; get { return 0; }
+        /// examples: get; private set; get { return 0; }
         protected internal virtual Parser<AccessorDeclarationSyntax> PropertyAccessor =>
             from heading in MemberDeclarationHeading
             from keyword in Parse.IgnoreCase("get").Or(Parse.IgnoreCase("set")).Token().Text()
@@ -66,14 +66,14 @@ namespace mana.syntax
                 Body = body.Value,
                 TrailingComments = body.TrailingComments.ToList(),
             };
-        // example: { get; set; }
+        /// example: { get; set; }
         protected internal virtual Parser<PropertyDeclarationSyntax> PropertyAccessors =>
             from openBrace in Parse.Char('{').Token()
             from accessors in PropertyAccessor.Many()
             from closeBrace in Parse.Char('}').Token()
             select new PropertyDeclarationSyntax(accessors);
 
-        // method or property declaration starting with the type and name
+        /// method or property declaration starting with the type and name
         protected internal virtual Parser<MemberDeclarationSyntax> MethodOrPropertyDeclaration =>
             from dec in MemberDeclarationHeading
             from name in IdentifierExpression
@@ -88,13 +88,13 @@ namespace mana.syntax
             from member in CtorParametersAndBody.Select(c => c as MemberDeclarationSyntax)
             select member.WithName(kw).WithProperties(dec);
 
-        // example: @TestFixture public static class Program { static void main() {} }
+        /// example: @TestFixture public static class Program { static void main() {} }
         public virtual Parser<ClassDeclarationSyntax> ClassDeclaration =>
             from heading in MemberDeclarationHeading.Token()
             from classBody in ClassDeclarationBody.Token()
             select ClassDeclarationSyntax.Create(heading, classBody);
 
-        // example: class Program { void main() {} }
+        /// example: class Program { void main() {} }
         protected internal virtual Parser<ClassDeclarationSyntax> ClassDeclarationBody =>
             from @class in
                 Parse.IgnoreCase("class").Text().Token()
