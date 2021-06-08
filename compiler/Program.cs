@@ -13,6 +13,7 @@ using Spectre.Console.Cli;
 using insomnia;
 using mana.cmd;
 using static System.Console;
+using static GitVersionInformation;
 using static Spectre.Console.AnsiConsole;
 using Color = System.Drawing.Color;
 
@@ -51,8 +52,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
 
 
 
-var ver = FileVersionInfo.GetVersionInfo(typeof(ColorShim).Assembly.Location).ProductVersion;
-MarkupLine($"[grey]Mana compiler[/] [red]{ver}[/]");
+MarkupLine($"[grey]Mana compiler[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
 MarkupLine($"[grey]Copyright (C)[/] [cyan3]2021[/] [bold]Yuuki Wesp[/].\n\n");
 
 
