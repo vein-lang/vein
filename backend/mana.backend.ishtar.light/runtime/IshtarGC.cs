@@ -95,6 +95,7 @@ namespace ishtar
 
             // fill array block
             arr_obj->memory = obj;
+            arr_obj->element_clazz = IshtarUnsafe.AsPointer(ref @class);
             arr_obj->_block.offset_value = arr.Field["!!value"].vtable_offset;
             arr_obj->_block.offset_block = arr.Field["!!block"].vtable_offset;
             arr_obj->_block.offset_size = arr.Field["!!size"].vtable_offset;
@@ -133,6 +134,7 @@ namespace ishtar
             p->vtable = (void**)Marshal.AllocHGlobal(new IntPtr(sizeof(void*) * (long)@class.computed_size));
             Unsafe.CopyBlock(p->vtable, @class.vtable, (uint)@class.computed_size * (uint)sizeof(void*));
             p->clazz = IshtarUnsafe.AsPointer(ref @class);
+            p->vtable_size = (uint)@class.computed_size;
 
             GCStats.alive_objects++;
             GCStats.total_allocations++;
