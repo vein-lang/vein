@@ -35,6 +35,7 @@ jobs:
           title: '[housekeeping] Automated PR to fix formatting errors'
           body: |
             Automated PR to fix formatting errors
+          token: ${{ secrets.CODE_MAID_PAT }}
           committer: Code Maid <code.maid@0xf6.moe>
           author: Code Maid <code.maid@0xf6.moe>
           labels: code-quality ♻︎
