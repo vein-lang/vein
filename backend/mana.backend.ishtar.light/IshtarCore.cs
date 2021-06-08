@@ -64,6 +64,21 @@ namespace mana.backend.ishtar.light
             (ManaCore.StringClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special | FieldFlags.Internal,
                     ManaCore.ValueTypeClass);
+
+
+
+            (ManaCore.ArrayClass as RuntimeIshtarClass)
+                !.DefineField("!!value", FieldFlags.Special,
+                    ManaCore.ValueTypeClass);
+            (ManaCore.ArrayClass as RuntimeIshtarClass)
+                !.DefineField("!!block", FieldFlags.Special,
+                    ManaCore.Int64Class);
+            (ManaCore.ArrayClass as RuntimeIshtarClass)
+                !.DefineField("!!size", FieldFlags.Special,
+                    ManaCore.Int64Class);
+            (ManaCore.ArrayClass as RuntimeIshtarClass)
+                !.DefineField("!!rank", FieldFlags.Special,
+                    ManaCore.Int64Class);
         }
     }
 }
