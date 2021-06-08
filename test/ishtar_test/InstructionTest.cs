@@ -18,8 +18,6 @@ namespace ishtar_test
             using var ctx = CreateContext();
             var result = ctx.Execute((gen, _) =>
             {
-                if (gen == null)
-                    throw new Exception("GENERATOR IS NULL");
                 gen.Emit(OpCodes.all[op]);
                 gen.Emit(OpCodes.all[op]);
                 gen.Emit(OpCodes.ADD);

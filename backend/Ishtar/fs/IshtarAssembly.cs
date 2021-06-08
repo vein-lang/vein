@@ -48,7 +48,7 @@ namespace mana.fs
             if (module is null)
                 throw new ArgumentNullException(nameof(module));
             if (string.IsNullOrEmpty(module.Name))
-                throw new NullReferenceException("Name of module has null.");
+                throw new ArgumentNullException($"module.Name");
             Version = module.Version;
             this.AddSegment((".code", module.BakeByteArray()));
             DebugData = module.BakeDebugString();

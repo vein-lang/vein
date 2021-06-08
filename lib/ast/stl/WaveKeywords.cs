@@ -4,7 +4,7 @@ namespace mana.stl
 
     public class ManaKeywords
     {
-        public static List<string> list = new()
+        public static readonly List<string> list = new()
         {
             "public",
             "private",

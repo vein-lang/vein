@@ -36,7 +36,7 @@ namespace mana.project
                 return GetPackByAlias("osx-x64");
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 return GetPackByAlias("linux-x64");
-            throw new Exception("OS is not support");
+            throw new NotSupportedException("OS is not support");
         }
 
         public SDKPack GetPackByAlias(string alias) =>
@@ -46,7 +46,7 @@ namespace mana.project
         public static ManaSDK? Resolve(string name)
         {
             if (!SDKRoot.Exists)
-                throw new Exception($"Sdk is not installed.");
+                throw new SDKNotInstalled($"Sdk is not installed.");
 
             return SDKRoot
                 .SubDirectory("manifest")
@@ -72,6 +72,13 @@ namespace mana.project
         Resources
     }
 
+    public class SDKNotInstalled : Exception
+    {
+        public SDKNotInstalled(string msg) : base(msg)
+        {
+            
+        }
+    }
     public class SDKPack
     {
         public string Name { get; set; }

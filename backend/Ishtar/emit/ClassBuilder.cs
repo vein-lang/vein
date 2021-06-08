@@ -5,6 +5,7 @@ namespace mana.ishtar.emit
     using System.IO;
     using System.Linq;
     using System.Text;
+    using exceptions;
     using extensions;
     using mana.extensions;
     using mana.runtime;
@@ -57,7 +58,7 @@ namespace mana.ishtar.emit
             var method = new MethodBuilder(this, name, returnType, args);
 
             if (Methods.Any(x => x.Name == method.Name))
-                throw new Exception($"Method '{method.Name}' in class '{Name}' already defined.");
+                throw new MethodAlreadyDefined($"Method '{method.Name}' in class '{Name}' already defined.");
             Methods.Add(method);
             return method;
         }
@@ -85,7 +86,7 @@ namespace mana.ishtar.emit
             var field = new ManaField(this, new FieldName(name, this.Name), flags, fieldType);
             moduleBuilder.InternFieldName(field.FullName);
             if (Fields.Any(x => x.Name == name))
-                throw new Exception($"Field '{name}' in class '{Name}' already defined.");
+                throw new FieldAlreadyDefined($"Field '{name}' in class '{Name}' already defined.");
             Fields.Add(field);
             return field;
         }
