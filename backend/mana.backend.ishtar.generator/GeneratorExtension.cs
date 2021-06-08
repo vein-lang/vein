@@ -63,6 +63,11 @@ namespace ishtar
         }
         public ManaClass ResolveScopedIdentifierType(IdentifierExpression id)
         {
+            if (ResolveArgument(id) is not null)
+            {
+                var a = ResolveArgument(id);
+                return a.Value.Item1.Type;
+            }
             if (CurrentScope.HasVariable(id))
                 return CurrentScope.variables[id];
             if (CurrentMethod.Owner.ContainsField(id))
@@ -396,12 +401,24 @@ namespace ishtar
         public static void EmitAssignExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
-
+            
             if (bin.Left is IdentifierExpression id)
             {
                 var field = context.ResolveField(context.CurrentMethod.Owner, id);
                 gen.EmitExpression(bin.Right);
                 gen.Emit(field.IsStatic ? OpCodes.STSF : OpCodes.STF, field);
+                return;
+            }
+
+
+
+            if (bin.Left is MemberAccessExpression member)
+            {
+                if (member.Chain.Count() == 1 && member.Start.ExpressionString == "this")
+                    gen.EmitIdentifierReference(member.Chain.Single() as IdentifierExpression);
+                else
+                    throw new NotSupportedException();
+                gen.EmitExpression(bin.Right);
                 return;
             }
 
@@ -693,6 +710,12 @@ namespace ishtar
                 return;
             }
 
+            if (chain.Length == 3)
+            {
+                generator.EmitReferencedCall((IdentifierExpression) chain[0], 
+                    chain[1] as IdentifierExpression, chain[2] as MethodInvocationExpression);
+                return;
+            }
             throw new NotSupportedException();
         }
 
