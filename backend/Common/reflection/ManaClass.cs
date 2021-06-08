@@ -102,8 +102,7 @@ namespace mana.runtime
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(FullName, other.FullName) &&
-                   Equals(Parent, other.Parent);
+            return Equals(FullName, other.FullName);
         }
 
         public override bool Equals(object obj)
