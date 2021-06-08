@@ -17,9 +17,19 @@ csharp_style_expression_bodied_indexers=true:warning
 csharp_style_expression_bodied_accessors=true:warning
 csharp_style_expression_bodied_lambdas=true:warning
 csharp_style_expression_bodied_local_functions=true:warning
+csharp_prefer_static_local_function=true:warning
+csharp_style_prefer_switch_expression=true:warning
+csharp_style_prefer_pattern_matching=true:warning
+csharp_style_pattern_matching_over_is_with_cast_check=true:warning
+csharp_style_pattern_matching_over_as_with_null_check=true:warning
+csharp_style_prefer_not_pattern=true:warning
+csharp_style_var_for_built_in_types=false:silent
+csharp_style_var_when_type_is_apparent=true:silent
+csharp_style_var_elsewhere=true:silent
 
 # Code files
 [*.{cs,csx,vb,vbx}]
 indent_size = 4
 insert_final_newline = true
 end_of_line = crlf
+dotnet_style_predefined_type_for_locals_parameters_members=true:error

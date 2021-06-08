@@ -413,24 +413,16 @@ namespace ishtar
             if (code.IsCompatibleNumber(numeric.GetTypeCode()))
                 return true;
 
-            switch (code)
+            return code switch
             {
-                case ManaTypeCode.TYPE_I1:
-                    return long.Parse(numeric.ExpressionString) is <= sbyte.MaxValue and >= sbyte.MinValue;
-                case ManaTypeCode.TYPE_I2:
-                    return long.Parse(numeric.ExpressionString) is <= short.MaxValue and >= short.MinValue;
-                case ManaTypeCode.TYPE_I4:
-                    return long.Parse(numeric.ExpressionString) is <= int.MaxValue and >= int.MinValue;
-
-                case ManaTypeCode.TYPE_U1:
-                    return ulong.Parse(numeric.ExpressionString) is <= byte.MaxValue and >= byte.MinValue;
-                case ManaTypeCode.TYPE_U2:
-                    return ulong.Parse(numeric.ExpressionString) is <= ushort.MaxValue and >= ushort.MinValue;
-                case ManaTypeCode.TYPE_U4:
-                    return ulong.Parse(numeric.ExpressionString) is <= uint.MaxValue and >= uint.MinValue;
-            }
-
-            return false;
+                ManaTypeCode.TYPE_I1 => long.Parse(numeric.ExpressionString) is <= sbyte.MaxValue and >= sbyte.MinValue,
+                ManaTypeCode.TYPE_I2 => long.Parse(numeric.ExpressionString) is <= short.MaxValue and >= short.MinValue,
+                ManaTypeCode.TYPE_I4 => long.Parse(numeric.ExpressionString) is <= int.MaxValue and >= int.MinValue,
+                ManaTypeCode.TYPE_U1 => ulong.Parse(numeric.ExpressionString) is <= byte.MaxValue and >= byte.MinValue,
+                ManaTypeCode.TYPE_U2 => ulong.Parse(numeric.ExpressionString) is <= ushort.MaxValue and >= ushort.MinValue,
+                ManaTypeCode.TYPE_U4 => ulong.Parse(numeric.ExpressionString) is <= uint.MaxValue and >= uint.MinValue,
+                _ => false
+            };
         }
 
         public static ManaTypeCode GetTypeCode(this ExpressionSyntax exp)
@@ -794,7 +786,7 @@ namespace ishtar
                         if (i16 is { Value: 3 }) generator.Emit(OpCodes.LDC_I2_3);
                         if (i16 is { Value: 4 }) generator.Emit(OpCodes.LDC_I2_4);
                         if (i16 is { Value: 5 }) generator.Emit(OpCodes.LDC_I2_5);
-                        if (i16.Value > 5 || i16.Value < 0)
+                        if (i16.Value is > 5 or < 0)
                             generator.Emit(OpCodes.LDC_I2_S, i16.Value);
                         break;
                     }
@@ -806,7 +798,7 @@ namespace ishtar
                         if (i32 is { Value: 3 }) generator.Emit(OpCodes.LDC_I4_3);
                         if (i32 is { Value: 4 }) generator.Emit(OpCodes.LDC_I4_4);
                         if (i32 is { Value: 5 }) generator.Emit(OpCodes.LDC_I4_5);
-                        if (i32.Value > 5 || i32.Value < 0)
+                        if (i32.Value is > 5 or < 0)
                             generator.Emit(OpCodes.LDC_I4_S, i32.Value);
                         break;
                     }
@@ -818,7 +810,7 @@ namespace ishtar
                         if (i64 is { Value: 3 }) generator.Emit(OpCodes.LDC_I8_3);
                         if (i64 is { Value: 4 }) generator.Emit(OpCodes.LDC_I8_4);
                         if (i64 is { Value: 5 }) generator.Emit(OpCodes.LDC_I8_5);
-                        if (i64.Value > 5 || i64.Value < 0)
+                        if (i64.Value is > 5 or < 0)
                             generator.Emit(OpCodes.LDC_I8_S, i64.Value);
                         break;
                     }
@@ -860,9 +852,7 @@ namespace ishtar
         }
 
         private static string UnEscapeSymbols(string str)
-        {
-            return Regex.Unescape(str);
-        }
+            => Regex.Unescape(str);
 
         public static void EmitReturn(this ILGenerator generator, ReturnStatementSyntax statement)
         {

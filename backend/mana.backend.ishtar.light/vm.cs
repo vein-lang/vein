@@ -11,10 +11,7 @@ namespace ishtar
 
     public static unsafe partial class VM
     {
-        static VM()
-        {
-            watcher = new DefaultWatchDog();
-        }
+        static VM() => watcher = new DefaultWatchDog();
 
 
         public static volatile NativeException CurrentException;

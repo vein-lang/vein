@@ -4,6 +4,8 @@ namespace mana.runtime
     using System.Collections.Generic;
     using System.Linq;
     using reflection;
+    using static ManaTypeCode;
+
 
     public class ManaClass : IEquatable<ManaClass>
     {
@@ -14,8 +16,8 @@ namespace mana.runtime
         public ManaClass Parent { get; set; }
         public List<ManaField> Fields { get; } = new();
         public List<ManaMethod> Methods { get; set; } = new();
-        public ManaTypeCode TypeCode { get; set; } = ManaTypeCode.TYPE_CLASS;
-        public bool IsPrimitive => TypeCode != ManaTypeCode.TYPE_CLASS && TypeCode != ManaTypeCode.TYPE_NONE;
+        public ManaTypeCode TypeCode { get; set; } = TYPE_CLASS;
+        public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE;
         public ManaModule Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
 
