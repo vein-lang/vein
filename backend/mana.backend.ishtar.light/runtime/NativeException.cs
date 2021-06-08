@@ -21,6 +21,7 @@ namespace ishtar
         // unexpected end of executable memory.
         END_EXECUTE_MEMORY,
         OUT_OF_MEMORY,
-        ACCESS_VIOLATION
+        ACCESS_VIOLATION,
+        OVERFLOW
     }
 }
