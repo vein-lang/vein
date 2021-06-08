@@ -64,3 +64,5 @@ Cargo.lock
 **/*.rs.bk
 
 launch.json
+
+mana_lang.sln.DotSettings.user
