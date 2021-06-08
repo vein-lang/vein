@@ -31,7 +31,7 @@ namespace ishtar
                Equals(other);
 
         public override int GetHashCode() =>
-            HashCode.Combine(rank, len, unchecked((int)(long)elements), unchecked((int)(long)clazz));
+            HashCode.Combine(rank, len, unchecked((int)(long)elements), unchecked((int) (long) clazz));
 
         #endregion
     }
