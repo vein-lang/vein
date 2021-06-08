@@ -10,3 +10,4 @@ public struct Int32 : ValueType
     public const MaxValue: Int32 = 2147483647;
     public const MinValue: Int32 = -2147483648;
 }
+

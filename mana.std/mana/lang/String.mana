@@ -10,34 +10,26 @@ public class String : Object
     [native, getter]
     public /*extern*/ Length: Int32;
 
-    public EndsWith(value: Char): Boolean
+    // temporary using vm_bridge, todo: rework to using mana-code
+    [native("@_fast_end_with_string")]
+    public extern EndsWith(value: Char): Boolean;
+    // temporary using vm_bridge, todo: rework to using mana-code
+    [native("@_fast_start_with_string")]
+    public extern startsWith(value: Char): Boolean;
+
+    public trim(): String
     {
-        if (this.Length - 1 < this.Length)
-            return false;
-        return (this[this.Length - 1] == value);
-    }
-    public StartsWith(value: Char): Boolean
-    {
-        if (this.Length < 1)
-            return false;
-        return this[0] == value;
+        return String.trimEnd(String.trimStart(this));
     }
 
+    [native("@_fast_concat_string")]
+    public static extern concat(s2: String, s2: String): String;
 
-/*
-    private extern static @_fast_alloc(len: Int32): String;
+    // temporary using vm_bridge, todo: rework to using mana-code
+    [native("@_fast_trim_start")]
+    public static extern trimStart(s: String): String;
 
-    private extern static @_fast_fill(dest: String, pos: Int32, target: String): Void;
-
-
-    public static concat(s1: String, s2: String): String
-    {
-        auto len_s1 = s1.Length;
-        auto len_s2 = s2.Length;
-        auto result = String.@_fast_alloc(len_s1 + len_s2);
-        String.@_fast_fill(result, 0, s1);
-        String.@_fast_fill(result, len_s1, s2);
-        return result;
-    }
-    */
+    // temporary using vm_bridge, todo: rework to using mana-code
+    [native("@_fast_trim_end")]
+    public static extern trimEnd(s: String): String;
 }

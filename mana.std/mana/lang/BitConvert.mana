@@ -1,0 +1,13 @@
+#space "mana/lang"
+
+
+
+public class BitConvert : Object
+{
+    /*
+    public static ToBytes(str: String): byte[]
+    {
+        // ...
+    }
+    */
+}

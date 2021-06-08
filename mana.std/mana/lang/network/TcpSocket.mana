@@ -1,0 +1,53 @@
+#space "mana/lang/network"
+
+#use "mana/lang"
+
+public class TcpSocket
+{
+    private _port: UInt16;
+    private _is_listing: Boolean;
+    private _handle: ValueType;
+    private _blocked: Boolean;
+    private _connected: Boolean;
+
+    [native("@_sock_listen")]
+    public static extern _sock_listen(handle: ValueType, cq: Int32): Int32;
+
+    [native("@_sock_send")]
+    public static extern _sock_send(handle: ValueType, buffer: Byte[], len: Int32): ValueType;
+
+    [native("@_sock_create")]
+    public static extern _create_native_socket(): ValueType;
+
+    public IsBlocked(): Boolean { return _blocked; }
+    public IsListed(): Boolean { return _is_listing; }
+    public IsConnected(): Boolean { return _connected; }
+
+    public Bind(): Void
+    { }
+
+    public Send(buffer: Byte[]): Int32
+    {
+        auto result = TcpSocket._sock_send(this._handle, buffer, buffer.Length);
+        return result;
+    }
+
+    public Listen(cq: Int32): Void
+    {
+        auto errorCode = TcpSocket._sock_listen(this._handle, cq);
+
+        if (errorCode != 0)
+        {
+            Application.Shutdown("socker error", errorCode);
+        }
+
+        _is_listing = true;
+    }
+
+    public static Create(port: UInt16): TcpSocket
+    {
+        auto sock = new TcpSocket();
+        sock._port = port;
+        sock._handle = TcpSocket._create_native_socket();
+    }
+}

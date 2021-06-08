@@ -1,0 +1,12 @@
+#space "mana/lang/network"
+
+#use "mana/lang"
+
+public class NetworkStream : Object
+{
+    /*
+    public read(): byte[] {}
+    public write(bytes: byte[]): void {}
+    public flush(): void {}
+    */
+}

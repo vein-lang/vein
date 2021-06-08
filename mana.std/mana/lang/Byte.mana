@@ -1,0 +1,9 @@
+#space "mana/lang"
+
+
+[special, readonly, forwarded]
+public struct Byte : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+}

@@ -10,4 +10,7 @@ public static class Application
     {
         return "Application.getPlatform()";
     }
+
+    [native("@_app_shutdown")]
+    public extern static Shutdown(msg: String, exitCode: Int32): Void;
 }
