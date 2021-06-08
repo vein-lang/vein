@@ -608,7 +608,7 @@ namespace insomnia.compilation
                 "boolean" => "Boolean",
                 "uint64" => "UInt64",
                 "uint32" => "UInt32",
-                "uint16" => "Uint16",
+                "uint16" => "UInt16",
                 "sbyte" => "SByte",
                 "half" => "Half",
                 "float" => "Float",
