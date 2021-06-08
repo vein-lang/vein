@@ -87,6 +87,12 @@ namespace ishtar
                 return null;
             }
 
+            // validate fields
+            FFI.StaticValidateField(frame, &obj, "!!value");
+            FFI.StaticValidateField(frame, &obj, "!!block");
+            FFI.StaticValidateField(frame, &obj, "!!size");
+            FFI.StaticValidateField(frame, &obj, "!!rank");
+
             // fill array block
             arr_obj->memory = obj;
             arr_obj->_block.offset_value = arr.Field["!!value"].vtable_offset;
