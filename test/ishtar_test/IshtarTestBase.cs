@@ -75,6 +75,8 @@ namespace ishtar_test
 
         private static unsafe CallFrame RunIt(RuntimeIshtarMethod entry, byte[] code, short stack_size)
         {
+            if (VM.watcher is DefaultWatchDog)
+                VM.watcher = new TestWatchDog();
             RuntimeModuleReader.ConstructIL(entry, code, stack_size);
             var args_ = stackalloc stackval[1];
             var frame = new CallFrame
@@ -145,12 +147,7 @@ namespace ishtar_test
             resolver.AddSearchPath(new DirectoryInfo("./"));
             return resolver.ResolveDep("corlib", new Version(1, 0, 0), new List<ManaModule>());
         }
-
-        private static void VMOnValidateLastErrorEvent(NativeException obj) =>
-            Assert.False(true, $"native exception was thrown.\n\t" +
-                               $"[{obj.code}]\n\t" +
-                               $"'{obj.msg}'");
-
+        
         private static readonly object guarder = new ();
 
 
