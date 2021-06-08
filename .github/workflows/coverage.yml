@@ -15,6 +15,9 @@ jobs:
     - name: Export Env
       run: $env:CODACY_PROJECT_TOKEN="${{ secrets.CODACY_API_KEY }}"
     - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - run: git fetch --prune --unshallow --tags
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
