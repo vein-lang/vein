@@ -401,7 +401,7 @@ namespace ishtar
         public static void EmitAssignExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
-            
+
             if (bin.Left is IdentifierExpression id)
             {
                 var field = context.ResolveField(context.CurrentMethod.Owner, id);
@@ -712,7 +712,7 @@ namespace ishtar
 
             if (chain.Length == 3)
             {
-                generator.EmitReferencedCall((IdentifierExpression) chain[0], 
+                generator.EmitReferencedCall((IdentifierExpression)chain[0],
                     chain[1] as IdentifierExpression, chain[2] as MethodInvocationExpression);
                 return;
             }

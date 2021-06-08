@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using System.Runtime.CompilerServices;
@@ -74,7 +74,7 @@
             var len = args[3];
 
 
-            FFI.StaticValidate(frame, &@ref);   FFI.StaticValidate(frame, &@new);
+            FFI.StaticValidate(frame, &@ref); FFI.StaticValidate(frame, &@new);
             FFI.StaticValidate(frame, &offset); FFI.StaticValidate(frame, &len);
 
             FFI.StaticTypeOf(frame, &@ref, TYPE_STRING);

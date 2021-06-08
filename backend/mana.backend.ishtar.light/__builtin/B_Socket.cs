@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System.Net.Sockets;
     using static mana.runtime.MethodFlags;

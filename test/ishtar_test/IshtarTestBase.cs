@@ -147,7 +147,7 @@ namespace ishtar_test
             resolver.AddSearchPath(new DirectoryInfo("./"));
             return resolver.ResolveDep("corlib", new Version(1, 0, 0), new List<ManaModule>());
         }
-        
+
         private static readonly object guarder = new ();
 
 

@@ -62,7 +62,7 @@ namespace ishtar
             var args = invocation.args;
 
             var locals = default(stackval*);
-            
+
             var ip = mh.code;
             fixed (stackval* p = GC.AllocateArray<stackval>(mh.max_stack, true))
                 invocation.stack = p;
