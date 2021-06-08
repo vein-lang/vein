@@ -3,6 +3,7 @@ namespace mana.runtime
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using reflection;
 
     public class ManaModule
@@ -20,6 +21,8 @@ namespace mana.runtime
         protected internal readonly Dictionary<int, string> strings_table = new();
         protected internal readonly Dictionary<int, QualityTypeName> types_table = new();
         protected internal readonly Dictionary<int, FieldName> fields_table = new();
+
+        protected internal readonly MutexStorage Interlocker = new ();
 
         public string GetConstStringByIndex(int index) =>
             strings_table.GetValueOrDefault(index) ??
@@ -102,5 +105,12 @@ namespace mana.runtime
 
         public T ReadFromConstStorage<T>(FieldName field)
             => (T)const_table.Get(field);
+
+
+
+        public class MutexStorage
+        {
+            public object INIT_ARRAY_BARRIER = new Mutex ();
+        }
     }
 }
