@@ -33,6 +33,15 @@ namespace ishtar_test
             var result = IshtarGC.AllocValue();
             result = null;
         }
+
+        [Fact]
+        public unsafe void CorrectAllocateArray()
+        {
+            var array = IshtarGC.AllocArray(ManaTypeCode.TYPE_I4.AsRuntimeClass(), 10, 1);
+
+            Assert.Equal(10UL, array->length);
+            Assert.Equal(1UL, array->rank);
+        }
         protected override void StartUp() { }
         protected override void Shutdown() { }
     }
