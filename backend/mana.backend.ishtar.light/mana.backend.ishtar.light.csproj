@@ -1,10 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>net6.0</TargetFramework>
-		<InvariantGlobalization>true</InvariantGlobalization>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Version>0.4.1180</Version>
 		<AssemblyName>ishtar</AssemblyName>
 		<DefineConstants>STATIC_VALIDATE_IL</DefineConstants>
 	</PropertyGroup>
@@ -14,14 +10,7 @@
 		<IlcOptimizationPreference>Size</IlcOptimizationPreference>
 		<IlcDisableUnhandledExceptionExperience>true</IlcDisableUnhandledExceptionExperience>
 	</PropertyGroup>
-	<PropertyGroup Condition="$(Configuration) == 'Debug'">
-		<BumpPatch>true</BumpPatch>
-	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Ivy.Versioning" Version="3.1.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.9.0" />
 		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
 		<PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />

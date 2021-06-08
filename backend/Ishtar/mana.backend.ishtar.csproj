@@ -1,30 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>net5.0</TargetFramework>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Version>0.4.1278</Version>
-		<Authors>Yuuki Wesp</Authors>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Copyright>(C) 2021 Yuuki Wesp</Copyright>
 		<Description>Mana Lang backend for Ishtar VM</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<AssemblyName>mana.backend.ishtar</AssemblyName>
 		<RootNamespace>mana.ishtar</RootNamespace>
 	</PropertyGroup>
-	<PropertyGroup Condition="$(Configuration) == 'Debug'">
-		<BumpPatch>true</BumpPatch>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Ivy.Versioning" Version="3.1.0">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="ExpressiveParser" Version="2.4.0" />
 		<PackageReference Include="morelinq" Version="3.3.2" />
 		<PackageReference Include="BinaryTools.Elf" Version="0.3.0" />
