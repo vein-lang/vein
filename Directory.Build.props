@@ -1,0 +1,32 @@
+<Project>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<InvariantGlobalization>true</InvariantGlobalization>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>latest</LangVersion>
+		<Version>0.4.1182</Version>
+	</PropertyGroup>
+    <ItemGroup>
+        <SupportedPlatform Include="Linux" />
+		<SupportedPlatform Include="macOS" />
+		<SupportedPlatform Include="Windows" />
+    </ItemGroup>
+    <PropertyGroup>
+        <CurrentYear>$([System.DateTime]::Now.ToString(yyyy))</CurrentYear>
+        <PackageIconUrl>https://raw.githubusercontent.com/0xF6/mana_lang/master/ide_ext/vscode/images/icon.png</PackageIconUrl>
+        <PackageProjectUrl>https://github.com/0xF6/mana_lang</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/0xF6/mana_lang</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Copyright>(C) 2020-$(CurrentYear) Yuuki Wesp</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Authors>Yuuki Wesp</Authors>
+		<Company>ManaLang project</Company>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="GitVersionTask" Version="5.5.1"  PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+	</ItemGroup>
+</Project>
