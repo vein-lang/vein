@@ -27,7 +27,7 @@ namespace ishtar
                               $"'{VM.CurrentException.msg}'";
                     VM.println(err);
                     Console.ForegroundColor = ConsoleColor.White;
-                    VM.shutdown();
+                    VM.halt();
                 }
             }
         }

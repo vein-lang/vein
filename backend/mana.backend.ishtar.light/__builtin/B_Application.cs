@@ -33,7 +33,7 @@ namespace ishtar
             FFI.StaticTypeOf(current, &exitCode, TYPE_I4);
             FFI.StaticValidateField(current, &exitCode, "!!value");
 
-            VM.shutdown(IshtarMarshal.ToDotnetInt32(exitCode, current));
+            VM.halt(IshtarMarshal.ToDotnetInt32(exitCode, current));
 
             return null;
         }

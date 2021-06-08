@@ -24,7 +24,7 @@ namespace ishtar
 
         public static void println(string str) => Console.WriteLine(str);
 
-        public static void shutdown(int exitCode = -1)
+        public static void halt(int exitCode = -1)
             => Environment.Exit(exitCode);
 
         public static unsafe void exec_method_native(CallFrame frame)
