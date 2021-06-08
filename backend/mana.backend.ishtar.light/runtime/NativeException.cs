@@ -22,6 +22,7 @@ namespace ishtar
         END_EXECUTE_MEMORY,
         OUT_OF_MEMORY,
         ACCESS_VIOLATION,
-        OVERFLOW
+        OVERFLOW,
+        OUT_OF_RANGE
     }
 }
