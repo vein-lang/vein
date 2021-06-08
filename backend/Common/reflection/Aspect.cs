@@ -109,6 +109,8 @@ namespace mana.reflection
                         case AspectTarget.Method:
                             methods.Add(key, value);
                             break;
+                        default:
+                            break;
                     }
                 }
             }

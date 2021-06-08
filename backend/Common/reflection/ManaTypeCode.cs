@@ -63,9 +63,9 @@ namespace mana.runtime
                     return TypeCode.Decimal;
                 case TYPE_STRING:
                     return TypeCode.String;
+                default:
+                    throw new NotSupportedException($"'{type_code}' cant convert to CLR type code.");
             }
-
-            throw new NotSupportedException($"'{type_code}' cant convert to CLR type code.");
         }
         public static ManaTypeCode DetermineTypeCode<T>(this T value)
         {
@@ -101,8 +101,9 @@ namespace mana.runtime
                     return TYPE_R16;
                 case TypeCode.String:
                     return TYPE_STRING;
+                default:
+                    throw new NotSupportedException($"'{clr_code}', '{value}', '{value.GetType()}' cant convert to Ishtar type code.");
             }
-            throw new NotSupportedException($"'{clr_code}', '{value}', '{value.GetType()}' cant convert to Ishtar type code.");
         }
 
         public static bool IsCompatibleNumber(this ManaTypeCode variable, ManaTypeCode assign)
