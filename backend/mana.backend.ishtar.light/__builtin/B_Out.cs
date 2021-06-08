@@ -6,7 +6,7 @@ namespace ishtar
     using static mana.runtime.MethodFlags;
     using static mana.runtime.ManaTypeCode;
 
-    public static unsafe class FE_Out
+    public static unsafe class B_Out
     {
         [IshtarExport(1, "@_println")]
         [IshtarExportFlags(Public | Static)]
