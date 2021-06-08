@@ -1,9 +1,25 @@
+# Top-most EditorConfig file
 root = true
 
+# Editor defaults for every file
 [*]
 charset = utf-8
 indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+csharp_space_around_declaration_statements=ignore
+csharp_using_directive_placement=inside_namespace:warning
+csharp_style_expression_bodied_methods=true:warning
+csharp_style_expression_bodied_constructors=true:warning
+csharp_style_expression_bodied_operators=true:warning
+csharp_style_expression_bodied_properties=true:warning
+csharp_style_expression_bodied_indexers=true:warning
+csharp_style_expression_bodied_accessors=true:warning
+csharp_style_expression_bodied_lambdas=true:warning
+csharp_style_expression_bodied_local_functions=true:warning
+
+# Code files
+[*.{cs,csx,vb,vbx}]
 indent_size = 4
-end_of_line = lf
 insert_final_newline = true
-trim_trailing_whitespace = false
+end_of_line = crlf
