@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -46,9 +46,9 @@
             from _ in Keyword("gc").Token()
             from gc_status in (Keyword("auto").Or(Keyword("nocontrol")))
             from closed in Parse.Char(';')
-            //from exp in Block.Optional()
+                //from exp in Block.Optional()
             select new GCStatementSyntax()
-            { 
+            {
                 IsNoControl = gc_status == "nocontrol",
                 IsAuto = gc_status == "auto",
                 //Body = exp.GetOrDefault()
@@ -63,7 +63,7 @@
             from status in (Keyword("nocontrol").Or(Keyword("thread").Or(Keyword("auto"))))
             from closed in Parse.Char(';')
             select new SyncStatementSyntax()
-            { 
+            {
                 IsControl = status == "thread",
                 IsAuto = status == "auto"
             };
@@ -75,8 +75,8 @@
             from param in ParameterDeclarations.Optional()
             from closeBrace in Parse.Char(']').Token()
             select param.GetOrElse(Enumerable.Empty<ParameterSyntax>()).ToList();
-        
-        
+
+
         /// <example>
         /// public operation Hello[] -> void
         /// {

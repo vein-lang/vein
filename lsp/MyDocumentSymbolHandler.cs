@@ -1,4 +1,4 @@
-﻿namespace moe.lsp
+namespace moe.lsp
 {
     using System.Collections.Generic;
     using System.IO;
@@ -34,7 +34,8 @@
                     }
 
                     symbols.Add(
-                        new DocumentSymbol {
+                        new DocumentSymbol
+                        {
                             Detail = part,
                             Deprecated = true,
                             Kind = SymbolKind.Field,
@@ -59,7 +60,8 @@
             return symbols;
         }
 
-        public DocumentSymbolRegistrationOptions GetRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new DocumentSymbolRegistrationOptions {
+        public DocumentSymbolRegistrationOptions GetRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new DocumentSymbolRegistrationOptions
+        {
             DocumentSelector = DocumentSelector.ForLanguage("mana")
         };
     }

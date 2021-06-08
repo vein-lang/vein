@@ -1,4 +1,4 @@
-﻿namespace mana.project.@internal
+namespace mana.project.@internal
 {
     using mana.common;
     using Serilog;

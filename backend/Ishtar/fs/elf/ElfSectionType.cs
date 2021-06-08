@@ -1,4 +1,4 @@
-﻿namespace mana.fs.elf
+namespace mana.fs.elf
 {
     public enum ElfSectionType : uint
     {

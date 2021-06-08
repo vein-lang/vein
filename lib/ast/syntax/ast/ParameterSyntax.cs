@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Collections.Generic;
     using Sprache;
@@ -27,7 +27,7 @@
         public IdentifierExpression Identifier { get; set; }
 
         public bool IsNeedDetectType => Type is null;
-        
+
         public new ParameterSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);

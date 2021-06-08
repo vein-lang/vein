@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Linq;
     using Sprache;
@@ -8,7 +8,7 @@
     {
         public ExpressionSyntax[] Arguments { get; set; }
 
-        public MethodInvocationExpression(IOption<ExpressionSyntax[]> args) 
+        public MethodInvocationExpression(IOption<ExpressionSyntax[]> args)
             => this.Arguments = args.GetOrEmpty().ToArray();
 
         public new MethodInvocationExpression SetPos(Position startPos, int length)

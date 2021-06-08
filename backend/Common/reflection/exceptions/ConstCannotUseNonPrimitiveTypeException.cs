@@ -1,4 +1,4 @@
-﻿namespace mana.runtime
+namespace mana.runtime
 {
     using System;
 
@@ -7,7 +7,7 @@
         public ConstCannotUseNonPrimitiveTypeException(FieldName name, Type type) :
             base($"'{name}' trying use {type}, is not allowed.")
         {
-            
+
         }
     }
 }

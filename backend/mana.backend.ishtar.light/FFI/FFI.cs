@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -29,7 +29,7 @@
         {
             StaticValidate(*arg1);
             var @class = (*arg1)->DecodeClass();
-            VM.Assert(@class.FindField(name) != null, WNE.TYPE_LOAD, 
+            VM.Assert(@class.FindField(name) != null, WNE.TYPE_LOAD,
                 $"Field '{name}' not found in '{@class.Name}'.", current);
         }
         [Conditional("STATIC_VALIDATE_IL")]
@@ -48,7 +48,7 @@
             VM.Assert(@class.TypeCode == code, WNE.TYPE_MISMATCH, "@class.TypeCode == code", current);
         }
 
-        public static RuntimeIshtarMethod GetMethod(string FullName) 
+        public static RuntimeIshtarMethod GetMethod(string FullName)
             => method_table.GetValueOrDefault(FullName);
     }
 }

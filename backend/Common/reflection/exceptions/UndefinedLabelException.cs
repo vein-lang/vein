@@ -1,4 +1,4 @@
-﻿namespace mana.runtime
+namespace mana.runtime
 {
     using System;
 
@@ -6,7 +6,7 @@
     {
         public UndefinedLabelException() : base("Label is not defined in this generator.")
         {
-            
+
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using System.Collections.Generic;
@@ -13,16 +13,16 @@
         TValue this[TKey key] { get; }
     }
 
-    public unsafe class RuntimeIshtarClass : ManaClass, 
+    public unsafe class RuntimeIshtarClass : ManaClass,
         ITransitionAlignment<string, RuntimeIshtarField>,
-        ITransitionAlignment<string, RuntimeIshtarMethod>, 
+        ITransitionAlignment<string, RuntimeIshtarMethod>,
         IVTableCollectible,
         IDisposable
     {
         internal RuntimeIshtarClass(QualityTypeName name, ManaClass parent, ManaModule module)
-            : base(name, parent, module) {}
+            : base(name, parent, module) { }
         internal RuntimeIshtarClass(ManaType type, ManaClass parent)
-            : base(type, parent) {}
+            : base(type, parent) { }
 
 
         internal RuntimeIshtarField DefineField(string name, FieldFlags flags, ManaClass type)
@@ -31,7 +31,7 @@
             this.Fields.Add(f);
             return f;
         }
-        
+
         public ulong computed_size = 0;
         public bool is_inited = false;
         public void** vtable = null;
@@ -44,7 +44,7 @@
             public void* slot1, slot2;
             public int* flags;
         }
-        
+
 
         public void init_vtable()
         {
@@ -58,7 +58,7 @@
                 p.init_vtable();
                 computed_size += p.computed_size;
             }
-            
+
             computed_size += (ulong)this.Methods.Count * 2;
             computed_size += (ulong)this.Fields.Count * 2;
 
@@ -83,7 +83,7 @@
 
             if (p is not null && p.vtable_size != 0)
             {
-                Unsafe.CopyBlock(vtable, p.vtable, 
+                Unsafe.CopyBlock(vtable, p.vtable,
                     (uint)(sizeof(void*) * p.vtable_size));
             }
 
@@ -92,7 +92,7 @@
             for (var i = 0; i != this.Methods.Count; i++, vtable_offset++)
             {
                 var method = this.Methods[i] as RuntimeIshtarMethod;
-                
+
                 if ((method!.Flags & MethodFlags.Abstract) != 0 && (this.Flags & ClassFlags.Abstract) == 0)
                 {
                     VM.FastFail(WNE.TYPE_LOAD,
@@ -105,9 +105,9 @@
 
                 if (p is null)
                     continue;
-                
+
                 var w = p.FindMethod(method.Name);
-                
+
                 if (w == null && (method.Flags & MethodFlags.Override) != 0)
                     VM.FastFail(WNE.MISSING_METHOD,
                         $"Method '{method.Name}' mark as OVERRIDE," +
@@ -132,7 +132,7 @@
 
                     if ((field!.Flags & FieldFlags.Abstract) != 0 && (Flags & ClassFlags.Abstract) == 0)
                     {
-                        VM.FastFail(WNE.TYPE_LOAD, 
+                        VM.FastFail(WNE.TYPE_LOAD,
                             $"Field '{field.Name}' in '{this.Name}' type has invalid mapping.");
                         return;
                     }
@@ -146,7 +146,7 @@
                     var w = p.FindField(field.FullName);
 
                     if (w == null && (field.Flags & FieldFlags.Override) != 0)
-                        VM.FastFail(WNE.MISSING_FIELD, 
+                        VM.FastFail(WNE.MISSING_FIELD,
                             $"Field '{field.Name}' mark as OVERRIDE," +
                             $" but parent class '{p.Name}' no contained virtual/abstract method.");
 
@@ -163,8 +163,8 @@
             }
 
             if (Fields.Count != 0) for (var i = 0; i != Fields.Count; i++)
-                (Fields[i] as RuntimeIshtarField)?.init_mapping();
-            
+                    (Fields[i] as RuntimeIshtarField)?.init_mapping();
+
             is_inited = true;
         }
 
@@ -179,7 +179,7 @@
         }
         public new RuntimeIshtarField? FindField(string name)
             => base.FindField(name) as RuntimeIshtarField;
-        public RuntimeIshtarMethod? FindMethod(string fullyName) 
+        public RuntimeIshtarMethod? FindMethod(string fullyName)
             => Methods.FirstOrDefault(method => method.Name.Equals(fullyName)) as RuntimeIshtarMethod;
 
 
@@ -214,7 +214,7 @@
 
         #region IDisposable
 
-        private void ReleaseUnmanagedResources() 
+        private void ReleaseUnmanagedResources()
             => Marshal.FreeHGlobal((nint)vtable);
 
         public void Dispose()

@@ -1,4 +1,4 @@
-﻿namespace mana.project
+namespace mana.project
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -7,7 +7,7 @@
 
     public record PackageReference(string Name, NuGetVersion Version)
     {
-        
+
         internal static Parser<string> RawIdentifier =>
             from identifier in Parse.Identifier(Parse.Letter, Parse.LetterOrDigit
                 .Or(Parse.Chars('_', '.', '-')))
@@ -25,7 +25,7 @@
             from name in Parse.Identifier(Parse.Letter, Parse.LetterOrDigit)
             from meta in (
                 from dot in Parse.Char('.')
-                from number in Parse.Numeric.Many().Text() 
+                from number in Parse.Numeric.Many().Text()
                 select number).Optional()
             select (name, meta.GetOrDefault());
 
@@ -42,7 +42,7 @@
                 P(major), P(minor),
                 P(build), P(revision),
                 P(preview), "");
-            
+
 
         internal static Parser<PackageReference> Parser =>
             from id in Identifier
@@ -52,11 +52,11 @@
 
 
         private static IEnumerable<string> P(IOption<(string, string)> s) =>
-            new[] {s.GetOrDefault().Item1, s.GetOrDefault().Item2}.AsEnumerable();
+            new[] { s.GetOrDefault().Item1, s.GetOrDefault().Item2 }.AsEnumerable();
 
-        private static int P(string s) 
+        private static int P(string s)
             => int.Parse(s);
-        private static int P(IOption<string> s) 
+        private static int P(IOption<string> s)
             => s.IsDefined ? P(s.Get()) : 0;
     }
 }

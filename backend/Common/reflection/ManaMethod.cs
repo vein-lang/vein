@@ -1,4 +1,4 @@
-﻿namespace mana.runtime
+namespace mana.runtime
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -11,10 +11,10 @@
         public ManaClass ReturnType { get; set; }
         public ManaClass Owner { get; set; }
         public readonly Dictionary<int, ManaArgumentRef> Locals = new();
-        public List<Aspect> Aspects { get; } = new ();
+        public List<Aspect> Aspects { get; } = new();
 
         protected ManaMethod() : base(null, 0) { }
-        
+
         internal ManaMethod(string name, MethodFlags flags, params ManaArgumentRef[] args)
             : base(name, flags, args) =>
             this.ReturnType = ManaTypeCode.TYPE_VOID.AsClass();
@@ -26,12 +26,12 @@
             this.Owner = owner;
             this.ReturnType = returnType;
         }
-        
-        public override string ToString() 
+
+        public override string ToString()
             => $"{Owner.Name}::{RawName}({Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(',')})";
     }
-    
-    
+
+
     public abstract class ManaMethodBase : ManaMember
     {
         protected ManaMethodBase(string name, MethodFlags flags, params ManaArgumentRef[] args)
@@ -49,24 +49,24 @@
             this.Name = GetFullName(Name, Arguments);
         }
 
-        public static string GetFullName(string name, List<ManaArgumentRef> args) 
+        public static string GetFullName(string name, List<ManaArgumentRef> args)
             => $"{name}({args.Select(x => x.Type?.Name).Join(",")})";
 
 
         public MethodFlags Flags { get; set; }
-        
+
         public bool IsStatic => Flags.HasFlag(MethodFlags.Static);
         public bool IsPrivate => Flags.HasFlag(MethodFlags.Private);
         public bool IsExtern => Flags.HasFlag(MethodFlags.Extern);
         public override bool IsSpecial => Flags.HasFlag(MethodFlags.Special);
-        
+
         public sealed override string Name { get; protected set; }
         public string RawName => Name.Split('(').First();
-        
+
         public List<ManaArgumentRef> Arguments { get; } = new();
 
         public int ArgLength => Arguments.Count;
-        
+
         public override ManaMemberKind Kind => ManaMemberKind.Method;
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using Sprache;
     using stl;
@@ -6,13 +6,13 @@
     public partial class ManaSyntax
     {
         protected internal virtual Parser<StatementSyntax> Statement =>
-            from statement in 
+            from statement in
                 declarationStatement.OrPreview(embedded_statement)
                 .Commented(this)
             select statement.Value
                 .WithLeadingComments(statement.LeadingComments)
                 .WithTrailingComments(statement.TrailingComments);
-        
+
         protected internal virtual Parser<ExpressionSyntax> local_variable_initializer =>
             QualifiedExpression; // TODO array init
 
@@ -37,7 +37,7 @@
         protected internal virtual Parser<StatementSyntax> embedded_statement =>
             Block.Or(simple_embedded_statement);
 
-        protected internal virtual Parser<StatementSyntax> simple_embedded_statement => 
+        protected internal virtual Parser<StatementSyntax> simple_embedded_statement =>
             Parse.Char(';').Token().Return((StatementSyntax)new EmptyStatementSyntax())
             .Or(QualifiedExpression.Then(x => Parse.Char(';').Token().Return(new QualifiedExpressionStatement(x))))
             .Or(IfStatement)
@@ -84,7 +84,7 @@
                 Expression = expression,
                 Statement = loopBody,
             };
-        
+
         protected internal virtual Parser<IfStatementSyntax> IfStatement =>
             from ifKeyword in Keyword("if").Token()
             from expression in WrappedExpression('(', ')', QualifiedExpression)

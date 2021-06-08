@@ -1,4 +1,4 @@
-﻿namespace moe.lsp
+namespace moe.lsp
 {
     using System;
     using System.Diagnostics;
@@ -29,7 +29,7 @@
             //Debugger.Launch();
             //while (!Debugger.IsAttached)
             {
-            //    await Task.Delay(100);
+                //    await Task.Delay(100);
             }
 
             Log.Logger = new LoggerConfiguration()
@@ -62,9 +62,11 @@
                        .WithHandler<HoverHandler>()
                        .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
                        .WithServices(
-                            services => {
+                            services =>
+                            {
                                 services.AddSingleton(
-                                    provider => {
+                                    provider =>
+                                    {
                                         var loggerFactory = provider.GetService<ILoggerFactory>();
                                         var logger = loggerFactory.CreateLogger<Foo>();
 
@@ -74,20 +76,24 @@
                                     }
                                 );
                                 services.AddSingleton(
-                                    new ConfigurationItem {
+                                    new ConfigurationItem
+                                    {
                                         Section = "typescript",
                                     }
                                 ).AddSingleton(
-                                    new ConfigurationItem {
+                                    new ConfigurationItem
+                                    {
                                         Section = "terminal",
                                     }
                                 );
                             }
                         )
                        .OnInitialize(
-                            async (server, request, token) => {
+                            async (server, request, token) =>
+                            {
                                 var manager = server.WorkDoneManager.For(
-                                    request, new WorkDoneProgressBegin {
+                                    request, new WorkDoneProgressBegin
+                                    {
                                         Title = "Server is starting...",
                                         Percentage = 10,
                                     }
@@ -97,7 +103,8 @@
                                 await Task.Delay(2000, token);
 
                                 manager.OnNext(
-                                    new WorkDoneProgressReport {
+                                    new WorkDoneProgressReport
+                                    {
                                         Percentage = 20,
                                         Message = "loading in progress"
                                     }
@@ -105,9 +112,11 @@
                             }
                         )
                        .OnInitialized(
-                            async (server, request, response, token) => {
+                            async (server, request, response, token) =>
+                            {
                                 workDone.OnNext(
-                                    new WorkDoneProgressReport {
+                                    new WorkDoneProgressReport
+                                    {
                                         Percentage = 40,
                                         Message = "loading almost done",
                                     }
@@ -116,7 +125,8 @@
                                 await Task.Delay(2000, token);
 
                                 workDone.OnNext(
-                                    new WorkDoneProgressReport {
+                                    new WorkDoneProgressReport
+                                    {
                                         Message = "loading done",
                                         Percentage = 100,
                                     }
@@ -125,7 +135,8 @@
                             }
                         )
                        .OnStarted(
-                            async (languageServer, token) => {
+                            async (languageServer, token) =>
+                            {
                                 using var manager = await languageServer.WorkDoneManager.Create(new WorkDoneProgressBegin { Title = "Doing some work..." });
 
                                 manager.OnNext(new WorkDoneProgressReport { Message = "doing things..." });
@@ -136,9 +147,11 @@
 
                                 var logger = languageServer.Services.GetService<ILogger<Foo>>();
                                 var configuration = await languageServer.Configuration.GetConfiguration(
-                                    new ConfigurationItem {
+                                    new ConfigurationItem
+                                    {
                                         Section = "typescript",
-                                    }, new ConfigurationItem {
+                                    }, new ConfigurationItem
+                                    {
                                         Section = "terminal",
                                     }
                                 );

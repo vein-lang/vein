@@ -1,4 +1,4 @@
-﻿namespace mana.stl
+namespace mana.stl
 {
     using System.Collections.Generic;
 

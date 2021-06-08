@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Collections.Generic;
     using Sprache;
@@ -19,7 +19,7 @@
 
         public virtual MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName) => this;
         public virtual MemberDeclarationSyntax WithName(IdentifierExpression name) => this;
-        
+
 
         public new MemberDeclarationSyntax SetPos(Position startPos, int length)
         {

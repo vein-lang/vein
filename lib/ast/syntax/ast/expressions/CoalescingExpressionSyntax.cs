@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using Sprache;
 
@@ -13,7 +13,7 @@
             this.Second = f2;
         }
 
-        public CoalescingExpressionSyntax(IOption<(ExpressionSyntax x, ExpressionSyntax z)> pair) 
+        public CoalescingExpressionSyntax(IOption<(ExpressionSyntax x, ExpressionSyntax z)> pair)
             => (First, Second) = pair.GetOrDefault();
 
         public new CoalescingExpressionSyntax SetPos(Position startPos, int length)

@@ -1,10 +1,10 @@
-﻿namespace mana.reflection
+namespace mana.reflection
 {
     using runtime;
 
     public class UnresolvedManaClass : ManaClass
     {
-        public UnresolvedManaClass(QualityTypeName fullName) 
+        public UnresolvedManaClass(QualityTypeName fullName)
             => this.FullName = fullName;
     }
 }

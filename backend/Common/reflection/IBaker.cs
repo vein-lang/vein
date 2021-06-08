@@ -1,4 +1,4 @@
-﻿namespace mana.runtime
+namespace mana.runtime
 {
     public interface IBaker
     {

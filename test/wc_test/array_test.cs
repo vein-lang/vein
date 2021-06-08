@@ -1,4 +1,4 @@
-﻿namespace wc_test
+namespace wc_test
 {
     using mana.stl;
     using mana.syntax;
@@ -15,9 +15,7 @@
 
         [Fact]
         public void FirstArrayTest()
-        {
-            Syntax.ClassMemberDeclaration.ParseMana($"public x: arr[];");
-        }
+            => Syntax.ClassMemberDeclaration.ParseMana($"public x: arr[];");
 
         [Fact(Skip = "Disabled")]
         public void AccessArrayTest()

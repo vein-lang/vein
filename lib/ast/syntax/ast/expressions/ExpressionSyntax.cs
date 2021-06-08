@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System;
     using System.Collections.Generic;
@@ -21,7 +21,7 @@
 
         public ExpressionSyntax(string expr) => ExpressionString = expr;
 
-        public static ExpressionSyntax CreateOrDefault(IOption<ExpressionSyntax> expression) 
+        public static ExpressionSyntax CreateOrDefault(IOption<ExpressionSyntax> expression)
             => expression.IsDefined ? expression.Get() : null;
 
         public override SyntaxType Kind => SyntaxType.Expression;

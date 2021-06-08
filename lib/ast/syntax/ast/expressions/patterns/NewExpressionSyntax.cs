@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -17,7 +17,7 @@
             TargetType = type;
             CtorArgs = args.EmptyIfNull().ToList();
         }
-        
+
         public new NewExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);

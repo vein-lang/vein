@@ -1,4 +1,4 @@
-    namespace mana.syntax
+namespace mana.syntax
 {
     using System;
     using System.Collections.Generic;
@@ -319,7 +319,7 @@
                             WrappedExpression('[', ']', expression_list).Select(x => new IndexerExpression(x).Downlevel()))
                     select dw)
                 .Or(new_expression)
-                
+
                 .Token()
                 .Positioned();
 

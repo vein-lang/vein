@@ -1,4 +1,4 @@
-﻿namespace mana.runtime
+namespace mana.runtime
 {
     using System;
     using System.Collections.Generic;
@@ -23,7 +23,7 @@
         }
 
         public object Get(FieldName name) => storage[name];
-        
-        
+
+
     }
 }

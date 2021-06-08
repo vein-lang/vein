@@ -1,4 +1,4 @@
-﻿namespace ishtar_test
+namespace ishtar_test
 {
     using System;
     using ishtar;
@@ -195,7 +195,7 @@
             {
                 o.field = @class.DefineField("TEST_FIELD", Public | Static, ManaTypeCode.TYPE_I4.AsClass());
             });
-            
+
 
             var result = ctx.Execute((gen, storage) =>
             {
@@ -208,10 +208,10 @@
             Assert.Equal(142, result.returnValue->data.l);
         }
 
-        
+
         protected override void StartUp()
         {
-            
+
         }
 
         protected override void Shutdown()

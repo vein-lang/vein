@@ -1,4 +1,4 @@
-﻿namespace mana.ishtar.emit
+namespace mana.ishtar.emit
 {
     using System;
     using runtime;

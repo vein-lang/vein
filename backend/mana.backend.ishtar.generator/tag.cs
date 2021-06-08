@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("manac")]
 [assembly: InternalsVisibleTo("manac_test")]

@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Linq.Expressions;
     using stl;
@@ -6,7 +6,7 @@
     {
         public ExpressionType OperatorType { get; set; }
 
-        public OperatorExpressionSyntax()  { }
+        public OperatorExpressionSyntax() { }
 
         public OperatorExpressionSyntax(ExpressionType exp) => this.OperatorType = exp;
     }

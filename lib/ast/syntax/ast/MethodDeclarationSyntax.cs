@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -31,7 +31,7 @@
             Identifier = typeAndName.Identifier ?? typeAndName.Type.Identifier;
             return this;
         }
-        
+
         public override MemberDeclarationSyntax WithName(IdentifierExpression name)
         {
             Identifier = name;

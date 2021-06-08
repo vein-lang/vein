@@ -1,4 +1,4 @@
-﻿namespace wc_test
+namespace wc_test
 {
     using System;
     using System.Runtime.Serialization;
@@ -20,13 +20,13 @@
         [InlineData(ManaTypeCode.TYPE_U2, ManaTypeCode.TYPE_U8)]
         [InlineData(ManaTypeCode.TYPE_U2, ManaTypeCode.TYPE_I8)]
         [InlineData(ManaTypeCode.TYPE_U2, ManaTypeCode.TYPE_I4)]
-        public void CompatibleFalse(ManaTypeCode variable, ManaTypeCode value) 
+        public void CompatibleFalse(ManaTypeCode variable, ManaTypeCode value)
             => Assert.False(variable.IsCompatibleNumber(value));
 
         [Theory]
         [InlineData(ManaTypeCode.TYPE_I4, ManaTypeCode.TYPE_U1)]
         [InlineData(ManaTypeCode.TYPE_I4, ManaTypeCode.TYPE_I1)]
-        public void CompatibleTrue(ManaTypeCode variable, ManaTypeCode value) 
+        public void CompatibleTrue(ManaTypeCode variable, ManaTypeCode value)
             => Assert.True(variable.IsCompatibleNumber(value));
 
         [Theory]
@@ -41,7 +41,7 @@
         [InlineData(typeof(SingleLiteralExpressionSyntax), ManaTypeCode.TYPE_R4)]
         [InlineData(typeof(DoubleLiteralExpressionSyntax), ManaTypeCode.TYPE_R8)]
         [InlineData(typeof(DecimalLiteralExpressionSyntax), ManaTypeCode.TYPE_R16)]
-        public void TypeCodeValidTest(Type t, ManaTypeCode code) 
+        public void TypeCodeValidTest(Type t, ManaTypeCode code)
             => Assert.Equal(code, CreateExpressionByType(t).GetTypeCode());
 
         [Theory]
@@ -67,7 +67,7 @@
         }
 
         private NumericLiteralExpressionSyntax CreateExpressionByType(Type t) =>
-            (NumericLiteralExpressionSyntax) FormatterServices
+            (NumericLiteralExpressionSyntax)FormatterServices
                 .GetUninitializedObject(t);
     }
 }

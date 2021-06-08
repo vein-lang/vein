@@ -1,4 +1,4 @@
-﻿namespace mana.runtime
+namespace mana.runtime
 {
     using System.Linq;
 
@@ -7,7 +7,7 @@
         public static ManaType AsType(this ManaClass @class)
         {
             var result = new ManaTypeImpl(@class.FullName, @class.TypeCode, @class.Flags, @class.Parent?.AsType());
-            
+
             result.Members.AddRange(@class.Methods);
             result.Members.AddRange(@class.Fields);
             return result;
@@ -16,7 +16,7 @@
         {
             var result = new ManaClass(type.FullName, type.Parent?.AsClass(), type.Owner)
             {
-                Flags = type.classFlags ?? ClassFlags.None, 
+                Flags = type.classFlags ?? ClassFlags.None,
                 TypeCode = type.TypeCode
             };
             result.Methods.AddRange(type.Members.OfType<ManaMethod>());

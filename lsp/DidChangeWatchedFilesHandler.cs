@@ -1,4 +1,4 @@
-﻿namespace moe.lsp
+namespace moe.lsp
 {
     using System.Threading;
     using System.Threading.Tasks;

@@ -1,4 +1,4 @@
-﻿namespace mana.ishtar.emit
+namespace mana.ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -11,7 +11,7 @@
         public static List<int> DeconstructLabels(byte[] arr, int offset)
         {
             if (arr.Length == 0)
-                return new ();
+                return new();
 
             using var mem = new MemoryStream(arr);
             using var bin = new BinaryReader(mem);
@@ -53,25 +53,25 @@
                 //    return (list, d);
                 //}
 
-                if ((ushort) opcode == 0xFFFF)
+                if ((ushort)opcode == 0xFFFF)
                 {
-                    *offset = (int) mem.Position;
+                    *offset = (int)mem.Position;
                     Console.ForegroundColor = ConsoleColor.Gray;
                     Console.WriteLine($"success\n");
                     Console.ForegroundColor = ConsoleColor.White;
                     return (list, d);
                 }
-                
-                
-                
+
+
+
                 list.Add((uint)opcode);
                 if (!OpCodes.all.ContainsKey(opcode))
                     throw new InvalidOperationException(
                     $"OpCode '{opcode}' is not found in metadata.\n" +
                     $"re-run 'gen.csx' for fix this error.");
                 var value = OpCodes.all[opcode];
-                
-                d.Add((int)mem.Position-sizeof(ushort), (list.Count, opcode));
+
+                d.Add((int)mem.Position - sizeof(ushort), (list.Count, opcode));
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine($"... ({value.Name}, {value.Size})");
                 Console.ForegroundColor = ConsoleColor.White;
@@ -97,15 +97,15 @@
                         break;
                     case var _ when value.Value == (ushort)OpCodeValue.LDC_F16:
                         var size = bin.ReadInt32();
-                        list.Add((uint) size); // size
-                        foreach (var _ in ..size) 
-                            list.Add((uint) bin.ReadInt32()); // slot 1
+                        list.Add((uint)size); // size
+                        foreach (var _ in ..size)
+                            list.Add((uint)bin.ReadInt32()); // slot 1
                         break;
-                    case var _ when value is 
-                        { Value: (ushort)OpCodeValue.LDF  } or 
-                        { Value: (ushort)OpCodeValue.STF  } or
-                        { Value: (ushort)OpCodeValue.STSF } or
-                        { Value: (ushort)OpCodeValue.LDSF }:
+                    case var _ when value is
+                    { Value: (ushort)OpCodeValue.LDF } or
+                    { Value: (ushort)OpCodeValue.STF } or
+                    { Value: (ushort)OpCodeValue.STSF } or
+                    { Value: (ushort)OpCodeValue.LDSF }:
                         list.Add((uint)bin.ReadInt32()); // name_index
                         list.Add((uint)bin.ReadInt32()); // type_index
                         break;
@@ -126,7 +126,7 @@
                         break;
                     default:
                         throw new InvalidOperationException(
-                            $"OpCode '{opcode}' has invalid size [{value.Size}].\n"+
+                            $"OpCode '{opcode}' has invalid size [{value.Size}].\n" +
                             $"Check 'opcodes.def' and re-run 'gen.csx' for fix this error.");
                 }
             }

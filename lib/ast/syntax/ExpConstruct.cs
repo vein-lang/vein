@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System;
     using System.Linq.Expressions;
@@ -54,25 +54,25 @@
         }
 
 
-        public static BinaryExpressionSyntax Add(ExpressionSyntax exp1, ExpressionSyntax exp2) 
-            => new (exp1, exp2, ExpressionType.Add);
-        public static BinaryExpressionSyntax Sub(ExpressionSyntax exp1, ExpressionSyntax exp2) 
-            => new (exp1, exp2, ExpressionType.Subtract);
-        public static BinaryExpressionSyntax Div(ExpressionSyntax exp1, ExpressionSyntax exp2) 
-            => new (exp1, exp2, ExpressionType.Divide);
-        public static BinaryExpressionSyntax Mul(ExpressionSyntax exp1, ExpressionSyntax exp2) 
-            => new (exp1, exp2, ExpressionType.Multiply);
+        public static BinaryExpressionSyntax Add(ExpressionSyntax exp1, ExpressionSyntax exp2)
+            => new(exp1, exp2, ExpressionType.Add);
+        public static BinaryExpressionSyntax Sub(ExpressionSyntax exp1, ExpressionSyntax exp2)
+            => new(exp1, exp2, ExpressionType.Subtract);
+        public static BinaryExpressionSyntax Div(ExpressionSyntax exp1, ExpressionSyntax exp2)
+            => new(exp1, exp2, ExpressionType.Divide);
+        public static BinaryExpressionSyntax Mul(ExpressionSyntax exp1, ExpressionSyntax exp2)
+            => new(exp1, exp2, ExpressionType.Multiply);
 
-        public static BinaryExpressionSyntax Equal(ExpressionSyntax exp1, ExpressionSyntax exp2) 
-            => new (exp1, exp2, ExpressionType.Equal);
+        public static BinaryExpressionSyntax Equal(ExpressionSyntax exp1, ExpressionSyntax exp2)
+            => new(exp1, exp2, ExpressionType.Equal);
 
-        public static BinaryExpressionSyntax AndAlso(ExpressionSyntax exp1, ExpressionSyntax exp2) 
-            => new (exp1, exp2, ExpressionType.AndAlso);
+        public static BinaryExpressionSyntax AndAlso(ExpressionSyntax exp1, ExpressionSyntax exp2)
+            => new(exp1, exp2, ExpressionType.AndAlso);
 
-        public static UnaryExpressionSyntax Negate(ExpressionSyntax exp1) => 
-            new() {Operand = exp1, OperatorType = ExpressionType.Negate};
+        public static UnaryExpressionSyntax Negate(ExpressionSyntax exp1) =>
+            new() { Operand = exp1, OperatorType = ExpressionType.Negate };
 
-        public static CoalescingExpressionSyntax Coalescing(ExpressionSyntax exp1, ExpressionSyntax exp2) 
-            => new (exp1, exp2);
+        public static CoalescingExpressionSyntax Coalescing(ExpressionSyntax exp1, ExpressionSyntax exp2)
+            => new(exp1, exp2);
     }
 }

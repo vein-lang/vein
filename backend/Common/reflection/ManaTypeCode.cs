@@ -1,4 +1,4 @@
-﻿namespace mana.runtime
+namespace mana.runtime
 {
     using System;
     using System.Reflection;
@@ -283,6 +283,6 @@
                     throw new ArgumentOutOfRangeException(nameof(code), code, null);
             }
         }
-        
+
     }
 }

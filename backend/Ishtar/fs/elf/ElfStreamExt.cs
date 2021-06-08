@@ -1,29 +1,29 @@
-﻿namespace mana.fs.elf
+namespace mana.fs.elf
 {
     using System.IO;
-    
+
     internal static class ElfStreamExt
     {
 
-        public static ushort ReadElf32Half(this BinaryReader reader) 
+        public static ushort ReadElf32Half(this BinaryReader reader)
             => reader.ReadUInt16();
 
-        public static void WriteElf32Half(this BinaryWriter writer, ushort val) 
+        public static void WriteElf32Half(this BinaryWriter writer, ushort val)
             => writer.Write(val);
 
-        public static void WriteElf32Word(this BinaryWriter writer, uint val) 
+        public static void WriteElf32Word(this BinaryWriter writer, uint val)
             => writer.Write(val);
 
-        public static void WriteElf32Addr(this BinaryWriter writer, uint val) 
+        public static void WriteElf32Addr(this BinaryWriter writer, uint val)
             => writer.Write(val);
 
-        public static void WriteElf32Off(this BinaryWriter writer, uint val) 
+        public static void WriteElf32Off(this BinaryWriter writer, uint val)
             => writer.Write(val);
 
         public static void WriteElf32(this BinaryWriter writer, ElfIdentification identification)
         {
-            foreach (var ch in identification.Magic) 
-                writer.Write((byte) ch);
+            foreach (var ch in identification.Magic)
+                writer.Write((byte)ch);
             writer.Write((byte)identification.FileClass);
             writer.Write((byte)identification.DataType);
             writer.Write(identification.Version);

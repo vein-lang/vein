@@ -1,4 +1,4 @@
-﻿namespace wc_test
+namespace wc_test
 {
     using System;
     using System.Linq;
@@ -96,7 +96,7 @@
         {
             var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I8, 40);
             var f2 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 50);
-            
+
             var result = ManaExpression.AndAlso(f1, f2);
 
             _testOutputHelper.WriteLine(result.ToString());
@@ -111,7 +111,7 @@
         {
             var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I8, long.MaxValue - 200);
             var f2 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 50);
-            
+
             var result = ManaExpression.Sub(f1, f2);
 
             _testOutputHelper.WriteLine(result.ToString());
@@ -126,7 +126,7 @@
         {
             var f1 = ManaExpression.Const(ManaTypeCode.TYPE_STRING, "Foo");
             var f2 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 50);
-            
+
             var result = ManaExpression.Sub(f1, f2);
 
             _testOutputHelper.WriteLine(result.ToString());
@@ -151,7 +151,7 @@
             var key = $"idi";
             var id = Sytnax.QualifiedExpression.End().ParseMana(key) as IdentifierExpression;
             var result = new MemberAccessExpression(id, Array.Empty<ExpressionSyntax>(), Array.Empty<ExpressionSyntax>());
-            
+
             var chain = result.GetChain().ToArray();
 
             Assert.NotEmpty(chain);
@@ -170,7 +170,7 @@
             var @class = genCtx.Module.DefineClass("global::mana/foo");
             genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, ManaTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new ManaScope(genCtx);
-            
+
             var key = $"ata()";
             var result = Sytnax.QualifiedExpression.End().ParseMana(key) as MemberAccessExpression;
 
@@ -204,10 +204,10 @@
             genCtx.CurrentScope = new ManaScope(genCtx);
 
             genCtx.CurrentScope.DefineVariable(new IdentifierExpression("ow"), anotherClass, 0);
-            
+
             var result = Sytnax.QualifiedExpression
                     .End()
-                    .ParseMana("ow.gota()") 
+                    .ParseMana("ow.gota()")
                 as MemberAccessExpression;
 
             Assert.NotNull(result);
@@ -222,7 +222,7 @@
             Assert.Empty(genCtx.Errors);
 
             Assert.Equal(ManaTypeCode.TYPE_I1, type.TypeCode);
-            
+
         }
     }
 }

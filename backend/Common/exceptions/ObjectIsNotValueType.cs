@@ -1,4 +1,4 @@
-﻿namespace mana.exceptions
+namespace mana.exceptions
 {
     using System;
 
@@ -6,7 +6,7 @@
     {
         public ObjectIsNotValueType(string msg) : base(msg)
         {
-            
+
         }
     }
 }

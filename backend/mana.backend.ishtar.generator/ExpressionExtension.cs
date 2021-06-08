@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using Sprache;
     using mana.syntax;

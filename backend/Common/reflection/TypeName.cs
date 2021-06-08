@@ -1,4 +1,4 @@
-﻿namespace mana.runtime
+namespace mana.runtime
 {
     using System;
     using System.Linq;
@@ -9,14 +9,14 @@
     [Obsolete]
     public record RuntimeToken(string text, ulong Value)
     {
-        public static RuntimeToken Create(string id) 
+        public static RuntimeToken Create(string id)
             => new(id, getHashCode(id));
         [SecurityCritical]
         private static unsafe ulong getHashCode(string str)
         {
             fixed (char* chPtr1 = str)
             {
-                var num1 = 0x1505UL; 
+                var num1 = 0x1505UL;
                 var num2 = num1;
                 var chPtr2 = chPtr1;
                 ulong num3;
@@ -35,7 +35,7 @@
             }
         }
     }
-    
+
     public record QualityTypeName(string fullName)
     {
         public string Name => fullName.Split('/').Last();
@@ -48,9 +48,9 @@
         public string AssemblyName => fullName.Split("%").SkipLast(1).Join();
 
         public string NameWithNS => fullName.Split("%").Skip(1).Join();
-        
+
         public QualityTypeName(string asmName, string name, string ns) : this($"{asmName}%{ns}/{name}") { }
-        
+
         public static implicit operator QualityTypeName(string name)
         {
             if (!Regex.IsMatch(name, @"(.+)\%global::(.+)\/(.+)"))

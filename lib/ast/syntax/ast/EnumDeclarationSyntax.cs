@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -14,7 +14,7 @@
 
         public string Identifier { get; set; }
     }
-    
+
     public class EnumDeclarationSyntax : MemberDeclarationSyntax
     {
         public EnumDeclarationSyntax(MemberDeclarationSyntax heading = null)

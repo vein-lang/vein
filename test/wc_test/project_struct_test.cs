@@ -1,4 +1,4 @@
-﻿namespace wc_test
+namespace wc_test
 {
     using Newtonsoft.Json;
     using mana.project;

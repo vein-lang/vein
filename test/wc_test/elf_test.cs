@@ -1,4 +1,4 @@
-﻿namespace wc_test
+namespace wc_test
 {
     using System;
     using System.IO;

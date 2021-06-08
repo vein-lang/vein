@@ -1,4 +1,4 @@
-﻿namespace ishtar_test
+namespace ishtar_test
 {
     using System;
     using System.Threading;
@@ -6,9 +6,9 @@
 
     public class WatchDogEffluentException : Exception
     {
-        public WatchDogEffluentException(NativeException exp) 
+        public WatchDogEffluentException(NativeException exp)
             : base($"native exception was thrown. [{exp.code}] '{exp.msg}'")
-        {}
+        { }
     }
     public class TestWatchDog : IWatchDog
     {

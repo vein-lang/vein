@@ -1,4 +1,4 @@
-﻿namespace wc_test
+namespace wc_test
 {
     using System;
     using System.Runtime.CompilerServices;
@@ -24,15 +24,15 @@
             for (var i = 0; i < f.Length; ++i)
             {
                 overrides[i * 2] = f[i];
-                if (f[i] != (delegate*<void>) &Foo)
-                        continue;
+                if (f[i] != (delegate*<void>)&Foo)
+                    continue;
                 Thread.MemoryBarrier();
                 var tmp = overrides[(i * 2)];
                 overrides[i * 2 + 1] = tmp;
                 overrides[i * 2] = &FooOverride;
             }
-            
-            for (var i = 0; i != f.Length; i++) 
+
+            for (var i = 0; i != f.Length; i++)
                 overrides[i * 2]();
         }
         public struct SSS
@@ -67,8 +67,8 @@
             var x_unpacked = Unsafe.AsRef<XID>(pointer);
 
         }
-        
-        
+
+
         public static void Foo()
         {
             console.WriteLine("Foo");

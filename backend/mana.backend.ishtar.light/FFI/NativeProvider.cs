@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using System.Collections.Generic;
@@ -36,7 +36,7 @@
         internal static Exception LastException { get; private set; }
 
 
-        static bool IsUnix => 
+        static bool IsUnix =>
             Environment.OSVersion.Platform is PlatformID.Unix or PlatformID.MacOSX;
 
 
@@ -171,7 +171,7 @@
     [SecurityCritical]
     internal static class WindowsLoader
     {
-        public static IntPtr LoadLibrary(string fileName) 
+        public static IntPtr LoadLibrary(string fileName)
             => LoadLibraryEx(fileName, IntPtr.Zero, LOAD_WITH_ALTERED_SEARCH_PATH);
 
         // Search for dependencies in the library's directory rather than the calling process's directory
@@ -185,7 +185,7 @@
     [SecurityCritical]
     internal static class UnixLoader
     {
-        public static IntPtr LoadLibrary(string fileName) 
+        public static IntPtr LoadLibrary(string fileName)
             => dlopen(fileName, RTLD_NOW);
 
         private const int RTLD_NOW = 2;

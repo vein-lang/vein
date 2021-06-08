@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using System.Collections.Generic;
@@ -29,12 +29,12 @@
             if (ilVersion != OpCodes.SetVersion)
             {
                 var exp = new ILCompatibleException(ilVersion, OpCodes.SetVersion);
-                
+
                 VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Unable to load assembly: '{exp.Message}'.");
                 VM.ValidateLastError();
                 return null;
             }
-           
+
             // read strings table
             foreach (var _ in ..reader.ReadInt32())
             {
@@ -66,13 +66,13 @@
                 var clazz = reader.ReadInsomniaString();
                 module.fields_table.Add(key, new FieldName(name, clazz));
             }
-            
+
             // read deps refs
             foreach (var _ in ..reader.ReadInt32())
             {
                 var name = reader.ReadInsomniaString();
                 var ver = Version.Parse(reader.ReadInsomniaString());
-                if (module.Deps.Any(x => x.Version.Equals(ver) && x.Name.Equals(name))) 
+                if (module.Deps.Any(x => x.Version.Equals(ver) && x.Name.Equals(name)))
                     continue;
                 var dep = resolver(name, ver);
                 module.Deps.Add(dep);
@@ -95,9 +95,9 @@
             {
                 if (@class.Parent is not UnresolvedManaClass)
                     continue;
-                @class.Parent = 
-                    @class.Parent.FullName != @class.FullName ? 
-                        module.FindType(@class.Parent.FullName, true) : 
+                @class.Parent =
+                    @class.Parent.FullName != @class.FullName ?
+                        module.FindType(@class.Parent.FullName, true) :
                         null;
             }
             // restore unresolved types
@@ -149,30 +149,30 @@
                 switch (aspect)
                 {
                     case AspectOfClass classAspect:
-                    {
-                        foreach (var @class in module.class_table
-                            .Where(@class => @class.Name.Equals(classAspect.ClassName)))
-                            @class.Aspects.Add(aspect);
-                        break;
-                    }
+                        {
+                            foreach (var @class in module.class_table
+                                .Where(@class => @class.Name.Equals(classAspect.ClassName)))
+                                @class.Aspects.Add(aspect);
+                            break;
+                        }
                     case AspectOfMethod methodAspect:
-                    {
-                        foreach (var method in module.class_table
-                            .Where(@class => @class.Name.Equals(methodAspect.ClassName))
-                            .SelectMany(@class => @class.Methods
-                                .Where(method => method.RawName.Equals(methodAspect.MethodName))))
-                            method.Aspects.Add(aspect);
-                        break;
-                    }
+                        {
+                            foreach (var method in module.class_table
+                                .Where(@class => @class.Name.Equals(methodAspect.ClassName))
+                                .SelectMany(@class => @class.Methods
+                                    .Where(method => method.RawName.Equals(methodAspect.MethodName))))
+                                method.Aspects.Add(aspect);
+                            break;
+                        }
                     case AspectOfField fieldAspect:
-                    {
-                        foreach (var field in module.class_table
-                            .Where(@class => @class.Name.Equals(fieldAspect.ClassName))
-                            .SelectMany(@class => @class.Fields
-                                .Where(field => field.Name.Equals(fieldAspect.FieldName))))
-                            field.Aspects.Add(aspect);
-                        break;
-                    }
+                        {
+                            foreach (var field in module.class_table
+                                .Where(@class => @class.Name.Equals(fieldAspect.ClassName))
+                                .SelectMany(@class => @class.Fields
+                                    .Where(field => field.Name.Equals(fieldAspect.FieldName))))
+                                field.Aspects.Add(aspect);
+                            break;
+                        }
                 }
             }
         }
@@ -185,8 +185,8 @@
             var flags = (ClassFlags)binary.ReadInt16();
             var parentIdx = binary.ReadTypeName(module);
             var len = binary.ReadInt32();
-            
-            var @class = new RuntimeIshtarClass(className, 
+
+            var @class = new RuntimeIshtarClass(className,
                 module.FindType(parentIdx, true, false), module)
             {
                 Flags = flags
@@ -194,7 +194,7 @@
 
             foreach (var _ in ..len)
             {
-                var body = 
+                var body =
                     binary.ReadBytes(binary.ReadInt32());
                 var method = DecodeMethod(body, @class, module);
                 @class.Methods.Add(method);
@@ -204,7 +204,7 @@
 
             return @class;
         }
-        
+
         public static void DecodeField(BinaryReader binary, ManaClass @class, RuntimeModuleReader module)
         {
             foreach (var _ in ..binary.ReadInt32())
@@ -217,7 +217,7 @@
                 @class.Fields.Add(method);
             }
         }
-        
+
         public static unsafe RuntimeIshtarMethod DecodeMethod(byte[] arr, ManaClass @class, RuntimeModuleReader module)
         {
             using var mem = new MemoryStream(arr);
@@ -231,9 +231,9 @@
             var args = ReadArguments(binary, module);
             var body = binary.ReadBytes(bodysize);
 
-            
+
             var mth = new RuntimeIshtarMethod(module.GetConstStringByIndex(idx), flags,
-                module.FindType(retType, true, false), 
+                module.FindType(retType, true, false),
                 @class, args.ToArray());
 
             if (flags.HasFlag(MethodFlags.Extern))
@@ -263,17 +263,17 @@
             var offset = 0;
             var body_r = ILReader.Deconstruct(body, &offset);
             var labeles = ILReader.DeconstructLabels(body, offset);
-            
+
 
             method.Header.max_stack = stacksize;
 
             method.Header.code = (uint*)Marshal.AllocHGlobal(sizeof(uint) * body_r.opcodes.Count);
-            
+
             for (var i = 0; i != body_r.opcodes.Count; i++)
                 method.Header.code[i] = body_r.opcodes[i];
 
 
-            method.Header.code_size = (uint) body_r.opcodes.Count;
+            method.Header.code_size = (uint)body_r.opcodes.Count;
             method.Header.labels = labeles;
             method.Header.labels_map = body_r.map.ToDictionary(x => x.Key,
                 x => new ILLabel
@@ -282,8 +282,8 @@
                     pos = x.Value.pos
                 });
         }
-        
-        
+
+
         private static List<ManaArgumentRef> ReadArguments(BinaryReader binary, RuntimeModuleReader module)
         {
             var args = new List<ManaArgumentRef>();

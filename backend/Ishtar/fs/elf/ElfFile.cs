@@ -1,4 +1,4 @@
-﻿namespace mana.fs.elf
+namespace mana.fs.elf
 {
     using System.Collections.Generic;
     using System.IO;

@@ -1,4 +1,4 @@
-﻿namespace ishtar_test
+namespace ishtar_test
 {
     using ishtar;
     using mana.runtime;

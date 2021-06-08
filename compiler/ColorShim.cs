@@ -1,4 +1,4 @@
-﻿namespace insomnia
+namespace insomnia
 {
     using System;
     using System.Collections.Generic;
@@ -13,7 +13,7 @@
             if (is_applied)
                 return;
             var asm = typeof(AnsiConsole).Assembly;
-            
+
             var table = asm.GetType("Spectre.Console.Internal.ColorTable");
 
             var _numberLookup = table.GetField("_numberLookup", BindingFlags.Static | BindingFlags.NonPublic);

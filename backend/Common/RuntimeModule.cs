@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using mana.runtime;
 
 [assembly: InternalsVisibleTo("wc_test")]

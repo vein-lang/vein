@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -30,7 +30,7 @@
             foreach (var syntax in prepacked)
             {
                 if (syntax is ChainAccessExpression chain)
-                    result.AddRange(new []{chain.Start}.Concat(chain.Other));
+                    result.AddRange(new[] { chain.Start }.Concat(chain.Other));
                 else
                     result.Add(syntax);
             }

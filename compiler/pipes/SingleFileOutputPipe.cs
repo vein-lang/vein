@@ -1,4 +1,4 @@
-﻿namespace mana.pipes
+namespace mana.pipes
 {
     using System;
     using System.IO;
@@ -19,7 +19,7 @@
             var offset = host_bytes.Count;
 
             host_bytes.AddRange(current_binary);
-            
+
             host_bytes.AddRange(BitConverter.GetBytes(offset));
             // magic number (for detect single file exe)
             host_bytes.AddRange(BitConverter.GetBytes((short)0x7ABC));

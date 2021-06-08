@@ -32,8 +32,8 @@ namespace mana.fs
             const int segmentEntrySize = 0x20;
             var dataOffset = (uint)(segmentsOffset + file.Segments.Count * segmentEntrySize);
             var sectionsOffset = dataOffset + file.Data.Length;
-            
-            
+
+
             var header = new ElfHeader
             {
                 Identification = {
@@ -80,7 +80,7 @@ namespace mana.fs
             writer.Write((uint)ilCode.Length - 17);
             writer.Write(offset + 17);
         }
-        
+
         private static void AddCode(ElfFile file, byte[] il)
         {
             file.Sections.Add(new ElfSection
@@ -105,7 +105,7 @@ namespace mana.fs
                 Align = 1
             });
             file.Data.Write(il, 0, il.Length);
-            
+
             var vm_notes = Encoding.ASCII.GetBytes("insomnia");
             file.Sections.Add(new ElfSection
             {
@@ -139,14 +139,14 @@ namespace mana.fs
             file.Strings.SaveString($".wasm-framework::{metadata.TargetFramework}");
             file.Strings.SaveString($".other-len::{metadata.OtherMeta.Count}");
             var index = 0;
-            foreach (var (k,v) in metadata.OtherMeta) 
+            foreach (var (k, v) in metadata.OtherMeta)
                 file.Strings.SaveString($".other-{index++}::{k}\a{v}");
         }
     }
 
     public class InsomniaAssemblyMetadata
     {
-        public Version Version { get; set; } = new (1, 0, 0, 0);
+        public Version Version { get; set; } = new(1, 0, 0, 0);
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
         public string TargetFramework { get; set; } = "ManaStandard,Version=v1.0";
 

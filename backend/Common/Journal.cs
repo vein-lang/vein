@@ -1,4 +1,4 @@
-﻿namespace insomnia
+namespace insomnia
 {
     using System.Collections.Generic;
     using mana.common;

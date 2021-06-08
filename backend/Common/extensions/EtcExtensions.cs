@@ -1,4 +1,4 @@
-﻿namespace mana.extensions
+namespace mana.extensions
 {
     using System;
 

@@ -1,4 +1,4 @@
-﻿namespace mana.ishtar.emit
+namespace mana.ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -89,13 +89,13 @@
                 var clazz = reader.ReadInsomniaString();
                 module.fields_table.Add(key, new FieldName(name, clazz));
             }
-            
+
             // read deps refs
             foreach (var _ in ..reader.ReadInt32())
             {
                 var name = reader.ReadInsomniaString();
                 var ver = Version.Parse(reader.ReadInsomniaString());
-                if (module.Deps.Any(x => x.Version.Equals(ver) && x.Name.Equals(name))) 
+                if (module.Deps.Any(x => x.Version.Equals(ver) && x.Name.Equals(name)))
                     continue;
                 var dep = resolver(name, ver);
                 module.Deps.Add(dep);
@@ -120,9 +120,9 @@
             {
                 if (@class.Parent is not UnresolvedManaClass)
                     continue;
-                @class.Parent = 
-                    @class.Parent.FullName != @class.FullName ? 
-                        module.FindType(@class.Parent.FullName, true) : 
+                @class.Parent =
+                    @class.Parent.FullName != @class.FullName ?
+                        module.FindType(@class.Parent.FullName, true) :
                         null;
             }
             // restore unresolved types
@@ -172,30 +172,30 @@
                 switch (aspect)
                 {
                     case AspectOfClass classAspect:
-                    {
-                        foreach (var @class in module.class_table
-                            .Where(@class => @class.Name.Equals(classAspect.ClassName)))
-                            @class.Aspects.Add(aspect);
-                        break;
-                    }
+                        {
+                            foreach (var @class in module.class_table
+                                .Where(@class => @class.Name.Equals(classAspect.ClassName)))
+                                @class.Aspects.Add(aspect);
+                            break;
+                        }
                     case AspectOfMethod methodAspect:
-                    {
-                        foreach (var method in module.class_table
-                            .Where(@class => @class.Name.Equals(methodAspect.ClassName))
-                            .SelectMany(@class => @class.Methods
-                                .Where(method => method.RawName.Equals(methodAspect.MethodName))))
-                            method.Aspects.Add(aspect);
-                        break;
-                    }
+                        {
+                            foreach (var method in module.class_table
+                                .Where(@class => @class.Name.Equals(methodAspect.ClassName))
+                                .SelectMany(@class => @class.Methods
+                                    .Where(method => method.RawName.Equals(methodAspect.MethodName))))
+                                method.Aspects.Add(aspect);
+                            break;
+                        }
                     case AspectOfField fieldAspect:
-                    {
-                        foreach (var field in module.class_table
-                            .Where(@class => @class.Name.Equals(fieldAspect.ClassName))
-                            .SelectMany(@class => @class.Fields
-                                .Where(field => field.Name.Equals(fieldAspect.FieldName))))
-                            field.Aspects.Add(aspect);
-                        break;
-                    }
+                        {
+                            foreach (var field in module.class_table
+                                .Where(@class => @class.Name.Equals(fieldAspect.ClassName))
+                                .SelectMany(@class => @class.Fields
+                                    .Where(field => field.Name.Equals(fieldAspect.FieldName))))
+                                field.Aspects.Add(aspect);
+                            break;
+                        }
                 }
             }
         }
@@ -208,7 +208,7 @@
             var flags = (ClassFlags)binary.ReadInt16();
             var parentIdx = binary.ReadTypeName(module);
             var len = binary.ReadInt32();
-            
+
             var @class = new ManaClass(className, module.FindType(parentIdx, true, false), module)
             {
                 Flags = flags
@@ -216,7 +216,7 @@
 
             foreach (var _ in ..len)
             {
-                var body = 
+                var body =
                     binary.ReadBytes(binary.ReadInt32());
                 var method = DecodeMethod(body, @class, module);
                 @class.Methods.Add(method);
@@ -226,7 +226,7 @@
 
             return @class;
         }
-        
+
         public static void DecodeField(BinaryReader binary, ManaClass @class, ModuleReader module)
         {
             foreach (var _ in ..binary.ReadInt32())
@@ -239,7 +239,7 @@
                 @class.Fields.Add(method);
             }
         }
-        
+
         public static ManaMethod DecodeMethod(byte[] arr, ManaClass @class, ModuleReader module)
         {
             using var mem = new MemoryStream(arr);
@@ -253,12 +253,12 @@
             var args = ReadArguments(binary, module);
             var _ = binary.ReadBytes(bodysize);
             return new ManaMethod(module.GetConstStringByIndex(idx), flags,
-                module.FindType(retType, true, false), 
+                module.FindType(retType, true, false),
                 @class, args.ToArray());
         }
 
-        
-        
+
+
         private static List<ManaArgumentRef> ReadArguments(BinaryReader binary, ModuleReader module)
         {
             var args = new List<ManaArgumentRef>();

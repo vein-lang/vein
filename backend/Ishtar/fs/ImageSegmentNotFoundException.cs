@@ -1,4 +1,4 @@
-﻿namespace mana.fs
+namespace mana.fs
 {
     using System;
 
@@ -6,7 +6,7 @@
     {
         public ImageSegmentNotFoundException(string message) : base(message)
         {
-            
+
         }
     }
 }

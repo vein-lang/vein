@@ -1,4 +1,4 @@
-﻿namespace mana.backend.ishtar.light
+namespace mana.backend.ishtar.light
 {
     using System;
     using System.Collections.Generic;
@@ -23,7 +23,7 @@
 
             var stl = new ManaModuleBuilder("wcorlib", new Version(1,0));
 
-            foreach (var type in ManaCore.Types.All) 
+            foreach (var type in ManaCore.Types.All)
                 stl.InternTypeName(type.FullName);
             foreach (var type in ManaCore.All)
             {
@@ -56,7 +56,7 @@
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Console.OutputEncoding = Encoding.Unicode;
             IshtarCore.INIT();
-            foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>()) 
+            foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>())
                 @class.init_vtable();
             IshtarGC.INIT();
             FFI.INIT();
@@ -78,14 +78,14 @@
                     return -2;
                 masterModule = IshtarAssembly.LoadFromFile(entry);
             }
-            
+
             var (_, code) = masterModule.Sections.First();
             var deps = GetDeps();
-            
+
             resolver.AddSearchPath(new DirectoryInfo("/ManaLang"));
             resolver.AddSearchPath(new DirectoryInfo("./"));
 
-            var module = RuntimeModuleReader.Read(code, deps, (s, version) => 
+            var module = RuntimeModuleReader.Read(code, deps, (s, version) =>
                 resolver.ResolveDep(s, version, deps));
 
             foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())
@@ -109,11 +109,11 @@
 
             var frame = new CallFrame
             {
-                args = args_, 
-                method = entry_point, 
+                args = args_,
+                method = entry_point,
                 level = 0
             };
-            
+
 
             var watcher = Stopwatch.StartNew();
             VM.exec_method(frame);
@@ -124,12 +124,12 @@
 
             watcher.Stop();
             Console.WriteLine($"Elapsed: {watcher.Elapsed}");
-            
+
             return 0;
         }
 
 
-        
+
     }
 
 
@@ -159,10 +159,10 @@
                 return false;
             bundle = new AssemblyBundle
             {
-                MainModuleBytes = bytes, 
+                MainModuleBytes = bytes,
                 MainModulePath = new FileInfo(current)
             }.UnpackAssemblies();
-            
+
             return true;
         }
 

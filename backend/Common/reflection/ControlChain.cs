@@ -1,4 +1,4 @@
-﻿namespace runtime.runtime.emit
+namespace runtime.runtime.emit
 {
     public enum ControlChain
     {

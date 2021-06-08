@@ -1,4 +1,4 @@
-﻿namespace moe.lsp
+namespace moe.lsp
 {
     using System.Threading;
     using System.Threading.Tasks;
@@ -17,7 +17,8 @@
         private readonly ILanguageServerConfiguration _configuration;
 
         private readonly DocumentSelector _documentSelector = new(
-            new DocumentFilter {
+            new DocumentFilter
+            {
                 Pattern = "**/*.mana"
             }
         );
@@ -60,14 +61,15 @@
 
         public override Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token) => Unit.Task;
 
-        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability 
-            capability, ClientCapabilities clientCapabilities) => new() {
-            DocumentSelector = _documentSelector,
-            Change = Change,
-            Save = new SaveOptions() { IncludeText = true }
-        };
+        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability
+            capability, ClientCapabilities clientCapabilities) => new()
+            {
+                DocumentSelector = _documentSelector,
+                Change = Change,
+                Save = new SaveOptions() { IncludeText = true }
+            };
 
-        public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) 
+        public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
             => new(uri, "mana");
     }
 }

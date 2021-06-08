@@ -1,4 +1,4 @@
-﻿namespace insomnia
+namespace insomnia
 {
     using System;
     using System.Collections.Generic;
@@ -38,7 +38,7 @@
                         return true;
                     if (expm.Contains(x.Key))
                         MarkupLine($"[orange]WARN[/]: unsupported option '[red]{x.Key}[/]', put '[red]--EF:+use_experimental_options[/]' below all flags.");
-                    else 
+                    else
                         MarkupLine($"[orange]WARN[/]: unknown option '[red]{x}[/]'.");
                     return false;
                 })

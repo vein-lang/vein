@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
 
@@ -7,7 +7,7 @@
     {
         public IshtarExportAttribute(int argLen, string name)
         {
-            
-        } 
+
+        }
     }
 }

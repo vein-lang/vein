@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("mana.backend.ishtar")]
 [assembly: InternalsVisibleTo("mana.backend.clr")]

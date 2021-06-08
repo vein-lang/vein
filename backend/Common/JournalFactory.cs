@@ -1,4 +1,4 @@
-﻿namespace mana.common
+namespace mana.common
 {
     using System;
     using System.Collections.Concurrent;
@@ -9,7 +9,7 @@
 
     public static class JournalFactory
     {
-        private static readonly IDictionary<string, Logger> storage = 
+        private static readonly IDictionary<string, Logger> storage =
             new ConcurrentDictionary<string, Logger>();
         private static readonly Func<string, LoggerConfiguration> _activator = defaultActivator;
         private static Action<LoggerConfiguration> _configurator;
@@ -27,7 +27,7 @@
         }
 
 
-        public static void EnforceInitiator(Action<LoggerConfiguration> configurator) 
+        public static void EnforceInitiator(Action<LoggerConfiguration> configurator)
             => _configurator = configurator;
 
 

@@ -1,4 +1,4 @@
-﻿namespace wc_test
+namespace wc_test
 {
     using System;
     using Sprache;
@@ -20,7 +20,7 @@
         }
 
         public static ManaSyntax Mana => new();
-        
+
         [Fact]
         public void CommentParseTest()
         {
@@ -38,7 +38,7 @@
     return 2;
 }");
             Assert.False(result.IsBrokenToken);
-            foreach (var statement in result.Statements) 
+            foreach (var statement in result.Statements)
                 Assert.False(statement.IsBrokenToken);
         }
 
@@ -62,7 +62,7 @@
             Assert.IsType<LocalVariableDeclaration>(statements[0]);
             Assert.IsType<ReturnStatementSyntax>(statements[1]);
         }
-        
+
         [Fact]
         public void IdentifierParseTest()
         {
@@ -71,7 +71,7 @@
             Assert.Throws<ManaParseException>(() => a.Identifier.ParseMana("4"));
             Assert.Throws<ManaParseException>(() => a.Identifier.ParseMana("public"));
         }
-        
+
         [Theory]
         [InlineData(" a: int", "a", "int", 0, null)]
         [InlineData("  b : SomeClass", "b", "SomeClass", 0, null)]
@@ -81,14 +81,14 @@
         public void ParameterDeclarationParseTest(string parseStr, string name, string type, int lenMod, string mod)
         {
             var result = new ManaSyntax().ParameterDeclaration.ParseMana(parseStr);
-            
+
             Assert.Equal(name, result.Identifier.ToString());
             Assert.Equal(type, result.Type.Identifier.ToString());
             Assert.Equal(lenMod, result.Modifiers.Count);
-            if(mod is not null)
+            if (mod is not null)
                 Assert.Equal(mod, result.Modifiers[0].ModificatorKind.ToString().ToLower());
         }
-        
+
         [Theory]
         [InlineData(" a int")]
         [InlineData("bla!")]
@@ -97,7 +97,7 @@
         [InlineData("b@b: int : int")]
         [InlineData("43534")]
         [InlineData("):s")]
-        public void ParameterDeclarationParseTestFail(string parseStr) => 
+        public void ParameterDeclarationParseTestFail(string parseStr) =>
             Assert.Throws<ManaParseException>(() => new ManaSyntax().ParameterDeclaration.ParseMana(parseStr));
 
         [Fact]
@@ -118,14 +118,14 @@
             Assert.Equal(SyntaxType.ReturnStatement, d.Body.Statements.First().Kind);
         }
         [Fact]
-        public void QualifiedExpressionNewTest() 
+        public void QualifiedExpressionNewTest()
             => Mana.QualifiedExpression.ParseMana("new Foo()");
 
         [Theory]
         [InlineData("foo: Type;")]
         [InlineData("[special] foo: Type;")]
         [InlineData("[special] public foo: Type;")]
-        public void FieldTest00(string str) 
+        public void FieldTest00(string str)
             => Mana.FieldDeclaration.ParseMana(str);
 
         [Fact]
@@ -148,7 +148,7 @@
             var errMember = clazz.Members.Skip(1).First();
             Assert.True(errMember.IsBrokenToken);
         }
-        
+
         [Fact]
         public void MethodParametersAndBodyTest()
         {
@@ -166,14 +166,14 @@
             var result = Mana.QualifiedExpression.End().ParseMana("1 + 2 - 3 * 4 / 5 ^^ 2");
             _logger.WriteLine(result.ToString());
         }
-        
+
         [Fact]
         public void FullsetMethodParametersAndBodyTest()
         {
             var a = new ManaSyntax();
             var d = a.ClassDeclaration
                 .ParseMana("public class DDD { public test(x: int32): void { } }");
-            
+
             Assert.False(d.IsStruct);
             Assert.False(d.IsInterface);
             Assert.Equal("DDD", d.Identifier.ToString());
@@ -182,13 +182,13 @@
             Assert.Equal("test", method.Identifier.ToString());
             Assert.Contains(method.Modifiers, x => x.ModificatorKind == ModificatorKind.Public);
             Assert.Equal("void", method.ReturnType.Identifier.ToString().ToLower());
-            
+
             var @params = method.Parameters.Single();
             Assert.Equal("x", @params.Identifier.ToString());
             Assert.Equal("int32", @params.Type.Identifier.ToString().ToLower());
         }
 
-        
+
         [Theory]
         [InlineData("operation test[x: int32] -> int32", "test", false)]
         [InlineData("operation test[] -> foo22", "test", false)]
@@ -204,7 +204,7 @@
         {
             var a = new ManaSyntax();
             var d = default(MethodDeclarationSyntax);
-            
+
             if (needFail)
             {
                 Assert.Throws<ManaParseException>(() =>
@@ -228,7 +228,7 @@
                 .ParseMana("#use \"stl.lib\"") as UseSyntax;
             Assert.Equal("stl.lib", d.Value.Token);
         }
-        
+
         [Fact]
         public void SpaceDirectiveTest()
         {
@@ -237,7 +237,7 @@
                 .ParseMana("#space \"foo\"");
             Assert.Equal("foo", d.Value.Token);
         }
-        
+
         [Fact]
         public void AnnotationTest()
         {
@@ -248,16 +248,16 @@
         [Fact]
         public void MemberFailTest()
         {
-            var result = 
+            var result =
                 Mana.ClassMemberDeclaration.End().ParseMana("public const MaxValue Int16 = 32767;");
             _logger.WriteLine($"type: {result.GetType()}");
         }
         [Fact]
-        public void FieldTest() 
+        public void FieldTest()
             => Mana.FieldDeclaration.ParseMana("public const MaxValue: Int16 = 32767;");
 
         [Fact]
-        public void FieldWithAnnotationTest() 
+        public void FieldWithAnnotationTest()
             => Mana.FieldDeclaration.ParseMana("[native] private _value: Int16;");
 
         [Fact]
@@ -283,14 +283,14 @@
         {
             Assert.False(Mana.Statement.ParseMana(@"return this == value;").IsBrokenToken);
         }
-        
+
         [Theory]
         [InlineData("class")]
         [InlineData("public")]
         [InlineData("private")]
         [InlineData("static")]
         [InlineData("auto")]
-        public void KeywordIsNotIdentifier(string key) 
+        public void KeywordIsNotIdentifier(string key)
             => Assert.Throws<ManaParseException>(() => Mana.Identifier.ParseMana(key));
 
         [Theory]
@@ -444,7 +444,7 @@
             Assert.Equal("main", md.Identifier.ToString());
             Assert.Equal(ManaAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
             Assert.False(md.Parameters.Any());
-            
+
             Assert.Throws<ManaParseException>(() => Mana.ClassDeclaration.ParseMana(" class Test { void Main }"));
             Assert.Throws<ManaParseException>(() => Mana.ClassDeclaration.ParseMana("class Foo { int main() }"));
         }
@@ -452,18 +452,18 @@
         public void InheritanceTest()
         {
             var cd = Mana.ClassDeclaration.Parse("class Program : Object {}");
-            
+
             Assert.Equal("Object", cd.Inheritances.Single().Identifier.ToString());
         }
-        
+
         [Fact]
         public void FieldsTest()
         {
             var cd = Mana.ClassDeclaration.Parse("class Program : Object { foo: foo; }");
-            
+
             Assert.Equal("Object", cd.Inheritances.Single().Identifier.ToString());
         }
-        
+
         [Theory]
         [InlineData("foo()")]
         [InlineData("foo.bar()")]
@@ -475,7 +475,7 @@
         [InlineData("foo.bar.zoo(a, b, 4, zak.woo())")]
         [InlineData("foo.bar.zoo(a, b, 4, zak.woo(a, b, 4))")]
         //[InlineData("global::foo.bar.zoo(a, b, 4, 4 + 4);")]
-        public void InvocationTest(string parseStr) 
+        public void InvocationTest(string parseStr)
             => Mana.QualifiedExpression.End().ParseMana(parseStr);
         [Theory]
         [InlineData("a")]
@@ -501,15 +501,15 @@
         [InlineData("foo@bar.zoo(a, b)")]
         [InlineData("foo.bar.zoo(a b, 4)")]
         [InlineData("foo.bar.zoo(a, b, 4, 4 $ 4)")]
-        public void InvocationTestFail(string parseStr) 
+        public void InvocationTestFail(string parseStr)
             => Assert.Throws<ManaParseException>(() => Mana.QualifiedExpression.End().ParseMana(parseStr));
-        
+
         [Fact]
         public void GenericExpressionTest()
         {
             var result = Mana.QualifiedExpression.ParseMana("foo.bar.zoo(zak.woo(a, b, c), a, b, c)");
         }
-        
+
         [Theory]
         [InlineData("2 ^ 4 + 2 - 2 * 2 % 2 ^^ 2 == foo()")]
         [InlineData("!106 / ~27 ^ !81 / ~38 ^ ~65 - 202 ^ ~214 & ~143")]

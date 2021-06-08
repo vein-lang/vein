@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System;
     using mana.runtime;
@@ -8,7 +8,7 @@
     {
         public IshtarExportFlagsAttribute(MethodFlags flags)
         {
-            
-        } 
+
+        }
     }
 }

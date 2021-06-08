@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Linq;
     using extensions;
@@ -8,7 +8,7 @@
     {
         public TypeSyntax Typeword { get; set; }
 
-        public TypeExpression(TypeSyntax typeword) : base(typeword.Identifier.ExpressionString) 
+        public TypeExpression(TypeSyntax typeword) : base(typeword.Identifier.ExpressionString)
             => this.Typeword = typeword;
 
         public new TypeExpression SetPos(Position startPos, int length)

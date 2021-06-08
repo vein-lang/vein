@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -12,7 +12,7 @@
         {
             Namespaces = qualifiedName.ToList();
 
-            if (Namespaces.Count <= 0) 
+            if (Namespaces.Count <= 0)
                 return;
             var lastItem = Namespaces.Count - 1;
             Identifier = Namespaces[lastItem];

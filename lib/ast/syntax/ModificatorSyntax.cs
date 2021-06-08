@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System;
     using System.Collections.Generic;
@@ -25,7 +25,7 @@
         public ModificatorKind ModificatorKind { get; }
 
 
-        public ModificatorSyntax(string mod) 
+        public ModificatorSyntax(string mod)
             => this.ModificatorKind = Enum.Parse<ModificatorKind>(mod, true);
 
         public new ModificatorSyntax SetPos(Position startPos, int length)

@@ -1,4 +1,4 @@
-﻿namespace mana.fs
+namespace mana.fs
 {
     using System;
     using System.Collections.Generic;
@@ -14,7 +14,7 @@
 
     public static class WEx
     {
-        public static bool Exist(this ElfSectionHeaderTable table, ElfSectionType type) 
+        public static bool Exist(this ElfSectionHeaderTable table, ElfSectionType type)
             => table.Any(x => x.Type == type);
 
         public static string GetStringByKey(this ElfStringTable table, string key)
@@ -33,12 +33,12 @@
         {
             get => metadata.Version;
             set => metadata.Version = value;
-        } 
-        
-        public List<(string name, byte[] data)> Sections { get; set; } = new ();
+        }
+
+        public List<(string name, byte[] data)> Sections { get; set; } = new();
 
         private string DebugData = "";
-        
+
         public void AddSegment((string name, byte[] data) seg) => Sections.Add(seg);
 
         private InsomniaAssemblyMetadata metadata = new ();
@@ -55,7 +55,7 @@
         }
 
 
-        public IshtarAssembly(ManaModuleBuilder module) 
+        public IshtarAssembly(ManaModuleBuilder module)
             => this.InsertModule(module);
 
         internal IshtarAssembly()
@@ -66,7 +66,7 @@
         public static IshtarAssembly LoadFromFile(FileInfo file)
             => LoadFromFile(file.FullName);
         /// <exception cref="BadImageFormatException"/>
-        public static IshtarAssembly LoadFromMemory(MemoryStream stream) 
+        public static IshtarAssembly LoadFromMemory(MemoryStream stream)
             => LoadFromStream(stream, "unnamed-module.wll");
 
         /// <exception cref="BadImageFormatException"/>
@@ -85,15 +85,15 @@
             }
 
             if (elf.Sections.All(x => x.Type != Note))
-                throw new BadImageFormatException($"File '{name}' has invalid.", 
+                throw new BadImageFormatException($"File '{name}' has invalid.",
                     new ImageSegmentNotFoundException("elf .note segment not found."));
             if (elf.Sections.All(x => x.Type != ProgBits))
-                throw new BadImageFormatException($"File '{name}' has invalid.", 
+                throw new BadImageFormatException($"File '{name}' has invalid.",
                     new ImageSegmentNotFoundException("elf .progBits segment not found."));
-            
+
             var noteSection = elf.Sections.Single(x => x is { Type: Note });
             var keyCode = Encoding.ASCII.GetString(noteSection.ReadFrom(stream));
-            
+
             if (keyCode != "insomnia")
                 throw new BadImageFormatException($"File '{name}' is not insomnia image.");
 
@@ -129,10 +129,10 @@
                 var tmp = sections[i];
                 sections[i] = (tmp.name, reader.ReadBytes(reader.ReadInt32()));
             }
-            
+
             return new IshtarAssembly
             {
-                Sections = sections, 
+                Sections = sections,
                 Name = Path.GetFileNameWithoutExtension(name),
                 metadata = metadata
             };
@@ -159,7 +159,7 @@
         {
             using var memory = new MemoryStream();
             using var writer = new BinaryWriter(memory);
-            
+
             writer.Write(asm.Sections.Count);
             foreach (var (name, _) in asm.Sections)
             {
@@ -173,12 +173,12 @@
                 writer.Write(data.Length);
                 writer.Write(data);
             }
-            
+
             using var fs = File.Create(file);
-            
+
             WriteElf(memory.ToArray(), fs, asm.metadata);
 
-            if (!string.IsNullOrEmpty(asm.DebugData)) 
+            if (!string.IsNullOrEmpty(asm.DebugData))
                 File.WriteAllText($"{file}.lay", asm.DebugData);
         }
     }

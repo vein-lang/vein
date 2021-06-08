@@ -1,4 +1,4 @@
-﻿namespace mana.backend.ishtar.light
+namespace mana.backend.ishtar.light
 {
     using System.Linq;
     using global::ishtar;

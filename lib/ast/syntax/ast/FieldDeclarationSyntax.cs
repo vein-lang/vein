@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System;
     using System.Collections.Generic;
@@ -29,7 +29,7 @@
 
             return this;
         }
-        
+
         public override MemberDeclarationSyntax WithName(IdentifierExpression name)
         {
             Field.Identifier = name;
@@ -42,7 +42,7 @@
 
         public ClassDeclarationSyntax OwnerClass { get; set; }
     }
-    
+
     public class ClassInitializerSyntax : MemberDeclarationSyntax
     {
         public ClassInitializerSyntax(MemberDeclarationSyntax heading = null)
@@ -129,7 +129,7 @@
 
         public bool IsEmpty => Body == null;
     }
-    
+
     public class FieldDeclaratorSyntax : BaseSyntax
     {
         public override SyntaxType Kind => SyntaxType.FieldDeclarator;
@@ -143,9 +143,9 @@
             get => _expression;
             set => _expression = value is UnaryExpressionSyntax
             {
-                OperatorType: ExpressionType.Negate, 
+                OperatorType: ExpressionType.Negate,
                 Operand: UndefinedIntegerNumericLiteral numeric
-            } ? RedefineIntegerExpression(numeric, true) : 
+            } ? RedefineIntegerExpression(numeric, true) :
                 TransformationWalkerExpression(value);
         }
 
@@ -177,7 +177,7 @@
             if (!isNegate && !ulong.TryParse(token, out _))
                 throw new ParseException("not valid integer.");
 
-            
+
 
             if (!isNegate)
             {
@@ -207,7 +207,7 @@
                 if (long.TryParse(token, out _))
                     return new Int64LiteralExpressionSyntax(long.Parse(token)).SetPos(pos, len);
             }
-           
+
             throw new ParseException($"too big number '{token}'"); // TODO custom exception
         }
     }

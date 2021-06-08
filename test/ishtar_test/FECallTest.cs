@@ -1,4 +1,4 @@
-﻿namespace ishtar_test
+namespace ishtar_test
 {
     using ishtar;
     using Xunit;
@@ -19,7 +19,7 @@
             ctx.Execute((gen, storage) =>
             {
                 gen.Emit(OpCodes.LDC_STR, "foo");
-                gen.Emit(OpCodes.CALL, (RuntimeIshtarMethod) storage.method);
+                gen.Emit(OpCodes.CALL, (RuntimeIshtarMethod)storage.method);
                 gen.Emit(OpCodes.RET);
             });
         }

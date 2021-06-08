@@ -1,4 +1,4 @@
-﻿namespace mana.exceptions
+namespace mana.exceptions
 {
     using System;
 

@@ -1,4 +1,4 @@
-﻿namespace mana.syntax
+namespace mana.syntax
 {
     using System.Collections.Generic;
     using System.Linq.Expressions;
@@ -9,9 +9,9 @@
     {
         public ExpressionSyntax Left { get; set; }
         public ExpressionSyntax Right { get; set; }
-        
+
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Left, Right);
-        
+
         public override SyntaxType Kind => SyntaxType.BinaryExpression;
 
         public new BinaryExpressionSyntax SetPos(Position startPos, int length)
@@ -22,7 +22,7 @@
 
         public BinaryExpressionSyntax()
         {
-            
+
         }
 
         public BinaryExpressionSyntax(ExpressionSyntax first, ExpressionSyntax last)
@@ -48,18 +48,18 @@
         {
             var str = new StringBuilder();
             str.Append("(");
-            if(Left is not null)
+            if (Left is not null)
             {
                 if (Left.ExpressionString is not null)
                     str.Append(Left.ExpressionString);
                 else
                     str.Append(Left.Kind);
-                
+
                 str.Append($" {OperatorType.GetSymbol()} ");
             }
             else
                 str.Append($"{OperatorType.GetSymbol()}");
-            
+
             if (Right.ExpressionString is not null)
                 str.Append(Right.ExpressionString);
             else
@@ -67,7 +67,7 @@
             str.Append(")");
             return str.ToString();
         }
-        
+
         public override string ExpressionString => ToString();
     }
 }

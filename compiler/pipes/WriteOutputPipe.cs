@@ -1,4 +1,4 @@
-﻿namespace mana.pipes
+namespace mana.pipes
 {
     using System.Collections.Generic;
     using System.IO;
@@ -20,7 +20,7 @@
             else
                 OutputDirectory.EnumerateFiles("*.*", SearchOption.AllDirectories).ForEach(x => x.Delete());
 
-            
+
             var wil_file = new FileInfo(Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wvil.bin"));
 
             var wil_data = Module.BakeByteArray();
@@ -40,9 +40,9 @@
 
     public abstract class CompilerPipeline
     {
-        protected DirectoryInfo OutputDirectory 
-            => new (Path.Combine(Project.WorkDir, "bin"));
-        protected FileInfo OutputBinaryPath => 
+        protected DirectoryInfo OutputDirectory
+            => new(Path.Combine(Project.WorkDir, "bin"));
+        protected FileInfo OutputBinaryPath =>
             new FileInfo(Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wll"));
 
         protected internal ManaModuleBuilder Module { get; set; }
@@ -51,7 +51,7 @@
 
         public abstract void Action();
 
-        
+
 
         public abstract bool CanApply(CompileSettings flags);
         public abstract int Order { get; }

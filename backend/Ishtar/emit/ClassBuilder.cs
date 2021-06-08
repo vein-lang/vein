@@ -1,4 +1,4 @@
-﻿namespace mana.ishtar.emit
+namespace mana.ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -13,7 +13,7 @@
     {
         internal ManaModuleBuilder moduleBuilder;
 
-        public List<string> Includes { get; set; } = new ();
+        public List<string> Includes { get; set; } = new();
 
         internal ClassBuilder WithIncludes(List<string> includes)
         {
@@ -44,7 +44,7 @@
         /// Get class <see cref="QualityTypeName"/>.
         /// </summary>
         public QualityTypeName GetName() => this.FullName;
-        
+
         /// <summary>
         /// Define method in current class.
         /// </summary>
@@ -89,14 +89,14 @@
             Fields.Add(field);
             return field;
         }
-        
+
         byte[] IBaker.BakeByteArray()
         {
             if (Methods.Count == 0 && Fields.Count == 0)
                 return Array.Empty<byte>();
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
-            
+
             binary.WriteTypeName(this.FullName, moduleBuilder);
             binary.Write((short)Flags);
             binary.WriteTypeName(Parent?.FullName ?? this.FullName, moduleBuilder);
@@ -116,12 +116,12 @@
             }
             return mem.ToArray();
         }
-        
+
         string IBaker.BakeDebugString()
         {
             var str = new StringBuilder();
             str.AppendLine($".namespace '{FullName.Namespace}'");
-            str.AppendLine($".class '{FullName.Name}' {Flags.EnumerateFlags().Except(new [] {ClassFlags.None}).Join(' ').ToLowerInvariant()}");
+            str.AppendLine($".class '{FullName.Name}' {Flags.EnumerateFlags().Except(new[] { ClassFlags.None }).Join(' ').ToLowerInvariant()}");
             str.AppendLine("{");
             foreach (var field in Fields)
             {
@@ -150,13 +150,13 @@
 
             ctor = DefineMethod(name, flags, ManaTypeCode.TYPE_VOID.AsClass());
             moduleBuilder.InternString(ctor.Name);
-            
+
             return ctor;
         }
 
         #endregion
 
-        public ulong? FindMemberField(FieldName field) 
+        public ulong? FindMemberField(FieldName field)
             => throw new NotImplementedException();
     }
 }

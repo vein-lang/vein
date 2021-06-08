@@ -1,4 +1,4 @@
-﻿namespace ishtar
+namespace ishtar
 {
     using System.Text;
 
@@ -20,7 +20,7 @@
             var str = new StringBuilder();
 
             str.AppendLine($"\tat {frame.method.Owner.FullName.NameWithNS}.{frame.method.Name}");
-            
+
             var r = frame.parent;
 
             while (r != null)

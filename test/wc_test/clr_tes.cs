@@ -1,4 +1,4 @@
-﻿namespace wc_test
+namespace wc_test
 {
     using mana.ishtar.emit;
     using mana.runtime;

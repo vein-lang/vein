@@ -1,4 +1,4 @@
-﻿namespace mana.extensions
+namespace mana.extensions
 {
     using System;
     using System.Collections.Generic;
@@ -20,7 +20,7 @@
             Enumerable.Range(i.Start.Value, i.End.Value);
         public static IEnumerator<int> GetEnumerator(this Range i) =>
             Enumerable.Range(i.Start.Value, i.End.Value).GetEnumerator();
-        public static bool InRange(this Range range, int value) 
+        public static bool InRange(this Range range, int value)
             => value >= range.Start.Value && value <= range.End.Value;
     }
 }

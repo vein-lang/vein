@@ -1,4 +1,4 @@
-﻿namespace mana.runtime
+namespace mana.runtime
 {
     using System;
 
@@ -6,7 +6,7 @@
     {
         public FieldIsNotDeclaredException(FieldName field) : base($"Field '{field.Name}' is not declared.")
         {
-            
+
         }
     }
 }
