@@ -69,17 +69,18 @@ namespace mana.runtime
     {
         public static Func<string, object> GetConverter(this ManaTypeCode code)
         {
-            if (new[] { TYPE_U1, TYPE_U2, TYPE_U4, TYPE_U8 }.Any(x => x == code))
-                throw new NotSupportedException("Unsigned integer is not support.");
-
             Func<string, object> result = (code) switch
             {
                 (TYPE_BOOLEAN)  => (x) => bool.Parse(x),
                 (TYPE_CHAR)     => (x) => char.Parse(x),
-                (TYPE_I1)       => (x) => byte.Parse(x),
+                (TYPE_I1)       => (x) => sbyte.Parse(x),
                 (TYPE_I2)       => (x) => short.Parse(x),
                 (TYPE_I4)       => (x) => int.Parse(x),
                 (TYPE_I8)       => (x) => long.Parse(x),
+                (TYPE_U1)       => (x) => byte.Parse(x),
+                (TYPE_U2)       => (x) => ushort.Parse(x),
+                (TYPE_U4)       => (x) => uint.Parse(x),
+                (TYPE_U8)       => (x) => ulong.Parse(x),
                 (TYPE_R2)       => (x) => Half.Parse(x),
                 (TYPE_R4)       => (x) => float.Parse(x),
                 (TYPE_R8)       => (x) => double.Parse(x),
