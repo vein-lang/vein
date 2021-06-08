@@ -6,6 +6,7 @@ namespace ishtar
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Threading;
+    using mana.extensions;
     using mana.runtime;
     using static mana.runtime.ManaTypeCode;
 
@@ -49,7 +50,70 @@ namespace ishtar
         }
 
 
+        public static IshtarArray* AllocArray(RuntimeIshtarClass @class, ulong size, byte rank, IshtarObject** node = null, CallFrame frame = null)
+        {
+            if (!@class.is_inited)
+                @class.init_vtable();
 
+            if (size >= IshtarArray.MAX_SIZE)
+            {
+                VM.FastFail(WNE.OVERFLOW, "", frame);
+                VM.ValidateLastError();
+                return null;
+            }
+
+            if (rank != 1)
+            {
+                VM.FastFail(WNE.TYPE_LOAD, "Currently array rank greater 1 not supported.", frame);
+                VM.ValidateLastError();
+                return null;
+            }
+            var arr = TYPE_ARRAY.AsRuntimeClass();
+            var bytes_len = @class.computed_size * size * rank;
+
+            // enter critical zone
+            IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
+            
+            if (!arr.is_inited) arr.init_vtable();
+
+            var obj = AllocObject(arr, node);
+
+            var arr_obj = (IshtarArray*)Marshal.AllocHGlobal(sizeof(IshtarArray));
+
+            if (arr_obj is null)
+            {
+                VM.FastFail(WNE.OUT_OF_MEMORY, "", frame);
+                VM.ValidateLastError();
+                return null;
+            }
+
+            // fill array block
+            arr_obj->memory = obj;
+            arr_obj->_block.offset_value = arr.Field["!!value"].vtable_offset;
+            arr_obj->_block.offset_block = arr.Field["!!block"].vtable_offset;
+            arr_obj->_block.offset_size = arr.Field["!!size"].vtable_offset;
+            arr_obj->_block.offset_rank = arr.Field["!!rank"].vtable_offset;
+
+            // update gc stats
+            GCStats.alive_objects++;
+            GCStats.total_allocations += (ulong)sizeof(IshtarArray) + bytes_len;
+
+
+            // fill live table memory
+            obj->vtable[arr_obj->_block.offset_value] = (void**) Marshal.AllocHGlobal((IntPtr)bytes_len);
+            obj->vtable[arr_obj->_block.offset_block] = (long*) @class.computed_size;
+            obj->vtable[arr_obj->_block.offset_size] = (long*) size;
+            obj->vtable[arr_obj->_block.offset_rank] = (long*) rank;
+
+            // fill array block memory
+            for (var i = 0UL; i != size; i++)
+                ((void**) obj->vtable[arr.Field["!!value"].vtable_offset])[i] = AllocObject(@class, &obj);
+
+            // exit from critical zone
+            IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
+
+            return arr_obj;
+        }
 
 
 
