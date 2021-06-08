@@ -1,7 +1,7 @@
 name: Daily code format check
 on:
-  schedule:
-    - cron: 0 13 * * *
+  push:
+    branches: [ master ]
 jobs:
   dotnet-format:
     runs-on: windows-latest
@@ -26,8 +26,8 @@ jobs:
       - name: Commit files
         if: steps.format.outputs.has-changes == 'true'
         run: |
-          git config --local user.name "Runic Ruler"
-          git config --local user.email "63215098+ancient-rune-ruler[bot]@users.noreply.github.com"
+          git config --local user.name "Code Maid"
+          git config --local user.email "code.maid@0xf6.moe"
           git commit -a -m 'Automated dotnet-format update'
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
@@ -35,8 +35,8 @@ jobs:
           title: '[housekeeping] Automated PR to fix formatting errors'
           body: |
             Automated PR to fix formatting errors
-          committer: Runic Ruler <63215098+ancient-rune-ruler[bot]@users.noreply.github.com>
-          author: Runic Ruler <63215098+ancient-rune-ruler[bot]@users.noreply.github.com>
+          committer: Code Maid <code.maid@0xf6.moe>
+          author: Code Maid <code.maid@0xf6.moe>
           labels: code-quality ♻︎
           assignees: 0xF6
           reviewers: 0xF6
