@@ -12,7 +12,7 @@ namespace mana.syntax
                 .Where(x => x.Item1 != null)
                 .First(x => x.Item1.Equals(str)).x;
 
-        public static bool IsLogic(this ExpressionType exp) =>exp switch
+        public static bool IsLogic(this ExpressionType exp) => exp switch
         {
             ExpressionType.And => true,
             ExpressionType.GreaterThan => true,
