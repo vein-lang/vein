@@ -52,7 +52,7 @@ namespace ishtar
                 VM.ValidateLastError();
                 return;
             }
-            
+
             if (Class.IsPrimitive)
             {
                 var offset = value_class.Field["!!value"].vtable_offset;
@@ -61,7 +61,7 @@ namespace ishtar
             else
                 elements[index] = value;
         }
-        
+
 
         public struct Block : IEquatable<Block>
         {
@@ -87,7 +87,7 @@ namespace ishtar
 
         public override bool Equals(object obj) => obj is IshtarArray other && Equals(other);
 
-        public override int GetHashCode() => HashCode.Combine(unchecked((int) (long) memory), _block);
+        public override int GetHashCode() => HashCode.Combine(unchecked((int)(long)memory), _block);
 
         #endregion
     }

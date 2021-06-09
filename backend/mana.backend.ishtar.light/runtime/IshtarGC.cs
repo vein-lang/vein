@@ -73,7 +73,7 @@ namespace ishtar
 
             // enter critical zone
             IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
-            
+
             if (!arr.is_inited) arr.init_vtable();
 
             var obj = AllocObject(arr, node);
@@ -107,14 +107,14 @@ namespace ishtar
 
 
             // fill live table memory
-            obj->vtable[arr_obj->_block.offset_value] = (void**) Marshal.AllocHGlobal((IntPtr)bytes_len);
-            obj->vtable[arr_obj->_block.offset_block] = (long*) @class.computed_size;
-            obj->vtable[arr_obj->_block.offset_size] = (long*) size;
-            obj->vtable[arr_obj->_block.offset_rank] = (long*) rank;
+            obj->vtable[arr_obj->_block.offset_value] = (void**)Marshal.AllocHGlobal((IntPtr)bytes_len);
+            obj->vtable[arr_obj->_block.offset_block] = (long*)@class.computed_size;
+            obj->vtable[arr_obj->_block.offset_size] = (long*)size;
+            obj->vtable[arr_obj->_block.offset_rank] = (long*)rank;
 
             // fill array block memory
             for (var i = 0UL; i != size; i++)
-                ((void**) obj->vtable[arr.Field["!!value"].vtable_offset])[i] = AllocObject(@class, &obj);
+                ((void**)obj->vtable[arr.Field["!!value"].vtable_offset])[i] = AllocObject(@class, &obj);
 
             // exit from critical zone
             IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
