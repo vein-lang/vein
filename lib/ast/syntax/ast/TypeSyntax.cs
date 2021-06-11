@@ -17,7 +17,7 @@ namespace mana.syntax
             var lastItem = Namespaces.Count - 1;
             Identifier = Namespaces[lastItem];
             Namespaces.RemoveAt(lastItem);
-            Transform = new Transform(new Position(0, 0, 0), 0);
+            Transform = Identifier.Transform;
         }
 
         public TypeSyntax(params IdentifierExpression[] qualifiedName)
@@ -34,20 +34,32 @@ namespace mana.syntax
 
         public override SyntaxType Kind => SyntaxType.Type;
 
-        public override IEnumerable<BaseSyntax> ChildNodes =>
-            TypeParameters.Where(n => n != null);
+        public override IEnumerable<BaseSyntax> ChildNodes
+        {
+            get
+            {
+                var list = new List<BaseSyntax>();
+
+                list.AddRange(Namespaces);
+                list.AddRange(TypeParameters);
+                if (Identifier is not null)
+                    list.Add(Identifier);
+                return list;
+            }
+        }
 
         public List<IdentifierExpression> Namespaces { get; set; }
 
         public IdentifierExpression Identifier { get; set; }
 
-        public List<TypeSyntax> TypeParameters { get; set; }
+        public List<TypeSyntax> TypeParameters { get; set; } = new ();
         public bool IsArray { get; set; }
         public bool IsPointer { get; set; }
 
 
         public int ArrayRank { get; set; }
         public int PointerRank { get; set; }
+        
 
         public string GetFullName()
         {
