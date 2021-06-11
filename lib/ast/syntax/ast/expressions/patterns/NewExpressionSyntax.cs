@@ -8,14 +8,17 @@ namespace mana.syntax
     public class NewExpressionSyntax : OperatorExpressionSyntax, IPositionAware<NewExpressionSyntax>
     {
         public override SyntaxType Kind => SyntaxType.NewExpression;
-        public override IEnumerable<BaseSyntax> ChildNodes => CtorArgs.Concat(new BaseSyntax[] { TargetType });
+        public override IEnumerable<BaseSyntax> ChildNodes => new[] { TargetType, CtorArgs };
         public TypeExpression TargetType { get; set; }
-        public List<ExpressionSyntax> CtorArgs { get; set; }
+        public ExpressionSyntax CtorArgs { get; set; }
 
-        public NewExpressionSyntax(TypeExpression type, ExpressionSyntax[] args)
+        public bool IsObject => CtorArgs is ObjectCreationExpression;
+        public bool IsArray => CtorArgs is ArrayInitializerExpression;
+
+        public NewExpressionSyntax(TypeExpression type, ExpressionSyntax args)
         {
             TargetType = type;
-            CtorArgs = args.EmptyIfNull().ToList();
+            CtorArgs = args;
         }
 
         public new NewExpressionSyntax SetPos(Position startPos, int length)
