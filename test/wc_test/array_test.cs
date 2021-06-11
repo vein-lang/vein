@@ -26,5 +26,13 @@ namespace wc_test
 
             Assert.False(result.IsBrokenToken);
         }
+
+        [Fact]
+        public void ArrayCompilationTest()
+        {
+            var result = Syntax.new_expression.ParseMana("new Foo[5]");
+
+
+        }
     }
 }

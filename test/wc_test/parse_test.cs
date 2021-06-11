@@ -407,8 +407,9 @@ namespace wc_test
 
             var exp = result as NewExpressionSyntax;
 
+            Assert.NotNull(exp);
             Assert.Equal(SyntaxType.NewExpression, exp.Kind);
-            Assert.Empty(exp.CtorArgs);
+            Assert.IsType<ObjectCreationExpression>(exp.CtorArgs);
             Assert.Equal("global::Foo", exp.TargetType.Typeword.GetFullName());
         }
         [Fact]

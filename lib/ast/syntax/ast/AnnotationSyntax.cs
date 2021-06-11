@@ -11,9 +11,9 @@ namespace mana.syntax
         public AnnotationSyntax(ManaAnnotationKind kind)
             => this.AnnotationKind = kind;
         public AnnotationSyntax(ManaAnnotationKind kind, IOption<ExpressionSyntax> args)
-            => (AnnotationKind, Args) = (kind, args.GetOrDefault());
+            => (AnnotationKind, Args) = (kind, ((ObjectCreationExpression)args.GetOrDefault())?.Args?.DefaultIfEmpty().ToArray());
         public ManaAnnotationKind AnnotationKind { get; }
-        public ExpressionSyntax Args { get; }
+        public ExpressionSyntax[] Args { get; }
         public override SyntaxType Kind => SyntaxType.Annotation;
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
 
