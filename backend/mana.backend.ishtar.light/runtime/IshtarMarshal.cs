@@ -19,6 +19,15 @@ namespace ishtar
 
             return obj;
         }
+
+        public static IshtarObject* ToIshtarObject(bool dotnet_value, CallFrame frame = null, IshtarObject** node = null)
+        {
+            var obj = IshtarGC.AllocObject(TYPE_BOOLEAN.AsRuntimeClass(), node);
+            var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
+            obj->vtable[clazz.Field["!!value"].vtable_offset] = (int*)(dotnet_value ? 1 : 0);
+
+            return obj;
+        }
         public static IshtarObject* ToIshtarObject(short dotnet_value, CallFrame frame = null, IshtarObject** node = null)
         {
             var obj = IshtarGC.AllocObject(TYPE_I2.AsRuntimeClass(), node);
@@ -211,6 +220,7 @@ namespace ishtar
 
                 TYPE_BOOLEAN => (int*)p->data.i,
                 TYPE_CHAR => (int*)p->data.i,
+                TYPE_ARRAY => (void*)p->data.p,
 
                 _ => &*p
             };
