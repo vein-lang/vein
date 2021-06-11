@@ -308,72 +308,76 @@ namespace ishtar
 		/// </summary>
 		NEWOBJ = 0x4B,
 		/// <summary>
+		/// New Array Operation.
+		/// </summary>
+		NEWARR = 0x4C,
+		/// <summary>
 		/// Compare two value, when first value is less than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a <= b)
 		/// </summary>
-		EQL_LQ = 0x4C,
+		EQL_LQ = 0x4D,
 		/// <summary>
 		/// Compare two value, when first value is less second value stage 1 (int32) into stack, otherwise 0 (int32). (a < b)
 		/// </summary>
-		EQL_L = 0x4D,
+		EQL_L = 0x4E,
 		/// <summary>
 		/// Compare two value, when first value is greater than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a >= b)
 		/// </summary>
-		EQL_HQ = 0x4E,
+		EQL_HQ = 0x4F,
 		/// <summary>
 		/// Compare two value, when first value is greater second value stage 1 (int32) into stack, otherwise 0 (int32). (a > b)
 		/// </summary>
-		EQL_H = 0x4F,
+		EQL_H = 0x50,
 		/// <summary>
 		/// Compare two value, when two integer/float is equal stage 1 (int32) into stack, otherwise 0 (int32). (a == b)
 		/// </summary>
-		EQL_NQ = 0x50,
+		EQL_NQ = 0x51,
 		/// <summary>
 		/// Compare two value, when two integer/float is not equal stage 1 (int32) into stack, otherwise 0 (int32). (a != b)
 		/// </summary>
-		EQL_NN = 0x51,
+		EQL_NN = 0x52,
 		/// <summary>
 		/// Compare two value, when value has false, null or zero stage 1 (int32) into stack, otherwise 0 (int32). (!a)
 		/// </summary>
-		EQL_F = 0x52,
+		EQL_F = 0x53,
 		/// <summary>
 		/// Compare two value, when value has true or either differs from null or from zero stage 1 (int32) into stack, otherwise 0 (int32). (a)
 		/// </summary>
-		EQL_T = 0x53,
+		EQL_T = 0x54,
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// </summary>
-		JMP = 0x54,
+		JMP = 0x55,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value. (a <= b)
 		/// </summary>
-		JMP_LQ = 0x55,
+		JMP_LQ = 0x56,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value. (a < b)
 		/// </summary>
-		JMP_L = 0x56,
+		JMP_L = 0x57,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value. (a >= b)
 		/// </summary>
-		JMP_HQ = 0x57,
+		JMP_HQ = 0x58,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value. (a > b)
 		/// </summary>
-		JMP_H = 0x58,
+		JMP_H = 0x59,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal. (a == b)
 		/// </summary>
-		JMP_NQ = 0x59,
+		JMP_NQ = 0x5A,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal. (a != b)
 		/// </summary>
-		JMP_NN = 0x5A,
+		JMP_NN = 0x5B,
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero. (!a)
 		/// </summary>
-		JMP_F = 0x5B,
+		JMP_F = 0x5C,
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero. (a)
 		/// </summary>
-		JMP_T = 0x5C,
+		JMP_T = 0x5D,
 	}
 }

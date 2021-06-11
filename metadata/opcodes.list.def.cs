@@ -6,7 +6,7 @@ namespace ishtar
 	using global::System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 3;
+		internal static int SetVersion = 4;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -540,124 +540,131 @@ namespace ishtar
 		/// </summary>
 		public static readonly OpCode NEWOBJ = new (0x4B, 0x0100001F);
 		/// <summary>
+		/// New Array Operation.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode NEWARR = new (0x4C, 0x0100001F);
+		/// <summary>
 		/// Compare two value, when first value is less than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a <= b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_LQ = new (0x4C, 0x0000001F);
+		public static readonly OpCode EQL_LQ = new (0x4D, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when first value is less second value stage 1 (int32) into stack, otherwise 0 (int32). (a < b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_L = new (0x4D, 0x0000001F);
+		public static readonly OpCode EQL_L = new (0x4E, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when first value is greater than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a >= b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_HQ = new (0x4E, 0x0000001F);
+		public static readonly OpCode EQL_HQ = new (0x4F, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when first value is greater second value stage 1 (int32) into stack, otherwise 0 (int32). (a > b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_H = new (0x4F, 0x0000001F);
+		public static readonly OpCode EQL_H = new (0x50, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when two integer/float is equal stage 1 (int32) into stack, otherwise 0 (int32). (a == b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_NQ = new (0x50, 0x0000001F);
+		public static readonly OpCode EQL_NQ = new (0x51, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when two integer/float is not equal stage 1 (int32) into stack, otherwise 0 (int32). (a != b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_NN = new (0x51, 0x0000001F);
+		public static readonly OpCode EQL_NN = new (0x52, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when value has false, null or zero stage 1 (int32) into stack, otherwise 0 (int32). (!a)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_F = new (0x52, 0x0000001F);
+		public static readonly OpCode EQL_F = new (0x53, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when value has true or either differs from null or from zero stage 1 (int32) into stack, otherwise 0 (int32). (a)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_T = new (0x53, 0x0000001F);
+		public static readonly OpCode EQL_T = new (0x54, 0x0000001F);
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP = new (0x54, 0x0100001F);
+		public static readonly OpCode JMP = new (0x55, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value. (a <= b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_LQ = new (0x55, 0x0100001F);
+		public static readonly OpCode JMP_LQ = new (0x56, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value. (a < b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_L = new (0x56, 0x0100001F);
+		public static readonly OpCode JMP_L = new (0x57, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value. (a >= b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_HQ = new (0x57, 0x0100001F);
+		public static readonly OpCode JMP_HQ = new (0x58, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value. (a > b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_H = new (0x58, 0x0100001F);
+		public static readonly OpCode JMP_H = new (0x59, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal. (a == b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_NQ = new (0x59, 0x0100001F);
+		public static readonly OpCode JMP_NQ = new (0x5A, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal. (a != b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_NN = new (0x5A, 0x0100001F);
+		public static readonly OpCode JMP_NN = new (0x5B, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero. (!a)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_F = new (0x5B, 0x0100001F);
+		public static readonly OpCode JMP_F = new (0x5C, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero. (a)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_T = new (0x5C, 0x0100001F);
+		public static readonly OpCode JMP_T = new (0x5D, 0x0100001F);
 
 		public static readonly Dictionary<OpCodeValue, OpCode> all = new ()
 		{
@@ -737,6 +744,7 @@ namespace ishtar
 			{OpCodeValue.CONV_I4, CONV_I4},
 			{OpCodeValue.THROW, THROW},
 			{OpCodeValue.NEWOBJ, NEWOBJ},
+			{OpCodeValue.NEWARR, NEWARR},
 			{OpCodeValue.EQL_LQ, EQL_LQ},
 			{OpCodeValue.EQL_L, EQL_L},
 			{OpCodeValue.EQL_HQ, EQL_HQ},

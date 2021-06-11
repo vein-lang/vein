@@ -93,6 +93,9 @@
 - NEWOBJ:
     description: New object Operation.
     override-size: 4
+- NEWARR:
+    description: New Array Operation.
+    override-size: 4
 - EQL:
     description: Compare two value, when values are equal 1 (int32) stage into stack, otherwise 0 (int32).
     LQ:
