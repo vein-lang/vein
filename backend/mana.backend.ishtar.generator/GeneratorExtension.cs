@@ -465,20 +465,30 @@ namespace ishtar
                 return;
             }
 
-            foreach (var arg in @new.CtorArgs)
-                gen.EmitExpression(arg);
-            gen.Emit(OpCodes.NEWOBJ, type);
-            var ctor = type.FindMethod("ctor", @new.CtorArgs.DetermineTypes(context));
-
-            if (ctor is null)
+            if (@new.IsObject)
             {
-                context.LogError(
-                    $"'{type}' does not contain a constructor that takes '{@new.CtorArgs.Count}' arguments.",
-                    @new.TargetType);
-                return;
+                var args = ((ObjectCreationExpression)@new.CtorArgs).Args.ToArray();
+                foreach (var arg in args)
+                    gen.EmitExpression(arg);
+                gen.Emit(OpCodes.NEWOBJ, type);
+                var ctor = type.FindMethod("ctor", args.DetermineTypes(context));
+
+                if (ctor is null)
+                {
+                    context.LogError(
+                        $"'{type}' does not contain a constructor that takes '{args.Length}' arguments.",
+                        @new.TargetType);
+                    return;
+                }
+
+                gen.Emit(OpCodes.CALL, ctor);
             }
 
-            gen.Emit(OpCodes.CALL, ctor);
+            if (@new.IsArray)
+            {
+                var arg = ((ArrayInitializerExpression)@new.CtorArgs).Args;
+                throw new NotSupportedException();
+            }
         }
 
         public static IEnumerable<ManaClass> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context)
