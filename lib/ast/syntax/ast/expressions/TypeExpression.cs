@@ -1,5 +1,6 @@
 namespace mana.syntax
 {
+    using System.Collections.Generic;
     using System.Linq;
     using extensions;
     using Sprache;
@@ -17,10 +18,14 @@ namespace mana.syntax
             return this;
         }
 
+        public override IEnumerable<BaseSyntax> ChildNodes => Typeword.ChildNodes;
+
         public TypeExpression WithMetadata(ExpressionSettingSyntax[] settings)
         {
             Typeword.PointerRank = settings.OfExactType<PointerSpecifierValue>().Count(x => x.HasPointer);
             Typeword.ArrayRank = settings.OfExactType<RankSpecifierValue>().Sum(x => x.Rank);
+            Typeword.IsArray = settings.Any(x => x is RankSpecifierValue);
+            Typeword.IsPointer = settings.Any(x => x is PointerSpecifierValue);
             return this;
         }
     }
