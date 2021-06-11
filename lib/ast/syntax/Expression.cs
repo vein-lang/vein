@@ -260,9 +260,9 @@ namespace mana.syntax
             select args.ToArray();
 
 
-        protected internal virtual Parser<ExpressionSyntax[]> object_creation_expression =>
+        protected internal virtual Parser<ExpressionSyntax> object_creation_expression =>
             from arg_list in WrappedExpression('(', ')', argument_list.Optional())
-            select arg_list.GetOrEmpty().ToArray();
+            select new ObjectCreationExpression(arg_list.GetOrEmpty());
 
         protected internal virtual Parser<TypeSyntax> BaseType =>
             SystemType.Or(
@@ -336,9 +336,20 @@ namespace mana.syntax
         protected internal virtual Parser<ExpressionSyntax> new_expression =>
             KeywordExpression("new").Token().Then(_ =>
                 from type in TypeExpression.Token().Positioned()
-                from creation_expression in object_creation_expression
+                from creation_expression in object_creation_expression.Positioned().Or(array_initializer.Positioned())
                 select new NewExpressionSyntax(type, creation_expression)
                 ).Positioned().Token();
+
+        protected internal virtual Parser<ExpressionSyntax> array_initializer =>
+            from opb in Parse.Char('[')
+            from args in variable_initializer.DelimitedBy(Parse.Char(',').Token())
+            from clb in Parse.Char(']')
+            select new ArrayInitializerExpression(args);
+
+
+        protected internal virtual Parser<ExpressionSyntax> variable_initializer =>
+            QualifiedExpression.Or(array_initializer);
+
         protected internal virtual Parser<ExpressionSyntax> member_access =>
             from s1 in Parse.Char('?').Token().Optional()
             from s2 in Parse.Char('.').Token()
