@@ -7,16 +7,12 @@ namespace ishtar
     {
         [IshtarExport(0, "@_sock_is_support_ipv6")]
         [IshtarExportFlags(Public | Static)]
-        public static IshtarObject* IsSupportIPv6(CallFrame current, IshtarObject** args)
-        {
-            return null;
-        }
+        public static IshtarObject* IsSupportIPv6(CallFrame current, IshtarObject** _)
+            => IshtarMarshal.ToIshtarObject(Socket.OSSupportsIPv6, current);
 
-        [IshtarExport(2, "@_sock_listen")]
+        [IshtarExport(0, "@_sock_is_support_ipv4")]
         [IshtarExportFlags(Public | Static)]
-        public static IshtarObject* NativeListen(CallFrame current, IshtarObject** args)
-        {
-            return null;
-        }
+        public static IshtarObject* IsSupportIPv4(CallFrame current, IshtarObject** _)
+            => IshtarMarshal.ToIshtarObject(Socket.OSSupportsIPv4, current);
     }
 }
