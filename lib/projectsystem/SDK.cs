@@ -76,7 +76,7 @@ namespace mana.project
     {
         public SDKNotInstalled(string msg) : base(msg)
         {
-            
+
         }
     }
     public class SDKPack

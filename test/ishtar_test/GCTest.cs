@@ -54,7 +54,7 @@ namespace ishtar_test
             Assert.Equal(1UL, array->rank);
 
             foreach (var i in ..10)
-                array->Set((uint) i, IshtarMarshal.ToIshtarObject(88 * i));
+                array->Set((uint)i, IshtarMarshal.ToIshtarObject(88 * i));
 
             foreach (var i in ..10)
             {
