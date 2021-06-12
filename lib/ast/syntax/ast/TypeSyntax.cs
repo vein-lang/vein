@@ -52,14 +52,14 @@ namespace mana.syntax
 
         public IdentifierExpression Identifier { get; set; }
 
-        public List<TypeSyntax> TypeParameters { get; set; } = new ();
+        public List<TypeSyntax> TypeParameters { get; set; } = new();
         public bool IsArray { get; set; }
         public bool IsPointer { get; set; }
 
 
         public int ArrayRank { get; set; }
         public int PointerRank { get; set; }
-        
+
 
         public string GetFullName()
         {
