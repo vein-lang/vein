@@ -6,7 +6,9 @@ namespace ishtar
     using System.Linq;
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
+    using mana.extensions;
     using mana.ishtar.emit;
+    using mana.reflection;
     using mana.runtime;
     using Spectre.Console;
     using mana.syntax;
@@ -51,6 +53,29 @@ namespace ishtar
         public ManaClass ResolveType(IdentifierExpression targetTypeTypeword)
             => Module.FindType(targetTypeTypeword.ExpressionString,
                 Classes[CurrentMethod.Owner.FullName].Includes);
+
+
+        public ClassBuilder CreateHiddenType(TypeSyntax targetTypeTypeword)
+            => CreateHiddenType(targetTypeTypeword.Identifier);
+        public ClassBuilder CreateHiddenType(IdentifierExpression targetTypeTypeword)
+            => CreateHiddenType(targetTypeTypeword.ExpressionString);
+        public ClassBuilder CreateHiddenType(string name)
+        {
+            QualityTypeName fullName = $"internal/{name}";
+
+            var currentType = Module.FindType(fullName, false, false);
+            
+            if (currentType is not UnresolvedManaClass)
+                return Assert.IsType<ClassBuilder>(currentType);
+            
+            var b = new ClassBuilder(Module, fullName);
+
+            b.Flags |= ClassFlags.Internal;
+
+            Classes.Add(b.FullName, b);
+
+            return b;
+        }
 
         public (ManaArgumentRef, int index)? ResolveArgument(IdentifierExpression id)
         {
