@@ -39,5 +39,8 @@ namespace ishtar
                 return new SingleLiteralExpressionSyntax(f).AsOptimized();
             return new ManaSyntax().LiteralExpression.End().Parse($"{result}").AsOptimized();
         }
+
+        public static T Eval<T>(this ExpressionSyntax exp)
+            => (T)new Expressive.Expression(exp.ExpressionString).Evaluate();
     }
 }
