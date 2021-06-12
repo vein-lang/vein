@@ -1,7 +1,11 @@
 namespace ishtar
 {
+    using System;
+
+    [Flags]
     public enum GCFlags
     {
-        NONE
+        NONE = 0,
+        IMMORTAL = 1 << 1,
     }
 }
