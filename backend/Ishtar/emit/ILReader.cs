@@ -5,6 +5,7 @@ namespace mana.ishtar.emit
     using System.IO;
     using global::ishtar;
     using mana.extensions;
+    using runtime;
 
     internal static unsafe class ILReader
     {
@@ -27,12 +28,12 @@ namespace mana.ishtar.emit
                 result.Add(bin.ReadInt32());
             return result;
         }
-        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr)
+        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, ManaMethod method)
         {
             var i = 0;
-            return Deconstruct(arr, &i);
+            return Deconstruct(arr, &i, method);
         }
-        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, int* offset)
+        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, int* offset, ManaMethod method)
         {
             using var mem = new MemoryStream(arr);
             using var bin = new BinaryReader(mem);
@@ -42,6 +43,15 @@ namespace mana.ishtar.emit
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine($"decode il...");
             Console.ForegroundColor = ConsoleColor.White;
+
+            string PreviousValue(int index)
+            {
+                var i = list[^index];
+                if (OpCodes.all.ContainsKey((OpCodeValue)i))
+                    return $"{OpCodes.all[(OpCodeValue)i].Name}";
+                return $"0x{i:X}:{i}";
+            }
+
             while (mem.Position < mem.Length)
             {
                 var opcode = (OpCodeValue) bin.ReadUInt16();
@@ -68,7 +78,9 @@ namespace mana.ishtar.emit
                 if (!OpCodes.all.ContainsKey(opcode))
                     throw new InvalidOperationException(
                     $"OpCode '{opcode}' is not found in metadata.\n" +
-                    $"re-run 'gen.csx' for fix this error.");
+                    $"re-run 'gen.csx' for fix this error.\n" +
+                    $"Previous values: '{PreviousValue(1)}, {PreviousValue(2)}, {PreviousValue(3)}'.\n"+
+                    $"Method: '{method.Name}' in '{method.Owner.Name}'.");
                 var value = OpCodes.all[opcode];
 
                 d.Add((int)mem.Position - sizeof(ushort), (list.Count, opcode));
