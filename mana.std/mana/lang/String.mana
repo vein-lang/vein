@@ -9,7 +9,7 @@ public class String : Object
     //public extern this[index: Int32]: Char;
     [native, getter]
     public /*extern*/ Length: Int32;
-
+    /*
     // temporary using vm_bridge, todo: rework to using mana-code
     [native("@_fast_end_with_string")]
     public extern EndsWith(value: Char): Boolean;
@@ -32,4 +32,5 @@ public class String : Object
     // temporary using vm_bridge, todo: rework to using mana-code
     [native("@_fast_trim_end")]
     public static extern trimEnd(s: String): String;
+    */
 }

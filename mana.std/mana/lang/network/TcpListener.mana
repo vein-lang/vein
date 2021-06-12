@@ -6,7 +6,7 @@ public class TcpListener
 {
     public static create(port: UInt16): TcpListener 
     {
-        return new TcpListener(port);
+        return null; //new TcpListener(port);
     }
 
     private _port: UInt16;
@@ -25,14 +25,16 @@ public class TcpListener
 
     public Start(): Void
     {
-        this._socket.Listen(9999);
+        //this._socket.Listen(9999);
     }
 
     private new(port: UInt16)
     {
+        /*
         this._socket = new TcpSocket(port);
         this._port = port;
         this._dualMode = true;
+        */
     }
 
     
