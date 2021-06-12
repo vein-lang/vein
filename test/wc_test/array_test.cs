@@ -1,5 +1,6 @@
 namespace wc_test
 {
+    using System.Linq;
     using mana.stl;
     using mana.syntax;
     using Xunit;
@@ -30,9 +31,37 @@ namespace wc_test
         [Fact]
         public void ArrayCompilationTest()
         {
-            var result = Syntax.new_expression.ParseMana("new Foo[5]");
+            var result = Syntax.new_expression.ParseMana("new Foo[5]")
+                .As<NewExpressionSyntax>();
 
+            Assert.True(result.IsArray);
+            var arr = result.CtorArgs.As<ArrayInitializerExpression>().Sizes.ToArray();
+            Assert.Single(arr);
+            var i4 = Assert.IsType<Int32LiteralExpressionSyntax>(arr[0]);
+            Assert.Equal(5, i4.Value);
+        }
 
+        [Fact]
+        public void ArrayCompilationTest2()
+        {
+            var result = Syntax.new_expression.ParseMana("new Foo[5] { 1, 2, 3, 4, 5 }")
+                .As<NewExpressionSyntax>();
+
+            Assert.True(result.IsArray);
+            var ctor = result.CtorArgs.As<ArrayInitializerExpression>();
+
+            var arr = ctor.Sizes.ToArray();
+            Assert.Single(arr);
+            var i4 = Assert.IsType<Int32LiteralExpressionSyntax>(arr[0]);
+            Assert.Equal(5, i4.Value);
+
+            Assert.NotNull(ctor.Args);
+            Assert.Equal(5, ctor.Args.FillArgs.Length);
+            Assert.True(ctor.Args.FillArgs
+                .Select(x => x.As<Int32LiteralExpressionSyntax>())
+                .Select(x => x.Value)
+                .ToArray()
+                .SequenceEqual(new [] {1,2,3,4,5}));
         }
     }
 }

@@ -17,7 +17,7 @@ namespace wc_test
             gen.Emit(OpCodes.ADD);
             gen.Emit(OpCodes.DIV);
             gen.Emit(OpCodes.LDARG_0);
-            var (result, _) = ILReader.Deconstruct(gen.BakeByteArray());
+            var (result, _) = ILReader.Deconstruct(gen.BakeByteArray(), null);
 
 
             Assert.Equal(OpCodes.ADD.Value, result[0]);
@@ -32,7 +32,7 @@ namespace wc_test
 
             gen.Emit(OpCodes.LDC_I4_S, 1448);
             gen.Emit(OpCodes.LDC_I4_S, 228);
-            var (result, _) = ILReader.Deconstruct(gen.BakeByteArray());
+            var (result, _) = ILReader.Deconstruct(gen.BakeByteArray(), null);
 
 
             Assert.Equal(OpCodes.LDC_I4_S.Value, result[0]);
@@ -58,7 +58,7 @@ namespace wc_test
 
             var str = gen.BakeDebugString();
             var bytes = gen.BakeByteArray();
-            var (result, _) = ILReader.Deconstruct(bytes);
+            var (result, _) = ILReader.Deconstruct(bytes, null);
         }
 
 
@@ -87,7 +87,7 @@ namespace wc_test
             gen.Emit(OpCodes.SUB);
             var offset = 0;
             var body = gen.BakeByteArray();
-            var (result, map) = ILReader.Deconstruct(body, &offset);
+            var (result, map) = ILReader.Deconstruct(body, &offset, null);
             var labels = ILReader.DeconstructLabels(body, offset);
 
             var first_label = result[map[labels[0]].pos];

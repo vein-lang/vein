@@ -406,7 +406,6 @@ namespace wc_test
             Assert.IsType<NewExpressionSyntax>(result);
 
             var exp = result as NewExpressionSyntax;
-
             Assert.NotNull(exp);
             Assert.Equal(SyntaxType.NewExpression, exp.Kind);
             Assert.IsType<ObjectCreationExpression>(exp.CtorArgs);
