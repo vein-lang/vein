@@ -516,6 +516,63 @@ namespace ishtar
             }
         }
 
+
+        public static ManaMethod ConstructArrayTypeInitialization(this ILGenerator gen, TypeExpression expression, ArrayInitializerExpression arrayInitializer)
+        {
+            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
+            var type = context.ResolveType(expression.Typeword);
+
+            if (!type.IsValueType)
+                return null;
+
+            var sizes = arrayInitializer.Sizes;
+            var ctor = arrayInitializer.Args ?? new (Array.Empty<ExpressionSyntax>());
+
+            if (sizes.Length > 1)
+                throw new NotSupportedException($"Currently array rank greater 1 not supported.");
+            var size = sizes.Single();
+
+            if (size is not NumericLiteralExpressionSyntax)
+                return null; // skip optimized type generation when size is variable and etc
+
+            var size_value = size.ForceOptimization().Eval<int>();
+            
+            if (ctor.FillArgs.Length != 0 || ctor.FillArgs.Length != size_value)
+                throw new NotSupportedException($"Incorrect array size.");
+            
+            var name = $"StaticArray_INIT_{expression.Typeword.Identifier.ExpressionString}_{size}_{ctor.FillArgs.Length}";
+
+            var arrayConstructor = context.CreateHiddenType(name);
+
+            if (arrayConstructor.IsSpecial)
+                return arrayConstructor.FindMethod("$init"); // skip already defined type
+
+            arrayConstructor.Flags |= ClassFlags.Special;
+
+            var method = arrayConstructor.DefineMethod("$init", MethodFlags.Public | MethodFlags.Static,
+                ManaTypeCode.TYPE_ARRAY.AsClass());
+
+            var body = method.GetGenerator();
+
+            body.Emit(OpCodes.NOP);
+            body.Emit(OpCodes.LD_TYPE, type);       // load type token
+            body.Emit(OpCodes.NEWARR, size_value);  // load size array and allocate array with fixed size and passed type
+            if (size_value == 0)
+            {
+                body.Emit(OpCodes.RET);
+                return method;
+            }
+            foreach (var i in ..size_value)
+            {
+                body.EmitExpression(ctor.FillArgs[i]);
+                body.Emit(OpCodes.LD_TYPE, type);
+                body.Emit(OpCodes.STELEM_S, i);
+            }
+            body.Emit(OpCodes.RET);
+            return method;
+        }
+
         public static IEnumerable<ManaClass> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context)
             => exps.Select(x => x.DetermineType(context)).Where(x => x is not null /* if failed determine skip analyze */);
 
@@ -966,7 +1023,7 @@ namespace ishtar
 
             if (statement.Expression.Kind == SyntaxType.Expression)
             {
-                generator.Emit(OpCodes.LDF, new FieldName(statement.Expression.ExpressionString));
+                generator.EmitExpression(statement.Expression);
                 generator.Emit(OpCodes.RET);
                 return;
             }
