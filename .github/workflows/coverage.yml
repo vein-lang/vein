@@ -23,7 +23,7 @@ jobs:
       with:
         dotnet-version: 6.0.100-preview.4.21255.9
     - name: Install DotCover
-      run: dotnet tool install JetBrains.dotCover.GlobalTool -g
+      run: dotnet tool install --global JetBrains.dotCover.GlobalTool --version 2021.2.0-eap03
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
