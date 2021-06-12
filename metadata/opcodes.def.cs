@@ -48,7 +48,7 @@ namespace ishtar
 		/// </summary>
 		LDARG_5 = 0x0A,
 		/// <summary>
-		/// Load into stack from argument.
+		/// Load into stack from argument by index.
 		/// </summary>
 		LDARG_S = 0x0B,
 		/// <summary>
@@ -308,76 +308,164 @@ namespace ishtar
 		/// </summary>
 		NEWOBJ = 0x4B,
 		/// <summary>
-		/// New Array Operation.
+		/// Allocate array onto evaluation stack by specified size and type.
 		/// </summary>
 		NEWARR = 0x4C,
 		/// <summary>
+		/// Load size of Array onto evaluation stack.
+		/// </summary>
+		LDLEN = 0x4D,
+		/// <summary>
+		/// 
+		/// </summary>
+		LDELEM_S = 0x4E,
+		/// <summary>
+		/// Load element with type int8 at a specified array index onto top of the evaluation stack as an int8.
+		/// </summary>
+		LDELEM_I1 = 0x4F,
+		/// <summary>
+		/// Load element with type int16 at a specified array index onto top of the evaluation stack as an int16.
+		/// </summary>
+		LDELEM_I2 = 0x50,
+		/// <summary>
+		/// Load element with type int32 at a specified array index onto top of the evaluation stack as an int32.
+		/// </summary>
+		LDELEM_I4 = 0x51,
+		/// <summary>
+		/// Load element with type int64 at a specified array index onto top of the evaluation stack as an int64.
+		/// </summary>
+		LDELEM_I8 = 0x52,
+		/// <summary>
+		/// Load element with type Object at a specified array index onto top of the evaluation stack as an Object.
+		/// </summary>
+		LDELEM_REF = 0x53,
+		/// <summary>
+		/// Load element with type Half at a specified array index onto top of the evaluation stack as an Half.
+		/// </summary>
+		LDELEM_R2 = 0x54,
+		/// <summary>
+		/// Load element with type Float at a specified array index onto top of the evaluation stack as an Float.
+		/// </summary>
+		LDELEM_R4 = 0x55,
+		/// <summary>
+		/// Load element with type Double at a specified array index onto top of the evaluation stack as an Double.
+		/// </summary>
+		LDELEM_R8 = 0x56,
+		/// <summary>
+		/// Load element with type Decimal at a specified array index onto top of the evaluation stack as an Decimal.
+		/// </summary>
+		LDELEM_R16 = 0x57,
+		/// <summary>
+		/// 
+		/// </summary>
+		STELEM_S = 0x58,
+		/// <summary>
+		/// Replaces array element at a given index with int8 value on evaluation stack.
+		/// </summary>
+		STELEM_I1 = 0x59,
+		/// <summary>
+		/// Replaces array element at a given index with int16 value on evaluation stack.
+		/// </summary>
+		STELEM_I2 = 0x5A,
+		/// <summary>
+		/// Replaces array element at a given index with int32 value on evaluation stack.
+		/// </summary>
+		STELEM_I4 = 0x5B,
+		/// <summary>
+		/// Replaces array element at a given index with int64 value on evaluation stack.
+		/// </summary>
+		STELEM_I8 = 0x5C,
+		/// <summary>
+		/// Replaces array element at a given index with Object value on evaluation stack.
+		/// </summary>
+		STELEM_REF = 0x5D,
+		/// <summary>
+		/// Replaces array element at a given index with Half value on evaluation stack.
+		/// </summary>
+		STELEM_R2 = 0x5E,
+		/// <summary>
+		/// Replaces array element at a given index with Float value on evaluation stack.
+		/// </summary>
+		STELEM_R4 = 0x5F,
+		/// <summary>
+		/// Replaces array element at a given index with Double value on evaluation stack.
+		/// </summary>
+		STELEM_R8 = 0x60,
+		/// <summary>
+		/// Replaces array element at a given index with Decimal value on evaluation stack.
+		/// </summary>
+		STELEM_R16 = 0x61,
+		/// <summary>
+		/// Load type token.
+		/// </summary>
+		LD_TYPE = 0x62,
+		/// <summary>
 		/// Compare two value, when first value is less than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a <= b)
 		/// </summary>
-		EQL_LQ = 0x4D,
+		EQL_LQ = 0x63,
 		/// <summary>
 		/// Compare two value, when first value is less second value stage 1 (int32) into stack, otherwise 0 (int32). (a < b)
 		/// </summary>
-		EQL_L = 0x4E,
+		EQL_L = 0x64,
 		/// <summary>
 		/// Compare two value, when first value is greater than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a >= b)
 		/// </summary>
-		EQL_HQ = 0x4F,
+		EQL_HQ = 0x65,
 		/// <summary>
 		/// Compare two value, when first value is greater second value stage 1 (int32) into stack, otherwise 0 (int32). (a > b)
 		/// </summary>
-		EQL_H = 0x50,
+		EQL_H = 0x66,
 		/// <summary>
 		/// Compare two value, when two integer/float is equal stage 1 (int32) into stack, otherwise 0 (int32). (a == b)
 		/// </summary>
-		EQL_NQ = 0x51,
+		EQL_NQ = 0x67,
 		/// <summary>
 		/// Compare two value, when two integer/float is not equal stage 1 (int32) into stack, otherwise 0 (int32). (a != b)
 		/// </summary>
-		EQL_NN = 0x52,
+		EQL_NN = 0x68,
 		/// <summary>
 		/// Compare two value, when value has false, null or zero stage 1 (int32) into stack, otherwise 0 (int32). (!a)
 		/// </summary>
-		EQL_F = 0x53,
+		EQL_F = 0x69,
 		/// <summary>
 		/// Compare two value, when value has true or either differs from null or from zero stage 1 (int32) into stack, otherwise 0 (int32). (a)
 		/// </summary>
-		EQL_T = 0x54,
+		EQL_T = 0x6A,
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// </summary>
-		JMP = 0x55,
+		JMP = 0x6B,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value. (a <= b)
 		/// </summary>
-		JMP_LQ = 0x56,
+		JMP_LQ = 0x6C,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value. (a < b)
 		/// </summary>
-		JMP_L = 0x57,
+		JMP_L = 0x6D,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value. (a >= b)
 		/// </summary>
-		JMP_HQ = 0x58,
+		JMP_HQ = 0x6E,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value. (a > b)
 		/// </summary>
-		JMP_H = 0x59,
+		JMP_H = 0x6F,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal. (a == b)
 		/// </summary>
-		JMP_NQ = 0x5A,
+		JMP_NQ = 0x70,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal. (a != b)
 		/// </summary>
-		JMP_NN = 0x5B,
+		JMP_NN = 0x71,
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero. (!a)
 		/// </summary>
-		JMP_F = 0x5C,
+		JMP_F = 0x72,
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero. (a)
 		/// </summary>
-		JMP_T = 0x5D,
+		JMP_T = 0x73,
 	}
 }
