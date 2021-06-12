@@ -37,6 +37,9 @@ namespace mana.extensions
         public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T> enumerable)
             => enumerable ?? Enumerable.Empty<T>();
 
+        public static IEnumerable<T> TrimNull<T>(this IEnumerable<T> enumerable)
+            => enumerable.Where(x => x is not null);
+
         public static IEnumerable<T> OfExactType<T>(this IEnumerable enumerable)
             => enumerable.OfType<T>().Where(t => t.GetType() == typeof(T));
     }
