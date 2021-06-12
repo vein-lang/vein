@@ -38,6 +38,11 @@ T getKeyAndRemove<T>(object obj, string name)
     dict.Remove(name);
     return (T)result;
 }
+bool hasKey(object obj, string name)
+{
+    var dict = (IDictionary) obj;
+    return dict.Contains(name);
+}
 IEnumerable<OpCode> fillData(string name, IDictionary<object, object> kv)
 {
     var desc = getKeyAndRemove<string>(kv, "description");
@@ -53,7 +58,8 @@ IEnumerable<OpCode> fillData(string name, IDictionary<object, object> kv)
     {
         foreach (var i in Enumerable.Range(0, 6))
             yield return new OpCode($"{name}.{i}", 0, desc);
-        yield return new OpCode($"{name}.S", size == 0 ? 1 : size, desc);
+        if (!hasKey(kv, $"S"))
+            yield return new OpCode($"{name}.S", size == 0 ? 1 : size, desc);
     }
 }
 foreach (var v in (IList)obj)
@@ -88,7 +94,10 @@ foreach (var v in (IList)obj)
     }
     if (!hasSaved)
     if ((variations is { } && variations.Count() != 0) || value.Any())
-        ops.Remove(ops.First(x => x.name.Equals(name)));
+    {
+        if (ops.Any(x => x.name.Equals(name)))
+            ops.Remove(ops.First(x => x.name.Equals(name)));
+    }
 }
 #endregion
 var cpp_def = new StringBuilder();
