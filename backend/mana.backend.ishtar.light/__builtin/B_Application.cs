@@ -44,7 +44,7 @@ namespace ishtar
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&GetOSValue)
                 .AddInto(table, x => x.Name);
 
-            new RuntimeIshtarMethod("@_exit", Public | Static | Extern, TYPE_I4.AsClass())
+            new RuntimeIshtarMethod("@_exit", Public | Static | Extern, (TYPE_STRING, "msg"), (TYPE_I4, "code"))
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Exit)
                 .AddInto(table, x => x.Name);
         }

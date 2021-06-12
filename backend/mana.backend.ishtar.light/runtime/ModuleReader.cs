@@ -261,7 +261,7 @@ namespace ishtar
         internal static unsafe void ConstructIL(RuntimeIshtarMethod method, byte[] body, short stacksize)
         {
             var offset = 0;
-            var body_r = ILReader.Deconstruct(body, &offset);
+            var body_r = ILReader.Deconstruct(body, &offset, method);
             var labeles = ILReader.DeconstructLabels(body, offset);
 
 
