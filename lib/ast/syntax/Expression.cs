@@ -340,11 +340,18 @@ namespace mana.syntax
                 select new NewExpressionSyntax(type, creation_expression)
                 ).Positioned().Token();
 
+        protected internal virtual Parser<ParametersArrayExpression> parameters_array =>
+            from opb in Parse.Char('{').Token()
+            from args in QualifiedExpression.DelimitedBy(Parse.Char(',').Token())
+            from clb in Parse.Char('}').Token()
+            select new ParametersArrayExpression(args);
+
         protected internal virtual Parser<ExpressionSyntax> array_initializer =>
             from opb in Parse.Char('[')
-            from args in variable_initializer.DelimitedBy(Parse.Char(',').Token())
+            from sizes in variable_initializer.DelimitedBy(Parse.Char(',').Token())
             from clb in Parse.Char(']')
-            select new ArrayInitializerExpression(args);
+            from args in parameters_array.Positioned().Token().Optional()
+            select new ArrayInitializerExpression(sizes, args);
 
 
         protected internal virtual Parser<ExpressionSyntax> variable_initializer =>
