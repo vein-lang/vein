@@ -18,6 +18,7 @@ namespace mana.runtime
         public List<ManaMethod> Methods { get; set; } = new();
         public ManaTypeCode TypeCode { get; set; } = TYPE_CLASS;
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE;
+        public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
         public ManaModule Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
 
@@ -121,5 +122,23 @@ namespace mana.runtime
         public static bool operator !=(ManaClass left, ManaClass right) => !Equals(left, right);
 
         #endregion
+    }
+
+
+    public static class TypeWalker
+    {
+        public static bool Walk(this ManaClass clazz, Func<ManaClass, bool> actor)
+        {
+            var target = clazz;
+
+            while (target != null)
+            {
+                if (actor(target))
+                    return true;
+
+                target = target.Parent;
+            }
+            return false;
+        }
     }
 }
