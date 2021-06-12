@@ -5,12 +5,15 @@ public static class Application
 {
     [native("internal.h", "@_get_os_value")]
     private extern static @_get_os_value(): Int32;
+    private extern static @_exit(msg: String, exitCode: Int32): Void;
 
     public static GetFrameworkName(): String
     {
         return "Application.getPlatform()";
     }
 
-    [native("@_app_shutdown")]
-    public extern static Shutdown(msg: String, exitCode: Int32): Void;
+    public static Shutdown(msg: String, exitCode: Int32): Void
+    {
+        Application.@_exit(msg, exitCode);
+    }
 }
