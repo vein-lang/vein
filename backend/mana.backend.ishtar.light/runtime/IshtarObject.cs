@@ -19,4 +19,17 @@ namespace ishtar
             return IshtarUnsafe.AsRef<RuntimeIshtarClass>(clazz);
         }
     }
+
+
+    public abstract unsafe class NIObject
+    {
+        protected readonly IshtarObject* __value__;
+        protected NIObject(IshtarObject* obj)
+        {
+            this.__value__ = obj;
+            this.__value__->flags |= GCFlags.IMMORTAL;
+        }
+
+        public abstract RuntimeIshtarClass Type { get; }
+    }
 }
