@@ -20,10 +20,7 @@ namespace mana.syntax
         public ExpressionSyntax(bool isUnused) => Flags |= ExpressionFlags.Unused;
 
         public ExpressionSyntax(string expr) => ExpressionString = expr;
-
-        public static ExpressionSyntax CreateOrDefault(IOption<ExpressionSyntax> expression)
-            => expression.IsDefined ? expression.Get() : null;
-
+        
         public override SyntaxType Kind => SyntaxType.Expression;
 
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
@@ -47,6 +44,13 @@ namespace mana.syntax
         {
             Flags |= ExpressionFlags.Optimized;
             return this;
+        }
+
+        public T As<T>() where T : ExpressionSyntax
+        {
+            if (this is T t)
+                return t;
+            throw new InvalidCastException($"Cant cast '{this.GetType().Name}' to {typeof(T).Name}.");
         }
     }
 }

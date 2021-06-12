@@ -1,16 +1,22 @@
 namespace mana.syntax
 {
     using System.Collections.Generic;
+    using System.Linq;
     using extensions;
     using Sprache;
 
     public class ArrayInitializerExpression : ExpressionSyntax, IPositionAware<ArrayInitializerExpression>
     {
-        public readonly IEnumerable<ExpressionSyntax> Args;
+        public readonly ExpressionSyntax[] Sizes;
+        public readonly ParametersArrayExpression Args;
 
-        public ArrayInitializerExpression(IEnumerable<ExpressionSyntax> args) => Args = args;
+        public ArrayInitializerExpression(IEnumerable<ExpressionSyntax> sizes, IOption<ParametersArrayExpression> args)
+        {
+            Args = args.GetOrDefault();
+            Sizes = sizes.ToArray();
+        }
 
-        public override IEnumerable<BaseSyntax> ChildNodes => Args.EmptyIfNull();
+        public override IEnumerable<BaseSyntax> ChildNodes => Sizes.EmptyIfNull().Concat(new []{ Args }).TrimNull();
 
         public new ArrayInitializerExpression SetPos(Position startPos, int length)
         {

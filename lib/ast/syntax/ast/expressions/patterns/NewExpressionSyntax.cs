@@ -19,6 +19,9 @@ namespace mana.syntax
         {
             TargetType = type;
             CtorArgs = args;
+
+            if (args is ArrayInitializerExpression)
+                TargetType.Typeword.IsArray = true;
         }
 
         public new NewExpressionSyntax SetPos(Position startPos, int length)

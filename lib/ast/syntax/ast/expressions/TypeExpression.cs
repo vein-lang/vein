@@ -8,6 +8,7 @@ namespace mana.syntax
     public class TypeExpression : ExpressionSyntax, IPositionAware<TypeExpression>
     {
         public TypeSyntax Typeword { get; set; }
+        public override SyntaxType Kind => SyntaxType.Type;
 
         public TypeExpression(TypeSyntax typeword) : base(typeword.Identifier.ExpressionString)
             => this.Typeword = typeword;

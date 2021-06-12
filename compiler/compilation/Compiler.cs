@@ -217,28 +217,24 @@ namespace insomnia.compilation
             }
             return module.DefineClass($"global::{doc.Name}/{member.Identifier.ExpressionString}").WithIncludes(doc.Includes);
         }
-        public void CompileAnnotation(FieldDeclarationSyntax field, DocumentDeclaration doc)
-        {
+        public void CompileAnnotation(FieldDeclarationSyntax field, DocumentDeclaration doc) =>
             CompileAnnotation(field.Annotations, x =>
                 $"aspect/{x.AnnotationKind}/class/{field.OwnerClass.Identifier}/field/{field.Field.Identifier}.", doc);
-        }
-        public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc)
-        {
+
+        public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc) =>
             CompileAnnotation(method.Annotations, x =>
                 $"aspect/{x.AnnotationKind}/class/{method.OwnerClass.Identifier}/method/{method.Identifier}.", doc);
-        }
-        public void CompileAnnotation(ClassDeclarationSyntax clazz, DocumentDeclaration doc)
-        {
+
+        public void CompileAnnotation(ClassDeclarationSyntax clazz, DocumentDeclaration doc) =>
             CompileAnnotation(clazz.Annotations, x =>
                 $"aspect/{x.AnnotationKind}/class/{clazz.Identifier}.", doc);
-        }
 
         private void CompileAnnotation(
             List<AnnotationSyntax> annotations,
             Func<AnnotationSyntax, string> nameGenerator,
             DocumentDeclaration doc)
         {
-            foreach (var annotation in annotations.Where(annotation => annotation.Args.Length != 0))
+            foreach (var annotation in annotations.TrimNull().Where(annotation => annotation.Args.Length != 0))
             {
                 foreach (var (exp, index) in annotation.Args.Select((x, y) => (x, y)))
                 {
@@ -485,7 +481,7 @@ namespace insomnia.compilation
                 }
                 catch (Exception e)
                 {
-                    errors.Add($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]GenerateBody(...);[/]");
+                    PrintError($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]GenerateBody(...);[/]", statement, Context.Document);
                 }
             }
             // fucking shit fucking
@@ -796,9 +792,18 @@ namespace insomnia.compilation
 
         private void PrintError(string text, BaseSyntax posed, DocumentDeclaration doc)
         {
+            if (posed is { Transform: null })
+            {
+                errors.Add($"INTERNAL ERROR: TOKEN '{posed.GetType().Name}' HAS INCORRECT TRANSFORM POSITION.");
+                return;
+            }
+
             var strBuilder = new StringBuilder();
 
             strBuilder.Append($"{text.EscapeArgumentSymbols()}\n");
+
+            
+
             if (posed is not null)
             {
                 strBuilder.Append(
