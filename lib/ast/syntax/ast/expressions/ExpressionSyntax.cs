@@ -20,7 +20,7 @@ namespace mana.syntax
         public ExpressionSyntax(bool isUnused) => Flags |= ExpressionFlags.Unused;
 
         public ExpressionSyntax(string expr) => ExpressionString = expr;
-        
+
         public override SyntaxType Kind => SyntaxType.Expression;
 
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;

@@ -16,7 +16,7 @@ namespace mana.syntax
             Sizes = sizes.ToArray();
         }
 
-        public override IEnumerable<BaseSyntax> ChildNodes => Sizes.EmptyIfNull().Concat(new []{ Args }).TrimNull();
+        public override IEnumerable<BaseSyntax> ChildNodes => Sizes.EmptyIfNull().Concat(new[] { Args }).TrimNull();
 
         public new ArrayInitializerExpression SetPos(Position startPos, int length)
         {

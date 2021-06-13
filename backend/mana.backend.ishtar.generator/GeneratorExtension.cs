@@ -64,10 +64,10 @@ namespace ishtar
             QualityTypeName fullName = $"internal/{name}";
 
             var currentType = Module.FindType(fullName, false, false);
-            
+
             if (currentType is not UnresolvedManaClass)
                 return Assert.IsType<ClassBuilder>(currentType);
-            
+
             var b = new ClassBuilder(Module, fullName);
 
             b.Flags |= ClassFlags.Internal;
@@ -537,10 +537,10 @@ namespace ishtar
                 return null; // skip optimized type generation when size is variable and etc
 
             var size_value = size.ForceOptimization().Eval<int>();
-            
+
             if (ctor.FillArgs.Length != 0 || ctor.FillArgs.Length != size_value)
                 throw new NotSupportedException($"Incorrect array size.");
-            
+
             var name = $"StaticArray_INIT_{expression.Typeword.Identifier.ExpressionString}_{size}_{ctor.FillArgs.Length}";
 
             var arrayConstructor = context.CreateHiddenType(name);

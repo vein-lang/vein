@@ -61,7 +61,7 @@ namespace wc_test
                 .Select(x => x.As<Int32LiteralExpressionSyntax>())
                 .Select(x => x.Value)
                 .ToArray()
-                .SequenceEqual(new [] {1,2,3,4,5}));
+                .SequenceEqual(new[] { 1, 2, 3, 4, 5 }));
         }
     }
 }

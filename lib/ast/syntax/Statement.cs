@@ -50,10 +50,10 @@ namespace mana.syntax
 
         protected internal virtual Parser<ReturnStatementSyntax> ReturnStatement =>
             (from expression in KeywordExpressionStatement("return")
-                select new ReturnStatementSyntax
-                {
-                    Expression = expression.GetOrDefault()
-                }).Positioned();
+             select new ReturnStatementSyntax
+             {
+                 Expression = expression.GetOrDefault()
+             }).Positioned();
         /// <example>
         /// fail new Exception(); fail;
         /// </example>
