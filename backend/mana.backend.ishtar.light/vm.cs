@@ -226,6 +226,43 @@ namespace ishtar
                             ++sp;
                         }
                         break;
+                    case NEWARR:
+                    {
+                        ++ip;
+                        --sp;
+                        var size = sp->data.ul;
+                        --sp;
+                        var typeID = GetClass(sp->data.ui, _module, invocation);
+                        --sp;
+                        sp->type = TYPE_ARRAY;
+                        if (invocation.method.IsStatic)
+                            sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, null, invocation);
+                        else fixed (IshtarObject** node = &invocation._this_)
+                            sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
+                    } break;
+                    case STELEM_S:
+                        ++ip;
+                        --sp;
+                        Assert(sp->type == TYPE_ARRAY, WNE.STATE_CORRUPT, "", invocation);
+                        ((IshtarArray*)sp->data.p)->Set(*ip++, IshtarMarshal.Boxing(invocation, sp - 1));
+                        ++sp;
+                        break;
+                    case LDELEM_S:
+                        ++ip;
+                        --sp;
+                        Assert(sp->type == TYPE_ARRAY, WNE.STATE_CORRUPT, "", invocation);
+                        (sp + 2)->data.p = (nint)((IshtarArray*)sp->data.p)->Get(*ip++);
+                        (sp + 2)->type = ((IshtarArray*)sp->data.p)->ElementClass.TypeCode;
+                        sp += 2;
+                        break;
+                    case LDLEN:
+                        ++ip;
+                        --sp;
+                        Assert(sp->type == TYPE_ARRAY, WNE.STATE_CORRUPT, "", invocation);
+                        (sp + 2)->type = TYPE_U8;
+                        (sp + 2)->data.ul = ((IshtarArray*)sp->data.p)->length;
+                        sp += 2;
+                        break;
                     case RET:
                         ++ip;
                         --sp;
@@ -257,6 +294,7 @@ namespace ishtar
                         break;
                     case LDNULL:
                         sp->type = TYPE_OBJECT;
+                        sp->data.ul = 0;
                         ++sp;
                         break;
                     case THROW:
