@@ -79,7 +79,7 @@ namespace mana.ishtar.emit
                     throw new InvalidOperationException(
                     $"OpCode '{opcode}' is not found in metadata.\n" +
                     $"re-run 'gen.csx' for fix this error.\n" +
-                    $"Previous values: '{PreviousValue(1)}, {PreviousValue(2)}, {PreviousValue(3)}'.\n"+
+                    $"Previous values: '{PreviousValue(1)}, {PreviousValue(2)}, {PreviousValue(3)}'.\n" +
                     $"Method: '{method.Name}' in '{method.Owner.Name}'.");
                 var value = OpCodes.all[opcode];
 

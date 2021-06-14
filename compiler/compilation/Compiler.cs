@@ -802,7 +802,7 @@ namespace insomnia.compilation
 
             strBuilder.Append($"{text.EscapeArgumentSymbols()}\n");
 
-            
+
 
             if (posed is not null)
             {
