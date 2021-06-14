@@ -24,9 +24,11 @@ namespace mana.runtime
         TYPE_R4, /* float  */
         TYPE_R8, /* double */
         TYPE_R16, /* decimal */
-        TYPE_STRING,
+        TYPE_STRING, /* string */
+        [Obsolete]
         TYPE_CLASS,
-        TYPE_ARRAY
+        TYPE_ARRAY, /* Array<?> */
+        TYPE_TOKEN  /* type token */
     }
 
     public static class ManaTypeCodeEx
@@ -265,9 +267,6 @@ namespace mana.runtime
                     return ManaCore.ArrayClass;
                 case TYPE_BOOLEAN:
                     return ManaCore.BoolClass;
-                case TYPE_NONE:
-                case TYPE_CLASS:
-                    throw new Exception();
                 case TYPE_VOID:
                     return ManaCore.VoidClass;
                 case TYPE_OBJECT:
