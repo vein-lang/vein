@@ -10,6 +10,7 @@ namespace ishtar
         public IshtarObject* _this_;
         public stackval* args;
         public stackval* stack;
+        public OpCodeValue last_ip;
         public int level;
 
         public CallFrameException exception;
