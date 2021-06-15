@@ -6,7 +6,7 @@ namespace ishtar
 	using global::System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 11;
+		internal static int SetVersion = 12;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -541,11 +541,11 @@ namespace ishtar
 		public static readonly OpCode NEWOBJ = new (0x4B, 0x0100001F);
 		/// <summary>
 		/// Allocate array onto evaluation stack by specified size and type.
-		/// size: 4
+		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode NEWARR = new (0x4C, 0x0100001F);
+		public static readonly OpCode NEWARR = new (0x4C, 0x0000001F);
 		/// <summary>
 		/// Load size of Array onto evaluation stack.
 		/// size: 0

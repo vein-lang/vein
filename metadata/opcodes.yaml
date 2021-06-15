@@ -98,7 +98,6 @@
     override-size: 4
 - NEWARR:
     description: Allocate array onto evaluation stack by specified size and type.
-    override-size: 4
 - LDLEN:
     description: Load size of Array onto evaluation stack.
 - LDELEM:
