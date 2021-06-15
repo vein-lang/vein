@@ -103,6 +103,8 @@ namespace ishtar_test
             StringStorage.storage_r.Clear();
             VM.CurrentException = null;
         }
+
+        public void EnsureType(QualityTypeName type) => _module.InternTypeName(type);
     }
 
     public abstract class IshtarTestBase : IDisposable
