@@ -225,6 +225,13 @@ namespace ishtar
                             ++sp;
                         }
                         break;
+                    case LD_TYPE:
+                        ++ip;
+                        sp->type = TYPE_TOKEN;
+                        sp->data.ui = (*ip);
+                        ++sp;
+                        ++ip;
+                        break;
                     case NEWARR:
                         {
                             ++ip;
