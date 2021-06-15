@@ -251,9 +251,8 @@ namespace ishtar
                     case STELEM_S:
                         ++ip;
                         --sp;
-                        Assert(sp->type == TYPE_ARRAY, WNE.STATE_CORRUPT, "", invocation);
-                        ((IshtarArray*)sp->data.p)->Set(*ip++, IshtarMarshal.Boxing(invocation, sp - 1));
-                        ++sp;
+                        Assert((sp - 1)->type == TYPE_ARRAY, WNE.STATE_CORRUPT, "", invocation);
+                        ((IshtarArray*)(sp - 1)->data.p)->Set(*ip++, IshtarMarshal.Boxing(invocation, sp));
                         break;
                     case LDELEM_S:
                         ++ip;
