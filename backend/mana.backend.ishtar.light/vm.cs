@@ -255,21 +255,26 @@ namespace ishtar
                         ((IshtarArray*)(sp - 1)->data.p)->Set(*ip++, IshtarMarshal.Boxing(invocation, sp));
                         break;
                     case LDELEM_S:
+                    {
                         ++ip;
                         --sp;
+                        var arr = sp->data.p;
                         Assert(sp->type == TYPE_ARRAY, WNE.STATE_CORRUPT, "", invocation);
-                        (sp + 2)->data.p = (nint)((IshtarArray*)sp->data.p)->Get(*ip++);
-                        (sp + 2)->type = ((IshtarArray*)sp->data.p)->ElementClass.TypeCode;
-                        sp += 2;
-                        break;
+                        ++sp;
+                        (*sp) = IshtarMarshal.UnBoxing(invocation, ((IshtarArray*)arr)->Get(*ip++));
+                        ++sp;
+                    } break;
                     case LDLEN:
+                    {
                         ++ip;
                         --sp;
+                        var arr = sp->data.p;
                         Assert(sp->type == TYPE_ARRAY, WNE.STATE_CORRUPT, "", invocation);
-                        (sp + 2)->type = TYPE_U8;
-                        (sp + 2)->data.ul = ((IshtarArray*)sp->data.p)->length;
-                        sp += 2;
-                        break;
+                        ++sp;
+                        sp->type = TYPE_U8;
+                        sp->data.ul = ((IshtarArray*)arr)->length;
+                        ++sp;
+                    } break;
                     case RET:
                         ++ip;
                         --sp;
