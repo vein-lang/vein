@@ -511,9 +511,30 @@ namespace ishtar
 
             if (@new.IsArray)
             {
-                var arg = ((ArrayInitializerExpression)@new.CtorArgs).Args;
-                throw new NotSupportedException();
+                var exp = (ArrayInitializerExpression)@new.CtorArgs;
+                var init_method = gen.ConstructArrayTypeInitialization(@new.TargetType,
+                    exp);
+
+                if (init_method is not null) // when method for init array is successful created/resolved
+                {
+                    gen.Emit(OpCodes.CALL, init_method);
+                    return;
+                }
+
+                var sizes = exp.Sizes;
+
+                if (sizes.Length > 1)
+                    throw new NotSupportedException($"Currently array rank greater 1 not supported.");
+
+                var size = sizes.Single();
+
+                gen.Emit(OpCodes.LD_TYPE, type); 
+                gen.EmitExpression(size); // todo maybe need resolve cast problem
+                gen.Emit(OpCodes.NEWARR);
+                return;
             }
+
+            throw new Exception("EmitCreateObject");
         }
 
 
@@ -556,8 +577,9 @@ namespace ishtar
             var body = method.GetGenerator();
 
             body.Emit(OpCodes.NOP);
-            body.Emit(OpCodes.LD_TYPE, type);       // load type token
-            body.Emit(OpCodes.NEWARR, size_value);  // load size array and allocate array with fixed size and passed type
+            body.Emit(OpCodes.LD_TYPE, type);        // load type token
+            body.Emit(OpCodes.LDC_I8_S, size_value); // load size
+            body.Emit(OpCodes.NEWARR);               // load size array and allocate array with fixed size and passed type
             if (size_value == 0)
             {
                 body.Emit(OpCodes.RET);
@@ -566,7 +588,6 @@ namespace ishtar
             foreach (var i in ..size_value)
             {
                 body.EmitExpression(ctor.FillArgs[i]);
-                body.Emit(OpCodes.LD_TYPE, type);
                 body.Emit(OpCodes.STELEM_S, i);
             }
             body.Emit(OpCodes.RET);
