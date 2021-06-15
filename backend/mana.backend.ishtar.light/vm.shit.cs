@@ -61,7 +61,7 @@ namespace ishtar
             return field;
         }
 
-        private static void A_OP(stackval* sp, int a_t, uint* ip)
+        private static void A_OP(stackval* sp, int a_t, uint* ip, CallFrame frame)
         {
             if (sp->type == TYPE_I4) /*first check int32, most frequent type*/
                 act(ref sp[-1].data.i, ref sp[0].data.i, (ref int i1, ref int i2) =>
@@ -273,7 +273,8 @@ namespace ishtar
                     }
                 });
             else if (sp[-1].type == TYPE_NONE)
-                println($"@{(OpCodeValue)(*(ip - 1))} 'sp[-1]' incorrect stack type: {sp[-1].type}");
+                FastFail(WNE.TYPE_MISMATCH, $"@{(OpCodeValue)(*(ip - 1))} 'sp[-1]' incorrect stack type: {sp[-1].type}",
+                    frame);
         }
     }
 }
