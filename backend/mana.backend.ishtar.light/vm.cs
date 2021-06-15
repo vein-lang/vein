@@ -340,9 +340,9 @@ namespace ishtar
                             var owner = readTypeName(*++ip, _module);
                             var method = GetMethod(tokenIdx, owner, _module, invocation);
 #if DEBUG_IL
-                        printf("%%call %ws self function.\n", method->Name.c_str());
+                            printf("%%call %ws self function.\n", method->Name.c_str());
 #endif
-
+                            ++ip;
 
                             var method_args = stackval.Alloc(method.ArgLength);
                             for (var i = 0; i != method.ArgLength; i++)
