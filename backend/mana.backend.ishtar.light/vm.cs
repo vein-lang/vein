@@ -716,8 +716,6 @@ namespace ishtar
                         break;
                     case RESERVED_2:
                         ++ip;
-                        if (1 == 1)
-                            break;
                         println($"*** GC DUMP ***");
                         println($"\talive_objects: {IshtarGC.GCStats.alive_objects}");
                         println($"\ttotal_allocations: {IshtarGC.GCStats.total_allocations}");
