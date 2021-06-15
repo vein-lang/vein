@@ -77,18 +77,20 @@ namespace ishtar
 
             while (true)
             {
-                println($"@@.{((OpCodeValue)(ushort)(*ip))} 0x{(nint)ip:X}");
+                invocation.last_ip = (OpCodeValue)(ushort)*ip;
+                println($"@@.{invocation.last_ip} 0x{(nint)ip:X}");
                 ValidateLastError();
 
                 if (invocation.exception is not null && invocation.level == 0)
                     return;
+
                 if (ip == end)
                 {
                     FastFail(WNE.END_EXECUTE_MEMORY, "unexpected end of executable memory.");
                     continue;
                 }
 
-                switch ((OpCodeValue)(ushort)*ip)
+                switch (invocation.last_ip)
                 {
                     case NOP:
                         ++ip;
@@ -251,15 +253,15 @@ namespace ishtar
                     case STELEM_S:
                         ++ip;
                         --sp;
-                        Assert((sp - 1)->type == TYPE_ARRAY, WNE.STATE_CORRUPT, "", invocation);
+                        (sp - 1)->validate(invocation, TYPE_ARRAY);
                         ((IshtarArray*)(sp - 1)->data.p)->Set(*ip++, IshtarMarshal.Boxing(invocation, sp));
                         break;
                     case LDELEM_S:
                     {
                         ++ip;
                         --sp;
+                        sp->validate(invocation, TYPE_ARRAY);
                         var arr = sp->data.p;
-                        Assert(sp->type == TYPE_ARRAY, WNE.STATE_CORRUPT, "", invocation);
                         ++sp;
                         (*sp) = IshtarMarshal.UnBoxing(invocation, ((IshtarArray*)arr)->Get(*ip++));
                         ++sp;
@@ -268,8 +270,8 @@ namespace ishtar
                     {
                         ++ip;
                         --sp;
+                        sp->validate(invocation, TYPE_ARRAY);
                         var arr = sp->data.p;
-                        Assert(sp->type == TYPE_ARRAY, WNE.STATE_CORRUPT, "", invocation);
                         ++sp;
                         sp->type = TYPE_U8;
                         sp->data.ul = ((IshtarArray*)arr)->length;
