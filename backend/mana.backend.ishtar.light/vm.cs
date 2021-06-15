@@ -227,19 +227,20 @@ namespace ishtar
                         }
                         break;
                     case NEWARR:
-                    {
-                        ++ip;
-                        --sp;
-                        var size = sp->data.ul;
-                        --sp;
-                        var typeID = GetClass(sp->data.ui, _module, invocation);
-                        --sp;
-                        sp->type = TYPE_ARRAY;
-                        if (invocation.method.IsStatic)
-                            sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, null, invocation);
-                        else fixed (IshtarObject** node = &invocation._this_)
-                            sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
-                    } break;
+                        {
+                            ++ip;
+                            --sp;
+                            var size = sp->data.ul;
+                            --sp;
+                            var typeID = GetClass(sp->data.ui, _module, invocation);
+                            --sp;
+                            sp->type = TYPE_ARRAY;
+                            if (invocation.method.IsStatic)
+                                sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, null, invocation);
+                            else fixed (IshtarObject** node = &invocation._this_)
+                                    sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
+                        }
+                        break;
                     case STELEM_S:
                         ++ip;
                         --sp;
