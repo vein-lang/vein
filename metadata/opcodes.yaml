@@ -104,74 +104,11 @@
     description: Load element at a specified array index 
       onto top of evaluation stack as type specified in instruction.
     S:
-      override-size: 8
-    I1:
-      description: Load element with type int8 at a 
-        specified array index onto top of the evaluation stack as an int8.
-      override-size: 4
-    I2:
-      description: Load element with type int16 at a 
-        specified array index onto top of the evaluation stack as an int16.
-      override-size: 4
-    I4:
-      description: Load element with type int32 at a 
-        specified array index onto top of the evaluation stack as an int32.
-      override-size: 4
-    I8:
-      description: Load element with type int64 at a 
-        specified array index onto top of the evaluation stack as an int64.
-      override-size: 4
-    REF:
-      description: Load element with type Object at a 
-        specified array index onto top of the evaluation stack as an Object.
-      override-size: 4
-    R2:
-      description: Load element with type Half at a 
-        specified array index onto top of the evaluation stack as an Half.
-      override-size: 4
-    R4:
-      description: Load element with type Float at a 
-        specified array index onto top of the evaluation stack as an Float.
-      override-size: 4
-    R8:
-      description: Load element with type Double at a 
-        specified array index onto top of the evaluation stack as an Double.
-      override-size: 4
-    R16:
-      description: Load element with type Decimal at a 
-        specified array index onto top of the evaluation stack as an Decimal.
       override-size: 4
 - STELEM:
     description: Replaces array element at a given index with value on evaluation stack, 
       whose type is specified in the instruction.
     S:
-      override-size: 8
-    I1:
-      description: Replaces array element at a given index with int8 value on evaluation stack.
-      override-size: 4
-    I2:
-      description: Replaces array element at a given index with int16 value on evaluation stack.
-      override-size: 4
-    I4:
-      description: Replaces array element at a given index with int32 value on evaluation stack.
-      override-size: 4
-    I8:
-      description: Replaces array element at a given index with int64 value on evaluation stack.
-      override-size: 4
-    REF:
-      description: Replaces array element at a given index with Object value on evaluation stack.
-      override-size: 4
-    R2:
-      description: Replaces array element at a given index with Half value on evaluation stack.
-      override-size: 4
-    R4:
-      description: Replaces array element at a given index with Float value on evaluation stack.
-      override-size: 4
-    R8:
-      description: Replaces array element at a given index with Double value on evaluation stack.
-      override-size: 4
-    R16:
-      description: Replaces array element at a given index with Decimal value on evaluation stack.
       override-size: 4
 - LD_TYPE:
     description: Load type token.

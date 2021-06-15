@@ -6,7 +6,7 @@ namespace ishtar
 	using global::System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 12;
+		internal static int SetVersion = 13;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -555,270 +555,144 @@ namespace ishtar
 		public static readonly OpCode LDLEN = new (0x4D, 0x0000001F);
 		/// <summary>
 		/// 
-		/// size: 8
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode LDELEM_S = new (0x4E, 0x0200001F);
-		/// <summary>
-		/// Load element with type int8 at a specified array index onto top of the evaluation stack as an int8.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDELEM_I1 = new (0x4F, 0x0100001F);
-		/// <summary>
-		/// Load element with type int16 at a specified array index onto top of the evaluation stack as an int16.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode LDELEM_I2 = new (0x50, 0x0100001F);
-		/// <summary>
-		/// Load element with type int32 at a specified array index onto top of the evaluation stack as an int32.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode LDELEM_I4 = new (0x51, 0x0100001F);
-		/// <summary>
-		/// Load element with type int64 at a specified array index onto top of the evaluation stack as an int64.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode LDELEM_I8 = new (0x52, 0x0100001F);
-		/// <summary>
-		/// Load element with type Object at a specified array index onto top of the evaluation stack as an Object.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode LDELEM_REF = new (0x53, 0x0100001F);
-		/// <summary>
-		/// Load element with type Half at a specified array index onto top of the evaluation stack as an Half.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode LDELEM_R2 = new (0x54, 0x0100001F);
-		/// <summary>
-		/// Load element with type Float at a specified array index onto top of the evaluation stack as an Float.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode LDELEM_R4 = new (0x55, 0x0100001F);
-		/// <summary>
-		/// Load element with type Double at a specified array index onto top of the evaluation stack as an Double.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode LDELEM_R8 = new (0x56, 0x0100001F);
-		/// <summary>
-		/// Load element with type Decimal at a specified array index onto top of the evaluation stack as an Decimal.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode LDELEM_R16 = new (0x57, 0x0100001F);
+		public static readonly OpCode LDELEM_S = new (0x4E, 0x0100001F);
 		/// <summary>
 		/// 
-		/// size: 8
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode STELEM_S = new (0x58, 0x0200001F);
-		/// <summary>
-		/// Replaces array element at a given index with int8 value on evaluation stack.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STELEM_I1 = new (0x59, 0x0100001F);
-		/// <summary>
-		/// Replaces array element at a given index with int16 value on evaluation stack.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode STELEM_I2 = new (0x5A, 0x0100001F);
-		/// <summary>
-		/// Replaces array element at a given index with int32 value on evaluation stack.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode STELEM_I4 = new (0x5B, 0x0100001F);
-		/// <summary>
-		/// Replaces array element at a given index with int64 value on evaluation stack.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode STELEM_I8 = new (0x5C, 0x0100001F);
-		/// <summary>
-		/// Replaces array element at a given index with Object value on evaluation stack.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode STELEM_REF = new (0x5D, 0x0100001F);
-		/// <summary>
-		/// Replaces array element at a given index with Half value on evaluation stack.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode STELEM_R2 = new (0x5E, 0x0100001F);
-		/// <summary>
-		/// Replaces array element at a given index with Float value on evaluation stack.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode STELEM_R4 = new (0x5F, 0x0100001F);
-		/// <summary>
-		/// Replaces array element at a given index with Double value on evaluation stack.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode STELEM_R8 = new (0x60, 0x0100001F);
-		/// <summary>
-		/// Replaces array element at a given index with Decimal value on evaluation stack.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode STELEM_R16 = new (0x61, 0x0100001F);
+		public static readonly OpCode STELEM_S = new (0x4F, 0x0100001F);
 		/// <summary>
 		/// Load type token.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LD_TYPE = new (0x62, 0x0100001F);
+		public static readonly OpCode LD_TYPE = new (0x50, 0x0100001F);
 		/// <summary>
 		/// Compare two value, when first value is less than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a <= b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_LQ = new (0x63, 0x0000001F);
+		public static readonly OpCode EQL_LQ = new (0x51, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when first value is less second value stage 1 (int32) into stack, otherwise 0 (int32). (a < b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_L = new (0x64, 0x0000001F);
+		public static readonly OpCode EQL_L = new (0x52, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when first value is greater than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a >= b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_HQ = new (0x65, 0x0000001F);
+		public static readonly OpCode EQL_HQ = new (0x53, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when first value is greater second value stage 1 (int32) into stack, otherwise 0 (int32). (a > b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_H = new (0x66, 0x0000001F);
+		public static readonly OpCode EQL_H = new (0x54, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when two integer/float is equal stage 1 (int32) into stack, otherwise 0 (int32). (a == b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_NQ = new (0x67, 0x0000001F);
+		public static readonly OpCode EQL_NQ = new (0x55, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when two integer/float is not equal stage 1 (int32) into stack, otherwise 0 (int32). (a != b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_NN = new (0x68, 0x0000001F);
+		public static readonly OpCode EQL_NN = new (0x56, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when value has false, null or zero stage 1 (int32) into stack, otherwise 0 (int32). (!a)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_F = new (0x69, 0x0000001F);
+		public static readonly OpCode EQL_F = new (0x57, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when value has true or either differs from null or from zero stage 1 (int32) into stack, otherwise 0 (int32). (a)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_T = new (0x6A, 0x0000001F);
+		public static readonly OpCode EQL_T = new (0x58, 0x0000001F);
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP = new (0x6B, 0x0100001F);
+		public static readonly OpCode JMP = new (0x59, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value. (a <= b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_LQ = new (0x6C, 0x0100001F);
+		public static readonly OpCode JMP_LQ = new (0x5A, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value. (a < b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_L = new (0x6D, 0x0100001F);
+		public static readonly OpCode JMP_L = new (0x5B, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value. (a >= b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_HQ = new (0x6E, 0x0100001F);
+		public static readonly OpCode JMP_HQ = new (0x5C, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value. (a > b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_H = new (0x6F, 0x0100001F);
+		public static readonly OpCode JMP_H = new (0x5D, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal. (a == b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_NQ = new (0x70, 0x0100001F);
+		public static readonly OpCode JMP_NQ = new (0x5E, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal. (a != b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_NN = new (0x71, 0x0100001F);
+		public static readonly OpCode JMP_NN = new (0x5F, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero. (!a)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_F = new (0x72, 0x0100001F);
+		public static readonly OpCode JMP_F = new (0x60, 0x0100001F);
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero. (a)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_T = new (0x73, 0x0100001F);
+		public static readonly OpCode JMP_T = new (0x61, 0x0100001F);
 
 		public static readonly Dictionary<OpCodeValue, OpCode> all = new ()
 		{
@@ -901,25 +775,7 @@ namespace ishtar
 			{OpCodeValue.NEWARR, NEWARR},
 			{OpCodeValue.LDLEN, LDLEN},
 			{OpCodeValue.LDELEM_S, LDELEM_S},
-			{OpCodeValue.LDELEM_I1, LDELEM_I1},
-			{OpCodeValue.LDELEM_I2, LDELEM_I2},
-			{OpCodeValue.LDELEM_I4, LDELEM_I4},
-			{OpCodeValue.LDELEM_I8, LDELEM_I8},
-			{OpCodeValue.LDELEM_REF, LDELEM_REF},
-			{OpCodeValue.LDELEM_R2, LDELEM_R2},
-			{OpCodeValue.LDELEM_R4, LDELEM_R4},
-			{OpCodeValue.LDELEM_R8, LDELEM_R8},
-			{OpCodeValue.LDELEM_R16, LDELEM_R16},
 			{OpCodeValue.STELEM_S, STELEM_S},
-			{OpCodeValue.STELEM_I1, STELEM_I1},
-			{OpCodeValue.STELEM_I2, STELEM_I2},
-			{OpCodeValue.STELEM_I4, STELEM_I4},
-			{OpCodeValue.STELEM_I8, STELEM_I8},
-			{OpCodeValue.STELEM_REF, STELEM_REF},
-			{OpCodeValue.STELEM_R2, STELEM_R2},
-			{OpCodeValue.STELEM_R4, STELEM_R4},
-			{OpCodeValue.STELEM_R8, STELEM_R8},
-			{OpCodeValue.STELEM_R16, STELEM_R16},
 			{OpCodeValue.LD_TYPE, LD_TYPE},
 			{OpCodeValue.EQL_LQ, EQL_LQ},
 			{OpCodeValue.EQL_L, EQL_L},
