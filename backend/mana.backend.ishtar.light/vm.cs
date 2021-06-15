@@ -244,7 +244,8 @@ namespace ishtar
                             if (invocation.method.IsStatic)
                                 sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, null, invocation);
                             else fixed (IshtarObject** node = &invocation._this_)
-                                    sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
+                                sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
+                            ++sp;
                         }
                         break;
                     case STELEM_S:
