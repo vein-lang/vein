@@ -1,4 +1,4 @@
-name: osx-arm64 AOT Build
+name: win-arm64 AOT Build
 
 on:
   push:
