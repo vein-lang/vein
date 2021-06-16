@@ -15,6 +15,7 @@
 		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
 		<PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
 		<PackageReference Include="runtime.osx-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
+    <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Common\mana.common.csproj" />
