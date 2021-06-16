@@ -80,14 +80,23 @@ namespace mana.runtime
         {
             if (!findExternally)
                 findExternally = this.Name != type.AssemblyName;
-
-            bool filter(ManaClass x) => x!.FullName.Equals(type);
-            if (!findExternally)
-                return class_table.First(filter);
             var result = class_table.FirstOrDefault(filter);
+
             if (result is not null)
                 return result;
 
+            bool filter(ManaClass x) => x!.FullName.Equals(type);
+
+            ManaClass createResult()
+            {
+                if (dropUnresolvedException)
+                    throw new TypeNotFoundException($"'{type}' not found in modules and dependency assemblies.");
+                return new UnresolvedManaClass(type);
+            }
+
+            if (!findExternally)
+                return createResult();
+            
             foreach (var module in Deps)
             {
                 result = module.FindType(type, true);
@@ -95,9 +104,7 @@ namespace mana.runtime
                     return result;
             }
 
-            if (dropUnresolvedException)
-                throw new TypeNotFoundException($"'{type}' not found in modules and dependency assemblies.");
-            return new UnresolvedManaClass(type);
+            return createResult();
         }
 
         internal void WriteToConstStorage<T>(FieldName field, T value)
