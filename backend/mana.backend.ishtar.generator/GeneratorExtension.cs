@@ -61,14 +61,14 @@ namespace ishtar
             => CreateHiddenType(targetTypeTypeword.ExpressionString);
         public ClassBuilder CreateHiddenType(string name)
         {
-            QualityTypeName fullName = $"internal/{name}";
+            QualityTypeName fullName = $"{Module.Name}%global::internal/{name}";
 
             var currentType = Module.FindType(fullName, false, false);
 
             if (currentType is not UnresolvedManaClass)
                 return Assert.IsType<ClassBuilder>(currentType);
-
-            var b = new ClassBuilder(Module, fullName);
+            
+            var b = Module.DefineClass(fullName);
 
             b.Flags |= ClassFlags.Internal;
 
@@ -507,6 +507,7 @@ namespace ishtar
                 }
 
                 gen.Emit(OpCodes.CALL, ctor);
+                return;
             }
 
             if (@new.IsArray)
@@ -559,10 +560,10 @@ namespace ishtar
 
             var size_value = size.ForceOptimization().Eval<int>();
 
-            if (ctor.FillArgs.Length != 0 || ctor.FillArgs.Length != size_value)
+            if (ctor.FillArgs.Length != 0 && ctor.FillArgs.Length != size_value)
                 throw new NotSupportedException($"Incorrect array size.");
 
-            var name = $"StaticArray_INIT_{expression.Typeword.Identifier.ExpressionString}_{size}_{ctor.FillArgs.Length}";
+            var name = $"StaticArray_INIT_{expression.Typeword.Identifier.ExpressionString}_{size_value}_{ctor.FillArgs.Length}";
 
             var arrayConstructor = context.CreateHiddenType(name);
 
@@ -1042,12 +1043,8 @@ namespace ishtar
                 return;
             }
 
-            if (statement.Expression.Kind == SyntaxType.Expression)
-            {
-                generator.EmitExpression(statement.Expression);
-                generator.Emit(OpCodes.RET);
-                return;
-            }
+            generator.EmitExpression(statement.Expression);
+            generator.Emit(OpCodes.RET);
         }
 
         public static void EmitWhileStatement(this ILGenerator gen, WhileStatementSyntax @while)
