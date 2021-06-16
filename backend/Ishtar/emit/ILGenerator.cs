@@ -226,7 +226,7 @@ namespace mana.ishtar.emit
             this.EnsureCapacity<OpCode>(sizeof(int));
             this.InternalEmit(opcode);
             this.PutTypeName(type);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */.{opcode.Name} [{type}] ");
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} [{type}] ");
         }
         /// <summary>
         /// Emit LOC_INIT.
