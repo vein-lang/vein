@@ -1,0 +1,28 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+name: 'markdown lint'
+jobs:
+  write_good_job:
+    runs-on: ubuntu-latest
+    name: A job to lint Markdown files
+    steps:
+    - uses: actions/checkout@v2
+    - name: write-good action step
+      id: write-good
+      uses: tomwhross/write-good-action@v1.2
+    - name: Get the write-good output
+      run: echo "${{ steps.write-good.outputs.result }}"
+    - name: Post comment
+      uses: mshick/add-pr-comment@v1
+      if: ${{ steps.write-good.outputs.result }}
+      with:
+        message: |
+          ${{ steps.write-good.outputs.result }}
+        repo-token: ${{ secrets.CODE_MAID_PAT }}
+        allow-repeats: false
