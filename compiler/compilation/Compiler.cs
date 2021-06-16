@@ -590,35 +590,9 @@ namespace insomnia.compilation
                 }
             }
         }
-
-        private void ApplyTypeWord(TypeSyntax syntax)
-        {
-            syntax.Identifier.ExpressionString = syntax.Identifier.ExpressionString switch
-            {
-                "int64" => "Int64",
-                "int32" => "Int32",
-                "int16" => "Int16",
-                "byte" => "Byte",
-                "string" => "String",
-                "bool" => "Boolean",
-                "boolean" => "Boolean",
-                "uint64" => "UInt64",
-                "uint32" => "UInt32",
-                "uint16" => "UInt16",
-                "sbyte" => "SByte",
-                "half" => "Half",
-                "float" => "Float",
-                "double" => "Double",
-                "decimal" => "Decimal",
-                "char" => "Char",
-                "void" => "Void",
-                _ => syntax.Identifier.ExpressionString
-            };
-        }
-
+        
         private ManaClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
         {
-            ApplyTypeWord(typename);
             var retType = module.TryFindType(typename.Identifier.ExpressionString, doc.Includes);
 
             if (retType is null)

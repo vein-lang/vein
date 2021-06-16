@@ -6,7 +6,7 @@ namespace mana.syntax
     public class IdentifierExpression : ExpressionSyntax, IPositionAware<IdentifierExpression>, IEquatable<IdentifierExpression>
     {
         public IdentifierExpression(string name) : base(name)
-            => this.ExpressionString = name;
+            => this.ExpressionString = Normalize(name);
 
         public new IdentifierExpression SetPos(Position startPos, int length)
         {
@@ -40,5 +40,29 @@ namespace mana.syntax
 
         public override string ToString() =>
             ExpressionString;
+
+
+        // fuk it
+        private string Normalize(string x) => x switch
+        {
+            "int64" => "Int64",
+            "int32" => "Int32",
+            "int16" => "Int16",
+            "byte" => "Byte",
+            "string" => "String",
+            "bool" => "Boolean",
+            "boolean" => "Boolean",
+            "uint64" => "UInt64",
+            "uint32" => "UInt32",
+            "uint16" => "UInt16",
+            "sbyte" => "SByte",
+            "half" => "Half",
+            "float" => "Float",
+            "double" => "Double",
+            "decimal" => "Decimal",
+            "char" => "Char",
+            "void" => "Void",
+            _ => x
+        };
     }
 }
