@@ -92,7 +92,7 @@
 | compiler/elf writer&reader |    💚   | lang/design/directives     |    💚   |
 | lang/design/keywords       |    💚   | lang/design/operation      |    ♿️   |
 | lang/design/classes        |    💚   | lang/design/structs        |    💚   |
-| lang/design/stataments     |    💚   | lang/design/literal        |    💚   |
+| lang/design/statements     |    💚   | lang/design/literal        |    💚   |
 
 
 
