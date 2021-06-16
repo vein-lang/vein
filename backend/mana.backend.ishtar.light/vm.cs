@@ -246,7 +246,7 @@ namespace ishtar
                             if (invocation.method.IsStatic)
                                 sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, null, invocation);
                             else fixed (IshtarObject** node = &invocation._this_)
-                                sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
+                                    sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
                             ++sp;
                         }
                         break;
@@ -257,26 +257,28 @@ namespace ishtar
                         ((IshtarArray*)(sp - 1)->data.p)->Set(*ip++, IshtarMarshal.Boxing(invocation, sp));
                         break;
                     case LDELEM_S:
-                    {
-                        ++ip;
-                        --sp;
-                        sp->validate(invocation, TYPE_ARRAY);
-                        var arr = sp->data.p;
-                        ++sp;
-                        (*sp) = IshtarMarshal.UnBoxing(invocation, ((IshtarArray*)arr)->Get(*ip++));
-                        ++sp;
-                    } break;
+                        {
+                            ++ip;
+                            --sp;
+                            sp->validate(invocation, TYPE_ARRAY);
+                            var arr = sp->data.p;
+                            ++sp;
+                            (*sp) = IshtarMarshal.UnBoxing(invocation, ((IshtarArray*)arr)->Get(*ip++));
+                            ++sp;
+                        }
+                        break;
                     case LDLEN:
-                    {
-                        ++ip;
-                        --sp;
-                        sp->validate(invocation, TYPE_ARRAY);
-                        var arr = sp->data.p;
-                        ++sp;
-                        sp->type = TYPE_U8;
-                        sp->data.ul = ((IshtarArray*)arr)->length;
-                        ++sp;
-                    } break;
+                        {
+                            ++ip;
+                            --sp;
+                            sp->validate(invocation, TYPE_ARRAY);
+                            var arr = sp->data.p;
+                            ++sp;
+                            sp->type = TYPE_U8;
+                            sp->data.ul = ((IshtarArray*)arr)->length;
+                            ++sp;
+                        }
+                        break;
                     case RET:
                         ++ip;
                         --sp;
