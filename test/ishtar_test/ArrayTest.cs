@@ -47,7 +47,7 @@ namespace ishtar_test
                 x.Emit(OpCodes.RET);
             });
 
-            Assert.Equal(ManaTypeCode.TYPE_I4,result.returnValue->type);
+            Assert.Equal(ManaTypeCode.TYPE_I4, result.returnValue->type);
             Assert.Equal(3, result.returnValue->data.i);
         }
 
@@ -72,7 +72,7 @@ namespace ishtar_test
                 x.Emit(OpCodes.RET);
             });
 
-            Assert.Equal(ManaTypeCode.TYPE_U8,result.returnValue->type);
+            Assert.Equal(ManaTypeCode.TYPE_U8, result.returnValue->type);
             Assert.Equal(5, result.returnValue->data.i);
         }
     }
