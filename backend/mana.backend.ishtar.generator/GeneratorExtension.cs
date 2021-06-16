@@ -528,7 +528,7 @@ namespace ishtar
 
                 var size = sizes.Single();
 
-                gen.Emit(OpCodes.LD_TYPE, type); 
+                gen.Emit(OpCodes.LD_TYPE, type);
                 gen.EmitExpression(size); // todo maybe need resolve cast problem
                 gen.Emit(OpCodes.NEWARR);
                 return;
