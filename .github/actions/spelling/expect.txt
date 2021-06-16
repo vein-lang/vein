@@ -1030,6 +1030,7 @@ DItp
 diw
 DIWJ
 DIZI
+Djelnar
 DJJ
 djjj
 DJJL
