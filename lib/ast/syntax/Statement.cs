@@ -27,11 +27,11 @@ namespace mana.syntax
 
         protected internal virtual Parser<LocalVariableDeclaration> local_variable_declaration =>
             from a in KeywordExpression("auto")
-            from decl in local_variable_declarator.Token()
+            from decl in local_variable_declarator.Positioned().Token()
             select decl;
 
         protected internal virtual Parser<StatementSyntax> declarationStatement =>
-            local_variable_declaration.Then(x => Parse.Char(';').Token().Return(x));
+            local_variable_declaration.Token().Positioned().Then(x => Parse.Char(';').Token().Return(x));
 
 
         protected internal virtual Parser<StatementSyntax> embedded_statement =>
@@ -39,7 +39,7 @@ namespace mana.syntax
 
         protected internal virtual Parser<StatementSyntax> simple_embedded_statement =>
             Parse.Char(';').Token().Return((StatementSyntax)new EmptyStatementSyntax())
-            .Or(QualifiedExpression.Then(x => Parse.Char(';').Token().Return(new QualifiedExpressionStatement(x))))
+            .Or(QualifiedExpression.Then(x => Parse.Char(';').Token().Return(new QualifiedExpressionStatement(x))).Positioned())
             .Or(IfStatement)
             .Or(WhileStatement)
             .Or(ReturnStatement)
