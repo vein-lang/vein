@@ -73,7 +73,7 @@
 OS                            | Version                       | Architectures
 ------------------------------|-------------------------------|----------------
 Windows 10                    | 1607+                         | x64, ARM64
-OSX                           | 10.14+                        | x64 
+OSX                           | 10.14+                        | x64
 Linux                         |                               | x64, ARM64
 
 
@@ -81,7 +81,7 @@ Linux                         |                               | x64, ARM64
 
 ### Building on Windows
 
-For build, you need next tools:
+For building, you need the following tools:
 - dotnet 6.0
 - Win10 SDK
 - vsbuild-tools-2019 with MSVC 2019, MSVC142 for ARM64
@@ -116,7 +116,7 @@ mkdir output
 cp -R ./backend/mana.backend.ishtar.light/bin/net6.0/win10-x64/native/ ./output
 ```
 
-See into `output` folder  
+The `output` folder should contain:
 - ishtar.exe - main ishtar file
 - ishtar.exp - export metadata for main module
 - ishtar.lib - dynamic library for main module
@@ -132,21 +132,21 @@ Compile
 ```
 dotnet publish -r win-x64 -c Release
 ```
-Copy output files
+Copy the output files
 ```bash
 mkdir output
 cp -R ./bin/Release/net6.0/win-x64/publish ./output
 ```
 
-See into `output` folder  
+The `output` folder should contain:
 - manac.exe - main executable compiler file
 
 
 ### Building on Linux (on ubuntu)
 
-For build, you need next tools:
+For building, you need the following tools:
 - dotnet 6.0
-- clang 
+- clang
 - zlib1g-dev
 - libkrb5-dev
 - libssl-dev
@@ -196,13 +196,13 @@ mkdir output
 cp -R ./bin/Release/net6.0/linux-x64/publish ./output
 ```
 
-See into `output` folder  
+The `output` folder should contain:
 - manac - main executable compiler file
 
 ## Contributing
 
 We welcome everyone to contribute to mana language.
-To do so, there are a few things you need to know about the code:
+To do so, you need to know a couple of things about the folder structure::
 
 ```yaml
 /backend: folder contains all backend vm\generator for mana
@@ -224,42 +224,42 @@ To do so, there are a few things you need to know about the code:
 /test: folder with various tests
 ```
 
-You can run all tests in the root directory with `dotnet test`.
+You can run all tests from the root directory with `dotnet test`.
 
-To recompile vm and compiler: `dotnet build`.
+To recompile the vm and the compiler: `dotnet build`.
 
-For recompile std: `manac ./mana.std/corlib.wproj`.
+To recompile the standard library: `manac ./mana.std/corlib.wproj`.
 
-After your changes are done, please remember to run `dotnet format` to guarantee all files are properly formatted and 
+After your changes are done, please remember to run `dotnet format` to guarantee all files are properly formatted and
 then run the full suite with `dotnet test`.
 
 ## Q\A
 
 ```yaml
-Q: 
+Q:
   Why is it called mana?
 A:
-  I liked it so much 🗿🗿🗿
-  So, I tried to choose a memorable and simple name with which it would be easy 
-  to come up with a meaningful name for tools (like the 'rune' package manager).
-  The original name was Wave Lang, but I didn't like it, and it was chosen by random 🙂. 
+  I liked it very much 🗿🗿🗿
+  So, I tried to choose a memorable name that would be easy
+  simple for the tools (like the 'rune' package manager).
+  The original name was Wave Lang, but I didn't like it, and it was chosen at random 🙂.
 
-Q: 
+Q:
   Why it based on C#?
 A:
-  Initially, i started developing a virtual machine in C++, 
-  but there was a lot of torment with basic things (like collections, text formatting, etc.) 
-  And at some point i saw that microsoft began to develop a fully AOT compiler for dotnet.    
-  That can write in pure C# without using runtime and std, which allows write operating systems!
-  So i decided - thats it! Definitely writing a virtual machine in C#! 
+  Initially, i started developing a virtual machine in C++,
+  but there were a lot of difficulties with basic things (such as collections, text formatting, etc.)
+  And at some point i saw that microsoft began to develop a fully AOT compiler for dotnet.
+  That means we could write in pure C# without using runtime and std, which allows everyone to write such hard things like an OS!
+  So I decided - that's it! I'm Definitely writing a virtual machine in C#!
 
-  So, in now i developing using runtime and std, but in version 2.0 i planning to completely remove of runtime dependency.
+  So, now I'm developing using the C# runtime and the std, but in version 2.0 I'm planning to completely move away from runtime dependencies.
 
-Q: 
-  This language really support quantum computing? 
+Q:
+  This language really support quantum computing?
 A:
-  Not now, but in future i planning in first add support Microsoft Quantum Simulator, next - support Azure Qunatum or IBM quantum cloud.
-  And after appearance of stationary quantum extension card (like PCEx128 😃), i add support i'il supporting them too.
+  Not now, but in future I'm planning to add support for Microsoft Quantum Simulator, next - support for Azure Qunatum or IBM quantum cloud.
+  And after the release of stationary quantum extension card (like PCEx128 😃), I'll add support for them too.
 
 
 ```
@@ -274,17 +274,16 @@ A:
 
 ## License
 
-Mana is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0), 
+Mana is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0),
 with portions covered by various BSD-like licenses.
 
 Check LICENSE files for more information.
 
-## Support 
+## Support
 <p align="center">
    <a href="https://ko-fi.com/P5P7YFY5">
     <img src="https://www.ko-fi.com/img/githubbutton_sm.svg">
   </a>
 </p>
-
 
 
