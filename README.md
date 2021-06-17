@@ -138,7 +138,7 @@ mkdir output
 cp -R ./bin/Release/net6.0/win-x64/publish ./output
 ```
 
-See into `output` folder
+The `output` folder should contain:
 - manac.exe - main executable compiler file
 
 
