@@ -16,6 +16,11 @@ jobs:
       with:
         submodules: true
     - run: git fetch --prune --unshallow --tags
+    - uses: actions/cache@v1
+      id: cache
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-osx-arm64
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
