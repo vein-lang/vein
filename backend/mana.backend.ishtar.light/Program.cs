@@ -77,6 +77,7 @@ namespace mana.backend.ishtar.light
                 if (!entry.Exists)
                     return -2;
                 masterModule = IshtarAssembly.LoadFromFile(entry);
+                resolver.AddSearchPath(entry.Directory);
             }
 
             var (_, code) = masterModule.Sections.First();
@@ -84,6 +85,7 @@ namespace mana.backend.ishtar.light
 
             resolver.AddSearchPath(new DirectoryInfo("/ManaLang"));
             resolver.AddSearchPath(new DirectoryInfo("./"));
+            
 
             var module = RuntimeModuleReader.Read(code, deps, (s, version) =>
                 resolver.ResolveDep(s, version, deps));
