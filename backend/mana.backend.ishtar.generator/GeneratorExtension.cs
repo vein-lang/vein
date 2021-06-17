@@ -578,9 +578,9 @@ namespace ishtar
             var body = method.GetGenerator();
 
             body.Emit(OpCodes.NOP);
-            body.Emit(OpCodes.LD_TYPE, type);        // load type token
-            body.Emit(OpCodes.LDC_I8_S, size_value); // load size
-            body.Emit(OpCodes.NEWARR);               // load size array and allocate array with fixed size and passed type
+            body.Emit(OpCodes.LD_TYPE, type);               // load type token
+            body.Emit(OpCodes.LDC_I8_S, (long)size_value);  // load size
+            body.Emit(OpCodes.NEWARR);                      // load size array and allocate array with fixed size and passed type
             if (size_value == 0)
             {
                 body.Emit(OpCodes.RET);
