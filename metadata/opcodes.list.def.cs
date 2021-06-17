@@ -393,12 +393,12 @@ namespace ishtar
 		/// </summary>
 		public static readonly OpCode LDLOC_5 = new (0x36, 0x0000001F);
 		/// <summary>
-		/// Load from locals into stack.
-		/// size: 1
+		/// 
+		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDLOC_S = new (0x37, 0x0040001F);
+		public static readonly OpCode LDLOC_S = new (0x37, 0x0100001F);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
@@ -442,12 +442,12 @@ namespace ishtar
 		/// </summary>
 		public static readonly OpCode STLOC_5 = new (0x3D, 0x0000001F);
 		/// <summary>
-		/// Load from stack into locals.
-		/// size: 1
+		/// 
+		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STLOC_S = new (0x3E, 0x0040001F);
+		public static readonly OpCode STLOC_S = new (0x3E, 0x0100001F);
 		/// <summary>
 		/// Initialization locals stack.
 		/// size: 4

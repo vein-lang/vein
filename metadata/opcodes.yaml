@@ -67,9 +67,13 @@
 - LDLOC:
     description: Load from locals into stack.
     range: true
+    S:
+      override-size: 4
 - STLOC:
     description: Load from stack into locals.
     range: true
+    S:
+      override-size: 4
 - LOC.INIT:
     description: Initialization locals stack.
     override-size: 4

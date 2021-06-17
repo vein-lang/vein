@@ -224,7 +224,7 @@ namespace ishtar
 		/// </summary>
 		LDLOC_5 = 0x36,
 		/// <summary>
-		/// Load from locals into stack.
+		/// 
 		/// </summary>
 		LDLOC_S = 0x37,
 		/// <summary>
@@ -252,7 +252,7 @@ namespace ishtar
 		/// </summary>
 		STLOC_5 = 0x3D,
 		/// <summary>
-		/// Load from stack into locals.
+		/// 
 		/// </summary>
 		STLOC_S = 0x3E,
 		/// <summary>
