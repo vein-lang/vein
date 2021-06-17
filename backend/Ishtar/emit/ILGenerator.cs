@@ -7,6 +7,7 @@ namespace mana.ishtar.emit
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
+    using exceptions;
     using extensions;
     using global::ishtar;
     using mana.runtime;
@@ -41,6 +42,8 @@ namespace mana.ishtar.emit
         }
         public virtual void Emit(OpCode opcode, byte arg)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+            
             EnsureCapacity<OpCode>(sizeof(byte));
             InternalEmit(opcode);
             _ilBody[_position++] = arg;
@@ -48,6 +51,8 @@ namespace mana.ishtar.emit
         }
         public void Emit(OpCode opcode, sbyte arg)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+            
             EnsureCapacity<OpCode>(sizeof(sbyte));
             InternalEmit(opcode);
             _ilBody[_position++] = (byte)arg;
@@ -55,6 +60,8 @@ namespace mana.ishtar.emit
         }
         public virtual void Emit(OpCode opcode, short arg)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+            
             EnsureCapacity<OpCode>(sizeof(short));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt16LittleEndian(_ilBody.AsSpan(_position), arg);
@@ -64,6 +71,8 @@ namespace mana.ishtar.emit
 
         public virtual void Emit(OpCode opcode, int arg)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
             EnsureCapacity<OpCode>(sizeof(int));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), arg);
@@ -72,6 +81,8 @@ namespace mana.ishtar.emit
         }
         public virtual void Emit(OpCode opcode, long arg)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
             EnsureCapacity<OpCode>(sizeof(long));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), arg);
@@ -81,6 +92,8 @@ namespace mana.ishtar.emit
 
         public virtual void Emit(OpCode opcode, ulong arg)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
             EnsureCapacity<OpCode>(sizeof(ulong));
             InternalEmit(opcode);
             BinaryPrimitives.WriteUInt64LittleEndian(_ilBody.AsSpan(_position), arg);
@@ -90,6 +103,8 @@ namespace mana.ishtar.emit
 
         public virtual void Emit(OpCode opcode, float arg)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
             EnsureCapacity<OpCode>(sizeof(float));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), BitConverter.SingleToInt32Bits(arg));
@@ -99,6 +114,8 @@ namespace mana.ishtar.emit
 
         public virtual void Emit(OpCode opcode, double arg)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
             EnsureCapacity<OpCode>(sizeof(double));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), BitConverter.DoubleToInt64Bits(arg));
@@ -108,6 +125,8 @@ namespace mana.ishtar.emit
 
         public virtual void Emit(OpCode opcode, decimal arg)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
             EnsureCapacity<OpCode>(sizeof(decimal));
             InternalEmit(opcode);
             var bits = decimal.GetBits(arg);
@@ -125,6 +144,8 @@ namespace mana.ishtar.emit
         /// </remarks>
         public virtual void Emit(OpCode opcode, string str)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
             var token = _methodBuilder
                 .classBuilder
                 .moduleBuilder
@@ -148,6 +169,8 @@ namespace mana.ishtar.emit
         {
             if (new[] { OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF }.All(x => x != opcode))
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
+
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
             this.EnsureCapacity<OpCode>(sizeof(int) * 2);
             this.InternalEmit(opcode);
@@ -177,6 +200,8 @@ namespace mana.ishtar.emit
             if (opcode.Value != (int)OpCodes.LDF.Value)
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
 
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+            
             var (token, direction) = this.FindFieldToken(field);
 
             opcode = direction switch
@@ -211,6 +236,8 @@ namespace mana.ishtar.emit
         /// </summary>
         public virtual void Emit(OpCode opcode, Label label)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
             this.EnsureCapacity<OpCode>(sizeof(int));
             this.InternalEmit(opcode);
             this.PutInteger4(label.Value);
@@ -223,6 +250,8 @@ namespace mana.ishtar.emit
 
         public virtual void Emit(OpCode opcode, QualityTypeName type)
         {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
             this.EnsureCapacity<OpCode>(sizeof(int));
             this.InternalEmit(opcode);
             this.PutTypeName(type);
@@ -279,6 +308,9 @@ namespace mana.ishtar.emit
                 throw new ArgumentNullException(nameof(method));
             if (opcode != OpCodes.CALL)
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
+
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+            
             var (tokenIdx, ownerIdx) = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
             this.EnsureCapacity<OpCode>(
                 sizeof(byte) /*CallContext */ +
@@ -302,10 +334,7 @@ namespace mana.ishtar.emit
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");
         }
 
-        internal void WriteDebugMetadata(string str)
-        {
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ {str}");
-        }
+        internal void WriteDebugMetadata(string str) => _debugBuilder.AppendLine($"/* ::{_position:0000} */ {str}");
 
         internal enum FieldDirection
         {
