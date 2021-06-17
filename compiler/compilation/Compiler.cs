@@ -270,7 +270,8 @@ namespace insomnia.compilation
                 return;
 
             // TODO set for struct ValueType owner
-            owner ??= new TypeSyntax(new IdentifierExpression("Object"));
+            owner ??= new TypeSyntax(new IdentifierExpression("Object"))
+                .SetPos<TypeSyntax>(member.Identifier.Transform); // fallback transform
 
             @class.Parent = FetchType(owner, doc);
         }
@@ -596,9 +597,7 @@ namespace insomnia.compilation
             var retType = module.TryFindType(typename.Identifier.ExpressionString, doc.Includes);
 
             if (retType is null)
-                errors.Add($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]' \n\t" +
-                           $"at '[orange bold]{typename.Transform.pos.Line} line, {typename.Transform.pos.Column} column[/]' \n\t" +
-                           $"in '[orange bold]{doc.FileEntity}[/]'.");
+                PrintError($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]'", typename, doc);
             return retType;
         }
 
@@ -628,7 +627,7 @@ namespace insomnia.compilation
                         PrintError(
                             $"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
                             $"class/struct/interface declaration.",
-                            annotation, clazz.OwnerDocument);
+                            clazz.Identifier, clazz.OwnerDocument);
                         continue;
                     case ManaAnnotationKind.Special:
                         flags |= ClassFlags.Special;
@@ -638,7 +637,7 @@ namespace insomnia.compilation
                     case ManaAnnotationKind.Readonly when !clazz.IsStruct:
                         PrintError(
                             $"[orange bold]Annotation[/] [red bold]{kind}[/] can only be applied to a structure declaration.",
-                            annotation, clazz.OwnerDocument);
+                            clazz.Identifier, clazz.OwnerDocument);
                         continue;
                     case ManaAnnotationKind.Readonly when clazz.IsStruct:
                         // TODO
@@ -649,7 +648,7 @@ namespace insomnia.compilation
                         PrintError(
                             $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{kind}[/] " +
                             $"is not supported [orange bold]annotation[/].",
-                            annotation, clazz.OwnerDocument);
+                            clazz.Identifier, clazz.OwnerDocument);
                         continue;
                 }
             }
@@ -676,8 +675,10 @@ namespace insomnia.compilation
                     case "extern":
                         continue;
                     default:
-                        errors.Add(
-                            $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{mod}[/] is not supported [orange bold]modificator[/].");
+                        PrintError($"In [orange]'{clazz.Identifier}'[/] class/struct/interface " +
+                                   $"[red bold]{mod}[/] is not supported [orange bold]modificator[/].",
+                            clazz.Identifier, clazz.OwnerDocument);
+                        
                         continue;
                 }
             }
@@ -824,13 +825,13 @@ namespace insomnia.compilation
                         PrintError(
                             $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.AnnotationKind}[/] " +
                             $"is not supported [orange bold]annotation[/].",
-                            annotation, method.OwnerClass.OwnerDocument);
+                            method.Identifier, method.OwnerClass.OwnerDocument);
                         continue;
                     default:
                         PrintError(
                             $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.AnnotationKind}[/] " +
                             $"is not supported [orange bold]annotation[/].",
-                            annotation, method.OwnerClass.OwnerDocument);
+                            method.Identifier, method.OwnerClass.OwnerDocument);
                         continue;
                 }
             }
@@ -861,7 +862,7 @@ namespace insomnia.compilation
                         PrintError(
                             $"In [orange]'{method.Identifier}'[/] method [red bold]{mod}[/] " +
                             $"is not supported [orange bold]modificator[/].",
-                            mod, method.OwnerClass.OwnerDocument);
+                            method.Identifier, method.OwnerClass.OwnerDocument);
                         continue;
                 }
             }
