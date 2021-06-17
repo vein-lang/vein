@@ -19,7 +19,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100-preview.4.21255.9
+        dotnet-version: 6.0.100-preview.5.21302.13
     - name: Restore dependencies
       run: dotnet restore
     - name: AOT build

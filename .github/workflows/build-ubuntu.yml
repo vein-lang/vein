@@ -21,7 +21,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100-preview.4.21255.9
+        dotnet-version: 6.0.100-preview.5.21302.13
     - name: Install GitVersion
       run: dotnet tool install --global --version 5.6.7 GitVersion.Tool
     - name: Restore dependencies
