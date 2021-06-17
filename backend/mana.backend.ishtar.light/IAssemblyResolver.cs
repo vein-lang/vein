@@ -66,7 +66,7 @@ namespace mana.backend.ishtar.light
         {
             try
             {
-                var files = search_paths
+                var files = search_paths.Where(x => x.Exists)
                     .SelectMany(x => x.EnumerateFiles("*.wll"))
                     .Where(x =>
                         x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase))
