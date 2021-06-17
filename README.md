@@ -123,7 +123,7 @@ The `output` folder should contain:
 - ishtar.pdb - debug symbols
 
 
-#### Compile manяc
+#### Compile manac
 Go to mana compiler folder
 ```base
 cd .\compiler
@@ -285,6 +285,5 @@ Check LICENSE files for more information.
     <img src="https://www.ko-fi.com/img/githubbutton_sm.svg">
   </a>
 </p>
-
 
 
