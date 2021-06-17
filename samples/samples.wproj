@@ -1,9 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <TargetFramework>wave1.0</TargetFramework>
-    <Version>0.0.32</Version>
-    <AssemblyName>wc</AssemblyName>
-	<OutputType>exe</OutputType>
-	<Copyright>Yuuki Wesp (C) 2020</Copyright>
-  </PropertyGroup>
-</Project>
