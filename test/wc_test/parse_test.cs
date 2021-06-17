@@ -394,7 +394,7 @@ namespace wc_test
         [InlineData("x = ((x >> 1) & 055555555) | ((x & 055555555) << 1)")]
         [InlineData("uf = select(uf, asuint(asfloat(uf + (1 << 23)) - 6.10351563e-05f), e == 0)")]
         [InlineData("uf += select(0, (128u - 16u) << 23, e == shifted_exp)")]
-        [InlineData("hx = (asuint(min(asfloat(uux) * 1.92592994e-34f, 260042752.0f)) + 0x1000) >> 13", Skip = "todo")]
+        //[InlineData("hx = (asuint(min(asfloat(uux) * 1.92592994e-34f, 260042752.0f)) + 0x1000) >> 13", Skip = "todo")]
         [InlineData("basis1.x = 1.0f + sign * normal.x * normal.x * a")]
         [InlineData("hash = rol(state.x, 1) + rol(state.y, 7) + rol(state.z, 12) + rol(state.w, 18)")]
         public void AllExpressionTest(string exp) => Mana.QualifiedExpression.End().ParseMana(exp);
@@ -423,7 +423,7 @@ namespace wc_test
         {
             var result = Mana.FieldDeclaration.End().ParseMana("foo: Int32 = -22;");
             Assert.NotNull(result);
-            Assert.Equal("int32", result.Type.Identifier.ToString());
+            Assert.Equal("int32", result.Type.Identifier.ToString().ToLower());
             Assert.Equal("foo", result.Field.Identifier.ToString());
             Assert.Equal("(-22)", result.Field.Expression.ExpressionString);
             Assert.IsType<UnaryExpressionSyntax>(result.Field.Expression);
@@ -440,7 +440,7 @@ namespace wc_test
             Assert.Equal(ManaAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
 
             var md = cd.Methods.Single();
-            Assert.Equal("void", md.ReturnType.Identifier.ToString());
+            Assert.Equal("void", md.ReturnType.Identifier.ToString().ToLower());
             Assert.Equal("main", md.Identifier.ToString());
             Assert.Equal(ManaAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
             Assert.False(md.Parameters.Any());
