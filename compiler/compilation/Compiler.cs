@@ -590,7 +590,7 @@ namespace insomnia.compilation
                 }
             }
         }
-        
+
         private ManaClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
         {
             var retType = module.TryFindType(typename.Identifier.ExpressionString, doc.Includes);

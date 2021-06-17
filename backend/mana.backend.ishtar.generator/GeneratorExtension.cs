@@ -67,7 +67,7 @@ namespace ishtar
 
             if (currentType is not UnresolvedManaClass)
                 return Assert.IsType<ClassBuilder>(currentType);
-            
+
             var b = Module.DefineClass(fullName);
 
             b.Flags |= ClassFlags.Internal;

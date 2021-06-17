@@ -96,7 +96,7 @@ namespace mana.runtime
 
             if (!findExternally)
                 return createResult();
-            
+
             foreach (var module in Deps)
             {
                 result = module.FindType(type, true);
