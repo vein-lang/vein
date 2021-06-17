@@ -213,8 +213,6 @@ To do so, you need to know a couple of things about the folder structure::
   /ishtar.light: implementation of ishtar vm in C#
 /compiler: folder contains source for mana compiler
 /ide_ext: visual code extension sources
-/ishtar: implementation of ishtar vm in C++
-/ishtar-rs: too, but in Rust
 /lib: folder with common libraries
   /ast: mana AST library, for parsing
   /projectsystem: project system models, for compiler
