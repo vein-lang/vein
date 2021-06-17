@@ -40,6 +40,12 @@ namespace mana.syntax
             return this;
         }
 
+        public T SetPos<T>(Transform t) where T : BaseSyntax
+        {
+            Transform = new Transform(t.pos, t.len);
+            return (T)this;
+        }
+
         public bool IsBrokenToken => (this as IPassiveParseTransition).Error != null;
 
         internal Transform Transform { get; set; }
