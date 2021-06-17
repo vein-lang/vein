@@ -242,7 +242,7 @@ A:
   I liked it very much 🗿🗿🗿
   So, I tried to choose a memorable name that would be easy
   simple for the tools (like the 'rune' package manager).
-  The original name was Wave Lang, but I didn't like it, and it was chosen by a chat in Telegram 🙂.
+  The original name was Wave Lang, but I didn't like it, and it was chosen at random 🙂.
 
 Q:
   Why it based on C#?
