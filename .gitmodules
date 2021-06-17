@@ -1,3 +1,0 @@
-[submodule "ishtar/external/fmt"]
-	path = ishtar/external/fmt
-	url = https://github.com/fmtlib/fmt.git
