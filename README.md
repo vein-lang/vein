@@ -22,10 +22,6 @@
 <h1 align="center">
  ⚡️🔮 Mana Lang 🔮⚡️
 </h1>
-<!-- desc -->
-<h4 align="center">
-  Mana is an open source high-level strictly-typed programming language with a standalone OS, arm and quantum computing support.
-</h4>
 
 <!-- classic badges -->
 <p align="center">
@@ -66,58 +62,224 @@
 </p>
 
 
-# 🗺 roadmap
+---
 
-### legend
-♿️ - in implementation progress   
-☢️ - in design process    
-💚 - complete   
-🚬 - planned
+> Mana is an open source high-level strictly-typed programming language with a standalone OS, arm and quantum computing support.
 
+---
 
-## First Version
-|         Feature Name       | Status  |         Feature Name       | Status  |
-|----------------------------|:-------:|----------------------------|:-------:|
-| ext/based grammatics       |    💚   | ext/LSP/hover              |    🚬   |
-| ext/LSP/connector          |    💚   | ext/LSP/fs watcher         |    💚   |
-| extension/icons            |    ☢️   | vm/hashtables              |    💚   |
-| vm/stack                   |    💚   | vm/pinvoke                 |    💚   |
-| vm/based type declarations |    ♿️   | vm/based operations        |    💚   |
-| vm/interp                  |    💚   | vm/boxing and unboxing     |    💚   |
-| vm/image reader            |    💚   | vm/il reader               |    💚   |
-| vm/type case               |    💚   | vm/marshalin               |    ☢️   |
-| vm/target/avr              |    ☢️   | vm/target/windows          |    💚   |
-| vm/target/linux            |    🚬   | vm/target/macos            |    🚬   |
-| compiler/lexer             |    💚   | compiler/IL generator      |    💚   |
-| compiler/elf writer&reader |    💚   | lang/design/directives     |    💚   |
-| lang/design/keywords       |    💚   | lang/design/operation      |    ♿️   |
-| lang/design/classes        |    💚   | lang/design/structs        |    💚   |
-| lang/design/statements     |    💚   | lang/design/literal        |    💚   |
+## OS Support
+
+OS                            | Version                       | Architectures
+------------------------------|-------------------------------|----------------
+Windows 10                    | 1607+                         | x64, ARM64
+OSX                           | 10.14+                        | x64 
+Linux                         |                               | x64, ARM64
 
 
+## Compiling from source
 
-## Wave Next
+### Building on Windows
 
-|         Feature Name       | Status  |         Feature Name       | Status  |
-|----------------------------|:-------:|----------------------------|:-------:|
-| ext/LSP/reference event    |    🚬   | ext/LSP/signature event    |    🚬   |
-| ext/LSP/symbol event       |    🚬   | ext/LSP/resolve event      |    🚬   |
-| ext/LSP/code action        |    🚬   | project system             |    💚   |
-| extension/formatter        |    🚬   | compiler/pdb and DWARF     |    🚬   |
-| compiler/diagnostics       |    🚬   | compiler/module visitor    |    💚   |
-| vm/throw                   |    ♿️   | vm/threading               |    🚬   |
-| vm/stacktrace              |    💚   | vm/modules                 |    💚   |
-| vm/gc                      |    🚬   | lang/std/collections       |    🚬   |
-| lang/std/io                |    🚬   | lang/std/numerics          |    🚬   |
-| lang/std/platform api      |    🚬   | lang/std/reflection        |    🚬   |
-| lang/std/web               |    🚬   | lang/std/graphic           |    🚬   |
-| lang/std/di                |    🚬   | lang/std/input             |    🚬   |
-| lang/std/win api           |    🚬   | lang/std/xml               |    🚬   |
-| lang/std/yaml              |    🚬   | lang/std/json              |    🚬   |
-| lang/std/lazy collections  |    🚬   | lang/std/async             |    🚬   |
+For build, you need next tools:
+- dotnet 6.0
+- Win10 SDK
+- vsbuild-tools-2019 with MSVC 2019, MSVC142 for ARM64
 
 
+Checkout mana sources
+```bash
+git clone git://github.com/0xf6/mana_lang.git --recurse-submodules
+cd mana lang
+git fetch --prune --unshallow --tags
 
+dotnet restore
+```
+
+#### Compile IshtarVM
+Go to ishtar folder
+```base
+cd .\backend\mana.backend.ishtar.light
+```
+Compile for Windows 10 x64
+```bash
+dotnet publish -r win10-x64 -c Release
+```
+Compile for Windows 10 ARM64
+```
+dotnet publish -r win-arm64 -c Release
+```
+
+Copy output files
+```bash
+mkdir output
+cp -R ./backend/mana.backend.ishtar.light/bin/net6.0/win10-x64/native/ ./output
+```
+
+See into `output` folder  
+- ishtar.exe - main ishtar file
+- ishtar.exp - export metadata for main module
+- ishtar.lib - dynamic library for main module
+- ishtar.pdb - debug symbols
+
+
+#### Compile manac
+Go to mana compiler folder
+```base
+cd .\compiler
+```
+Compile
+```
+dotnet publish -r win-x64 -c Release
+```
+Copy output files
+```bash
+mkdir output
+cp -R ./bin/Release/net6.0/win-x64/publish ./output
+```
+
+See into `output` folder  
+- manac.exe - main executable compiler file
+
+
+### Building on Linux (on ubuntu)
+
+For build, you need next tools:
+- dotnet 6.0
+- clang 
+- zlib1g-dev
+- libkrb5-dev
+- libssl-dev
+
+Checkout mana sources
+```bash
+git clone git://github.com/0xf6/mana_lang.git --recurse-submodules
+cd mana lang
+git fetch --prune --unshallow --tags
+
+dotnet restore
+```
+
+
+#### Compile IshtarVM
+Go to ishtar folder
+```base
+cd .\backend\mana.backend.ishtar.light
+```
+Compile for Linux x64
+```bash
+dotnet publish -r linux-x64 -c Release
+```
+Compile for Linux ARM64
+```
+dotnet publish -r linux-arm64 -c Release
+```
+
+Copy output files
+```bash
+mkdir output
+cp -R ./backend/mana.backend.ishtar.light/bin/Release/net6.0/linux-x64/native ./output
+```
+
+#### Compile manac
+Go to mana compiler folder
+```base
+cd .\compiler
+```
+Compile
+```
+dotnet publish -r linux-x64 -c Release
+```
+Copy output files
+```bash
+mkdir output
+cp -R ./bin/Release/net6.0/linux-x64/publish ./output
+```
+
+See into `output` folder  
+- manac - main executable compiler file
+
+## Contributing
+
+We welcome everyone to contribute to mana language.
+To do so, there are a few things you need to know about the code:
+
+```yaml
+/backend: folder contains all backend vm\generator for mana
+  /clr: variant generator for CLR VM
+  /hashlink: variant generator for Hashlink VM
+  /LLVM: variabnt generator for LLVM toolstack
+  /ishtar.generator: variant generator for IshtarVM
+  /ishtar.light: implementation of ishtar vm in C#
+/compiler: folder contains source for mana compiler
+/ide_ext: visual code extension sources
+/ishtar: implementation of ishtar vm in C++
+/ishtar-rs: too, but in Rust
+/lib: folder with common libraries
+  /ast: mana AST library, for parsing
+  /projectsystem: project system models, for compiler
+/lsp: language server for mana lang
+/mana.std: standard library sources
+/samples: Wow! its samples!
+/test: folder with various tests
+```
+
+You can run all tests in the root directory with `dotnet test`.
+
+To recompile vm and compiler: `dotnet build`.
+
+For recompile std: `manac ./mana.std/corlib.wproj`.
+
+After your changes are done, please remember to run `dotnet format` to guarantee all files are properly formatted and 
+then run the full suite with `dotnet test`.
+
+## Q\A
+
+```yaml
+Q: 
+  Why is it called mana?
+A:
+  I liked it so much 🗿🗿🗿
+  So, I tried to choose a memorable and simple name with which it would be easy 
+  to come up with a meaningful name for tools (like the 'rune' package manager).
+  The original name was Wave Lang, but I didn't like it, and it was chosen by random 🙂. 
+
+Q: 
+  Why it based on C#?
+A:
+  Initially, i started developing a virtual machine in C++, 
+  but there was a lot of torment with basic things (like collections, text formatting, etc.) 
+  And at some point i saw that microsoft began to develop a fully AOT compiler for dotnet.    
+  That can write in pure C# without using runtime and std, which allows write operating systems!
+  So i decided - thats it! Definitely writing a virtual machine in C#! 
+
+  So, in now i developing using runtime and std, but in version 2.0 i planning to completely remove of runtime dependency.
+
+Q: 
+  This language really support quantum computing? 
+A:
+  Not now, but in future i planning in first add support Microsoft Quantum Simulator, next - support Azure Qunatum or IBM quantum cloud.
+  And after appearance of stationary quantum extension card (like PCEx128 😃), i add support i'il supporting them too.
+
+
+```
+## Special Thanks
+
+<p align="center">
+  <a href="https://www.jetbrains.com/?from=mana_lang">
+    <img height="128" wight="128" src="https://raw.githubusercontent.com/0xF6/mana_lang/master/.github/images/jetbrains-variant-3.png">
+  </a>
+</p>
+
+
+## License
+
+Mana is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0), 
+with portions covered by various BSD-like licenses.
+
+Check LICENSE files for more information.
+
+## Support 
 <p align="center">
    <a href="https://ko-fi.com/P5P7YFY5">
     <img src="https://www.ko-fi.com/img/githubbutton_sm.svg">
@@ -125,10 +287,4 @@
 </p>
 
 
-# Special Thanks
 
-<p align="center">
-  <a href="https://www.jetbrains.com/?from=mana_lang">
-    <img height="128" wight="128" src="https://raw.githubusercontent.com/0xF6/mana_lang/master/.github/images/jetbrains-variant-3.png">
-  </a>
-</p>
