@@ -696,6 +696,12 @@ namespace ishtar
                         ++ip;
                         ++sp;
                         break;
+                    case LDLOC_S:
+                        ++ip;
+                        *sp = locals[(*ip)];
+                        ++sp;
+                        ++ip;
+                        break;
                     case STLOC_0:
                     case STLOC_1:
                     case STLOC_2:
