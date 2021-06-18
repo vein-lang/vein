@@ -1,0 +1,16 @@
+#space "mana/lang"
+
+public class Array
+{
+    [native("!!value")]
+    private _value: ValueType;
+
+    [native("!!block")]
+    private _block: Int64;
+
+    [native("!!size")]
+    public Length: Int64;
+
+    [native("!!rank")]
+    public Rank: Int64;
+}
