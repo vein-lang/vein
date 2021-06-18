@@ -151,30 +151,6 @@ namespace insomnia.compilation
             }
         }
 
-        public void WriteOutput(ManaModuleBuilder builder)
-        {
-            var dirInfo = new DirectoryInfo(Path.Combine(Project.WorkDir, "bin"));
-
-            if (!dirInfo.Exists)
-                dirInfo.Create();
-            else
-                dirInfo.EnumerateFiles("*.*", SearchOption.AllDirectories).ForEach(x => x.Delete());
-
-
-            var asm_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{Project.Name}.wll"));
-            var wil_file = new FileInfo(Path.Combine(dirInfo.FullName, $"{Project.Name}.wvil.bin"));
-
-            var wil_data = builder.BakeByteArray();
-
-
-            var asm = new IshtarAssembly(builder);
-
-            IshtarAssembly.WriteTo(asm, asm_file.FullName);
-
-            File.WriteAllBytes(wil_file.FullName, wil_data);
-        }
-
-
         public List<(ClassBuilder clazz, ClassDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc)
         {
             var classes = new List<(ClassBuilder clazz, ClassDeclarationSyntax member)>();
