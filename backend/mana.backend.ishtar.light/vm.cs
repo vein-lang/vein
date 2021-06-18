@@ -254,7 +254,7 @@ namespace ishtar
                         ++ip;
                         --sp;
                         (sp - 1)->validate(invocation, TYPE_ARRAY);
-                        ((IshtarArray*)(sp - 1)->data.p)->Set(*ip++, IshtarMarshal.Boxing(invocation, sp));
+                        ((IshtarArray*)(sp - 1)->data.p)->Set(*ip++, IshtarMarshal.Boxing(invocation, sp), invocation);
                         break;
                     case LDELEM_S:
                         {
@@ -263,7 +263,7 @@ namespace ishtar
                             sp->validate(invocation, TYPE_ARRAY);
                             var arr = sp->data.p;
                             ++sp;
-                            (*sp) = IshtarMarshal.UnBoxing(invocation, ((IshtarArray*)arr)->Get(*ip++));
+                            (*sp) = IshtarMarshal.UnBoxing(invocation, ((IshtarArray*)arr)->Get(*ip++, invocation));
                             ++sp;
                         }
                         break;
