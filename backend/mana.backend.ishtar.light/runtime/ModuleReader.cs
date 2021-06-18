@@ -38,16 +38,9 @@ namespace ishtar
             // read strings table
             foreach (var _ in ..reader.ReadInt32())
             {
-                try
-                {
-                    var key = reader.ReadInt32();
-                    var value = reader.ReadInsomniaString();
-                    module.strings_table.Add(key, value);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
+                var key = reader.ReadInt32();
+                var value = reader.ReadInsomniaString();
+                module.strings_table.Add(key, value);
             }
             // read types table
             foreach (var _ in ..reader.ReadInt32())
