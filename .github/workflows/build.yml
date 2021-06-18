@@ -73,7 +73,7 @@ jobs:
       uses: actions/upload-artifact@v2.2.3
       with:
         name: linux-x64-build
-        path: ./backend/mana.backend.ishtar.light/bin/Release/net6.0/ubuntu-x64/native
+        path: ./backend/mana.backend.ishtar.light/bin/Release/net6.0/linux-x64/native
         if-no-files-found: error
   build_win_arm64:
     runs-on: windows-latest
