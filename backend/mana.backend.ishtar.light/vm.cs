@@ -714,6 +714,12 @@ namespace ishtar
 #endif
                         ++ip;
                         break;
+                    case STLOC_S:
+                        --sp;
+                        ++ip;
+                        locals[(*ip)] = *sp;
+                        ++ip;
+                        break;
                     case RESERVED_0:
                         ++ip;
                         println($"*** DUMP ***");
