@@ -240,7 +240,8 @@ A:
   I liked it very much 🗿🗿🗿
   So, I tried to choose a memorable name that would be easy
   simple for the tools (like the 'rune' package manager).
-  The original name was Wave Lang, but I didn't like it, and it was chosen at random 🙂.
+  The original name was Wave Lang, but I didn't like it, 
+  and it was chosen at random 🙂.
 
 Q:
   Why it based on C#?
@@ -248,16 +249,20 @@ A:
   Initially, i started developing a virtual machine in C++,
   but there were a lot of difficulties with basic things (such as collections, text formatting, etc.)
   And at some point i saw that microsoft began to develop a fully AOT compiler for dotnet.
-  That means we could write in pure C# without using runtime and std, which allows everyone to write such hard things like an OS!
+  That means we could write in pure C# without using runtime and std, 
+  which allows everyone to write such hard things like an OS!
   So I decided - that's it! I'm Definitely writing a virtual machine in C#!
 
-  So, now I'm developing using the C# runtime and the std, but in version 2.0 I'm planning to completely move away from runtime dependencies.
+  So, now I'm developing using the C# runtime and the std, but 
+  in version 2.0 I'm planning to completely move away from runtime dependencies.
 
 Q:
   This language really support quantum computing?
 A:
-  Not now, but in future I'm planning to add support for Microsoft Quantum Simulator, next - support for Azure Qunatum or IBM quantum cloud.
-  And after the release of stationary quantum extension card (like PCEx128 😃), I'll add support for them too.
+  Not now, but in future I'm planning to add support for Microsoft Quantum Simulator, 
+  next - support for Azure Qunatum or IBM quantum cloud.
+  And after the release of stationary quantum extension card (like PCEx128 😃), 
+  I'll add support for them too.
 
 
 ```
