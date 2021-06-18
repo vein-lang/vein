@@ -2,6 +2,11 @@ name: win-arm64 AOT Build
 
 on:
   push:
+    paths-ignore:
+      - 'ide-ext/**'
+      - 'samples/**'
+      - '**.js'
+      - '**.md'
     branches: [ master ]
   pull_request:
     branches: [ master ]

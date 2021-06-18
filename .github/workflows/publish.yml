@@ -2,6 +2,12 @@ name: publish release
 
 on:
   push:
+    paths-ignore:
+      - 'ide-ext/**'
+      - 'samples/**'
+      - '**.js'
+      - '**.md'
+      - '**.yml'
     branches:
       - master
 

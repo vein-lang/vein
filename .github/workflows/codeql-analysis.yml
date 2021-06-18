@@ -2,6 +2,12 @@ name: "CodeQL"
 
 on:
   push:
+    paths-ignore:
+      - 'ide-ext/**'
+      - 'samples/**'
+      - '**.js'
+      - '**.md'
+      - '**.yml'
     branches: [ master ]
   pull_request:
     # The branches below must be a subset of the branches above

@@ -2,6 +2,12 @@ name: osx-arm64 AOT Build
 
 on:
   push:
+    paths-ignore:
+      - 'ide-ext/**'
+      - 'samples/**'
+      - '**.js'
+      - '**.md'
+      - '**.yml'
     branches: [ master ]
   pull_request:
     branches: [ master ]
