@@ -43,7 +43,7 @@ namespace mana.ishtar.emit
         public virtual void Emit(OpCode opcode, byte arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
-            
+
             EnsureCapacity<OpCode>(sizeof(byte));
             InternalEmit(opcode);
             _ilBody[_position++] = arg;
@@ -52,7 +52,7 @@ namespace mana.ishtar.emit
         public void Emit(OpCode opcode, sbyte arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
-            
+
             EnsureCapacity<OpCode>(sizeof(sbyte));
             InternalEmit(opcode);
             _ilBody[_position++] = (byte)arg;
@@ -61,7 +61,7 @@ namespace mana.ishtar.emit
         public virtual void Emit(OpCode opcode, short arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
-            
+
             EnsureCapacity<OpCode>(sizeof(short));
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt16LittleEndian(_ilBody.AsSpan(_position), arg);
@@ -201,7 +201,7 @@ namespace mana.ishtar.emit
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
 
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
-            
+
             var (token, direction) = this.FindFieldToken(field);
 
             opcode = direction switch
@@ -310,7 +310,7 @@ namespace mana.ishtar.emit
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
 
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
-            
+
             var (tokenIdx, ownerIdx) = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
             this.EnsureCapacity<OpCode>(
                 sizeof(byte) /*CallContext */ +
