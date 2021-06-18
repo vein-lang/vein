@@ -678,7 +678,7 @@ namespace insomnia.compilation
                         PrintError($"In [orange]'{clazz.Identifier}'[/] class/struct/interface " +
                                    $"[red bold]{mod}[/] is not supported [orange bold]modificator[/].",
                             clazz.Identifier, clazz.OwnerDocument);
-                        
+
                         continue;
                 }
             }
