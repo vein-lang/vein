@@ -13,35 +13,6 @@ on:
     branches: [ master ]
 
 jobs:
-  build_osx_aot_arm64:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - run: git fetch --prune --unshallow --tags
-    - uses: actions/cache@v1
-      id: cache
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-osx-arm64
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.100-preview.5.21302.13
-    - name: Install GitVersion
-      run: dotnet tool install --global --version 5.6.7 GitVersion.Tool
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: AOT build
-      run: dotnet publish -r osx-arm64 -c Release
-      working-directory: ./backend/mana.backend.ishtar.light
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
-      with:
-        name: osx-aot-build
-        path: ./backend/mana.backend.ishtar.light/bin/Release/net6.0/osx-arm64/native
-        if-no-files-found: error
   build_osx_aot:
     runs-on: macos-latest
 
@@ -136,7 +107,7 @@ jobs:
 
   coverage:
     runs-on: windows-latest
-    needs: [build_win_arm64, build_linux, build_osx_aot, build_osx_aot_arm64]
+    needs: [build_win_arm64, build_linux, build_osx_aot]
     steps:
     - name: Export Env
       run: $env:CODACY_PROJECT_TOKEN="${{ secrets.CODACY_API_KEY }}"
