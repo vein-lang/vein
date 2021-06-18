@@ -72,7 +72,7 @@ namespace ishtar
             var bytes_len = @class.computed_size * size * rank;
 
             // enter critical zone
-            IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
+            //IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
 
             if (!arr.is_inited) arr.init_vtable();
 
@@ -117,7 +117,7 @@ namespace ishtar
                 ((void**)obj->vtable[arr.Field["!!value"].vtable_offset])[i] = AllocObject(@class, &obj);
 
             // exit from critical zone
-            IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
+            //IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
 
             return arr_obj;
         }
