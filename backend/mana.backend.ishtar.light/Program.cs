@@ -85,7 +85,7 @@ namespace mana.backend.ishtar.light
 
             resolver.AddSearchPath(new DirectoryInfo("/ManaLang"));
             resolver.AddSearchPath(new DirectoryInfo("./"));
-            
+
 
             var module = RuntimeModuleReader.Read(code, deps, (s, version) =>
                 resolver.ResolveDep(s, version, deps));
