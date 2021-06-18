@@ -11,6 +11,10 @@
     "compile flowbranch": {
       "commandName": "Project",
       "commandLineArgs": "compile O:\\wave_vm\\samples\\flowbranch\\flowbranch.wproj"
+    },
+    "compile test_case 00": {
+      "commandName": "Project",
+      "commandLineArgs": "compile O:\\wave_vm\\test\\mana_test\\00\\00.wproj"
     }
   }
 }
