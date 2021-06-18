@@ -66,3 +66,5 @@ Cargo.lock
 launch.json
 
 mana_lang.sln.DotSettings.user
+
+*.user
