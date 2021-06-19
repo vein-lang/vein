@@ -21,9 +21,7 @@ namespace wc_test
 
 
             var stl = new ManaModuleBuilder("stl", new Version(2,3));
-
-            foreach (var type in ManaCore.Types.All)
-                stl.InternTypeName(type.FullName);
+            
             foreach (var type in ManaCore.All)
             {
                 stl.InternTypeName(type.FullName);
