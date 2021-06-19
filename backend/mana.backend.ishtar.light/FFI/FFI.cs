@@ -12,7 +12,7 @@ namespace ishtar
         public static void INIT()
         {
             B_Out.InitTable(method_table);
-            B_Application.InitTable(method_table);
+            B_App.InitTable(method_table);
             FE_IEEEConsts.InitTable(method_table);
         }
 
