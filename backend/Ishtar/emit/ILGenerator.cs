@@ -243,8 +243,6 @@ namespace mana.ishtar.emit
             this.PutInteger4(label.Value);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} label(0x{label.Value:X})");
         }
-        public virtual void Emit(OpCode opcode, ManaType type)
-            => Emit(opcode, type.FullName);
         public virtual void Emit(OpCode opcode, ManaClass type)
             => Emit(opcode, type.FullName);
 

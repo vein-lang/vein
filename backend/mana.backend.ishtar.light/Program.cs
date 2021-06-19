@@ -16,38 +16,14 @@ namespace mana.backend.ishtar.light
 
     internal class Program
     {
-        public static List<ManaModule> GetDeps()
+        private static void INIT_VTABLES()
         {
-            var list = new List<ManaModule>();
+            foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>())
+                @class.init_vtable();
 
-
-            var stl = new ManaModuleBuilder("wcorlib", new Version(1,0));
-
-            foreach (var type in ManaCore.Types.All)
-                stl.InternTypeName(type.FullName);
-            foreach (var type in ManaCore.All)
-            {
-                stl.InternTypeName(type.FullName);
-                stl.InternString(type.Name);
-                stl.InternString(type.Path);
-                foreach (var field in type.Fields)
-                {
-                    stl.InternFieldName(field.FullName);
-                    stl.InternString(field.Name);
-                }
-                foreach (var method in type.Methods)
-                {
-                    stl.InternString(method.Name);
-                    foreach (var argument in method.Arguments)
-                    {
-                        stl.InternString(argument.Name);
-                    }
-                }
-                stl.class_table.Add(type);
-            }
-            list.Add(stl);
-            return list;
+            IshtarCore.INIT();
         }
+
         public static unsafe int Main(string[] args)
         {
             //while (!Debugger.IsAttached)
@@ -81,22 +57,19 @@ namespace mana.backend.ishtar.light
             }
 
             var (_, code) = masterModule.Sections.First();
-            var deps = GetDeps();
 
             resolver.AddSearchPath(new DirectoryInfo("/ManaLang"));
             resolver.AddSearchPath(new DirectoryInfo("./"));
 
 
-            var module = RuntimeModuleReader.Read(code, deps, (s, version) =>
-                resolver.ResolveDep(s, version, deps));
+            var module = RuntimeModuleReader.Read(code, new List<ManaModule>(), (s, version) =>
+                resolver.ResolveDep(s, version, new List<ManaModule>()));
 
             foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())
             {
                 @class.init_vtable();
                 VM.ValidateLastError();
             }
-
-            module.Deps.Add(deps.First());
 
             var entry_point = module.GetEntryPoint();
 
