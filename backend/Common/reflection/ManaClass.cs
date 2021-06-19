@@ -28,12 +28,6 @@ namespace mana.runtime
             this.Parent = parent;
             this.Owner = module;
         }
-        internal ManaClass(ManaType type, ManaClass parent)
-        {
-            this.FullName = type.FullName;
-            this.Parent = parent;
-            this.TypeCode = type.TypeCode;
-        }
         protected ManaClass() { }
 
         internal ManaMethod DefineMethod(string name, ManaClass returnType, MethodFlags flags, params ManaArgumentRef[] args)

@@ -14,8 +14,6 @@ namespace mana.runtime
         private readonly Dictionary<int, string> locals_dictionary = new();
         public void Push(QualityTypeName type)
             => types.Add(type);
-        public void Push(ManaType type)
-            => types.Add(type.FullName);
         public void Push(ManaClass type)
             => types.Add(type.FullName);
         public void Push(ManaTypeCode type)
@@ -33,14 +31,7 @@ namespace mana.runtime
 
         #endregion
 
-
-        public static implicit operator LocalsBuilder(ManaType[] arr)
-        {
-            var l = new LocalsBuilder();
-            foreach (var type in arr)
-                l.Push(type);
-            return l;
-        }
+        
         public static implicit operator LocalsBuilder(ManaClass[] arr)
         {
             var l = new LocalsBuilder();
