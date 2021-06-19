@@ -21,8 +21,6 @@ namespace ishtar
     {
         internal RuntimeIshtarClass(QualityTypeName name, ManaClass parent, ManaModule module)
             : base(name, parent, module) { }
-        internal RuntimeIshtarClass(ManaType type, ManaClass parent)
-            : base(type, parent) { }
 
 
         internal RuntimeIshtarField DefineField(string name, FieldFlags flags, ManaClass type)
