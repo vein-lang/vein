@@ -7,7 +7,7 @@ namespace mana.runtime
     using static ManaTypeCode;
 
 
-    public class ManaClass : IEquatable<ManaClass>
+    public class ManaClass : IEquatable<ManaClass>, IAspectable
     {
         public QualityTypeName FullName { get; set; }
         public string Name => FullName.Name;

@@ -6,7 +6,7 @@ namespace mana.runtime
     using extensions;
     using reflection;
 
-    public class ManaMethod : ManaMethodBase
+    public class ManaMethod : ManaMethodBase, IAspectable
     {
         public ManaClass ReturnType { get; set; }
         public ManaClass Owner { get; set; }

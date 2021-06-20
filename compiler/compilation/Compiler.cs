@@ -25,6 +25,7 @@ namespace insomnia.compilation
     using static mana.runtime.ManaTypeCode;
     using static Spectre.Console.AnsiConsole;
     using Console = System.Console;
+    using mana.reflection;
 
     public class Compiler
     {
@@ -174,7 +175,7 @@ namespace insomnia.compilation
 
         public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc)
         {
-            CompileAnnotation(member, doc);
+            
             if (member.IsForwardedType)
             {
                 var result = ManaCore.All.
@@ -186,40 +187,51 @@ namespace insomnia.compilation
                     module.class_table.Add(clz);
 
                     clz.Includes.AddRange(doc.Includes);
+
+                    CompileAnnotation(member, doc, clz);
                     return clz;
                 }
 
                 throw new ForwardedTypeNotDefinedException(member.Identifier.ExpressionString);
             }
-            return module.DefineClass($"global::{doc.Name}/{member.Identifier.ExpressionString}").WithIncludes(doc.Includes);
+            var clazz = module.DefineClass($"global::{doc.Name}/{member.Identifier.ExpressionString}").WithIncludes(doc.Includes);
+            CompileAnnotation(member, doc, clazz);
+            return clazz;
         }
-        public void CompileAnnotation(FieldDeclarationSyntax field, DocumentDeclaration doc) =>
+        public void CompileAnnotation(FieldDeclarationSyntax field, DocumentDeclaration doc, IAspectable aspectable) =>
             CompileAnnotation(field.Annotations, x =>
-                $"aspect/{x.AnnotationKind}/class/{field.OwnerClass.Identifier}/field/{field.Field.Identifier}.", doc);
+                $"aspect/{x.AnnotationKind}/class/{field.OwnerClass.Identifier}/field/{field.Field.Identifier}.",
+                doc, aspectable, AspectTarget.Field);
 
-        public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc) =>
+        public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc, IAspectable aspectable) =>
             CompileAnnotation(method.Annotations, x =>
-                $"aspect/{x.AnnotationKind}/class/{method.OwnerClass.Identifier}/method/{method.Identifier}.", doc);
+                $"aspect/{x.AnnotationKind}/class/{method.OwnerClass.Identifier}/method/{method.Identifier}.",
+                doc, aspectable, AspectTarget.Method);
 
-        public void CompileAnnotation(ClassDeclarationSyntax clazz, DocumentDeclaration doc) =>
+        public void CompileAnnotation(ClassDeclarationSyntax clazz, DocumentDeclaration doc, IAspectable aspectable) =>
             CompileAnnotation(clazz.Annotations, x =>
-                $"aspect/{x.AnnotationKind}/class/{clazz.Identifier}.", doc);
+                $"aspect/{x.AnnotationKind}/class/{clazz.Identifier}.", doc, aspectable, AspectTarget.Class);
 
         private void CompileAnnotation(
             List<AnnotationSyntax> annotations,
             Func<AnnotationSyntax, string> nameGenerator,
-            DocumentDeclaration doc)
+            DocumentDeclaration doc, IAspectable aspectable,
+            AspectTarget target)
         {
             foreach (var annotation in annotations.TrimNull().Where(annotation => annotation.Args.Length != 0))
             {
+                var aspect = new Aspect(annotation.AnnotationKind.ToString(), target);
                 foreach (var (exp, index) in annotation.Args.Select((x, y) => (x, y)))
                 {
+                    
                     if (exp.CanOptimizationApply())
                     {
                         var optimized = exp.ForceOptimization();
                         var converter = optimized.GetTypeCode().GetConverter();
+                        var calculated = converter(optimized.ExpressionString);
                         module.WriteToConstStorage($"{nameGenerator(annotation)}_{index}",
-                            converter(optimized.ExpressionString));
+                            calculated);
+                        aspect.DefineArgument(index, calculated);
                     }
                     else
                     {
@@ -230,6 +242,7 @@ namespace insomnia.compilation
                                    $"{diff_err}");
                     }
                 }
+                aspectable.Aspects.Add(aspect);
             }
         }
 
@@ -294,7 +307,7 @@ namespace insomnia.compilation
         public (MethodBuilder method, MethodDeclarationSyntax syntax)
             CompileMethod(MethodDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
-            CompileAnnotation(member, doc);
+            
 
             var retType = FetchType(member.ReturnType, doc);
 
@@ -307,20 +320,22 @@ namespace insomnia.compilation
 
             method.Owner = clazz;
 
+            CompileAnnotation(member, doc, method);
+
             return (method, member);
         }
 
         public (ManaField field, FieldDeclarationSyntax member)
             CompileField(FieldDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
-            CompileAnnotation(member, doc);
-
             var fieldType = FetchType(member.Type, doc);
 
             if (fieldType is null)
                 return default;
 
             var field = clazz.DefineField(member.Field.Identifier.ExpressionString, GenerateFieldFlags(member), fieldType);
+
+            CompileAnnotation(member, doc, field);
             return (field, member);
         }
 

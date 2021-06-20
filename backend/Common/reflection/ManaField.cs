@@ -36,7 +36,7 @@ namespace mana.runtime
 
         public override string ToString() => $"{Class}.{Name}";
     }
-    public class ManaField : ManaMember
+    public class ManaField : ManaMember, IAspectable
     {
         public ManaField(ManaClass owner, FieldName fullName, FieldFlags flags, ManaClass fieldType)
         {
