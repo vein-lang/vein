@@ -51,6 +51,7 @@ namespace mana.backend.ishtar.light
                     return -2;
                 masterModule = IshtarAssembly.LoadFromFile(entry);
                 resolver.AddSearchPath(entry.Directory);
+                resolver.AddSearchPath(entry.Directory.SubDirectory("refs"));
             }
 
             var (_, code) = masterModule.Sections.First();

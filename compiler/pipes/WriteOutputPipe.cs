@@ -63,7 +63,8 @@ namespace mana.pipes
         new()
         {
             new WriteOutputPipe(),
-            new SingleFileOutputPipe()
+            new SingleFileOutputPipe(),
+            new CopySDKBinaries()
         };
 
 

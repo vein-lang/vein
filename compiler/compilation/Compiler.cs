@@ -57,7 +57,7 @@ namespace insomnia.compilation
             Project = project;
             var pack = project.SDK.GetPackByAlias(project.Runtime);
             resolver.AddSearchPath(new(project.WorkDir));
-            resolver.AddSearchPath(new(project.SDK.GetFullPath(pack)));
+            resolver.AddSearchPath(new(project.SDK.GetFullPath(pack).FullName));
         }
 
         internal ManaProject Project { get; set; }

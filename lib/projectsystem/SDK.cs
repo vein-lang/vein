@@ -21,12 +21,11 @@ namespace mana.project
         internal static DirectoryInfo SDKRoot =>
             new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".mana"));
 
-        public string GetFullPath(SDKPack sdkPack) =>
+        public DirectoryInfo GetFullPath(SDKPack sdkPack) =>
             SDKRoot.SubDirectory("sdk")
                 .SubDirectory($"{Name}-v{Version}")
                 .ThrowIfNotExist($"'{Name}-v{Version}' is not installed.")
-                .SubDirectory(sdkPack.Name)
-                .FullName;
+                .SubDirectory(sdkPack.Name);
 
         public SDKPack GetDefaultPack()
         {

@@ -17,7 +17,4 @@
     <ProjectReference Include="..\backend\mana.backend.ishtar.generator\mana.backend.ishtar.generator.csproj" />
     <ProjectReference Include="..\lib\projectsystem\mana.project.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="pipes\" />
-  </ItemGroup>
 </Project>
