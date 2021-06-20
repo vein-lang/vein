@@ -31,6 +31,31 @@ namespace mana.cmd
     {
         public override int Execute(CommandContext context, CompileSettings settings)
         {
+            if (settings.Project is null)
+            {
+                var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
+
+                var projects = curDir.EnumerateFiles("*.waproj");
+
+                if (projects.Count() == 0)
+                {
+                    MarkupLine($"[red]ERR[/]: Project not found in [orange]'{curDir.FullName}'[/] directory.");
+                    return -1;
+                }
+
+                if (projects.Count() > 1)
+                {
+                    MarkupLine($"[red]ERR[/]: Multiple project detected.");
+                    foreach(var p in projects)
+                        MarkupLine($"\t::[orange]'{p.Name}'[/] in [orange]'{curDir.FullName}'[/] directory.");
+                    MarkupLine($"[red]ERR[/]: Specify project in [orange]'manac build [[PROJECT]]'[/]");
+                    return -1;
+                }
+
+                settings.Project = projects.Single().FullName;
+            }
+
+
             var name = Path.GetFileName(settings.Project);
             if (!File.Exists(settings.Project))
             {
