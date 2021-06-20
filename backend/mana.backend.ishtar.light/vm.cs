@@ -341,7 +341,7 @@ namespace ishtar
                             ++ip;
                             var call_ctx = (CallContext)(*ip);
 
-                            if (call_ctx is not (CallContext.THIS_CALL or CallContext.NATIVE_CALL or CallContext.STATIC_CALL))
+                            if (call_ctx is not (CallContext.THIS_CALL or CallContext.NATIVE_CALL or CallContext.STATIC_CALL or CallContext.BACKWARD_CALL))
                                 throw new NotImplementedException();
                             var child_frame = new CallFrame();
                             ++ip;
