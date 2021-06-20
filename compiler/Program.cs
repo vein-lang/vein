@@ -3,6 +3,8 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using Spectre.Console.Cli;
@@ -11,17 +13,11 @@ using mana.cmd;
 using static System.Console;
 using static GitVersionInformation;
 using static Spectre.Console.AnsiConsole;
+using Spectre.Console;
+using Console = System.Console;
 
 [assembly: InternalsVisibleTo("wc_test")]
 
-
-if (Environment.GetEnvironmentVariable("WT_SESSION") == null && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-{
-    Environment.SetEnvironmentVariable($"RUNE_EMOJI_USE", "0");
-    Environment.SetEnvironmentVariable($"RUNE_COLOR_USE", "0");
-    Environment.SetEnvironmentVariable($"RUNE_NIER_USE", "0");
-    Environment.SetEnvironmentVariable($"NO_COLOR", "true");
-}
 
 
 if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
@@ -47,10 +43,12 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
 MarkupLine($"[grey]Mana compiler[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
 MarkupLine($"[grey]Copyright (C)[/] [cyan3]2021[/] [bold]Yuuki Wesp[/].\n\n");
 
-
 ColorShim.Apply();
 
 AppFlags.RegisterArgs(ref args);
+
+
+
 
 var app = new CommandApp();
 
