@@ -3,6 +3,10 @@
     "mana.backend.ishtar.light": {
       "commandName": "Project",
       "commandLineArgs": ".\\hello_world.wll"
+    },
+    "run test_case 00": {
+      "commandName": "Project",
+      "commandLineArgs": "O:\\wave_vm\\test\\mana_test\\00\\bin\\00.wll"
     }
   }
 }
