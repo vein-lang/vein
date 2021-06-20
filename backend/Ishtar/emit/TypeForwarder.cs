@@ -17,6 +17,10 @@ namespace mana.ishtar.emit
                     clazz.TypeCode = ManaTypeCode.TYPE_OBJECT;
                     ManaCore.ValueTypeClass = clazz;
                     break;
+                case "global::mana/lang/Array":
+                    clazz.TypeCode = ManaTypeCode.TYPE_ARRAY;
+                    ManaCore.ArrayClass = clazz;
+                    break;
                 case "global::mana/lang/Void":
                     clazz.TypeCode = ManaTypeCode.TYPE_VOID;
                     ManaCore.VoidClass = clazz;

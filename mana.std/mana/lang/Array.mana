@@ -1,5 +1,6 @@
 #space "mana/lang"
 
+[special, forwarded]
 public class Array
 {
     [native("!!value")]
