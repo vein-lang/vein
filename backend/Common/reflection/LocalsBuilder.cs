@@ -31,7 +31,7 @@ namespace mana.runtime
 
         #endregion
 
-        
+
         public static implicit operator LocalsBuilder(ManaClass[] arr)
         {
             var l = new LocalsBuilder();
