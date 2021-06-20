@@ -1,4 +1,4 @@
-namespace mana.project
+namespace mana
 {
     using System.IO;
     using System.Linq;
