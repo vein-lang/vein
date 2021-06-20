@@ -373,11 +373,14 @@ namespace insomnia.compilation
 
             foreach (var (exp, field) in pregen)
             {
-                if (exp is null)
-                    gen.Emit(OpCodes.LDNULL);
-                else
-                    gen.EmitExpression(exp);
-                gen.Emit(OpCodes.STF, field);
+                if (!field.Aspects.Any(x => x.Name.Equals("native", StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    if (exp is null)
+                        gen.Emit(OpCodes.LDNULL);
+                    else
+                        gen.EmitExpression(exp);
+                    gen.Emit(OpCodes.STF, field);
+                }
             }
         }
 
