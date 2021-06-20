@@ -30,7 +30,7 @@ namespace mana.backend.ishtar.light
             ManaCore.CharClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Char", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_CHAR };
             ManaCore.ArrayClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Array", ManaCore.ObjectClass, null) { TypeCode = ManaTypeCode.TYPE_ARRAY };
             ManaCore.ExceptionClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Exception", ManaCore.ObjectClass, null) { TypeCode = ManaTypeCode.TYPE_OBJECT };
-            
+
             INIT_ADDITIONAL_MAPPING();
         }
 
@@ -43,7 +43,7 @@ namespace mana.backend.ishtar.light
             (ManaCore.StringClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special | FieldFlags.Internal,
                     ManaCore.ValueTypeClass);
-            
+
             (ManaCore.ArrayClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special,
                     ManaCore.ValueTypeClass);
