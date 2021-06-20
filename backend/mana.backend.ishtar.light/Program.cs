@@ -20,8 +20,6 @@ namespace mana.backend.ishtar.light
         {
             foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>())
                 @class.init_vtable();
-
-            IshtarCore.INIT();
         }
 
         public static unsafe int Main(string[] args)
@@ -32,8 +30,7 @@ namespace mana.backend.ishtar.light
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Console.OutputEncoding = Encoding.Unicode;
             IshtarCore.INIT();
-            foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>())
-                @class.init_vtable();
+            INIT_VTABLES();
             IshtarGC.INIT();
             FFI.INIT();
 
@@ -89,6 +86,12 @@ namespace mana.backend.ishtar.light
                 level = 0
             };
 
+            {// i don't know why
+                IshtarCore.INIT_ADDITIONAL_MAPPING();
+                INIT_VTABLES();
+            }
+            
+            
 
             var watcher = Stopwatch.StartNew();
             VM.exec_method(frame);
