@@ -91,8 +91,8 @@ namespace mana.backend.ishtar.light
                 IshtarCore.INIT_ADDITIONAL_MAPPING();
                 INIT_VTABLES();
             }
-            
-            
+
+
 
             var watcher = Stopwatch.StartNew();
             VM.exec_method(frame);
