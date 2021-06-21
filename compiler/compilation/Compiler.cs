@@ -175,7 +175,7 @@ namespace insomnia.compilation
 
         public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc)
         {
-            
+
             if (member.IsForwardedType)
             {
                 var result = ManaCore.All.
@@ -223,7 +223,7 @@ namespace insomnia.compilation
                 var aspect = new Aspect(annotation.AnnotationKind.ToString(), target);
                 foreach (var (exp, index) in annotation.Args.Select((x, y) => (x, y)))
                 {
-                    
+
                     if (exp.CanOptimizationApply())
                     {
                         var optimized = exp.ForceOptimization();
@@ -307,7 +307,7 @@ namespace insomnia.compilation
         public (MethodBuilder method, MethodDeclarationSyntax syntax)
             CompileMethod(MethodDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
-            
+
 
             var retType = FetchType(member.ReturnType, doc);
 
