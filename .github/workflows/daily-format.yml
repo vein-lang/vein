@@ -14,7 +14,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
       - run: dotnet tool install -g dotnet-format
-      - run: dotnet format --fix-style warn --fix-analyzer warn
+      - run: dotnet format -a -w
       - name: Run dotnet format
         id: format 
         uses: jfversluis/dotnet-format@v1.0.5
