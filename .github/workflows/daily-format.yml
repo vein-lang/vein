@@ -1,7 +1,7 @@
 name: Daily code format check
 on:
-  push: 
-    branches: [ master ]
+  schedule:
+    - cron: 0 0 * * *
 jobs:
   dotnet-format:
     runs-on: windows-latest
