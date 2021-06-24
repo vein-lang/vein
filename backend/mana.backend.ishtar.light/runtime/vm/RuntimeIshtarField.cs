@@ -9,7 +9,7 @@ namespace ishtar
             base(owner, fullName, flags, fieldType)
         { }
 
-        public int vtable_offset;
+        public uint vtable_offset;
         public void* default_value;
 
 

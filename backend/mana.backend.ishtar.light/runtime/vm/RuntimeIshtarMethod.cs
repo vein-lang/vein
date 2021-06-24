@@ -8,7 +8,7 @@ namespace ishtar
         public MetaMethodHeader Header;
         public PInvokeInfo PIInfo;
 
-        public int vtable_offset;
+        public uint vtable_offset;
 
         internal RuntimeIshtarMethod(string name, MethodFlags flags, params ManaArgumentRef[] args)
             : base(name, flags, args) =>
