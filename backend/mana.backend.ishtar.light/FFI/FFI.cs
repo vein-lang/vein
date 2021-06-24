@@ -13,7 +13,7 @@ namespace ishtar
         {
             B_Out.InitTable(method_table);
             B_App.InitTable(method_table);
-            FE_IEEEConsts.InitTable(method_table);
+            B_IEEEConsts.InitTable(method_table);
         }
 
 

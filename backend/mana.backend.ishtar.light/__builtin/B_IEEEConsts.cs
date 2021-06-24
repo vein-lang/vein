@@ -4,7 +4,7 @@ namespace ishtar
     using mana.runtime;
     using static mana.runtime.MethodFlags;
     using static mana.runtime.ManaTypeCode;
-    public static unsafe class FE_IEEEConsts
+    public static unsafe class B_IEEEConsts
     {
         [IshtarExport(0, "getHalfNaN")]
         [IshtarExportFlags(Public | Static)]

@@ -65,10 +65,10 @@ namespace ishtar
 
         public struct Block : IEquatable<Block>
         {
-            public int offset_value;
-            public int offset_block;
-            public int offset_rank;
-            public int offset_size;
+            public uint offset_value;
+            public uint offset_block;
+            public uint offset_rank;
+            public uint offset_size;
 
             #region IEquatable<Block>
 
