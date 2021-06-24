@@ -14,4 +14,10 @@ public class Array
 
     [native("!!rank")]
     public Rank: Int64;
+
+
+    public toString(): String
+    {
+        return "Array";
+    }
 }
