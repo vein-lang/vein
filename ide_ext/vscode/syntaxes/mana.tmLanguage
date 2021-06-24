@@ -286,7 +286,7 @@
             <key>name</key>
             <string>storage.modifier</string>
             <key>match</key>
-            <string>\b(gc|new|delete|native|virtual|forwarded|getter|setter|public|special|protected|internal|private|static|readonly|const|extern|auto|extensions)\b</string>
+            <string>\b(gc|new|override|delete|native|virtual|forwarded|getter|setter|public|special|protected|internal|private|static|readonly|const|extern|auto|extensions)\b</string>
           </dict>
         </array>
       </dict>

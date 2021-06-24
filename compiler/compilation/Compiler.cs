@@ -852,6 +852,9 @@ namespace insomnia.compilation
                     case "internal":
                         flags |= MethodFlags.Internal;
                         continue;
+                    case "override":
+                        flags |= MethodFlags.Override;
+                        continue;
                     default:
                         PrintError(
                             $"In [orange]'{method.Identifier}'[/] method [red bold]{mod}[/] " +
