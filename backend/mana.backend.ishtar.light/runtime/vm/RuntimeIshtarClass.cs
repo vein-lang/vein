@@ -47,7 +47,9 @@ namespace ishtar
         public void** vtable = null;
         public ulong vtable_size = 0;
 
-        public debug_vtable dvtable = new debug_vtable();
+        #if DEBUG_VTABLE
+        public debug_vtable dvtable = new ();
+        
 
         public class debug_vtable
         {
@@ -55,7 +57,8 @@ namespace ishtar
             public ulong vtable_size = 0;
             public ulong computed_size = 0;
         }
-        
+        #endif
+
         public void init_vtable()
         {
             if (is_inited)
@@ -75,10 +78,12 @@ namespace ishtar
 
             computed_size += 2;
 
+            #if DEBUG_VTABLE
             dvtable.computed_size += (ulong)this.Methods.Count * 2;
             dvtable.computed_size += (ulong)this.Fields.Count * 2;
 
             dvtable.computed_size += 2;
+            #endif
 
             if (computed_size >= long.MaxValue) // fuck IntPtr ctor limit
             {
@@ -93,7 +98,10 @@ namespace ishtar
             }
 
             vtable = (void**)Marshal.AllocHGlobal(new IntPtr(sizeof(void*) * (long)computed_size));
+
+            #if DEBUG_VTABLE
             dvtable.vtable = new object[(long)computed_size];
+            #endif
             if (vtable == null)
             {
                 VM.FastFail(WNE.TYPE_LOAD, "Out of memory.");
@@ -104,10 +112,9 @@ namespace ishtar
             {
                 Unsafe.CopyBlock(vtable, p.vtable,
                     (uint)(sizeof(void*) * (uint)p.vtable_size));
-                for (var i = 0ul; i != p.dvtable.vtable_size; i++)
-                {
-                    dvtable.vtable[i] = p.dvtable.vtable[i];
-                }
+                #if DEBUG_VTABLE
+                for (var i = 0ul; i != p.dvtable.vtable_size; i++) dvtable.vtable[i] = p.dvtable.vtable[i];
+                #endif
             }
 
             var vtable_offset = (uint)(p?.computed_size - 1 ?? 0);
@@ -126,7 +133,9 @@ namespace ishtar
                 vtable[vtable_offset] = IshtarUnsafe.AsPointer(ref method);
                 method.vtable_offset = vtable_offset;
 
+                #if DEBUG_VTABLE
                 dvtable.vtable[vtable_offset] = method;
+                #endif
                 
                 if (p is null)
                     continue;
@@ -146,8 +155,10 @@ namespace ishtar
                     vtable[w.vtable_offset * 2] = vtable[w.vtable_offset];
                     vtable[w.vtable_offset] = vtable[vtable_offset];
 
+                    #if DEBUG_VTABLE
                     dvtable.vtable[w.vtable_offset * 2] = dvtable.vtable[w.vtable_offset];
                     dvtable.vtable[w.vtable_offset] = dvtable.vtable[vtable_offset];
+                    #endif
                 }
             }
 
@@ -167,7 +178,9 @@ namespace ishtar
                     vtable[vtable_offset] = get_field_default_value(field);
                     field.vtable_offset = vtable_offset;
 
+                    #if DEBUG_VTABLE
                     dvtable.vtable[vtable_offset] = $"DEFAULT_VALUE OF [{field.FullName}::{field.FieldType.Name}]";
+                    #endif
 
                     if (p is null)
                         continue;
@@ -187,8 +200,11 @@ namespace ishtar
                         vtable[w.vtable_offset * 2] = vtable[w.vtable_offset];
                         vtable[w.vtable_offset] = vtable[vtable_offset];
 
+
+                        #if DEBUG_VTABLE
                         dvtable.vtable[w.vtable_offset * 2] = dvtable.vtable[w.vtable_offset];
                         dvtable.vtable[w.vtable_offset] = dvtable.vtable[vtable_offset];
+                        #endif
                     }
                 }
             }
@@ -200,12 +216,16 @@ namespace ishtar
             if (p is null)
             {
                 vtable_size = computed_size;
+                #if DEBUG_VTABLE
                 dvtable.vtable_size = computed_size;
+                #endif
             }
             else
             {
                 vtable_size = computed_size - p.computed_size;
+                #if DEBUG_VTABLE
                 dvtable.vtable_size = dvtable.computed_size = p.dvtable.computed_size;
+                #endif
             }
         }
 

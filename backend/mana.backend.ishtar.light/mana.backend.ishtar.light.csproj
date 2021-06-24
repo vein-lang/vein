@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<AssemblyName>ishtar</AssemblyName>
-		<DefineConstants>STATIC_VALIDATE_IL</DefineConstants>
+		<DefineConstants>DEBUG;STATIC_VALIDATE_IL;DEBUG_VTABLE</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<TrimMode>link</TrimMode>
