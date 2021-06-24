@@ -13,16 +13,16 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
-
+      
       - name: Run dotnet format
-        id: format
+        id: format 
         uses: jfversluis/dotnet-format@v1.0.5
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.CODE_MAID_PAT }}
           action: "fix"
           #only-changed-files: true # only works for PRs
           workspace: "mana_lang.sln"
-    
+      - run: dotnet format -a -w --no-restore
       - name: Commit files
         if: steps.format.outputs.has-changes == 'true'
         run: |

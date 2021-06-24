@@ -46,7 +46,7 @@ namespace mana.cmd
                 if (projects.Count() > 1)
                 {
                     MarkupLine($"[red]ERR[/]: Multiple project detected.");
-                    foreach(var p in projects)
+                    foreach (var p in projects)
                         MarkupLine($"\t::[orange]'{p.Name}'[/] in [orange]'{curDir.FullName}'[/] directory.");
                     MarkupLine($"[red]ERR[/]: Specify project in [orange]'manac build [[PROJECT]]'[/]");
                     return -1;
