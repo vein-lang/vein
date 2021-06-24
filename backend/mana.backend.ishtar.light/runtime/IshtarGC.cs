@@ -132,6 +132,8 @@ namespace ishtar
 
 
             p->vtable = (void**)Marshal.AllocHGlobal(new IntPtr(sizeof(void*) * (long)@class.computed_size));
+            Unsafe.InitBlock(p->vtable, 0, (uint)(sizeof(void*) * (long)@class.computed_size));
+
             Unsafe.CopyBlock(p->vtable, @class.vtable, (uint)@class.computed_size * (uint)sizeof(void*));
             p->clazz = IshtarUnsafe.AsPointer(ref @class);
             p->vtable_size = (uint)@class.computed_size;
