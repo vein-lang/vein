@@ -53,6 +53,8 @@ namespace ishtar_test
 
         public unsafe CallFrame Execute(Action<ILGenerator, dynamic> ctor)
         {
+            if (VM.watcher is DefaultWatchDog)
+                VM.watcher = new TestWatchDog();
             lock (guarder)
             {
                 Bake();
@@ -111,7 +113,7 @@ namespace ishtar_test
     {
         private static ManaModuleBuilder _module_instance;
         private static ManaModule _corlib;
-        private static ManaModuleBuilder _module
+        protected static ManaModuleBuilder _module
         {
             get
             {
@@ -125,11 +127,13 @@ namespace ishtar_test
 
         protected IshtarTestBase()
         {
+            if (VM.watcher is DefaultWatchDog)
+                VM.watcher = new TestWatchDog();
             lock (guarder)
             {
                 if (!isInited)
                 {
-                    IshtarCore.INIT();
+                    ManaCore.Init();
                     IshtarGC.INIT();
                     FFI.INIT();
                     _corlib = LoadCorLib();
