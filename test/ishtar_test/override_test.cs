@@ -15,7 +15,7 @@ namespace ishtar_test
             var b1 = new RuntimeIshtarClass("tst%global::foo/bar1", ManaTypeCode.TYPE_OBJECT.AsRuntimeClass(), _module);
 
             var m1 = b1.DefineMethod("soq", ManaTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Virtual);
-            
+
             m1.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo1));
 
             var b2 = new RuntimeIshtarClass("tst%global::foo/bar2", b1, _module);
@@ -28,7 +28,7 @@ namespace ishtar_test
 
 
             ((delegate*<void>)b2.Method["soq()"].PIInfo.Addr)();
-            
+
 
 
             var result = IshtarGC.AllocObject(b2);
