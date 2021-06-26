@@ -159,6 +159,19 @@ namespace ishtar
         }
     }
 
+    public class CannotExistMainScopeException : Exception {}
+
+
+    public class ScopeTransit : IDisposable
+    {
+        private readonly ManaScope _scope;
+
+        public ScopeTransit(ManaScope scope) => _scope = scope;
+
+
+        public void Dispose() => _scope.ExitScope();
+    }
+
     public class ManaScope
     {
         public ManaScope TopScope { get; }
@@ -178,7 +191,20 @@ namespace ishtar
             owner.Scopes.Add(this);
         }
 
-        public ManaScope EnterScope() => new(Context, this);
+        public ManaScope ExitScope()
+        {
+            if (this.TopScope is null)
+                throw new CannotExistMainScopeException();
+            Context.CurrentScope = this.TopScope;
+            return this.TopScope;
+        }
+
+        public IDisposable EnterScope()
+        {
+            var result = new ManaScope(Context, this);
+            Context.CurrentScope = result;
+            return new ScopeTransit(result);
+        }
 
         public bool HasVariable(IdentifierExpression id)
             => variables.ContainsKey(id);
