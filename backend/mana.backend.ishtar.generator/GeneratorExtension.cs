@@ -638,8 +638,10 @@ namespace ishtar
 
                 return lt == rt ? lt : ExplicitConversion(lt, rt);
             }
-            if (exp is NewExpressionSyntax @new)
+            if (exp is NewExpressionSyntax { IsArray: false } @new)
                 return context.ResolveType(@new.TargetType.Typeword);
+            if (exp is NewExpressionSyntax { IsArray: true })
+                return ManaTypeCode.TYPE_ARRAY.AsClass();
             if (exp is ArgumentExpression { Value: MemberAccessExpression } arg)
                 return (arg.Value as MemberAccessExpression).ResolveType(context);
             if (exp is MemberAccessExpression member)
