@@ -34,6 +34,16 @@ namespace mana.syntax
             local_variable_declaration.Token().Positioned().Then(x => Parse.Char(';').Token().Return(x));
 
 
+        protected internal virtual Parser<StatementSyntax> foreach_statement =>
+            from k in KeywordExpression("foreach").Positioned().Token()
+            from ob in Parse.Char('(').Token()
+            from declaration in local_variable_declaration.Positioned().Token()
+            from keyword in KeywordExpression("in").Positioned().Token()
+            from exp in QualifiedExpression.Positioned().Token()
+            from cb in Parse.Char(')').Token()
+            from statement in embedded_statement.Token().Positioned()
+            select new ForeachStatementSyntax(declaration, exp, statement);
+
         protected internal virtual Parser<StatementSyntax> embedded_statement =>
             Block.Or(simple_embedded_statement);
 
@@ -43,6 +53,7 @@ namespace mana.syntax
             .Or(IfStatement)
             .Or(WhileStatement)
             .Or(ReturnStatement)
+            .Or(foreach_statement.Positioned())
             .Or(FailStatement)
             .Or(DeleteStatement);
 
