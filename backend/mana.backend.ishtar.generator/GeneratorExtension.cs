@@ -791,8 +791,48 @@ namespace ishtar
                 generator.EmitBinaryExpression((BinaryExpressionSyntax)qes2.Value);
             else if (statement is LocalVariableDeclaration localVariable)
                 generator.EmitLocalVariable(localVariable);
+            else if (statement is ForeachStatementSyntax @foreach)
+                generator.EmitForeach(@foreach);
             else
                 throw new NotImplementedException();
+        }
+
+
+        public static void EmitForeach(this ILGenerator generator, ForeachStatementSyntax @foreach)
+        {
+            var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
+
+            var type = @foreach.Expression.DetermineType(ctx);
+
+            generator.EmitLocalVariableWithType(@foreach.Variable, type);
+            using (ctx.CurrentScope.EnterScope())
+            {
+            }
+        }
+
+        public static void EmitLocalVariableWithType(this ILGenerator generator, LocalVariableDeclaration localVar, ManaClass type)
+        {
+            var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
+            var scope = ctx.CurrentScope;
+
+            if (!localVar.Body.IsEmpty)
+            {
+                ctx.LogError($"Local variable already defined type.", localVar);
+                return;
+            }
+
+            var locIndex = generator.EnsureLocal(localVar.Identifier.ExpressionString, type);
+
+            if (locIndex < 0)
+            {
+                ctx.LogError($"Too many variables in '{ctx.CurrentMethod.Name}' function.", localVar);
+                return;
+            }
+
+            scope.DefineVariable(localVar.Identifier, type, locIndex);
+
+            generator.Emit(OpCodes.LDNULL);
+            generator.Emit(OpCodes.STLOC_S, locIndex); // TODO optimization for STLOC_0,1,2 and etc
         }
 
         public static void EmitLocalVariable(this ILGenerator generator, LocalVariableDeclaration localVar)
