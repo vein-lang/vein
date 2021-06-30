@@ -19,6 +19,7 @@ namespace mana.runtime
         public ManaTypeCode TypeCode { get; set; } = TYPE_CLASS;
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE;
         public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
+        public virtual bool IsInterface => false;
         public ManaModule Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
 
@@ -29,19 +30,7 @@ namespace mana.runtime
             this.Owner = module;
         }
         protected ManaClass() { }
-
-        internal ManaMethod DefineMethod(string name, ManaClass returnType, MethodFlags flags, params ManaArgumentRef[] args)
-        {
-            var method = new ManaMethod(name, flags, returnType, this, args);
-            method.Arguments.AddRange(args);
-
-            if (Methods.Any(x => x.Name.Equals(method.Name)))
-                return Methods.First(x => x.Name.Equals(method.Name));
-
-            Methods.Add(method);
-            return method;
-        }
-
+        
         public bool IsSpecial => Flags.HasFlag(ClassFlags.Special);
         public bool IsPublic => Flags.HasFlag(ClassFlags.Public);
         public bool IsPrivate => Flags.HasFlag(ClassFlags.Private);
