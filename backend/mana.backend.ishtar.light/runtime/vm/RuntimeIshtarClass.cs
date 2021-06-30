@@ -98,15 +98,16 @@ namespace ishtar
             }
 
             vtable = (void**)Marshal.AllocHGlobal(new IntPtr(sizeof(void*) * (long)computed_size));
-
-#if DEBUG_VTABLE
-            dvtable.vtable = new object[(long)computed_size];
-#endif
+            
             if (vtable == null)
             {
                 VM.FastFail(WNE.TYPE_LOAD, "Out of memory.");
                 return;
             }
+
+#if DEBUG_VTABLE
+            dvtable.vtable = new object[(long)computed_size];
+#endif
 
             if (p is not null && p.vtable_size != 0)
             {
@@ -224,7 +225,7 @@ namespace ishtar
             {
                 vtable_size = computed_size - p.computed_size;
 #if DEBUG_VTABLE
-                dvtable.vtable_size = dvtable.computed_size = p.dvtable.computed_size;
+                dvtable.vtable_size = dvtable.computed_size - p.dvtable.computed_size;
 #endif
             }
         }
