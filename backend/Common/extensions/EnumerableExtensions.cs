@@ -7,6 +7,9 @@ namespace mana.extensions
 
     public static class IEnumerableExtensions
     {
+        public static ulong Sum<T>(this IEnumerable<T> enumerable, Func<T, ulong> selector)
+            => enumerable.Aggregate<T, ulong>(0, (current, v) => current + selector(v));
+
         public static string Join(this IEnumerable<char> enumerable)
             => string.Join("", enumerable);
         public static string Join(this IEnumerable<char> enumerable, string key)
