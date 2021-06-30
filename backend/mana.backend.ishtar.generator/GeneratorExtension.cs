@@ -159,7 +159,7 @@ namespace ishtar
         }
     }
 
-    public class CannotExistMainScopeException : Exception {}
+    public class CannotExistMainScopeException : Exception { }
 
 
     public class ScopeTransit : IDisposable
