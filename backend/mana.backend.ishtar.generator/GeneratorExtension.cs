@@ -38,13 +38,13 @@ namespace ishtar
             return this;
         }
 
-        public ManaScope CreateScope()
+        public IDisposable CreateScope()
         {
             if (CurrentScope is not null)
                 return CurrentScope.EnterScope();
             CurrentScope = new ManaScope(this);
             Scopes.Add(CurrentMethod, CurrentScope);
-            return CurrentScope;
+            return new ScopeTransit(CurrentScope);
         }
 
         public ManaClass ResolveType(TypeSyntax targetTypeTypeword)
@@ -164,12 +164,12 @@ namespace ishtar
 
     public class ScopeTransit : IDisposable
     {
-        private readonly ManaScope _scope;
+        public readonly ManaScope Scope;
 
-        public ScopeTransit(ManaScope scope) => _scope = scope;
+        public ScopeTransit(ManaScope scope) => Scope = scope;
 
 
-        public void Dispose() => _scope.ExitScope();
+        public void Dispose() => Scope.ExitScope();
     }
 
     public class ManaScope
