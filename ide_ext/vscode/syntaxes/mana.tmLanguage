@@ -286,7 +286,7 @@
             <key>name</key>
             <string>storage.modifier</string>
             <key>match</key>
-            <string>\b(gc|new|override|delete|native|virtual|forwarded|getter|setter|public|special|protected|internal|private|static|readonly|const|extern|auto|extensions)\b</string>
+            <string>\b(gc|new|override|contract|delete|native|virtual|forwarded|getter|setter|public|special|protected|internal|private|static|readonly|const|extern|auto|extensions)\b</string>
           </dict>
         </array>
       </dict>
@@ -370,7 +370,7 @@
       <key>class-declaration</key>
       <dict>
         <key>begin</key>
-        <string>\b(class|struct)\s+</string>
+        <string>\b(class|struct|contract|extensions|interface)\s+</string>
         <key>beginCaptures</key>
         <dict>
           <key>1</key>

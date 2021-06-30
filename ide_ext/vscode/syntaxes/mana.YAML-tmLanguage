@@ -96,7 +96,7 @@ repository:
     storage-modifier:
         patterns:
             - name: storage.modifier
-              match: '\b(gc|new|override|delete|native|virtual|forwarded|getter|setter|public|special|protected|internal|private|static|readonly|const|extern|auto|extensions)\b'
+              match: '\b(gc|new|override|contract|delete|native|virtual|forwarded|getter|setter|public|special|protected|internal|private|static|readonly|const|extern|auto|extensions)\b'
     union-declaration:
         begin: \b(union)\s+
         beginCaptures:
@@ -121,7 +121,7 @@ repository:
                   - include: "#comment"
                   - include: "#field-declaration"
     class-declaration:
-        begin: \b(class|struct)\s+
+        begin: \b(class|struct|contract|extensions|interface)\s+
         beginCaptures:
             "1":
                 name: keyword.other.class.mana
