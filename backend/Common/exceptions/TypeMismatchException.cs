@@ -4,6 +4,6 @@ namespace mana.exceptions
 
     public class TypeMismatchException : Exception
     {
-        
+
     }
 }

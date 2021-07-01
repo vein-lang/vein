@@ -39,7 +39,7 @@ namespace ishtar
 
             if (Methods.Any(x => x.Name.Equals(method.Name)))
                 throw new Exception();
-            
+
             Methods.Add(method);
             return method;
         }
@@ -100,7 +100,7 @@ namespace ishtar
             public ulong computed_size = 0;
         }
 #endif
-        
+
         private IEnumerable<RuntimeIshtarInterface> Flatten(IEnumerable<RuntimeIshtarInterface> e) =>
             e.SelectMany(c => Flatten(c.Parents)).Concat(e);
 
@@ -120,7 +120,7 @@ namespace ishtar
 
             computed_size += (ulong)this.Methods.Count;
             computed_size += (ulong)this.Fields.Count;
-            
+
 
 #if DEBUG_VTABLE
             dvtable.computed_size += (ulong)this.Methods.Count;

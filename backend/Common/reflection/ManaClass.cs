@@ -30,7 +30,7 @@ namespace mana.runtime
             this.Owner = module;
         }
         protected ManaClass() { }
-        
+
         public bool IsSpecial => Flags.HasFlag(ClassFlags.Special);
         public bool IsPublic => Flags.HasFlag(ClassFlags.Public);
         public bool IsPrivate => Flags.HasFlag(ClassFlags.Private);
