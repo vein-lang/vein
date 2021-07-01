@@ -79,7 +79,7 @@ namespace ishtar_test
         {
             if (VM.watcher is DefaultWatchDog)
                 VM.watcher = new TestWatchDog();
-            RuntimeModuleReader.ConstructIL(entry, code, stack_size);
+            RuntimeIshtarModule.ConstructIL(entry, code, stack_size);
             var args_ = stackalloc stackval[1];
             var frame = new CallFrame
             {

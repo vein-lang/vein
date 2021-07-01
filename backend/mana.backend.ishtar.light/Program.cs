@@ -12,8 +12,7 @@ namespace mana.backend.ishtar.light
     using global::ishtar;
     using runtime;
     using mana.ishtar.emit;
-
-
+    
     internal class Program
     {
         private static void INIT_VTABLES()
@@ -60,7 +59,7 @@ namespace mana.backend.ishtar.light
             resolver.AddSearchPath(new DirectoryInfo("./"));
 
 
-            var module = RuntimeModuleReader.Read(code, new List<ManaModule>(), (s, version) =>
+            var module = RuntimeIshtarModule.Read(code, new List<ManaModule>(), (s, version) =>
                 resolver.ResolveDep(s, version, new List<ManaModule>()));
 
             foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())

@@ -12,12 +12,12 @@ namespace ishtar
     using mana.ishtar.emit.extensions;
     using mana.reflection;
     using mana.runtime;
-    internal class RuntimeModuleReader : ManaModule
+    internal class RuntimeIshtarModule : ManaModule
     {
 
-        public static RuntimeModuleReader Read(byte[] arr, List<ManaModule> deps, Func<string, Version, ManaModule> resolver)
+        public static RuntimeIshtarModule Read(byte[] arr, List<ManaModule> deps, Func<string, Version, ManaModule> resolver)
         {
-            var module = new RuntimeModuleReader();
+            var module = new RuntimeIshtarModule();
             using var mem = new MemoryStream(arr);
             using var reader = new BinaryReader(mem);
             module.Deps.AddRange(deps);
@@ -135,22 +135,22 @@ namespace ishtar
         }
 
         // shit, todo: refactoring
-        public static void DistributionAspects(RuntimeModuleReader module)
+        public static void DistributionAspects(RuntimeIshtarModule ishtarModule)
         {
-            foreach (var aspect in module.aspects)
+            foreach (var aspect in ishtarModule.aspects)
             {
                 switch (aspect)
                 {
                     case AspectOfClass classAspect:
                         {
-                            foreach (var @class in module.class_table
+                            foreach (var @class in ishtarModule.class_table
                                 .Where(@class => @class.Name.Equals(classAspect.ClassName)))
                                 @class.Aspects.Add(aspect);
                             break;
                         }
                     case AspectOfMethod methodAspect:
                         {
-                            foreach (var method in module.class_table
+                            foreach (var method in ishtarModule.class_table
                                 .Where(@class => @class.Name.Equals(methodAspect.ClassName))
                                 .SelectMany(@class => @class.Methods
                                     .Where(method => method.RawName.Equals(methodAspect.MethodName))))
@@ -159,7 +159,7 @@ namespace ishtar
                         }
                     case AspectOfField fieldAspect:
                         {
-                            foreach (var field in module.class_table
+                            foreach (var field in ishtarModule.class_table
                                 .Where(@class => @class.Name.Equals(fieldAspect.ClassName))
                                 .SelectMany(@class => @class.Fields
                                     .Where(field => field.Name.Equals(fieldAspect.FieldName))))
@@ -170,17 +170,17 @@ namespace ishtar
             }
         }
 
-        public static RuntimeIshtarClass DecodeClass(byte[] arr, RuntimeModuleReader module)
+        public static RuntimeIshtarClass DecodeClass(byte[] arr, RuntimeIshtarModule ishtarModule)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
-            var className = binary.ReadTypeName(module);
+            var className = binary.ReadTypeName(ishtarModule);
             var flags = (ClassFlags)binary.ReadInt16();
-            var parentIdx = binary.ReadTypeName(module);
+            var parentIdx = binary.ReadTypeName(ishtarModule);
             var len = binary.ReadInt32();
 
             var @class = new RuntimeIshtarClass(className,
-                module.FindType(parentIdx, true, false), module)
+                ishtarModule.FindType(parentIdx, true, false), ishtarModule)
             {
                 Flags = flags
             };
@@ -189,29 +189,29 @@ namespace ishtar
             {
                 var body =
                     binary.ReadBytes(binary.ReadInt32());
-                var method = DecodeMethod(body, @class, module);
+                var method = DecodeMethod(body, @class, ishtarModule);
                 @class.Methods.Add(method);
             }
 
-            DecodeField(binary, @class, module);
+            DecodeField(binary, @class, ishtarModule);
 
             return @class;
         }
 
-        public static void DecodeField(BinaryReader binary, ManaClass @class, RuntimeModuleReader module)
+        public static void DecodeField(BinaryReader binary, ManaClass @class, RuntimeIshtarModule ishtarModule)
         {
             foreach (var _ in ..binary.ReadInt32())
             {
-                var name = FieldName.Resolve(binary.ReadInt32(), module);
-                var type_name = binary.ReadTypeName(module);
-                var type = module.FindType(type_name, true, false);
+                var name = FieldName.Resolve(binary.ReadInt32(), ishtarModule);
+                var type_name = binary.ReadTypeName(ishtarModule);
+                var type = ishtarModule.FindType(type_name, true, false);
                 var flags = (FieldFlags) binary.ReadInt16();
                 var method = new RuntimeIshtarField(@class, name, flags, type);
                 @class.Fields.Add(method);
             }
         }
 
-        public static unsafe RuntimeIshtarMethod DecodeMethod(byte[] arr, ManaClass @class, RuntimeModuleReader module)
+        public static unsafe RuntimeIshtarMethod DecodeMethod(byte[] arr, ManaClass @class, RuntimeIshtarModule ishtarModule)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -220,13 +220,13 @@ namespace ishtar
             var bodysize = binary.ReadInt32();
             var stacksize = binary.ReadByte();
             var locals = binary.ReadByte();
-            var retType = binary.ReadTypeName(module);
-            var args = ReadArguments(binary, module);
+            var retType = binary.ReadTypeName(ishtarModule);
+            var args = ReadArguments(binary, ishtarModule);
             var body = binary.ReadBytes(bodysize);
 
 
-            var mth = new RuntimeIshtarMethod(module.GetConstStringByIndex(idx), flags,
-                module.FindType(retType, true, false),
+            var mth = new RuntimeIshtarMethod(ishtarModule.GetConstStringByIndex(idx), flags,
+                ishtarModule.FindType(retType, true, false),
                 @class, args.ToArray());
 
             if (flags.HasFlag(MethodFlags.Extern))
@@ -277,22 +277,22 @@ namespace ishtar
         }
 
 
-        private static List<ManaArgumentRef> ReadArguments(BinaryReader binary, RuntimeModuleReader module)
+        private static List<ManaArgumentRef> ReadArguments(BinaryReader binary, RuntimeIshtarModule ishtarModule)
         {
             var args = new List<ManaArgumentRef>();
             foreach (var _ in ..binary.ReadInt32())
             {
                 var nIdx = binary.ReadInt32();
-                var type = binary.ReadTypeName(module);
+                var type = binary.ReadTypeName(ishtarModule);
                 args.Add(new ManaArgumentRef
                 {
-                    Name = module.GetConstStringByIndex(nIdx),
-                    Type = module.FindType(type, true, false)
+                    Name = ishtarModule.GetConstStringByIndex(nIdx),
+                    Type = ishtarModule.FindType(type, true, false)
                 });
             }
             return args;
         }
-        public RuntimeModuleReader() : base(null)
+        public RuntimeIshtarModule() : base(null)
         {
         }
     }

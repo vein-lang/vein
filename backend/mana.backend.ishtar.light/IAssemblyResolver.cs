@@ -34,7 +34,7 @@ namespace mana.backend.ishtar.light
         {
             var asm = Find(name, version, deps);
 
-            var module = RuntimeModuleReader.Read(asm.Sections.First().data, deps, (s, v) =>
+            var module = RuntimeIshtarModule.Read(asm.Sections.First().data, deps, (s, v) =>
                 ResolveDep(s, v, deps));
             return module;
         }
