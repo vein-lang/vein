@@ -40,9 +40,6 @@ namespace mana.ishtar.emit
 
             var list = new List<uint>();
             var d = new Dictionary<int, (int pos, OpCodeValue opcode)>();
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine($"decode il...");
-            Console.ForegroundColor = ConsoleColor.White;
 
             string PreviousValue(int index)
             {
@@ -66,9 +63,6 @@ namespace mana.ishtar.emit
                 if ((ushort)opcode == 0xFFFF)
                 {
                     *offset = (int)mem.Position;
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.WriteLine($"success\n");
-                    Console.ForegroundColor = ConsoleColor.White;
                     return (list, d);
                 }
 
