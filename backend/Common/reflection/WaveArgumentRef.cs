@@ -5,8 +5,6 @@ namespace mana.runtime
     public class ManaArgumentRef
     {
         public ManaClass Type { get; set; }
-        [Obsolete]
-        public RuntimeToken Token => RuntimeToken.Create(Name);
         public string Name { get; set; }
 
 
