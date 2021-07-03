@@ -33,8 +33,11 @@ namespace mana.backend.ishtar.light
             IshtarGC.INIT();
             FFI.INIT();
 
+            AppVault.CurrentVault = new AppVault("app");
+
             var masterModule = default(IshtarAssembly);
-            var resolver = new AssemblyResolver();
+            var resolver = AppVault.CurrentVault.GetResolver();
+
 
             if (AssemblyBundle.IsBundle(out var bundle))
             {
@@ -53,15 +56,14 @@ namespace mana.backend.ishtar.light
                 resolver.AddSearchPath(entry.Directory.SubDirectory("refs"));
             }
 
-            var (_, code) = masterModule.Sections.First();
+           
 
             resolver.AddSearchPath(new DirectoryInfo("/ManaLang"));
             resolver.AddSearchPath(new DirectoryInfo("./"));
 
 
-            var module = RuntimeIshtarModule.Read(code, new List<ManaModule>(), (s, version) =>
-                resolver.ResolveDep(s, version, new List<ManaModule>()));
-
+            var module = resolver.Resolve(masterModule);
+            
             foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())
             {
                 @class.init_vtable();
