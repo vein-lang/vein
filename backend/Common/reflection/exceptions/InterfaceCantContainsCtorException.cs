@@ -2,5 +2,5 @@ namespace mana.runtime
 {
     using System;
 
-    public class InterfaceCantContainsCtorException : Exception {}
+    public class InterfaceCantContainsCtorException : Exception { }
 }

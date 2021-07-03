@@ -108,7 +108,7 @@ namespace ishtar
             }
 
             vtable = (void**)Marshal.AllocHGlobal(new IntPtr(sizeof(void*) * (long)computed_size));
-            
+
             if (vtable == null)
             {
                 VM.FastFail(WNE.TYPE_LOAD, "Out of memory.");
