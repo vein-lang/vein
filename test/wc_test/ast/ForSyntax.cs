@@ -46,9 +46,9 @@ namespace wc_test.ast
 
             Assert.Equal(SyntaxType.ForEachStatement, @foreach.Kind);
 
-            var variable = Assert.IsType<IdentifierExpression>(@foreach.Variable);
+            var variable = Assert.IsType<LocalVariableDeclaration>(@foreach.Variable);
 
-            Assert.Equal("i", variable.ExpressionString);
+            Assert.Equal("i", variable.Identifier.ExpressionString);
 
             var exp = Assert.IsType<IdentifierExpression>(@foreach.Expression);
 
