@@ -28,18 +28,21 @@ namespace mana.ishtar.emit
             this.FullName = clazz.FullName;
             this.Parent = clazz.Parent;
             this.TypeCode = clazz.TypeCode;
+            this.Owner = module;
         }
         internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, ManaTypeCode parent = ManaTypeCode.TYPE_OBJECT)
         {
             this.FullName = name;
             moduleBuilder = module;
             this.Parent = parent.AsClass();
+            this.Owner = module;
         }
         internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, ManaClass parent)
         {
             this.FullName = name;
             moduleBuilder = module;
             this.Parent = parent;
+            this.Owner = module;
         }
         /// <summary>
         /// Get class <see cref="QualityTypeName"/>.
