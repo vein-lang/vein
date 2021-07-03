@@ -292,8 +292,7 @@ namespace ishtar
             }
             return args;
         }
-        public RuntimeIshtarModule() : base(null)
-        {
-        }
+        public RuntimeIshtarModule(AppVault vault) : base(null) => Vault = vault;
+        public RuntimeIshtarModule(AppVault vault, string name) : base(name) => Vault = vault;
     }
 }
