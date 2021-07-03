@@ -101,14 +101,10 @@ namespace mana.ishtar.emit
         }
 
         #region Arg&Locals manage (NEED REFACTORING)
-
-        internal ulong? FindArgumentField(FieldName @ref)
-            => getArg(@ref)?.type?.Token?.Value;
+        
         internal int? GetArgumentIndex(FieldName @ref)
             => getArg(@ref)?.idx;
-
-        internal ulong? FindLocalField(FieldName @ref) =>
-            getLocal(@ref)?.arg?.Token?.Value;
+        
         internal int? GetLocalIndex(FieldName @ref)
             => getLocal(@ref)?.idx;
         private (int idx, ManaArgumentRef arg)? getLocal(FieldName @ref)
