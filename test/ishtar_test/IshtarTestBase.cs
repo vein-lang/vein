@@ -9,77 +9,82 @@ namespace ishtar_test
     using ishtar;
     using mana.backend.ishtar.light;
     using mana.extensions;
+    using mana.fs;
     using mana.ishtar.emit;
     using mana.runtime;
     using Xunit;
+
+    public static class IshtarRuntimeModuleEx
+    {
+        public static RuntimeIshtarMethod GetEntryPoint(this RuntimeIshtarModule module, string name)
+        {
+            foreach (var method in module.class_table.SelectMany(x => x.Methods))
+            {
+                if (!method.IsStatic)
+                    continue;
+                if (method.Name == $"{name}()")
+                    return (RuntimeIshtarMethod)method;
+            }
+
+            return null;
+        }
+    }
 
     public class IshtarTestContext : IDisposable
     {
         private readonly string _testCase;
         private readonly ManaModuleBuilder _module;
-        private short _stack_size = 48;
-        private Action<RuntimeIshtarClass, dynamic> _classCtor;
+        private Action<ClassBuilder, dynamic> _classCtor;
         private readonly dynamic _context;
         private ClassBuilder @class;
-        private RuntimeIshtarClass runtime_class;
         private static readonly object guarder = new ();
         internal string UID { get; }
-
-        public IshtarTestContext WithStackSize(short size = 48)
-        {
-            _stack_size = size;
-            return this;
-        }
-
-        public IshtarTestContext OnClassBuild(Action<RuntimeIshtarClass, dynamic> action)
+        
+        public IshtarTestContext OnClassBuild(Action<ClassBuilder, dynamic> action)
         {
             _classCtor = action;
             return this;
         }
-
-        private bool isBaked { get; set; }
-
-        public void Bake()
+        
+        private void OnCodeBuild(Action<ILGenerator, dynamic> ctor) 
         {
-            if (isBaked) return;
             @class = _module.DefineClass($"global::test/testClass_{_testCase}_{UID}");
-            runtime_class = new RuntimeIshtarClass(@class.FullName, @class.Parent, _module);
-            _module.InternTypeName(runtime_class.FullName);
-            _module.class_table.Remove(@class);
-            _module.class_table.Add(runtime_class);
-            _classCtor?.Invoke(runtime_class, _context);
-            isBaked = true;
+            _classCtor?.Invoke(@class, _context);
+            var _method = @class.DefineMethod($"master_{_testCase}_{UID}", MethodFlags.Public | MethodFlags.Static,
+                ManaTypeCode.TYPE_OBJECT.AsClass());
+
+            var gen = _method.GetGenerator();
+            ctor(gen, _context);
         }
+
 
         public unsafe CallFrame Execute(Action<ILGenerator, dynamic> ctor)
         {
             if (VM.watcher is DefaultWatchDog)
                 VM.watcher = new TestWatchDog();
+            AppVault.CurrentVault ??= new AppVault("<test-app>");
             lock (guarder)
             {
-                Bake();
-                var _method = @class.DefineMethod($"master_{_testCase}_{UID}", MethodFlags.Public | MethodFlags.Static,
-                    ManaTypeCode.TYPE_OBJECT.AsClass());
+                var resolver = AppVault.CurrentVault.GetResolver();
 
-                var gen = _method.GetGenerator();
-                ctor(gen, _context);
-                var code = gen.BakeByteArray();
+                OnCodeBuild(ctor);
 
-                var entry_point = new RuntimeIshtarMethod($"master_{_testCase}_{UID}", MethodFlags.Public | MethodFlags.Static,
-                    ManaTypeCode.TYPE_OBJECT.AsClass())
-                { Owner = runtime_class };
+                var runtimeModule = resolver.Resolve(new IshtarAssembly(_module));
 
-                entry_point.Owner.Owner = _module;
-                runtime_class.init_vtable();
-                return RunIt(entry_point, code, _stack_size);
+                var entry_point = runtimeModule.GetEntryPoint($"master_{_testCase}_{UID}");
+                IshtarCore.INIT_ADDITIONAL_MAPPING();
+                foreach (var c in ManaCore.All.OfType<RuntimeIshtarClass>())
+                    c.init_vtable();
+                foreach (var c in runtimeModule.class_table.OfType<RuntimeIshtarClass>())
+                    c.init_vtable();
+                return RunIt(entry_point);
             }
         }
 
-        private static unsafe CallFrame RunIt(RuntimeIshtarMethod entry, byte[] code, short stack_size)
+        private static unsafe CallFrame RunIt(RuntimeIshtarMethod entry)
         {
             if (VM.watcher is DefaultWatchDog)
                 VM.watcher = new TestWatchDog();
-            RuntimeIshtarModule.ConstructIL(entry, code, stack_size);
             var args_ = stackalloc stackval[1];
             var frame = new CallFrame
             {
@@ -129,6 +134,7 @@ namespace ishtar_test
         {
             if (VM.watcher is DefaultWatchDog)
                 VM.watcher = new TestWatchDog();
+            AppVault.CurrentVault ??= new AppVault("<test-app>");
             lock (guarder)
             {
                 if (!isInited)
@@ -149,7 +155,7 @@ namespace ishtar_test
 
         private static ManaModule LoadCorLib()
         {
-            var resolver = new AssemblyResolver();
+            var resolver = AppVault.CurrentVault.GetResolver();
             resolver.AddSearchPath(new DirectoryInfo("./"));
             return resolver.ResolveDep("corlib", new Version(1, 0, 0), new List<ManaModule>());
         }
@@ -159,10 +165,7 @@ namespace ishtar_test
 
         protected IshtarTestContext CreateContext([CallerMemberName] string caller = "<unnamed>")
             => new(caller, _module);
-        void IDisposable.Dispose()
-        {
-            Shutdown();
-        }
+        void IDisposable.Dispose() => Shutdown();
 
         protected void Validate()
         {
