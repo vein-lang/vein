@@ -10,6 +10,8 @@ namespace ishtar
     /// </summary>
     public record RuntimeToken(uint Value)
     {
+        public static readonly RuntimeToken Default = new (0);
+
         public ushort ModuleID { get; }
         public ushort ClassID { get; }
 
