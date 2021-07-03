@@ -9,14 +9,15 @@ namespace mana.backend.ishtar.light
     using runtime;
     using mana.ishtar.emit;
 
+    public delegate void ModuleResolvedEvent(RuntimeIshtarModule module);
+
     public class AssemblyResolver : IAssemblyResolver
     {
+        public AppVault Vault { get; }
         private readonly List<DirectoryInfo> search_paths = new ();
         private AssemblyBundle assemblyBundle;
-        public AssemblyResolver()
-        {
-
-        }
+        public event ModuleResolvedEvent Resolved;
+        public AssemblyResolver(AppVault vault) => Vault = vault;
 
         public AssemblyResolver AddSearchPath(DirectoryInfo dir)
         {
@@ -34,8 +35,20 @@ namespace mana.backend.ishtar.light
         {
             var asm = Find(name, version, deps);
 
-            var module = RuntimeIshtarModule.Read(asm.Sections.First().data, deps, (s, v) =>
+            var module = RuntimeIshtarModule.Read(Vault, asm.Sections.First().data, deps, (s, v) =>
                 ResolveDep(s, v, deps));
+            Resolved?.Invoke(module);
+            return module;
+        }
+
+        public RuntimeIshtarModule Resolve(IshtarAssembly assembly)
+        {
+            var (_, code) = assembly.Sections.First();
+            var module = RuntimeIshtarModule.Read(Vault, code, new List<ManaModule>(), (s, version) =>
+                this.ResolveDep(s, version, new List<ManaModule>()));
+
+            Resolved?.Invoke(module);
+
             return module;
         }
 
