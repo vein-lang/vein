@@ -8,20 +8,14 @@ namespace wc_test
     using mana.runtime;
     using mana.stl;
     using mana.syntax;
-    using Xunit;
-    using Xunit.Abstractions;
+    using NUnit.Framework;
 
     public class expression_test
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-        public static ManaSyntax Sytnax => new();
+        public static ManaSyntax Syntax => new();
+        
 
-        public expression_test(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
-
-        [Fact(DisplayName = "(40 + 50)")]
+        [Test(Description = "(40 + 50)")]
         public void F00()
         {
             var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 40);
@@ -29,13 +23,13 @@ namespace wc_test
 
             var result = ManaExpression.Add(f1, f2);
 
-            _testOutputHelper.WriteLine(result.ToString());
+            Console.WriteLine(result.ToString());
 
             var type = result.DetermineType(null);
 
-            Assert.Equal(ManaTypeCode.TYPE_I4, type.TypeCode);
+            Assert.AreEqual(ManaTypeCode.TYPE_I4, type.TypeCode);
         }
-        [Fact(DisplayName = "((40 + 50) - 50)")]
+        [Test(Description = "((40 + 50) - 50)")]
         public void F01()
         {
             var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 40);
@@ -45,15 +39,15 @@ namespace wc_test
 
             var result = ManaExpression.Sub(f3, f2);
 
-            _testOutputHelper.WriteLine(result.ToString());
+            Console.WriteLine(result.ToString());
 
             var type = result.DetermineType(null);
 
-            _testOutputHelper.WriteLine($"result: {result.ForceOptimization().ExpressionString}");
+            Console.WriteLine($"result: {result.ForceOptimization().ExpressionString}");
 
-            Assert.Equal(ManaTypeCode.TYPE_I4, type.TypeCode);
+            Assert.AreEqual(ManaTypeCode.TYPE_I4, type.TypeCode);
         }
-        [Fact(DisplayName = "(((40 - (40 + 50)) / (40 + 50)) - ((40 - (40 + 50)) / (40 + 50)))")]
+        [Test(Description = "(((40 - (40 + 50)) / (40 + 50)) - ((40 - (40 + 50)) / (40 + 50)))")]
         public void F02()
         {
             var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 40);
@@ -65,14 +59,14 @@ namespace wc_test
 
             var result = ManaExpression.Sub(f5, f5);
 
-            _testOutputHelper.WriteLine(result.ToString());
+            Console.WriteLine(result.ToString());
 
             var type = result.DetermineType(null);
 
-            Assert.Equal(ManaTypeCode.TYPE_I4, type.TypeCode);
+            Assert.AreEqual(ManaTypeCode.TYPE_I4, type.TypeCode);
         }
 
-        [Fact(DisplayName = "(((40 - (40 + 50)) / (40 + 50)) && ((40 - (40 + 50)) / (40 + 50)))")]
+        [Test(Description = "(((40 - (40 + 50)) / (40 + 50)) && ((40 - (40 + 50)) / (40 + 50)))")]
         public void F03()
         {
             var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 40);
@@ -84,14 +78,14 @@ namespace wc_test
 
             var result = ManaExpression.AndAlso(f5, f5);
 
-            _testOutputHelper.WriteLine(result.ToString());
+            Console.WriteLine(result.ToString());
 
             var type = result.DetermineType(null);
 
-            Assert.Equal(ManaTypeCode.TYPE_BOOLEAN, type.TypeCode);
+            Assert.AreEqual(ManaTypeCode.TYPE_BOOLEAN, type.TypeCode);
         }
 
-        [Fact]
+        [Test]
         public void F04()
         {
             var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I8, 40);
@@ -99,14 +93,14 @@ namespace wc_test
 
             var result = ManaExpression.AndAlso(f1, f2);
 
-            _testOutputHelper.WriteLine(result.ToString());
+            Console.WriteLine(result.ToString());
 
             var type = result.DetermineType(null);
 
-            Assert.Equal(ManaTypeCode.TYPE_BOOLEAN, type.TypeCode);
+            Assert.AreEqual(ManaTypeCode.TYPE_BOOLEAN, type.TypeCode);
         }
 
-        [Fact]
+        [Test]
         public void F05()
         {
             var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I8, long.MaxValue - 200);
@@ -114,14 +108,14 @@ namespace wc_test
 
             var result = ManaExpression.Sub(f1, f2);
 
-            _testOutputHelper.WriteLine(result.ToString());
+            Console.WriteLine(result.ToString());
 
             var type = result.DetermineType(null);
 
-            Assert.Equal(ManaTypeCode.TYPE_I8, type.TypeCode);
+            Assert.AreEqual(ManaTypeCode.TYPE_I8, type.TypeCode);
         }
 
-        [Fact]
+        [Test]
         public void F06()
         {
             var f1 = ManaExpression.Const(ManaTypeCode.TYPE_STRING, "Foo");
@@ -129,14 +123,14 @@ namespace wc_test
 
             var result = ManaExpression.Sub(f1, f2);
 
-            _testOutputHelper.WriteLine(result.ToString());
+            Console.WriteLine(result.ToString());
 
 
             Assert.Throws<Exception>(() => result.DetermineType(null));
         }
 
 
-        [Fact(Skip = "TODO")]
+        [Test, Ignore("TODO")]
         public void DetermineVariableType()
         {
             var genCtx = new GeneratorContext();
@@ -149,19 +143,19 @@ namespace wc_test
             genCtx.CurrentScope.DefineVariable(new IdentifierExpression("idi"), ManaTypeCode.TYPE_BOOLEAN.AsClass(), 0);
 
             var key = $"idi";
-            var id = Sytnax.QualifiedExpression.End().ParseMana(key) as IdentifierExpression;
+            var id = Syntax.QualifiedExpression.End().ParseMana(key) as IdentifierExpression;
             var result = new MemberAccessExpression(id, Array.Empty<ExpressionSyntax>(), Array.Empty<ExpressionSyntax>());
 
             var chain = result.GetChain().ToArray();
 
-            Assert.NotEmpty(chain);
+            IshtarAssert.NotEmpty(chain);
 
             var type = result.DetermineType(genCtx);
 
-            Assert.Equal(ManaTypeCode.TYPE_BOOLEAN, type.TypeCode);
+            Assert.AreEqual(ManaTypeCode.TYPE_BOOLEAN, type.TypeCode);
         }
 
-        [Fact]
+        [Test]
         public void DetermineSelfMethodType()
         {
             var genCtx = new GeneratorContext();
@@ -172,22 +166,22 @@ namespace wc_test
             genCtx.CurrentScope = new ManaScope(genCtx);
 
             var key = $"ata()";
-            var result = Sytnax.QualifiedExpression.End().ParseMana(key) as MemberAccessExpression;
+            var result = Syntax.QualifiedExpression.End().ParseMana(key) as MemberAccessExpression;
 
             Assert.NotNull(result);
 
             var chain = result.GetChain().ToArray();
 
-            Assert.NotEmpty(chain);
+            IshtarAssert.NotEmpty(chain);
 
             var type = result.DetermineType(genCtx);
 
-            Assert.Empty(genCtx.Errors);
+            Assert.IsEmpty(genCtx.Errors);
 
-            Assert.Equal(ManaTypeCode.TYPE_VOID, type.TypeCode);
+            Assert.AreEqual(ManaTypeCode.TYPE_VOID, type.TypeCode);
         }
 
-        [Fact(Skip = "Bug in CI, System.InvalidOperationException : There is no currently active test.")]
+        [Test, Ignore("Bug in CI, System.InvalidOperationException : There is no currently active test.")]
         public void DetermineOtherMethodType()
         {
             var genCtx = new GeneratorContext();
@@ -205,7 +199,7 @@ namespace wc_test
 
             genCtx.CurrentScope.DefineVariable(new IdentifierExpression("ow"), anotherClass, 0);
 
-            var result = Sytnax.QualifiedExpression
+            var result = Syntax.QualifiedExpression
                     .End()
                     .ParseMana("ow.gota()")
                 as MemberAccessExpression;
@@ -214,14 +208,14 @@ namespace wc_test
 
             var chain = result.GetChain().ToArray();
 
-            Assert.NotEmpty(chain);
+            IshtarAssert.NotEmpty(chain);
 
             var type = result.DetermineType(genCtx);
 
 
-            Assert.Empty(genCtx.Errors);
+            Assert.IsEmpty(genCtx.Errors);
 
-            Assert.Equal(ManaTypeCode.TYPE_I1, type.TypeCode);
+            Assert.AreEqual(ManaTypeCode.TYPE_I1, type.TypeCode);
 
         }
     }

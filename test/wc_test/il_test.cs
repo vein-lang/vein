@@ -4,11 +4,11 @@ namespace wc_test
     using ishtar;
     using mana.ishtar.emit;
     using mana.runtime;
-    using Xunit;
+    using NUnit.Framework;
 
     public class il_test
     {
-        [Fact]
+        [Test]
         public void DeconstructOpcodes1()
         {
             var gen = CreateGenerator();
@@ -20,11 +20,11 @@ namespace wc_test
             var (result, _) = ILReader.Deconstruct(gen.BakeByteArray(), null);
 
 
-            Assert.Equal(OpCodes.ADD.Value, result[0]);
-            Assert.Equal(OpCodes.DIV.Value, result[1]);
-            Assert.Equal(OpCodes.LDARG_0.Value, result[2]);
+            Assert.AreEqual(OpCodes.ADD.Value, result[0]);
+            Assert.AreEqual(OpCodes.DIV.Value, result[1]);
+            Assert.AreEqual(OpCodes.LDARG_0.Value, result[2]);
         }
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void DeconstructOpcodes2()
         {
             var gen = CreateGenerator();
@@ -35,13 +35,13 @@ namespace wc_test
             var (result, _) = ILReader.Deconstruct(gen.BakeByteArray(), null);
 
 
-            Assert.Equal(OpCodes.LDC_I4_S.Value, result[0]);
-            Assert.Equal((uint)1448, result[1]);
-            Assert.Equal(OpCodes.LDC_I4_S.Value, result[2]);
-            Assert.Equal((uint)228, result[3]);
+            Assert.AreEqual(OpCodes.LDC_I4_S.Value, result[0]);
+            Assert.AreEqual((uint)1448, result[1]);
+            Assert.AreEqual(OpCodes.LDC_I4_S.Value, result[2]);
+            Assert.AreEqual((uint)228, result[3]);
         }
 
-        [Fact]
+        [Test]
         public unsafe void LocalsGeneratorTest()
         {
             var gen = CreateGenerator();
@@ -62,7 +62,7 @@ namespace wc_test
         }
 
 
-        [Fact]
+        [Test]
         public unsafe void DeconstructOpcodes3()
         {
             var gen = CreateGenerator();
@@ -92,11 +92,11 @@ namespace wc_test
 
             var first_label = result[map[labels[0]].pos];
 
-            Assert.Equal(first_label, OpCodes.SUB.Value);
-            //Assert.Equal(second_label, OpCodes.SUB.Value);
-            Assert.Equal(OpCodes.ADD.Value, result[0]);
-            Assert.Equal(OpCodes.LDC_I4_S.Value, result[1]);
-            Assert.Equal((uint)228, result[2]);
+            Assert.AreEqual(first_label, OpCodes.SUB.Value);
+            //Assert.AreEqual(second_label, OpCodes.SUB.Value);
+            Assert.AreEqual(OpCodes.ADD.Value, result[0]);
+            Assert.AreEqual(OpCodes.LDC_I4_S.Value, result[1]);
+            Assert.AreEqual((uint)228, result[2]);
         }
 
 

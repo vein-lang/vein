@@ -10,7 +10,7 @@ namespace wc_test
     using mana.ishtar.emit;
     using mana.project;
     using mana.runtime;
-    using Xunit;
+    using NUnit.Framework;
 
     public class module_test
     {
@@ -45,7 +45,7 @@ namespace wc_test
             list.Add(stl);
             return list;
         }
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void WriteTest()
         {
             var verSR = new Version(2, 2, 2, 2);
@@ -104,7 +104,7 @@ namespace wc_test
             }
         }
 
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void ReadTest()
         {
             //var target = new FileInfo(@"C:/wavelib/set2.wll");
@@ -125,7 +125,7 @@ namespace wc_test
             //var result = ModuleReader.Read(bytes, deps, (x,z) => resolver.ResolveDep(x,z,deps));
         }
 
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void ReaderTest()
         {
             //var deps = GetDeps();
@@ -142,14 +142,14 @@ namespace wc_test
             //var result = ModuleReader.Read(bytes, deps, (x,z) => sdk.ResolveDep(x,z,deps));
 
 
-            //Assert.Equal("aspera", result.Name);
-            //Assert.NotEmpty(result.class_table);
+            //Assert.AreEqual("aspera", result.Name);
+            //IshtarAssert.NotEmpty(result.class_table);
             //var @class = result.class_table.First();
-            //Assert.Equal("DR", @class.Name);
-            //Assert.Equal("aspera%global::wave/lang/DR", @class.FullName.fullName);
-            //Assert.NotEmpty(@class.Methods);
+            //Assert.AreEqual("DR", @class.Name);
+            //Assert.AreEqual("aspera%global::wave/lang/DR", @class.FullName.fullName);
+            //IshtarAssert.NotEmpty(@class.Methods);
             //var method = @class.Methods.First();
-            //Assert.Equal("blank()", method.Name);
+            //Assert.AreEqual("blank()", method.Name);
         }
     }
 }

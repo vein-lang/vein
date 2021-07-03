@@ -4,16 +4,11 @@ namespace wc_test
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Threading;
-    using Xunit;
-    using Xunit.Abstractions;
+    using NUnit.Framework;
 
     public unsafe class vtable_experement
     {
-        private static ITestOutputHelper console;
-
-        public vtable_experement(ITestOutputHelper testOutputHelper) => console = testOutputHelper;
-
-        [Fact]
+        [Test]
         public void F1()
         {
             var f = new delegate*<void>[] { &Foo, &Bar };
@@ -40,7 +35,7 @@ namespace wc_test
             public int i;
         }
 
-        [Fact]
+        [Test]
         public unsafe void F3()
         {
             var vtable = (void**)Marshal.AllocHGlobal(new IntPtr(sizeof(void*) * 12));
@@ -56,7 +51,7 @@ namespace wc_test
         {
             public string Soo = "test";
         }
-        [Fact]
+        [Test]
         public unsafe void F4()
         {
             var x = new XID();
@@ -71,15 +66,15 @@ namespace wc_test
 
         public static void Foo()
         {
-            console.WriteLine("Foo");
+            Console.WriteLine("Foo");
         }
         public static void Bar()
         {
-            console.WriteLine("Bar");
+            Console.WriteLine("Bar");
         }
         public static void FooOverride()
         {
-            console.WriteLine("FooOverride");
+            Console.WriteLine("FooOverride");
         }
     }
 }

@@ -13,19 +13,11 @@ namespace wc_test
     using mana.runtime;
     using mana.stl;
     using mana.syntax;
-    using Xunit;
-    using Xunit.Abstractions;
+    using NUnit.Framework;
 
     public class generator_test
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        public generator_test(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
-
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void Test()
         {
             var module = new ManaModuleBuilder("xuy");
@@ -69,7 +61,7 @@ namespace wc_test
 
         }
 
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void TestIL()
         {
             var module = new ManaModuleBuilder("xuy");
@@ -98,7 +90,7 @@ namespace wc_test
 
             //IshtarAssembly.WriteTo(asm, new DirectoryInfo(@"C:\Users\ls-mi\Desktop\"));
         }
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void AST2ILTest()
         {
             var w = new ManaSyntax();
@@ -127,7 +119,7 @@ namespace wc_test
             }
         }
 
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void ReturnStatementCompilation1()
         {
             var ret = new ReturnStatementSyntax
@@ -146,10 +138,10 @@ namespace wc_test
             expected.Emit(OpCodes.RET);
 
 
-            Assert.Equal(expected.BakeByteArray(), actual.BakeByteArray());
+            Assert.AreEqual(expected.BakeByteArray(), actual.BakeByteArray());
         }
 
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void ReturnStatementCompilation2()
         {
             var ret = new ReturnStatementSyntax
@@ -168,10 +160,10 @@ namespace wc_test
             expected.Emit(OpCodes.RET);
 
 
-            Assert.Equal(expected.BakeByteArray(), actual.BakeByteArray());
+            Assert.AreEqual(expected.BakeByteArray(), actual.BakeByteArray());
         }
 
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void ReturnStatementCompilation3()
         {
             var ret = new ReturnStatementSyntax
@@ -192,7 +184,7 @@ namespace wc_test
             var method = @class.DefineMethod("foo", ManaTypeCode.TYPE_VOID.AsClass(), args);
             return method.GetGenerator();
         }
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void Fib()
         {
             /*let fib = fun (n) {
@@ -231,9 +223,9 @@ puts after - before;*/
             s.Start();
             //var a = f(int.MaxValue / 2);
             s.Stop();
-            //_testOutputHelper.WriteLine($"{a}, {int.MaxValue / 2} {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
+            //Console.WriteLine($"{a}, {int.MaxValue / 2} {s.Elapsed.TotalMilliseconds / 1000f} seconds.");
         }
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void ManualGenCallExternFunction()
         {
             var module = new ManaModuleBuilder("hello_world");
@@ -266,7 +258,7 @@ puts after - before;*/
             File.WriteAllText($@"C:\Users\ls-mi\Desktop\{module.Name}.wvil", module.BakeDebugString());
         }
 
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void ManualGen()
         {
             var module = new ManaModuleBuilder("satl");

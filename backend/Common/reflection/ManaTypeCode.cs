@@ -110,6 +110,8 @@ namespace mana.runtime
 
         public static bool IsCompatibleNumber(this ManaTypeCode variable, ManaTypeCode assign)
         {
+            if (!variable.HasInteger() ||!assign.HasInteger())
+                return false;
             if (variable == assign)
                 return true;
             if (variable.HasFloat() && assign.HasInteger())

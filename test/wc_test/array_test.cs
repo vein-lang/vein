@@ -1,26 +1,23 @@
 namespace wc_test
 {
+    using System;
     using System.Linq;
     using mana.stl;
     using mana.syntax;
-    using Xunit;
-    using Xunit.Abstractions;
+    using NUnit.Framework;
 
     public class array_test
     {
-        private readonly ITestOutputHelper _debug;
         public static ManaSyntax Syntax => new();
 
-        public array_test(ITestOutputHelper testOutputHelper) => _debug = testOutputHelper;
-
-
-        [Fact]
+        [Test]
         public void FirstArrayTest()
             => Syntax.ClassMemberDeclaration.ParseMana($"public x: arr[];");
 
-        [Fact(Skip = "Disabled")]
+        [Test]
         public void AccessArrayTest()
         {
+            Assert.Ignore("TODO");
             var result = Syntax
                 .Statement
                 .ParseMana($"{{x.x.x[1, 2, 3, \"\", variable, 8 * 8]}}");
@@ -28,20 +25,19 @@ namespace wc_test
             Assert.False(result.IsBrokenToken);
         }
 
-        [Fact(Skip = "FUCK 'There is no currently active test.', FUCK XUNIT")]
+        [Test]
         public void ArrayCompilationTest()
         {
             var result = Syntax.new_expression.ParseMana("new Foo[5]")
                 .As<NewExpressionSyntax>();
-
             Assert.True(result.IsArray);
             var arr = result.CtorArgs.As<ArrayInitializerExpression>().Sizes.ToArray();
-            Assert.Single(arr);
-            var i4 = Assert.IsType<Int32LiteralExpressionSyntax>(arr[0]);
-            Assert.Equal(5, i4.Value);
+            IshtarAssert.Single(arr);
+            var i4 = IshtarAssert.IsType<Int32LiteralExpressionSyntax>(arr[0]);
+            Assert.AreEqual(5, i4.Value);
         }
 
-        [Fact]
+        [Test]
         public void ArrayCompilationTest2()
         {
             var result = Syntax.new_expression.ParseMana("new Foo[5] { 1, 2, 3, 4, 5 }")
@@ -51,12 +47,12 @@ namespace wc_test
             var ctor = result.CtorArgs.As<ArrayInitializerExpression>();
 
             var arr = ctor.Sizes.ToArray();
-            Assert.Single(arr);
-            var i4 = Assert.IsType<Int32LiteralExpressionSyntax>(arr[0]);
-            Assert.Equal(5, i4.Value);
+            IshtarAssert.Single(arr);
+            var i4 = IshtarAssert.IsType<Int32LiteralExpressionSyntax>(arr[0]);
+            Assert.AreEqual(5, i4.Value);
 
             Assert.NotNull(ctor.Args);
-            Assert.Equal(5, ctor.Args.FillArgs.Length);
+            Assert.AreEqual(5, ctor.Args.FillArgs.Length);
             Assert.True(ctor.Args.FillArgs
                 .Select(x => x.As<Int32LiteralExpressionSyntax>())
                 .Select(x => x.Value)

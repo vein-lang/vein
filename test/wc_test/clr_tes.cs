@@ -2,11 +2,12 @@ namespace wc_test
 {
     using mana.ishtar.emit;
     using mana.runtime;
-    using Xunit;
+    using NUnit.Framework;
+    using NUnit.Framework;
 
     public class clr_test
     {
-        [Fact]
+        [Test]
         public void F1()
         {
             //var m = new ManaModuleBuilder("foo");

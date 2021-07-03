@@ -8,7 +8,7 @@ namespace wc_test
     using mana.ishtar.emit;
     using mana.stl;
     using mana.syntax;
-    using Xunit;
+    using NUnit.Framework;
     public class FetchManaSource : IEnumerable<object[]>
     {
         public const string RootOfManaStd = "./../../../../../wave.std";
@@ -23,15 +23,15 @@ namespace wc_test
     public class stl_compilation_test
     {
 
-        [Theory(Skip = "MANUAL")]
-        [ClassData(typeof(FetchManaSource))]
+        [Theory, Ignore("MANUAL")]
+       // [ClassData(typeof(FetchManaSource))]
         public void FilesParse(string path)
         {
             var code = File.ReadAllText(path);
             Mana.CompilationUnit.End().ParseMana(code);
         }
 
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void FilesCompile()
         {
             var code = File.ReadAllText($"{FetchManaSource.RootOfManaStd}/wave/lang/Object.wave");

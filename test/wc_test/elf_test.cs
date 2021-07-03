@@ -1,13 +1,13 @@
 namespace wc_test
 {
-    using System;
     using System.IO;
     using System.Text;
     using mana.fs;
-    using Xunit;
+    using NUnit.Framework;
+
     public class ElfTest
     {
-        [Fact]
+        [Test]
         public void ElfReadTest()
         {
             var file = GetTempFile();
@@ -19,7 +19,7 @@ namespace wc_test
             IshtarAssembly.WriteTo(asm, file);
             var result = IshtarAssembly.LoadFromFile(file);
             var (_, body) = result.Sections[0];
-            Assert.Equal("IL_CODE", Encoding.ASCII.GetString(body));
+            Assert.AreEqual("IL_CODE", Encoding.ASCII.GetString(body));
             var f_mem = new MemoryStream(File.ReadAllBytes(file));
             f_mem.Seek(f_mem.Capacity - (sizeof(uint) * 2), SeekOrigin.Begin);
             var bin = new BinaryReader(f_mem);
@@ -27,10 +27,10 @@ namespace wc_test
             var offset = bin.ReadUInt32();
             f_mem.Seek(offset, SeekOrigin.Begin);
             var bytes = bin.ReadBytes((int)len);
-            Assert.Equal("IL_CODE", Encoding.ASCII.GetString(bytes));
+            Assert.AreEqual("IL_CODE", Encoding.ASCII.GetString(bytes));
             File.Delete(file);
         }
-        [Fact(Skip = "MANUAL")]
+        [Test, Ignore("MANUAL")]
         public void ElfReadManual()
         {
             var file = @"C:\Users\ls-mi\Desktop\wave.elf";
