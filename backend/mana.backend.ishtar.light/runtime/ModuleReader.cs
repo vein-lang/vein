@@ -2,22 +2,26 @@ namespace ishtar
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
-    using System.Text;
     using mana.exceptions;
     using mana.extensions;
     using mana.ishtar.emit;
     using mana.ishtar.emit.extensions;
     using mana.reflection;
     using mana.runtime;
-    internal class RuntimeIshtarModule : ManaModule
-    {
 
-        public static RuntimeIshtarModule Read(byte[] arr, List<ManaModule> deps, Func<string, Version, ManaModule> resolver)
+    public class RuntimeIshtarModule : ManaModule
+    {
+        public AppVault Vault { get; }
+        public ushort ID { get; internal set; }
+
+
+        public static RuntimeIshtarModule Read(AppVault vault, byte[] arr, List<ManaModule> deps, Func<string, Version, ManaModule> resolver)
         {
-            var module = new RuntimeIshtarModule();
+            var module = new RuntimeIshtarModule(vault);
             using var mem = new MemoryStream(arr);
             using var reader = new BinaryReader(mem);
             module.Deps.AddRange(deps);
@@ -130,8 +134,18 @@ namespace ishtar
             module.aspects.AddRange(Aspect.Deconstruct(module.const_table.storage));
 
             DistributionAspects(module);
+            ValidateRuntimeTokens(module);
 
             return module;
+        }
+        [Conditional("VALIDATE_RUNTIME_TOKEN")]
+        public static void ValidateRuntimeTokens(RuntimeIshtarModule module)
+        {
+            foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())
+            {
+                VM.Assert(@class.runtime_token != RuntimeToken.Default, WNE.TYPE_LOAD,
+                    $"Detected non-inited runtime token. type: '{@class.FullName.NameWithNS}'");
+            }
         }
 
         // shit, todo: refactoring
