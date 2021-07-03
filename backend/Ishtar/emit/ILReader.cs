@@ -84,9 +84,9 @@ namespace mana.ishtar.emit
                 var value = OpCodes.all[opcode];
 
                 d.Add((int)mem.Position - sizeof(ushort), (list.Count, opcode));
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Console.WriteLine($"... ({value.Name}, {value.Size})");
-                Console.ForegroundColor = ConsoleColor.White;
+                //Console.ForegroundColor = ConsoleColor.Gray;
+                //Console.WriteLine($"... ({value.Name}, {value.Size})");
+                //Console.ForegroundColor = ConsoleColor.White;
                 switch (value.Size)
                 {
                     // call
