@@ -198,8 +198,8 @@ namespace ishtar_test
             var result = ctx.Execute((gen, storage) =>
             {
                 gen.Emit(OpCodes.LDC_I4_S, 142);
-                gen.Emit(OpCodes.STSF, (RuntimeIshtarField)storage.field);
-                gen.Emit(OpCodes.LDSF, (RuntimeIshtarField)storage.field);
+                gen.Emit(OpCodes.STSF, storage.field);
+                gen.Emit(OpCodes.LDSF, storage.field);
                 gen.Emit(OpCodes.RET);
             });
 

@@ -1,6 +1,7 @@
 namespace ishtar_test
 {
     using ishtar;
+    using mana.runtime;
     using Xunit;
 
     public class FECallTest : IshtarTestBase
@@ -13,13 +14,13 @@ namespace ishtar_test
             {
                 var type = x.Owner.FindType("corlib%global::mana/lang/Out", true);
 
-                storage.method = type.FindMethod("@_println") as RuntimeIshtarMethod;
+                storage.method = type.FindMethod("@_println");
             });
 
             ctx.Execute((gen, storage) =>
             {
                 gen.Emit(OpCodes.LDC_STR, "foo");
-                gen.Emit(OpCodes.CALL, (RuntimeIshtarMethod)storage.method);
+                gen.Emit(OpCodes.CALL, (ManaMethod)storage.method);
                 gen.Emit(OpCodes.RET);
             });
         }
