@@ -132,7 +132,7 @@ namespace wc_test
             _testOutputHelper.WriteLine(result.ToString());
 
 
-            Assert.Throws<NotImplementedException>(() => result.DetermineType(null));
+            Assert.Throws<Exception>(() => result.DetermineType(null));
         }
 
 

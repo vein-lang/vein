@@ -730,10 +730,8 @@ namespace ishtar
         }
 
 
-        public static ManaClass ExplicitConversion(ManaClass t1, ManaClass t2)
-        {
-            throw new NotImplementedException();
-        }
+        public static ManaClass ExplicitConversion(ManaClass t1, ManaClass t2) =>
+            throw new Exception($"ExplicitConversion: {t1?.FullName.NameWithNS} and {t2?.FullName.NameWithNS}");
 
         public static void EmitThrow(this ILGenerator generator, QualityTypeName type)
         {
