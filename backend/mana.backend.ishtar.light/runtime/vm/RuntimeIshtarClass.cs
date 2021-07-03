@@ -19,8 +19,12 @@ namespace ishtar
         IVTableCollectible,
         IDisposable
     {
-        internal RuntimeIshtarClass(QualityTypeName name, ManaClass parent, ManaModule module)
-            : base(name, parent, module) { }
+        internal RuntimeIshtarClass(QualityTypeName name, ManaClass parent, RuntimeIshtarModule module)
+            : base(name, parent, module)
+        {
+            ID = module.Vault.TokenGranted.GrantClassID();
+            runtime_token = new RuntimeToken(module.ID, ID);
+        }
 
 
         internal RuntimeIshtarField DefineField(string name, FieldFlags flags, ManaClass type)
@@ -42,10 +46,16 @@ namespace ishtar
             return method;
         }
 
+        public RuntimeToken runtime_token { get; }
+        public ushort ID { get; }
+
         public ulong computed_size = 0;
         public bool is_inited = false;
         public void** vtable = null;
         public ulong vtable_size = 0;
+
+        public int max_interface_id;
+        public int[] interface_bitmap;
 
 #if DEBUG_VTABLE
         public debug_vtable dvtable = new ();
