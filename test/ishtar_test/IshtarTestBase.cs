@@ -39,14 +39,14 @@ namespace ishtar_test
         private ClassBuilder @class;
         private static readonly object guarder = new ();
         internal string UID { get; }
-        
+
         public IshtarTestContext OnClassBuild(Action<ClassBuilder, dynamic> action)
         {
             _classCtor = action;
             return this;
         }
-        
-        private void OnCodeBuild(Action<ILGenerator, dynamic> ctor) 
+
+        private void OnCodeBuild(Action<ILGenerator, dynamic> ctor)
         {
             @class = _module.DefineClass($"global::test/testClass_{_testCase}_{UID}");
             _classCtor?.Invoke(@class, _context);

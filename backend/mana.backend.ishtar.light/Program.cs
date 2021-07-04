@@ -12,7 +12,7 @@ namespace mana.backend.ishtar.light
     using global::ishtar;
     using runtime;
     using mana.ishtar.emit;
-    
+
     internal class Program
     {
         private static void INIT_VTABLES()
@@ -56,14 +56,14 @@ namespace mana.backend.ishtar.light
                 resolver.AddSearchPath(entry.Directory.SubDirectory("refs"));
             }
 
-           
+
 
             resolver.AddSearchPath(new DirectoryInfo("/ManaLang"));
             resolver.AddSearchPath(new DirectoryInfo("./"));
 
 
             var module = resolver.Resolve(masterModule);
-            
+
             foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())
             {
                 @class.init_vtable();

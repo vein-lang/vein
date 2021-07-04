@@ -24,7 +24,7 @@ namespace wc_test
     {
 
         [Theory, Ignore("MANUAL")]
-       // [ClassData(typeof(FetchManaSource))]
+        // [ClassData(typeof(FetchManaSource))]
         public void FilesParse(string path)
         {
             var code = File.ReadAllText(path);

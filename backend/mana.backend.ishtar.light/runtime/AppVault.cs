@@ -9,7 +9,7 @@ namespace ishtar
 
     public class AppVault : AppVaultSync
     {
-        public static AppVault CurrentVault { get; internal set; } = new ("app");
+        public static AppVault CurrentVault { get; internal set; } = new("app");
 
 
         public string Name { get; }
@@ -43,7 +43,7 @@ namespace ishtar
             Modules.Add(module);
         }
 
-        object AppVaultSync.TokenInterlockerGuard { get; } = new ();
+        object AppVaultSync.TokenInterlockerGuard { get; } = new();
         internal ushort LastModuleID;
         internal ushort LastClassID;
     }

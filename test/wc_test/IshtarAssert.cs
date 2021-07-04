@@ -19,7 +19,7 @@ namespace wc_test
 
         public static void Single<T>(IEnumerable<T> t)
         {
-            if (t?.Count() == 1) {}
+            if (t?.Count() == 1) { }
             else
                 Assert.Fail($"Collection is not contains single element.");
         }

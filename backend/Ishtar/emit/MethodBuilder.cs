@@ -101,10 +101,10 @@ namespace mana.ishtar.emit
         }
 
         #region Arg&Locals manage (NEED REFACTORING)
-        
+
         internal int? GetArgumentIndex(FieldName @ref)
             => getArg(@ref)?.idx;
-        
+
         internal int? GetLocalIndex(FieldName @ref)
             => getLocal(@ref)?.idx;
         private (int idx, ManaArgumentRef arg)? getLocal(FieldName @ref)
