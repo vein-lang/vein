@@ -13,7 +13,7 @@ namespace wc_test
     public class expression_test
     {
         public static ManaSyntax Syntax => new();
-        
+
 
         [Test(Description = "(40 + 50)")]
         public void F00()

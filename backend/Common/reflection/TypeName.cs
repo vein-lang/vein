@@ -4,7 +4,7 @@ namespace mana.runtime
     using System.Linq;
     using System.Text.RegularExpressions;
     using extensions;
-    
+
     public class InvalidTypeNameException : Exception { public InvalidTypeNameException(string msg) : base(msg) { } }
     public record QualityTypeName(string fullName)
     {
