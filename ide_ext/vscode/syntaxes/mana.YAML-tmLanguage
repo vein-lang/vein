@@ -62,7 +62,7 @@ repository:
                         end: "(?=$)",
                     }
     preprocessor:
-        match: '^\s*((#)\s*(use|space|load))\b\s*'
+        match: '^\s*((#)\s*(use|space|load|ignore))\b\s*'
         name: meta.preprocessor.mana
     operators:
         patterns:

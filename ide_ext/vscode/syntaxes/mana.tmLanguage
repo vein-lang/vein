@@ -188,7 +188,7 @@
       <key>preprocessor</key>
       <dict>
         <key>match</key>
-        <string>^\s*((#)\s*(use|space|load))\b\s*</string>
+        <string>^\s*((#)\s*(use|space|load|ignore))\b\s*</string>
         <key>name</key>
         <string>meta.preprocessor.mana</string>
       </dict>

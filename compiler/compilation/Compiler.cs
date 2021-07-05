@@ -93,7 +93,10 @@ namespace insomnia.compilation
             foreach (var file in files)
             {
                 Status.ManaStatus($"Read [grey]'{file.Name}'[/]...");
-                Sources.Add(file, File.ReadAllText(file.FullName));
+                var text = File.ReadAllText(file.FullName);
+                if (text.StartsWith("#ignore"))
+                    continue;
+                Sources.Add(file, text);
             }
 
             foreach (var (key, value) in Sources)
