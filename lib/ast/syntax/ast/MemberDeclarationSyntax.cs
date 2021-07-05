@@ -1,6 +1,7 @@
 namespace mana.syntax
 {
     using System.Collections.Generic;
+    using System.Linq;
     using Sprache;
 
     public class MemberDeclarationSyntax : BaseSyntax, IPositionAware<MemberDeclarationSyntax>
@@ -8,11 +9,13 @@ namespace mana.syntax
         public MemberDeclarationSyntax() { }
 
         public MemberDeclarationSyntax(MemberDeclarationSyntax other = null)
-        {
-            this.WithProperties(other);
-        }
+            => this.WithProperties(other);
         public override SyntaxType Kind => SyntaxType.ClassMember;
-        public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
+
+        public override IEnumerable<BaseSyntax> ChildNodes =>
+            Annotations.SelectMany(x => x.ChildNodes)
+                .Concat(Modifiers.SelectMany(x => x.ChildNodes))
+                .Concat(new[] { this });
 
         public List<AnnotationSyntax> Annotations { get; set; } = new();
         public List<ModificatorSyntax> Modifiers { get; set; } = new();

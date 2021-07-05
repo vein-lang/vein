@@ -21,7 +21,8 @@ namespace mana.syntax
         public ManaAnnotationKind AnnotationKind { get; }
         public ExpressionSyntax[] Args { get; } = Array.Empty<ExpressionSyntax>();
         public override SyntaxType Kind => SyntaxType.Annotation;
-        public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
+        public override IEnumerable<BaseSyntax> ChildNodes =>
+            new BaseSyntax[] { this }.Concat(Args);
 
         public new AnnotationSyntax SetPos(Position startPos, int length)
         {

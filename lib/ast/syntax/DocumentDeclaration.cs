@@ -17,6 +17,10 @@ namespace mana.syntax
         private List<string> _includes;
 
 
+        public IEnumerable<BaseSyntax> ChildNodes =>
+            Members.SelectMany(x => x.ChildNodes)
+                .Concat(Directives.SelectMany(x => x.ChildNodes));
+
         public int[] _line_offsets;
 
         public List<string> Includes => _includes ??= Directives.OfExactType<UseSyntax>().Select(x =>

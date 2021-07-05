@@ -20,7 +20,7 @@ namespace mana.syntax
     public class ModificatorSyntax : BaseSyntax, IPositionAware<ModificatorSyntax>
     {
         public override SyntaxType Kind => SyntaxType.Modificator;
-        public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
+        public override IEnumerable<BaseSyntax> ChildNodes => new [] { this };
 
         public ModificatorKind ModificatorKind { get; }
 
