@@ -1,74 +1,98 @@
-import {
-    ChildProcessInfo,
-    MessageTransports,
-    StreamInfo,
-    TransportKind,
-    LanguageClient,
-    LanguageClientOptions,
-    ServerOptions
+'use strict';
+// The module 'vscode' contains the VS Code extensibility API
+// Import the module and reference it with the alias vscode in your code below
+import * as vscode from 'vscode';
+import { LanguageServer } from './languageServer';
 
-} from "vscode-languageclient/node";
-import * as path from "path";
-import { Trace } from "vscode-jsonrpc/node";
-import { commands, languages, Hover, workspace, window } from "vscode";
-import { ChildProcess } from "child_process";
-
-let client: LanguageClient;
-
-function startOptions(): Promise<ChildProcess | StreamInfo | MessageTransports | ChildProcessInfo> {
-    return Promise.reject();
-}
-
-export function deactivate() {
-    if (client) {
-      return client.stop();
+/**
+ * Returns the root folder for the current workspace.
+ */
+ function findRootFolder() : string {
+    // FIXME: handle multiple workspace folders here.
+    let workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders) {
+        return workspaceFolders[0].uri.fsPath;
+    } else {
+        return '';
     }
-  }
-function activate(context) {
-    let serverExe = "dotnet";
-    let serverOptions: ServerOptions = {
-        // run: { command: serverExe, args: ['-lsp', '-d'] },
-        run: {
-            command: serverExe,
-            args: ["O:/mana_lang/lsp/bin/Debug/net6.0/manalsp.dll"],
-            transport: TransportKind.pipe,
-        },
-        // debug: { command: serverExe, args: ['-lsp', '-d'] }
-        debug: {
-            command: serverExe,
-            args: ["O:/mana_lang/lsp/bin/Debug/net6.0/manalsp.dll"],
-            transport: TransportKind.pipe,
-            runtime: "",
-        },
-    };
-    let clientOptions: LanguageClientOptions = {
-        // Register the server for plain text documents
-        documentSelector: [
-            {
-                pattern: "**/*.mana",
-            }
-        ],
-        progressOnInitialization: true,
-        synchronize: {
-            // Synchronize the setting section 'languageServerExample' to the server
-            configurationSection: "ManaLSP",
-            fileEvents: workspace.createFileSystemWatcher("**/*.mana"),
-        },
-    };
-
-    // Create the language client and start the client.
-    client = new LanguageClient("ManaLSP", "Mana Language Server", serverOptions, clientOptions);
-    client.registerProposedFeatures();
-    client.trace = Trace.Verbose;
-    let disposable = client.start();
-
-    // Push the disposable to the context's subscriptions so that the
-    // client can be deactivated on extension deactivation
-    context.subscriptions.push(disposable);
-    const commandHandler = () => {
-        client.stop();
-    };
-    context.subscriptions.push(commands.registerCommand("editor.action.shutdownManaLSP", commandHandler));
 }
 
-exports.activate = activate;
+// this method is called when your extension is activated
+// your extension is activated the very first time the command is executed
+export async function activate(context: vscode.ExtensionContext) {
+
+    // Use the console to output diagnostic information (console.log) and errors (console.error)
+    // This line of code will only be executed once when your extension is activated
+    console.error('[mana-lsp] Activated!');
+    process.env['VSCODE_LOG_LEVEL'] = 'trace';
+
+
+    /*
+    // Register commands that use the .NET Core SDK.
+    // We do so as early as possible so that we can handle if someone calls
+    // a command before we found the .NET Core SDK.
+    registerCommand(
+        context,
+        "quantum.newProject",
+        () => {
+            createNewProject(context);
+        }
+    );
+
+    registerCommand(
+        context,
+        "quantum.installTemplates",
+        () => {
+            requireDotNetSdk(dotNetSdkVersion).then(
+                dotNetSdk => installTemplates(dotNetSdk, packageInfo)
+            );
+        }
+    );
+
+    registerCommand(
+        context,
+        "quantum.openDocumentation",
+        openDocumentationHome
+    );
+
+    registerCommand(
+        context,
+        "quantum.installIQSharp",
+        () => {
+            requireDotNetSdk(dotNetSdkVersion).then(
+                dotNetSdk => installOrUpdateIQSharp(
+                    dotNetSdk,
+                    packageInfo ? packageInfo.nugetVersion : undefined
+                )
+            );
+        }
+    );*/
+
+    let rootFolder = findRootFolder();
+
+    // Start the language server client.
+    let languageServer = new LanguageServer(context, rootFolder);
+    await languageServer
+        .start()
+        .catch(
+            err => {
+                console.log(`[mana-lsp] Language server failed to start: ${err}`);
+                let reportFeedbackItem = "Report feedback...";
+                vscode.window.showErrorMessage(
+                    `Language server failed to start: ${err}`,
+                    reportFeedbackItem
+                ).then(
+                    item => {
+                        vscode.env.openExternal(vscode.Uri.parse(
+                            "https://github.com/microsoft/qsharp-compiler/issues/new?assignees=&labels=bug,Area-IDE&template=bug_report.md&title="
+                        ));
+                    }
+                );
+            }
+        );
+
+}
+
+// this method is called when your extension is deactivated
+export function deactivate() {
+}

@@ -1,0 +1,4 @@
+.vscode-test/**
+out/test/**
+out/**/*.map
+out/**/*.*
