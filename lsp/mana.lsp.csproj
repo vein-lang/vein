@@ -7,22 +7,21 @@
     <OutputType>Exe</OutputType>
 	</PropertyGroup>
 	<ItemGroup>
+		<PackageReference Include="Markdig" Version="0.25.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-		<PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.1" />
 		<PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
 		<PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
-		<PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
-		<PackageReference Include="System.IO" Version="4.3.0" />
-		<PackageReference Include="System.Runtime.Handles" Version="4.3.0" />
-		<PackageReference Include="System.Text.Encoding" Version="4.3.0" />
-		<PackageReference Include="System.Text.Encoding.Extensions" Version="4.3.0" />
-		<PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
-		<PackageReference Include="System.IO.Pipelines" Version="4.7.3" />
 		<PackageReference Include="Nerdbank.Streams" Version="2.6.81" />
+    <PackageReference Include="StreamJsonRpc" Version="2.7.76" />
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="16.9.1180" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="xunit.assert" Version="2.4.1" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\compiler\manac.csproj" />
 	  <ProjectReference Include="..\lib\ast\mana.ast.csproj" />
 	</ItemGroup>
 </Project>
