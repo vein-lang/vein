@@ -90,33 +90,38 @@ namespace mana.syntax
 
         /// example: @TestFixture public static class Program { static void main() {} }
         public virtual Parser<ClassDeclarationSyntax> ClassDeclaration =>
-            from heading in MemberDeclarationHeading.Token()
-            from classBody in ClassDeclarationBody.Token()
-            select ClassDeclarationSyntax.Create(heading, classBody);
+            from heading in MemberDeclarationHeading.Token().Positioned()
+            from classBody in ClassDeclarationBody.Token().Positioned()
+            select ClassDeclarationSyntax.Create(heading, classBody)
+                .SetEnd(classBody.EndPoint)
+                .SetStart(heading.Transform.pos)
+                .SetPos<ClassDeclarationSyntax>(classBody.Transform);
 
         /// example: class Program { void main() {} }
         protected internal virtual Parser<ClassDeclarationSyntax> ClassDeclarationBody =>
             from @class in
                 Parse.IgnoreCase("class").Text().Token()
                     .Or(Parse.IgnoreCase("interface").Text().Token())
-                    .Or(Parse.IgnoreCase("struct").Text().Token())
+                    .Or(Parse.IgnoreCase("struct").Text().Token()).Commented(this)
             from className in IdentifierExpression.Token().Positioned()
             from interfaces in Parse.IgnoreCase(":").Token().Then(t => TypeReference.Positioned().DelimitedBy(Parse.Char(',').Token())).Optional()
             from skippedComments in CommentParser.AnyComment.Token().Many()
-            from openBrace in Parse.Char('{').Token()
-            from members in ClassMemberDeclaration.Token().Many()
+            from openBrace in Parse.Char('{').Token().Commented(this)
+            from members in ClassMemberDeclaration.Positioned().Token().Many()
             from closeBrace in Parse.Char('}').Token().Commented(this)
             let classBody = new ClassDeclarationSyntax
             {
                 Identifier = className,
-                IsInterface = @class == "interface",
-                IsStruct = @class == "struct",
+                IsInterface = @class.Value == "interface",
+                IsStruct = @class.Value == "struct",
                 Inheritances = interfaces.GetOrElse(Enumerable.Empty<TypeSyntax>()).ToList(),
                 Members = ConvertConstructors(members, className).ToList(),
                 InnerComments = closeBrace.LeadingComments.ToList(),
                 TrailingComments = closeBrace.TrailingComments.ToList(),
             }
-            select ClassDeclarationSyntax.Create(null, classBody);
+            select ClassDeclarationSyntax.Create(null, classBody)
+                .SetStart(@class.Transform.pos)
+                .SetEnd(closeBrace.Transform.pos);
 
         private IEnumerable<MemberDeclarationSyntax> ConvertConstructors(IEnumerable<MemberDeclarationSyntax> members, IdentifierExpression className)
         {
