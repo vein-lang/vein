@@ -5,6 +5,31 @@ namespace mana.stl
     using System.Linq;
     using System.Threading;
     using Sprache;
+    using syntax;
+
+    public class Beacon<T> : IBeaconCommented<T>
+    {
+        public IEnumerable<string> LeadingComments => Comments.LeadingComments;
+        public T Value => Comments.Value;
+        public IEnumerable<string> TrailingComments => Comments.TrailingComments;
+
+        public IBeaconCommented<T> SetPos(Position startPos, int length)
+        {
+            Transform = new Transform(startPos, length);
+            return this;
+        }
+
+        public ICommented<T> Comments { get; }
+        public Transform Transform { get; private set; }
+
+        public Beacon(ICommented<T> c) => Comments = c;
+    }
+
+    public interface IBeaconCommented<T> : ICommented<T>, IPositionAware<IBeaconCommented<T>>
+    {
+        ICommented<T> Comments { get; }
+        Transform Transform { get; }
+    }
 
     public static class ManaParserExtensions
     {
@@ -31,7 +56,7 @@ namespace mana.stl
 
         public static T ParseMana<T>(this Parser<T> parser, string input)
         {
-            var result = parser.TryParse(input);
+            var result = parser.End().TryParse(input);
             if (result.WasSuccessful)
             {
                 return result.Value;
@@ -71,10 +96,9 @@ namespace mana.stl
         /// <param name="parser">The parser to wrap.</param>
         /// <param name="provider">The provider for the Comment parser.</param>
         /// <returns>An extended Token() version of the given parser.</returns>
-        public static Parser<ICommented<T>> Commented<T>(this Parser<T> parser, ICommentParserProvider provider)
-        {
-            return parser.Commented(provider?.CommentParser);
-        }
+        public static Parser<IBeaconCommented<T>> Commented<T>(this Parser<T> parser, ICommentParserProvider provider) =>
+            parser.Commented(provider?.CommentParser)
+                .Select(x => (IBeaconCommented<T>)new Beacon<T>(x)).Positioned();
 
         /// <summary>
         /// Single character look-behind parser.
