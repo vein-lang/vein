@@ -4,9 +4,18 @@ namespace mana.syntax
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using extensions;
+    using Sprache;
     using stl;
 
-    public class ClassDeclarationSyntax : MemberDeclarationSyntax
+    public interface IAdvancedPositionAware<out T> : IPositionAware<T>
+    {
+        T SetStart(Position startPos);
+        T SetEnd(Position endPos);
+
+        bool IsInside(Position t);
+    }
+
+    public class ClassDeclarationSyntax : MemberDeclarationSyntax, IAdvancedPositionAware<ClassDeclarationSyntax>
     {
         public ClassDeclarationSyntax(MemberDeclarationSyntax heading = null)
             : base(heading)
@@ -62,6 +71,34 @@ namespace mana.syntax
         public DocumentDeclaration OwnerDocument { get; set; }
 
 
+        public new ClassDeclarationSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
+
+        public ClassDeclarationSyntax SetStart(Position startPos)
+        {
+            base.StartPoint = startPos;
+            return this;
+        }
+        public ClassDeclarationSyntax SetEnd(Position endPos)
+        {
+            base.EndPoint = endPos;
+            return this;
+        }
+
         public override string ToString() => $"Class '{Identifier}'";
+
+
+
+        public bool IsInside(Position t)
+        {
+            if (EndPoint is null)
+                return false;
+            if (StartPoint is null)
+                return false;
+            return t.Line >= StartPoint.Line && t.Line <= EndPoint.Line;
+        }
     }
 }
