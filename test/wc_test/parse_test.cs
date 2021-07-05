@@ -39,20 +39,20 @@ namespace wc_test
             var result = Mana.VariableDeclaration.End().ParseMana($"auto f: Int32 = 12;");
         }
 
-        [Test]
-        public void VariableInFunctionTest()
-        {
-            var result = Mana.MethodDeclaration.End().ParseMana(@"public Foo(): Int32 {
-    auto f = 12;
+//        [Test]
+//        public void VariableInFunctionTest()
+//        {
+//            var result = Mana.MethodDeclaration.End().ParseMana(@"public Foo(): Int32 {
+//    auto f = 12;
 
-    return f;
-}");
-            Assert.False(result.IsBrokenToken);
-            var statements = result.Body.Statements;
+//    return f;
+//}");
+//            Assert.False(result.IsBrokenToken);
+//            var statements = result.Body.Statements;
 
-            IshtarAssert.IsType<LocalVariableDeclaration>(statements[0]);
-            IshtarAssert.IsType<ReturnStatementSyntax>(statements[1]);
-        }
+//            IshtarAssert.IsType<LocalVariableDeclaration>(statements[0]);
+//            IshtarAssert.IsType<ReturnStatementSyntax>(statements[1]);
+//        }
 
         [Test]
         public void IdentifierParseTest()
@@ -140,15 +140,15 @@ namespace wc_test
             Assert.True(errMember.IsBrokenToken);
         }
 
-        [Test]
-        public void MethodParametersAndBodyTest()
-        {
-            var a = new ManaSyntax();
-            var d = a.MethodDeclaration
-                .ParseMana("public test(x: int32): void { }");
-            Assert.AreEqual("test", d.Identifier.ToString());
-            Assert.AreEqual("void", d.ReturnType.Identifier.ToString().ToLower());
-        }
+        //[Test]
+        //public void MethodParametersAndBodyTest()
+        //{
+        //    var a = new ManaSyntax();
+        //    var d = a.MethodDeclaration
+        //        .ParseMana("public test(x: int32): void { }");
+        //    Assert.AreEqual("test", d.Identifier.ToString());
+        //    Assert.AreEqual("void", d.ReturnType.Identifier.ToString().ToLower());
+        //}
 
         [Test]
         public void FooAoo()
@@ -259,14 +259,14 @@ namespace wc_test
             result = Mana.Statement.ParseMana(@"return (this.indexer.at(Length - 1) == value);");
             Assert.False(result.IsBrokenToken);
         }
-        [Test]
-        public void MethodTest00() =>
-            Mana.MethodDeclaration.ParseMana(@"public EndsWith(value: Char): Boolean
-            {
-                if (Length - 1 < Length)
-                    return false;
-                return this == value;
-            }");
+        //[Test]
+        //public void MethodTest00() =>
+        //    Mana.MethodDeclaration.ParseMana(@"public EndsWith(value: Char): Boolean
+        //    {
+        //        if (Length - 1 < Length)
+        //            return false;
+        //        return this == value;
+        //    }");
 
         [Test]
         public void ReturnParseTest00() => Assert.False(Mana.Statement.ParseMana(@"return this == value;").IsBrokenToken);
