@@ -7,6 +7,7 @@ patterns:
     - include: "#operation-declaration"
     - include: "#comment"
     - include: "#preprocessor"
+    - include: "#inline-class-declaration"
     - include: "#class-declaration"
     - include: "#operators"
     - include: "#numbers"
@@ -120,6 +121,40 @@ repository:
                   - include: "#operation-declaration"
                   - include: "#comment"
                   - include: "#field-declaration"
+    inline-class-declaration:
+        begin: \b(aspect|record)\s+
+        beginCaptures:
+            "1":
+                name: keyword.other.class.mana
+        end: '(?=;)|(?<=\})'
+        patterns:
+            - include: "#comment"
+            - name: ddd.dd
+              match: "((?<variable_name>[a-zA-Z0-9]+)\s?+\:\s?+(?<type_name>[a-zA-Z0-9]+))(,?)+"
+              captures:
+                "2":
+                    name: entity.name.variable.local.mana
+                "3":
+                    name: entity.name.type
+            - name: entity.name.type.class.mana
+              match: "@?[_[:alpha:]][_[:alnum:]]*"
+            - include: "#punctuation-accessor"
+            - begin: '\{'
+              beginCaptures:
+                  "0": { name: punctuation.curlybrace.open.mana }
+              end: '\}'
+              endCaptures:
+                  "0": { name: punctuation.curlybrace.close.mana }
+              patterns:
+                  - include: "#comment"
+                  - include: "#field-declaration"
+                  - include: "#indexer-declaration"
+                  - include: "#punctuation-semicolon"
+                  - include: "#operation-declaration"
+                  - include: "#union-declaration"
+                  - include: "#storage-modifier"
+                  - include: "#method-declaration"
+                  - include: "#attribute-section"
     class-declaration:
         begin: \b(class|struct|contract|extensions|interface)\s+
         beginCaptures:

@@ -28,6 +28,10 @@
       </dict>
       <dict>
         <key>include</key>
+        <string>#inline-class-declaration</string>
+      </dict>
+      <dict>
+        <key>include</key>
         <string>#class-declaration</string>
       </dict>
       <dict>
@@ -362,6 +366,118 @@
               <dict>
                 <key>include</key>
                 <string>#field-declaration</string>
+              </dict>
+            </array>
+          </dict>
+        </array>
+      </dict>
+      <key>inline-class-declaration</key>
+      <dict>
+        <key>begin</key>
+        <string>\b(aspect|record)\s+</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>keyword.other.class.mana</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?=;)|(?&lt;=\})</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#comment</string>
+          </dict>
+          <dict>
+            <key>name</key>
+            <string>ddd.dd</string>
+            <key>match</key>
+            <string>((?&lt;variable_name&gt;[a-zA-Z0-9]+)\s?+\:\s?+(?&lt;type_name&gt;[a-zA-Z0-9]+))(,?)+</string>
+            <key>captures</key>
+            <dict>
+              <key>2</key>
+              <dict>
+                <key>name</key>
+                <string>entity.name.variable.local.mana</string>
+              </dict>
+              <key>3</key>
+              <dict>
+                <key>name</key>
+                <string>entity.name.type</string>
+              </dict>
+            </dict>
+          </dict>
+          <dict>
+            <key>name</key>
+            <string>entity.name.type.class.mana</string>
+            <key>match</key>
+            <string>@?[_[:alpha:]][_[:alnum:]]*</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#punctuation-accessor</string>
+          </dict>
+          <dict>
+            <key>begin</key>
+            <string>\{</string>
+            <key>beginCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.curlybrace.open.mana</string>
+              </dict>
+            </dict>
+            <key>end</key>
+            <string>\}</string>
+            <key>endCaptures</key>
+            <dict>
+              <key>0</key>
+              <dict>
+                <key>name</key>
+                <string>punctuation.curlybrace.close.mana</string>
+              </dict>
+            </dict>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#comment</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#field-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#indexer-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#punctuation-semicolon</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#operation-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#union-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#storage-modifier</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#method-declaration</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#attribute-section</string>
               </dict>
             </array>
           </dict>
