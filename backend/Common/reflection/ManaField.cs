@@ -12,7 +12,7 @@ namespace mana.runtime
     {
         public string Name => fullName.Split('.').Last();
         public string Class => fullName.Split('.').SkipLast(1).Join();
-        
+
 
         public static implicit operator string(FieldName t) => t.fullName;
         public static implicit operator FieldName(string t) => new(t);
