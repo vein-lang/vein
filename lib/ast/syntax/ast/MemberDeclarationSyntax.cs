@@ -1,5 +1,6 @@
 namespace mana.syntax
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Sprache;
@@ -32,5 +33,33 @@ namespace mana.syntax
 
         public Position StartPoint { get; set; }
         public Position EndPoint { get; set; }
+
+        public MemberDeclarationSyntax SetStart(Position startPos)
+        {
+            StartPoint = startPos;
+            return this;
+        }
+
+        public MemberDeclarationSyntax SetEnd(Position endPos)
+        {
+            EndPoint = endPos;
+            return this;
+        }
+
+        public bool IsInside(Position t)
+        {
+            if (EndPoint is null)
+                return false;
+            if (StartPoint is null)
+                return false;
+            return t.Line >= StartPoint.Line && t.Line <= EndPoint.Line;
+        }
+
+        public T As<T>() where T : BaseSyntax
+        {
+            if (this is T t)
+                return t;
+            throw new InvalidCastException($"Cant cast '{this.GetType().Name}' to {typeof(T).Name}.");
+        }
     }
 }

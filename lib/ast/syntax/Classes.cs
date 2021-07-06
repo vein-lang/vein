@@ -121,7 +121,8 @@ namespace mana.syntax
             }
             select ClassDeclarationSyntax.Create(null, classBody)
                 .SetStart(@class.Transform.pos)
-                .SetEnd(closeBrace.Transform.pos);
+                .SetEnd(closeBrace.Transform.pos)
+                .As<ClassDeclarationSyntax>();
 
         private IEnumerable<MemberDeclarationSyntax> ConvertConstructors(IEnumerable<MemberDeclarationSyntax> members, IdentifierExpression className)
         {

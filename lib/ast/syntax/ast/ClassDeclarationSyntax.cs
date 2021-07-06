@@ -8,19 +8,19 @@ namespace mana.syntax
 
     public interface IAdvancedPositionAware<out T> : IPositionAware<T>
     {
-        T SetStart(Position startPos)
+        public T SetStart(Position startPos)
         {
             StartPoint = startPos;
             return (T)this;
         }
 
-        T SetEnd(Position endPos)
+        public T SetEnd(Position endPos)
         {
             EndPoint = endPos;
             return (T)this;
         }
 
-        bool IsInside(Position t)
+        public bool IsInside(Position t)
         {
             if (EndPoint is null)
                 return false;
@@ -29,8 +29,8 @@ namespace mana.syntax
             return t.Line >= StartPoint.Line && t.Line <= EndPoint.Line;
         }
 
-        Position StartPoint { get; set; }
-        Position EndPoint { get; set; }
+        public Position StartPoint { get; set; }
+        public Position EndPoint { get; set; }
     }
 
     public class ClassDeclarationSyntax : MemberDeclarationSyntax, IAdvancedPositionAware<ClassDeclarationSyntax>

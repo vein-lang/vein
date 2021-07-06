@@ -23,7 +23,8 @@ namespace mana.syntax
                 TrailingComments = closeBrace.TrailingComments.ToList(),
             }
             .SetStart(openBrace.Transform.pos)
-            .SetEnd(closeBrace.Transform.pos);
+            .SetEnd(closeBrace.Transform.pos)
+            .As<BlockSyntax>();
 
         protected internal virtual Parser<IOption<ExpressionSyntax>> KeywordExpressionStatement(string keyword) =>
             KeywordExpression(keyword)

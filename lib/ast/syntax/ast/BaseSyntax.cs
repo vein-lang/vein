@@ -51,6 +51,9 @@ namespace mana.syntax
         internal Transform Transform { get; set; }
 
         PassiveParseError IPassiveParseTransition.Error { get; set; }
+
+
+
     }
 
     public interface IPassiveParseTransition

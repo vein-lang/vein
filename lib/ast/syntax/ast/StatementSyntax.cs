@@ -3,7 +3,7 @@ namespace mana.syntax
     using System.Collections.Generic;
     using Sprache;
 
-    public class StatementSyntax : ExpressionSyntax, IPositionAware<StatementSyntax>
+    public class StatementSyntax : ExpressionSyntax, IAdvancedPositionAware<StatementSyntax>
     {
         public StatementSyntax() { }
 
@@ -19,5 +19,26 @@ namespace mana.syntax
 
         public Position StartPoint { get; set; }
         public Position EndPoint { get; set; }
+
+        public StatementSyntax SetStart(Position startPos)
+        {
+            StartPoint = startPos;
+            return this;
+        }
+
+        public StatementSyntax SetEnd(Position endPos)
+        {
+            EndPoint = endPos;
+            return this;
+        }
+
+        public bool IsInside(Position t)
+        {
+            if (EndPoint is null)
+                return false;
+            if (StartPoint is null)
+                return false;
+            return t.Line >= StartPoint.Line && t.Line <= EndPoint.Line;
+        }
     }
 }

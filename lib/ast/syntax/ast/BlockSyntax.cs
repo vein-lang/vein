@@ -9,7 +9,7 @@ namespace mana.syntax
     public class ErrorBlockSyntax : BlockSyntax  { }
     public class EmptyBlockSyntax : BlockSyntax { }
 
-    public class BlockSyntax : StatementSyntax, IEnumerable<StatementSyntax>, IAdvancedPositionAware<BlockSyntax>
+    public class BlockSyntax : StatementSyntax, IEnumerable<StatementSyntax>
     {
         public BlockSyntax()  { }
 
