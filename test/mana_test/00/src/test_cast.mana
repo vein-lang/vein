@@ -1,12 +1,12 @@
 #space "foo"
-
 #use "mana/lang"
 
-public class TestCase
+
+public class TestCase2 : TestCase1
 {
     public static master(): void
     {
         auto n = new Int32[1] { 15 };
-        Out.@_println(n.toString());
     }
 }
+

@@ -10,14 +10,16 @@ public class Array
     private _block: Int64;
 
     [native("!!size")]
-    public Length: Int64;
+    public readonly Length: Int64;
 
     [native("!!rank")]
-    public Rank: Int64;
+    public readonly Rank: Int64;
 
-
-    public toString(): String
+    public override toString(): String
     {
         return "Array";
     }
+
+    protected extern _indexer_get(index: Int64): Object;
+    protected extern _indexer_set(index: Int64, o: Object): Void;
 }
