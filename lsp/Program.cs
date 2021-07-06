@@ -18,7 +18,7 @@ namespace mana.lsp
             // Note: items in one set are mutually exclusive with items from other sets
             protected const string ConnectionViaSocket = "connectionViaSocket";
             protected const string ConnectionViaPipe = "connectionViaPipe";
-            
+
             [Option(
                 'p',
                 "port",

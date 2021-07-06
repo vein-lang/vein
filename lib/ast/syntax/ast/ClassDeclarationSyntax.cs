@@ -64,7 +64,7 @@ namespace mana.syntax
                 .Concat(Fields)
                 .Concat(Properties)
                 .Concat(Members)
-                .Concat(new [] { Identifier })
+                .Concat(new[] { Identifier })
                 .Where(n => n != null);
 
         public IdentifierExpression Identifier { get; set; }

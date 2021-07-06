@@ -39,20 +39,20 @@ namespace wc_test
             var result = Mana.VariableDeclaration.End().ParseMana($"auto f: Int32 = 12;");
         }
 
-//        [Test]
-//        public void VariableInFunctionTest()
-//        {
-//            var result = Mana.MethodDeclaration.End().ParseMana(@"public Foo(): Int32 {
-//    auto f = 12;
+        //        [Test]
+        //        public void VariableInFunctionTest()
+        //        {
+        //            var result = Mana.MethodDeclaration.End().ParseMana(@"public Foo(): Int32 {
+        //    auto f = 12;
 
-//    return f;
-//}");
-//            Assert.False(result.IsBrokenToken);
-//            var statements = result.Body.Statements;
+        //    return f;
+        //}");
+        //            Assert.False(result.IsBrokenToken);
+        //            var statements = result.Body.Statements;
 
-//            IshtarAssert.IsType<LocalVariableDeclaration>(statements[0]);
-//            IshtarAssert.IsType<ReturnStatementSyntax>(statements[1]);
-//        }
+        //            IshtarAssert.IsType<LocalVariableDeclaration>(statements[0]);
+        //            IshtarAssert.IsType<ReturnStatementSyntax>(statements[1]);
+        //        }
 
         [Test]
         public void IdentifierParseTest()

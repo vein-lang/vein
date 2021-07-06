@@ -90,7 +90,7 @@ namespace mana.lsp
             this.callableDeclarations.Add(declarations);
 
         public static bool IsNamespaceDeclaration(BaseSyntax fragment) => false;
-            //fragment?.Kind != null && fragment.IncludeInCompilation && fragment.Kind.IsNamespaceDeclaration;
+        //fragment?.Kind != null && fragment.IncludeInCompilation && fragment.Kind.IsNamespaceDeclaration;
 
         public static bool IsOpenDirective(BaseSyntax fragment) => false;
         //fragment?.Kind != null && fragment.IncludeInCompilation && fragment.Kind.IsOpenDirective;
