@@ -1,7 +1,6 @@
 namespace mana.syntax
 {
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using extensions;
     using Sprache;
@@ -9,10 +8,29 @@ namespace mana.syntax
 
     public interface IAdvancedPositionAware<out T> : IPositionAware<T>
     {
-        T SetStart(Position startPos);
-        T SetEnd(Position endPos);
+        T SetStart(Position startPos)
+        {
+            StartPoint = startPos;
+            return (T)this;
+        }
 
-        bool IsInside(Position t);
+        T SetEnd(Position endPos)
+        {
+            EndPoint = endPos;
+            return (T)this;
+        }
+
+        bool IsInside(Position t)
+        {
+            if (EndPoint is null)
+                return false;
+            if (StartPoint is null)
+                return false;
+            return t.Line >= StartPoint.Line && t.Line <= EndPoint.Line;
+        }
+
+        Position StartPoint { get; set; }
+        Position EndPoint { get; set; }
     }
 
     public class ClassDeclarationSyntax : MemberDeclarationSyntax, IAdvancedPositionAware<ClassDeclarationSyntax>
@@ -77,28 +95,6 @@ namespace mana.syntax
             return this;
         }
 
-        public ClassDeclarationSyntax SetStart(Position startPos)
-        {
-            base.StartPoint = startPos;
-            return this;
-        }
-        public ClassDeclarationSyntax SetEnd(Position endPos)
-        {
-            base.EndPoint = endPos;
-            return this;
-        }
-
         public override string ToString() => $"Class '{Identifier}'";
-
-
-
-        public bool IsInside(Position t)
-        {
-            if (EndPoint is null)
-                return false;
-            if (StartPoint is null)
-                return false;
-            return t.Line >= StartPoint.Line && t.Line <= EndPoint.Line;
-        }
     }
 }
