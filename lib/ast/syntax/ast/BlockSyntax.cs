@@ -6,30 +6,15 @@ namespace mana.syntax
     using Sprache;
     using stl;
 
-    public class ErrorBlockSyntax : BlockSyntax
-    {
-        public ErrorBlockSyntax()
-        {
-        }
-    }
+    public class ErrorBlockSyntax : BlockSyntax  { }
+    public class EmptyBlockSyntax : BlockSyntax { }
 
-    public class EmptyBlockSyntax : BlockSyntax
+    public class BlockSyntax : StatementSyntax, IEnumerable<StatementSyntax>, IAdvancedPositionAware<BlockSyntax>
     {
-        public EmptyBlockSyntax()
-        {
-        }
-    }
-
-    public class BlockSyntax : StatementSyntax, IEnumerable<StatementSyntax>, IPositionAware<BlockSyntax>
-    {
-        public BlockSyntax()
-        {
-        }
+        public BlockSyntax()  { }
 
         public BlockSyntax(IEnumerable<StatementSyntax> statements)
-        {
-            Statements.AddRange(statements.EmptyIfNull());
-        }
+            => Statements.AddRange(statements.EmptyIfNull());
 
         public override SyntaxType Kind => SyntaxType.Block;
 

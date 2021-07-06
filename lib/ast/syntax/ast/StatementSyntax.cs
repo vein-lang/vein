@@ -16,5 +16,8 @@ namespace mana.syntax
             base.SetPos(startPos, length);
             return this;
         }
+
+        public Position StartPoint { get; set; }
+        public Position EndPoint { get; set; }
     }
 }

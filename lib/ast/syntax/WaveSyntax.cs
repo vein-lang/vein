@@ -140,35 +140,21 @@ namespace mana.syntax
                  LeadingComments = comments.ToList(),
                  Modifiers = modifiers.ToList(),
              }).Token().Positioned();
-
-        // examples:
-        // @isTest void Test() {}
-        // public static void Hello() {}
-        protected internal virtual Parser<MethodDeclarationSyntax> MethodDeclaration =>
-            from heading in MemberDeclarationHeading
-            from name in IdentifierExpression
-            from methodBody in MethodParametersAndBody
-            select new MethodDeclarationSyntax(heading)
-            {
-                Identifier = name,
-                Parameters = methodBody.Parameters,
-                Body = methodBody.Body,
-                ReturnType = methodBody.ReturnType
-            };
         // examples:
         // Test() : void {}
         // Test() : void;
         protected internal virtual Parser<MethodDeclarationSyntax> MethodParametersAndBody =>
             from parameters in MethodParameters
             from @as in Parse.Char(':').Token().Commented(this)
-            from type in TypeReference
+            from type in TypeReference.Commented(this)
             from methodBody in Block.Or(Parse.Char(';').Return(new EmptyBlockSyntax()))
-                .Token().Positioned()
+                .Token().Positioned().Commented(this)
             select new MethodDeclarationSyntax
             {
                 Parameters = parameters,
-                Body = methodBody,
-                ReturnType = type
+                Body = methodBody.Value,
+                ReturnType = type.Value,
+                EndPoint = methodBody.Transform?.pos ?? type.Transform.pos
             };
 
         protected internal virtual Parser<MethodDeclarationSyntax> CtorParametersAndBody =>

@@ -12,7 +12,7 @@ namespace mana.syntax
     {
         protected internal virtual Parser<BlockSyntax> Block =>
             from comments in CommentParser.AnyComment.Token().Many()
-            from openBrace in Parse.Char('{').Token()
+            from openBrace in Parse.Char('{').Token().Commented(this)
             from statements in Statement.Many()
             from closeBrace in Parse.Char('}').Commented(this)
             select new BlockSyntax
@@ -21,7 +21,9 @@ namespace mana.syntax
                 Statements = statements.ToList(),
                 InnerComments = closeBrace.LeadingComments.ToList(),
                 TrailingComments = closeBrace.TrailingComments.ToList(),
-            };
+            }
+            .SetStart(openBrace.Transform.pos)
+            .SetEnd(closeBrace.Transform.pos);
 
         protected internal virtual Parser<IOption<ExpressionSyntax>> KeywordExpressionStatement(string keyword) =>
             KeywordExpression(keyword)
