@@ -115,8 +115,7 @@ namespace mana.lsp
         {
             Hover? GetHover(string? info, Transform t) => info == null ? null : new Hover
             {
-                Contents = new MarkupContent { Kind = format, Value = info },
-                Range = AsRange(t)
+                Contents = new MarkupContent { Kind = format, Value = info }
             };
             var markdown = format == MarkupKind.Markdown;
             var h = new Hover();
@@ -140,13 +139,16 @@ namespace mana.lsp
                             {
                                 var str = new StringBuilder();
 
-
-                                str.Append(Span("class", Color.AliceBlue));
-                                str.Append(" ");
-                                str.Append(Span(c.Identifier.ExpressionString, Color.GreenYellow));
+                                str.Append($"```mana\nclass {c.Identifier.ExpressionString}\n```\n");
 
                                 return GetHover(str.ToString(), c.Identifier.Transform);
                             }
+                        }
+
+                        foreach(var method in c.Methods)
+                        {
+                            if (!method.IsInside(AsManaPosition(doc.Position)))
+                                continue;
                         }
                     }
                 }
