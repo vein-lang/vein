@@ -90,7 +90,7 @@ namespace mana.lsp
             this.editorState = new EditorState(
                null,
                 diagnostics => this.PublishDiagnosticsAsync(diagnostics),
-                (name, props, meas) => {},
+                (name, props, meas) => { },
                 this.LogToWindow,
                 this.OnInternalError,
                 null);

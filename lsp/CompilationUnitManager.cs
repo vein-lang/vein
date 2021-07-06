@@ -838,7 +838,7 @@ namespace mana.lsp
         /// </remarks>
         public IEnumerable<Uri>? GetSourceFiles() =>
             this.FlushAndExecute(() => this.fileContentManagers.Keys.Select(id => new Uri(id)).ToImmutableArray().AsEnumerable());
-        
+
         /// <summary>
         /// Returns a <see cref="Compilation"/> containing all information about the current state of the compilation.
         /// </summary>

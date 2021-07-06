@@ -6,12 +6,12 @@ namespace mana.syntax
     using Sprache;
     using stl;
 
-    public class ErrorBlockSyntax : BlockSyntax  { }
+    public class ErrorBlockSyntax : BlockSyntax { }
     public class EmptyBlockSyntax : BlockSyntax { }
 
     public class BlockSyntax : StatementSyntax, IEnumerable<StatementSyntax>, IAdvancedPositionAware<BlockSyntax>
     {
-        public BlockSyntax()  { }
+        public BlockSyntax() { }
 
         public BlockSyntax(IEnumerable<StatementSyntax> statements)
             => Statements.AddRange(statements.EmptyIfNull());

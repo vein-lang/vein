@@ -14,7 +14,7 @@ namespace mana.lsp
     public class ManaCompilerError : Exception
     {
         public ManaCompilerError(string msg, Exception inner) : base(msg, inner)
-        {  }
+        { }
         public static T? RaiseOnFailure<T>(Func<T> actor, string message)
         {
             try

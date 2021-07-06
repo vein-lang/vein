@@ -145,7 +145,7 @@ namespace mana.lsp
                             }
                         }
 
-                        foreach(var method in c.Methods)
+                        foreach (var method in c.Methods)
                         {
                             if (!method.IsInside(AsManaPosition(doc.Position)))
                                 continue;
@@ -205,7 +205,7 @@ namespace mana.lsp
         public Sprache.Position AsManaPosition(Position vsPos)
             => new(0, vsPos.Line + 1, vsPos.Character);
 
-        public Range AsRange(Transform t) =>  new()
+        public Range AsRange(Transform t) => new()
         {
             Start = new Position(t.pos.Line, t.pos.Column),
             End = new Position(t.pos.Line, t.len)
@@ -215,7 +215,7 @@ namespace mana.lsp
         {
             var s = new SymbolInformation();
 
-            s.Location = new Location { Uri = documentSymbolParams.TextDocument.Uri};
+            s.Location = new Location { Uri = documentSymbolParams.TextDocument.Uri };
 
             s.Location.Range = AsRange(clazz.Identifier.Transform);
 
@@ -347,7 +347,7 @@ namespace mana.lsp
 
         public void Flush()
         {
-            
+
         }
 
         public void ReplaceFileContent(string fileContent)
@@ -428,7 +428,7 @@ namespace mana.lsp
                 }
             };
 
-            this.ProjectLoader = projectLoader ;
+            this.ProjectLoader = projectLoader;
             this.Projects = new ProjectManager(onException, log, this.Publish);
             this.OpenFiles = new ConcurrentDictionary<Uri, FileContentManager>();
         }
