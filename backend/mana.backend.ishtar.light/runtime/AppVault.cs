@@ -5,6 +5,7 @@ namespace ishtar
     using System.Threading;
     using mana.backend.ishtar.light;
     using mana.fs;
+    using mana.reflection;
     using mana.runtime;
 
     public class AppVault : AppVaultSync
@@ -26,6 +27,17 @@ namespace ishtar
             ThreadID = Thread.CurrentThread.ManagedThreadId;
         }
 
+        public RuntimeIshtarClass GlobalFindType(QualityTypeName typeName)
+        {
+            foreach (var module in Modules)
+            {
+                var r = module.FindType(typeName, false, false);
+                if (r is UnresolvedManaClass)
+                    continue;
+                return r as RuntimeIshtarClass;
+            }
+            return null;
+        }
 
         public AssemblyResolver GetResolver()
         {
