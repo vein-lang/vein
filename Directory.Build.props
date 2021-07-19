@@ -7,9 +7,9 @@
 		<Version>0.4.1182</Version>
 	</PropertyGroup>
     <ItemGroup>
-        <SupportedPlatform Include="Linux" />
-		<SupportedPlatform Include="macOS" />
-		<SupportedPlatform Include="Windows" />
+      <SupportedPlatform Include="Linux" />
+		  <SupportedPlatform Include="macOS" />
+		  <SupportedPlatform Include="Windows" />
     </ItemGroup>
     <PropertyGroup>
         <CurrentYear>$([System.DateTime]::Now.ToString(yyyy))</CurrentYear>
