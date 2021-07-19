@@ -149,11 +149,7 @@ namespace mana.lsp
                     break;
             }
         }
-
-        private void OnTemporaryProjectLoaded(Uri projectUri) =>
-            this.fileWatcher.ListenAsync(Path.GetDirectoryName(projectUri.LocalPath),
-                false, null, "*.waproj").Wait();
-
+        
         private Task InitializeWorkspaceAsync(ImmutableDictionary<Uri, ImmutableHashSet<string>> folders)
         {
             var folderItems = folders.SelectMany(entry => entry.Value.Select(name => Path.Combine(entry.Key.LocalPath, name)));
@@ -261,6 +257,7 @@ namespace mana.lsp
             this.Dispose();
             this.disconnectEvent.Set();
         }
+        
 
         [JsonRpcMethod(Methods.TextDocumentDidOpenName)]
         public Task OnTextDocumentDidOpenAsync(JToken arg)

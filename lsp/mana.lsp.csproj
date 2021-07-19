@@ -6,6 +6,9 @@
 		<RootNamespace>mana.lsp</RootNamespace>
     <OutputType>Exe</OutputType>
 	</PropertyGroup>
+  <ItemGroup>
+    <None Remove="*.*~" />
+  </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Markdig" Version="0.25.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />

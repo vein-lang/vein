@@ -117,7 +117,6 @@ namespace mana.lsp
             {
                 Contents = new MarkupContent { Kind = format, Value = info }
             };
-            var markdown = format == MarkupKind.Markdown;
             var h = new Hover();
             try
             {
@@ -138,8 +137,12 @@ namespace mana.lsp
                             if (s.Column < t.Character && s.Column + c.Identifier.Transform.len > t.Character)
                             {
                                 var str = new StringBuilder();
-
-                                str.Append($"```mana\nclass {c.Identifier.ExpressionString}\n```\n");
+                                if(c.IsStruct)
+                                    str.Append($"```mana\nstruct {c.Identifier.ExpressionString}\n```\n");
+                                else if (c.IsInterface)
+                                    str.Append($"```mana\ninterface {c.Identifier.ExpressionString}\n```\n");
+                                else
+                                    str.Append($"```mana\nclass {c.Identifier.ExpressionString}\n```\n");
 
                                 return GetHover(str.ToString(), c.Identifier.Transform);
                             }
@@ -220,7 +223,12 @@ namespace mana.lsp
             s.Location.Range = AsRange(clazz.Identifier.Transform);
 
             s.Name = clazz.Identifier.ExpressionString;
-            s.Kind = SymbolKind.Class;
+            if (clazz.IsInterface)
+                s.Kind = SymbolKind.Interface;
+            else if (clazz.IsStruct)
+                s.Kind = SymbolKind.Enum;
+            else
+                s.Kind = SymbolKind.Class;
             s.ContainerName = $"{s.Name}.mana";
 
             return s;
@@ -414,7 +422,7 @@ namespace mana.lsp
             this.SendTelemetry = sendTelemetry ?? ((_, __, ___) => { });
             this.Publish = param =>
             {
-                var onProjFile = param.Uri.AbsolutePath.EndsWith(".csproj", StringComparison.InvariantCultureIgnoreCase);
+                var onProjFile = param.Uri.AbsolutePath.EndsWith(".waproj", StringComparison.InvariantCultureIgnoreCase);
                 if (!param.Diagnostics.Any() || this.OpenFiles.ContainsKey(param.Uri) || onProjFile)
                 {
                     // Some editors (e.g. Visual Studio) will actually ignore diagnostics for .csproj files.
@@ -422,7 +430,7 @@ namespace mana.lsp
                     // we need to replace the project file ending before publishing. This issue is naturally resolved once we have our own project files...
                     var parentDir = Path.GetDirectoryName(param.Uri.AbsolutePath);
                     var projFileWithoutExtension = Path.GetFileNameWithoutExtension(param.Uri.AbsolutePath);
-                    if (onProjFile && Uri.TryCreate(Path.Combine(parentDir, $"{projFileWithoutExtension}.qsproj"), UriKind.Absolute, out var parentFolder))
+                    if (onProjFile && Uri.TryCreate(Path.Combine(parentDir, $"{projFileWithoutExtension}.waproj"), UriKind.Absolute, out var parentFolder))
                     { param.Uri = parentFolder; }
                     publishDiagnostics?.Invoke(param);
                 }
