@@ -53,21 +53,12 @@ namespace mana.ishtar.emit
             {
                 var opcode = (OpCodeValue) bin.ReadUInt16();
 
-                //if ((ushort) opcode == 65280)
-                // {
-                //    bin.ReadByte();
-                //    *offset = (int) mem.Position;
-                //    return (list, d);
-                //}
-
                 if ((ushort)opcode == 0xFFFF)
                 {
                     *offset = (int)mem.Position;
                     return (list, d);
                 }
-
-
-
+                
                 list.Add((uint)opcode);
                 if (!OpCodes.all.ContainsKey(opcode))
                     throw new InvalidOperationException(
@@ -78,9 +69,6 @@ namespace mana.ishtar.emit
                 var value = OpCodes.all[opcode];
 
                 d.Add((int)mem.Position - sizeof(ushort), (list.Count, opcode));
-                //Console.ForegroundColor = ConsoleColor.Gray;
-                //Console.WriteLine($"... ({value.Name}, {value.Size})");
-                //Console.ForegroundColor = ConsoleColor.White;
                 switch (value.Size)
                 {
                     // call
@@ -136,9 +124,6 @@ namespace mana.ishtar.emit
                             $"Check 'opcodes.def' and re-run 'gen.csx' for fix this error.");
                 }
             }
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine($"... success");
-            Console.ForegroundColor = ConsoleColor.White;
             return (list, d);
         }
     }
