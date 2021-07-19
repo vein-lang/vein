@@ -1,5 +1,6 @@
 namespace ishtar
 {
+    using System;
     using System.Runtime.InteropServices;
     using static mana.runtime.ManaTypeCode;
     public static unsafe class IshtarMarshal
@@ -52,6 +53,75 @@ namespace ishtar
 
             return obj;
         }
+
+        public static IshtarObject* ToIshtarObject<X>(X value, CallFrame frame, IshtarObject** node = null)
+        {
+            switch (typeof(X))
+            {
+                case { } when typeof(X) == typeof(sbyte):
+                    return ToIshtarObject(cast<sbyte>(value), frame, node);
+                case { } when typeof(X) == typeof(byte):
+                    return ToIshtarObject(cast<byte>(value), frame, node);
+                case { } when typeof(X) == typeof(short):
+                    return ToIshtarObject(cast<short>(value), frame, node);
+                case { } when typeof(X) == typeof(ushort):
+                    return ToIshtarObject(cast<ushort>(value), frame, node);
+                case { } when typeof(X) == typeof(int):
+                    return ToIshtarObject(cast<int>(value), frame, node);
+                case { } when typeof(X) == typeof(uint):
+                    return ToIshtarObject(cast<uint>(value), frame, node);
+                case { } when typeof(X) == typeof(long):
+                    return ToIshtarObject(cast<long>(value), frame, node);
+                case { } when typeof(X) == typeof(ulong):
+                    return ToIshtarObject(cast<ulong>(value), frame, node);
+                case { } when typeof(X) == typeof(char):
+                    return ToIshtarObject(cast<char>(value), frame, node);
+                case { } when typeof(X) == typeof(string):
+                    return ToIshtarObject(cast<string>(value), frame, node);
+                default:
+                    VM.FastFail(WNE.TYPE_MISMATCH,
+                        $"[marshal::ToIshtarObject] converter for '{typeof(X).Name}' not support.", frame);
+                    VM.ValidateLastError();
+                    return default;
+            }
+        }
+
+        private static X cast<X>(object o) => (X)o;
+
+        public static X ToDotnet<X>(IshtarObject* obj, CallFrame frame)
+        {
+            switch (typeof(X))
+            {
+                case { } when typeof(X) == typeof(sbyte):
+                    return (X)(object)ToDotnetInt8(obj, frame);
+                case { } when typeof(X) == typeof(byte):
+                    return (X)(object)ToDotnetUInt8(obj, frame);
+                case { } when typeof(X) == typeof(short):
+                    return (X)(object)ToDotnetInt16(obj, frame);
+                case { } when typeof(X) == typeof(ushort):
+                    return (X)(object)ToDotnetUInt16(obj, frame);
+                case { } when typeof(X) == typeof(int):
+                    return (X)(object)ToDotnetInt32(obj, frame);
+                case { } when typeof(X) == typeof(uint):
+                    return (X)(object)ToDotnetUInt32(obj, frame);
+                case { } when typeof(X) == typeof(long):
+                    return (X)(object)ToDotnetInt64(obj, frame);
+                case { } when typeof(X) == typeof(ulong):
+                    return (X)(object)ToDotnetUInt64(obj, frame);
+                case { } when typeof(X) == typeof(bool):
+                    return (X)(object)ToDotnetBoolean(obj, frame);
+                case { } when typeof(X) == typeof(char):
+                    return (X)(object)ToDotnetChar(obj, frame);
+                case { } when typeof(X) == typeof(string):
+                    return (X)(object)ToDotnetString(obj, frame);
+                default:
+                    VM.FastFail(WNE.TYPE_MISMATCH,
+                        $"[marshal::ToDotnet] converter for '{typeof(X).Name}' not support.", frame);
+                    VM.ValidateLastError();
+                    return default;
+            }
+        }
+
         public static sbyte ToDotnetInt8(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_I1);
