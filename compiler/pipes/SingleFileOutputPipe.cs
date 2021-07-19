@@ -4,7 +4,6 @@ namespace mana.pipes
     using System.IO;
     using System.Linq;
     using cmd;
-    using project;
 
     public class SingleFileOutputPipe : CompilerPipeline
     {

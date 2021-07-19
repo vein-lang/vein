@@ -1,10 +1,7 @@
-using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Globalization;
-using System.IO;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using Spectre.Console.Cli;
@@ -13,8 +10,6 @@ using mana.cmd;
 using static System.Console;
 using static GitVersionInformation;
 using static Spectre.Console.AnsiConsole;
-using Spectre.Console;
-using Console = System.Console;
 
 [assembly: InternalsVisibleTo("wc_test")]
 

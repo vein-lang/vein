@@ -9,7 +9,6 @@ namespace mana.pipes
     using ishtar.emit;
     using MoreLinq;
     using project;
-    using Spectre.Console;
 
     public class WriteOutputPipe : CompilerPipeline
     {

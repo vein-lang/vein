@@ -1,6 +1,5 @@
 namespace insomnia.compilation
 {
-    using mana.fs;
     using MoreLinq;
     using Spectre.Console;
     using System;
@@ -24,7 +23,6 @@ namespace insomnia.compilation
     using mana.syntax;
     using static mana.runtime.ManaTypeCode;
     using static Spectre.Console.AnsiConsole;
-    using Console = System.Console;
     using mana.reflection;
 
     public class Compiler
