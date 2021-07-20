@@ -137,7 +137,7 @@ namespace mana.lsp
                             if (s.Column < t.Character && s.Column + c.Identifier.Transform.len > t.Character)
                             {
                                 var str = new StringBuilder();
-                                if(c.IsStruct)
+                                if (c.IsStruct)
                                     str.Append($"```mana\nstruct {c.Identifier.ExpressionString}\n```\n");
                                 else if (c.IsInterface)
                                     str.Append($"```mana\ninterface {c.Identifier.ExpressionString}\n```\n");
