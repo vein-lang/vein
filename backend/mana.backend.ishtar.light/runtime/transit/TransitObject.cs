@@ -76,6 +76,6 @@ namespace ishtar
             get => Field<bool>("ExclusiveAddressUse").MarshaledValue;
         }
 
-        
+
     }
 }

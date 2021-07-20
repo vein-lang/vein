@@ -58,7 +58,7 @@ namespace mana.ishtar.emit
                     *offset = (int)mem.Position;
                     return (list, d);
                 }
-                
+
                 list.Add((uint)opcode);
                 if (!OpCodes.all.ContainsKey(opcode))
                     throw new InvalidOperationException(
