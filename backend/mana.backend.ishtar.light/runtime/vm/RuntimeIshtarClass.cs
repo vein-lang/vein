@@ -161,16 +161,16 @@ namespace ishtar
                         $"Method '{method.Name}' mark as OVERRIDE," +
                         $" but parent class '{p.Name}' no contained virtual/abstract method.");
 
-//                if (w is null)
-//                    continue;
+                if (w is null)
+                    continue;
 
-//                if ((method.Flags & MethodFlags.Override) != 0)
-//                {
-//                    vtable[vtable_offset] = vtable[w.vtable_offset];
-//#if DEBUG_VTABLE
-//                    dvtable.vtable[vtable_offset] = dvtable.vtable[w.vtable_offset];
-//#endif
-//                }
+                if ((method.Flags & MethodFlags.Override) != 0)
+                {
+                    vtable[w.vtable_offset] = vtable[vtable_offset];
+#if DEBUG_VTABLE
+                    dvtable.vtable[w.vtable_offset] = dvtable.vtable[vtable_offset];
+#endif
+                }
             }
 
             if (Fields.Count != 0)
@@ -203,16 +203,16 @@ namespace ishtar
                             $"Field '{field.Name}' mark as OVERRIDE," +
                             $" but parent class '{p.Name}' no contained virtual/abstract method.");
 
-//                    if (w is null)
-//                        continue;
+                    if (w is null)
+                        continue;
 
-//                    if ((field.Flags & FieldFlags.Override) != 0)
-//                    {
-//                        vtable[vtable_offset] = vtable[w.vtable_offset];
-//#if DEBUG_VTABLE
-//                        dvtable.vtable[vtable_offset] = dvtable.vtable[w.vtable_offset];
-//#endif
-//                    }
+                    if ((field.Flags & FieldFlags.Override) != 0)
+                    {
+                        vtable[w.vtable_offset] = vtable[vtable_offset];
+#if DEBUG_VTABLE
+                        dvtable.vtable[w.vtable_offset] = dvtable.vtable[vtable_offset];
+#endif
+                    }
                 }
             }
 
