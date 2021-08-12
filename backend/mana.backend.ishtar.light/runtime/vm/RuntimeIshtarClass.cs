@@ -73,7 +73,7 @@ namespace ishtar
         {
             if (is_inited)
                 return;
-
+            computed_size = 0;
             var p = Parent as RuntimeIshtarClass;
 
             if (p is not null)
@@ -83,16 +83,16 @@ namespace ishtar
                 dvtable.computed_size += p.dvtable.computed_size;
             }
 
-            computed_size += (ulong)this.Methods.Count * 2;
-            computed_size += (ulong)this.Fields.Count * 2;
+            computed_size += (ulong)this.Methods.Count;
+            computed_size += (ulong)this.Fields.Count;
 
-            computed_size += 2;
+            //computed_size += 2;
 
 #if DEBUG_VTABLE
-            dvtable.computed_size += (ulong)this.Methods.Count * 2;
-            dvtable.computed_size += (ulong)this.Fields.Count * 2;
+            dvtable.computed_size += (ulong)this.Methods.Count;
+            dvtable.computed_size += (ulong)this.Fields.Count;
 
-            dvtable.computed_size += 2;
+            //dvtable.computed_size += 2;
 #endif
 
             if (computed_size >= long.MaxValue) // fuck IntPtr ctor limit
@@ -124,11 +124,14 @@ namespace ishtar
                 Unsafe.CopyBlock(vtable, p.vtable,
                     (uint)(sizeof(void*) * (uint)p.vtable_size));
 #if DEBUG_VTABLE
-                for (var i = 0ul; i != p.dvtable.vtable_size; i++) dvtable.vtable[i] = p.dvtable.vtable[i];
+                for (var i = 0ul; i != p.dvtable.computed_size; i++) dvtable.vtable[i] = p.dvtable.vtable[i];
 #endif
             }
 
-            var vtable_offset = (uint)(p?.computed_size - 1 ?? 0);
+            var vtable_offset = 0u;
+
+            if (p is not null)
+                vtable_offset = (uint)p.computed_size;
 
             for (var i = 0; i != this.Methods.Count; i++, vtable_offset++)
             {
@@ -158,19 +161,16 @@ namespace ishtar
                         $"Method '{method.Name}' mark as OVERRIDE," +
                         $" but parent class '{p.Name}' no contained virtual/abstract method.");
 
-                if (w is null)
-                    continue;
+//                if (w is null)
+//                    continue;
 
-                if ((method.Flags & MethodFlags.Override) != 0)
-                {
-                    vtable[w.vtable_offset * 2] = vtable[w.vtable_offset];
-                    vtable[w.vtable_offset] = vtable[vtable_offset];
-
-#if DEBUG_VTABLE
-                    dvtable.vtable[w.vtable_offset * 2] = dvtable.vtable[w.vtable_offset];
-                    dvtable.vtable[w.vtable_offset] = dvtable.vtable[vtable_offset];
-#endif
-                }
+//                if ((method.Flags & MethodFlags.Override) != 0)
+//                {
+//                    vtable[vtable_offset] = vtable[w.vtable_offset];
+//#if DEBUG_VTABLE
+//                    dvtable.vtable[vtable_offset] = dvtable.vtable[w.vtable_offset];
+//#endif
+//                }
             }
 
             if (Fields.Count != 0)
@@ -203,20 +203,16 @@ namespace ishtar
                             $"Field '{field.Name}' mark as OVERRIDE," +
                             $" but parent class '{p.Name}' no contained virtual/abstract method.");
 
-                    if (w is null)
-                        continue;
+//                    if (w is null)
+//                        continue;
 
-                    if ((field.Flags & FieldFlags.Override) != 0)
-                    {
-                        vtable[w.vtable_offset * 2] = vtable[w.vtable_offset];
-                        vtable[w.vtable_offset] = vtable[vtable_offset];
-
-
-#if DEBUG_VTABLE
-                        dvtable.vtable[w.vtable_offset * 2] = dvtable.vtable[w.vtable_offset];
-                        dvtable.vtable[w.vtable_offset] = dvtable.vtable[vtable_offset];
-#endif
-                    }
+//                    if ((field.Flags & FieldFlags.Override) != 0)
+//                    {
+//                        vtable[vtable_offset] = vtable[w.vtable_offset];
+//#if DEBUG_VTABLE
+//                        dvtable.vtable[vtable_offset] = dvtable.vtable[w.vtable_offset];
+//#endif
+//                    }
                 }
             }
 
