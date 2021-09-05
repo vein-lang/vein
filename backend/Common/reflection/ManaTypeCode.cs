@@ -25,8 +25,7 @@ namespace mana.runtime
         TYPE_R8, /* double */
         TYPE_R16, /* decimal */
         TYPE_STRING, /* string */
-        [Obsolete]
-        TYPE_CLASS,
+        TYPE_CLASS, /* custom class */
         TYPE_ARRAY, /* Array<?> */
         TYPE_TOKEN  /* type token */
     }
