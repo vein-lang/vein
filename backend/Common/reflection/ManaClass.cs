@@ -19,7 +19,7 @@ namespace mana.runtime
         public ManaTypeCode TypeCode { get; set; } = TYPE_CLASS;
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE;
         public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
-        public virtual bool IsInterface => false;
+        public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
         public ManaModule Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
 

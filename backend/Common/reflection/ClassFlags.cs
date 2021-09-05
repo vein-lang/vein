@@ -12,6 +12,7 @@ namespace mana.runtime
         Protected   = 1 << 4,
         Private     = 1 << 5,
         Abstract    = 1 << 6,
-        Special     = 1 << 7
+        Special     = 1 << 7,
+        Interface   = 1 << 8
     }
 }
