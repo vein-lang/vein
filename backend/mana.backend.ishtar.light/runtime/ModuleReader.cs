@@ -12,11 +12,33 @@ namespace ishtar
     using mana.ishtar.emit.extensions;
     using mana.reflection;
     using mana.runtime;
-
+    
     public class RuntimeIshtarModule : ManaModule
     {
         public AppVault Vault { get; }
         public ushort ID { get; internal set; }
+
+        public RuntimeIshtarClass FindType(RuntimeToken type,
+            bool findExternally = false)
+        {
+            var result = class_table.OfExactType<RuntimeIshtarClass>().FirstOrDefault(filter);
+            if (result is not null)
+                return result;
+
+            bool filter(RuntimeIshtarClass x) => x!.runtime_token.Equals(type);
+            
+            if (!findExternally)
+                return null;
+
+            foreach (var module in Deps.OfExactType<RuntimeIshtarModule>())
+            {
+                result = module.FindType(type, true);
+                if (result is not null)
+                    return result;
+            }
+
+            return null;
+        }
 
 
         public static RuntimeIshtarModule Read(AppVault vault, byte[] arr, List<ManaModule> deps, Func<string, Version, ManaModule> resolver)
