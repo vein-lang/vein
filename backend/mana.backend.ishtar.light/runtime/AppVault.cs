@@ -39,6 +39,18 @@ namespace ishtar
             return null;
         }
 
+        public RuntimeIshtarClass GlobalFindType(RuntimeToken token)
+        {
+            foreach (var module in Modules)
+            {
+                var r = module.FindType(token);
+                if (r is null)
+                    continue;
+                return r;
+            }
+            return null;
+        }
+
         public AssemblyResolver GetResolver()
         {
             if (Resolver is not null)
