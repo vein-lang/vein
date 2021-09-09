@@ -73,9 +73,9 @@ namespace ishtar
 
 
                 public static implicit operator RuntimeTokenRef(RuntimeToken tok)
-                    => new () { ClassID = tok.ClassID, ModuleID = tok.ModuleID };
+                    => new() { ClassID = tok.ClassID, ModuleID = tok.ModuleID };
                 public static implicit operator RuntimeToken(RuntimeTokenRef tok)
-                    => new (tok.ModuleID, tok.ClassID);
+                    => new(tok.ModuleID, tok.ClassID);
             }
         }
     }
