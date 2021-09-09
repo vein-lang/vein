@@ -12,7 +12,7 @@ namespace ishtar
     using mana.ishtar.emit.extensions;
     using mana.reflection;
     using mana.runtime;
-    
+
     public class RuntimeIshtarModule : ManaModule
     {
         public AppVault Vault { get; }
@@ -26,7 +26,7 @@ namespace ishtar
                 return result;
 
             bool filter(RuntimeIshtarClass x) => x!.runtime_token.Equals(type);
-            
+
             if (!findExternally)
                 return null;
 
