@@ -1,7 +1,6 @@
 namespace ishtar
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
@@ -34,7 +33,7 @@ namespace ishtar
             return f;
         }
 
-        internal new RuntimeIshtarMethod DefineMethod(string name, ManaClass returnType, MethodFlags flags, params ManaArgumentRef[] args)
+        internal RuntimeIshtarMethod DefineMethod(string name, ManaClass returnType, MethodFlags flags, params ManaArgumentRef[] args)
         {
             var method = new RuntimeIshtarMethod(name, flags, returnType, this, args);
             method.Arguments.AddRange(args);
