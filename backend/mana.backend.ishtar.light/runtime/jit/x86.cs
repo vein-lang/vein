@@ -14,7 +14,7 @@ namespace ishtar
         public static int EDI = 7;
     }
 
-    public unsafe struct jit_buffer : INumber<>
+    public unsafe struct jit_buffer
     {
         public void* p;
         public ushort* b;
