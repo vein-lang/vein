@@ -10,8 +10,8 @@ namespace mana.backend.ishtar.light
         {
             var asmName = "corlib%";
 
-            ManaCore.ObjectClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Object", null, null) { TypeCode = ManaTypeCode.TYPE_OBJECT };
-            ManaCore.ValueTypeClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/ValueType", ManaCore.ObjectClass, null) { TypeCode = ManaTypeCode.TYPE_OBJECT };
+            ManaCore.ObjectClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Object", (ManaClass)null, null) { TypeCode = ManaTypeCode.TYPE_OBJECT };
+            ManaCore.ValueTypeClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/ValueType", (ManaClass)null, null) { TypeCode = ManaTypeCode.TYPE_OBJECT };
             ManaCore.VoidClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Void", ManaCore.ObjectClass, null) { TypeCode = ManaTypeCode.TYPE_VOID };
             ManaCore.StringClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/String", ManaCore.ObjectClass, null) { TypeCode = ManaTypeCode.TYPE_STRING };
             ManaCore.ByteClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Byte", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_U1 };
