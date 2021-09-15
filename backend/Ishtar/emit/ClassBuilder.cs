@@ -128,7 +128,10 @@ namespace mana.ishtar.emit
         {
             var str = new StringBuilder();
             str.AppendLine($".namespace '{FullName.Namespace}'");
-            str.Append($".class '{FullName.Name}' {Flags.EnumerateFlags().Except(new[] { ClassFlags.None }).Join(' ').ToLowerInvariant()}");
+            if (IsInterface)      str.Append($".interface ");
+            else if (IsValueType) str.Append($".struct ");
+            else                  str.Append($".class ");
+            str.Append($"'{FullName.Name}' {Flags.EnumerateFlags().Except(new[] { ClassFlags.None, ClassFlags.Interface }).Join(' ').ToLowerInvariant()}");
             str.AppendLine($" extends {Parents.Select(x => $"'{x.Name}'").Join(", ")}");
             str.AppendLine("{");
             foreach (var field in Fields)

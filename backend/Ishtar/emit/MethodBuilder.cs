@@ -90,6 +90,8 @@ namespace mana.ishtar.emit
 
             str.Append($".method {(IsSpecial ? "special" : "")} '{RawName}' ({args}) {Flags.EnumerateFlags().Except(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
             str.AppendLine($" -> {ReturnType.FullName.Name}");
+            if (Flags.HasFlag(Abstract))
+                return str.ToString();
             str.AppendLine("{");
             str.AppendLine($"\t.size {_generator.ILOffset}");
             str.AppendLine($"\t.maxstack 0x{64:X8}");
