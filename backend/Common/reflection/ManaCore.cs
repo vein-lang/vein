@@ -54,8 +54,8 @@ namespace mana.runtime
         {
             var asmName = "corlib%";
             var cormodule = new ManaModule("corlib", new Version(1, 0, 0));
-            ObjectClass = new ManaClass($"{asmName}global::mana/lang/Object", null, cormodule) { TypeCode = ManaTypeCode.TYPE_OBJECT };
-            ValueTypeClass = new ManaClass($"{asmName}global::mana/lang/ValueType", null, cormodule) { TypeCode = ManaTypeCode.TYPE_OBJECT };
+            ObjectClass = new ManaClass($"{asmName}global::mana/lang/Object", (ManaClass)null, cormodule) { TypeCode = ManaTypeCode.TYPE_OBJECT };
+            ValueTypeClass = new ManaClass($"{asmName}global::mana/lang/ValueType", (ManaClass)null, cormodule) { TypeCode = ManaTypeCode.TYPE_OBJECT };
             VoidClass = new ManaClass($"{asmName}global::mana/lang/Void", ValueTypeClass, cormodule) { TypeCode = ManaTypeCode.TYPE_VOID };
             StringClass = new ManaClass($"{asmName}global::mana/lang/String", ObjectClass, cormodule) { TypeCode = ManaTypeCode.TYPE_STRING };
             ByteClass = new ManaClass($"{asmName}global::mana/lang/Byte", ValueTypeClass, cormodule) { TypeCode = ManaTypeCode.TYPE_U1 };

@@ -26,7 +26,7 @@ namespace mana.ishtar.emit
         {
             this.moduleBuilder = module;
             this.FullName = clazz.FullName;
-            this.Parent = clazz.Parent;
+            this.Parents.AddRange(clazz.Parents);
             this.TypeCode = clazz.TypeCode;
             this.Owner = module;
         }
@@ -34,14 +34,14 @@ namespace mana.ishtar.emit
         {
             this.FullName = name;
             moduleBuilder = module;
-            this.Parent = parent.AsClass();
+            this.Parents.Add(parent.AsClass()); 
             this.Owner = module;
         }
         internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, ManaClass parent)
         {
             this.FullName = name;
             moduleBuilder = module;
-            this.Parent = parent;
+            this.Parents.Add(parent); 
             this.Owner = module;
         }
         /// <summary>
@@ -103,7 +103,10 @@ namespace mana.ishtar.emit
 
             binary.WriteTypeName(this.FullName, moduleBuilder);
             binary.Write((short)Flags);
-            binary.WriteTypeName(Parent?.FullName ?? this.FullName, moduleBuilder);
+
+            binary.Write((short)Parents.Count);
+            foreach (var parent in Parents)
+                binary.WriteTypeName(parent.FullName, moduleBuilder);
             binary.Write(Methods.Count);
             foreach (var method in Methods.OfType<IBaker>())
             {
@@ -125,7 +128,8 @@ namespace mana.ishtar.emit
         {
             var str = new StringBuilder();
             str.AppendLine($".namespace '{FullName.Namespace}'");
-            str.AppendLine($".class '{FullName.Name}' {Flags.EnumerateFlags().Except(new[] { ClassFlags.None }).Join(' ').ToLowerInvariant()}");
+            str.Append($".class '{FullName.Name}' {Flags.EnumerateFlags().Except(new[] { ClassFlags.None }).Join(' ').ToLowerInvariant()}");
+            str.AppendLine($" extends {Parents.Select(x => x.Name).Join(", ")}");
             str.AppendLine("{");
             foreach (var field in Fields)
             {

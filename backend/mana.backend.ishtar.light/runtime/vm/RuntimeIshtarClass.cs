@@ -6,6 +6,7 @@ namespace ishtar
     using System.Runtime.InteropServices;
     using mana.reflection;
     using mana.runtime;
+    using mana.extensions;
 
     public interface ITransitionAlignment<in TKey, out TValue>
     {
@@ -20,6 +21,13 @@ namespace ishtar
     {
         internal RuntimeIshtarClass(QualityTypeName name, ManaClass parent, RuntimeIshtarModule module)
             : base(name, parent, module)
+        {
+            ID = module.Vault.TokenGranted.GrantClassID();
+            runtime_token = new RuntimeToken(module.ID, ID);
+        }
+
+        internal RuntimeIshtarClass(QualityTypeName name, ManaClass[] parents, RuntimeIshtarModule module)
+            : base(name, parents, module)
         {
             ID = module.Vault.TokenGranted.GrantClassID();
             runtime_token = new RuntimeToken(module.ID, ID);
@@ -68,20 +76,28 @@ namespace ishtar
         }
 #endif
 
+
+        private void CopyBlocks()
+        {
+
+        }
+
+
         public void init_vtable()
         {
             if (is_inited)
                 return;
             computed_size = 0;
-            var p = Parent as RuntimeIshtarClass;
 
-            if (p is not null)
+            var parents = Parents.OfType<RuntimeIshtarClass>().ToArray();
+
+            foreach (var parent in parents)
             {
-                p.init_vtable();
-                computed_size += p.computed_size;
-                dvtable.computed_size += p.dvtable.computed_size;
+                parent.init_vtable();
+                computed_size += parent.computed_size;
+                dvtable.computed_size += parent.dvtable.computed_size;
             }
-
+            
             computed_size += (ulong)this.Methods.Count;
             computed_size += (ulong)this.Fields.Count;
 
@@ -117,21 +133,25 @@ namespace ishtar
 #if DEBUG_VTABLE
             dvtable.vtable = new object[(long)computed_size];
 #endif
+            var vtable_offset = (uint)parents.Sum(x => x.dvtable.computed_size);
 
-            if (p is not null && p.vtable_size != 0)
+            if (parents.Any())
             {
-                Unsafe.CopyBlock(vtable, p.vtable,
-                    (uint)(sizeof(void*) * (uint)p.vtable_size));
+                var offset = 0ul;
+                foreach (var p in parents)
+                {
+                    Unsafe.CopyBlock(vtable + offset, p.vtable,
+                        (uint)(sizeof(void*) * (uint)p.vtable_size));
+                    offset += p.vtable_size;
+                }
+                
 #if DEBUG_VTABLE
-                for (var i = 0ul; i != p.dvtable.computed_size; i++) dvtable.vtable[i] = p.dvtable.vtable[i];
+                var flat = parents.SelectMany(x => x.dvtable.vtable).ToArray();
+                for (var i = 0ul; i != vtable_offset; i++)
+                    dvtable.vtable[i] = flat[i];
 #endif
             }
-
-            var vtable_offset = 0u;
-
-            if (p is not null)
-                vtable_offset = (uint)p.computed_size;
-
+            
             for (var i = 0; i != this.Methods.Count; i++, vtable_offset++)
             {
                 var method = this.Methods[i] as RuntimeIshtarMethod;
@@ -150,25 +170,27 @@ namespace ishtar
                 dvtable.vtable[vtable_offset] = method;
 #endif
 
-                if (p is null)
+                if (!parents.Any())
                     continue;
-
-                var w = p.FindMethod(method.Name);
-
-                if (w == null && (method.Flags & MethodFlags.Override) != 0)
-                    VM.FastFail(WNE.MISSING_METHOD,
-                        $"Method '{method.Name}' mark as OVERRIDE," +
-                        $" but parent class '{p.Name}' no contained virtual/abstract method.");
-
-                if (w is null)
-                    continue;
-
-                if ((method.Flags & MethodFlags.Override) != 0)
+                foreach (var p in parents)
                 {
-                    vtable[w.vtable_offset] = vtable[vtable_offset];
+                    var w = p.FindMethod(method.Name);
+
+                    if (w == null && (method.Flags & MethodFlags.Override) != 0)
+                        VM.FastFail(WNE.MISSING_METHOD,
+                            $"Method '{method.Name}' mark as OVERRIDE," +
+                            $" but parent class '{p.Name}' no contained virtual/abstract method.");
+
+                    if (w is null)
+                        continue;
+
+                    if ((method.Flags & MethodFlags.Override) != 0)
+                    {
+                        vtable[w.vtable_offset] = vtable[vtable_offset];
 #if DEBUG_VTABLE
-                    dvtable.vtable[w.vtable_offset] = dvtable.vtable[vtable_offset];
+                        dvtable.vtable[w.vtable_offset] = dvtable.vtable[vtable_offset];
 #endif
+                    }
                 }
             }
 
@@ -192,25 +214,28 @@ namespace ishtar
                     dvtable.vtable[vtable_offset] = $"DEFAULT_VALUE OF [{field.FullName}::{field.FieldType.Name}]";
 #endif
 
-                    if (p is null)
+                    if (!parents.Any())
                         continue;
 
-                    var w = p.FindField(field.FullName);
-
-                    if (w == null && (field.Flags & FieldFlags.Override) != 0)
-                        VM.FastFail(WNE.MISSING_FIELD,
-                            $"Field '{field.Name}' mark as OVERRIDE," +
-                            $" but parent class '{p.Name}' no contained virtual/abstract method.");
-
-                    if (w is null)
-                        continue;
-
-                    if ((field.Flags & FieldFlags.Override) != 0)
+                    foreach (var p in parents)
                     {
-                        vtable[w.vtable_offset] = vtable[vtable_offset];
+                        var w = p.FindField(field.FullName);
+
+                        if (w == null && (field.Flags & FieldFlags.Override) != 0)
+                            VM.FastFail(WNE.MISSING_FIELD,
+                                $"Field '{field.Name}' mark as OVERRIDE," +
+                                $" but parent class '{p.Name}' no contained virtual/abstract method.");
+
+                        if (w is null)
+                            continue;
+
+                        if ((field.Flags & FieldFlags.Override) != 0)
+                        {
+                            vtable[w.vtable_offset] = vtable[vtable_offset];
 #if DEBUG_VTABLE
-                        dvtable.vtable[w.vtable_offset] = dvtable.vtable[vtable_offset];
+                            dvtable.vtable[w.vtable_offset] = dvtable.vtable[vtable_offset];
 #endif
+                        }
                     }
                 }
             }
@@ -219,7 +244,7 @@ namespace ishtar
                     (Fields[i] as RuntimeIshtarField)?.init_mapping();
 
             is_inited = true;
-            if (p is null)
+            if (!parents.Any())
             {
                 vtable_size = computed_size;
 #if DEBUG_VTABLE
@@ -228,9 +253,10 @@ namespace ishtar
             }
             else
             {
-                vtable_size = computed_size - p.computed_size;
+                vtable_size = computed_size - parents.Sum(x => x.computed_size);
 #if DEBUG_VTABLE
-                dvtable.vtable_size = dvtable.computed_size - p.dvtable.computed_size;
+                dvtable.vtable_size = dvtable.computed_size -
+                parents.Sum(x => x.dvtable.computed_size);
 #endif
             }
         }
@@ -260,9 +286,19 @@ namespace ishtar
             {
                 var r = (RuntimeIshtarField) Fields.FirstOrDefault(x => x.Name.Equals(key));
 
-                if (Parent is null && r is null)
+                if (r is not null)
+                    return r;
+                if (!Parents.Any())
                     return null;
-                return r ?? (Parent as RuntimeIshtarClass)?.Field[key];
+                foreach (var parent in Parents.OfExactType<RuntimeIshtarClass>())
+                {
+                    r = parent.Field[key];
+
+                    if (r is not null)
+                        return r;
+                }
+
+                return null;
             }
         }
 
@@ -272,10 +308,19 @@ namespace ishtar
             {
                 var r = (RuntimeIshtarMethod) Methods.FirstOrDefault(x => x.Name.Equals(key));
 
-                if (Parent is null && r is null)
+                if (r is not null)
+                    return r;
+                if (!Parents.Any())
                     return null;
+                foreach (var parent in Parents.OfExactType<RuntimeIshtarClass>())
+                {
+                    r = parent.Method[key];
 
-                return r ?? (Parent as RuntimeIshtarClass)?.Method[key];
+                    if (r is not null)
+                        return r;
+                }
+
+                return null;
             }
         }
 

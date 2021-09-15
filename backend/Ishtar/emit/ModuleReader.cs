@@ -118,12 +118,16 @@ namespace mana.ishtar.emit
             // restore unresolved types
             foreach (var @class in module.class_table)
             {
-                if (@class.Parent is not UnresolvedManaClass)
-                    continue;
-                @class.Parent =
-                    @class.Parent.FullName != @class.FullName ?
-                        module.FindType(@class.Parent.FullName, true) :
-                        null;
+                for (var index = 0; index < @class.Parents.Count; index++)
+                {
+                    var parent = @class.Parents[index];
+                    if (parent is not UnresolvedManaClass)
+                        continue;
+                    @class.Parents[index] =
+                        parent.FullName != @class.FullName
+                            ? module.FindType(parent.FullName, true)
+                            : null;
+                }
             }
             // restore unresolved types
             foreach (var @class in module.class_table)

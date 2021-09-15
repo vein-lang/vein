@@ -13,7 +13,7 @@ namespace mana.runtime
         public string Name => FullName.Name;
         public string Path => FullName.Namespace;
         public ClassFlags Flags { get; set; }
-        public ManaClass Parent { get; set; }
+        public List<ManaClass> Parents { get; set; } = new();
         public List<ManaField> Fields { get; } = new();
         public List<ManaMethod> Methods { get; set; } = new();
         public ManaTypeCode TypeCode { get; set; } = TYPE_CLASS;
@@ -26,7 +26,13 @@ namespace mana.runtime
         internal ManaClass(QualityTypeName name, ManaClass parent, ManaModule module)
         {
             this.FullName = name;
-            this.Parent = parent;
+            this.Parents.Add(parent);
+            this.Owner = module;
+        }
+        internal ManaClass(QualityTypeName name, ManaClass[] parents, ManaModule module)
+        {
+            this.FullName = name;
+            this.Parents.AddRange(parents);
             this.Owner = module;
         }
         protected ManaClass() { }
@@ -48,23 +54,22 @@ namespace mana.runtime
             => Methods.FirstOrDefault(x => x.IsStatic == isStatic && x.Name.Equals(name));
 
         public override string ToString()
-            => $"{FullName}, {Flags} ({Parent?.FullName})";
+            => $"{FullName}, {Flags}";
 
 
-        public ManaMethod FindMethod(string name, IEnumerable<ManaClass> args_types)
-        {
-            var result = this.Methods.FirstOrDefault(x =>
-            {
-                var nameHas = x.RawName.Equals(name);
-                var argsHas = x.Arguments.Select(z => z.Type).SequenceEqual(args_types);
+        public ManaMethod FindMethod(string name, IEnumerable<ManaClass> args_types) =>
+            this.Methods.Concat(Parents.SelectMany(x => x.Methods))
+                .FirstOrDefault(x =>
+                {
+                    var nameHas = x.RawName.Equals(name);
+                    var argsHas = x.Arguments.Select(z => z.Type).SequenceEqual(args_types);
 
-                return nameHas && argsHas;
-            });
-            return result ?? Parent?.FindMethod(name, args_types);
-        }
+                    return nameHas && argsHas;
+                });
 
         public ManaField? FindField(string name) =>
-            this.Fields.FirstOrDefault(x => x.Name.Equals(name)) ?? Parent?.FindField(name);
+            this.Fields.Concat(Parents.SelectMany(x => x.Fields))
+                .FirstOrDefault(x => x.Name.Equals(name));
 
 
         public ManaMethod? FindMethod(string name, Func<ManaMethod, bool> eq = null)
@@ -98,7 +103,7 @@ namespace mana.runtime
         }
 
         public override int GetHashCode()
-            => HashCode.Combine(FullName, Parent);
+            => HashCode.Combine(FullName);
 
         public static bool operator ==(ManaClass left, ManaClass right) => Equals(left, right);
 
@@ -119,7 +124,13 @@ namespace mana.runtime
                 if (actor(target))
                     return true;
 
-                target = target.Parent;
+                foreach (var parent in clazz.Parents)
+                {
+                    // TODO
+                    if (parent.IsInterface) continue;
+                    target = parent;
+                    break;
+                }
             }
             return false;
         }

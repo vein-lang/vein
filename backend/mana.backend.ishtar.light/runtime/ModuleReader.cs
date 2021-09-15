@@ -108,16 +108,19 @@ namespace ishtar
                         TypeForwarder.Indicate(@class);
                 }
             }
-
             // restore unresolved types
             foreach (var @class in module.class_table)
             {
-                if (@class.Parent is not UnresolvedManaClass)
-                    continue;
-                @class.Parent =
-                    @class.Parent.FullName != @class.FullName ?
-                        module.FindType(@class.Parent.FullName, true) :
-                        null;
+                for (var index = 0; index < @class.Parents.Count; index++)
+                {
+                    var parent = @class.Parents[index];
+                    if (parent is not UnresolvedManaClass)
+                        continue;
+                    @class.Parents[index] =
+                        parent.FullName != @class.FullName
+                            ? module.FindType(parent.FullName, true)
+                            : null;
+                }
             }
             // restore unresolved types
             foreach (var @class in module.class_table)
@@ -212,11 +215,21 @@ namespace ishtar
             using var binary = new BinaryReader(mem);
             var className = binary.ReadTypeName(ishtarModule);
             var flags = (ClassFlags)binary.ReadInt16();
-            var parentIdx = binary.ReadTypeName(ishtarModule);
+
+            var parentLen = binary.ReadInt16();
+
+            var parents = new List<ManaClass>();
+            foreach (var _ in ..parentLen)
+            {
+                var parentIdx = binary.ReadTypeName(ishtarModule);
+                parents.Add(ishtarModule.FindType(parentIdx, true, false));
+            }
+
+            
             var len = binary.ReadInt32();
 
-            var @class = new RuntimeIshtarClass(className,
-                ishtarModule.FindType(parentIdx, true, false), ishtarModule)
+            var @class = new RuntimeIshtarClass(className, parents.ToArray()
+                , ishtarModule)
             {
                 Flags = flags
             };
@@ -291,7 +304,7 @@ namespace ishtar
         {
             var offset = 0;
             var body_r = ILReader.Deconstruct(body, &offset, method);
-            var labeles = ILReader.DeconstructLabels(body, offset);
+            var labels = ILReader.DeconstructLabels(body, offset);
 
 
             method.Header.max_stack = stacksize;
@@ -303,7 +316,7 @@ namespace ishtar
 
 
             method.Header.code_size = (uint)body_r.opcodes.Count;
-            method.Header.labels = labeles;
+            method.Header.labels = labels;
             method.Header.labels_map = body_r.map.ToDictionary(x => x.Key,
                 x => new ILLabel
                 {
