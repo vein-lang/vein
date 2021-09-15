@@ -9,11 +9,11 @@ public class Array
     [native("!!block")]
     private _block: Int64;
 
-    [native("!!size")]
-    public readonly Length: Int64;
+    [native("!!size"), readonly]
+    public Length: Int64;
 
-    [native("!!rank")]
-    public readonly Rank: Int64;
+    [native("!!rank"), readonly]
+    public Rank: Int64;
 
     public override toString(): String
     {
