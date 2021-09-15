@@ -253,27 +253,30 @@ namespace insomnia.compilation
             var doc = member.OwnerDocument;
             @class.Flags = GenerateClassFlags(member);
 
-            var owner = member.Inheritances.FirstOrDefault();
+            var owners = member.Inheritances;
 
             // ignore core base types
             if (member.Identifier.ExpressionString is "Object" or "ValueType") // TODO
                 return;
+            if (!owners.Any())
+            {
+                // fallback transform
+                if (member.IsStruct)
+                {
+                    owners.Add(new TypeSyntax(new IdentifierExpression("ValueType"))
+                        .SetPos<TypeSyntax>(member.Identifier.Transform)); 
+                }
+                else
+                {
+                    owners.Add(new TypeSyntax(new IdentifierExpression("Object"))
+                        .SetPos<TypeSyntax>(member.Identifier.Transform)); 
+                }
+            }
 
-            // fallback transform
-            if (member.IsStruct)
-            {
-                owner ??= new TypeSyntax(new IdentifierExpression("ValueType"))
-                    .SetPos<TypeSyntax>(member.Identifier.Transform); 
-            }
-            else
-            {
-                owner ??= new TypeSyntax(new IdentifierExpression("Object"))
-                    .SetPos<TypeSyntax>(member.Identifier.Transform); 
-            }
-            
-            var p = FetchType(owner, doc);
-            if (!@class.Parents.Contains(p))
-                @class.Parents.Add(p);
+            owners
+                .Select(owner => FetchType(owner, doc))
+                .Where(p => !@class.Parents.Contains(p))
+                .Pipe(p => @class.Parents.Add(p)).Consume();
         }
         public (
             List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods,
