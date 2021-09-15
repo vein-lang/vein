@@ -263,7 +263,7 @@ namespace insomnia.compilation
             owner ??= new TypeSyntax(new IdentifierExpression("Object"))
                 .SetPos<TypeSyntax>(member.Identifier.Transform); // fallback transform
 
-            @class.Parent = FetchType(owner, doc);
+            @class.Parents.Add(FetchType(owner, doc));
         }
         public (
             List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods,
@@ -362,11 +362,11 @@ namespace insomnia.compilation
 
             gen.StoreIntoMetadata("context", Context);
 
+            // emit calling based ctors
+            @class.Parents.Select(z => z.GetDefaultCtor()).Where(z => z != null)
+                .Pipe(z => gen.Emit(OpCodes.CALL, z));
 
-            var pctor = @class.Parent?.GetDefaultCtor();
 
-            if (pctor is not null) // for Object, ValueType
-                gen.Emit(OpCodes.CALL, pctor); // call parent ctor
             var pregen = new List<(ExpressionSyntax exp, ManaField field)>();
 
 
