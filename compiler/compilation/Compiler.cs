@@ -259,11 +259,21 @@ namespace insomnia.compilation
             if (member.Identifier.ExpressionString is "Object" or "ValueType") // TODO
                 return;
 
-            // TODO set for struct ValueType owner
-            owner ??= new TypeSyntax(new IdentifierExpression("Object"))
-                .SetPos<TypeSyntax>(member.Identifier.Transform); // fallback transform
-
-            @class.Parents.Add(FetchType(owner, doc));
+            // fallback transform
+            if (member.IsStruct)
+            {
+                owner ??= new TypeSyntax(new IdentifierExpression("ValueType"))
+                    .SetPos<TypeSyntax>(member.Identifier.Transform); 
+            }
+            else
+            {
+                owner ??= new TypeSyntax(new IdentifierExpression("Object"))
+                    .SetPos<TypeSyntax>(member.Identifier.Transform); 
+            }
+            
+            var p = FetchType(owner, doc);
+            if (!@class.Parents.Contains(p))
+                @class.Parents.Add(p);
         }
         public (
             List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods,

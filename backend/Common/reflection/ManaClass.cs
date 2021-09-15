@@ -3,6 +3,8 @@ namespace mana.runtime
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using collections;
+    using extensions;
     using reflection;
     using static ManaTypeCode;
 
@@ -13,7 +15,7 @@ namespace mana.runtime
         public string Name => FullName.Name;
         public string Path => FullName.Namespace;
         public ClassFlags Flags { get; set; }
-        public List<ManaClass> Parents { get; set; } = new();
+        public UniqueList<ManaClass> Parents { get; set; } = new();
         public List<ManaField> Fields { get; } = new();
         public List<ManaMethod> Methods { get; set; } = new();
         public ManaTypeCode TypeCode { get; set; } = TYPE_CLASS;

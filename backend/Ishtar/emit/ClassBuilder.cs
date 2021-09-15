@@ -129,7 +129,7 @@ namespace mana.ishtar.emit
             var str = new StringBuilder();
             str.AppendLine($".namespace '{FullName.Namespace}'");
             str.Append($".class '{FullName.Name}' {Flags.EnumerateFlags().Except(new[] { ClassFlags.None }).Join(' ').ToLowerInvariant()}");
-            str.AppendLine($" extends {Parents.Select(x => x.Name).Join(", ")}");
+            str.AppendLine($" extends {Parents.Select(x => $"'{x.Name}'").Join(", ")}");
             str.AppendLine("{");
             foreach (var field in Fields)
             {
