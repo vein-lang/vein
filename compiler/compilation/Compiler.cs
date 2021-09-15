@@ -195,7 +195,9 @@ namespace insomnia.compilation
 
                 throw new ForwardedTypeNotDefinedException(member.Identifier.ExpressionString);
             }
-            var clazz = module.DefineClass($"global::{doc.Name}/{member.Identifier.ExpressionString}").WithIncludes(doc.Includes);
+
+            var clazz = module.DefineClass($"global::{doc.Name}/{member.Identifier.ExpressionString}")
+                .WithIncludes(doc.Includes);
             CompileAnnotation(member, doc, clazz);
             return clazz;
         }
@@ -253,12 +255,18 @@ namespace insomnia.compilation
             var doc = member.OwnerDocument;
             @class.Flags = GenerateClassFlags(member);
 
+            if (member.IsInterface)
+            {
+                @class.Flags |= ClassFlags.Abstract;
+                @class.Flags |= ClassFlags.Interface;
+            }
+
             var owners = member.Inheritances;
 
             // ignore core base types
             if (member.Identifier.ExpressionString is "Object" or "ValueType") // TODO
                 return;
-            if (!owners.Any())
+            if (!owners.Any() && !@class.Parents.Any())
             {
                 // fallback transform
                 if (member.IsStruct)
@@ -333,6 +341,9 @@ namespace insomnia.compilation
             var method = clazz.DefineMethod(member.Identifier.ExpressionString, GenerateMethodFlags(member), retType, args);
 
             method.Owner = clazz;
+
+            if (clazz.IsInterface)
+                method.Flags |= MethodFlags.Abstract;
 
             CompileAnnotation(member, doc, method);
 
@@ -475,6 +486,8 @@ namespace insomnia.compilation
             foreach (var pr in member.Body.Statements.SelectMany(x => x.ChildNodes.Concat(new[] { x })))
                 AnalyzeStatement(pr, member);
 
+            if (method.IsAbstract)
+                return;
 
             var generator = method.GetGenerator();
             Context.Document = member.OwnerClass.OwnerDocument;
