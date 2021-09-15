@@ -10,7 +10,7 @@
     <None Remove="antrl\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Spectre.Console.ImageSharp" Version="0.40.0" />
+    <PackageReference Include="Spectre.Console.ImageSharp" Version="0.41.1-preview.0.14" />
     <PackageReference Include="xunit.assert" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
