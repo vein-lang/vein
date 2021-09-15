@@ -12,10 +12,10 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.9.0" />
-		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21459.4" />
-		<PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21459.4" />
-		<PackageReference Include="runtime.osx-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21459.4" />
-    <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21459.4" />
+		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21463.2" />
+		<PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21463.2" />
+		<PackageReference Include="runtime.osx-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21463.2" />
+    <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21463.2" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Common\mana.common.csproj" />
