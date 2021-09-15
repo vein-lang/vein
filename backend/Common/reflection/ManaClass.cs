@@ -26,7 +26,8 @@ namespace mana.runtime
         internal ManaClass(QualityTypeName name, ManaClass parent, ManaModule module)
         {
             this.FullName = name;
-            this.Parents.Add(parent);
+            if (parent is not null)
+                this.Parents.Add(parent);
             this.Owner = module;
         }
         internal ManaClass(QualityTypeName name, ManaClass[] parents, ManaModule module)
