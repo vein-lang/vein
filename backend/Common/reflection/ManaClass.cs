@@ -127,7 +127,10 @@ namespace mana.runtime
                 if (actor(target))
                     return true;
 
-                foreach (var parent in clazz.Parents)
+                if (!target.Parents.Any())
+                    return false;
+
+                foreach (var parent in target.Parents)
                 {
                     // TODO
                     if (parent.IsInterface) continue;
