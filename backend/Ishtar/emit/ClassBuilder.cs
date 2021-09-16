@@ -34,14 +34,14 @@ namespace mana.ishtar.emit
         {
             this.FullName = name;
             moduleBuilder = module;
-            this.Parents.Add(parent.AsClass()); 
+            this.Parents.Add(parent.AsClass());
             this.Owner = module;
         }
         internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, ManaClass parent)
         {
             this.FullName = name;
             moduleBuilder = module;
-            this.Parents.Add(parent); 
+            this.Parents.Add(parent);
             this.Owner = module;
         }
         /// <summary>

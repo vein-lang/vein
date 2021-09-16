@@ -97,7 +97,7 @@ namespace ishtar
                 computed_size += parent.computed_size;
                 dvtable.computed_size += parent.dvtable.computed_size;
             }
-            
+
             computed_size += (ulong)this.Methods.Count;
             computed_size += (ulong)this.Fields.Count;
 
@@ -144,14 +144,14 @@ namespace ishtar
                         (uint)(sizeof(void*) * (uint)p.vtable_size));
                     offset += p.vtable_size;
                 }
-                
+
 #if DEBUG_VTABLE
                 var flat = parents.SelectMany(x => x.dvtable.vtable).ToArray();
                 for (var i = 0ul; i != vtable_offset; i++)
                     dvtable.vtable[i] = flat[i];
 #endif
             }
-            
+
             for (var i = 0; i != this.Methods.Count; i++, vtable_offset++)
             {
                 var method = this.Methods[i] as RuntimeIshtarMethod;

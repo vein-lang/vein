@@ -272,12 +272,12 @@ namespace insomnia.compilation
                 if (member.IsStruct)
                 {
                     owners.Add(new TypeSyntax(new IdentifierExpression("ValueType"))
-                        .SetPos<TypeSyntax>(member.Identifier.Transform)); 
+                        .SetPos<TypeSyntax>(member.Identifier.Transform));
                 }
                 else
                 {
                     owners.Add(new TypeSyntax(new IdentifierExpression("Object"))
-                        .SetPos<TypeSyntax>(member.Identifier.Transform)); 
+                        .SetPos<TypeSyntax>(member.Identifier.Transform));
                 }
             }
 
