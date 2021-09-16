@@ -22,7 +22,7 @@ namespace mana.collections
     {
         public DuplicateItemException(string msg) : base(msg)
         {
-            
+
         }
     }
 }
