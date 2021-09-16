@@ -1,0 +1,10 @@
+#space "mana/lang"
+
+public interface IZopa
+{
+    foobar(): void;
+}
+
+public class Zoo : IZopa
+{
+}

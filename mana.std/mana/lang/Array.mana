@@ -20,6 +20,6 @@ public class Array
         return "Array";
     }
 
-    protected extern _indexer_get(index: Int64): Object;
-    protected extern _indexer_set(index: Int64, o: Object): Void;
+    //protected extern _indexer_get(index: Int64): Object;
+    //protected extern _indexer_set(index: Int64, o: Object): Void;
 }
