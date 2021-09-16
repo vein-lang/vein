@@ -88,7 +88,7 @@ namespace mana.ishtar.emit
             }
             var body = _generator.BakeDebugString();
 
-            str.Append($".method {(IsSpecial ? "special" : "")} '{RawName}' ({args}) {Flags.EnumerateFlags().Except(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
+            str.Append($".method {(IsSpecial ? "special " : "")}'{RawName}' ({args}) {Flags.EnumerateFlags().Except(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
             str.AppendLine($" -> {ReturnType.FullName.Name}");
             if (Flags.HasFlag(Abstract))
                 return str.ToString();
@@ -96,8 +96,11 @@ namespace mana.ishtar.emit
             str.AppendLine($"\t.size {_generator.ILOffset}");
             str.AppendLine($"\t.maxstack 0x{64:X8}");
             str.AppendLine($"\t.locals 0x{_generator.LocalsSize:X8}");
-            str.AppendLine($"\t");
-            str.AppendLine($"{body.Split("\n").Select(x => $"\t{x}").Join("\n").TrimEnd('\n')}");
+            if (!string.IsNullOrEmpty(body))
+            {
+                str.AppendLine($"\t");
+                str.AppendLine($"{body.Split("\n").Select(x => $"\t{x}").Join("\n").TrimEnd('\n')}");
+            }
             str.AppendLine("}");
             return str.ToString();
         }

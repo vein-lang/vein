@@ -139,7 +139,6 @@ namespace mana.ishtar.emit
                 var flags = field.Flags.EnumerateFlags().Except(new [] {FieldFlags.None}).Join(' ').ToLowerInvariant();
                 str.AppendLine($"\t.field '{field.Name}' as '{field.FieldType.Name}' {flags}");
             }
-            str.AppendLine("");
             foreach (var method in Methods.OfType<IBaker>().Select(method => method.BakeDebugString()))
                 str.AppendLine($"{method.Split("\n").Select(x => $"\t{x}").Join("\n").TrimEnd('\n')}");
             str.AppendLine("}");
