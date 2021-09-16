@@ -225,7 +225,7 @@ namespace ishtar
                 parents.Add(ishtarModule.FindType(parentIdx, true, false));
             }
 
-            
+
             var len = binary.ReadInt32();
 
             var @class = new RuntimeIshtarClass(className, parents.ToArray()
