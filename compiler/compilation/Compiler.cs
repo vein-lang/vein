@@ -316,6 +316,7 @@ namespace insomnia.compilation
             var prepairedOthers = @class.Parents
                 .SelectMany(x => x.Methods)
                 .Where(x => !x.IsPrivate)
+                .Where(x => !x.IsAbstract)
                 .Where(x => !x.IsSpecial);
 
             foreach (var method in prepairedOthers.Where(@class.Contains))

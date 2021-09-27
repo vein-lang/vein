@@ -8,7 +8,7 @@ public interface IFreeable
 
 public class FooBar : IFreeable
 {
-
+    public override free(): void {}
 }
 
 public class Xer 
