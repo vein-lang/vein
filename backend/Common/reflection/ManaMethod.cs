@@ -59,6 +59,8 @@ namespace mana.runtime
         public bool IsPrivate => Flags.HasFlag(MethodFlags.Private);
         public bool IsExtern => Flags.HasFlag(MethodFlags.Extern);
         public bool IsAbstract => Flags.HasFlag(MethodFlags.Abstract);
+        public bool IsVirtual => Flags.HasFlag(MethodFlags.Virtual);
+        public bool IsOverride => !Flags.HasFlag(MethodFlags.Abstract) && Flags.HasFlag(MethodFlags.Override);
         public override bool IsSpecial => Flags.HasFlag(MethodFlags.Special);
 
         public sealed override string Name { get; protected set; }
