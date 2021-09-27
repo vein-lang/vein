@@ -137,6 +137,7 @@ namespace insomnia.compilation
                 .Select(x => x.x)
                 .Pipe(GenerateCtor)
                 .Pipe(GenerateStaticCtor)
+                .Pipe(ValidateInheritance)
                 .Consume();
             errors.AddRange(Context.Errors);
             if (errors.Count == 0)
@@ -259,6 +260,7 @@ namespace insomnia.compilation
             {
                 @class.Flags |= ClassFlags.Abstract;
                 @class.Flags |= ClassFlags.Interface;
+                @class.Flags |= ClassFlags.Public;
             }
 
             var owners = member.Inheritances;
@@ -286,6 +288,44 @@ namespace insomnia.compilation
                 .Where(p => !@class.Parents.Contains(p))
                 .Pipe(p => @class.Parents.Add(p)).Consume();
         }
+
+        public void ValidateInheritance((ClassBuilder @class, ClassDeclarationSyntax member) x)
+        {
+            var (@class, member) = x;
+            ValidateInheritanceInterfaces(@class, member);
+            ValidateCollisionsMethods(@class, member);
+        }
+
+        public void ValidateInheritanceInterfaces(ClassBuilder @class, ClassDeclarationSyntax member)
+        {
+            var prepairedAbstracts = @class.Parents
+                .SelectMany(x => x.Methods)
+                .Where(x => !x.IsPrivate)
+                .Where(x => !x.IsStatic)
+                .Where(x => x.IsAbstract);
+
+            foreach (var method in prepairedAbstracts.Where(x => !@class.ContainsImpl(x)))
+            {
+                PrintError(
+                    $"[red]'{@class.Name}'[/] does not implement inherited abstract member [red]'{method.Owner.Name}.{method.Name}'[/]"
+                    , member.Identifier, member.OwnerDocument);
+            }
+        }
+        public void ValidateCollisionsMethods(ClassBuilder @class, ClassDeclarationSyntax member)
+        {
+            var prepairedOthers = @class.Parents
+                .SelectMany(x => x.Methods)
+                .Where(x => !x.IsPrivate)
+                .Where(x => !x.IsSpecial);
+
+            foreach (var method in prepairedOthers.Where(@class.Contains))
+            {
+                PrintWarning(
+                    $"[yellow]'{method.Name}' hides inherited member '{method.Name}'.[/]",
+                    member.Identifier, member.OwnerDocument);
+            }
+        }
+
         public (
             List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods,
             List<(ManaField field, FieldDeclarationSyntax syntax)>)
@@ -343,7 +383,10 @@ namespace insomnia.compilation
             method.Owner = clazz;
 
             if (clazz.IsInterface)
+            {
                 method.Flags |= MethodFlags.Abstract;
+                method.Flags |= MethodFlags.Public;
+            }
 
             CompileAnnotation(member, doc, method);
 
@@ -786,7 +829,7 @@ namespace insomnia.compilation
             return flags;
         }
 
-        private void PrintError(string text, BaseSyntax posed, DocumentDeclaration doc)
+        private void _print(string text, BaseSyntax posed, DocumentDeclaration doc, List<string> qlist)
         {
             if (posed is { Transform: null })
             {
@@ -818,7 +861,16 @@ namespace insomnia.compilation
                 strBuilder.Append($"\t\t{diff_err}");
             }
 
-            errors.Add(strBuilder.ToString());
+            qlist.Add(strBuilder.ToString());
+        }
+        private void PrintWarning(string text, BaseSyntax posed, DocumentDeclaration doc)
+        {
+            _print(text, posed, doc, warnings);
+        }
+
+        private void PrintError(string text, BaseSyntax posed, DocumentDeclaration doc)
+        {
+            _print(text, posed, doc, errors);
         }
 
         private MethodFlags GenerateMethodFlags(MethodDeclarationSyntax method)
