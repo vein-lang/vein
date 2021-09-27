@@ -153,7 +153,7 @@ namespace mana.ishtar.emit
             if (ctor is not null)
                 return ctor;
 
-            var flags = MethodFlags.Public;
+            var flags = MethodFlags.Public | MethodFlags.Special;
 
             if (isStatic)
                 flags |= MethodFlags.Static;
