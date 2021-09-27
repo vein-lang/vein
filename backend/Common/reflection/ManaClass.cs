@@ -88,6 +88,26 @@ namespace mana.runtime
             return null;
         }
 
+        public bool ContainsImpl(ManaMethod method)
+        {
+            foreach (var current in Methods)
+            {
+                if (current.Name == method.Name)
+                    return current.IsOverride;
+            }
+            return false;
+        }
+
+        public bool Contains(ManaMethod method)
+        {
+            foreach (var current in Methods)
+            {
+                if (current.Name == method.Name)
+                    return true;
+            }
+            return false;
+        }
+
         #region Equality members
 
         public bool Equals(ManaClass other)
