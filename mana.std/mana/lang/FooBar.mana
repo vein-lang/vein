@@ -1,0 +1,22 @@
+#space "mana/lang"
+
+
+public interface IFreeable
+{
+    free(): void;
+}
+
+public class FooBar : IFreeable
+{
+
+}
+
+public class Xer 
+{
+    public zhopa(): void {}
+}
+
+public class NoXer : Xer 
+{
+    public zhopa(): void {}
+}
