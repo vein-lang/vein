@@ -412,10 +412,9 @@ namespace insomnia.compilation
             var (@class, member) = x;
             Context.Document = member.OwnerDocument;
             Status.ManaStatus($"Regenerate default ctor for [grey]'{member.Identifier}'[/].");
-            var ctor = @class.GetDefaultCtor() as MethodBuilder;
             var doc = member.OwnerDocument;
 
-            if (ctor is null)
+            if (@class.GetDefaultCtor() is not MethodBuilder ctor)
             {
                 errors.Add($"[red bold]Class/struct '{@class.Name}' has problem with generate default ctor.[/] \n\t" +
                            $"Please report the problem into 'https://github.com/0xF6/mana_lang/issues'." +
@@ -431,7 +430,8 @@ namespace insomnia.compilation
 
             // emit calling based ctors
             @class.Parents.Select(z => z.GetDefaultCtor()).Where(z => z != null)
-                .Pipe(z => gen.Emit(OpCodes.CALL, z));
+                .Pipe(z => gen.Emit(OpCodes.CALL, z))
+                .Consume();
 
 
             var pregen = new List<(ExpressionSyntax exp, ManaField field)>();
