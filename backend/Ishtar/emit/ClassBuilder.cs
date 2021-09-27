@@ -128,9 +128,9 @@ namespace mana.ishtar.emit
         {
             var str = new StringBuilder();
             str.AppendLine($".namespace '{FullName.Namespace}'");
-            if (IsInterface)      str.Append($".interface ");
+            if (IsInterface) str.Append($".interface ");
             else if (IsValueType) str.Append($".struct ");
-            else                  str.Append($".class ");
+            else str.Append($".class ");
             str.Append($"'{FullName.Name}' {Flags.EnumerateFlags().Except(new[] { ClassFlags.None, ClassFlags.Interface }).Join(' ').ToLowerInvariant()}");
             str.AppendLine($" extends {Parents.Select(x => $"'{x.Name}'").Join(", ")}");
             str.AppendLine("{");
