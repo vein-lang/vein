@@ -4,15 +4,17 @@ namespace ishtar_test
     using ishtar;
     using mana.ishtar.emit;
     using mana.runtime;
-    using Xunit;
+    using NUnit.Framework;
     using static mana.runtime.FieldFlags;
 
+    [TestFixture]
     public class InstructionTest : IshtarTestBase
     {
-        [Theory]
-        [InlineData(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
-        [InlineData(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
-        [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [Test]
+        [TestCase(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void ADD_Test(OpCodeValue op, ManaTypeCode code)
         {
             using var ctx = CreateContext();
@@ -24,14 +26,15 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.Equal(code, (*result.returnValue).type);
-            Assert.Equal(10, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (*result.returnValue).type);
+            Assert.AreEqual(10, (*result.returnValue).data.l);
         }
 
-        [Theory]
-        [InlineData(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
-        [InlineData(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
-        [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [Test]
+        [TestCase(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void SUB_Test(OpCodeValue op, ManaTypeCode code)
         {
             using var ctx = CreateContext();
@@ -45,14 +48,15 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.Equal(code, (*result.returnValue).type);
-            Assert.Equal(5, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (*result.returnValue).type);
+            Assert.AreEqual(5, (*result.returnValue).data.l);
         }
 
-        [Theory]
-        [InlineData(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
-        [InlineData(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
-        [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [Test]
+        [TestCase(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void MUL_Test(OpCodeValue op, ManaTypeCode code)
         {
             using var ctx = CreateContext();
@@ -64,14 +68,15 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.Equal(code, (*result.returnValue).type);
-            Assert.Equal(5 * 5, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (*result.returnValue).type);
+            Assert.AreEqual(5 * 5, (*result.returnValue).data.l);
         }
 
-        [Theory]
-        [InlineData(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
-        [InlineData(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
-        [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [Test]
+        [TestCase(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void DIV_Test(OpCodeValue op, ManaTypeCode code)
         {
             using var ctx = CreateContext();
@@ -83,15 +88,16 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.Equal(code, (*result.returnValue).type);
-            Assert.Equal(5 / 5, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (*result.returnValue).type);
+            Assert.AreEqual(5 / 5, (*result.returnValue).data.l);
         }
 
-        [Theory]
-        [InlineData(6f, OpCodeValue.DIV)]
-        [InlineData(24f, OpCodeValue.MUL)]
-        [InlineData(10f, OpCodeValue.SUB)]
-        [InlineData(14f, OpCodeValue.ADD)]
+        [Test]
+        [TestCase(6f, OpCodeValue.DIV)]
+        [TestCase(24f, OpCodeValue.MUL)]
+        [TestCase(10f, OpCodeValue.SUB)]
+        [TestCase(14f, OpCodeValue.ADD)]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void Arithmetic_Float_Test(float expected, OpCodeValue actor)
         {
             using var ctx = CreateContext();
@@ -103,15 +109,16 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.Equal(ManaTypeCode.TYPE_R4, (*result.returnValue).type);
-            Assert.Equal(expected, (*result.returnValue).data.f_r4);
+            Assert.AreEqual(ManaTypeCode.TYPE_R4, (*result.returnValue).type);
+            Assert.AreEqual(expected, (*result.returnValue).data.f_r4);
         }
 
-        [Theory]
-        [InlineData(6, OpCodeValue.DIV)]
-        [InlineData(24, OpCodeValue.MUL)]
-        [InlineData(10, OpCodeValue.SUB)]
-        [InlineData(14, OpCodeValue.ADD)]
+        [Test]
+        [TestCase(6, OpCodeValue.DIV)]
+        [TestCase(24, OpCodeValue.MUL)]
+        [TestCase(10, OpCodeValue.SUB)]
+        [TestCase(14, OpCodeValue.ADD)]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void Arithmetic_Decimal_Test(int expected, OpCodeValue actor)
         {
             using var ctx = CreateContext();
@@ -123,15 +130,16 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.Equal(ManaTypeCode.TYPE_R16, (*result.returnValue).type);
-            Assert.Equal((decimal)expected, (*result.returnValue).data.d);
+            Assert.AreEqual(ManaTypeCode.TYPE_R16, (*result.returnValue).type);
+            Assert.AreEqual((decimal)expected, (*result.returnValue).data.d);
         }
 
-        [Theory]
-        [InlineData(6, OpCodeValue.DIV)]
-        [InlineData(24, OpCodeValue.MUL)]
-        [InlineData(10, OpCodeValue.SUB)]
-        [InlineData(14, OpCodeValue.ADD)]
+        [Test]
+        [TestCase(6, OpCodeValue.DIV)]
+        [TestCase(24, OpCodeValue.MUL)]
+        [TestCase(10, OpCodeValue.SUB)]
+        [TestCase(14, OpCodeValue.ADD)]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void Arithmetic_Double_Test(int expected, OpCodeValue actor)
         {
             using var ctx = CreateContext();
@@ -143,14 +151,15 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.Equal(ManaTypeCode.TYPE_R8, (*result.returnValue).type);
-            Assert.Equal((double)expected, (*result.returnValue).data.f);
+            Assert.AreEqual(ManaTypeCode.TYPE_R8, (*result.returnValue).type);
+            Assert.AreEqual((double)expected, (*result.returnValue).data.f);
         }
 
-        [Theory]
-        [InlineData(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
-        [InlineData(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
-        [InlineData(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [Test]
+        [TestCase(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void DUP_Test(OpCodeValue op, ManaTypeCode code)
         {
             using var ctx = CreateContext();
@@ -162,11 +171,12 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.Equal(code, (*result.returnValue).type);
-            Assert.Equal(5 * 5, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (*result.returnValue).type);
+            Assert.AreEqual(5 * 5, (*result.returnValue).data.l);
         }
 
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void LDSTR_Test()
         {
             var targetStr = "the string";
@@ -177,14 +187,15 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.Equal(ManaTypeCode.TYPE_STRING, (*result.returnValue).type);
+            Assert.AreEqual(ManaTypeCode.TYPE_STRING, (*result.returnValue).type);
 
             var obj = (IshtarObject*) result.returnValue->data.p;
-            Assert.Equal(targetStr, IshtarMarshal.ToDotnetString(obj, null));
+            Assert.AreEqual(targetStr, IshtarMarshal.ToDotnetString(obj, null));
         }
 
 
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void LDF_Test()
         {
             using var ctx = CreateContext();
@@ -203,7 +214,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
 
-            Assert.Equal(142, result.returnValue->data.l);
+            Assert.AreEqual(142, result.returnValue->data.l);
         }
 
 

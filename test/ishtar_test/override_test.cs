@@ -3,13 +3,12 @@ namespace ishtar_test
     using System;
     using ishtar;
     using mana.runtime;
-    using Xunit;
-    using Xunit.Abstractions;
-    using Xunit.Sdk;
+    using NUnit.Framework;
 
     public unsafe class OverrideTest : IshtarTestBase
     {
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void TestValidCall()
         {
             var module = new RuntimeIshtarModule(AppVault.CurrentVault, _module.Name);
@@ -42,7 +41,8 @@ namespace ishtar_test
         }
 
 
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void TestNotValidCall()
         {
             //var module = new RuntimeIshtarModule(AppVault.CurrentVault, _module.Name);
@@ -79,8 +79,8 @@ namespace ishtar_test
             //var d1 = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(p1);
             //var d2 = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(p2);
 
-            //Assert.Equal((nint)p1, (nint)cp1);
-            //Assert.Equal((nint)p2, (nint)cp2);
+            //Assert.AreEqual((nint)p1, (nint)cp1);
+            //Assert.AreEqual((nint)p2, (nint)cp2);
             //Assert.NotNull(d1);
             //Assert.NotNull(d2);
         }

@@ -2,11 +2,13 @@ namespace ishtar_test
 {
     using ishtar;
     using mana.runtime;
-    using Xunit;
+    using NUnit.Framework;
 
+    [TestFixture]
     public unsafe class ArrayTest : IshtarTestBase
     {
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void NewArr()
         {
             using var ctx = CreateContext();
@@ -23,10 +25,11 @@ namespace ishtar_test
             });
 
 
-            Assert.Equal(ManaTypeCode.TYPE_ARRAY, result.returnValue->type);
+            Assert.AreEqual(ManaTypeCode.TYPE_ARRAY, result.returnValue->type);
         }
 
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void LoadAndStageElementTest()
         {
             using var ctx = CreateContext();
@@ -47,11 +50,12 @@ namespace ishtar_test
                 x.Emit(OpCodes.RET);
             });
 
-            Assert.Equal(ManaTypeCode.TYPE_I4, result.returnValue->type);
-            Assert.Equal(3, result.returnValue->data.i);
+            Assert.AreEqual(ManaTypeCode.TYPE_I4, result.returnValue->type);
+            Assert.AreEqual(3, result.returnValue->data.i);
         }
 
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void GetLenTest()
         {
             using var ctx = CreateContext();
@@ -72,8 +76,8 @@ namespace ishtar_test
                 x.Emit(OpCodes.RET);
             });
 
-            Assert.Equal(ManaTypeCode.TYPE_U8, result.returnValue->type);
-            Assert.Equal(5, result.returnValue->data.i);
+            Assert.AreEqual(ManaTypeCode.TYPE_U8, result.returnValue->type);
+            Assert.AreEqual(5, result.returnValue->data.i);
         }
     }
 }

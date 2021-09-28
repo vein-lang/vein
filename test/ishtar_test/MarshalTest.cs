@@ -1,11 +1,12 @@
 namespace ishtar_test
 {
     using ishtar;
-    using Xunit;
+    using NUnit.Framework;
 
     public unsafe class MarshalTest : IshtarTestBase
     {
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void Int16Test()
         {
             short clr = short.MaxValue / 2;
@@ -13,9 +14,10 @@ namespace ishtar_test
             var v = IshtarMarshal.ToIshtarObject(clr);
             var r = IshtarMarshal.ToDotnetInt16(v, null);
 
-            Assert.Equal(clr, r);
+            Assert.AreEqual(clr, r);
         }
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void Int32Test()
         {
             int clr = int.MaxValue / 2;
@@ -23,9 +25,10 @@ namespace ishtar_test
             var v = IshtarMarshal.ToIshtarObject(clr);
             var r = IshtarMarshal.ToDotnetInt32(v, null);
 
-            Assert.Equal(clr, r);
+            Assert.AreEqual(clr, r);
         }
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void Int64Test()
         {
             long clr = long.MaxValue / 2;
@@ -33,10 +36,11 @@ namespace ishtar_test
             var v = IshtarMarshal.ToIshtarObject(clr);
             var r = IshtarMarshal.ToDotnetInt64(v, null);
 
-            Assert.Equal(clr, r);
+            Assert.AreEqual(clr, r);
         }
 
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void StringTest()
         {
             var clr = "long.MaxValue / 2";
@@ -44,7 +48,7 @@ namespace ishtar_test
             var v = IshtarMarshal.ToIshtarObject(clr);
             var r = IshtarMarshal.ToDotnetString(v, null);
 
-            Assert.Equal(clr, r);
+            Assert.AreEqual(clr, r);
         }
     }
 }

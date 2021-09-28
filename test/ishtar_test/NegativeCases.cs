@@ -2,17 +2,17 @@ namespace ishtar_test
 {
     using System;
     using ishtar;
-    using Xunit;
-    using Xunit.Sdk;
+    using NUnit.Framework;
 
     public class NegativeCases : IshtarTestBase
     {
-        [Fact(Skip = "So, fucking CI has randomly crash other test"), TestPriority(9999)]
+        [Test, Ignore("So, fucking CI has randomly crash other test")]
+        [Parallelizable(ParallelScope.None)]
         public unsafe void IncorrectPointerCrashTest() =>
             Assert.Throws<WatchDogEffluentException>(() =>
             {
                 var invalid = (StrRef*)ulong.MaxValue;
-                return StringStorage.GetString(invalid);
+                StringStorage.GetString(invalid);
             });
 
 

@@ -3,11 +3,13 @@ namespace ishtar_test
     using ishtar;
     using mana.ishtar.emit;
     using mana.runtime;
-    using Xunit;
+    using NUnit.Framework;
 
+    [TestFixture]
     public unsafe class InstructionSizeTest : IshtarTestBase
     {
-        [Fact]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void I8FillTest()
         {
             using var ctx = CreateContext();
@@ -18,8 +20,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
 
-            Assert.Equal(ManaTypeCode.TYPE_I8, (*result.returnValue).type);
-            Assert.Equal(long.MaxValue, (*result.returnValue).data.l);
+            Assert.AreEqual(ManaTypeCode.TYPE_I8, (*result.returnValue).type);
+            Assert.AreEqual(long.MaxValue, (*result.returnValue).data.l);
         }
     }
 }

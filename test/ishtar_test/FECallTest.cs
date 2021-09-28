@@ -2,11 +2,13 @@ namespace ishtar_test
 {
     using ishtar;
     using mana.runtime;
-    using Xunit;
+    using NUnit.Framework;
 
+    [TestFixture]
     public class FECallTest : IshtarTestBase
     {
-        [Fact, TestPriority(9999)]
+        [Test]
+        [Parallelizable(ParallelScope.None)]
         public void Call_FE_Console_Println()
         {
             using var ctx = CreateContext();

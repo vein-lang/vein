@@ -1,23 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.console" Version="2.4.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="NUnit" Version="3.13.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\backend\mana.backend.ishtar.light\mana.backend.ishtar.light.csproj" />
     <ProjectReference Include="..\..\compiler\manac.csproj" />
   </ItemGroup>
-	<ItemGroup>
-		<Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
-	</ItemGroup>
 	<ItemGroup>
 	  <None Update="corlib.wll">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
