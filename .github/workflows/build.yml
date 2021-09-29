@@ -75,6 +75,38 @@ jobs:
         name: linux-x64-build
         path: ./backend/mana.backend.ishtar.light/bin/Release/net6.0/linux-x64/native
         if-no-files-found: error
+  build_linux_arm64:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: install pre-req
+      run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - run: git fetch --prune --unshallow --tags
+    - uses: actions/cache@v1
+      id: cache
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-linux-arm64
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100-rc.1.21458.32
+    - name: Install GitVersion
+      run: dotnet tool install --global --version 5.6.7 GitVersion.Tool
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: AOT build
+      run: dotnet publish -r linux-arm64 -c Release
+      working-directory: ./backend/mana.backend.ishtar.light
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.3
+      with:
+        name: linux-arm64-build
+        path: ./backend/mana.backend.ishtar.light/bin/Release/net6.0/linux-arm64/native
+        if-no-files-found: error
   build_win_arm64:
     runs-on: windows-latest
 
@@ -106,7 +138,7 @@ jobs:
 
   coverage:
     runs-on: windows-latest
-    needs: [build_win_arm64, build_linux, build_osx_aot]
+    needs: [build_win_arm64, build_linux, build_osx_aot, build_linux_arm64]
     steps:
     - name: Export Env
       run: $env:CODACY_PROJECT_TOKEN="${{ secrets.CODACY_API_KEY }}"
