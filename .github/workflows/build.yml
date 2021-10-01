@@ -78,6 +78,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - run: git fetch --prune --unshallow --tags
     - run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev
     - run: sudo apt install clang-9
     - run: sudo apt-get install -y qemu qemu-user-static binfmt-support debootstrap
@@ -87,13 +91,9 @@ jobs:
     - run: sudo apt-get install binutils-aarch64-linux-gnu
     - run: sudo apt-get install binutils-arm-linux-gnueabi
     - run: chmod +x ./build-rootfs.sh
-      working-directory: ./cross
+      working-directory: cross
     - run: sudo ./build-rootfs.sh arm64
-      working-directory: ./cross
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - run: git fetch --prune --unshallow --tags
+      working-directory: cross
     - uses: actions/cache@v1
       id: cache
       with:
