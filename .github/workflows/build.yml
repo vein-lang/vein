@@ -99,7 +99,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: AOT build
-      run: dotnet publish -r linux-arm64 -c Release
+      run: dotnet publish -r linux-arm64 -c Release -p:CppCompilerAndLinker=clang-9 -p:SysRoot=/crossrootfs/arm64
       working-directory: ./backend/mana.backend.ishtar.light
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
