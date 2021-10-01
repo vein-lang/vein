@@ -21,7 +21,7 @@ namespace mana.runtime
         protected internal readonly Dictionary<int, string> strings_table = new();
         protected internal readonly Dictionary<int, QualityTypeName> types_table = new();
         protected internal readonly Dictionary<int, FieldName> fields_table = new();
-
+        
         protected internal readonly MutexStorage Interlocker = new ();
 
         public string GetConstStringByIndex(int index) =>
