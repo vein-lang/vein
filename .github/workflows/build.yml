@@ -78,9 +78,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - run: sudo dpkg --add-architecture arm64
-    - run: sudo dpkg --add-architecture armhf
-    - run: sudo apt-get update
     - run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev
     - run: sudo apt install clang-9
     - run: sudo apt-get install -y qemu qemu-user-static binfmt-support debootstrap
