@@ -89,6 +89,9 @@ jobs:
     - run: sudo apt-get install binutils-arm-linux-gnueabihf
     - run: sudo apt-get install binutils-aarch64-linux-gnu
     - run: sudo apt-get install binutils-arm-linux-gnueabi
+    - run: wget https://raw.githubusercontent.com/dotnet/runtimelab/feature/NativeAOT/eng/common/cross/build-rootfs.sh
+    - run: chmod +x ./build-rootfs.sh
+    - run: sudo ./build-rootfs.sh arm64
     - uses: actions/checkout@v2
       with:
         submodules: true
