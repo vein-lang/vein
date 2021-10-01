@@ -116,6 +116,14 @@ namespace ishtar_test
 
     public abstract class IshtarTestBase : IDisposable
     {
+        public static class T
+        {
+            public static RuntimeIshtarClass VOID => ManaTypeCode.TYPE_VOID.AsRuntimeClass();
+            public static RuntimeIshtarClass OBJECT => ManaTypeCode.TYPE_OBJECT.AsRuntimeClass();
+        }
+
+
+
         private static ManaModuleBuilder _module_instance;
         private static ManaModule _corlib;
         protected static ManaModuleBuilder _module
