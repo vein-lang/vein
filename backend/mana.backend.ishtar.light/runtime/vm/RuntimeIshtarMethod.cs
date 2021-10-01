@@ -30,13 +30,17 @@ namespace ishtar
         {
             if ((Flags & MethodFlags.Extern) != 0)
                 throw new MethodHasExternException();
+            if ((Flags & MethodFlags.Abstract) != 0)
+                throw new MethodHasAbstractException();
             Header = new MetaMethodHeader { code = code, code_size = size };
         }
 
         public void SetExternalLink(void* @ref)
         {
             if ((Flags & MethodFlags.Extern) == 0)
-                throw new InvalidOperationException("Cannot set native reference, method is not extern.");
+                throw new MethodHasExternException();
+            if ((Flags & MethodFlags.Abstract) == 0)
+                throw new MethodHasAbstractException();
             PIInfo = new PInvokeInfo { Addr = @ref, iflags = 0 };
         }
 

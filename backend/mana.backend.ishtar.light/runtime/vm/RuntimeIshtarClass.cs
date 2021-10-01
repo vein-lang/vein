@@ -4,6 +4,7 @@ namespace ishtar
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
+    using System.Text.Json.Serialization;
     using mana.reflection;
     using mana.runtime;
     using mana.extensions;
@@ -60,10 +61,7 @@ namespace ishtar
         public bool is_inited = false;
         public void** vtable = null;
         public ulong vtable_size = 0;
-
-        public int max_interface_id;
-        public int[] interface_bitmap;
-
+        
 #if DEBUG_VTABLE
         public debug_vtable dvtable = new ();
 
@@ -75,14 +73,6 @@ namespace ishtar
             public ulong computed_size = 0;
         }
 #endif
-
-
-        private void CopyBlocks()
-        {
-
-        }
-
-
         public void init_vtable()
         {
             if (is_inited)
@@ -172,14 +162,15 @@ namespace ishtar
 
                 if (!parents.Any())
                     continue;
-                foreach (var p in parents)
                 {
-                    var w = p.FindMethod(method.Name);
+                    var w = parents.FirstOrDefault(x => x.FindMethod(method.Name) is not null)
+                        ?.Method?[method.Name];
 
                     if (w == null && (method.Flags & MethodFlags.Override) != 0)
                         VM.FastFail(WNE.MISSING_METHOD,
                             $"Method '{method.Name}' mark as OVERRIDE," +
-                            $" but parent class '{p.Name}' no contained virtual/abstract method.");
+                            $" but parent class '{parents.Select(x => x.Name).Join(',')}'" +
+                            $" no contained virtual/abstract method.");
 
                     if (w is null)
                         continue;
@@ -217,14 +208,16 @@ namespace ishtar
                     if (!parents.Any())
                         continue;
 
-                    foreach (var p in parents)
                     {
-                        var w = p.FindField(field.FullName);
+                        var w = parents
+                            .FirstOrDefault(x => x.FindField(field.FullName) is not null)?
+                            .Field?[field.FullName];
 
                         if (w == null && (field.Flags & FieldFlags.Override) != 0)
                             VM.FastFail(WNE.MISSING_FIELD,
                                 $"Field '{field.Name}' mark as OVERRIDE," +
-                                $" but parent class '{p.Name}' no contained virtual/abstract method.");
+                                $" but parent class '{parents.Select(x => x.Name).Join(',')}' " +
+                                $"no contained virtual/abstract method.");
 
                         if (w is null)
                             continue;
