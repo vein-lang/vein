@@ -1,25 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<OutputType>Exe</OutputType>
-		<AssemblyName>ishtar</AssemblyName>
-		<DefineConstants>DEBUG;STATIC_VALIDATE_IL;DEBUG_VTABLE;VALIDATE_RUNTIME_TOKEN</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<TrimMode>link</TrimMode>
-		<IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
-		<IlcOptimizationPreference>Size</IlcOptimizationPreference>
-		<IlcDisableUnhandledExceptionExperience>true</IlcDisableUnhandledExceptionExperience>
-	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.9.0" />
-		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
-		<PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
-        <PackageReference Include="runtime.linux-arm64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
-		<PackageReference Include="runtime.osx-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>ishtar</AssemblyName>
+    <DefineConstants>DEBUG;STATIC_VALIDATE_IL;DEBUG_VTABLE;VALIDATE_RUNTIME_TOKEN</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TrimMode>link</TrimMode>
+    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+    <IlcDisableUnhandledExceptionExperience>true</IlcDisableUnhandledExceptionExperience>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.9.0" />
+    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
+    <PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
+    <PackageReference Include="runtime.linux-arm64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
+    <PackageReference Include="runtime.osx-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
     <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
   </ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\Common\mana.common.csproj" />
-	  <ProjectReference Include="..\Ishtar\mana.backend.ishtar.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\mana.common.csproj" />
+    <ProjectReference Include="..\Ishtar\mana.backend.ishtar.csproj" />
+  </ItemGroup>
 </Project>
