@@ -79,9 +79,10 @@ jobs:
 
     steps:
     - run: sudo apt-get update
-    - run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev=
+    - run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev
     - run: sudo apt install clang-9
     - run: sudo apt-get install -y qemu gcc-aarch64-linux-gnu
+    - run: sudo apt install gcc-multilib
     - uses: actions/checkout@v2
       with:
         submodules: true
