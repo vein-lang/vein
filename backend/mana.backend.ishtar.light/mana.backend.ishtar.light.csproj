@@ -14,9 +14,9 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.9.0" />
 		<PackageReference Include="Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
 		<PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
-		<PackageReference Include="runtime.osx-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
-        <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
         <PackageReference Include="runtime.linux-arm64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
+		<PackageReference Include="runtime.osx-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
+    <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
   </ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\Common\mana.common.csproj" />
