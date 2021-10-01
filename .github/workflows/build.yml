@@ -79,10 +79,9 @@ jobs:
 
     steps:
     - run: sudo apt-get update
-    - name: install pre-req
-      run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev
-    - name: install pre-req 2
-      run: sudo apt install clang-9
+    - run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev=
+    - run: sudo apt install clang-9
+    - run: sudo apt-get install -y qemu gcc-aarch64-linux-gnu
     - uses: actions/checkout@v2
       with:
         submodules: true
