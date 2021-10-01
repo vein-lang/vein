@@ -1,6 +1,7 @@
 namespace ishtar
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using mana.runtime;
     using static OpCodeValue;
@@ -17,6 +18,7 @@ namespace ishtar
         public static volatile NativeException CurrentException;
         public static volatile IWatchDog watcher;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void FastFail(WNE type, string msg, CallFrame frame = null)
             => watcher?.FastFail(type, msg, frame);
         public static void ValidateLastError()

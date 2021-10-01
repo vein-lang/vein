@@ -1,6 +1,7 @@
 namespace ishtar_test
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using ishtar;
 
@@ -13,6 +14,8 @@ namespace ishtar_test
     public class TestWatchDog : IWatchDog
     {
         private static readonly object guarder = new();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void IWatchDog.FastFail(WNE type, string msg, CallFrame frame)
         {
             lock (guarder)
