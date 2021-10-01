@@ -75,7 +75,7 @@ jobs:
         path: ./backend/mana.backend.ishtar.light/bin/Release/net6.0/linux-x64/native
         if-no-files-found: error
   build_linux_arm64:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v2
@@ -93,6 +93,9 @@ jobs:
     - run: chmod +x ./build-rootfs.sh
       working-directory: cross
     - run: sudo ./build-rootfs.sh arm64
+      working-directory: cross
+    - run: ls /home/.tools/rootfs/arm64
+    - run: ls ./../../../.tools/rootfs/
       working-directory: cross
     - uses: actions/cache@v1
       id: cache
