@@ -256,8 +256,14 @@ if [ -d "$__RootfsDir" ]; then
     rm -rf $__RootfsDir
 fi
 
+
 mkdir -p $__RootfsDir
 __RootfsDir="$( cd "$__RootfsDir" && pwd )"
+
+
+echo "YYY2 $__RootfsDir"
+echo "YYY3 $__BuildArch"
+
 
 if [[ "$__CodeName" == "alpine" ]]; then
     __ApkToolsVersion=2.9.1

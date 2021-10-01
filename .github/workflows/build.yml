@@ -94,7 +94,6 @@ jobs:
       working-directory: cross
     - run: sudo ./build-rootfs.sh arm64
       working-directory: cross
-    - run: ls /home/.tools/rootfs/arm64
     - run: ls ./../../../.tools/rootfs/
       working-directory: cross
     - uses: actions/cache@v1
