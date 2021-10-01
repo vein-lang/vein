@@ -50,9 +50,9 @@ namespace mana
 
                 return files.Single(x => x.Name.Equals($"{name}.wll", StringComparison.InvariantCultureIgnoreCase));
             }
-            catch (Exception e)
+            catch
             {
-                throw;
+                return null;
             }
         }
     }

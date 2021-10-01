@@ -24,7 +24,7 @@ namespace mana.lsp
         private readonly System.Timers.Timer internalErrorTimer; // used to avoid spamming users with a lot of errors at once
         private bool showInteralErrorMessage = true; // set via timer as needed
 
-        private string? workspaceFolder = null;
+        public string? workspaceFolder = null;
         private readonly HashSet<Uri> projectsInWorkspace;
         private readonly FileWatcher fileWatcher;
         private readonly CoalesceingQueue fileEvents;
@@ -88,7 +88,7 @@ namespace mana.lsp
             this.fileEvents = new CoalesceingQueue();
             this.fileEvents.Subscribe(fileEvents, observable => ProcessFileEvents(observable));
             this.editorState = new EditorState(
-               null,
+               this,
                 diagnostics => this.PublishDiagnosticsAsync(diagnostics),
                 (name, props, meas) => { },
                 this.LogToWindow,
@@ -547,8 +547,7 @@ namespace mana.lsp
                 try
                 {
                     return ManaCompilerError.RaiseOnFailure(
-                        () => Task.CompletedTask,
-                        // () => this.editorState.Completions(param),
+                        () => this.editorState.Completions(param),
                         "Completions threw an exception");
                 }
                 catch

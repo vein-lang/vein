@@ -15,21 +15,25 @@ namespace mana.lsp
     using Markdig.Syntax;
     using Microsoft.VisualStudio.LanguageServer.Protocol;
     using project;
-    using SixLabors.ImageSharp;
+    using runtime;
+    using Spectre.Console;
     using Sprache;
     using stl;
     using syntax;
+    using Color = SixLabors.ImageSharp.Color;
     using Position = Microsoft.VisualStudio.LanguageServer.Protocol.Position;
     using Range = Microsoft.VisualStudio.LanguageServer.Protocol.Range;
 
     public class ProjectManager : IDisposable
     {
+        private readonly EditorState _state;
         private readonly Action<Exception> _onException;
         private readonly Action<string, MessageType> _log;
         private readonly Action<PublishDiagnosticParams> _publish;
 
-        public ProjectManager(Action<Exception> onException, Action<string, MessageType> log, Action<PublishDiagnosticParams> publish)
+        public ProjectManager(EditorState state, Action<Exception> onException, Action<string, MessageType> log, Action<PublishDiagnosticParams> publish)
         {
+            _state = state;
             _onException = onException;
             _log = log;
             _publish = publish;
@@ -190,7 +194,6 @@ namespace mana.lsp
         public DocumentHighlight[] DocumentHighlights(TextDocumentPositionParams textDocumentPositionParams)
         {
             return null;
-
         }
 
         public ImmutableDictionary<string, WorkspaceEdit> CodeActions(CodeActionParams codeActionParams)
@@ -256,7 +259,83 @@ namespace mana.lsp
             }
         }
 
+        internal readonly AssemblyResolver resolver = new ();
+        internal ManaProject _PROJECT_;
+        public ManaProject GetCurrentProject()
+        {
+            if (_PROJECT_ is not null)
+                return _PROJECT_;
+            
+            if (_state.Server.workspaceFolder is null)
+                throw new Exception();
 
+            var projUrl = Directory.EnumerateFiles(_state.Server.workspaceFolder, "*.waproj")?.FirstOrDefault();
+
+            var project = ManaProject.LoadFrom(new FileInfo(projUrl));
+
+            var pack = project.SDK.GetDefaultPack();
+            resolver.AddSearchPath(new(project.WorkDir));
+            resolver.AddSearchPath(new(project.SDK.GetFullPath(pack).FullName));
+
+            return _PROJECT_ = project;
+        }
+
+        public List<ManaModule> GetCurrentDeps()
+        {
+            var deps = new List<ManaModule>();
+            foreach (var (name, version) in GetCurrentProject().Packages)
+                deps.Add(resolver.ResolveDep(name, version.Version, deps));
+            return deps;
+        }
+
+        public List<ManaClass> GetImportedTypes()
+            => GetCurrentDeps().SelectMany(x => x.class_table).ToList();
+
+
+
+        private List<ManaClass> importedTypesCache;
+        public List<CompletionItem> GenerateCompletionForImportedTypes()
+        {
+            if (importedTypesCache is null)
+                importedTypesCache = GetImportedTypes();
+
+            return importedTypesCache.Select(x => new CompletionItem
+            {
+                Kind = CompletionItemKind.Class,
+                Label = x.Name,
+                Detail = x.FullName.ToString(),
+                Documentation = GenerateDocumentation(x)
+            }).ToList();
+        }
+
+        private readonly Dictionary<string, MarkupContent> documents_cache = new();
+        private MarkupContent GenerateDocumentation(ManaClass clazz)
+        {
+            if (documents_cache.ContainsKey($"{clazz.FullName}"))
+                return documents_cache[$"{clazz.FullName}"];
+            documents_cache[$"{clazz.FullName}"] = new MarkupContent
+            {
+                Kind = MarkupKind.Markdown,
+                Value = $"class '{clazz.Name}' in '{clazz.FullName.Namespace}' in {clazz.Owner.Name}.dll"
+            };
+            return documents_cache[$"{clazz.FullName}"];
+        }
+
+        public CompletionItem[] Completions(TextDocumentPositionParams textDocumentPositionParams)
+        {
+            var results = new List<CompletionItem>();
+
+            try
+            {
+                results.AddRange(GenerateCompletionForImportedTypes());
+            }
+            catch (Exception e)
+            {
+                
+            }
+
+            return results.ToArray();
+        }
     }
 
     public class FileContentManager
@@ -384,10 +463,10 @@ namespace mana.lsp
 
     }
 
-    internal class EditorState : IDisposable
+    public class EditorState : IDisposable
     {
         private readonly ProjectManager Projects;
-        private readonly ProjectLoader ProjectLoader;
+        public readonly ManaLanguageServer Server;
         public void Dispose() => this.Projects.Dispose();
 
         private readonly Action<PublishDiagnosticParams> Publish;
@@ -414,7 +493,7 @@ namespace mana.lsp
         /// calls the given onException Action whenever the compiler encounters an internal error, and
         /// does nothing if the a given action is null.
         /// </summary>
-        internal EditorState(ProjectLoader projectLoader,
+        internal EditorState(ManaLanguageServer s,
             Action<PublishDiagnosticParams> publishDiagnostics, Action<string, Dictionary<string, string>, Dictionary<string, int>> sendTelemetry,
             Action<string, MessageType> log, Action<Exception> onException, object onTemporaryProjectLoaded)
         {
@@ -436,8 +515,8 @@ namespace mana.lsp
                 }
             };
 
-            this.ProjectLoader = projectLoader;
-            this.Projects = new ProjectManager(onException, log, this.Publish);
+            this.Server = s;
+            this.Projects = new ProjectManager(this, onException, log, this.Publish);
             this.OpenFiles = new ConcurrentDictionary<Uri, FileContentManager>();
         }
 
@@ -710,5 +789,8 @@ namespace mana.lsp
         /// </summary>
         public ImmutableDictionary<string, WorkspaceEdit> CodeActions(CodeActionParams param) =>
             ValidFileUri(param?.TextDocument?.Uri) && !IgnoreFile(param.TextDocument.Uri) ? this.Projects.CodeActions(param) : null;
+
+        public object? Completions(TextDocumentPositionParams param) =>
+            ValidFileUri(param?.TextDocument?.Uri) && !IgnoreFile(param.TextDocument.Uri) ? this.Projects.Completions(param) : null;
     }
 }
