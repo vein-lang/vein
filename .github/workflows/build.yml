@@ -78,6 +78,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - run: sudo apt-get update
     - name: install pre-req
       run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev
     - name: install pre-req 2
