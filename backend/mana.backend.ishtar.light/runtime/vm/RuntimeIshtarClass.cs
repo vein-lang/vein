@@ -61,7 +61,7 @@ namespace ishtar
         public bool is_inited = false;
         public void** vtable = null;
         public ulong vtable_size = 0;
-        
+
 #if DEBUG_VTABLE
         public debug_vtable dvtable = new ();
 
