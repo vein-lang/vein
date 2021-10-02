@@ -149,8 +149,9 @@ For building, you need the following tools:
 - clang
 - zlib1g-dev
 - libkrb5-dev
-- libssl-dev
-and additional for arm64
+- libssl-dev  
+    
+and additional for arm64  
 - clang-9
 - binutils-arm-linux-gnueabi
 - binutils-aarch64-linux-gnu
