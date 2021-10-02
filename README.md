@@ -150,6 +150,16 @@ For building, you need the following tools:
 - zlib1g-dev
 - libkrb5-dev
 - libssl-dev
+and additional for arm64
+- clang-9
+- binutils-arm-linux-gnueabi
+- binutils-aarch64-linux-gnu
+- crossbuild-essential-arm64
+- gcc-multilib
+- qemu 
+- qemu-user-static 
+- binfmt-support 
+- debootstrap
 
 Checkout mana sources
 ```bash
@@ -166,13 +176,17 @@ Go to ishtar folder
 ```base
 cd .\backend\mana.backend.ishtar.light
 ```
-Compile for Linux x64
+##### Compile for Linux x64
 ```bash
 dotnet publish -r linux-x64 -c Release
 ```
 Compile for Linux ARM64
 ```
-dotnet publish -r linux-arm64 -c Release
+cd ./cross
+sudo ./build-rootfs.sh arm64
+cd ..
+cd .\backend\mana.backend.ishtar.light
+dotnet publish -r linux-arm64 -c Release -p:CppCompilerAndLinker=clang-9 -p:SysRoot=/home/.tools/rootfs/arm64
 ```
 
 Copy output files
