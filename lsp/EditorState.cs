@@ -265,7 +265,7 @@ namespace mana.lsp
         {
             if (_PROJECT_ is not null)
                 return _PROJECT_;
-            
+
             if (_state.Server.workspaceFolder is null)
                 throw new Exception();
 
@@ -331,7 +331,7 @@ namespace mana.lsp
             }
             catch (Exception e)
             {
-                
+
             }
 
             return results.ToArray();

@@ -7,7 +7,7 @@ namespace ishtar_test
 
     public unsafe class InterfacesTest : IshtarTestBase
     {
-        
+
 
         [Test]
         [Parallelizable(ParallelScope.None)]
@@ -43,7 +43,7 @@ namespace ishtar_test
 
             method1.PIInfo = (delegate*<void>)&Foo1;
             method2.PIInfo = (delegate*<void>)&Foo2;
-            
+
 
             Assert.DoesNotThrow(() => Zoo1.init_vtable());
             Assert.DoesNotThrow(() => ((delegate*<void>)Zoo1.Method["doodoo()"].PIInfo.Addr)());
