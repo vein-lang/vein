@@ -20,7 +20,7 @@
 
 <!-- Name -->
 <h1 align="center">
- ⚡️🔮 Mana Lang 🔮⚡️
+ ⚡️🔮 Vein Lang 🔮⚡️
 </h1>
 
 <!-- classic badges -->
@@ -64,7 +64,7 @@
 
 ---
 
-> Mana is an open source high-level strictly-typed programming language with a standalone OS, arm and quantum computing support.
+> Vein is an open source high-level strictly-typed programming language with a standalone OS, arm and quantum computing support.
 
 ---
 
