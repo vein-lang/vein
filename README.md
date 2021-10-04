@@ -5,23 +5,11 @@
   </a>
 </p>
 
-<!-- Logo -->
 <p align="center">
   <a href="#">
-    <img src="https://user-images.githubusercontent.com/13326808/118315186-dba9dc80-b4fd-11eb-8d2f-32e8313ba6a7.png">
+    <img height="256" src="https://raw.githubusercontent.com/vein-lang/artwork/main/vein-poster.png">
   </a>
 </p>
-
-<p align="center">
-  <a href="#">
-    <img height="128" wight="128" src="https://user-images.githubusercontent.com/13326808/119747309-2252eb80-be9b-11eb-8bcc-2613658162a7.png">
-  </a>
-</p>
-
-<!-- Name -->
-<h1 align="center">
- ⚡️🔮 Mana Lang 🔮⚡️
-</h1>
 
 <!-- classic badges -->
 <p align="center">
@@ -32,7 +20,7 @@
     <img src="https://app.codacy.com/project/badge/Coverage/9dc3cb6f384747c39d0b83241e725de2">
   </a>
   <a href="#">
-    <img src="http://img.shields.io/:license-MIT-blue.svg">
+    <img src="https://img.shields.io/:license-MIT-blue.svg">
   </a>
 <a href="https://app.fossa.com/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang.svg?type=shield"/></a>
   <a href="https://github.com/0xF6/wave_lang/releases">
@@ -61,10 +49,18 @@
   </a>
 </p>
 
+<!-- Logo -->
+<p align="center">
+  <a href="#">
+    <img src="https://user-images.githubusercontent.com/13326808/118315186-dba9dc80-b4fd-11eb-8d2f-32e8313ba6a7.png">
+  </a>
+</p>
+
+
 
 ---
 
-> Mana is an open source high-level strictly-typed programming language with a standalone OS, arm and quantum computing support.
+> Vein is an open source high-level strictly-typed programming language with a standalone OS, arm and quantum computing support.
 
 ---
 
@@ -149,7 +145,18 @@ For building, you need the following tools:
 - clang
 - zlib1g-dev
 - libkrb5-dev
-- libssl-dev
+- libssl-dev  
+    
+and additional for arm64  
+- clang-9
+- binutils-arm-linux-gnueabi
+- binutils-aarch64-linux-gnu
+- crossbuild-essential-arm64
+- gcc-multilib
+- qemu 
+- qemu-user-static 
+- binfmt-support 
+- debootstrap
 
 Checkout mana sources
 ```bash
@@ -166,13 +173,17 @@ Go to ishtar folder
 ```base
 cd .\backend\mana.backend.ishtar.light
 ```
-Compile for Linux x64
+##### Compile for Linux x64
 ```bash
 dotnet publish -r linux-x64 -c Release
 ```
 Compile for Linux ARM64
 ```
-dotnet publish -r linux-arm64 -c Release
+cd ./cross
+sudo ./build-rootfs.sh arm64
+cd ..
+cd .\backend\mana.backend.ishtar.light
+dotnet publish -r linux-arm64 -c Release -p:CppCompilerAndLinker=clang-9 -p:SysRoot=/home/.tools/rootfs/arm64
 ```
 
 Copy output files
