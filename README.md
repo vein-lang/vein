@@ -14,14 +14,9 @@
 
 <p align="center">
   <a href="#">
-    <img height="128" wight="128" src="https://user-images.githubusercontent.com/13326808/119747309-2252eb80-be9b-11eb-8bcc-2613658162a7.png">
+    <img height="256" src="https://raw.githubusercontent.com/vein-lang/artwork/main/vein-poster.png">
   </a>
 </p>
-
-<!-- Name -->
-<h1 align="center">
- ⚡️🔮 Vein Lang 🔮⚡️
-</h1>
 
 <!-- classic badges -->
 <p align="center">
@@ -32,7 +27,7 @@
     <img src="https://app.codacy.com/project/badge/Coverage/9dc3cb6f384747c39d0b83241e725de2">
   </a>
   <a href="#">
-    <img src="http://img.shields.io/:license-MIT-blue.svg">
+    <img src="https://img.shields.io/:license-MIT-blue.svg">
   </a>
 <a href="https://app.fossa.com/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang.svg?type=shield"/></a>
   <a href="https://github.com/0xF6/wave_lang/releases">
