@@ -3,27 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "manac", "compiler\manac.csproj", "{19465565-2DA2-44B1-B150-5A4BBFF575D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "veinc", "compiler\veinc.csproj", "{19465565-2DA2-44B1-B150-5A4BBFF575D5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "manac_test", "test\wc_test\manac_test.csproj", "{8759A35D-DA78-4577-ACE0-E575CC744652}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "veinc_test", "test\vc_test\veinc_test.csproj", "{8759A35D-DA78-4577-ACE0-E575CC744652}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backends", "backends", "{F1A3DE9B-263D-4F44-9A88-9ED37E9A9330}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mana.backend.ishtar", "backend\Ishtar\mana.backend.ishtar.csproj", "{29CCD79E-9BA7-4A4A-AA70-6945B5BF6AE2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar.base", "backend\ishtar.base\ishtar.base.csproj", "{29CCD79E-9BA7-4A4A-AA70-6945B5BF6AE2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mana.common", "backend\Common\mana.common.csproj", "{19DC9DD6-189C-4EE7-BD38-2780A8AC111F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.common", "backend\common\vein.common.csproj", "{19DC9DD6-189C-4EE7-BD38-2780A8AC111F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mana.ast", "lib\ast\mana.ast.csproj", "{C81A560B-DF7A-4085-9417-2A7B4E58AE87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.ast", "lib\ast\vein.ast.csproj", "{C81A560B-DF7A-4085-9417-2A7B4E58AE87}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mana.project", "lib\projectsystem\mana.project.csproj", "{5D7842C7-A8C3-440E-8715-7C99E48F6D7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.project", "lib\projectsystem\vein.project.csproj", "{5D7842C7-A8C3-440E-8715-7C99E48F6D7D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mana.backend.ishtar.light", "backend\mana.backend.ishtar.light\mana.backend.ishtar.light.csproj", "{109BF2DC-CE46-48B6-B3D1-C993F15605A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar.vm", "backend\ishtar.vm\ishtar.vm.csproj", "{109BF2DC-CE46-48B6-B3D1-C993F15605A2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mana.backend.ishtar.generator", "backend\mana.backend.ishtar.generator\mana.backend.ishtar.generator.csproj", "{69B6693D-395C-4EA3-AC8D-6ACD3CBDCFE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar.generator", "backend\ishtar.generator\ishtar.generator.csproj", "{69B6693D-395C-4EA3-AC8D-6ACD3CBDCFE3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{2A92D5A1-53AF-4E15-816C-3E64E2FAC9E4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "mana.lsp", "lsp\mana.lsp.csproj", "{74CDF9AC-9E25-4655-A04A-00495BA26325}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.lsp", "lsp\vein.lsp.csproj", "{74CDF9AC-9E25-4655-A04A-00495BA26325}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar_test", "test\ishtar_test\ishtar_test.csproj", "{6394F865-DD02-4610-B817-5A243862D20A}"
 EndProject
