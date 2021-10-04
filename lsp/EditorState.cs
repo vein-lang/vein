@@ -1,4 +1,4 @@
-namespace mana.lsp
+namespace vein.lsp
 {
     using System;
     using System.Collections.Concurrent;
@@ -15,7 +15,7 @@ namespace mana.lsp
     using Markdig.Syntax;
     using Microsoft.VisualStudio.LanguageServer.Protocol;
     using project;
-    using runtime;
+    using vein.runtime;
     using Spectre.Console;
     using Sprache;
     using stl;
@@ -269,7 +269,7 @@ namespace mana.lsp
             if (_state.Server.workspaceFolder is null)
                 throw new Exception();
 
-            var projUrl = Directory.EnumerateFiles(_state.Server.workspaceFolder, "*.waproj")?.FirstOrDefault();
+            var projUrl = Directory.EnumerateFiles(_state.Server.workspaceFolder, "*.vproj")?.FirstOrDefault();
 
             var project = ManaProject.LoadFrom(new FileInfo(projUrl));
 
@@ -466,7 +466,7 @@ namespace mana.lsp
     public class EditorState : IDisposable
     {
         private readonly ProjectManager Projects;
-        public readonly ManaLanguageServer Server;
+        public readonly VeinLanguageServer Server;
         public void Dispose() => this.Projects.Dispose();
 
         private readonly Action<PublishDiagnosticParams> Publish;
@@ -493,7 +493,7 @@ namespace mana.lsp
         /// calls the given onException Action whenever the compiler encounters an internal error, and
         /// does nothing if the a given action is null.
         /// </summary>
-        internal EditorState(ManaLanguageServer s,
+        internal EditorState(VeinLanguageServer s,
             Action<PublishDiagnosticParams> publishDiagnostics, Action<string, Dictionary<string, string>, Dictionary<string, int>> sendTelemetry,
             Action<string, MessageType> log, Action<Exception> onException, object onTemporaryProjectLoaded)
         {
@@ -501,7 +501,7 @@ namespace mana.lsp
             this.SendTelemetry = sendTelemetry ?? ((_, __, ___) => { });
             this.Publish = param =>
             {
-                var onProjFile = param.Uri.AbsolutePath.EndsWith(".waproj", StringComparison.InvariantCultureIgnoreCase);
+                var onProjFile = param.Uri.AbsolutePath.EndsWith(".vproj", StringComparison.InvariantCultureIgnoreCase);
                 if (!param.Diagnostics.Any() || this.OpenFiles.ContainsKey(param.Uri) || onProjFile)
                 {
                     // Some editors (e.g. Visual Studio) will actually ignore diagnostics for .csproj files.
@@ -509,7 +509,7 @@ namespace mana.lsp
                     // we need to replace the project file ending before publishing. This issue is naturally resolved once we have our own project files...
                     var parentDir = Path.GetDirectoryName(param.Uri.AbsolutePath);
                     var projFileWithoutExtension = Path.GetFileNameWithoutExtension(param.Uri.AbsolutePath);
-                    if (onProjFile && Uri.TryCreate(Path.Combine(parentDir, $"{projFileWithoutExtension}.waproj"), UriKind.Absolute, out var parentFolder))
+                    if (onProjFile && Uri.TryCreate(Path.Combine(parentDir, $"{projFileWithoutExtension}.vproj"), UriKind.Absolute, out var parentFolder))
                     { param.Uri = parentFolder; }
                     publishDiagnostics?.Invoke(param);
                 }

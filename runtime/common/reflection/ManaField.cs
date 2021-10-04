@@ -1,4 +1,4 @@
-namespace mana.runtime
+namespace vein.runtime
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@ namespace mana.runtime
     using exceptions;
     using extensions;
     using reflection;
-    using static ManaTypeCode;
+    using static VeinTypeCode;
 
     public record FieldName(string fullName)
     {
@@ -63,7 +63,7 @@ namespace mana.runtime
 
     public static class ManaFieldExtension
     {
-        public static Func<string, object> GetConverter(this ManaTypeCode code)
+        public static Func<string, object> GetConverter(this VeinTypeCode code)
         {
             Func<string, object> result = (code) switch
             {
@@ -88,7 +88,7 @@ namespace mana.runtime
             return WrapConverter(result, code);
         }
 
-        private static Func<string, object> WrapConverter(Func<string, object> actor, ManaTypeCode typeCode) => x =>
+        private static Func<string, object> WrapConverter(Func<string, object> actor, VeinTypeCode typeCode) => x =>
         {
             try
             {

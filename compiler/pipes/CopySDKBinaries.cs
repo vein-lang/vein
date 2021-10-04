@@ -1,7 +1,7 @@
-namespace mana.pipes
+namespace vein.pipes
 {
-    using mana.cmd;
     using System.IO;
+    using cmd;
     using MoreLinq;
 
     public class CopySDKBinaries : CompilerPipeline

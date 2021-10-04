@@ -1,4 +1,4 @@
-namespace mana.project
+namespace vein.project
 {
     using System.Collections.Generic;
     using System.Xml.Serialization;

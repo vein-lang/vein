@@ -1,7 +1,7 @@
-namespace mana.ishtar.emit
+namespace ishtar.emit
 {
     using System;
-    using runtime;
+    using vein.runtime;
 
     public class TypeForwarder
     {
@@ -9,81 +9,81 @@ namespace mana.ishtar.emit
         {
             switch (clazz.FullName.NameWithNS)
             {
-                case "global::mana/lang/Object":
-                    clazz.TypeCode = ManaTypeCode.TYPE_OBJECT;
-                    ManaCore.ObjectClass = clazz;
+                case "global::vein/lang/Object":
+                    clazz.TypeCode = VeinTypeCode.TYPE_OBJECT;
+                    VeinCore.ObjectClass = clazz;
                     break;
-                case "global::mana/lang/ValueType":
-                    clazz.TypeCode = ManaTypeCode.TYPE_OBJECT;
-                    ManaCore.ValueTypeClass = clazz;
+                case "global::vein/lang/ValueType":
+                    clazz.TypeCode = VeinTypeCode.TYPE_OBJECT;
+                    VeinCore.ValueTypeClass = clazz;
                     break;
-                case "global::mana/lang/Array":
-                    clazz.TypeCode = ManaTypeCode.TYPE_ARRAY;
-                    ManaCore.ArrayClass = clazz;
+                case "global::vein/lang/Array":
+                    clazz.TypeCode = VeinTypeCode.TYPE_ARRAY;
+                    VeinCore.ArrayClass = clazz;
                     break;
-                case "global::mana/lang/Void":
-                    clazz.TypeCode = ManaTypeCode.TYPE_VOID;
-                    ManaCore.VoidClass = clazz;
+                case "global::vein/lang/Void":
+                    clazz.TypeCode = VeinTypeCode.TYPE_VOID;
+                    VeinCore.VoidClass = clazz;
                     break;
-                case "global::mana/lang/Int64":
-                    clazz.TypeCode = ManaTypeCode.TYPE_I8;
-                    ManaCore.Int64Class = clazz;
+                case "global::vein/lang/Int64":
+                    clazz.TypeCode = VeinTypeCode.TYPE_I8;
+                    VeinCore.Int64Class = clazz;
                     break;
-                case "global::mana/lang/Int32":
-                    clazz.TypeCode = ManaTypeCode.TYPE_I4;
-                    ManaCore.Int32Class = clazz;
+                case "global::vein/lang/Int32":
+                    clazz.TypeCode = VeinTypeCode.TYPE_I4;
+                    VeinCore.Int32Class = clazz;
                     break;
-                case "global::mana/lang/Int16":
-                    clazz.TypeCode = ManaTypeCode.TYPE_I2;
-                    ManaCore.Int16Class = clazz;
+                case "global::vein/lang/Int16":
+                    clazz.TypeCode = VeinTypeCode.TYPE_I2;
+                    VeinCore.Int16Class = clazz;
                     break;
-                case "global::mana/lang/UInt64":
-                    clazz.TypeCode = ManaTypeCode.TYPE_U8;
-                    ManaCore.UInt64Class = clazz;
+                case "global::vein/lang/UInt64":
+                    clazz.TypeCode = VeinTypeCode.TYPE_U8;
+                    VeinCore.UInt64Class = clazz;
                     break;
-                case "global::mana/lang/UInt32":
-                    clazz.TypeCode = ManaTypeCode.TYPE_U4;
-                    ManaCore.UInt32Class = clazz;
+                case "global::vein/lang/UInt32":
+                    clazz.TypeCode = VeinTypeCode.TYPE_U4;
+                    VeinCore.UInt32Class = clazz;
                     break;
-                case "global::mana/lang/UInt16":
-                    clazz.TypeCode = ManaTypeCode.TYPE_U2;
-                    ManaCore.UInt16Class = clazz;
+                case "global::vein/lang/UInt16":
+                    clazz.TypeCode = VeinTypeCode.TYPE_U2;
+                    VeinCore.UInt16Class = clazz;
                     break;
-                case "global::mana/lang/Boolean":
-                    clazz.TypeCode = ManaTypeCode.TYPE_BOOLEAN;
-                    ManaCore.BoolClass = clazz;
+                case "global::vein/lang/Boolean":
+                    clazz.TypeCode = VeinTypeCode.TYPE_BOOLEAN;
+                    VeinCore.BoolClass = clazz;
                     break;
-                case "global::mana/lang/String":
-                    clazz.TypeCode = ManaTypeCode.TYPE_STRING;
-                    ManaCore.StringClass = clazz;
+                case "global::vein/lang/String":
+                    clazz.TypeCode = VeinTypeCode.TYPE_STRING;
+                    VeinCore.StringClass = clazz;
                     break;
-                case "global::mana/lang/Char":
-                    clazz.TypeCode = ManaTypeCode.TYPE_CHAR;
-                    ManaCore.CharClass = clazz;
+                case "global::vein/lang/Char":
+                    clazz.TypeCode = VeinTypeCode.TYPE_CHAR;
+                    VeinCore.CharClass = clazz;
                     break;
-                case "global::mana/lang/Half":
-                    clazz.TypeCode = ManaTypeCode.TYPE_R2;
-                    ManaCore.HalfClass = clazz;
+                case "global::vein/lang/Half":
+                    clazz.TypeCode = VeinTypeCode.TYPE_R2;
+                    VeinCore.HalfClass = clazz;
                     break;
-                case "global::mana/lang/Float":
-                    clazz.TypeCode = ManaTypeCode.TYPE_R4;
-                    ManaCore.FloatClass = clazz;
+                case "global::vein/lang/Float":
+                    clazz.TypeCode = VeinTypeCode.TYPE_R4;
+                    VeinCore.FloatClass = clazz;
                     break;
-                case "global::mana/lang/Double":
-                    clazz.TypeCode = ManaTypeCode.TYPE_R8;
-                    ManaCore.DoubleClass = clazz;
+                case "global::vein/lang/Double":
+                    clazz.TypeCode = VeinTypeCode.TYPE_R8;
+                    VeinCore.DoubleClass = clazz;
                     break;
-                case "global::mana/lang/Decimal":
-                    clazz.TypeCode = ManaTypeCode.TYPE_R16;
-                    ManaCore.DecimalClass = clazz;
+                case "global::vein/lang/Decimal":
+                    clazz.TypeCode = VeinTypeCode.TYPE_R16;
+                    VeinCore.DecimalClass = clazz;
                     break;
-                case "global::mana/lang/Byte":
-                    clazz.TypeCode = ManaTypeCode.TYPE_U1;
-                    ManaCore.ByteClass = clazz;
+                case "global::vein/lang/Byte":
+                    clazz.TypeCode = VeinTypeCode.TYPE_U1;
+                    VeinCore.ByteClass = clazz;
                     break;
-                case "global::mana/lang/Exception":
-                    clazz.TypeCode = ManaTypeCode.TYPE_CLASS;
-                    ManaCore.ExceptionClass = clazz;
+                case "global::vein/lang/Exception":
+                    clazz.TypeCode = VeinTypeCode.TYPE_CLASS;
+                    VeinCore.ExceptionClass = clazz;
                     break;
                 default:
                     throw new NotSupportedException();

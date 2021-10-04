@@ -2,8 +2,7 @@ namespace ishtar
 {
     using System.Linq;
     using System.Runtime.InteropServices;
-    using mana.backend.ishtar.light;
-    using mana.runtime;
+    using vein.runtime;
 
     public static unsafe class NativeExports
     {
@@ -52,7 +51,7 @@ namespace ishtar
 
         private static void INIT_VTABLES()
         {
-            foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>())
+            foreach (var @class in VeinCore.All.OfType<RuntimeIshtarClass>())
                 @class.init_vtable();
         }
 

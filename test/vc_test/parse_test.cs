@@ -3,10 +3,10 @@ namespace wc_test
     using System;
     using Sprache;
     using System.Linq;
-    using insomnia;
-    using mana.stl;
-    using mana.syntax;
+    using vein.stl;
+    using vein.syntax;
     using NUnit.Framework;
+    using vein;
 
     public class parse_test
     {

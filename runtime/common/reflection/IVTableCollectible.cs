@@ -1,4 +1,4 @@
-namespace mana.reflection
+namespace vein.reflection
 {
     public interface IVTableCollectible
     {

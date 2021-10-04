@@ -1,4 +1,4 @@
-namespace mana.exceptions
+namespace vein.exceptions
 {
     using System;
     using ishtar.emit;

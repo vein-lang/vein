@@ -1,8 +1,7 @@
-namespace mana.runtime
+namespace vein.runtime
 {
     using System;
     using System.Collections.Generic;
-    using insomnia;
     using Serilog;
 
     public class ConstStorage

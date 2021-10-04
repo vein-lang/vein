@@ -1,9 +1,9 @@
-namespace mana.reflection
+namespace vein.reflection
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using runtime;
+    using vein.runtime;
 
     public class AspectArgument
     {

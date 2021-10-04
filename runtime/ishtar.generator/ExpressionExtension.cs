@@ -1,7 +1,7 @@
 namespace ishtar
 {
     using Sprache;
-    using mana.syntax;
+    using vein.syntax;
 
     internal static class ExpressionExtension
     {

@@ -1,13 +1,13 @@
-namespace mana.ishtar.emit.extensions
+namespace ishtar.emit.extensions
 {
     using System;
     using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Text;
-    using exceptions;
-    using mana.extensions;
-    using mana.runtime;
+    using vein.exceptions;
+    using vein.extensions;
+    using vein.runtime;
 
     public static class ConstStorageExtensions
     {
@@ -43,7 +43,7 @@ namespace mana.ishtar.emit.extensions
             var storage = new ConstStorage();
             foreach (var i in ..bin.ReadInt32())
             {
-                var type_code = (ManaTypeCode)bin.ReadInt32();
+                var type_code = (VeinTypeCode)bin.ReadInt32();
                 var fullname = bin.ReadInsomniaString();
                 var value = bin.ReadInsomniaString();
                 storage.Stage(new FieldName(fullname), Convert.ChangeType(value, type_code.ToCLRTypeCode()));

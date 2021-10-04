@@ -1,11 +1,11 @@
-namespace mana.exceptions
+namespace vein.exceptions
 {
     using System;
     using runtime;
 
     public class ConvertNotSupportedException : Exception
     {
-        public ConvertNotSupportedException(ManaTypeCode typeCode)
+        public ConvertNotSupportedException(VeinTypeCode typeCode)
             : base($"Cannot get converted, '{typeCode}' is not supported.") { }
 
         public ConvertNotSupportedException(ManaField field)

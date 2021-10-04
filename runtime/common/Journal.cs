@@ -1,7 +1,7 @@
-namespace insomnia
+namespace vein
 {
     using System.Collections.Generic;
-    using mana.common;
+    using common;
     using Serilog;
 
     internal class Journal

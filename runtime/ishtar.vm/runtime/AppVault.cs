@@ -3,10 +3,9 @@ namespace ishtar
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
-    using mana.backend.ishtar.light;
-    using mana.fs;
-    using mana.reflection;
-    using mana.runtime;
+    using vein.fs;
+    using vein.reflection;
+    using vein.runtime;
 
     public class AppVault : AppVaultSync
     {

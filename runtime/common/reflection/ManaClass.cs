@@ -1,4 +1,4 @@
-namespace mana.runtime
+namespace vein.runtime
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@ namespace mana.runtime
     using collections;
     using extensions;
     using reflection;
-    using static ManaTypeCode;
+    using static VeinTypeCode;
 
 
     public class ManaClass : IEquatable<ManaClass>, IAspectable
@@ -18,7 +18,7 @@ namespace mana.runtime
         public UniqueList<ManaClass> Parents { get; set; } = new();
         public List<ManaField> Fields { get; } = new();
         public List<ManaMethod> Methods { get; set; } = new();
-        public ManaTypeCode TypeCode { get; set; } = TYPE_CLASS;
+        public VeinTypeCode TypeCode { get; set; } = TYPE_CLASS;
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE;
         public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);

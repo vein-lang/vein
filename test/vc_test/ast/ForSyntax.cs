@@ -1,8 +1,8 @@
 namespace wc_test.ast
 {
     using System.Linq;
-    using mana.stl;
-    using mana.syntax;
+    using vein.stl;
+    using vein.syntax;
     using Sprache;
     using NUnit.Framework;
 

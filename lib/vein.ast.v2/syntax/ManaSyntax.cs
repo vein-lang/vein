@@ -1,4 +1,4 @@
-namespace mana.ast.v2.syntax
+namespace vein.ast.v2.syntax
 {
     using System;
     using System.Linq.Expressions;

@@ -2,20 +2,20 @@ namespace ishtar_test
 {
     using System;
     using ishtar;
-    using mana.ishtar.emit;
-    using mana.runtime;
+    using ishtar.emit;
+    using vein.runtime;
     using NUnit.Framework;
-    using static mana.runtime.FieldFlags;
+    using static vein.runtime.FieldFlags;
 
     [TestFixture]
     public class InstructionTest : IshtarTestBase
     {
         [Test]
-        [TestCase(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
-        [TestCase(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
-        [TestCase(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [TestCase(OpCodeValue.LDC_I8_5, VeinTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, VeinTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, VeinTypeCode.TYPE_I2)]
         [Parallelizable(ParallelScope.None)]
-        public unsafe void ADD_Test(OpCodeValue op, ManaTypeCode code)
+        public unsafe void ADD_Test(OpCodeValue op, VeinTypeCode code)
         {
             using var ctx = CreateContext();
             var result = ctx.Execute((gen, _) =>
@@ -31,11 +31,11 @@ namespace ishtar_test
         }
 
         [Test]
-        [TestCase(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
-        [TestCase(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
-        [TestCase(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [TestCase(OpCodeValue.LDC_I8_5, VeinTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, VeinTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, VeinTypeCode.TYPE_I2)]
         [Parallelizable(ParallelScope.None)]
-        public unsafe void SUB_Test(OpCodeValue op, ManaTypeCode code)
+        public unsafe void SUB_Test(OpCodeValue op, VeinTypeCode code)
         {
             using var ctx = CreateContext();
             var result = ctx.Execute((gen, _) =>
@@ -53,11 +53,11 @@ namespace ishtar_test
         }
 
         [Test]
-        [TestCase(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
-        [TestCase(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
-        [TestCase(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [TestCase(OpCodeValue.LDC_I8_5, VeinTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, VeinTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, VeinTypeCode.TYPE_I2)]
         [Parallelizable(ParallelScope.None)]
-        public unsafe void MUL_Test(OpCodeValue op, ManaTypeCode code)
+        public unsafe void MUL_Test(OpCodeValue op, VeinTypeCode code)
         {
             using var ctx = CreateContext();
             var result = ctx.Execute((gen, _) =>
@@ -73,11 +73,11 @@ namespace ishtar_test
         }
 
         [Test]
-        [TestCase(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
-        [TestCase(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
-        [TestCase(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [TestCase(OpCodeValue.LDC_I8_5, VeinTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, VeinTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, VeinTypeCode.TYPE_I2)]
         [Parallelizable(ParallelScope.None)]
-        public unsafe void DIV_Test(OpCodeValue op, ManaTypeCode code)
+        public unsafe void DIV_Test(OpCodeValue op, VeinTypeCode code)
         {
             using var ctx = CreateContext();
             var result = ctx.Execute((gen, _) =>
@@ -109,7 +109,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.AreEqual(ManaTypeCode.TYPE_R4, (*result.returnValue).type);
+            Assert.AreEqual(VeinTypeCode.TYPE_R4, (*result.returnValue).type);
             Assert.AreEqual(expected, (*result.returnValue).data.f_r4);
         }
 
@@ -130,7 +130,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.AreEqual(ManaTypeCode.TYPE_R16, (*result.returnValue).type);
+            Assert.AreEqual(VeinTypeCode.TYPE_R16, (*result.returnValue).type);
             Assert.AreEqual((decimal)expected, (*result.returnValue).data.d);
         }
 
@@ -151,16 +151,16 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.AreEqual(ManaTypeCode.TYPE_R8, (*result.returnValue).type);
+            Assert.AreEqual(VeinTypeCode.TYPE_R8, (*result.returnValue).type);
             Assert.AreEqual((double)expected, (*result.returnValue).data.f);
         }
 
         [Test]
-        [TestCase(OpCodeValue.LDC_I8_5, ManaTypeCode.TYPE_I8)]
-        [TestCase(OpCodeValue.LDC_I4_5, ManaTypeCode.TYPE_I4)]
-        [TestCase(OpCodeValue.LDC_I2_5, ManaTypeCode.TYPE_I2)]
+        [TestCase(OpCodeValue.LDC_I8_5, VeinTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, VeinTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, VeinTypeCode.TYPE_I2)]
         [Parallelizable(ParallelScope.None)]
-        public unsafe void DUP_Test(OpCodeValue op, ManaTypeCode code)
+        public unsafe void DUP_Test(OpCodeValue op, VeinTypeCode code)
         {
             using var ctx = CreateContext();
             var result = ctx.Execute((gen, _) =>
@@ -187,7 +187,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.AreEqual(ManaTypeCode.TYPE_STRING, (*result.returnValue).type);
+            Assert.AreEqual(VeinTypeCode.TYPE_STRING, (*result.returnValue).type);
 
             var obj = (IshtarObject*) result.returnValue->data.p;
             Assert.AreEqual(targetStr, IshtarMarshal.ToDotnetString(obj, null));
@@ -202,7 +202,7 @@ namespace ishtar_test
 
             ctx.OnClassBuild((@class, o) =>
             {
-                o.field = @class.DefineField("TEST_FIELD", Public | Static, ManaTypeCode.TYPE_I4.AsClass());
+                o.field = @class.DefineField("TEST_FIELD", Public | Static, VeinTypeCode.TYPE_I4.AsClass());
             });
 
 

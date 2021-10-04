@@ -2,7 +2,7 @@ namespace ishtar
 {
     using System.Net.Sockets;
     using System.Runtime.CompilerServices;
-    using mana.runtime;
+    using vein.runtime;
 
     public unsafe class TransitObject<T> where T : TransitObject<T>
     {
@@ -67,7 +67,7 @@ namespace ishtar
 
     public class X_TcpListener : TransitObject<X_TcpListener>
     {
-        public X_TcpListener() : base("corlib%global::mana/lang/network/TcpListener")
+        public X_TcpListener() : base("corlib%global::vein/lang/network/TcpListener")
         {
         }
 

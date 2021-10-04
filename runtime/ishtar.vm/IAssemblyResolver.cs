@@ -1,4 +1,4 @@
-namespace mana.backend.ishtar.light
+namespace vein.runtime
 {
     using System;
     using System.Collections.Generic;
@@ -6,8 +6,8 @@ namespace mana.backend.ishtar.light
     using System.Linq;
     using fs;
     using global::ishtar;
-    using runtime;
-    using mana.ishtar.emit;
+    using vein.runtime;
+    using ishtar.emit;
 
     public delegate void ModuleResolvedEvent(RuntimeIshtarModule module);
 

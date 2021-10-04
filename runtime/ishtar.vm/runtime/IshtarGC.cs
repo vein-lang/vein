@@ -6,9 +6,9 @@ namespace ishtar
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Threading;
-    using mana.extensions;
-    using mana.runtime;
-    using static mana.runtime.ManaTypeCode;
+    using vein.extensions;
+    using vein.runtime;
+    using static vein.runtime.VeinTypeCode;
 
     public static unsafe class IshtarGC
     {

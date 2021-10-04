@@ -2,8 +2,8 @@
 	<PropertyGroup>
 		<Description>LSP for Mana Lang</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<AssemblyName>manalsp</AssemblyName>
-		<RootNamespace>mana.lsp</RootNamespace>
+		<AssemblyName>veinlsp</AssemblyName>
+		<RootNamespace>vein.lsp</RootNamespace>
     <OutputType>Exe</OutputType>
 	</PropertyGroup>
   <ItemGroup>

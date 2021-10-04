@@ -1,7 +1,7 @@
 namespace ishtar
 {
     using System;
-    using mana.runtime;
+    using vein.runtime;
 
     [AttributeUsage(AttributeTargets.Method)]
     public class IshtarExportFlagsAttribute : Attribute

@@ -1,4 +1,4 @@
-namespace mana.lsp
+namespace vein.lsp
 {
     using System.Threading;
     using Microsoft.VisualStudio.Threading;

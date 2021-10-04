@@ -2,7 +2,7 @@ namespace ishtar_test
 {
     using System;
     using ishtar;
-    using mana.runtime;
+    using vein.runtime;
     using NUnit.Framework;
 
     public unsafe class InterfacesTest : IshtarTestBase

@@ -3,10 +3,10 @@ namespace ishtar
     using System;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using mana.runtime;
+    using vein.runtime;
     using static OpCodeValue;
-    using static mana.runtime.ManaTypeCode;
-    using mana.extensions;
+    using static vein.runtime.VeinTypeCode;
+    using vein.extensions;
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 

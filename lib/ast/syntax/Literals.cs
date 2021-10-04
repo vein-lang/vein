@@ -1,10 +1,10 @@
-namespace mana.syntax
+namespace vein.syntax
 {
     using System;
     using System.Linq;
     using Sprache;
     using stl;
-    using mana.extensions;
+    using vein.extensions;
 
     public partial class ManaSyntax
     {

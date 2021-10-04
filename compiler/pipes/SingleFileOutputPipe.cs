@@ -1,4 +1,4 @@
-namespace mana.pipes
+namespace vein.pipes
 {
     using System;
     using System.IO;

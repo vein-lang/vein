@@ -1,4 +1,4 @@
-namespace mana.runtime
+namespace vein.runtime
 {
     public abstract class ManaMember
     {

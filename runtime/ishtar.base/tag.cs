@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("manac")]
-[assembly: InternalsVisibleTo("manac_test")]
+[assembly: InternalsVisibleTo("veinc")]
+[assembly: InternalsVisibleTo("veinc_test")]
 [assembly: InternalsVisibleTo("ishtar")]
-[assembly: InternalsVisibleTo("mana.backend.ishtar.generator")]
+[assembly: InternalsVisibleTo("ishtar.generator")]
 [assembly: InternalsVisibleTo("ishtar_test")]

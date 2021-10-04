@@ -1,6 +1,6 @@
-namespace mana.project.@internal
+namespace vein.project.@internal
 {
-    using mana.common;
+    using vein.common;
     using Serilog;
 
     internal class Journal

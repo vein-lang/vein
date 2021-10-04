@@ -1,4 +1,4 @@
-namespace mana.ishtar.emit
+namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -6,9 +6,9 @@ namespace mana.ishtar.emit
     using System.Linq;
     using System.Text;
     using extensions;
-    using mana.extensions;
-    using mana.runtime;
-    using static runtime.MethodFlags;
+    using vein.extensions;
+    using vein.runtime;
+    using static vein.runtime.MethodFlags;
 
     public class MethodBuilder : ManaMethod, IBaker
     {

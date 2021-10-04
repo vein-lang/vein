@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <AssemblyName>manac</AssemblyName>
-    <RootNamespace>mana</RootNamespace>
+    <AssemblyName>veinc</AssemblyName>
+    <RootNamespace>vein</RootNamespace>
 	  <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>

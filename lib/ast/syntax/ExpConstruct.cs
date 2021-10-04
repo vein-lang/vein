@@ -1,52 +1,52 @@
-namespace mana.syntax
+namespace vein.syntax
 {
     using System;
     using System.Linq.Expressions;
-    using runtime;
+    using vein.runtime;
 
     public static class ManaExpression
     {
-        public static ExpressionSyntax Const<T>(ManaTypeCode code, T value)
+        public static ExpressionSyntax Const<T>(VeinTypeCode code, T value)
         {
             if (value is null)
                 throw new ArgumentNullException(nameof(value));
             var str = value.ToString() ?? throw new ArgumentNullException(nameof(value));
             switch (code)
             {
-                case ManaTypeCode.TYPE_NONE:
-                case ManaTypeCode.TYPE_VOID:
-                case ManaTypeCode.TYPE_OBJECT:
-                case ManaTypeCode.TYPE_CHAR:
-                case ManaTypeCode.TYPE_CLASS:
-                case ManaTypeCode.TYPE_ARRAY:
+                case VeinTypeCode.TYPE_NONE:
+                case VeinTypeCode.TYPE_VOID:
+                case VeinTypeCode.TYPE_OBJECT:
+                case VeinTypeCode.TYPE_CHAR:
+                case VeinTypeCode.TYPE_CLASS:
+                case VeinTypeCode.TYPE_ARRAY:
                     throw new NotImplementedException();
-                case ManaTypeCode.TYPE_BOOLEAN:
+                case VeinTypeCode.TYPE_BOOLEAN:
                     return new BoolLiteralExpressionSyntax(str.ToLowerInvariant());
-                case ManaTypeCode.TYPE_I1:
+                case VeinTypeCode.TYPE_I1:
                     return new SByteLiteralExpressionSyntax(sbyte.Parse(str));
-                case ManaTypeCode.TYPE_U1:
+                case VeinTypeCode.TYPE_U1:
                     return new ByteLiteralExpressionSyntax(byte.Parse(str));
-                case ManaTypeCode.TYPE_I2:
+                case VeinTypeCode.TYPE_I2:
                     return new Int16LiteralExpressionSyntax(short.Parse(str));
-                case ManaTypeCode.TYPE_U2:
+                case VeinTypeCode.TYPE_U2:
                     return new UInt16LiteralExpressionSyntax(ushort.Parse(str));
-                case ManaTypeCode.TYPE_I4:
+                case VeinTypeCode.TYPE_I4:
                     return new Int32LiteralExpressionSyntax(int.Parse(str));
-                case ManaTypeCode.TYPE_U4:
+                case VeinTypeCode.TYPE_U4:
                     return new UInt32LiteralExpressionSyntax(uint.Parse(str));
-                case ManaTypeCode.TYPE_I8:
+                case VeinTypeCode.TYPE_I8:
                     return new Int64LiteralExpressionSyntax(long.Parse(str));
-                case ManaTypeCode.TYPE_U8:
+                case VeinTypeCode.TYPE_U8:
                     return new UInt64LiteralExpressionSyntax(ulong.Parse(str));
-                case ManaTypeCode.TYPE_R2:
+                case VeinTypeCode.TYPE_R2:
                     return new HalfLiteralExpressionSyntax(float.Parse(str));
-                case ManaTypeCode.TYPE_R4:
+                case VeinTypeCode.TYPE_R4:
                     return new SingleLiteralExpressionSyntax(float.Parse(str));
-                case ManaTypeCode.TYPE_R8:
+                case VeinTypeCode.TYPE_R8:
                     return new DoubleLiteralExpressionSyntax(double.Parse(str));
-                case ManaTypeCode.TYPE_R16:
+                case VeinTypeCode.TYPE_R16:
                     return new DecimalLiteralExpressionSyntax(decimal.Parse(str));
-                case ManaTypeCode.TYPE_STRING:
+                case VeinTypeCode.TYPE_STRING:
                     return new StringLiteralExpressionSyntax(str);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(code), code, null);

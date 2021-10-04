@@ -1,11 +1,11 @@
-namespace mana.runtime
+namespace vein.runtime
 {
     using System;
     using System.Reflection;
     using exceptions;
-    using static ManaTypeCode;
+    using static VeinTypeCode;
 
-    public enum ManaTypeCode
+    public enum VeinTypeCode
     {
         TYPE_NONE = 0x0,
         TYPE_VOID,
@@ -32,7 +32,7 @@ namespace mana.runtime
 
     public static class ManaTypeCodeEx
     {
-        public static TypeCode ToCLRTypeCode(this ManaTypeCode type_code)
+        public static TypeCode ToCLRTypeCode(this VeinTypeCode type_code)
         {
             switch (type_code)
             {
@@ -68,7 +68,7 @@ namespace mana.runtime
                     throw new NotSupportedException($"'{type_code}' cant convert to CLR type code.");
             }
         }
-        public static ManaTypeCode DetermineTypeCode<T>(this T value)
+        public static VeinTypeCode DetermineTypeCode<T>(this T value)
         {
             var clr_code = Type.GetTypeCode(value.GetType());
 
@@ -107,7 +107,7 @@ namespace mana.runtime
             }
         }
 
-        public static bool IsCompatibleNumber(this ManaTypeCode variable, ManaTypeCode assign)
+        public static bool IsCompatibleNumber(this VeinTypeCode variable, VeinTypeCode assign)
         {
             if ((!variable.HasInteger() || !assign.HasInteger()) && (!variable.HasFloat() || !assign.HasFloat()))
                 return false;
@@ -201,7 +201,7 @@ namespace mana.runtime
                 _ => false
             };
         }
-        public static bool HasFloat(this ManaTypeCode code)
+        public static bool HasFloat(this VeinTypeCode code)
         {
             switch (code)
             {
@@ -214,7 +214,7 @@ namespace mana.runtime
                     return false;
             }
         }
-        public static bool HasUnsigned(this ManaTypeCode code)
+        public static bool HasUnsigned(this VeinTypeCode code)
         {
             switch (code)
             {
@@ -227,7 +227,7 @@ namespace mana.runtime
                     return false;
             }
         }
-        public static bool HasSigned(this ManaTypeCode code)
+        public static bool HasSigned(this VeinTypeCode code)
         {
             switch (code)
             {
@@ -240,46 +240,46 @@ namespace mana.runtime
                     return false;
             }
         }
-        public static bool HasInteger(this ManaTypeCode code) =>
+        public static bool HasInteger(this VeinTypeCode code) =>
             HasSigned(code) || HasUnsigned(code);
 
-        public static ManaClass AsClass(this ManaTypeCode code)
+        public static ManaClass AsClass(this VeinTypeCode code)
         {
             switch (code)
             {
                 case TYPE_CHAR:
-                    return ManaCore.CharClass;
+                    return VeinCore.CharClass;
                 case TYPE_I1: // TODO
                 case TYPE_U1:
-                    return ManaCore.ByteClass;
+                    return VeinCore.ByteClass;
                 case TYPE_U2:
-                    return ManaCore.UInt16Class;
+                    return VeinCore.UInt16Class;
                 case TYPE_U4:
-                    return ManaCore.UInt32Class;
+                    return VeinCore.UInt32Class;
                 case TYPE_U8:
-                    return ManaCore.UInt64Class;
+                    return VeinCore.UInt64Class;
                 case TYPE_R8:
-                    return ManaCore.DoubleClass;
+                    return VeinCore.DoubleClass;
                 case TYPE_R4:
-                    return ManaCore.FloatClass;
+                    return VeinCore.FloatClass;
                 case TYPE_R2:
-                    return ManaCore.HalfClass;
+                    return VeinCore.HalfClass;
                 case TYPE_ARRAY:
-                    return ManaCore.ArrayClass;
+                    return VeinCore.ArrayClass;
                 case TYPE_BOOLEAN:
-                    return ManaCore.BoolClass;
+                    return VeinCore.BoolClass;
                 case TYPE_VOID:
-                    return ManaCore.VoidClass;
+                    return VeinCore.VoidClass;
                 case TYPE_OBJECT:
-                    return ManaCore.ObjectClass;
+                    return VeinCore.ObjectClass;
                 case TYPE_I2:
-                    return ManaCore.Int16Class;
+                    return VeinCore.Int16Class;
                 case TYPE_I4:
-                    return ManaCore.Int32Class;
+                    return VeinCore.Int32Class;
                 case TYPE_I8:
-                    return ManaCore.Int64Class;
+                    return VeinCore.Int64Class;
                 case TYPE_STRING:
-                    return ManaCore.StringClass;
+                    return VeinCore.StringClass;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(code), code, null);
             }

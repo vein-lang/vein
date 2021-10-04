@@ -2,8 +2,8 @@ namespace ishtar
 {
     using System;
     using System.Runtime.CompilerServices;
-    using static mana.runtime.MethodFlags;
-    using static mana.runtime.ManaTypeCode;
+    using static vein.runtime.MethodFlags;
+    using static vein.runtime.VeinTypeCode;
 
     public static unsafe class B_String
     {

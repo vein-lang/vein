@@ -1,8 +1,8 @@
-namespace mana.ishtar.emit
+namespace ishtar.emit
 {
     using System;
     using System.Runtime.CompilerServices;
-    using exceptions;
+    using vein.exceptions;
 
     internal unsafe class ILCapacityValidator : IDisposable
     {

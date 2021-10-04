@@ -1,17 +1,16 @@
-namespace mana.ishtar.emit
+namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
-    using exceptions;
     using extensions;
     using global::ishtar;
-    using insomnia;
-    using reflection;
-    using mana.extensions;
-    using mana.runtime;
+    using vein.exceptions;
+    using vein.reflection;
+    using vein.extensions;
+    using vein.runtime;
 
     internal static class BinaryExtension
     {
@@ -108,7 +107,7 @@ namespace mana.ishtar.emit
 
                 if (@class.IsSpecial)
                 {
-                    if (ManaCore.All.Any(x => x.FullName == @class.FullName))
+                    if (VeinCore.All.Any(x => x.FullName == @class.FullName))
                         TypeForwarder.Indicate(@class);
                 }
 

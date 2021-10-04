@@ -1,4 +1,4 @@
-namespace mana.fs.elf
+namespace vein.fs.elf
 {
     public struct ElfSegment
     {

@@ -1,4 +1,4 @@
-namespace mana.lsp
+namespace vein.lsp
 {
     using System.Runtime.Serialization;
     using Microsoft.VisualStudio.LanguageServer.Protocol;

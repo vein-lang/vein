@@ -1,4 +1,4 @@
-namespace mana.backend.ishtar.light
+namespace vein.runtime
 {
     using System;
     using System.Collections.Generic;
@@ -11,14 +11,14 @@ namespace mana.backend.ishtar.light
     using System.Threading;
     using fs;
     using global::ishtar;
-    using runtime;
-    using mana.ishtar.emit;
+    using vein.runtime;
+    using ishtar.emit;
 
     internal class Program
     {
         private static void INIT_VTABLES()
         {
-            foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>())
+            foreach (var @class in VeinCore.All.OfType<RuntimeIshtarClass>())
                 @class.init_vtable();
         }
 

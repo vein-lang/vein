@@ -1,4 +1,4 @@
-namespace mana.runtime
+namespace vein.runtime
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -17,7 +17,7 @@ namespace mana.runtime
 
         internal ManaMethod(string name, MethodFlags flags, params ManaArgumentRef[] args)
             : base(name, flags, args) =>
-            this.ReturnType = ManaTypeCode.TYPE_VOID.AsClass();
+            this.ReturnType = VeinTypeCode.TYPE_VOID.AsClass();
 
         internal ManaMethod(string name, MethodFlags flags, ManaClass returnType, ManaClass owner,
             params ManaArgumentRef[] args)

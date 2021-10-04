@@ -4,14 +4,14 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Description>Collections of classes and structures for project system mana-lang and insomnia-vm</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<AssemblyName>mana.project</AssemblyName>
-		<RootNamespace>mana.project</RootNamespace>
+		<AssemblyName>vein.project</AssemblyName>
+		<RootNamespace>vein.project</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="NuGet.Versioning" Version="5.9.0" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\runtime\common\vein.common.csproj" />
-	  <ProjectReference Include="..\ast\mana.ast.csproj" />
+	  <ProjectReference Include="..\ast\vein.ast.csproj" />
 	</ItemGroup>
 </Project>

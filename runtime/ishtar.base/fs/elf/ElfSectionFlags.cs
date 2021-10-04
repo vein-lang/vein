@@ -1,6 +1,6 @@
 using System;
 
-namespace mana.fs.elf
+namespace vein.fs.elf
 {
     [Flags]
     public enum ElfSectionFlags

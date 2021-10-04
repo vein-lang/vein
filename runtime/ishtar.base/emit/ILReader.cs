@@ -1,11 +1,11 @@
-namespace mana.ishtar.emit
+namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using global::ishtar;
-    using mana.extensions;
-    using runtime;
+    using vein.extensions;
+    using vein.runtime;
 
     internal static unsafe class ILReader
     {

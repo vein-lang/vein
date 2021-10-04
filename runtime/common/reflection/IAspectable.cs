@@ -1,4 +1,4 @@
-namespace mana.reflection
+namespace vein.reflection
 {
     using System.Collections.Generic;
 

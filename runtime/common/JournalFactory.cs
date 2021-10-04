@@ -1,4 +1,4 @@
-namespace mana.common
+namespace vein.common
 {
     using System;
     using System.Collections.Concurrent;

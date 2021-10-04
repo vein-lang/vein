@@ -2,8 +2,8 @@ namespace ishtar_test
 {
     using System;
     using ishtar;
-    using mana.extensions;
-    using mana.runtime;
+    using vein.extensions;
+    using vein.runtime;
     using NUnit.Framework;
 
     [TestFixture]
@@ -21,7 +21,7 @@ namespace ishtar_test
         [Parallelizable(ParallelScope.None)]
         public unsafe void CorrectAllocateObject()
         {
-            var result = IshtarGC.AllocObject(ManaTypeCode.TYPE_I8.AsRuntimeClass());
+            var result = IshtarGC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass());
             IshtarGC.FreeObject(&result);
         }
 
@@ -48,7 +48,7 @@ namespace ishtar_test
             if (VM.watcher is DefaultWatchDog)
                 VM.watcher = new TestWatchDog();
 
-            var array = IshtarGC.AllocArray(ManaTypeCode.TYPE_I4.AsRuntimeClass(), 10, 1);
+            var array = IshtarGC.AllocArray(VeinTypeCode.TYPE_I4.AsRuntimeClass(), 10, 1);
 
             Assert.AreEqual(10UL, array->length);
             Assert.AreEqual(1UL, array->rank);

@@ -237,7 +237,7 @@ You can run all tests from the root directory with `dotnet test`.
 
 To recompile the vm and the compiler: `dotnet build`.
 
-To recompile the standard library: `manac ./mana.std/corlib.wproj`.
+To recompile the standard library: `manac ./mana.std/corlib.vproj`.
 
 After your changes are done, please remember to run `dotnet format` to guarantee all files are properly formatted and
 then run the full suite with `dotnet test`.

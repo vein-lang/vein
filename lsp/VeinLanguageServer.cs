@@ -1,4 +1,4 @@
-namespace mana.lsp
+namespace vein.lsp
 {
     using System;
     using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace mana.lsp
     using Newtonsoft.Json.Linq;
     using StreamJsonRpc;
 
-    public class ManaLanguageServer : IDisposable
+    public class VeinLanguageServer : IDisposable
     {
         private readonly JsonRpc rpc;
         private readonly ManualResetEvent disconnectEvent; // used to keep the server running until it is no longer needed
@@ -57,7 +57,7 @@ namespace mana.lsp
                 ? supportedFormats.Contains(MarkupKind.Markdown) ? MarkupKind.Markdown : supportedFormats.First()
                 : MarkupKind.PlainText;
 
-        public ManaLanguageServer(Stream? sender, Stream? reader)
+        public VeinLanguageServer(Stream? sender, Stream? reader)
         {
             this.waitForInit = new ManualResetEvent(false);
             this.rpc = new JsonRpc(sender, reader, this)
@@ -155,7 +155,7 @@ namespace mana.lsp
             var folderItems = folders.SelectMany(entry => entry.Value.Select(name => Path.Combine(entry.Key.LocalPath, name)));
             var initialProjects = folderItems.Select(item =>
                 {
-                    if (!item.EndsWith(".waproj") || !Uri.TryCreate(item, UriKind.Absolute, out var uri))
+                    if (!item.EndsWith(".vproj") || !Uri.TryCreate(item, UriKind.Absolute, out var uri))
                     {
                         return null;
                     }
@@ -677,7 +677,7 @@ namespace mana.lsp
                 var fileName = fileEvent.Uri.LocalPath;
                 var events = new FileEvent[] { fileEvent };
 
-                if (fileName.EndsWith(".waproj"))
+                if (fileName.EndsWith(".vproj"))
                 {
                     if (fileEvent.FileChangeType == FileChangeType.Created)
                     {
@@ -712,7 +712,7 @@ namespace mana.lsp
             changes = CoalesceingQueue.Coalesce(changes.SelectMany(PreprocessEvent));
 
             bool IsDll(FileEvent e) => e.Uri.LocalPath.EndsWith(".wll", StringComparison.InvariantCultureIgnoreCase);
-            bool IsProjectFile(FileEvent e) => e.Uri.LocalPath.EndsWith(".waproj", StringComparison.InvariantCultureIgnoreCase);
+            bool IsProjectFile(FileEvent e) => e.Uri.LocalPath.EndsWith(".vproj", StringComparison.InvariantCultureIgnoreCase);
             bool IsSourceFile(FileEvent e) => e.Uri.LocalPath.EndsWith(".mana", StringComparison.InvariantCultureIgnoreCase);
 
             foreach (var fileEvent in changes.Where(IsSourceFile))

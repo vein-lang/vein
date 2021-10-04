@@ -1,10 +1,10 @@
 namespace ishtar
 {
-    using mana.runtime;
+    using vein.runtime;
 
     public static class RuntimeIshtarClassEx
     {
-        public static RuntimeIshtarClass AsRuntimeClass(this ManaTypeCode code)
+        public static RuntimeIshtarClass AsRuntimeClass(this VeinTypeCode code)
             => (RuntimeIshtarClass)code.AsClass();
     }
 }

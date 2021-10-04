@@ -2,8 +2,8 @@ namespace wc_test
 {
     using System;
     using ishtar;
-    using mana.ishtar.emit;
-    using mana.runtime;
+    using ishtar.emit;
+    using vein.runtime;
     using NUnit.Framework;
 
     public class il_test
@@ -48,10 +48,10 @@ namespace wc_test
 
             gen.Emit(OpCodes.RET);
             gen.Emit(OpCodes.AND);
-            gen.EnsureLocal("foo1", ManaTypeCode.TYPE_I8.AsClass());
+            gen.EnsureLocal("foo1", VeinTypeCode.TYPE_I8.AsClass());
             gen.Emit(OpCodes.LDC_I8_3);
             gen.Emit(OpCodes.STLOC_0);
-            gen.EnsureLocal("foo2", ManaTypeCode.TYPE_I4.AsClass());
+            gen.EnsureLocal("foo2", VeinTypeCode.TYPE_I4.AsClass());
             gen.Emit(OpCodes.LDC_I4_3);
             gen.Emit(OpCodes.STLOC_1);
 
@@ -104,7 +104,7 @@ namespace wc_test
         {
             var module = new ManaModuleBuilder(Guid.NewGuid().ToString());
             var @class = new ClassBuilder(module, $"{module.Name}%global::foo/bar");
-            var method = @class.DefineMethod("foo", ManaTypeCode.TYPE_VOID.AsClass(), args);
+            var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass(), args);
             return method.GetGenerator();
         }
     }

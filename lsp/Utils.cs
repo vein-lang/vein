@@ -1,4 +1,4 @@
-namespace mana.lsp
+namespace vein.lsp
 {
     using System;
     using System.Collections.Generic;
@@ -68,7 +68,7 @@ namespace mana.lsp
         /// <summary>
         /// Shows the given text in the editor.
         /// </summary>
-        internal static void ShowInWindow(this ManaLanguageServer server, string text, MessageType severity)
+        internal static void ShowInWindow(this VeinLanguageServer server, string text, MessageType severity)
         {
             var message = AsMessageParams(text, severity);
             ManaCompilerError.Verify(server != null && message != null, "cannot show message - given server or text was null");
@@ -79,7 +79,7 @@ namespace mana.lsp
         /// Shows a dialog window with options (actions) to the user, and returns the selected option (action).
         /// </summary>
         internal static async Task<MessageActionItem> ShowDialogInWindowAsync
-            (this ManaLanguageServer server, string text, MessageType severity, MessageActionItem[] actionItems)
+            (this VeinLanguageServer server, string text, MessageType severity, MessageActionItem[] actionItems)
         {
             var message =
                 new ShowMessageRequestParams()
@@ -94,7 +94,7 @@ namespace mana.lsp
         /// <summary>
         /// Logs the given text in the editor.
         /// </summary>
-        internal static void LogToWindow(this ManaLanguageServer server, string text, MessageType severity)
+        internal static void LogToWindow(this VeinLanguageServer server, string text, MessageType severity)
         {
             var message = AsMessageParams(text, severity);
             ManaCompilerError.Verify(server != null && message != null, "cannot log message - given server or text was null");

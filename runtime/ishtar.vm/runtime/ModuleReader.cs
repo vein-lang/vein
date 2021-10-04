@@ -6,12 +6,12 @@ namespace ishtar
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
-    using mana.exceptions;
-    using mana.extensions;
-    using mana.ishtar.emit;
-    using mana.ishtar.emit.extensions;
-    using mana.reflection;
-    using mana.runtime;
+    using vein.exceptions;
+    using vein.extensions;
+    using emit;
+    using emit.extensions;
+    using vein.reflection;
+    using vein.runtime;
 
     public class RuntimeIshtarModule : ManaModule
     {
@@ -104,7 +104,7 @@ namespace ishtar
                 module.class_table.Add(@class);
                 if (@class.IsSpecial)
                 {
-                    if (ManaCore.All.Any(x => x.FullName == @class.FullName))
+                    if (VeinCore.All.Any(x => x.FullName == @class.FullName))
                         TypeForwarder.Indicate(@class);
                 }
             }

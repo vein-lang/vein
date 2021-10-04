@@ -1,4 +1,4 @@
-namespace mana
+namespace vein
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@ namespace mana
     using System.Linq;
     using fs;
     using ishtar.emit;
-    using runtime;
+    using vein.runtime;
 
     public class AssemblyResolver : IAssemblyResolver
     {

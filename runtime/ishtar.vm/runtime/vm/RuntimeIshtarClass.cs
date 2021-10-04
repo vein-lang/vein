@@ -5,9 +5,9 @@ namespace ishtar
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Text.Json.Serialization;
-    using mana.reflection;
-    using mana.runtime;
-    using mana.extensions;
+    using vein.reflection;
+    using vein.runtime;
+    using vein.extensions;
 
     public interface ITransitionAlignment<in TKey, out TValue>
     {

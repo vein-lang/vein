@@ -1,11 +1,11 @@
-namespace mana.pipes
+namespace vein.pipes
 {
     using System.Collections.Generic;
     using System.IO;
     using System.Threading;
     using cmd;
     using fs;
-    using insomnia.compilation;
+    using compilation;
     using ishtar.emit;
     using MoreLinq;
     using project;

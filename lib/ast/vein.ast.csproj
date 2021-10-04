@@ -3,8 +3,8 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>Collections of classes and structures for AST WaveLang.</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<AssemblyName>mana.ast</AssemblyName>
-		<RootNamespace>mana.ast</RootNamespace>
+		<AssemblyName>vein.ast</AssemblyName>
+		<RootNamespace>vein.ast</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="morelinq" Version="3.3.2" />

@@ -1,4 +1,4 @@
-namespace mana.runtime
+namespace vein.runtime
 {
     using System;
 
@@ -9,7 +9,7 @@ namespace mana.runtime
 
 
 
-        public static implicit operator ManaArgumentRef((ManaTypeCode code, string name) data)
+        public static implicit operator ManaArgumentRef((VeinTypeCode code, string name) data)
         {
             var (code, name) = data;
             return new ManaArgumentRef
@@ -18,7 +18,7 @@ namespace mana.runtime
                 Type = code.AsClass()
             };
         }
-        public static implicit operator ManaArgumentRef((string name, ManaTypeCode code) data)
+        public static implicit operator ManaArgumentRef((string name, VeinTypeCode code) data)
         {
             var (name, code) = data;
             return new ManaArgumentRef

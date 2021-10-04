@@ -3,8 +3,8 @@
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<Description>Mana Lang backend for Ishtar VM</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<AssemblyName>mana.backend.ishtar</AssemblyName>
-		<RootNamespace>mana.ishtar</RootNamespace>
+		<AssemblyName>ishtar.base</AssemblyName>
+		<RootNamespace>ishtar.base</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="ExpressiveParser" Version="2.4.0" />

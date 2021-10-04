@@ -2,7 +2,7 @@ namespace ishtar_test
 {
     using System;
     using ishtar;
-    using mana.runtime;
+    using vein.runtime;
     using NUnit.Framework;
 
     public unsafe class OverrideTest : IshtarTestBase
@@ -13,15 +13,15 @@ namespace ishtar_test
         {
             var module = new RuntimeIshtarModule(AppVault.CurrentVault, _module.Name);
 
-            var b1 = new RuntimeIshtarClass("tst%global::foo/bar1", ManaTypeCode.TYPE_OBJECT.AsRuntimeClass(), module);
+            var b1 = new RuntimeIshtarClass("tst%global::foo/bar1", VeinTypeCode.TYPE_OBJECT.AsRuntimeClass(), module);
 
-            var m1 = b1.DefineMethod("soq", ManaTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Virtual);
+            var m1 = b1.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Virtual);
 
             m1.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo1));
 
             var b2 = new RuntimeIshtarClass("tst%global::foo/bar2", b1, module);
 
-            var m2 = b2.DefineMethod("soq", ManaTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Override);
+            var m2 = b2.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Override);
 
             m2.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo2));
 
@@ -47,15 +47,15 @@ namespace ishtar_test
         {
             //var module = new RuntimeIshtarModule(AppVault.CurrentVault, _module.Name);
 
-            //var b1 = new RuntimeIshtarClass("tst%global::foo/bar1", ManaTypeCode.TYPE_OBJECT.AsRuntimeClass(), module);
+            //var b1 = new RuntimeIshtarClass("tst%global::foo/bar1", VeinTypeCode.TYPE_OBJECT.AsRuntimeClass(), module);
 
-            //var m1 = b1.DefineMethod("soq", ManaTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Virtual);
+            //var m1 = b1.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Virtual);
 
             //m1.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo1));
 
             //var b2 = new RuntimeIshtarClass("tst%global::foo/bar2", b1, module);
 
-            //var m2 = b2.DefineMethod("soq", ManaTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Override);
+            //var m2 = b2.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Override);
 
             //m2.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo2));
 

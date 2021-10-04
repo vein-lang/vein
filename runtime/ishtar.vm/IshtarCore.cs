@@ -1,8 +1,6 @@
-namespace mana.backend.ishtar.light
+namespace vein.runtime
 {
-    using System;
     using global::ishtar;
-    using runtime;
 
     public class IshtarCore
     {
@@ -10,26 +8,26 @@ namespace mana.backend.ishtar.light
         {
             var asmName = "corlib%";
 
-            ManaCore.ObjectClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Object", (ManaClass)null, null) { TypeCode = ManaTypeCode.TYPE_OBJECT };
-            ManaCore.ValueTypeClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/ValueType", (ManaClass)null, null) { TypeCode = ManaTypeCode.TYPE_OBJECT };
-            ManaCore.VoidClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Void", ManaCore.ObjectClass, null) { TypeCode = ManaTypeCode.TYPE_VOID };
-            ManaCore.StringClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/String", ManaCore.ObjectClass, null) { TypeCode = ManaTypeCode.TYPE_STRING };
-            ManaCore.ByteClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Byte", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_U1 };
-            ManaCore.SByteClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/SByte", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_I1 };
-            ManaCore.Int16Class = new RuntimeIshtarClass($"{asmName}global::mana/lang/Int16", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_I2 };
-            ManaCore.Int32Class = new RuntimeIshtarClass($"{asmName}global::mana/lang/Int32", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_I4 };
-            ManaCore.Int64Class = new RuntimeIshtarClass($"{asmName}global::mana/lang/Int64", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_I8 };
-            ManaCore.UInt16Class = new RuntimeIshtarClass($"{asmName}global::mana/lang/UIn16", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_U2 };
-            ManaCore.UInt32Class = new RuntimeIshtarClass($"{asmName}global::mana/lang/UInt32", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_U4 };
-            ManaCore.UInt64Class = new RuntimeIshtarClass($"{asmName}global::mana/lang/UInt64", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_U8 };
-            ManaCore.HalfClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Half", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_R2 };
-            ManaCore.FloatClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Float", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_R4 };
-            ManaCore.DoubleClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Double", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_R8 };
-            ManaCore.DecimalClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Decimal", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_R16 };
-            ManaCore.BoolClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Boolean", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_BOOLEAN };
-            ManaCore.CharClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Char", ManaCore.ValueTypeClass, null) { TypeCode = ManaTypeCode.TYPE_CHAR };
-            ManaCore.ArrayClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Array", ManaCore.ObjectClass, null) { TypeCode = ManaTypeCode.TYPE_ARRAY };
-            ManaCore.ExceptionClass = new RuntimeIshtarClass($"{asmName}global::mana/lang/Exception", ManaCore.ObjectClass, null) { TypeCode = ManaTypeCode.TYPE_OBJECT };
+            VeinCore.ObjectClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Object", (ManaClass)null, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };
+            VeinCore.ValueTypeClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/ValueType", (ManaClass)null, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };
+            VeinCore.VoidClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Void", VeinCore.ObjectClass, null) { TypeCode = VeinTypeCode.TYPE_VOID };
+            VeinCore.StringClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/String", VeinCore.ObjectClass, null) { TypeCode = VeinTypeCode.TYPE_STRING };
+            VeinCore.ByteClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Byte", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_U1 };
+            VeinCore.SByteClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/SByte", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_I1 };
+            VeinCore.Int16Class = new RuntimeIshtarClass($"{asmName}global::vein/lang/Int16", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_I2 };
+            VeinCore.Int32Class = new RuntimeIshtarClass($"{asmName}global::vein/lang/Int32", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_I4 };
+            VeinCore.Int64Class = new RuntimeIshtarClass($"{asmName}global::vein/lang/Int64", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_I8 };
+            VeinCore.UInt16Class = new RuntimeIshtarClass($"{asmName}global::vein/lang/UIn16", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_U2 };
+            VeinCore.UInt32Class = new RuntimeIshtarClass($"{asmName}global::vein/lang/UInt32", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_U4 };
+            VeinCore.UInt64Class = new RuntimeIshtarClass($"{asmName}global::vein/lang/UInt64", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_U8 };
+            VeinCore.HalfClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Half", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_R2 };
+            VeinCore.FloatClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Float", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_R4 };
+            VeinCore.DoubleClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Double", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_R8 };
+            VeinCore.DecimalClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Decimal", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_R16 };
+            VeinCore.BoolClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Boolean", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_BOOLEAN };
+            VeinCore.CharClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Char", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_CHAR };
+            VeinCore.ArrayClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Array", VeinCore.ObjectClass, null) { TypeCode = VeinTypeCode.TYPE_ARRAY };
+            VeinCore.ExceptionClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Exception", VeinCore.ObjectClass, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };
 
             INIT_ADDITIONAL_MAPPING();
         }
@@ -37,25 +35,25 @@ namespace mana.backend.ishtar.light
 
         public static void INIT_ADDITIONAL_MAPPING()
         {
-            (ManaCore.ValueTypeClass as RuntimeIshtarClass)
+            (VeinCore.ValueTypeClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special | FieldFlags.Internal,
-                    ManaCore.ValueTypeClass);
-            (ManaCore.StringClass as RuntimeIshtarClass)
+                    VeinCore.ValueTypeClass);
+            (VeinCore.StringClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special | FieldFlags.Internal,
-                    ManaCore.ValueTypeClass);
+                    VeinCore.ValueTypeClass);
 
-            (ManaCore.ArrayClass as RuntimeIshtarClass)
+            (VeinCore.ArrayClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special,
-                    ManaCore.ValueTypeClass);
-            (ManaCore.ArrayClass as RuntimeIshtarClass)
+                    VeinCore.ValueTypeClass);
+            (VeinCore.ArrayClass as RuntimeIshtarClass)
                 !.DefineField("!!block", FieldFlags.Special,
-                    ManaCore.Int64Class);
-            (ManaCore.ArrayClass as RuntimeIshtarClass)
+                    VeinCore.Int64Class);
+            (VeinCore.ArrayClass as RuntimeIshtarClass)
                 !.DefineField("!!size", FieldFlags.Special,
-                    ManaCore.Int64Class);
-            (ManaCore.ArrayClass as RuntimeIshtarClass)
+                    VeinCore.Int64Class);
+            (VeinCore.ArrayClass as RuntimeIshtarClass)
                 !.DefineField("!!rank", FieldFlags.Special,
-                    ManaCore.Int64Class);
+                    VeinCore.Int64Class);
         }
     }
 }

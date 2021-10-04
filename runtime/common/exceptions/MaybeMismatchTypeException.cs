@@ -1,7 +1,7 @@
-namespace mana.exceptions
+namespace vein.exceptions
 {
     using System;
-    using runtime;
+    using vein.runtime;
 
     public class MaybeMismatchTypeException : Exception
     {

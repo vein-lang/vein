@@ -1,9 +1,9 @@
-namespace mana.ishtar.emit.extensions
+namespace ishtar.emit.extensions
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using mana.runtime;
+    using vein.runtime;
 
     public static class QualityTypeEx
     {

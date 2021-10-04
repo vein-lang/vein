@@ -1,8 +1,8 @@
-namespace mana
+namespace vein
 {
     using System;
     using System.Collections.Generic;
-    using runtime;
+    using vein.runtime;
 
     public interface IAssemblyResolver
     {

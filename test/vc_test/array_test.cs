@@ -2,8 +2,8 @@ namespace wc_test
 {
     using System;
     using System.Linq;
-    using mana.stl;
-    using mana.syntax;
+    using vein.stl;
+    using vein.syntax;
     using NUnit.Framework;
 
     public class array_test

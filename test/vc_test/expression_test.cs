@@ -4,10 +4,10 @@ namespace wc_test
     using System.Linq;
     using ishtar;
     using Sprache;
-    using mana.ishtar.emit;
-    using mana.runtime;
-    using mana.stl;
-    using mana.syntax;
+    using ishtar.emit;
+    using vein.runtime;
+    using vein.stl;
+    using vein.syntax;
     using NUnit.Framework;
 
     public class expression_test
@@ -18,8 +18,8 @@ namespace wc_test
         [Test(Description = "(40 + 50)")]
         public void F00()
         {
-            var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 40);
-            var f2 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 50);
+            var f1 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 40);
+            var f2 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 50);
 
             var result = ManaExpression.Add(f1, f2);
 
@@ -27,13 +27,13 @@ namespace wc_test
 
             var type = result.DetermineType(null);
 
-            Assert.AreEqual(ManaTypeCode.TYPE_I4, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_I4, type.TypeCode);
         }
         [Test(Description = "((40 + 50) - 50)")]
         public void F01()
         {
-            var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 40);
-            var f2 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 50);
+            var f1 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 40);
+            var f2 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 50);
 
             var f3 = ManaExpression.Add(f1, f2);
 
@@ -45,13 +45,13 @@ namespace wc_test
 
             Console.WriteLine($"result: {result.ForceOptimization().ExpressionString}");
 
-            Assert.AreEqual(ManaTypeCode.TYPE_I4, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_I4, type.TypeCode);
         }
         [Test(Description = "(((40 - (40 + 50)) / (40 + 50)) - ((40 - (40 + 50)) / (40 + 50)))")]
         public void F02()
         {
-            var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 40);
-            var f2 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 50);
+            var f1 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 40);
+            var f2 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 50);
 
             var f3 = ManaExpression.Add(f1, f2);
             var f4 = ManaExpression.Sub(f1, f3);
@@ -63,14 +63,14 @@ namespace wc_test
 
             var type = result.DetermineType(null);
 
-            Assert.AreEqual(ManaTypeCode.TYPE_I4, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_I4, type.TypeCode);
         }
 
         [Test(Description = "(((40 - (40 + 50)) / (40 + 50)) && ((40 - (40 + 50)) / (40 + 50)))")]
         public void F03()
         {
-            var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 40);
-            var f2 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 50);
+            var f1 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 40);
+            var f2 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 50);
 
             var f3 = ManaExpression.Add(f1, f2);
             var f4 = ManaExpression.Sub(f1, f3);
@@ -82,14 +82,14 @@ namespace wc_test
 
             var type = result.DetermineType(null);
 
-            Assert.AreEqual(ManaTypeCode.TYPE_BOOLEAN, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_BOOLEAN, type.TypeCode);
         }
 
         [Test]
         public void F04()
         {
-            var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I8, 40);
-            var f2 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 50);
+            var f1 = ManaExpression.Const(VeinTypeCode.TYPE_I8, 40);
+            var f2 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 50);
 
             var result = ManaExpression.AndAlso(f1, f2);
 
@@ -97,14 +97,14 @@ namespace wc_test
 
             var type = result.DetermineType(null);
 
-            Assert.AreEqual(ManaTypeCode.TYPE_BOOLEAN, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_BOOLEAN, type.TypeCode);
         }
 
         [Test]
         public void F05()
         {
-            var f1 = ManaExpression.Const(ManaTypeCode.TYPE_I8, long.MaxValue - 200);
-            var f2 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 50);
+            var f1 = ManaExpression.Const(VeinTypeCode.TYPE_I8, long.MaxValue - 200);
+            var f2 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 50);
 
             var result = ManaExpression.Sub(f1, f2);
 
@@ -112,14 +112,14 @@ namespace wc_test
 
             var type = result.DetermineType(null);
 
-            Assert.AreEqual(ManaTypeCode.TYPE_I8, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_I8, type.TypeCode);
         }
 
         [Test]
         public void F06()
         {
-            var f1 = ManaExpression.Const(ManaTypeCode.TYPE_STRING, "Foo");
-            var f2 = ManaExpression.Const(ManaTypeCode.TYPE_I4, 50);
+            var f1 = ManaExpression.Const(VeinTypeCode.TYPE_STRING, "Foo");
+            var f2 = ManaExpression.Const(VeinTypeCode.TYPE_I4, 50);
 
             var result = ManaExpression.Sub(f1, f2);
 
@@ -137,10 +137,10 @@ namespace wc_test
 
             genCtx.Module = new ManaModuleBuilder("doo");
             var @class = genCtx.Module.DefineClass("global::mana/foo");
-            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, ManaTypeCode.TYPE_VOID.AsClass());
+            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new ManaScope(genCtx);
 
-            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("idi"), ManaTypeCode.TYPE_BOOLEAN.AsClass(), 0);
+            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("idi"), VeinTypeCode.TYPE_BOOLEAN.AsClass(), 0);
 
             var key = $"idi";
             var id = Syntax.QualifiedExpression.End().ParseMana(key) as IdentifierExpression;
@@ -152,7 +152,7 @@ namespace wc_test
 
             var type = result.DetermineType(genCtx);
 
-            Assert.AreEqual(ManaTypeCode.TYPE_BOOLEAN, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_BOOLEAN, type.TypeCode);
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace wc_test
 
             genCtx.Module = new ManaModuleBuilder("doo");
             var @class = genCtx.Module.DefineClass("global::mana/foo");
-            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, ManaTypeCode.TYPE_VOID.AsClass());
+            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new ManaScope(genCtx);
 
             var key = $"ata()";
@@ -178,7 +178,7 @@ namespace wc_test
 
             Assert.IsEmpty(genCtx.Errors);
 
-            Assert.AreEqual(ManaTypeCode.TYPE_VOID, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_VOID, type.TypeCode);
         }
 
         [Test, Ignore("Bug in CI, System.InvalidOperationException : There is no currently active test.")]
@@ -190,11 +190,11 @@ namespace wc_test
             var @class = genCtx.Module.DefineClass("global::mana/foo");
             var anotherClass = genCtx.Module.DefineClass("global::mana/goo");
 
-            anotherClass.DefineMethod("gota", MethodFlags.Public, ManaTypeCode.TYPE_I1.AsClass());
+            anotherClass.DefineMethod("gota", MethodFlags.Public, VeinTypeCode.TYPE_I1.AsClass());
 
             @class.Includes.Add("global::mana");
 
-            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, ManaTypeCode.TYPE_VOID.AsClass());
+            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new ManaScope(genCtx);
 
             genCtx.CurrentScope.DefineVariable(new IdentifierExpression("ow"), anotherClass, 0);
@@ -215,7 +215,7 @@ namespace wc_test
 
             Assert.IsEmpty(genCtx.Errors);
 
-            Assert.AreEqual(ManaTypeCode.TYPE_I1, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_I1, type.TypeCode);
 
         }
     }

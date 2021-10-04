@@ -1,6 +1,6 @@
-namespace mana.reflection
+namespace vein.reflection
 {
-    using runtime;
+    using vein.runtime;
 
     public class UnresolvedManaClass : ManaClass
     {

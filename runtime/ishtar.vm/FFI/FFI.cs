@@ -3,7 +3,7 @@ namespace ishtar
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using mana.runtime;
+    using vein.runtime;
 
     public static unsafe class FFI
     {
@@ -41,7 +41,7 @@ namespace ishtar
             VM.Assert(!@class.IsAbstract, WNE.TYPE_LOAD, $"Class '{@class.FullName}' abstract.", current);
         }
         [Conditional("STATIC_VALIDATE_IL")]
-        public static void StaticTypeOf(CallFrame current, IshtarObject** arg1, ManaTypeCode code)
+        public static void StaticTypeOf(CallFrame current, IshtarObject** arg1, VeinTypeCode code)
         {
             StaticValidate(*arg1);
             var @class = (*arg1)->DecodeClass();

@@ -1,8 +1,8 @@
-namespace mana.backend.ishtar.light
+namespace vein.runtime
 {
     using System.Linq;
     using global::ishtar;
-    using runtime;
+    using vein.runtime;
 
     public static class ModuleEx
     {

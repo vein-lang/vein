@@ -1,7 +1,7 @@
 namespace ishtar
 {
     using System;
-    using mana.runtime;
+    using vein.runtime;
 
     public unsafe class RuntimeIshtarMethod : ManaMethod
     {
@@ -12,7 +12,7 @@ namespace ishtar
 
         internal RuntimeIshtarMethod(string name, MethodFlags flags, params ManaArgumentRef[] args)
             : base(name, flags, args) =>
-            this.ReturnType = ManaTypeCode.TYPE_VOID.AsClass();
+            this.ReturnType = VeinTypeCode.TYPE_VOID.AsClass();
 
         internal RuntimeIshtarMethod(string name, MethodFlags flags, ManaClass returnType, params ManaArgumentRef[] args)
             : base(name, flags, args) =>

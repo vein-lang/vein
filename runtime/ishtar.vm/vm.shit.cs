@@ -3,11 +3,11 @@ namespace ishtar
     using System;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
-    using mana.reflection;
+    using vein.reflection;
     using Microsoft.CodeAnalysis;
-    using mana.runtime;
+    using vein.runtime;
     using static OpCodeValue;
-    using static mana.runtime.ManaTypeCode;
+    using static vein.runtime.VeinTypeCode;
 
     public static unsafe partial class VM
     {

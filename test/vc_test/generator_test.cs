@@ -8,11 +8,11 @@ namespace wc_test
     using System.Linq;
     using ishtar;
     using Spectre.Console;
-    using mana.fs;
-    using mana.ishtar.emit;
-    using mana.runtime;
-    using mana.stl;
-    using mana.syntax;
+    using vein.fs;
+    using ishtar.emit;
+    using vein.runtime;
+    using vein.stl;
+    using vein.syntax;
     using NUnit.Framework;
 
     public class generator_test
@@ -21,9 +21,9 @@ namespace wc_test
         public void Test()
         {
             var module = new ManaModuleBuilder("xuy");
-            var clazz = module.DefineClass("xuy%global::mana/lang/svack_pidars");
+            var clazz = module.DefineClass("xuy%global::vein/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,ManaTypeCode.TYPE_VOID.AsClass(), ("x", ManaTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,VeinTypeCode.TYPE_VOID.AsClass(), ("x", VeinTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var gen = method.GetGenerator();
 
@@ -65,9 +65,9 @@ namespace wc_test
         public void TestIL()
         {
             var module = new ManaModuleBuilder("xuy");
-            var clazz = module.DefineClass("global::mana/lang/svack_pidars");
+            var clazz = module.DefineClass("global::vein/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, ManaTypeCode.TYPE_VOID.AsClass(), ("x", ManaTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass(), ("x", VeinTypeCode.TYPE_STRING));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var body = method.GetGenerator();
 
@@ -103,11 +103,11 @@ namespace wc_test
             {
                 if (member is ClassDeclarationSyntax classMember)
                 {
-                    var @class = module.DefineClass($"global::mana/lang/{classMember.Identifier}");
+                    var @class = module.DefineClass($"global::vein/lang/{classMember.Identifier}");
 
                     foreach (var methodMember in classMember.Methods)
                     {
-                        var method = @class.DefineMethod(methodMember.Identifier.ExpressionString, ManaTypeCode.TYPE_VOID.AsClass());
+                        var method = @class.DefineMethod(methodMember.Identifier.ExpressionString, VeinTypeCode.TYPE_VOID.AsClass());
                         var generator = method.GetGenerator();
 
                         foreach (var statement in methodMember.Body.Statements)
@@ -150,11 +150,11 @@ namespace wc_test
             };
 
 
-            var actual = CreateGenerator(("x", ManaTypeCode.TYPE_STRING));
+            var actual = CreateGenerator(("x", VeinTypeCode.TYPE_STRING));
 
             actual.EmitReturn(ret);
 
-            var expected = CreateGenerator(("x", ManaTypeCode.TYPE_STRING));
+            var expected = CreateGenerator(("x", VeinTypeCode.TYPE_STRING));
 
             expected.Emit(OpCodes.LDF, new FieldName("x"));
             expected.Emit(OpCodes.RET);
@@ -181,7 +181,7 @@ namespace wc_test
         {
             var module = new ManaModuleBuilder(Guid.NewGuid().ToString());
             var @class = module.DefineClass("global::foo/bar");
-            var method = @class.DefineMethod("foo", ManaTypeCode.TYPE_VOID.AsClass(), args);
+            var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass(), args);
             return method.GetGenerator();
         }
         [Test, Ignore("MANUAL")]
@@ -234,14 +234,14 @@ puts after - before;*/
 
 
             var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
-                ManaTypeCode.TYPE_VOID.AsClass());
+                VeinTypeCode.TYPE_VOID.AsClass());
             var body = method.GetGenerator();
 
             var @while = body.DefineLabel();
 
             body.UseLabel(@while);
             body.Emit(OpCodes.NOP);
-            body.Emit(OpCodes.NEWOBJ, ManaCore.StringClass);
+            body.Emit(OpCodes.NEWOBJ, VeinCore.StringClass);
             body.Emit(OpCodes.RESERVED_2);
             body.Emit(OpCodes.JMP, @while);
             body.Emit(OpCodes.RET);
@@ -268,7 +268,7 @@ puts after - before;*/
 
             var fib = clazz.DefineMethod("fib",
                 MethodFlags.Public | MethodFlags.Static,
-                ManaTypeCode.TYPE_I8.AsClass(), ("x", ManaTypeCode.TYPE_I8));
+                VeinTypeCode.TYPE_I8.AsClass(), ("x", VeinTypeCode.TYPE_I8));
 
             var fibGen = fib.GetGenerator();
 
@@ -296,10 +296,10 @@ puts after - before;*/
             fibGen.Emit(OpCodes.RET);
             fibGen.UseLabel(label_if_2);
             // var first, second, nth, i = 0;
-            fibGen.EnsureLocal("first", ManaTypeCode.TYPE_I4.AsClass());
-            fibGen.EnsureLocal("second", ManaTypeCode.TYPE_I4.AsClass());
-            fibGen.EnsureLocal("nth", ManaTypeCode.TYPE_I4.AsClass());
-            fibGen.EnsureLocal("i", ManaTypeCode.TYPE_I4.AsClass());
+            fibGen.EnsureLocal("first", VeinTypeCode.TYPE_I4.AsClass());
+            fibGen.EnsureLocal("second", VeinTypeCode.TYPE_I4.AsClass());
+            fibGen.EnsureLocal("nth", VeinTypeCode.TYPE_I4.AsClass());
+            fibGen.EnsureLocal("i", VeinTypeCode.TYPE_I4.AsClass());
             // second, nth = 1; i = 2;
             fibGen.Emit(OpCodes.LDC_I4_1); fibGen.Emit(OpCodes.STLOC_1);
             fibGen.Emit(OpCodes.LDC_I4_1); fibGen.Emit(OpCodes.STLOC_2);
@@ -345,7 +345,7 @@ puts after - before;*/
             fibGen.Emit(OpCodes.RET);
 
             var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
-                ManaTypeCode.TYPE_VOID.AsClass());
+                VeinTypeCode.TYPE_VOID.AsClass());
             var body = method.GetGenerator();
 
 

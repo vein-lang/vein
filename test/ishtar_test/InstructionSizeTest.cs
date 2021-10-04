@@ -1,8 +1,8 @@
 namespace ishtar_test
 {
     using ishtar;
-    using mana.ishtar.emit;
-    using mana.runtime;
+    using ishtar.emit;
+    using vein.runtime;
     using NUnit.Framework;
 
     [TestFixture]
@@ -20,7 +20,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
 
-            Assert.AreEqual(ManaTypeCode.TYPE_I8, (*result.returnValue).type);
+            Assert.AreEqual(VeinTypeCode.TYPE_I8, (*result.returnValue).type);
             Assert.AreEqual(long.MaxValue, (*result.returnValue).data.l);
         }
     }

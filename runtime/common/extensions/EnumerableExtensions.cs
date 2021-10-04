@@ -1,4 +1,4 @@
-namespace mana.extensions
+namespace vein.extensions
 {
     using System;
     using System.Collections;

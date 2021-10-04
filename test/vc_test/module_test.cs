@@ -5,11 +5,11 @@ namespace wc_test
     using System.IO;
     using System.Linq;
     using ishtar;
-    using mana;
-    using mana.fs;
-    using mana.ishtar.emit;
-    using mana.project;
-    using mana.runtime;
+    using vein;
+    using vein.fs;
+    using ishtar.emit;
+    using vein.project;
+    using vein.runtime;
     using NUnit.Framework;
 
     public class module_test
@@ -22,7 +22,7 @@ namespace wc_test
 
             var stl = new ManaModuleBuilder("stl", new Version(2,3));
 
-            foreach (var type in ManaCore.All)
+            foreach (var type in VeinCore.All)
             {
                 stl.InternTypeName(type.FullName);
                 stl.InternString(type.Name);
@@ -59,7 +59,7 @@ namespace wc_test
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
                 var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                    ManaTypeCode.TYPE_VOID.AsClass());
+                    VeinTypeCode.TYPE_VOID.AsClass());
 
                 var gen = method.GetGenerator();
 
@@ -86,7 +86,7 @@ namespace wc_test
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
                 var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                    ManaTypeCode.TYPE_VOID.AsClass());
+                    VeinTypeCode.TYPE_VOID.AsClass());
 
                 var gen = method.GetGenerator();
 

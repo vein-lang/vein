@@ -1,9 +1,9 @@
-namespace mana.cmd
+namespace vein.cmd
 {
     using System.ComponentModel;
     using System.IO;
     using System.Linq;
-    using insomnia.compilation;
+    using compilation;
     using project;
     using Spectre.Console;
     using Spectre.Console.Cli;
@@ -35,9 +35,9 @@ namespace mana.cmd
             {
                 var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-                var projects = curDir.EnumerateFiles("*.waproj");
+                var projects = curDir.EnumerateFiles("*.vproj").ToArray();
 
-                if (projects.Count() == 0)
+                if (!projects.Any())
                 {
                     MarkupLine($"[red]ERR[/]: Project not found in [orange]'{curDir.FullName}'[/] directory.");
                     return -1;

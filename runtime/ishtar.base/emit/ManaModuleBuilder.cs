@@ -1,4 +1,4 @@
-namespace mana.ishtar.emit
+namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
@@ -8,12 +8,12 @@ namespace mana.ishtar.emit
     using System.Text;
     using extensions;
     using global::ishtar;
-    using insomnia;
     using MoreLinq;
     using Serilog;
-    using mana.exceptions;
-    using mana.extensions;
-    using mana.runtime;
+    using vein;
+    using vein.exceptions;
+    using vein.extensions;
+    using vein.runtime;
 
     public class ManaModuleBuilder : ManaModule, IBaker
     {

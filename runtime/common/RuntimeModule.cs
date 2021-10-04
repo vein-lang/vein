@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using mana.runtime;
+using vein.runtime;
 
 [assembly: InternalsVisibleTo("wc_test")]
 [assembly: InternalsVisibleTo("wc")]
@@ -11,5 +11,5 @@ using mana.runtime;
 public static class RuntimeModule
 {
     [ModuleInitializer]
-    public static void Init() => ManaCore.Init();
+    public static void Init() => VeinCore.Init();
 }

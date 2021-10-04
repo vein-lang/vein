@@ -5,9 +5,9 @@ namespace wc_test
     using System.IO;
     using System.Linq;
     using Sprache;
-    using mana.ishtar.emit;
-    using mana.stl;
-    using mana.syntax;
+    using ishtar.emit;
+    using vein.stl;
+    using vein.syntax;
     using NUnit.Framework;
     public class FetchManaSource : IEnumerable<object[]>
     {

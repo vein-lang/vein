@@ -1,4 +1,4 @@
-namespace mana.collections
+namespace vein.collections
 {
     using System;
     using System.Collections.Generic;

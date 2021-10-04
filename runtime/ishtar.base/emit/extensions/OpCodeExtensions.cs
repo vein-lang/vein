@@ -1,7 +1,7 @@
-namespace mana.ishtar.emit.extensions
+namespace ishtar.emit.extensions
 {
     using global::ishtar;
-    using mana.extensions;
+    using vein.extensions;
 
     public static class OpCodeExtensions
     {

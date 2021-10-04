@@ -1,7 +1,7 @@
 namespace ishtar_test
 {
     using ishtar;
-    using mana.runtime;
+    using vein.runtime;
     using NUnit.Framework;
 
     [TestFixture]
@@ -12,7 +12,7 @@ namespace ishtar_test
         public void NewArr()
         {
             using var ctx = CreateContext();
-            var arrType = ManaTypeCode.TYPE_I4.AsClass().FullName;
+            var arrType = VeinTypeCode.TYPE_I4.AsClass().FullName;
 
             ctx.EnsureType(arrType);
 
@@ -25,7 +25,7 @@ namespace ishtar_test
             });
 
 
-            Assert.AreEqual(ManaTypeCode.TYPE_ARRAY, result.returnValue->type);
+            Assert.AreEqual(VeinTypeCode.TYPE_ARRAY, result.returnValue->type);
         }
 
         [Test]
@@ -33,7 +33,7 @@ namespace ishtar_test
         public void LoadAndStageElementTest()
         {
             using var ctx = CreateContext();
-            var arrType = ManaTypeCode.TYPE_I4.AsClass().FullName;
+            var arrType = VeinTypeCode.TYPE_I4.AsClass().FullName;
 
             ctx.EnsureType(arrType);
 
@@ -50,7 +50,7 @@ namespace ishtar_test
                 x.Emit(OpCodes.RET);
             });
 
-            Assert.AreEqual(ManaTypeCode.TYPE_I4, result.returnValue->type);
+            Assert.AreEqual(VeinTypeCode.TYPE_I4, result.returnValue->type);
             Assert.AreEqual(3, result.returnValue->data.i);
         }
 
@@ -59,7 +59,7 @@ namespace ishtar_test
         public void GetLenTest()
         {
             using var ctx = CreateContext();
-            var arrType = ManaTypeCode.TYPE_I4.AsClass().FullName;
+            var arrType = VeinTypeCode.TYPE_I4.AsClass().FullName;
 
             ctx.EnsureType(arrType);
 
@@ -76,7 +76,7 @@ namespace ishtar_test
                 x.Emit(OpCodes.RET);
             });
 
-            Assert.AreEqual(ManaTypeCode.TYPE_U8, result.returnValue->type);
+            Assert.AreEqual(VeinTypeCode.TYPE_U8, result.returnValue->type);
             Assert.AreEqual(5, result.returnValue->data.i);
         }
     }

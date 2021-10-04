@@ -1,7 +1,7 @@
 namespace wc_test
 {
-    using mana.ishtar.emit;
-    using mana.runtime;
+    using ishtar.emit;
+    using vein.runtime;
     using NUnit.Framework;
     using NUnit.Framework;
 
@@ -14,7 +14,7 @@ namespace wc_test
 
             //var clazz = m.DefineClass("wa/zoo", ClassFlags.Public);
 
-            //var method = clazz.DefineMethod("Asd", ManaTypeCode.TYPE_VOID.AsClass(), MethodFlags.Public);
+            //var method = clazz.DefineMethod("Asd", VeinTypeCode.TYPE_VOID.AsClass(), MethodFlags.Public);
         }
     }
 }

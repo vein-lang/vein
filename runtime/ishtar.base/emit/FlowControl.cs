@@ -1,4 +1,4 @@
-namespace mana.ishtar.emit
+namespace ishtar.emit
 {
     public enum FlowControl
     {

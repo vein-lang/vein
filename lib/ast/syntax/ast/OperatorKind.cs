@@ -1,4 +1,4 @@
-namespace mana.syntax
+namespace vein.syntax
 {
     public enum OperatorKind
     {

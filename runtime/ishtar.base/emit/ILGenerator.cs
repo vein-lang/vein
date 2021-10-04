@@ -1,4 +1,4 @@
-namespace mana.ishtar.emit
+namespace ishtar.emit
 {
     using System;
     using System.Buffers.Binary;
@@ -7,10 +7,9 @@ namespace mana.ishtar.emit
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
-    using exceptions;
     using extensions;
     using global::ishtar;
-    using mana.runtime;
+    using vein.runtime;
     using static global::ishtar.OpCodeValue;
 
     public class ILGenerator

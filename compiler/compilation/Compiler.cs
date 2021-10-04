@@ -1,4 +1,4 @@
-namespace insomnia.compilation
+namespace vein.compilation
 {
     using MoreLinq;
     using Spectre.Console;
@@ -10,20 +10,20 @@ namespace insomnia.compilation
     using System.Linq.Expressions;
     using System.Text;
     using System.Threading;
-    using ishtar;
-    using mana;
-    using mana.cmd;
-    using mana.exceptions;
-    using mana.ishtar.emit;
-    using mana.extensions;
-    using mana.pipes;
-    using mana.project;
-    using mana.runtime;
-    using mana.stl;
-    using mana.syntax;
-    using static mana.runtime.ManaTypeCode;
+    using global::ishtar;
+    using vein;
+    using vein.cmd;
+    using vein.exceptions;
+    using ishtar.emit;
+    using vein.extensions;
+    using vein.pipes;
+    using vein.project;
+    using vein.runtime;
+    using vein.stl;
+    using vein.syntax;
+    using static vein.runtime.VeinTypeCode;
     using static Spectre.Console.AnsiConsole;
-    using mana.reflection;
+    using vein.reflection;
 
     public class Compiler
     {
@@ -180,7 +180,7 @@ namespace insomnia.compilation
 
             if (member.IsForwardedType)
             {
-                var result = ManaCore.All.
+                var result = VeinCore.All.
                     FirstOrDefault(x => x.FullName.Name.Equals(member.Identifier.ExpressionString));
 
                 if (result is not null)

@@ -1,14 +1,14 @@
-namespace mana.ishtar.emit
+namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
-    using exceptions;
     using extensions;
-    using mana.extensions;
-    using mana.runtime;
+    using vein.exceptions;
+    using vein.extensions;
+    using vein.runtime;
 
     public class ClassBuilder : ManaClass, IBaker
     {
@@ -30,7 +30,7 @@ namespace mana.ishtar.emit
             this.TypeCode = clazz.TypeCode;
             this.Owner = module;
         }
-        internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, ManaTypeCode parent = ManaTypeCode.TYPE_OBJECT)
+        internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, VeinTypeCode parent = VeinTypeCode.TYPE_OBJECT)
         {
             this.FullName = name;
             moduleBuilder = module;
@@ -158,7 +158,7 @@ namespace mana.ishtar.emit
             if (isStatic)
                 flags |= MethodFlags.Static;
 
-            ctor = DefineMethod(name, flags, ManaTypeCode.TYPE_VOID.AsClass());
+            ctor = DefineMethod(name, flags, VeinTypeCode.TYPE_VOID.AsClass());
             moduleBuilder.InternString(ctor.Name);
 
             return ctor;

@@ -2,19 +2,19 @@
   "profiles": {
     "compile mana std": {
       "commandName": "Project",
-      "commandLineArgs": "build O:\\wave_vm\\mana.std\\corlib.waproj --EF:+exp_simplify_optimize"
+      "commandLineArgs": "build O:\\wave_vm\\mana.std\\corlib.vproj --EF:+exp_simplify_optimize"
     },
     "compile hello world": {
       "commandName": "Project",
-      "commandLineArgs": "build O:\\wave_vm\\samples\\hello_world\\hello_world.waproj"
+      "commandLineArgs": "build O:\\wave_vm\\samples\\hello_world\\hello_world.vproj"
     },
     "compile flowbranch": {
       "commandName": "Project",
-      "commandLineArgs": "build O:\\wave_vm\\samples\\flowbranch\\flowbranch.waproj"
+      "commandLineArgs": "build O:\\wave_vm\\samples\\flowbranch\\flowbranch.vproj"
     },
     "compile test_case 00": {
       "commandName": "Project",
-      "commandLineArgs": "build O:\\wave_vm\\test\\mana_test\\00\\00.waproj"
+      "commandLineArgs": "build O:\\wave_vm\\test\\mana_test\\00\\00.vproj"
     }
   }
 }

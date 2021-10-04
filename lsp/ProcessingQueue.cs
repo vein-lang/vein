@@ -1,4 +1,4 @@
-namespace mana.lsp
+namespace vein.lsp
 {
     using System;
     using System.Diagnostics.CodeAnalysis;

@@ -2,7 +2,7 @@ namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
-    using static mana.runtime.ManaTypeCode;
+    using static vein.runtime.VeinTypeCode;
     public static unsafe class IshtarMarshal
     {
         public static IshtarObject* ToIshtarObject(string str, CallFrame frame = null, IshtarObject** node = null)

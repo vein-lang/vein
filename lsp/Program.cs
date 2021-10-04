@@ -1,4 +1,4 @@
-namespace mana.lsp
+namespace vein.lsp
 {
     using System;
     using System.Diagnostics;
@@ -98,7 +98,7 @@ namespace mana.lsp
             if (options == null)
                 return LogAndExit(ReturnCode.MISSING_ARGUMENTS);
 
-            ManaLanguageServer server;
+            VeinLanguageServer server;
             try
             {
                 server = options.ReaderPipeName != null && options.WriterPipeName != null
@@ -130,7 +130,7 @@ namespace mana.lsp
         }
 
 
-        internal static ManaLanguageServer ConnectViaNamedPipe(string writerName, string readerName)
+        internal static VeinLanguageServer ConnectViaNamedPipe(string writerName, string readerName)
         {
             Log.Logger.Information($"Connecting via named pipe. {Environment.NewLine}ReaderPipe: \"{readerName}\" {Environment.NewLine}WriterPipe:\"{writerName}\"");
             var writerPipe = new NamedPipeClientStream(writerName);
@@ -148,10 +148,10 @@ namespace mana.lsp
                 Log.Logger.Error($"[ERROR] Connection attempted timed out.");
             }
 
-            return new ManaLanguageServer(writerPipe, readerPipe);
+            return new VeinLanguageServer(writerPipe, readerPipe);
         }
 
-        internal static ManaLanguageServer ConnectViaSocket(string hostname = "localhost", int port = 8008)
+        internal static VeinLanguageServer ConnectViaSocket(string hostname = "localhost", int port = 8008)
         {
             Log.Logger.Information($"Connecting via socket. {Environment.NewLine}Port number: {port}");
             Stream? stream = null;
@@ -165,7 +165,7 @@ namespace mana.lsp
                 Log.Logger.Error(ex.ToString());
             }
 
-            return new ManaLanguageServer(stream, stream);
+            return new VeinLanguageServer(stream, stream);
         }
     }
 }

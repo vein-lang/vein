@@ -6,12 +6,12 @@ namespace ishtar
     using System.Linq;
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
-    using mana.extensions;
-    using mana.ishtar.emit;
-    using mana.reflection;
-    using mana.runtime;
+    using vein.extensions;
+    using emit;
+    using vein.reflection;
+    using vein.runtime;
     using Spectre.Console;
-    using mana.syntax;
+    using vein.syntax;
     using Xunit;
 
     public class GeneratorContext
@@ -247,7 +247,7 @@ namespace ishtar
         }
 
 
-        public static void EmitBinaryOperator(this ILGenerator gen, ExpressionType op, ManaTypeCode leftType = ManaTypeCode.TYPE_CLASS, ManaTypeCode rightType = ManaTypeCode.TYPE_CLASS, ManaTypeCode resultType = ManaTypeCode.TYPE_CLASS)
+        public static void EmitBinaryOperator(this ILGenerator gen, ExpressionType op, VeinTypeCode leftType = VeinTypeCode.TYPE_CLASS, VeinTypeCode rightType = VeinTypeCode.TYPE_CLASS, VeinTypeCode resultType = VeinTypeCode.TYPE_CLASS)
         {
             switch (op)
             {
@@ -284,7 +284,7 @@ namespace ishtar
                     gen.Emit(OpCodes.EQL_HQ);
                     return;
                 case ExpressionType.NotEqual:
-                    if (leftType == ManaTypeCode.TYPE_BOOLEAN)
+                    if (leftType == VeinTypeCode.TYPE_BOOLEAN)
                         goto case ExpressionType.ExclusiveOr;
                     gen.Emit(OpCodes.EQL_F);
                     return;
@@ -299,29 +299,29 @@ namespace ishtar
             }
         }
 
-        public static void EmitDefault(this ILGenerator gen, ManaTypeCode code)
+        public static void EmitDefault(this ILGenerator gen, VeinTypeCode code)
         {
             switch (code)
             {
-                case ManaTypeCode.TYPE_OBJECT:
-                case ManaTypeCode.TYPE_STRING:
+                case VeinTypeCode.TYPE_OBJECT:
+                case VeinTypeCode.TYPE_STRING:
                     gen.Emit(OpCodes.LDNULL);
                     break;
-                case ManaTypeCode.TYPE_CHAR:
-                case ManaTypeCode.TYPE_I2:
-                case ManaTypeCode.TYPE_BOOLEAN:
+                case VeinTypeCode.TYPE_CHAR:
+                case VeinTypeCode.TYPE_I2:
+                case VeinTypeCode.TYPE_BOOLEAN:
                     gen.Emit(OpCodes.LDC_I2_0);
                     break;
-                case ManaTypeCode.TYPE_I4:
+                case VeinTypeCode.TYPE_I4:
                     gen.Emit(OpCodes.LDC_I4_0);
                     break;
-                case ManaTypeCode.TYPE_I8:
+                case VeinTypeCode.TYPE_I8:
                     gen.Emit(OpCodes.LDC_I8_0);
                     break;
-                case ManaTypeCode.TYPE_R4:
+                case VeinTypeCode.TYPE_R4:
                     gen.Emit(OpCodes.LDC_F4, .0f);
                     break;
-                case ManaTypeCode.TYPE_R8:
+                case VeinTypeCode.TYPE_R8:
                     gen.Emit(OpCodes.LDC_F8, .0d);
                     break;
                 default:
@@ -329,21 +329,21 @@ namespace ishtar
             }
         }
 
-        public static ManaTypeCode GetTypeCodeFromNumber(NumericLiteralExpressionSyntax number) =>
+        public static VeinTypeCode GetTypeCodeFromNumber(NumericLiteralExpressionSyntax number) =>
         number switch
         {
-            ByteLiteralExpressionSyntax => ManaTypeCode.TYPE_U1,
-            SByteLiteralExpressionSyntax => ManaTypeCode.TYPE_I1,
-            Int16LiteralExpressionSyntax => ManaTypeCode.TYPE_I2,
-            UInt16LiteralExpressionSyntax => ManaTypeCode.TYPE_U2,
-            Int32LiteralExpressionSyntax => ManaTypeCode.TYPE_I4,
-            UInt32LiteralExpressionSyntax => ManaTypeCode.TYPE_U4,
-            Int64LiteralExpressionSyntax => ManaTypeCode.TYPE_I8,
-            UInt64LiteralExpressionSyntax => ManaTypeCode.TYPE_U8,
-            HalfLiteralExpressionSyntax => ManaTypeCode.TYPE_R2,
-            SingleLiteralExpressionSyntax => ManaTypeCode.TYPE_R4,
-            DoubleLiteralExpressionSyntax => ManaTypeCode.TYPE_R8,
-            DecimalLiteralExpressionSyntax => ManaTypeCode.TYPE_R16,
+            ByteLiteralExpressionSyntax => VeinTypeCode.TYPE_U1,
+            SByteLiteralExpressionSyntax => VeinTypeCode.TYPE_I1,
+            Int16LiteralExpressionSyntax => VeinTypeCode.TYPE_I2,
+            UInt16LiteralExpressionSyntax => VeinTypeCode.TYPE_U2,
+            Int32LiteralExpressionSyntax => VeinTypeCode.TYPE_I4,
+            UInt32LiteralExpressionSyntax => VeinTypeCode.TYPE_U4,
+            Int64LiteralExpressionSyntax => VeinTypeCode.TYPE_I8,
+            UInt64LiteralExpressionSyntax => VeinTypeCode.TYPE_U8,
+            HalfLiteralExpressionSyntax => VeinTypeCode.TYPE_R2,
+            SingleLiteralExpressionSyntax => VeinTypeCode.TYPE_R4,
+            DoubleLiteralExpressionSyntax => VeinTypeCode.TYPE_R8,
+            DecimalLiteralExpressionSyntax => VeinTypeCode.TYPE_R16,
             _ => throw new NotSupportedException($"{number} is not support number.")
         };
 
@@ -476,34 +476,34 @@ namespace ishtar
             throw new NotSupportedException();
         }
 
-        public static bool CanImplicitlyCast(this ManaTypeCode code, NumericLiteralExpressionSyntax numeric)
+        public static bool CanImplicitlyCast(this VeinTypeCode code, NumericLiteralExpressionSyntax numeric)
         {
             if (code.IsCompatibleNumber(numeric.GetTypeCode()))
                 return true;
 
             return code switch
             {
-                ManaTypeCode.TYPE_I1 => long.Parse(numeric.ExpressionString) is <= sbyte.MaxValue and >= sbyte.MinValue,
-                ManaTypeCode.TYPE_I2 => long.Parse(numeric.ExpressionString) is <= short.MaxValue and >= short.MinValue,
-                ManaTypeCode.TYPE_I4 => long.Parse(numeric.ExpressionString) is <= int.MaxValue and >= int.MinValue,
-                ManaTypeCode.TYPE_U1 => ulong.Parse(numeric.ExpressionString) is <= byte.MaxValue and >= byte.MinValue,
-                ManaTypeCode.TYPE_U2 => ulong.Parse(numeric.ExpressionString) is <= ushort.MaxValue and >= ushort.MinValue,
-                ManaTypeCode.TYPE_U4 => ulong.Parse(numeric.ExpressionString) is <= uint.MaxValue and >= uint.MinValue,
+                VeinTypeCode.TYPE_I1 => long.Parse(numeric.ExpressionString) is <= sbyte.MaxValue and >= sbyte.MinValue,
+                VeinTypeCode.TYPE_I2 => long.Parse(numeric.ExpressionString) is <= short.MaxValue and >= short.MinValue,
+                VeinTypeCode.TYPE_I4 => long.Parse(numeric.ExpressionString) is <= int.MaxValue and >= int.MinValue,
+                VeinTypeCode.TYPE_U1 => ulong.Parse(numeric.ExpressionString) is <= byte.MaxValue and >= byte.MinValue,
+                VeinTypeCode.TYPE_U2 => ulong.Parse(numeric.ExpressionString) is <= ushort.MaxValue and >= ushort.MinValue,
+                VeinTypeCode.TYPE_U4 => ulong.Parse(numeric.ExpressionString) is <= uint.MaxValue and >= uint.MinValue,
                 _ => false
             };
         }
 
-        public static ManaTypeCode GetTypeCode(this ExpressionSyntax exp)
+        public static VeinTypeCode GetTypeCode(this ExpressionSyntax exp)
         {
             if (exp is NumericLiteralExpressionSyntax num)
                 return GetTypeCodeFromNumber(num);
             if (exp is BoolLiteralExpressionSyntax)
-                return ManaTypeCode.TYPE_BOOLEAN;
+                return VeinTypeCode.TYPE_BOOLEAN;
             if (exp is StringLiteralExpressionSyntax)
-                return ManaTypeCode.TYPE_STRING;
+                return VeinTypeCode.TYPE_STRING;
             if (exp is NullLiteralExpressionSyntax)
-                return ManaTypeCode.TYPE_NONE;
-            return ManaTypeCode.TYPE_CLASS;
+                return VeinTypeCode.TYPE_NONE;
+            return VeinTypeCode.TYPE_CLASS;
         }
         public static void EmitCreateObject(this ILGenerator gen, NewExpressionSyntax @new)
         {
@@ -599,7 +599,7 @@ namespace ishtar
             arrayConstructor.Flags |= ClassFlags.Special;
 
             var method = arrayConstructor.DefineMethod("$init", MethodFlags.Public | MethodFlags.Static,
-                ManaTypeCode.TYPE_ARRAY.AsClass());
+                VeinTypeCode.TYPE_ARRAY.AsClass());
 
             var body = method.GetGenerator();
 
@@ -633,7 +633,7 @@ namespace ishtar
             if (exp is BinaryExpressionSyntax bin)
             {
                 if (bin.OperatorType.IsLogic())
-                    return ManaTypeCode.TYPE_BOOLEAN.AsClass();
+                    return VeinTypeCode.TYPE_BOOLEAN.AsClass();
                 var (lt, rt) = bin.Fusce(context);
 
                 return lt == rt ? lt : ExplicitConversion(lt, rt);
@@ -641,7 +641,7 @@ namespace ishtar
             if (exp is NewExpressionSyntax { IsArray: false } @new)
                 return context.ResolveType(@new.TargetType.Typeword);
             if (exp is NewExpressionSyntax { IsArray: true })
-                return ManaTypeCode.TYPE_ARRAY.AsClass();
+                return VeinTypeCode.TYPE_ARRAY.AsClass();
             if (exp is ArgumentExpression { Value: MemberAccessExpression } arg)
                 return (arg.Value as MemberAccessExpression).ResolveType(context);
             if (exp is MemberAccessExpression member)
@@ -753,7 +753,7 @@ namespace ishtar
                 else
                     generator.Emit(OpCodes.JMP, elseLabel);
             }
-            else if (expType.TypeCode == ManaTypeCode.TYPE_BOOLEAN)
+            else if (expType.TypeCode == VeinTypeCode.TYPE_BOOLEAN)
             {
                 generator.EmitExpression(ifStatement.Expression);
                 generator.Emit(OpCodes.JMP_F, elseLabel);
@@ -1120,7 +1120,7 @@ namespace ishtar
             var end = gen.DefineLabel();
             var expType = @while.Expression.DetermineType(ctx);
             gen.UseLabel(start);
-            if (expType.FullName == ManaTypeCode.TYPE_BOOLEAN.AsClass().FullName)
+            if (expType.FullName == VeinTypeCode.TYPE_BOOLEAN.AsClass().FullName)
             {
                 gen.EmitExpression(@while.Expression);
                 gen.Emit(OpCodes.JMP_F, end);

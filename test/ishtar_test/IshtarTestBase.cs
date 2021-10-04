@@ -7,11 +7,10 @@ namespace ishtar_test
     using System.Linq;
     using System.Runtime.CompilerServices;
     using ishtar;
-    using mana.backend.ishtar.light;
-    using mana.extensions;
-    using mana.fs;
-    using mana.ishtar.emit;
-    using mana.runtime;
+    using vein.extensions;
+    using vein.fs;
+    using ishtar.emit;
+    using vein.runtime;
     using Xunit;
 
     public static class IshtarRuntimeModuleEx
@@ -51,7 +50,7 @@ namespace ishtar_test
             @class = _module.DefineClass($"global::test/testClass_{_testCase}_{UID}");
             _classCtor?.Invoke(@class, _context);
             var _method = @class.DefineMethod($"master_{_testCase}_{UID}", MethodFlags.Public | MethodFlags.Static,
-                ManaTypeCode.TYPE_OBJECT.AsClass());
+                VeinTypeCode.TYPE_OBJECT.AsClass());
 
             var gen = _method.GetGenerator();
             ctor(gen, _context);
@@ -73,7 +72,7 @@ namespace ishtar_test
 
                 var entry_point = runtimeModule.GetEntryPoint($"master_{_testCase}_{UID}");
                 IshtarCore.INIT_ADDITIONAL_MAPPING();
-                foreach (var c in ManaCore.All.OfType<RuntimeIshtarClass>())
+                foreach (var c in VeinCore.All.OfType<RuntimeIshtarClass>())
                     c.init_vtable();
                 foreach (var c in runtimeModule.class_table.OfType<RuntimeIshtarClass>())
                     c.init_vtable();
@@ -118,8 +117,8 @@ namespace ishtar_test
     {
         public static class T
         {
-            public static RuntimeIshtarClass VOID => ManaTypeCode.TYPE_VOID.AsRuntimeClass();
-            public static RuntimeIshtarClass OBJECT => ManaTypeCode.TYPE_OBJECT.AsRuntimeClass();
+            public static RuntimeIshtarClass VOID => VeinTypeCode.TYPE_VOID.AsRuntimeClass();
+            public static RuntimeIshtarClass OBJECT => VeinTypeCode.TYPE_OBJECT.AsRuntimeClass();
         }
 
 
@@ -147,12 +146,12 @@ namespace ishtar_test
             {
                 if (!isInited)
                 {
-                    ManaCore.Init();
+                    VeinCore.Init();
                     IshtarGC.INIT();
                     FFI.INIT();
                     _corlib = LoadCorLib();
                     IshtarCore.INIT_ADDITIONAL_MAPPING();
-                    foreach (var @class in ManaCore.All.OfType<RuntimeIshtarClass>())
+                    foreach (var @class in VeinCore.All.OfType<RuntimeIshtarClass>())
                         @class.init_vtable();
                     // ReSharper disable once VirtualMemberCallInConstructor
                     StartUp();
