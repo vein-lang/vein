@@ -1,7 +1,0 @@
-#space "mana/lang/numeric"
-
-#use "mana/lang"
-
-public struct BigInt : ValueType
-{
-}

@@ -1,9 +1,0 @@
-#space "mana/lang"
-
-
-[special, readonly, forwarded]
-public struct Decimal : ValueType
-{
-    [native("!!value")]
-    private _value: ValueType;
-}

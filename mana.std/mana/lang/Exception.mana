@@ -1,8 +1,0 @@
-#space "mana/lang"
-
-
-[special, forwarded]
-public class Exception : Object
-{
-    public message: String;
-}

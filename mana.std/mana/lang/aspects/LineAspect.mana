@@ -1,7 +1,0 @@
-#ignore
-
-#space "mana/lang/aspects"
-
-aspect Line(fo: Int64)
-{
-}
