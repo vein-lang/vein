@@ -19,7 +19,7 @@
     <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="7.0.0-alpha.1.21480.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\mana.common.csproj" />
-    <ProjectReference Include="..\Ishtar\mana.backend.ishtar.csproj" />
+    <ProjectReference Include="..\common\vein.common.csproj" />
+    <ProjectReference Include="..\ishtar.base\ishtar.base.csproj" />
   </ItemGroup>
 </Project>

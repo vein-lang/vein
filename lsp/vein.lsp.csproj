@@ -24,7 +24,7 @@
     <PackageReference Include="xunit.assert" Version="2.4.1" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\compiler\manac.csproj" />
-	  <ProjectReference Include="..\lib\ast\mana.ast.csproj" />
+	  <ProjectReference Include="..\compiler\veinc.csproj" />
+	  <ProjectReference Include="..\lib\ast\vein.ast.csproj" />
 	</ItemGroup>
 </Project>

@@ -5,8 +5,8 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\backend\mana.backend.ishtar.light\mana.backend.ishtar.light.csproj" />
-    <ProjectReference Include="..\..\compiler\manac.csproj" />
+    <ProjectReference Include="..\..\runtime\ishtar.vm\ishtar.vm.csproj" />
+    <ProjectReference Include="..\..\compiler\veinc.csproj" />
   </ItemGroup>
 	<ItemGroup>
 	  <None Update="corlib.wll">

@@ -12,7 +12,7 @@
 		<PackageReference Include="BinaryTools.Elf" Version="0.3.0" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\Common\mana.common.csproj" />
+	  <ProjectReference Include="..\common\vein.common.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Include="..\..\metadata\opcodes.def.cs" Link="emit\opcodes.def.cs" />

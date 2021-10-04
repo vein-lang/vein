@@ -14,7 +14,7 @@
 		<PackageReference Include="Superpower" Version="2.3.0" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\..\backend\Common\mana.common.csproj" />
+	  <ProjectReference Include="..\..\runtime\common\vein.common.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="syntax\models\" />

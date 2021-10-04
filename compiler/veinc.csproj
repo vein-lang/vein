@@ -14,7 +14,7 @@
     <PackageReference Include="xunit.assert" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\backend\mana.backend.ishtar.generator\mana.backend.ishtar.generator.csproj" />
-    <ProjectReference Include="..\lib\projectsystem\mana.project.csproj" />
+    <ProjectReference Include="..\runtime\ishtar.generator\ishtar.generator.csproj" />
+    <ProjectReference Include="..\lib\projectsystem\vein.project.csproj" />
   </ItemGroup>
 </Project>
