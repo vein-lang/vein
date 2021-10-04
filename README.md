@@ -5,13 +5,6 @@
   </a>
 </p>
 
-<!-- Logo -->
-<p align="center">
-  <a href="#">
-    <img src="https://user-images.githubusercontent.com/13326808/118315186-dba9dc80-b4fd-11eb-8d2f-32e8313ba6a7.png">
-  </a>
-</p>
-
 <p align="center">
   <a href="#">
     <img height="256" src="https://raw.githubusercontent.com/vein-lang/artwork/main/vein-poster.png">
@@ -55,6 +48,14 @@
     <img src="https://forthebadge.com/images/badges/works-on-my-machine.svg">
   </a>
 </p>
+
+<!-- Logo -->
+<p align="center">
+  <a href="#">
+    <img src="https://user-images.githubusercontent.com/13326808/118315186-dba9dc80-b4fd-11eb-8d2f-32e8313ba6a7.png">
+  </a>
+</p>
+
 
 
 ---
