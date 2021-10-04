@@ -43,7 +43,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{B79D9C1A-8074-4105-8447-93A5A059A2CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mana.ast.v2", "lib\mana.ast.v2\mana.ast.v2.csproj", "{692BB75A-9493-4D36-A5FD-B86926E93AE5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vein.ast.v2", "lib\vein.ast.v2\vein.ast.v2.csproj", "{692BB75A-9493-4D36-A5FD-B86926E93AE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
