@@ -9,7 +9,6 @@ namespace ishtar.emit
     using extensions;
     using global::ishtar;
     using MoreLinq;
-    using Serilog;
     using vein;
     using vein.exceptions;
     using vein.extensions;
@@ -17,8 +16,6 @@ namespace ishtar.emit
 
     public class ManaModuleBuilder : ManaModule, IBaker
     {
-        private ILogger logger => Journal.Get(nameof(ManaModule));
-
         public ManaModuleBuilder(string name) : base(name) { }
         public ManaModuleBuilder(string name, Version ver) : base(name, ver) { }
 
@@ -93,7 +90,7 @@ namespace ishtar.emit
             var key = _intern(strings_table, str);
 
 
-            logger.Information("String constant '{str}' baked by index: {key}", str, key);
+            //logger.Information("String constant '{str}' baked by index: {key}", str, key);
             return key;
         }
         /// <summary>
@@ -106,7 +103,7 @@ namespace ishtar.emit
                 throw new ArgumentNullException(nameof(name));
             var key = _intern(types_table, name);
 
-            logger.Information("TypeName '{name}' baked by index: {key}", name, key);
+            //logger.Information("TypeName '{name}' baked by index: {key}", name, key);
             return key;
         }
         /// <summary>
@@ -120,7 +117,7 @@ namespace ishtar.emit
 
             var key = _intern(fields_table, name);
 
-            logger.Information("FieldName '{name}' baked by index: {key}", name, key);
+            //logger.Information("FieldName '{name}' baked by index: {key}", name, key);
             return key;
         }
 
