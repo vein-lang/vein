@@ -77,7 +77,7 @@ jobs:
         if-no-files-found: error
   build_linux_arm64:
     runs-on: ubuntu-20.04
-    container: { image: ghcr.io/vein-lang/ubuntu18.04-with-crossroot-arm64:latest }
+    container: { image: 'ghcr.io/vein-lang/ubuntu18.04-with-crossroot-arm64:latest' }
     steps:
     - uses: actions/checkout@v2
       with:
