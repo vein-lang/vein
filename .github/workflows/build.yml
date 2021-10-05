@@ -97,7 +97,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: AOT build
-      run: dotnet publish -r linux-arm64 -c Release -p:CppCompilerAndLinker=clang-9 -p:SysRoot=/home/.tools/rootfs/arm64
+      run: dotnet publish -r linux-arm64 -c Release -p:CppCompilerAndLinker=clang-9 -p:SysRoot=/.tools/rootfs/arm64
       working-directory: ./runtime/ishtar.vm
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
