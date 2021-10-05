@@ -35,12 +35,12 @@ jobs:
       run: dotnet restore
     - name: AOT build
       run: dotnet publish -r osx-x64 -c Release
-      working-directory: ./backend/mana.backend.ishtar.light
+      working-directory: ./runtime/ishtar.vm
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
         name: osx-x64-build
-        path: ./backend/mana.backend.ishtar.light/bin/Release/net6.0/osx-x64/native
+        path: ./runtime/ishtar.vm/bin/Release/net6.0/osx-x64/native
         if-no-files-found: error
   build_linux:
     runs-on: ubuntu-latest
@@ -67,35 +67,20 @@ jobs:
       run: dotnet restore
     - name: AOT build
       run: dotnet publish -r linux-x64 -c Release
-      working-directory: ./backend/mana.backend.ishtar.light
+      working-directory: ./runtime/ishtar.vm
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
         name: linux-x64-build
-        path: ./backend/mana.backend.ishtar.light/bin/Release/net6.0/linux-x64/native
+        path: ./runtime/ishtar.vm/bin/Release/net6.0/linux-x64/native
         if-no-files-found: error
   build_linux_arm64:
     runs-on: ubuntu-20.04
-
+    container: { image: ghcr.io/vein-lang/ubuntu18.04-with-crossroot-arm64:latest }
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: true
-    - run: git fetch --prune --unshallow --tags
-    - run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev
-    - run: sudo apt install clang-9
-    - run: sudo apt-get install -y qemu qemu-user-static binfmt-support debootstrap
-    - run: sudo apt install gcc-multilib
-    - run: sudo apt-get install crossbuild-essential-arm64
-    - run: sudo apt-get install binutils-arm-linux-gnueabihf
-    - run: sudo apt-get install binutils-aarch64-linux-gnu
-    - run: sudo apt-get install binutils-arm-linux-gnueabi
-    - run: chmod +x ./build-rootfs.sh
-      working-directory: cross
-    - run: sudo ./build-rootfs.sh arm64
-      working-directory: cross
-    - run: ls ./../../../.tools/rootfs/
-      working-directory: cross
     - uses: actions/cache@v1
       id: cache
       with:
@@ -111,12 +96,12 @@ jobs:
       run: dotnet restore
     - name: AOT build
       run: dotnet publish -r linux-arm64 -c Release -p:CppCompilerAndLinker=clang-9 -p:SysRoot=/home/.tools/rootfs/arm64
-      working-directory: ./backend/mana.backend.ishtar.light
+      working-directory: ./runtime/ishtar.vm
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
         name: linux-arm64-build
-        path: ./backend/mana.backend.ishtar.light/bin/Release/net6.0/linux-arm64/native
+        path: ./runtime/ishtar.vm/bin/Release/net6.0/linux-arm64/native
         if-no-files-found: error
   build_win_arm64:
     runs-on: windows-latest
@@ -139,12 +124,12 @@ jobs:
       run: dotnet restore
     - name: AOT build
       run: dotnet publish -r win-arm64 -c Release
-      working-directory: ./backend/mana.backend.ishtar.light
+      working-directory: ./runtime/ishtar.vm
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v2.2.3
       with:
         name: win-arm64-build
-        path: ./backend/mana.backend.ishtar.light/bin/Release/net6.0/win-arm64/native
+        path: ./runtime/ishtar.vm/bin/Release/net6.0/win-arm64/native
         if-no-files-found: error
 
   coverage:
