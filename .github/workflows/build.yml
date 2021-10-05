@@ -82,6 +82,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
+    - run: git fetch --prune --unshallow --tags
     - uses: actions/cache@v1
       id: cache
       with:
