@@ -6,7 +6,7 @@ namespace vein.runtime
     public class ConstStorage
     {
         internal readonly Dictionary<FieldName, object> storage = new();
-        
+
 
         public void Stage(FieldName name, object o)
         {
