@@ -237,7 +237,7 @@ You can run all tests from the root directory with `dotnet test`.
 
 To recompile the vm and the compiler: `dotnet build`.
 
-To recompile the standard library: `manac ./mana.std/corlib.vproj`.
+To recompile the standard library: `veinc ./vein.std/corlib.vproj`.
 
 After your changes are done, please remember to run `dotnet format` to guarantee all files are properly formatted and
 then run the full suite with `dotnet test`.
@@ -245,15 +245,6 @@ then run the full suite with `dotnet test`.
 ## Q\A
 
 ```yaml
-Q:
-  Why is it called mana?
-A:
-  I liked it very much 🗿🗿🗿
-  So, I tried to choose a memorable name that would be easy
-  simple for the tools (like the 'rune' package manager).
-  The original name was Wave Lang, but I didn't like it, 
-  and it was chosen at random 🙂.
-
 Q:
   Why it based on C#?
 A:
@@ -280,7 +271,7 @@ A:
 ## Special Thanks
 
 <p align="center">
-  <a href="https://www.jetbrains.com/?from=mana_lang">
+  <a href="https://www.jetbrains.com/?from=vein_lang">
     <img height="128" wight="128" src="https://raw.githubusercontent.com/0xF6/mana_lang/master/.github/images/jetbrains-variant-3.png">
   </a>
 </p>
@@ -288,7 +279,7 @@ A:
 
 ## License
 
-Mana is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0),
+Vein Lang is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0),
 with portions covered by various BSD-like licenses.
 
 Check LICENSE files for more information.
