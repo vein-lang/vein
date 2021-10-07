@@ -209,10 +209,19 @@ namespace ishtar.emit
             using var binary = new BinaryReader(mem);
             var className = binary.ReadTypeName(module);
             var flags = (ClassFlags)binary.ReadInt16();
-            var parentIdx = binary.ReadTypeName(module);
+
+            var parentLen = binary.ReadInt16();
+
+            var parents = new List<ManaClass>();
+            foreach (var _ in ..parentLen)
+            {
+                var parentIdx = binary.ReadTypeName(module);
+                parents.Add(module.FindType(parentIdx, true, false));
+            }
+            
             var len = binary.ReadInt32();
 
-            var @class = new ManaClass(className, module.FindType(parentIdx, true, false), module)
+            var @class = new ManaClass(className, parents.ToArray(), module)
             {
                 Flags = flags
             };
