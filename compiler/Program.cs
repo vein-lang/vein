@@ -11,7 +11,7 @@ using static System.Console;
 using static GitVersionInformation;
 using static Spectre.Console.AnsiConsole;
 
-[assembly: InternalsVisibleTo("wc_test")]
+[assembly: InternalsVisibleTo("veinc_test")]
 
 
 
@@ -35,7 +35,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
 
 
 
-MarkupLine($"[grey]Mana compiler[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
+MarkupLine($"[grey]Vein Lang Compiler[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
 MarkupLine($"[grey]Copyright (C)[/] [cyan3]2021[/] [bold]Yuuki Wesp[/].\n\n");
 
 ColorShim.Apply();
