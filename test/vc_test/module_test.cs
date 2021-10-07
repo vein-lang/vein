@@ -114,7 +114,7 @@ namespace wc_test
 
             //var (_, bytes) = insm.Sections.First();
 
-            //var sdk = new ManaSDK(new ManaProject(new FileInfo(@"C:\wavelib\foo.ww"), new XML.Project()
+            //var sdk = new VeinSDK(new VeinProject(new FileInfo(@"C:\wavelib\foo.ww"), new XML.Project()
             //{
             //    Sdk = "default"
             //}));
@@ -132,7 +132,7 @@ namespace wc_test
             //var f = IshtarAssembly.LoadFromFile(@"C:\Program Files (x86)\ManaLang\sdk\0.1-preview\std\aspera.wll");
             //var (_, bytes) = f.Sections.First();
 
-            //var sdk = new ManaSDK(new ManaProject(new FileInfo(@"C:\wave-lang-temp\foo.ww"), new XML.Project()
+            //var sdk = new VeinSDK(new VeinProject(new FileInfo(@"C:\wave-lang-temp\foo.ww"), new XML.Project()
             //{
             //    Sdk = "default"
             //}));

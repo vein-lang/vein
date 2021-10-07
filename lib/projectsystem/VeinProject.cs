@@ -6,15 +6,13 @@ namespace vein.project
     using System.Linq;
     using System.Xml;
     using Sprache;
-    using static System.Environment;
-    using static System.Environment.SpecialFolder;
 
 
-    public class ManaProject
+    public class VeinProject
     {
         internal readonly XML.Project _project;
 
-        internal ManaProject(FileInfo file, XML.Project project)
+        internal VeinProject(FileInfo file, XML.Project project)
         {
             _project = project;
             Name = Path.GetFileNameWithoutExtension(file.FullName);
@@ -31,18 +29,18 @@ namespace vein.project
         }
 
         public IEnumerable<string> Sources => Directory
-            .GetFiles(WorkDir, "*.mana", SearchOption.AllDirectories)
-            .Where(x => !x.EndsWith(".temp.mana"))
-            .Where(x => !x.EndsWith(".generated.mana"));
+            .GetFiles(WorkDir, "*.vein", SearchOption.AllDirectories)
+            .Where(x => !x.EndsWith(".temp.vein"))
+            .Where(x => !x.EndsWith(".generated.vein"));
 
         public IEnumerable<PackageReference> Packages =>
             _project.Packages?.Ref?.Select(x => PackageReference.Parser.Parse(x.Name))
             ?? new List<PackageReference>();
 
-        public ManaSDK SDK => ManaSDK.Resolve(_project.Sdk);
+        public VeinSDK SDK => VeinSDK.Resolve(_project.Sdk);
 
 
-        public static ManaProject LoadFrom(FileInfo info)
+        public static VeinProject LoadFrom(FileInfo info)
         {
             var serializer = new XmlSerializer(typeof(XML.Project));
             using var stream = new StreamReader(info.FullName);
@@ -51,7 +49,7 @@ namespace vein.project
                 Namespaces = false
             };
             var p = (XML.Project)serializer.Deserialize(reader);
-            return new ManaProject(info, p);
+            return new VeinProject(info, p);
         }
     }
 }

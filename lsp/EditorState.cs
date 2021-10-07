@@ -38,10 +38,10 @@ namespace vein.lsp
             _log = log;
             _publish = publish;
             this.Load = new ProcessingQueue(onException);
-            this.Projects = new ConcurrentDictionary<Uri, ManaProject>();
+            this.Projects = new ConcurrentDictionary<Uri, VeinProject>();
         }
 
-        public ConcurrentDictionary<Uri, ManaProject> Projects { get; set; }
+        public ConcurrentDictionary<Uri, VeinProject> Projects { get; set; }
 
         public ProcessingQueue Load { get; }
 
@@ -260,8 +260,8 @@ namespace vein.lsp
         }
 
         internal readonly AssemblyResolver resolver = new ();
-        internal ManaProject _PROJECT_;
-        public ManaProject GetCurrentProject()
+        internal VeinProject _PROJECT_;
+        public VeinProject GetCurrentProject()
         {
             if (_PROJECT_ is not null)
                 return _PROJECT_;
@@ -271,7 +271,7 @@ namespace vein.lsp
 
             var projUrl = Directory.EnumerateFiles(_state.Server.workspaceFolder, "*.vproj")?.FirstOrDefault();
 
-            var project = ManaProject.LoadFrom(new FileInfo(projUrl));
+            var project = VeinProject.LoadFrom(new FileInfo(projUrl));
 
             var pack = project.SDK.GetDefaultPack();
             resolver.AddSearchPath(new(project.WorkDir));

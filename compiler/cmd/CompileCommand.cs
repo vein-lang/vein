@@ -11,7 +11,7 @@ namespace vein.cmd
 
     public class CompileSettings : CommandSettings
     {
-        [Description("Path to wproj file")]
+        [Description("Path to vproj file")]
         [CommandArgument(0, "[PROJECT]")]
         public string Project { get; set; }
 
@@ -62,7 +62,7 @@ namespace vein.cmd
                 MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] not found.");
                 return -1;
             }
-            var project = ManaProject.LoadFrom(new(Path.GetFullPath(settings.Project)));
+            var project = VeinProject.LoadFrom(new(Path.GetFullPath(settings.Project)));
 
             if (!project.Sources.Any())
             {

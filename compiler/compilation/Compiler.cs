@@ -10,25 +10,25 @@ namespace vein.compilation
     using System.Linq.Expressions;
     using System.Text;
     using System.Threading;
-    using global::ishtar;
+    using ishtar;
     using vein;
-    using vein.cmd;
-    using vein.exceptions;
+    using cmd;
+    using exceptions;
     using ishtar.emit;
-    using vein.extensions;
-    using vein.pipes;
-    using vein.project;
-    using vein.runtime;
-    using vein.stl;
-    using vein.syntax;
-    using static vein.runtime.VeinTypeCode;
+    using extensions;
+    using pipes;
+    using project;
+    using runtime;
+    using stl;
+    using syntax;
+    using static runtime.VeinTypeCode;
     using static Spectre.Console.AnsiConsole;
-    using vein.reflection;
+    using reflection;
 
     public class Compiler
     {
 
-        public static Compiler Process(FileInfo[] entity, ManaProject project, CompileSettings flags)
+        public static Compiler Process(FileInfo[] entity, VeinProject project, CompileSettings flags)
         {
             var c = new Compiler(project, flags);
 
@@ -50,7 +50,7 @@ namespace vein.compilation
                 });
         }
 
-        public Compiler(ManaProject project, CompileSettings flags)
+        public Compiler(VeinProject project, CompileSettings flags)
         {
             _flags = flags;
             Project = project;
@@ -59,7 +59,7 @@ namespace vein.compilation
             resolver.AddSearchPath(new(project.SDK.GetFullPath(pack).FullName));
         }
 
-        internal ManaProject Project { get; set; }
+        internal VeinProject Project { get; set; }
 
         internal readonly CompileSettings _flags;
         internal readonly ManaSyntax syntax = new();
@@ -150,7 +150,7 @@ namespace vein.compilation
                 table.Border(TableBorder.Rounded);
                 foreach (var @class in module.class_table)
                     table.AddRow(new Markup($"[blue]{@class.FullName.NameWithNS}[/]"));
-                AnsiConsole.Render(table);
+                Render(table);
             }
         }
 
@@ -478,7 +478,7 @@ namespace vein.compilation
             if (ctor is null)
             {
                 errors.Add($"[red bold]Class/struct '{@class.Name}' has problem with generate static ctor.[/] \n\t" +
-                           $"Please report the problem into 'https://github.com/0xF6/mana_lang/issues'." +
+                           $"Please report the problem into 'https://github.com/vein-lang/vein/issues'." +
                            $"in '[orange bold]{doc.FileEntity}[/]'.");
                 return;
             }

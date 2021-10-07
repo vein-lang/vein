@@ -6,7 +6,7 @@ namespace vein.project
     using System.Runtime.InteropServices;
     using Newtonsoft.Json;
 
-    public class ManaSDK
+    public class VeinSDK
     {
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -42,7 +42,7 @@ namespace vein.project
             Packs.FirstOrDefault(x => x.Alias.Equals(alias)) ??
             throw new DirectoryNotFoundException($"Pack '{alias}' not installed in '{Name}' sdk.");
 
-        public static ManaSDK? Resolve(string name)
+        public static VeinSDK? Resolve(string name)
         {
             if (!SDKRoot.Exists)
                 throw new SDKNotInstalled($"Sdk is not installed.");
@@ -52,7 +52,7 @@ namespace vein.project
                 .EnumerateFiles("*.manifest.json")
                 .Select(json => json.FullName)
                 .Select(File.ReadAllText)
-                .Select(JsonConvert.DeserializeObject<ManaSDK>)
+                .Select(JsonConvert.DeserializeObject<VeinSDK>)
                 .FirstOrDefault(x => x.Name.Equals(name));
         }
 
