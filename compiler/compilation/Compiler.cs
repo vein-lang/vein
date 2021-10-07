@@ -418,7 +418,7 @@ namespace vein.compilation
             if (@class.GetDefaultCtor() is not MethodBuilder ctor)
             {
                 errors.Add($"[red bold]Class/struct '{@class.Name}' has problem with generate default ctor.[/] \n\t" +
-                           $"Please report the problem into 'https://github.com/0xF6/mana_lang/issues'." +
+                           $"Please report the problem into 'https://github.com/vein-lang/vein/issues'." +
                            $"in '[orange bold]{doc.FileEntity}[/]'.");
                 return;
             }
