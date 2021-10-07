@@ -279,7 +279,7 @@ A:
 
 ## License
 
-Mana is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0),
+Vein Lang is primarily distributed under the terms of both the MIT license and the Apache License (Version 2.0),
 with portions covered by various BSD-like licenses.
 
 Check LICENSE files for more information.
