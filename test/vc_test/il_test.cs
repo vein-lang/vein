@@ -100,7 +100,7 @@ namespace wc_test
         }
 
 
-        public static ILGenerator CreateGenerator(params ManaArgumentRef[] args)
+        public static ILGenerator CreateGenerator(params VeinArgumentRef[] args)
         {
             var module = new ManaModuleBuilder(Guid.NewGuid().ToString());
             var @class = new ClassBuilder(module, $"{module.Name}%global::foo/bar");

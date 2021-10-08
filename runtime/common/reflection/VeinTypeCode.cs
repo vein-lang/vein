@@ -243,7 +243,7 @@ namespace vein.runtime
         public static bool HasInteger(this VeinTypeCode code) =>
             HasSigned(code) || HasUnsigned(code);
 
-        public static ManaClass AsClass(this VeinTypeCode code)
+        public static VeinClass AsClass(this VeinTypeCode code)
         {
             switch (code)
             {

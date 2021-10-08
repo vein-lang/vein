@@ -121,7 +121,7 @@ namespace ishtar.emit
             return key;
         }
 
-        internal (int, QualityTypeName) GetMethodToken(ManaMethod method) =>
+        internal (int, QualityTypeName) GetMethodToken(VeinMethod method) =>
             (this.InternString(method.Name), method.Owner.FullName);
         /// <summary>
         /// Bake result into il byte code.

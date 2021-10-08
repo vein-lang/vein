@@ -9,8 +9,8 @@ namespace vein.runtime
         {
             var asmName = "corlib%";
 
-            VeinCore.ObjectClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Object", (ManaClass)null, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };
-            VeinCore.ValueTypeClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/ValueType", (ManaClass)null, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };
+            VeinCore.ObjectClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Object", (VeinClass)null, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };
+            VeinCore.ValueTypeClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/ValueType", (VeinClass)null, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };
             VeinCore.VoidClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Void", VeinCore.ObjectClass, null) { TypeCode = VeinTypeCode.TYPE_VOID };
             VeinCore.StringClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/String", VeinCore.ObjectClass, null) { TypeCode = VeinTypeCode.TYPE_STRING };
             VeinCore.ByteClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Byte", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_U1 };

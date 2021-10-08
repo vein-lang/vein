@@ -20,7 +20,7 @@ namespace vein.runtime
 
         public FieldName(string name, string className) : this($"{className}.{name}") { }
 
-        public static FieldName Construct(ManaClass owner, string name)
+        public static FieldName Construct(VeinClass owner, string name)
             => new(name, owner.FullName.Name);
 
         public static FieldName Resolve(int index, ManaModule module)
@@ -32,9 +32,9 @@ namespace vein.runtime
 
         public override string ToString() => $"{Class}.{Name}";
     }
-    public class ManaField : ManaMember, IAspectable
+    public class VeinField : VeinMember, IAspectable
     {
-        public ManaField(ManaClass owner, FieldName fullName, FieldFlags flags, ManaClass fieldType)
+        public VeinField(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass fieldType)
         {
             this.Owner = owner;
             this.FullName = fullName;
@@ -42,9 +42,9 @@ namespace vein.runtime
             this.FieldType = fieldType;
         }
         public FieldName FullName { get; protected internal set; }
-        public ManaClass FieldType { get; set; }
+        public VeinClass FieldType { get; set; }
         public FieldFlags Flags { get; set; }
-        public ManaClass Owner { get; set; }
+        public VeinClass Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
 
         public override string Name
@@ -100,7 +100,7 @@ namespace vein.runtime
             }
         };
 
-        public static Func<string, object> GetConverter(this ManaField field)
+        public static Func<string, object> GetConverter(this VeinField field)
         {
             try
             {

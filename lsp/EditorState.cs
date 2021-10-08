@@ -288,12 +288,12 @@ namespace vein.lsp
             return deps;
         }
 
-        public List<ManaClass> GetImportedTypes()
+        public List<VeinClass> GetImportedTypes()
             => GetCurrentDeps().SelectMany(x => x.class_table).ToList();
 
 
 
-        private List<ManaClass> importedTypesCache;
+        private List<VeinClass> importedTypesCache;
         public List<CompletionItem> GenerateCompletionForImportedTypes()
         {
             if (importedTypesCache is null)
@@ -309,7 +309,7 @@ namespace vein.lsp
         }
 
         private readonly Dictionary<string, MarkupContent> documents_cache = new();
-        private MarkupContent GenerateDocumentation(ManaClass clazz)
+        private MarkupContent GenerateDocumentation(VeinClass clazz)
         {
             if (documents_cache.ContainsKey($"{clazz.FullName}"))
                 return documents_cache[$"{clazz.FullName}"];

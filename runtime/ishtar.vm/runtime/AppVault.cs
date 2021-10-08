@@ -31,7 +31,7 @@ namespace ishtar
             foreach (var module in Modules)
             {
                 var r = module.FindType(typeName, false, false);
-                if (r is UnresolvedManaClass)
+                if (r is UnresolvedVeinClass)
                     continue;
                 return r as RuntimeIshtarClass;
             }

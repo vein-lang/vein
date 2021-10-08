@@ -10,7 +10,7 @@ namespace ishtar.emit
     using vein.runtime;
     using static vein.runtime.MethodFlags;
 
-    public class MethodBuilder : ManaMethod, IBaker
+    public class MethodBuilder : VeinMethod, IBaker
     {
         internal readonly ClassBuilder classBuilder;
         internal ManaModuleBuilder moduleBuilder
@@ -18,7 +18,7 @@ namespace ishtar.emit
         private readonly ILGenerator _generator;
 
 
-        internal MethodBuilder(ClassBuilder clazz, string name, ManaClass returnType, params ManaArgumentRef[] args)
+        internal MethodBuilder(ClassBuilder clazz, string name, VeinClass returnType, params VeinArgumentRef[] args)
             : base(name, 0, returnType, clazz, args)
         {
             classBuilder = clazz;
@@ -112,17 +112,17 @@ namespace ishtar.emit
 
         internal int? GetLocalIndex(FieldName @ref)
             => getLocal(@ref)?.idx;
-        private (int idx, ManaArgumentRef arg)? getLocal(FieldName @ref)
+        private (int idx, VeinArgumentRef arg)? getLocal(FieldName @ref)
         {
             var (key, value) = Locals
                 .FirstOrDefault(x
                     => x.Value.Name.Equals(@ref.Name, StringComparison.CurrentCultureIgnoreCase));
             return value != null ? (key, value) : default;
         }
-        private (int idx, ManaArgumentRef type)? getArg(FieldName @ref)
+        private (int idx, VeinArgumentRef type)? getArg(FieldName @ref)
         {
             var result = Arguments.Select((x, i) => (i, x)).FirstOrDefault(x => x.x.Name.Equals(@ref.Name, StringComparison.CurrentCultureIgnoreCase));
-            return result.x is null ? default((int idx, ManaArgumentRef type)?) : result;
+            return result.x is null ? default((int idx, VeinArgumentRef type)?) : result;
         }
         #endregion
     }

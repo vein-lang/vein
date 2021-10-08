@@ -22,7 +22,7 @@ namespace ishtar_test
             ctx.Execute((gen, storage) =>
             {
                 gen.Emit(OpCodes.LDC_STR, "foo");
-                gen.Emit(OpCodes.CALL, (ManaMethod)storage.method);
+                gen.Emit(OpCodes.CALL, (VeinMethod)storage.method);
                 gen.Emit(OpCodes.RET);
             });
         }

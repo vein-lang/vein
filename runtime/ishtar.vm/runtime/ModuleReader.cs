@@ -114,7 +114,7 @@ namespace ishtar
                 for (var index = 0; index < @class.Parents.Count; index++)
                 {
                     var parent = @class.Parents[index];
-                    if (parent is not UnresolvedManaClass)
+                    if (parent is not UnresolvedVeinClass)
                         continue;
                     @class.Parents[index] =
                         parent.FullName != @class.FullName
@@ -127,7 +127,7 @@ namespace ishtar
             {
                 foreach (var method in @class.Methods)
                 {
-                    if (method.ReturnType is not UnresolvedManaClass)
+                    if (method.ReturnType is not UnresolvedVeinClass)
                         continue;
                     method.ReturnType = module.FindType(method.ReturnType.FullName, true);
                 }
@@ -136,14 +136,14 @@ namespace ishtar
                 {
                     foreach (var argument in method.Arguments)
                     {
-                        if (argument.Type is not UnresolvedManaClass)
+                        if (argument.Type is not UnresolvedVeinClass)
                             continue;
                         argument.Type = module.FindType(argument.Type.FullName, true);
                     }
                 }
                 foreach (var field in @class.Fields)
                 {
-                    if (field.FieldType is not UnresolvedManaClass)
+                    if (field.FieldType is not UnresolvedVeinClass)
                         continue;
                     field.FieldType = module.FindType(field.FieldType.FullName, true);
                 }
@@ -218,7 +218,7 @@ namespace ishtar
 
             var parentLen = binary.ReadInt16();
 
-            var parents = new List<ManaClass>();
+            var parents = new List<VeinClass>();
             foreach (var _ in ..parentLen)
             {
                 var parentIdx = binary.ReadTypeName(ishtarModule);
@@ -247,7 +247,7 @@ namespace ishtar
             return @class;
         }
 
-        public static void DecodeField(BinaryReader binary, ManaClass @class, RuntimeIshtarModule ishtarModule)
+        public static void DecodeField(BinaryReader binary, VeinClass @class, RuntimeIshtarModule ishtarModule)
         {
             foreach (var _ in ..binary.ReadInt32())
             {
@@ -260,7 +260,7 @@ namespace ishtar
             }
         }
 
-        public static unsafe RuntimeIshtarMethod DecodeMethod(byte[] arr, ManaClass @class, RuntimeIshtarModule ishtarModule)
+        public static unsafe RuntimeIshtarMethod DecodeMethod(byte[] arr, VeinClass @class, RuntimeIshtarModule ishtarModule)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -326,14 +326,14 @@ namespace ishtar
         }
 
 
-        private static List<ManaArgumentRef> ReadArguments(BinaryReader binary, RuntimeIshtarModule ishtarModule)
+        private static List<VeinArgumentRef> ReadArguments(BinaryReader binary, RuntimeIshtarModule ishtarModule)
         {
-            var args = new List<ManaArgumentRef>();
+            var args = new List<VeinArgumentRef>();
             foreach (var _ in ..binary.ReadInt32())
             {
                 var nIdx = binary.ReadInt32();
                 var type = binary.ReadTypeName(ishtarModule);
-                args.Add(new ManaArgumentRef
+                args.Add(new VeinArgumentRef
                 {
                     Name = ishtarModule.GetConstStringByIndex(nIdx),
                     Type = ishtarModule.FindType(type, true, false)

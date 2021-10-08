@@ -329,13 +329,13 @@ namespace vein.compilation
 
         public (
             List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods,
-            List<(ManaField field, FieldDeclarationSyntax syntax)>)
+            List<(VeinField field, FieldDeclarationSyntax syntax)>)
             LinkMethods((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
             var (@class, clazzSyntax) = x;
             var doc = clazzSyntax.OwnerDocument;
             var methods = new List<(MethodBuilder method, MethodDeclarationSyntax syntax)>();
-            var fields = new List<(ManaField field, FieldDeclarationSyntax syntax)>();
+            var fields = new List<(VeinField field, FieldDeclarationSyntax syntax)>();
             foreach (var member in clazzSyntax.Members)
             {
                 switch (member)
@@ -394,7 +394,7 @@ namespace vein.compilation
             return (method, member);
         }
 
-        public (ManaField field, FieldDeclarationSyntax member)
+        public (VeinField field, FieldDeclarationSyntax member)
             CompileField(FieldDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
             var fieldType = FetchType(member.Type, doc);
@@ -435,7 +435,7 @@ namespace vein.compilation
                 .Consume();
 
 
-            var pregen = new List<(ExpressionSyntax exp, ManaField field)>();
+            var pregen = new List<(ExpressionSyntax exp, VeinField field)>();
 
 
             foreach (var field in @class.Fields)
@@ -488,7 +488,7 @@ namespace vein.compilation
 
             gen.StoreIntoMetadata("context", Context);
 
-            var pregen = new List<(ExpressionSyntax exp, ManaField field)>();
+            var pregen = new List<(ExpressionSyntax exp, VeinField field)>();
 
             foreach (var field in @class.Fields)
             {
@@ -573,7 +573,7 @@ namespace vein.compilation
                        $"in '[orange bold]{doc.FileEntity}[/]'." +
                        $"{diff_err}");
         }
-        public void GenerateField((ManaField field, FieldDeclarationSyntax member) t)
+        public void GenerateField((VeinField field, FieldDeclarationSyntax member) t)
         {
             if (t == default)
             {
@@ -657,7 +657,7 @@ namespace vein.compilation
             }
         }
 
-        private ManaClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
+        private VeinClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
         {
             var retType = module.TryFindType(typename.Identifier.ExpressionString, doc.Includes);
 
@@ -666,11 +666,11 @@ namespace vein.compilation
             return retType;
         }
 
-        private ManaArgumentRef[] GenerateArgument(MethodDeclarationSyntax method, DocumentDeclaration doc)
+        private VeinArgumentRef[] GenerateArgument(MethodDeclarationSyntax method, DocumentDeclaration doc)
         {
             if (method.Parameters.Count == 0)
-                return Array.Empty<ManaArgumentRef>();
-            return method.Parameters.Select(parameter => new ManaArgumentRef
+                return Array.Empty<VeinArgumentRef>();
+            return method.Parameters.Select(parameter => new VeinArgumentRef
             { Type = FetchType(parameter.Type, doc), Name = parameter.Identifier.ExpressionString })
                 .ToArray();
         }

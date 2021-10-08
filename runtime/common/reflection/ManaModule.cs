@@ -17,7 +17,7 @@ namespace vein.runtime
 
         protected internal List<Aspect> aspects { get; } = new();
         protected internal ConstStorage const_table { get; set; } = new();
-        protected internal readonly List<ManaClass> class_table = new();
+        protected internal readonly List<VeinClass> class_table = new();
         protected internal readonly Dictionary<int, string> strings_table = new();
         protected internal readonly Dictionary<int, QualityTypeName> types_table = new();
         protected internal readonly Dictionary<int, FieldName> fields_table = new();
@@ -40,7 +40,7 @@ namespace vein.runtime
         /// <summary>
         /// Try find type by name (without namespace) with namespace includes.
         /// </summary>
-        public ManaClass TryFindType(string typename, List<string> includes)
+        public VeinClass TryFindType(string typename, List<string> includes)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace vein.runtime
         /// Find type by name (without namespace) with namespace includes.
         /// </summary>
         /// <exception cref="TypeNotFoundException"></exception>
-        public ManaClass FindType(string typename, List<string> includes)
+        public VeinClass FindType(string typename, List<string> includes)
         {
             var result = class_table.Where(x => includes.Contains(x.FullName.Namespace)).
                 FirstOrDefault(x => x.Name.Equals(typename));
@@ -76,7 +76,7 @@ namespace vein.runtime
         /// <remarks>
         /// Support find in external deps.
         /// </remarks>
-        public ManaClass FindType(QualityTypeName type, bool findExternally = false, bool dropUnresolvedException = true)
+        public VeinClass FindType(QualityTypeName type, bool findExternally = false, bool dropUnresolvedException = true)
         {
             if (!findExternally)
                 findExternally = this.Name != type.AssemblyName;
@@ -85,13 +85,13 @@ namespace vein.runtime
             if (result is not null)
                 return result;
 
-            bool filter(ManaClass x) => x!.FullName.Equals(type);
+            bool filter(VeinClass x) => x!.FullName.Equals(type);
 
-            ManaClass createResult()
+            VeinClass createResult()
             {
                 if (dropUnresolvedException)
                     throw new TypeNotFoundException($"'{type}' not found in modules and dependency assemblies.");
-                return new UnresolvedManaClass(type);
+                return new UnresolvedVeinClass(type);
             }
 
             if (!findExternally)

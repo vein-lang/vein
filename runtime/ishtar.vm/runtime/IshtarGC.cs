@@ -40,7 +40,7 @@ namespace ishtar
             GCStats.total_bytes_requested += (ulong)sizeof(stackval);
             return p;
         }
-        public static stackval* AllocValue(ManaClass @class)
+        public static stackval* AllocValue(VeinClass @class)
         {
             if (!@class.IsPrimitive)
                 return null;

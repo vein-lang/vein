@@ -177,7 +177,7 @@ namespace wc_test
             Assert.Throws<FieldIsNotDeclaredException>(() => actual.EmitReturn(ret));
         }
 
-        public static ILGenerator CreateGenerator(params ManaArgumentRef[] args)
+        public static ILGenerator CreateGenerator(params VeinArgumentRef[] args)
         {
             var module = new ManaModuleBuilder(Guid.NewGuid().ToString());
             var @class = module.DefineClass("global::foo/bar");

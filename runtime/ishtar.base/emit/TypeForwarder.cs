@@ -5,7 +5,7 @@ namespace ishtar.emit
 
     public class TypeForwarder
     {
-        public static void Indicate(ManaClass clazz)
+        public static void Indicate(VeinClass clazz)
         {
             switch (clazz.FullName.NameWithNS)
             {

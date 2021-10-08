@@ -21,7 +21,7 @@ namespace ishtar
             var name = module.types_table.GetValueOrDefault((int)index);
             Assert(name is not null, WNE.TYPE_LOAD, $"Cant find '{index}' in class_table.", frame);
             var type = module.FindType(name, true, false);
-            if (type is UnresolvedManaClass)
+            if (type is UnresolvedVeinClass)
             {
                 FastFail(WNE.MISSING_TYPE, $"Cant load '{name.NameWithNS}' in '{name.AssemblyName}'", frame);
                 ValidateLastError();

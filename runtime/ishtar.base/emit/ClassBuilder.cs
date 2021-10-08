@@ -10,7 +10,7 @@ namespace ishtar.emit
     using vein.extensions;
     using vein.runtime;
 
-    public class ClassBuilder : ManaClass, IBaker
+    public class ClassBuilder : VeinClass, IBaker
     {
         internal ManaModuleBuilder moduleBuilder;
 
@@ -22,7 +22,7 @@ namespace ishtar.emit
             return this;
         }
 
-        internal ClassBuilder(ManaModuleBuilder module, ManaClass clazz)
+        internal ClassBuilder(ManaModuleBuilder module, VeinClass clazz)
         {
             this.moduleBuilder = module;
             this.FullName = clazz.FullName;
@@ -37,7 +37,7 @@ namespace ishtar.emit
             this.Parents.Add(parent.AsClass());
             this.Owner = module;
         }
-        internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, ManaClass parent)
+        internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, VeinClass parent)
         {
             this.FullName = name;
             moduleBuilder = module;
@@ -55,7 +55,7 @@ namespace ishtar.emit
         /// <remarks>
         /// Method name will be interned.
         /// </remarks>
-        public MethodBuilder DefineMethod(string name, ManaClass returnType, params ManaArgumentRef[] args)
+        public MethodBuilder DefineMethod(string name, VeinClass returnType, params VeinArgumentRef[] args)
         {
             moduleBuilder.InternString(name);
             var method = new MethodBuilder(this, name, returnType, args);
@@ -71,7 +71,7 @@ namespace ishtar.emit
         /// <remarks>
         /// Method name will be interned.
         /// </remarks>
-        public MethodBuilder DefineMethod(string name, MethodFlags flags, ManaClass returnType, params ManaArgumentRef[] args)
+        public MethodBuilder DefineMethod(string name, MethodFlags flags, VeinClass returnType, params VeinArgumentRef[] args)
         {
             var method = this.DefineMethod(name, returnType, args);
             method.Owner = this;
@@ -84,9 +84,9 @@ namespace ishtar.emit
         /// <remarks>
         /// Field name will be interned.
         /// </remarks>
-        public ManaField DefineField(string name, FieldFlags flags, ManaClass fieldType)
+        public VeinField DefineField(string name, FieldFlags flags, VeinClass fieldType)
         {
-            var field = new ManaField(this, new FieldName(name, this.Name), flags, fieldType);
+            var field = new VeinField(this, new FieldName(name, this.Name), flags, fieldType);
             moduleBuilder.InternFieldName(field.FullName);
             if (Fields.Any(x => x.Name == name))
                 throw new FieldAlreadyDefined($"Field '{name}' in class '{Name}' already defined.");
@@ -145,9 +145,9 @@ namespace ishtar.emit
             return str.ToString();
         }
 
-        #region Overrides of ManaClass
+        #region Overrides of VeinClass
 
-        protected override ManaMethod GetOrCreateTor(string name, bool isStatic = false)
+        protected override VeinMethod GetOrCreateTor(string name, bool isStatic = false)
         {
             var ctor =  base.GetOrCreateTor(name, isStatic);
             if (ctor is not null)

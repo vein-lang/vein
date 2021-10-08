@@ -2,9 +2,9 @@ namespace vein.reflection
 {
     using vein.runtime;
 
-    public class UnresolvedManaClass : ManaClass
+    public class UnresolvedVeinClass : VeinClass
     {
-        public UnresolvedManaClass(QualityTypeName fullName)
+        public UnresolvedVeinClass(QualityTypeName fullName)
             => this.FullName = fullName;
     }
 }

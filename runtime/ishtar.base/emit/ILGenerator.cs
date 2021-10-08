@@ -164,7 +164,7 @@ namespace ishtar.emit
         /// Only allowed <see cref="OpCodes.LDF"/>, <see cref="OpCodes.STF"/>,
         /// <see cref="OpCodes.STSF"/>, <see cref="OpCodes.LDSF"/>.
         /// </remarks>
-        public virtual void Emit(OpCode opcode, ManaField field)
+        public virtual void Emit(OpCode opcode, VeinField field)
         {
             if (new[] { OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF }.All(x => x != opcode))
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
@@ -206,7 +206,7 @@ namespace ishtar.emit
             this.PutInteger4(label.Value);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} label(0x{label.Value:X})");
         }
-        public virtual void Emit(OpCode opcode, ManaClass type)
+        public virtual void Emit(OpCode opcode, VeinClass type)
             => Emit(opcode, type.FullName);
 
         public virtual void Emit(OpCode opcode, QualityTypeName type)
@@ -249,7 +249,7 @@ namespace ishtar.emit
         /// <returns>
         /// Index of local variable slot
         /// </returns>
-        public virtual int EnsureLocal(string key, ManaClass clazz)
+        public virtual int EnsureLocal(string key, VeinClass clazz)
         {
             LocalsBuilder.Mark(LocalsSize, key);
             LocalsBuilder.Push(clazz);
@@ -263,7 +263,7 @@ namespace ishtar.emit
         /// <remarks>
         /// Only <see cref="OpCodes.CALL"/>.
         /// </remarks>
-        public virtual void Emit(OpCode opcode, ManaMethod method)
+        public virtual void Emit(OpCode opcode, VeinMethod method)
         {
             if (method is null)
                 throw new ArgumentNullException(nameof(method));

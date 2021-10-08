@@ -14,7 +14,7 @@ namespace vein.runtime
         private readonly Dictionary<int, string> locals_dictionary = new();
         public void Push(QualityTypeName type)
             => types.Add(type);
-        public void Push(ManaClass type)
+        public void Push(VeinClass type)
             => types.Add(type.FullName);
         public void Push(VeinTypeCode type)
             => types.Add(type.AsClass().FullName);
@@ -32,7 +32,7 @@ namespace vein.runtime
         #endregion
 
 
-        public static implicit operator LocalsBuilder(ManaClass[] arr)
+        public static implicit operator LocalsBuilder(VeinClass[] arr)
         {
             var l = new LocalsBuilder();
             foreach (var type in arr)

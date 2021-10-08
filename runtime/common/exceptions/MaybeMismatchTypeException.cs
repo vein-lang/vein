@@ -5,7 +5,7 @@ namespace vein.exceptions
 
     public class MaybeMismatchTypeException : Exception
     {
-        public MaybeMismatchTypeException(ManaField field, ValueWasIncorrectException exp)
+        public MaybeMismatchTypeException(VeinField field, ValueWasIncorrectException exp)
             : base($"field: '{field.FullName}'", exp)
         {
 

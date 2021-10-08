@@ -22,9 +22,9 @@ namespace ishtar
 
         public List<string> Errors = new ();
 
-        public Dictionary<ManaMethod, ManaScope> Scopes { get; } = new();
+        public Dictionary<VeinMethod, ManaScope> Scopes { get; } = new();
 
-        public ManaMethod CurrentMethod { get; set; }
+        public VeinMethod CurrentMethod { get; set; }
         public ManaScope CurrentScope { get; set; }
 
         public GeneratorContext LogError(string err, ExpressionSyntax exp)
@@ -47,10 +47,10 @@ namespace ishtar
             return new ScopeTransit(CurrentScope);
         }
 
-        public ManaClass ResolveType(TypeSyntax targetTypeTypeword)
+        public VeinClass ResolveType(TypeSyntax targetTypeTypeword)
             => Module.FindType(targetTypeTypeword.Identifier.ExpressionString,
                 Classes[CurrentMethod.Owner.FullName].Includes);
-        public ManaClass ResolveType(IdentifierExpression targetTypeTypeword)
+        public VeinClass ResolveType(IdentifierExpression targetTypeTypeword)
             => Module.FindType(targetTypeTypeword.ExpressionString,
                 Classes[CurrentMethod.Owner.FullName].Includes);
 
@@ -65,7 +65,7 @@ namespace ishtar
 
             var currentType = Module.FindType(fullName, false, false);
 
-            if (currentType is not UnresolvedManaClass)
+            if (currentType is not UnresolvedVeinClass)
                 return Assert.IsType<ClassBuilder>(currentType);
 
             var b = Module.DefineClass(fullName);
@@ -77,7 +77,7 @@ namespace ishtar
             return b;
         }
 
-        public (ManaArgumentRef, int index)? ResolveArgument(IdentifierExpression id)
+        public (VeinArgumentRef, int index)? ResolveArgument(IdentifierExpression id)
         {
             foreach (var (argument, index) in CurrentMethod.Arguments.Select((x, i) => (x, i)))
             {
@@ -86,7 +86,7 @@ namespace ishtar
             }
             return null;
         }
-        public ManaClass ResolveScopedIdentifierType(IdentifierExpression id)
+        public VeinClass ResolveScopedIdentifierType(IdentifierExpression id)
         {
             if (ResolveArgument(id) is not null)
             {
@@ -103,7 +103,7 @@ namespace ishtar
             this.LogError($"The name '{id}' does not exist in the current context.", id);
             return null;
         }
-        public ManaField ResolveField(ManaClass targetType, IdentifierExpression target, IdentifierExpression id)
+        public VeinField ResolveField(VeinClass targetType, IdentifierExpression target, IdentifierExpression id)
         {
             var field = targetType.FindField(id.ExpressionString);
 
@@ -115,10 +115,10 @@ namespace ishtar
                           $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
             return null;
         }
-        public ManaField ResolveField(IdentifierExpression id)
+        public VeinField ResolveField(IdentifierExpression id)
             => CurrentMethod.Owner.FindField(id.ExpressionString);
 
-        public ManaField ResolveField(ManaClass targetType, IdentifierExpression id)
+        public VeinField ResolveField(VeinClass targetType, IdentifierExpression id)
         {
             var field = targetType.FindField(id.ExpressionString);
 
@@ -127,8 +127,8 @@ namespace ishtar
             this.LogError($"The name '{id}' does not exist in the current context.", id);
             return null;
         }
-        public ManaMethod ResolveMethod(
-            ManaClass targetType,
+        public VeinMethod ResolveMethod(
+            VeinClass targetType,
             IdentifierExpression target,
             IdentifierExpression id,
             MethodInvocationExpression invocation)
@@ -146,8 +146,8 @@ namespace ishtar
             return null;
         }
 
-        public ManaMethod ResolveMethod(
-            ManaClass targetType,
+        public VeinMethod ResolveMethod(
+            VeinClass targetType,
             IdentifierExpression id,
             MethodInvocationExpression invocation)
         {
@@ -178,7 +178,7 @@ namespace ishtar
         public List<ManaScope> Scopes { get; } = new();
         public GeneratorContext Context { get; }
 
-        public Dictionary<IdentifierExpression, ManaClass> variables { get; } = new();
+        public Dictionary<IdentifierExpression, VeinClass> variables { get; } = new();
         public Dictionary<IdentifierExpression, int> locals_index { get; } = new();
 
 
@@ -209,7 +209,7 @@ namespace ishtar
         public bool HasVariable(IdentifierExpression id)
             => variables.ContainsKey(id);
 
-        public ManaScope DefineVariable(IdentifierExpression id, ManaClass type, int localIndex)
+        public ManaScope DefineVariable(IdentifierExpression id, VeinClass type, int localIndex)
         {
             if (HasVariable(id))
             {
@@ -224,10 +224,10 @@ namespace ishtar
 
     public static class GeneratorExtension
     {
-        public static bool ContainsField(this ManaClass @class, IdentifierExpression id)
+        public static bool ContainsField(this VeinClass @class, IdentifierExpression id)
             => @class.FindField(id.ExpressionString) != null;
 
-        public static ManaField ResolveField(this ManaClass @class, IdentifierExpression id)
+        public static VeinField ResolveField(this VeinClass @class, IdentifierExpression id)
             => @class.FindField(id.ExpressionString);
 
         public static void EmitUnary(this ILGenerator gen, UnaryExpressionSyntax node)
@@ -565,7 +565,7 @@ namespace ishtar
         }
 
 
-        public static ManaMethod ConstructArrayTypeInitialization(this ILGenerator gen, TypeExpression expression, ArrayInitializerExpression arrayInitializer)
+        public static VeinMethod ConstructArrayTypeInitialization(this ILGenerator gen, TypeExpression expression, ArrayInitializerExpression arrayInitializer)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
@@ -621,10 +621,10 @@ namespace ishtar
             return method;
         }
 
-        public static IEnumerable<ManaClass> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context)
+        public static IEnumerable<VeinClass> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context)
             => exps.Select(x => x.DetermineType(context)).Where(x => x is not null /* if failed determine skip analyze */);
 
-        public static ManaClass DetermineType(this ExpressionSyntax exp, GeneratorContext context)
+        public static VeinClass DetermineType(this ExpressionSyntax exp, GeneratorContext context)
         {
             if (exp.CanOptimizationApply())
                 return exp.ForceOptimization().DetermineType(context);
@@ -654,7 +654,7 @@ namespace ishtar
             return null;
         }
 
-        public static ManaClass ResolveType(this MemberAccessExpression member, GeneratorContext context)
+        public static VeinClass ResolveType(this MemberAccessExpression member, GeneratorContext context)
         {
             var chain = member.GetChain().ToArray();
             var lastToken = chain.Last();
@@ -674,7 +674,7 @@ namespace ishtar
             return null;
         }
 
-        public static (ManaClass, ManaClass) Fusce(this BinaryExpressionSyntax binary, GeneratorContext context)
+        public static (VeinClass, VeinClass) Fusce(this BinaryExpressionSyntax binary, GeneratorContext context)
         {
             var lt = binary.Left.DetermineType(context);
             var rt = binary.Right.DetermineType(context);
@@ -682,9 +682,9 @@ namespace ishtar
             return (lt, rt);
         }
 
-        public static ManaClass ResolveMemberType(this IEnumerable<ExpressionSyntax> chain, GeneratorContext context)
+        public static VeinClass ResolveMemberType(this IEnumerable<ExpressionSyntax> chain, GeneratorContext context)
         {
-            var t = default(ManaClass);
+            var t = default(VeinClass);
             var prev_id = default(IdentifierExpression);
             using var enumerator = chain.GetEnumerator();
 
@@ -706,10 +706,10 @@ namespace ishtar
             return t;
         }
 
-        public static ManaClass ResolveReturnType(this MethodInvocationExpression member,
+        public static VeinClass ResolveReturnType(this MethodInvocationExpression member,
             GeneratorContext context, IEnumerable<ExpressionSyntax> chain)
         {
-            var t = default(ManaClass);
+            var t = default(VeinClass);
             var prev_id = default(IdentifierExpression);
             var enumerator = chain.ToArray();
             for (var i = 0; i != enumerator.Length; i++)
@@ -730,7 +730,7 @@ namespace ishtar
         }
 
 
-        public static ManaClass ExplicitConversion(ManaClass t1, ManaClass t2) =>
+        public static VeinClass ExplicitConversion(VeinClass t1, VeinClass t2) =>
             throw new Exception($"ExplicitConversion: {t1?.FullName.NameWithNS} and {t2?.FullName.NameWithNS}");
 
         public static void EmitThrow(this ILGenerator generator, QualityTypeName type)
@@ -739,7 +739,7 @@ namespace ishtar
             generator.Emit(OpCodes.CALL, GetDefaultCtor(type));
             generator.Emit(OpCodes.THROW);
         }
-        public static ManaMethod GetDefaultCtor(QualityTypeName t) => throw new NotImplementedException();
+        public static VeinMethod GetDefaultCtor(QualityTypeName t) => throw new NotImplementedException();
         public static void EmitIfElse(this ILGenerator generator, IfStatementSyntax ifStatement)
         {
             var elseLabel = generator.DefineLabel();
@@ -808,7 +808,7 @@ namespace ishtar
             }
         }
 
-        public static void EmitLocalVariableWithType(this ILGenerator generator, LocalVariableDeclaration localVar, ManaClass type)
+        public static void EmitLocalVariableWithType(this ILGenerator generator, LocalVariableDeclaration localVar, VeinClass type)
         {
             var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
             var scope = ctx.CurrentScope;

@@ -28,12 +28,12 @@ namespace ishtar.emit
                 result.Add(bin.ReadInt32());
             return result;
         }
-        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, ManaMethod method)
+        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, VeinMethod method)
         {
             var i = 0;
             return Deconstruct(arr, &i, method);
         }
-        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, int* offset, ManaMethod method)
+        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, int* offset, VeinMethod method)
         {
             using var mem = new MemoryStream(arr);
             using var bin = new BinaryReader(mem);

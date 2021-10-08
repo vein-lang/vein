@@ -2,25 +2,26 @@ namespace vein.runtime
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Text.RegularExpressions;
     using extensions;
     using reflection;
 
-    public class ManaMethod : ManaMethodBase, IAspectable
+    public class VeinMethod : VeinMethodBase, IAspectable
     {
-        public ManaClass ReturnType { get; set; }
-        public ManaClass Owner { get; set; }
-        public readonly Dictionary<int, ManaArgumentRef> Locals = new();
+        public VeinClass ReturnType { get; set; }
+        public VeinClass Owner { get; set; }
+        public readonly Dictionary<int, VeinArgumentRef> Locals = new();
         public List<Aspect> Aspects { get; } = new();
 
-        protected ManaMethod() : base(null, 0) { }
+        protected VeinMethod() : base(null, 0) { }
 
-        internal ManaMethod(string name, MethodFlags flags, params ManaArgumentRef[] args)
+        internal VeinMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
             : base(name, flags, args) =>
             this.ReturnType = VeinTypeCode.TYPE_VOID.AsClass();
 
-        internal ManaMethod(string name, MethodFlags flags, ManaClass returnType, ManaClass owner,
-            params ManaArgumentRef[] args)
+        internal VeinMethod(string name, MethodFlags flags, VeinClass returnType, VeinClass owner,
+            params VeinArgumentRef[] args)
             : base(name, flags, args)
         {
             this.Owner = owner;
@@ -32,9 +33,10 @@ namespace vein.runtime
     }
 
 
-    public abstract class ManaMethodBase : ManaMember
+    public abstract class VeinMethodBase : VeinMember
     {
-        protected ManaMethodBase(string name, MethodFlags flags, params ManaArgumentRef[] args)
+        [MethodImpl(MethodImplOptions.NoOptimization)]
+        protected VeinMethodBase(string name, MethodFlags flags, params VeinArgumentRef[] args)
         {
             this.Arguments.AddRange(args);
             this.Name = name;
@@ -44,12 +46,14 @@ namespace vein.runtime
 
         private void RegenerateName()
         {
+            #if RELEASE
             if (Regex.IsMatch(this.Name, @"\S+\((.+)?\)"))
                 return;
+            #endif
             this.Name = GetFullName(Name, Arguments);
         }
 
-        public static string GetFullName(string name, List<ManaArgumentRef> args)
+        public static string GetFullName(string name, List<VeinArgumentRef> args)
             => $"{name}({args.Select(x => x.Type?.Name).Join(",")})";
 
 
@@ -66,7 +70,7 @@ namespace vein.runtime
         public sealed override string Name { get; protected set; }
         public string RawName => Name.Split('(').First();
 
-        public List<ManaArgumentRef> Arguments { get; } = new();
+        public List<VeinArgumentRef> Arguments { get; } = new();
 
         public int ArgLength => Arguments.Count;
 

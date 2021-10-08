@@ -14,20 +14,20 @@ namespace ishtar
         TValue this[TKey key] { get; }
     }
 
-    public unsafe class RuntimeIshtarClass : ManaClass,
+    public unsafe class RuntimeIshtarClass : VeinClass,
         ITransitionAlignment<string, RuntimeIshtarField>,
         ITransitionAlignment<string, RuntimeIshtarMethod>,
         IVTableCollectible,
         IDisposable
     {
-        internal RuntimeIshtarClass(QualityTypeName name, ManaClass parent, RuntimeIshtarModule module)
+        internal RuntimeIshtarClass(QualityTypeName name, VeinClass parent, RuntimeIshtarModule module)
             : base(name, parent, module)
         {
             ID = module.Vault.TokenGranted.GrantClassID();
             runtime_token = new RuntimeToken(module.ID, ID);
         }
 
-        internal RuntimeIshtarClass(QualityTypeName name, ManaClass[] parents, RuntimeIshtarModule module)
+        internal RuntimeIshtarClass(QualityTypeName name, VeinClass[] parents, RuntimeIshtarModule module)
             : base(name, parents, module)
         {
             ID = module.Vault.TokenGranted.GrantClassID();
@@ -35,14 +35,14 @@ namespace ishtar
         }
 
 
-        internal RuntimeIshtarField DefineField(string name, FieldFlags flags, ManaClass type)
+        internal RuntimeIshtarField DefineField(string name, FieldFlags flags, VeinClass type)
         {
             var f = new RuntimeIshtarField(this, new FieldName(name, Name), flags, type);
             this.Fields.Add(f);
             return f;
         }
 
-        internal RuntimeIshtarMethod DefineMethod(string name, ManaClass returnType, MethodFlags flags, params ManaArgumentRef[] args)
+        internal RuntimeIshtarMethod DefineMethod(string name, VeinClass returnType, MethodFlags flags, params VeinArgumentRef[] args)
         {
             var method = new RuntimeIshtarMethod(name, flags, returnType, this, args);
             method.Arguments.AddRange(args);

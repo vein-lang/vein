@@ -3,9 +3,9 @@ namespace ishtar
     using System.Linq;
     using vein.runtime;
 
-    public unsafe class RuntimeIshtarField : ManaField
+    public unsafe class RuntimeIshtarField : VeinField
     {
-        public RuntimeIshtarField(ManaClass owner, FieldName fullName, FieldFlags flags, ManaClass fieldType) :
+        public RuntimeIshtarField(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass fieldType) :
             base(owner, fullName, flags, fieldType)
         { }
 

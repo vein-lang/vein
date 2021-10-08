@@ -3,23 +3,23 @@ namespace ishtar
     using System;
     using vein.runtime;
 
-    public unsafe class RuntimeIshtarMethod : ManaMethod
+    public unsafe class RuntimeIshtarMethod : VeinMethod
     {
         public MetaMethodHeader Header;
         public PInvokeInfo PIInfo;
 
         public uint vtable_offset;
 
-        internal RuntimeIshtarMethod(string name, MethodFlags flags, params ManaArgumentRef[] args)
+        internal RuntimeIshtarMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
             : base(name, flags, args) =>
             this.ReturnType = VeinTypeCode.TYPE_VOID.AsClass();
 
-        internal RuntimeIshtarMethod(string name, MethodFlags flags, ManaClass returnType, params ManaArgumentRef[] args)
+        internal RuntimeIshtarMethod(string name, MethodFlags flags, VeinClass returnType, params VeinArgumentRef[] args)
             : base(name, flags, args) =>
             this.ReturnType = returnType;
 
-        internal RuntimeIshtarMethod(string name, MethodFlags flags, ManaClass returnType, ManaClass owner,
-            params ManaArgumentRef[] args)
+        internal RuntimeIshtarMethod(string name, MethodFlags flags, VeinClass returnType, VeinClass owner,
+            params VeinArgumentRef[] args)
             : base(name, flags, args)
         {
             this.Owner = owner;

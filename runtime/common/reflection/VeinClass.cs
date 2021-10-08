@@ -9,15 +9,15 @@ namespace vein.runtime
     using static VeinTypeCode;
 
 
-    public class ManaClass : IEquatable<ManaClass>, IAspectable
+    public class VeinClass : IEquatable<VeinClass>, IAspectable
     {
         public QualityTypeName FullName { get; set; }
         public string Name => FullName.Name;
         public string Path => FullName.Namespace;
         public ClassFlags Flags { get; set; }
-        public UniqueList<ManaClass> Parents { get; set; } = new();
-        public List<ManaField> Fields { get; } = new();
-        public List<ManaMethod> Methods { get; set; } = new();
+        public UniqueList<VeinClass> Parents { get; set; } = new();
+        public List<VeinField> Fields { get; } = new();
+        public List<VeinMethod> Methods { get; set; } = new();
         public VeinTypeCode TypeCode { get; set; } = TYPE_CLASS;
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE;
         public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
@@ -25,20 +25,20 @@ namespace vein.runtime
         public ManaModule Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
 
-        internal ManaClass(QualityTypeName name, ManaClass parent, ManaModule module)
+        internal VeinClass(QualityTypeName name, VeinClass parent, ManaModule module)
         {
             this.FullName = name;
             if (parent is not null)
                 this.Parents.Add(parent);
             this.Owner = module;
         }
-        internal ManaClass(QualityTypeName name, ManaClass[] parents, ManaModule module)
+        internal VeinClass(QualityTypeName name, VeinClass[] parents, ManaModule module)
         {
             this.FullName = name;
             this.Parents.AddRange(parents);
             this.Owner = module;
         }
-        protected ManaClass() { }
+        protected VeinClass() { }
 
         public bool IsSpecial => Flags.HasFlag(ClassFlags.Special);
         public bool IsPublic => Flags.HasFlag(ClassFlags.Public);
@@ -47,20 +47,20 @@ namespace vein.runtime
         public bool IsStatic => Flags.HasFlag(ClassFlags.Static);
         public bool IsInternal => Flags.HasFlag(ClassFlags.Internal);
 
-        public virtual ManaMethod GetDefaultDtor() => GetOrCreateTor("dtor()");
-        public virtual ManaMethod GetDefaultCtor() => GetOrCreateTor("ctor()");
+        public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor("dtor()");
+        public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor("ctor()");
 
-        public virtual ManaMethod GetStaticCtor() => GetOrCreateTor("type_ctor()", true);
+        public virtual VeinMethod GetStaticCtor() => GetOrCreateTor("type_ctor()", true);
 
 
-        protected virtual ManaMethod GetOrCreateTor(string name, bool isStatic = false)
+        protected virtual VeinMethod GetOrCreateTor(string name, bool isStatic = false)
             => Methods.FirstOrDefault(x => x.IsStatic == isStatic && x.Name.Equals(name));
 
         public override string ToString()
             => $"{FullName}, {Flags}";
 
 
-        public ManaMethod FindMethod(string name, IEnumerable<ManaClass> args_types) =>
+        public VeinMethod FindMethod(string name, IEnumerable<VeinClass> args_types) =>
             this.Methods.Concat(Parents.SelectMany(x => x.Methods))
                 .FirstOrDefault(x =>
                 {
@@ -70,12 +70,12 @@ namespace vein.runtime
                     return nameHas && argsHas;
                 });
 
-        public ManaField? FindField(string name) =>
+        public VeinField? FindField(string name) =>
             this.Fields.Concat(Parents.SelectMany(x => x.Fields))
                 .FirstOrDefault(x => x.Name.Equals(name));
 
 
-        public ManaMethod? FindMethod(string name, Func<ManaMethod, bool> eq = null)
+        public VeinMethod? FindMethod(string name, Func<VeinMethod, bool> eq = null)
         {
             eq ??= s => s.RawName.Equals(name);
 
@@ -88,7 +88,7 @@ namespace vein.runtime
             return null;
         }
 
-        public bool ContainsImpl(ManaMethod method)
+        public bool ContainsImpl(VeinMethod method)
         {
             foreach (var current in Methods)
             {
@@ -98,7 +98,7 @@ namespace vein.runtime
             return false;
         }
 
-        public bool Contains(ManaMethod method)
+        public bool Contains(VeinMethod method)
         {
             foreach (var current in Methods)
             {
@@ -110,7 +110,7 @@ namespace vein.runtime
 
         #region Equality members
 
-        public bool Equals(ManaClass other)
+        public bool Equals(VeinClass other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -122,15 +122,15 @@ namespace vein.runtime
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((ManaClass)obj);
+            return Equals((VeinClass)obj);
         }
 
         public override int GetHashCode()
             => HashCode.Combine(FullName);
 
-        public static bool operator ==(ManaClass left, ManaClass right) => Equals(left, right);
+        public static bool operator ==(VeinClass left, VeinClass right) => Equals(left, right);
 
-        public static bool operator !=(ManaClass left, ManaClass right) => !Equals(left, right);
+        public static bool operator !=(VeinClass left, VeinClass right) => !Equals(left, right);
 
         #endregion
     }
@@ -138,7 +138,7 @@ namespace vein.runtime
 
     public static class TypeWalker
     {
-        public static bool Walk(this ManaClass clazz, Func<ManaClass, bool> actor)
+        public static bool Walk(this VeinClass clazz, Func<VeinClass, bool> actor)
         {
             var target = clazz;
 

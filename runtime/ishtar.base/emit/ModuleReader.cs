@@ -122,7 +122,7 @@ namespace ishtar.emit
                 for (var index = 0; index < @class.Parents.Count; index++)
                 {
                     var parent = @class.Parents[index];
-                    if (parent is not UnresolvedManaClass)
+                    if (parent is not UnresolvedVeinClass)
                         continue;
                     @class.Parents[index] =
                         parent.FullName != @class.FullName
@@ -135,7 +135,7 @@ namespace ishtar.emit
             {
                 foreach (var method in @class.Methods)
                 {
-                    if (method.ReturnType is not UnresolvedManaClass)
+                    if (method.ReturnType is not UnresolvedVeinClass)
                         continue;
                     method.ReturnType = module.FindType(method.ReturnType.FullName, true);
                 }
@@ -144,14 +144,14 @@ namespace ishtar.emit
                 {
                     foreach (var argument in method.Arguments)
                     {
-                        if (argument.Type is not UnresolvedManaClass)
+                        if (argument.Type is not UnresolvedVeinClass)
                             continue;
                         argument.Type = module.FindType(argument.Type.FullName, true);
                     }
                 }
                 foreach (var field in @class.Fields)
                 {
-                    if (field.FieldType is not UnresolvedManaClass)
+                    if (field.FieldType is not UnresolvedVeinClass)
                         continue;
                     field.FieldType = module.FindType(field.FieldType.FullName, true);
                 }
@@ -205,7 +205,7 @@ namespace ishtar.emit
             }
         }
 
-        public static ManaClass DecodeClass(byte[] arr, ModuleReader module)
+        public static VeinClass DecodeClass(byte[] arr, ModuleReader module)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -214,7 +214,7 @@ namespace ishtar.emit
 
             var parentLen = binary.ReadInt16();
 
-            var parents = new List<ManaClass>();
+            var parents = new List<VeinClass>();
             foreach (var _ in ..parentLen)
             {
                 var parentIdx = binary.ReadTypeName(module);
@@ -223,7 +223,7 @@ namespace ishtar.emit
             
             var len = binary.ReadInt32();
 
-            var @class = new ManaClass(className, parents.ToArray(), module)
+            var @class = new VeinClass(className, parents.ToArray(), module)
             {
                 Flags = flags
             };
@@ -241,7 +241,7 @@ namespace ishtar.emit
             return @class;
         }
 
-        public static void DecodeField(BinaryReader binary, ManaClass @class, ModuleReader module)
+        public static void DecodeField(BinaryReader binary, VeinClass @class, ModuleReader module)
         {
             foreach (var _ in ..binary.ReadInt32())
             {
@@ -249,12 +249,12 @@ namespace ishtar.emit
                 var type_name = binary.ReadTypeName(module);
                 var type = module.FindType(type_name, true, false);
                 var flags = (FieldFlags) binary.ReadInt16();
-                var method = new ManaField(@class, name, flags, type);
+                var method = new VeinField(@class, name, flags, type);
                 @class.Fields.Add(method);
             }
         }
 
-        public static ManaMethod DecodeMethod(byte[] arr, ManaClass @class, ModuleReader module)
+        public static VeinMethod DecodeMethod(byte[] arr, VeinClass @class, ModuleReader module)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -266,21 +266,21 @@ namespace ishtar.emit
             var retType = binary.ReadTypeName(module);
             var args = ReadArguments(binary, module);
             var _ = binary.ReadBytes(bodysize);
-            return new ManaMethod(module.GetConstStringByIndex(idx), flags,
+            return new VeinMethod(module.GetConstStringByIndex(idx), flags,
                 module.FindType(retType, true, false),
                 @class, args.ToArray());
         }
 
 
 
-        private static List<ManaArgumentRef> ReadArguments(BinaryReader binary, ModuleReader module)
+        private static List<VeinArgumentRef> ReadArguments(BinaryReader binary, ModuleReader module)
         {
-            var args = new List<ManaArgumentRef>();
+            var args = new List<VeinArgumentRef>();
             foreach (var _ in ..binary.ReadInt32())
             {
                 var nIdx = binary.ReadInt32();
                 var type = binary.ReadTypeName(module);
-                args.Add(new ManaArgumentRef
+                args.Add(new VeinArgumentRef
                 {
                     Name = module.GetConstStringByIndex(nIdx),
                     Type = module.FindType(type, true, false)

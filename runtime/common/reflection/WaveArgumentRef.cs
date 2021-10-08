@@ -2,26 +2,26 @@ namespace vein.runtime
 {
     using System;
 
-    public class ManaArgumentRef
+    public class VeinArgumentRef
     {
-        public ManaClass Type { get; set; }
+        public VeinClass Type { get; set; }
         public string Name { get; set; }
 
 
 
-        public static implicit operator ManaArgumentRef((VeinTypeCode code, string name) data)
+        public static implicit operator VeinArgumentRef((VeinTypeCode code, string name) data)
         {
             var (code, name) = data;
-            return new ManaArgumentRef
+            return new VeinArgumentRef
             {
                 Name = name,
                 Type = code.AsClass()
             };
         }
-        public static implicit operator ManaArgumentRef((string name, VeinTypeCode code) data)
+        public static implicit operator VeinArgumentRef((string name, VeinTypeCode code) data)
         {
             var (name, code) = data;
-            return new ManaArgumentRef
+            return new VeinArgumentRef
             {
                 Name = name,
                 Type = code.AsClass()
