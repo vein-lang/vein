@@ -46,10 +46,10 @@ namespace vein.runtime
 
         private void RegenerateName()
         {
-            #if RELEASE
+#if RELEASE
             if (Regex.IsMatch(this.Name, @"\S+\((.+)?\)"))
                 return;
-            #endif
+#endif
             this.Name = GetFullName(Name, Arguments);
         }
 
