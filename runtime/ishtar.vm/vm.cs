@@ -59,6 +59,8 @@ namespace ishtar
 
         public static unsafe void exec_method(CallFrame invocation)
         {
+            println($"@.frame> {invocation.method.Owner.Name}::{invocation.method.Name}");
+
             var _module = invocation.method.Owner.Owner;
             var mh = invocation.method.Header;
             var args = invocation.args;
