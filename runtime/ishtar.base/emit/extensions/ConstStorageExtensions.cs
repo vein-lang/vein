@@ -41,11 +41,11 @@ namespace ishtar.emit.extensions
             using var mem = new MemoryStream(arr);
             using var bin = new BinaryReader(mem);
             var storage = new ConstStorage();
-            foreach (var i in ..bin.ReadInt32())
+            foreach (var _ in ..bin.ReadInt32())
             {
                 var type_code = (VeinTypeCode)bin.ReadInt32();
-                var fullname = bin.ReadInsomniaString();
-                var value = bin.ReadInsomniaString();
+                var fullname = bin.ReadVeinString();
+                var value = bin.ReadVeinString();
                 storage.Stage(new FieldName(fullname), Convert.ChangeType(value, type_code.ToCLRTypeCode()));
             }
 

@@ -4,6 +4,7 @@ namespace ishtar.emit
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using extensions;
     using global::ishtar;
@@ -15,6 +16,7 @@ namespace ishtar.emit
     internal static class BinaryExtension
     {
         [MethodImpl(MethodImplOptions.NoOptimization)] // what the hell clr
+        public static string ReadVeinString(this BinaryReader reader)
         {
             reader.ValidateMagicFlag();
             var size = reader.ReadInt32();
@@ -63,7 +65,7 @@ namespace ishtar.emit
                 try
                 {
                     var key = reader.ReadInt32();
-                    var value = reader.ReadInsomniaString();
+                    var value = reader.ReadVeinString();
                     module.strings_table.Add(key, value);
                 }
                 catch (Exception e)
@@ -75,25 +77,25 @@ namespace ishtar.emit
             foreach (var _ in ..reader.ReadInt32())
             {
                 var key = reader.ReadInt32();
-                var asmName = reader.ReadInsomniaString();
-                var ns = reader.ReadInsomniaString();
-                var name = reader.ReadInsomniaString();
+                var asmName = reader.ReadVeinString();
+                var ns = reader.ReadVeinString();
+                var name = reader.ReadVeinString();
                 module.types_table.Add(key, new QualityTypeName(asmName, name, ns));
             }
             // read fields table
             foreach (var _ in ..reader.ReadInt32())
             {
                 var key = reader.ReadInt32();
-                var name = reader.ReadInsomniaString();
-                var clazz = reader.ReadInsomniaString();
+                var name = reader.ReadVeinString();
+                var clazz = reader.ReadVeinString();
                 module.fields_table.Add(key, new FieldName(name, clazz));
             }
 
             // read deps refs
             foreach (var _ in ..reader.ReadInt32())
             {
-                var name = reader.ReadInsomniaString();
-                var ver = Version.Parse(reader.ReadInsomniaString());
+                var name = reader.ReadVeinString();
+                var ver = Version.Parse(reader.ReadVeinString());
                 if (module.Deps.Any(x => x.Version.Equals(ver) && x.Name.Equals(name)))
                     continue;
                 var dep = resolver(name, ver);
