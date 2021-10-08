@@ -7,131 +7,127 @@
 		.s 000001:'global::vein/lang'
 		.s 000002:'corlib'
 		.s 000003:'BitConvert'
-		.s 000004:'IZopa'
-		.s 000005:'Zoo'
-		.s 000006:'Guid'
-		.s 000007:'Mathf'
-		.s 000008:'Out'
-		.s 000009:'Range'
-		.s 000010:'StringBuilder'
-		.s 000011:'IEEEConsts'
-		.s 000012:'NetworkStream'
-		.s 000013:'global::vein/lang/network'
-		.s 000014:'TcpListener'
-		.s 000015:'TcpSocket'
-		.s 000016:'BigInt'
-		.s 000017:'global::vein/lang/numeric'
-		.s 000018:'Quaternion'
-		.s 000019:'@_get_os_value'
-		.s 000020:'@_get_os_value()'
-		.s 000021:'@_exit'
-		.s 000022:'@_exit(String,Int32)'
-		.s 000023:'@_switch_flag'
-		.s 000024:'@_switch_flag(String,Boolean)'
-		.s 000025:'GetFrameworkName'
-		.s 000026:'GetFrameworkName()'
-		.s 000027:'Shutdown'
-		.s 000028:'Shutdown(String,Int32)'
-		.s 000029:'SwitchFlag'
-		.s 000030:'SwitchFlag(String,Boolean)'
-		.s 000031:'toString'
-		.s 000032:'toString()'
-		.s 000033:'foobar'
-		.s 000034:'foobar()'
-		.s 000035:'get_Epsilon'
-		.s 000036:'get_Epsilon()'
-		.s 000037:'get_PositiveInfinity'
-		.s 000038:'get_PositiveInfinity()'
-		.s 000039:'get_NegativeInfinity'
-		.s 000040:'get_NegativeInfinity()'
-		.s 000041:'get_NaN'
-		.s 000042:'get_NaN()'
-		.s 000043:'Abs'
-		.s 000044:'Abs(Float)'
-		.s 000045:'@_println'
-		.s 000046:'@_println(String)'
-		.s 000047:'new'
-		.s 000048:'new(UInt32,UInt32)'
-		.s 000049:'getHalfNaN'
-		.s 000050:'getHalfNaN()'
-		.s 000051:'getFloatNaN'
-		.s 000052:'getFloatNaN()'
-		.s 000053:'getDecimalNaN'
-		.s 000054:'getDecimalNaN()'
-		.s 000055:'getDoubleNaN'
-		.s 000056:'getDoubleNaN()'
-		.s 000057:'getHalfInfinity'
-		.s 000058:'getHalfInfinity()'
-		.s 000059:'getFloatInfinity'
-		.s 000060:'getFloatInfinity()'
-		.s 000061:'getDecimalInfinity'
-		.s 000062:'getDecimalInfinity()'
-		.s 000063:'getDoubleInfinity'
-		.s 000064:'getDoubleInfinity()'
-		.s 000065:'getHalfNegativeInfinity'
-		.s 000066:'getHalfNegativeInfinity()'
-		.s 000067:'getFloatNegativeInfinity'
-		.s 000068:'getFloatNegativeInfinity()'
-		.s 000069:'getDecimalNegativeInfinity'
-		.s 000070:'getDecimalNegativeInfinity()'
-		.s 000071:'getDoubleNegativeInfinity'
-		.s 000072:'getDoubleNegativeInfinity()'
-		.s 000073:'create'
-		.s 000074:'create(UInt16)'
-		.s 000075:'IsActive'
-		.s 000076:'IsActive()'
-		.s 000077:'Start'
-		.s 000078:'Start()'
-		.s 000079:'new(UInt16)'
-		.s 000080:'IsBlocked'
-		.s 000081:'IsBlocked()'
-		.s 000082:'IsListed'
-		.s 000083:'IsListed()'
-		.s 000084:'IsConnected'
-		.s 000085:'IsConnected()'
-		.s 000086:'Bind'
-		.s 000087:'Bind()'
-		.s 000088:'Send'
-		.s 000089:'Send(Byte)'
-		.s 000090:'Listen'
-		.s 000091:'Listen(Int32)'
-		.s 000092:'Create'
-		.s 000093:'Create(UInt16)'
-		.s 000094:'IsZero'
-		.s 000095:'IsZero()'
-		.s 000096:'Application.getPlatform()'
-		.s 000097:'ctor()'
-		.s 000098:'type_ctor()'
-		.s 000099:'Array'
-		.s 000100:'<Object>'
-		.s 000101:'<Value>'
-		.s 000102:'msg'
-		.s 000103:'exitCode'
-		.s 000104:'key'
-		.s 000105:'value'
-		.s 000106:'x'
-		.s 000107:'start'
-		.s 000108:'end'
-		.s 000109:'port'
-		.s 000110:'buffer'
-		.s 000111:'cq'
-		.s 000112:'1.0.0.0'
+		.s 000004:'Guid'
+		.s 000005:'Mathf'
+		.s 000006:'Out'
+		.s 000007:'Range'
+		.s 000008:'StringBuilder'
+		.s 000009:'IEEEConsts'
+		.s 000010:'NetworkStream'
+		.s 000011:'global::vein/lang/network'
+		.s 000012:'TcpListener'
+		.s 000013:'TcpSocket'
+		.s 000014:'BigInt'
+		.s 000015:'global::vein/lang/numeric'
+		.s 000016:'Quaternion'
+		.s 000017:'@_get_os_value'
+		.s 000018:'@_get_os_value()'
+		.s 000019:'@_exit'
+		.s 000020:'@_exit(String,Int32)'
+		.s 000021:'@_switch_flag'
+		.s 000022:'@_switch_flag(String,Boolean)'
+		.s 000023:'GetFrameworkName'
+		.s 000024:'GetFrameworkName()'
+		.s 000025:'Shutdown'
+		.s 000026:'Shutdown(String,Int32)'
+		.s 000027:'SwitchFlag'
+		.s 000028:'SwitchFlag(String,Boolean)'
+		.s 000029:'toString'
+		.s 000030:'toString()'
+		.s 000031:'get_Epsilon'
+		.s 000032:'get_Epsilon()'
+		.s 000033:'get_PositiveInfinity'
+		.s 000034:'get_PositiveInfinity()'
+		.s 000035:'get_NegativeInfinity'
+		.s 000036:'get_NegativeInfinity()'
+		.s 000037:'get_NaN'
+		.s 000038:'get_NaN()'
+		.s 000039:'Abs'
+		.s 000040:'Abs(Float)'
+		.s 000041:'@_println'
+		.s 000042:'@_println(String)'
+		.s 000043:'new'
+		.s 000044:'new(UInt32,UInt32)'
+		.s 000045:'getHalfNaN'
+		.s 000046:'getHalfNaN()'
+		.s 000047:'getFloatNaN'
+		.s 000048:'getFloatNaN()'
+		.s 000049:'getDecimalNaN'
+		.s 000050:'getDecimalNaN()'
+		.s 000051:'getDoubleNaN'
+		.s 000052:'getDoubleNaN()'
+		.s 000053:'getHalfInfinity'
+		.s 000054:'getHalfInfinity()'
+		.s 000055:'getFloatInfinity'
+		.s 000056:'getFloatInfinity()'
+		.s 000057:'getDecimalInfinity'
+		.s 000058:'getDecimalInfinity()'
+		.s 000059:'getDoubleInfinity'
+		.s 000060:'getDoubleInfinity()'
+		.s 000061:'getHalfNegativeInfinity'
+		.s 000062:'getHalfNegativeInfinity()'
+		.s 000063:'getFloatNegativeInfinity'
+		.s 000064:'getFloatNegativeInfinity()'
+		.s 000065:'getDecimalNegativeInfinity'
+		.s 000066:'getDecimalNegativeInfinity()'
+		.s 000067:'getDoubleNegativeInfinity'
+		.s 000068:'getDoubleNegativeInfinity()'
+		.s 000069:'create'
+		.s 000070:'create(UInt16)'
+		.s 000071:'IsActive'
+		.s 000072:'IsActive()'
+		.s 000073:'Start'
+		.s 000074:'Start()'
+		.s 000075:'new(UInt16)'
+		.s 000076:'IsBlocked'
+		.s 000077:'IsBlocked()'
+		.s 000078:'IsListed'
+		.s 000079:'IsListed()'
+		.s 000080:'IsConnected'
+		.s 000081:'IsConnected()'
+		.s 000082:'Bind'
+		.s 000083:'Bind()'
+		.s 000084:'Send'
+		.s 000085:'Send(Byte)'
+		.s 000086:'Listen'
+		.s 000087:'Listen(Int32)'
+		.s 000088:'Create'
+		.s 000089:'Create(UInt16)'
+		.s 000090:'IsZero'
+		.s 000091:'IsZero()'
+		.s 000092:'Application.getPlatform()'
+		.s 000093:'ctor()'
+		.s 000094:'type_ctor()'
+		.s 000095:'Array'
+		.s 000096:'<Object>'
+		.s 000097:'<Value>'
+		.s 000098:'msg'
+		.s 000099:'exitCode'
+		.s 000100:'key'
+		.s 000101:'value'
+		.s 000102:'x'
+		.s 000103:'start'
+		.s 000104:'end'
+		.s 000105:'port'
+		.s 000106:'buffer'
+		.s 000107:'cq'
+		.s 000108:'1.0.0.0'
 		.t 000000:'corlib%global::vein/lang/Application'
 		.t 000001:'corlib%global::vein/lang/Exception'
-		.t 000002:'corlib%global::vein/lang/Guid'
-		.t 000003:'corlib%global::vein/lang/IEEEConsts'
-		.t 000004:'corlib%global::vein/lang/Half'
-		.t 000005:'corlib%global::vein/lang/Range'
-		.t 000006:'corlib%global::vein/lang/String'
-		.t 000007:'corlib%global::vein/lang/network/TcpListener'
-		.t 000008:'corlib%global::vein/lang/network/TcpSocket'
-		.t 000009:'corlib%global::vein/lang/numeric/Quaternion'
-		.t 000010:'corlib%global::vein/lang/Object'
-		.t 000011:'corlib%global::vein/lang/Int32'
-		.t 000012:'corlib%global::vein/lang/Void'
-		.t 000013:'corlib%global::vein/lang/Boolean'
-		.t 000014:'corlib%global::vein/lang/Array'
-		.t 000015:'corlib%global::vein/lang/ValueType'
+		.t 000002:'corlib%global::vein/lang/ValueType'
+		.t 000003:'corlib%global::vein/lang/Guid'
+		.t 000004:'corlib%global::vein/lang/IEEEConsts'
+		.t 000005:'corlib%global::vein/lang/Half'
+		.t 000006:'corlib%global::vein/lang/Range'
+		.t 000007:'corlib%global::vein/lang/String'
+		.t 000008:'corlib%global::vein/lang/network/TcpListener'
+		.t 000009:'corlib%global::vein/lang/network/TcpSocket'
+		.t 000010:'corlib%global::vein/lang/numeric/Quaternion'
+		.t 000011:'corlib%global::vein/lang/Object'
+		.t 000012:'corlib%global::vein/lang/Int32'
+		.t 000013:'corlib%global::vein/lang/Void'
+		.t 000014:'corlib%global::vein/lang/Boolean'
+		.t 000015:'corlib%global::vein/lang/Array'
 		.t 000016:'corlib%global::vein/lang/Int64'
 		.t 000017:'corlib%global::vein/lang/BitConvert'
 		.t 000018:'corlib%global::vein/lang/Byte'
@@ -139,16 +135,14 @@
 		.t 000020:'corlib%global::vein/lang/Decimal'
 		.t 000021:'corlib%global::vein/lang/Double'
 		.t 000022:'corlib%global::vein/lang/Float'
-		.t 000023:'corlib%global::vein/lang/IZopa'
-		.t 000024:'corlib%global::vein/lang/Zoo'
-		.t 000025:'corlib%global::vein/lang/Int16'
-		.t 000026:'corlib%global::vein/lang/Mathf'
-		.t 000027:'corlib%global::vein/lang/Out'
-		.t 000028:'corlib%global::vein/lang/UInt32'
-		.t 000029:'corlib%global::vein/lang/StringBuilder'
-		.t 000030:'corlib%global::vein/lang/UInt16'
-		.t 000031:'corlib%global::vein/lang/network/NetworkStream'
-		.t 000032:'corlib%global::vein/lang/numeric/BigInt'
+		.t 000023:'corlib%global::vein/lang/Int16'
+		.t 000024:'corlib%global::vein/lang/Mathf'
+		.t 000025:'corlib%global::vein/lang/Out'
+		.t 000026:'corlib%global::vein/lang/UInt32'
+		.t 000027:'corlib%global::vein/lang/StringBuilder'
+		.t 000028:'corlib%global::vein/lang/UInt16'
+		.t 000029:'corlib%global::vein/lang/network/NetworkStream'
+		.t 000030:'corlib%global::vein/lang/numeric/BigInt'
 		.f 000000:'Array._value'
 		.f 000001:'Array._block'
 		.f 000002:'Array.Length'
@@ -293,7 +287,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000060
+			/* ::0006 */ .ldc.str .0x0000005C
 			/* ::0008 */ .ret
 			
 		}
@@ -324,17 +318,16 @@
 			/* ::0014 */ .ldarg.s 0x00000002.int
 			/* ::0025 */ .call Application::@_switch_flag(key: String,value: Boolean)
 			/* ::0027 */ .ret
-			
 		}
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -357,19 +350,19 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000063
+			/* ::0006 */ .ldc.str .0x0000005F
 			/* ::0008 */ .ret
 			
 		}
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -381,14 +374,14 @@
 	.namespace 'global::vein/lang'
 	.class 'BitConvert' public extends 'Object'
 	{
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -405,14 +398,14 @@
 		.field 'False' as 'Boolean' literal public
 		.field 'TrueString' as 'String' literal public
 		.field 'FalseString' as 'String' literal public
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -425,14 +418,14 @@
 	.struct 'Byte' public special extends 'ValueType'
 	{
 		.field '_value' as 'ValueType' 
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -445,14 +438,14 @@
 	.struct 'Char' public special extends 'ValueType'
 	{
 		.field '_value' as 'ValueType' 
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -465,14 +458,14 @@
 	.struct 'Decimal' public special extends 'ValueType'
 	{
 		.field '_value' as 'ValueType' 
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -485,14 +478,14 @@
 	.struct 'Double' public special extends 'ValueType'
 	{
 		.field '_value' as 'ValueType' 
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -505,7 +498,7 @@
 	.class 'Exception' public special extends 'Object'
 	{
 		.field 'message' as 'String' public
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 12
 			.maxstack 0x00000040
@@ -517,7 +510,7 @@
 			
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -530,54 +523,14 @@
 	.struct 'Float' public special extends 'ValueType'
 	{
 		.field '_value' as 'ValueType' 
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
-		{
-			.size 0
-			.maxstack 0x00000040
-			.locals 0x00000000
-		}
-		
-	}
-	
-	.namespace 'global::vein/lang'
-	.interface 'IZopa' public abstract extends 'Object'
-	{
-		.method 'foobar' () abstract -> Void
-		
-		.method 'ctor' () public -> Void
-		{
-			.size 0
-			.maxstack 0x00000040
-			.locals 0x00000000
-		}
-		
-		.method 'type_ctor' () public static -> Void
-		{
-			.size 0
-			.maxstack 0x00000040
-			.locals 0x00000000
-		}
-		
-	}
-	
-	.namespace 'global::vein/lang'
-	.class 'Zoo' public extends 'Object', 'IZopa'
-	{
-		.method 'ctor' () public -> Void
-		{
-			.size 0
-			.maxstack 0x00000040
-			.locals 0x00000000
-		}
-		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -593,23 +546,24 @@
 		.field '_a' as 'Int32' 
 		.field '_b' as 'Int16' 
 		.field '_c' as 'Int16' 
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
-			.size 36
+			.size 47
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0002 */ .ldnull
-			/* ::0012 */ .stf _a corlib%global::vein/lang/Int32, Public, Special
-			/* ::0014 */ .ldnull
-			/* ::0024 */ .stf _b corlib%global::vein/lang/Int16, Public, Special
-			/* ::0026 */ .ldnull
-			/* ::0036 */ .stf _c corlib%global::vein/lang/Int16, Public, Special
+			/* ::0011 */ .call ValueType::ctor()
+			/* ::0013 */ .ldnull
+			/* ::0023 */ .stf _a corlib%global::vein/lang/Int32, Public, Special
+			/* ::0025 */ .ldnull
+			/* ::0035 */ .stf _b corlib%global::vein/lang/Int16, Public, Special
+			/* ::0037 */ .ldnull
+			/* ::0047 */ .stf _c corlib%global::vein/lang/Int16, Public, Special
 			
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 27
 			.maxstack 0x00000040
@@ -680,14 +634,14 @@
 			
 		}
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 48
 			.maxstack 0x00000040
@@ -713,14 +667,14 @@
 		.field '_value' as 'ValueType' 
 		.field 'MaxValue' as 'Int16' literal public
 		.field 'MinValue' as 'Int16' literal public
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -735,14 +689,14 @@
 		.field '_value' as 'ValueType' 
 		.field 'MaxValue' as 'Int32' literal public
 		.field 'MinValue' as 'Int32' literal public
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -757,14 +711,14 @@
 		.field '_value' as 'ValueType' 
 		.field 'MaxValue' as 'Int64' literal public
 		.field 'MinValue' as 'Int64' literal public
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -792,14 +746,14 @@
 			
 		}
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -818,19 +772,19 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000064
+			/* ::0006 */ .ldc.str .0x00000060
 			/* ::0008 */ .ret
 			
 		}
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -844,14 +798,14 @@
 	{
 		.method extern @_println (value: String) public static -> Void;
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -880,21 +834,22 @@
 			
 		}
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
-			.size 24
+			.size 35
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0002 */ .ldnull
-			/* ::0012 */ .stf Start corlib%global::vein/lang/UInt32, Public, Special
-			/* ::0014 */ .ldnull
-			/* ::0024 */ .stf End corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0011 */ .call ValueType::ctor()
+			/* ::0013 */ .ldnull
+			/* ::0023 */ .stf Start corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0025 */ .ldnull
+			/* ::0035 */ .stf End corlib%global::vein/lang/UInt32, Public, Special
 			
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -908,7 +863,7 @@
 	{
 		.field '_value' as 'ValueType' 
 		.field 'Length' as 'Int32' public
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 12
 			.maxstack 0x00000040
@@ -920,7 +875,7 @@
 			
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -932,14 +887,14 @@
 	.namespace 'global::vein/lang'
 	.class 'StringBuilder' public extends 'Object'
 	{
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -954,14 +909,14 @@
 		.field '_value' as 'ValueType' 
 		.field 'MaxValue' as 'UInt16' literal public
 		.field 'MinValue' as 'UInt16' literal public
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -976,14 +931,14 @@
 		.field '_value' as 'ValueType' 
 		.field 'MaxValue' as 'UInt32' literal public
 		.field 'MinValue' as 'UInt32' literal public
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -1002,19 +957,19 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000065
+			/* ::0006 */ .ldc.str .0x00000061
 			/* ::0008 */ .ret
 			
 		}
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -1026,14 +981,14 @@
 	.namespace 'global::vein/lang'
 	.struct 'Void' public special extends 'ValueType'
 	{
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -1069,14 +1024,14 @@
 		
 		.method extern getDoubleNegativeInfinity () public static -> Double;
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -1088,14 +1043,14 @@
 	.namespace 'global::vein/lang/network'
 	.class 'NetworkStream' public extends 'Object'
 	{
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -1158,7 +1113,7 @@
 			
 		}
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 60
 			.maxstack 0x00000040
@@ -1178,7 +1133,7 @@
 			
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -1272,7 +1227,7 @@
 			.locals 0x00000000
 		}
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
 			.size 60
 			.maxstack 0x00000040
@@ -1292,7 +1247,7 @@
 			
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -1304,14 +1259,18 @@
 	.namespace 'global::vein/lang/numeric'
 	.class 'BigInt' public extends 'Object', 'ValueType'
 	{
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
-			.size 0
+			.size 11
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0011 */ .call ValueType::ctor()
+			
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
@@ -1347,25 +1306,26 @@
 			
 		}
 		
-		.method 'ctor' () public -> Void
+		.method special 'ctor' () public special -> Void
 		{
-			.size 48
+			.size 59
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0002 */ .ldnull
-			/* ::0012 */ .stf X corlib%global::vein/lang/Float, Public, Special
-			/* ::0014 */ .ldnull
-			/* ::0024 */ .stf Y corlib%global::vein/lang/Float, Public, Special
-			/* ::0026 */ .ldnull
-			/* ::0036 */ .stf Z corlib%global::vein/lang/Float, Public, Special
-			/* ::0038 */ .ldnull
-			/* ::0048 */ .stf W corlib%global::vein/lang/Float, Public, Special
+			/* ::0011 */ .call ValueType::ctor()
+			/* ::0013 */ .ldnull
+			/* ::0023 */ .stf X corlib%global::vein/lang/Float, Public, Special
+			/* ::0025 */ .ldnull
+			/* ::0035 */ .stf Y corlib%global::vein/lang/Float, Public, Special
+			/* ::0037 */ .ldnull
+			/* ::0047 */ .stf Z corlib%global::vein/lang/Float, Public, Special
+			/* ::0049 */ .ldnull
+			/* ::0059 */ .stf W corlib%global::vein/lang/Float, Public, Special
 			
 		}
 		
-		.method 'type_ctor' () public static -> Void
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 0
 			.maxstack 0x00000040
