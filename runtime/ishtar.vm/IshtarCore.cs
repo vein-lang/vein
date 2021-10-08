@@ -1,5 +1,6 @@
 namespace vein.runtime
 {
+    using System;
     using global::ishtar;
 
     public class IshtarCore
@@ -35,6 +36,9 @@ namespace vein.runtime
 
         public static void INIT_ADDITIONAL_MAPPING()
         {
+            if (VeinCore.ValueTypeClass is not RuntimeIshtarClass)
+                throw new InvalidSystemMappingException();
+
             (VeinCore.ValueTypeClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special | FieldFlags.Internal,
                     VeinCore.ValueTypeClass);
@@ -55,5 +59,12 @@ namespace vein.runtime
                 !.DefineField("!!rank", FieldFlags.Special,
                     VeinCore.Int64Class);
         }
+    }
+
+    public class InvalidSystemMappingException : Exception
+    {
+        public InvalidSystemMappingException() : base($"Incorrect initialization step.\n" +
+                    $"Please report the problem into 'https://github.com/vein-lang/vein/issues'. ")
+        { }
     }
 }
