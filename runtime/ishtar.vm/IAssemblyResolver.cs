@@ -4,6 +4,7 @@ namespace vein.runtime
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using extensions;
     using fs;
     using global::ishtar;
     using vein.runtime;
@@ -77,19 +78,21 @@ namespace vein.runtime
 
         private FileInfo FindInPaths(string name)
         {
+            var files = search_paths.Where(x => x.Exists)
+                .SelectMany(x => x.EnumerateFiles("*.wll"))
+                .Where(x =>
+                    x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase))
+                .ToArray();
             try
             {
-                var files = search_paths.Where(x => x.Exists)
-                    .SelectMany(x => x.EnumerateFiles("*.wll"))
-                    .Where(x =>
-                        x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase))
-                    .ToArray();
-
                 return files.Single(x => x.Name.Equals($"{name}.wll", StringComparison.InvariantCultureIgnoreCase));
             }
             catch (InvalidOperationException e)
             {
-                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Assembly '{name}' cannot be loaded. '{e.Message}'");
+                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Assembly '{name}' cannot be loaded.\n" +
+                    $"{e.Message}\n" +
+                    $"\t{search_paths.Select(x => $"Path '{x}', Exist: {x.Exists}").Join("\n\t")}\n" +
+                    $"\tfiles checked: {files.Select(x => $"{x}").Join("\n\t\t")}");
                 VM.ValidateLastError();
                 return null;
             }
