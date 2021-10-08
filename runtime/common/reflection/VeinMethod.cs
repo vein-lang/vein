@@ -39,19 +39,13 @@ namespace vein.runtime
         protected VeinMethodBase(string name, MethodFlags flags, params VeinArgumentRef[] args)
         {
             this.Arguments.AddRange(args);
-            this.Name = name;
+            this.Name = this.RegenerateName(name);
             this.Flags = flags;
-            this.RegenerateName();
         }
 
-        private void RegenerateName()
-        {
-            #if RELEASE
-            if (Regex.IsMatch(this.Name, @"\S+\((.+)?\)"))
-                return;
-            #endif
-            this.Name = GetFullName(Name, Arguments);
-        }
+        private string RegenerateName(string n) =>
+            Regex.IsMatch(n, @"\S+\((.+)?\)", RegexOptions.Compiled)
+                ? n : GetFullName(n, Arguments);
 
         public static string GetFullName(string name, List<VeinArgumentRef> args)
             => $"{name}({args.Select(x => x.Type?.Name).Join(",")})";

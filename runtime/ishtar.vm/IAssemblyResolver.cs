@@ -15,7 +15,7 @@ namespace vein.runtime
     public class AssemblyResolver : IAssemblyResolver
     {
         public AppVault Vault { get; }
-        private readonly List<DirectoryInfo> search_paths = new ();
+        private readonly HashSet<DirectoryInfo> search_paths = new ();
         private AssemblyBundle assemblyBundle;
         public event ModuleResolvedEvent Resolved;
         public AssemblyResolver(AppVault vault) => Vault = vault;
