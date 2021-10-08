@@ -87,9 +87,9 @@ namespace vein.runtime
 
                 return files.Single(x => x.Name.Equals($"{name}.wll", StringComparison.InvariantCultureIgnoreCase));
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
-                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Assembly '{name}' cannot be loaded.");
+                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Assembly '{name}' cannot be loaded. '{e.Message}'");
                 VM.ValidateLastError();
                 return null;
             }
