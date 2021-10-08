@@ -14,7 +14,7 @@ namespace ishtar.emit
 
     internal static class BinaryExtension
     {
-        public static string ReadInsomniaString(this BinaryReader reader)
+        [MethodImpl(MethodImplOptions.NoOptimization)] // what the hell clr
         {
             reader.ValidateMagicFlag();
             var size = reader.ReadInt32();
