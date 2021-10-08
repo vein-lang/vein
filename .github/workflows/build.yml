@@ -137,6 +137,12 @@ jobs:
   coverage:
     runs-on: windows-latest
     needs: [build_win_arm64, build_linux, build_osx_aot, build_linux_arm64]
+    env:
+      COMPlus_StressLog: 1
+      COMPlus_LogLevel: 6
+      COMPlus_LogFacility: 0x00080001
+      COMPlus_StressLogSize: 2000000
+      COMPlus_TotalStressLogSize: 40000000
     steps:
     - name: Export Env
       run: $env:CODACY_PROJECT_TOKEN="${{ secrets.CODACY_API_KEY }}"
