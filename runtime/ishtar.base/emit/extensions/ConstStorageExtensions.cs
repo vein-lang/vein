@@ -35,7 +35,6 @@ namespace ishtar.emit.extensions
 
             return mem.ToArray(); // (int)Convert.ChangeType("12", typeof(int))
         }
-
         public static ConstStorage ToConstStorage(this byte[] arr)
         {
             using var mem = new MemoryStream(arr);

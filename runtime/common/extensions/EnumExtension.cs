@@ -10,10 +10,8 @@ namespace vein.extensions
         {
             if (!typeof(TEnum).IsEnum)
                 throw new ArgumentException();
-
-            var buff = (Enum)(ValueType)flags;
-
-            return Enum.GetValues(typeof(TEnum)).Cast<Enum>().Where(x => buff.HasFlag(x)).Cast<TEnum>();
+            
+            return Enum.GetValues(typeof(TEnum)).Cast<TEnum>();
         }
 
         public static IEnumerable<int> GetEnumerable(this Range i) =>
