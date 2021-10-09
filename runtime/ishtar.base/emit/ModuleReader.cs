@@ -220,7 +220,7 @@ namespace ishtar.emit
                 var parentIdx = binary.ReadTypeName(module);
                 parents.Add(module.FindType(parentIdx, true, false));
             }
-            
+
             var len = binary.ReadInt32();
 
             var @class = new VeinClass(className, parents.ToArray(), module)

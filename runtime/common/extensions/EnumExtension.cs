@@ -10,7 +10,7 @@ namespace vein.extensions
         {
             if (!typeof(TEnum).IsEnum)
                 throw new ArgumentException();
-            
+
             return Enum.GetValues(typeof(TEnum)).Cast<TEnum>();
         }
 
