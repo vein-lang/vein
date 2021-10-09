@@ -13,18 +13,18 @@
 
 <!-- classic badges -->
 <p align="center">
-  <a href="https://www.codacy.com/gh/0xF6/mana_lang/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=0xF6/mana_lang&amp;utm_campaign=Badge_Grade">
+  <a href="https://www.codacy.com/gh/vein-lang/vein/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=vein-lang/vein&amp;utm_campaign=Badge_Grade">
     <img src="https://app.codacy.com/project/badge/Grade/9dc3cb6f384747c39d0b83241e725de2">
   </a>
-  <a href="https://www.codacy.com/gh/0xF6/mana_lang/dashboard?utm_source=github.com&utm_medium=referral&utm_content=0xF6/mana_lang&utm_campaign=Badge_Coverage">
+  <a href="https://www.codacy.com/gh/vein-lang/vein/dashboard?utm_source=github.com&utm_medium=referral&utm_content=vein-lang/vein&utm_campaign=Badge_Coverage">
     <img src="https://app.codacy.com/project/badge/Coverage/9dc3cb6f384747c39d0b83241e725de2">
   </a>
   <a href="#">
     <img src="https://img.shields.io/:license-MIT-blue.svg">
   </a>
-<a href="https://app.fossa.com/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2F0xF6%2Fwave_lang.svg?type=shield"/></a>
-  <a href="https://github.com/0xF6/wave_lang/releases">
-    <img src="https://img.shields.io/github/release/0xF6/mana_lang.svg?logo=github&style=flat">
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fvein-lang%2Fvein?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fvein-lang%2Fvein.svg?type=shield"/></a>
+  <a href="https://github.com/vein-lang/vein/releases">
+    <img src="https://img.shields.io/github/release/vein-lang/vein.svg?logo=github&style=flat">
   </a>
 </p>
 <!-- popup badges -->
@@ -272,7 +272,7 @@ A:
 
 <p align="center">
   <a href="https://www.jetbrains.com/?from=vein_lang">
-    <img height="128" wight="128" src="https://raw.githubusercontent.com/0xF6/mana_lang/master/.github/images/jetbrains-variant-3.png">
+    <img height="128" wight="128" src="https://raw.githubusercontent.com/vein-lang/vein/master/.github/images/jetbrains-variant-3.png">
   </a>
 </p>
 
