@@ -4,6 +4,9 @@ namespace vein.syntax
 
     public class WhileStatementSyntax : StatementSyntax
     {
+        public WhileStatementSyntax(ExpressionSyntax e, StatementSyntax s)
+            => (Expression, Statement) = (e, s);
+
         public override SyntaxType Kind => SyntaxType.WhileStatement;
 
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression, Statement);

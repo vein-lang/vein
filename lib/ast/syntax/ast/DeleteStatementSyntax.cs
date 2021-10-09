@@ -4,6 +4,7 @@ namespace vein.syntax
 
     public class DeleteStatementSyntax : StatementSyntax
     {
+        public DeleteStatementSyntax(ExpressionSyntax e) => Expression = e;
         public override SyntaxType Kind => SyntaxType.DeleteStatement;
 
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);

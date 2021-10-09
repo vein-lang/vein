@@ -5,6 +5,7 @@ namespace vein.syntax
 
     public class ReturnStatementSyntax : StatementSyntax, IPositionAware<ReturnStatementSyntax>
     {
+        public ReturnStatementSyntax(ExpressionSyntax e) => Expression = e;
         public override SyntaxType Kind => SyntaxType.ReturnStatement;
 
         public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);

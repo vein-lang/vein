@@ -52,37 +52,33 @@ namespace vein.syntax
             .Or(QualifiedExpression.Then(x => Parse.Char(';').Token().Return(new QualifiedExpressionStatement(x))).Positioned())
             .Or(IfStatement)
             .Or(WhileStatement)
-            .Or(ReturnStatement)
+            .Or(ReturnStatement.Positioned())
             .Or(foreach_statement.Positioned())
             .Or(FailStatement)
             .Or(DeleteStatement);
 
 
-
+        /// <example>
+        /// return exp;
+        /// </example>
         protected internal virtual Parser<ReturnStatementSyntax> ReturnStatement =>
-            (from expression in KeywordExpressionStatement("return")
-             select new ReturnStatementSyntax
-             {
-                 Expression = expression.GetOrDefault()
-             }).Positioned();
+            from expression in KeywordExpressionStatement("return")
+             select new ReturnStatementSyntax(expression.GetOrDefault());
+
         /// <example>
         /// fail new Exception(); fail;
         /// </example>
         protected internal virtual Parser<FailStatementSyntax> FailStatement =>
             from expression in KeywordExpressionStatement("fail")
-            select new FailStatementSyntax
-            {
-                Expression = expression.GetOrDefault()
-            };
+            select new FailStatementSyntax(expression.GetOrDefault());
+
         /// <example>
         /// delete variable;
         /// </example>
         protected internal virtual Parser<DeleteStatementSyntax> DeleteStatement =>
             from expression in KeywordExpressionStatement("delete")
-            select new DeleteStatementSyntax
-            {
-                Expression = expression.GetOrDefault()
-            };
+            select new DeleteStatementSyntax(expression.GetOrDefault());
+
         /// <example>
         /// while (foo) {}
         /// </example>
@@ -90,22 +86,18 @@ namespace vein.syntax
             from whileKeyword in Parse.IgnoreCase("while").Token()
             from expression in WrappedExpression('(', ')', QualifiedExpression)
             from loopBody in Statement
-            select new WhileStatementSyntax
-            {
-                Expression = expression,
-                Statement = loopBody,
-            };
+            select new WhileStatementSyntax(expression, loopBody);
 
+        /// <example>
+        /// if(exp) {}
+        /// if(exp) {} else {}
+        /// if(exp) {} else if(exp) {}
+        /// </example>
         protected internal virtual Parser<IfStatementSyntax> IfStatement =>
             from ifKeyword in Keyword("if").Token()
             from expression in WrappedExpression('(', ')', QualifiedExpression)
             from thenBranch in Statement
             from elseBranch in Keyword("else").Token(this).Then(_ => Statement).Optional()
-            select new IfStatementSyntax
-            {
-                Expression = expression,
-                ThenStatement = thenBranch,
-                ElseStatement = elseBranch.GetOrDefault(),
-            };
+            select new IfStatementSyntax(expression, thenBranch, elseBranch.GetOrDefault());
     }
 }
