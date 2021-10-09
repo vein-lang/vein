@@ -37,7 +37,7 @@ namespace ishtar.emit
             var idx = classBuilder.moduleBuilder.InternString(Name);
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
-            if (Flags.HasFlag(Extern))
+            if (IsExtern || IsAbstract)
             {
                 binary.Write(idx); // $method name
                 binary.Write((short)Flags); // $flags
