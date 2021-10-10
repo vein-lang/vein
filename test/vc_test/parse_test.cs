@@ -246,6 +246,19 @@ namespace wc_test
         [Test]
         public void FieldTest()
             => Mana.FieldDeclaration.ParseMana("public const MaxValue: Int16 = 32767;");
+        [Test]
+        public void PropertyTest()
+        {
+            var result = VeinAst.PropertyDeclaration.ParseVein("public MaxValue: Int16 { get; set; }");
+
+            Assert.AreEqual("MaxValue", result.Identifier.ToString());
+            Assert.AreEqual("Int16", result.Type.Identifier.ToString());
+            Assert.True(result.Modifiers.Any(x => x.ModificatorKind == ModificatorKind.Public));
+            Assert.True(result.Getter.IsGetter);
+            Assert.True(result.Setter.IsSetter);
+            Assert.True(result.Getter.IsEmpty);
+            Assert.True(result.Setter.IsEmpty);
+        }
 
         [Test]
         public void FieldWithAnnotationTest()

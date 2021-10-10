@@ -9,8 +9,10 @@ namespace vein.syntax
     {
         protected internal virtual Parser<MemberDeclarationSyntax> ClassMemberDeclaration =>
             from member in
-                CtorDeclaration.Or(MethodOrPropertyDeclaration).Token()
-                    .OrPreview(FieldDeclaration.Token())
+                FieldDeclaration
+                    .Or(MethodDeclaration).Token()
+                    .Or(PropertyDeclaration).Token()
+                    .Or(CtorDeclaration).Token()
                     .Commented(this)
             select member.Value
                 .WithLeadingComments(member.LeadingComments)
@@ -30,7 +32,7 @@ namespace vein.syntax
         protected internal virtual Parser<PropertyDeclarationSyntax> PropertyDeclaration =>
             from heading in MemberDeclarationHeading
             from typeAndName in NameAndType
-            from accessors in PropertyAccessors
+            from accessors in PropertyBody
             select new PropertyDeclarationSyntax(heading)
             {
                 Type = typeAndName.Type,
@@ -67,18 +69,17 @@ namespace vein.syntax
                 TrailingComments = body.TrailingComments.ToList(),
             };
         /// example: { get; set; }
-        protected internal virtual Parser<PropertyDeclarationSyntax> PropertyAccessors =>
+        protected internal virtual Parser<PropertyDeclarationSyntax> PropertyBody =>
             from openBrace in Parse.Char('{').Token()
             from accessors in PropertyAccessor.Many()
             from closeBrace in Parse.Char('}').Token()
             select new PropertyDeclarationSyntax(accessors);
 
         /// method or property declaration starting with the type and name
-        protected internal virtual Parser<MemberDeclarationSyntax> MethodOrPropertyDeclaration =>
+        protected internal virtual Parser<MemberDeclarationSyntax> MethodDeclaration =>
             from dec in MemberDeclarationHeading
             from name in IdentifierExpression
             from member in MethodParametersAndBody.Select(c => c as MemberDeclarationSyntax)
-                .XOr(PropertyAccessors)
             select member.WithName(name).WithProperties(dec);
 
         protected internal virtual Parser<MemberDeclarationSyntax> CtorDeclaration =>
