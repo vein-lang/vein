@@ -75,7 +75,7 @@ namespace vein.runtime
         public override string ToString() => _fullName;
 
 
-        
+
 
         internal T TryGet<T>(Func<QualityTypeName, T> t) where T : class
         {
@@ -88,7 +88,7 @@ namespace vein.runtime
                 return null;
             }
         }
-        
+
         public static bool operator ==(QualityTypeName q1, QualityTypeName q2)
         {
             if (q1 is null or { _fullName: null }) return false;
