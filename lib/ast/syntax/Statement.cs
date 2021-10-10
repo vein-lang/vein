@@ -63,7 +63,7 @@ namespace vein.syntax
         /// </example>
         protected internal virtual Parser<ReturnStatementSyntax> ReturnStatement =>
             from expression in KeywordExpressionStatement("return")
-             select new ReturnStatementSyntax(expression.GetOrDefault());
+            select new ReturnStatementSyntax(expression.GetOrDefault());
 
         /// <example>
         /// fail new Exception(); fail;
