@@ -125,7 +125,7 @@ namespace vein.lsp
             try
             {
                 var f = File.ReadAllText(doc.TextDocument.Uri.AbsolutePath);
-                var result = new ManaSyntax().CompilationUnit.ParseMana(f);
+                var result = new VeinSyntax().CompilationUnit.ParseVein(f);
                 foreach (var member in result.Members)
                 {
                     if (member is ClassDeclarationSyntax c)
@@ -242,7 +242,7 @@ namespace vein.lsp
             try
             {
                 var f = File.ReadAllText(documentSymbolParams.TextDocument.Uri.AbsolutePath);
-                var result = new ManaSyntax().CompilationUnit.ParseMana(f);
+                var result = new VeinSyntax().CompilationUnit.ParseVein(f);
 
                 foreach (var member in result.Members)
                 {

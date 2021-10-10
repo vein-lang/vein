@@ -8,11 +8,11 @@ namespace wc_test
 
     public class array_test
     {
-        public static ManaSyntax Syntax => new();
+        public static VeinSyntax Syntax => new();
 
         [Test]
         public void FirstArrayTest()
-            => Syntax.ClassMemberDeclaration.ParseMana($"public x: arr[];");
+            => Syntax.ClassMemberDeclaration.ParseVein($"public x: arr[];");
 
         [Test]
         public void AccessArrayTest()
@@ -20,7 +20,7 @@ namespace wc_test
             Assert.Ignore("TODO");
             var result = Syntax
                 .Statement
-                .ParseMana($"{{x.x.x[1, 2, 3, \"\", variable, 8 * 8]}}");
+                .ParseVein($"{{x.x.x[1, 2, 3, \"\", variable, 8 * 8]}}");
 
             Assert.False(result.IsBrokenToken);
         }
@@ -28,7 +28,7 @@ namespace wc_test
         [Test]
         public void ArrayCompilationTest()
         {
-            var result = Syntax.new_expression.ParseMana("new Foo[5]")
+            var result = Syntax.new_expression.ParseVein("new Foo[5]")
                 .As<NewExpressionSyntax>();
             Assert.True(result.IsArray);
             var arr = result.CtorArgs.As<ArrayInitializerExpression>().Sizes.ToArray();
@@ -40,7 +40,7 @@ namespace wc_test
         [Test]
         public void ArrayCompilationTest2()
         {
-            var result = Syntax.new_expression.ParseMana("new Foo[5] { 1, 2, 3, 4, 5 }")
+            var result = Syntax.new_expression.ParseVein("new Foo[5] { 1, 2, 3, 4, 5 }")
                 .As<NewExpressionSyntax>();
 
             Assert.True(result.IsArray);

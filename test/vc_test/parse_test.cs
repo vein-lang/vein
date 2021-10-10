@@ -10,19 +10,19 @@ namespace wc_test
 
     public class parse_test
     {
-        public static ManaSyntax Mana => new();
+        public static VeinSyntax VeinAst => new();
 
         [Test]
         public void CommentParseTest()
         {
-            var a = new ManaSyntax();
-            Assert.AreEqual(" bla ", a.CommentParser.AnyComment.ParseMana("/* bla */"));
-            Assert.AreEqual(" bla", a.CommentParser.AnyComment.ParseMana("// bla"));
+            var a = new VeinSyntax();
+            Assert.AreEqual(" bla ", a.CommentParser.AnyComment.ParseVein("/* bla */"));
+            Assert.AreEqual(" bla", a.CommentParser.AnyComment.ParseVein("// bla"));
         }
         [Test]
         public void VariableStatementTest()
         {
-            var result = Mana.Block.End().ParseMana(@"{
+            var result = VeinAst.Block.End().ParseVein(@"{
     auto f = 12;
 
     return 1;
@@ -36,13 +36,13 @@ namespace wc_test
         [Test]
         public void SingleVariableTest()
         {
-            var result = Mana.VariableDeclaration.End().ParseMana($"auto f: Int32 = 12;");
+            var result = VeinAst.VariableDeclaration.End().ParseVein($"auto f: Int32 = 12;");
         }
 
         //        [Test]
         //        public void VariableInFunctionTest()
         //        {
-        //            var result = Mana.MethodDeclaration.End().ParseMana(@"public Foo(): Int32 {
+        //            var result = VeinAst.MethodDeclaration.End().ParseVein(@"public Foo(): Int32 {
         //    auto f = 12;
 
         //    return f;
@@ -57,10 +57,10 @@ namespace wc_test
         [Test]
         public void IdentifierParseTest()
         {
-            var a = new ManaSyntax();
-            Assert.AreEqual("id", a.Identifier.ParseMana("id"));
-            Assert.Throws<ManaParseException>(() => a.Identifier.ParseMana("4"));
-            Assert.Throws<ManaParseException>(() => a.Identifier.ParseMana("public"));
+            var a = new VeinSyntax();
+            Assert.AreEqual("id", a.Identifier.ParseVein("id"));
+            Assert.Throws<VeinParseException>(() => a.Identifier.ParseVein("4"));
+            Assert.Throws<VeinParseException>(() => a.Identifier.ParseVein("public"));
         }
 
         [Theory]
@@ -71,7 +71,7 @@ namespace wc_test
         [TestCase("static c: int", "c", "int", 1, "static")]
         public void ParameterDeclarationParseTest(string parseStr, string name, string type, int lenMod, string mod)
         {
-            var result = new ManaSyntax().ParameterDeclaration.ParseMana(parseStr);
+            var result = new VeinSyntax().ParameterDeclaration.ParseVein(parseStr);
 
             Assert.AreEqual(name, result.Identifier.ToString());
             Assert.AreEqual(type, result.Type.Identifier.ToString());
@@ -89,14 +89,14 @@ namespace wc_test
         [TestCase("43534")]
         [TestCase("):s")]
         public void ParameterDeclarationParseTestFail(string parseStr) =>
-            Assert.Throws<ManaParseException>(() => new ManaSyntax().ParameterDeclaration.ParseMana(parseStr));
+            Assert.Throws<VeinParseException>(() => new VeinSyntax().ParameterDeclaration.ParseVein(parseStr));
 
         [Test]
         public void OperationParametersAndBodyTest()
         {
-            var a = new ManaSyntax();
+            var a = new VeinSyntax();
             var d = a.OperationDeclaration
-                .ParseMana(@"operation test[x: int32] -> int32 
+                .ParseVein(@"operation test[x: int32] -> int32 
                     {
                         body 
                         { 
@@ -110,19 +110,19 @@ namespace wc_test
         }
         [Test]
         public void QualifiedExpressionNewTest()
-            => Mana.QualifiedExpression.ParseMana("new Foo()");
+            => VeinAst.QualifiedExpression.ParseVein("new Foo()");
 
         [Theory]
         [TestCase("foo: Type;")]
         [TestCase("[special] foo: Type;")]
         [TestCase("[special] public foo: Type;")]
         public void FieldTest00(string str)
-            => Mana.FieldDeclaration.ParseMana(str);
+            => VeinAst.FieldDeclaration.ParseVein(str);
 
         [Test]
         public void InvalidTokenFieldParse()
         {
-            var result = Mana.CompilationUnit.ParseMana(
+            var result = VeinAst.CompilationUnit.ParseVein(
                 @"#space ""wave/lang""
                 [special]
                 public class String : Object {
@@ -143,9 +143,9 @@ namespace wc_test
         //[Test]
         //public void MethodParametersAndBodyTest()
         //{
-        //    var a = new ManaSyntax();
+        //    var a = new VeinSyntax();
         //    var d = a.MethodDeclaration
-        //        .ParseMana("public test(x: int32): void { }");
+        //        .ParseVein("public test(x: int32): void { }");
         //    Assert.AreEqual("test", d.Identifier.ToString());
         //    Assert.AreEqual("void", d.ReturnType.Identifier.ToString().ToLower());
         //}
@@ -154,16 +154,16 @@ namespace wc_test
         public void FooAoo()
         {
             AppFlags.Set("exp_simplify_optimize", false);
-            var result = Mana.QualifiedExpression.End().ParseMana("1 + 2 - 3 * 4 / 5 ^^ 2");
+            var result = VeinAst.QualifiedExpression.End().ParseVein("1 + 2 - 3 * 4 / 5 ^^ 2");
             Console.WriteLine(result.ToString());
         }
 
         [Test]
         public void FullsetMethodParametersAndBodyTest()
         {
-            var a = new ManaSyntax();
+            var a = new VeinSyntax();
             var d = a.ClassDeclaration
-                .ParseMana("public class DDD { public test(x: int32): void { } }");
+                .ParseVein("public class DDD { public test(x: int32): void { } }");
 
             Assert.False(d.IsStruct);
             Assert.False(d.IsInterface);
@@ -193,59 +193,60 @@ namespace wc_test
         [TestCase("operation name[i: s, x: w]", "name", true)]
         public void MethodParametersTest(string parseStr, string name, bool needFail)
         {
-            var a = new ManaSyntax();
+            var a = new VeinSyntax();
             var d = default(MethodDeclarationSyntax);
 
             if (needFail)
             {
-                Assert.Throws<ManaParseException>(() =>
+                Assert.Throws<VeinParseException>(() =>
                 {
                     d = a.OperationDeclaration
-                        .ParseMana(parseStr + "{body{}}");
+                        .ParseVein(parseStr + "{body{}}");
                 });
             }
             else
             {
                 d = a.OperationDeclaration
-                    .ParseMana(parseStr + "{body{}}");
+                    .ParseVein(parseStr + "{body{}}");
                 Assert.AreEqual(name, d.Identifier.ToString());
             }
         }
         [Test]
         public void UseDirectiveTest()
         {
-            var a = new ManaSyntax();
+            var a = new VeinSyntax();
             var d = a.UseSyntax
-                .ParseMana("#use \"stl.lib\"") as UseSyntax;
+                .ParseVein("#use \"stl.lib\"") as UseSyntax;
             Assert.AreEqual("stl.lib", d.Value.Token);
         }
 
         [Test]
         public void SpaceDirectiveTest()
         {
-            var a = new ManaSyntax();
+            var a = new VeinSyntax();
             var d = a.SpaceSyntax
-                .ParseMana("#space \"foo\"");
+                .ParseVein("#space \"foo\"");
             Assert.AreEqual("foo", d.Value.Token);
         }
 
         [Test]
         public void AnnotationTest()
         {
-            var a = new ManaSyntax();
-            var d = a.AnnotationExpression.End().ParseMana("[special, native]");
+            var a = new VeinSyntax();
+            var d = a.AnnotationExpression.End().ParseVein("[special, native]");
             Assert.AreEqual(2, d.Length);
         }
         [Test]
         public void MemberFailTest()
         {
             var result =
-                Mana.ClassMemberDeclaration.End().ParseMana("public const MaxValue Int16 = 32767;");
+                VeinAst.ClassMemberDeclaration.End().ParseVein("public const MaxValue Int16 = 32767;");
             Console.WriteLine($"type: {result.GetType()}");
         }
         [Test]
         public void FieldTest()
-            => Mana.FieldDeclaration.ParseMana("public const MaxValue: Int16 = 32767;");
+            => VeinAst.FieldDeclaration.ParseVein("public const MaxValue: Int16 = 32767;");
+
         [Test]
         public void PropertyTest()
         {
@@ -262,19 +263,19 @@ namespace wc_test
 
         [Test]
         public void FieldWithAnnotationTest()
-            => Mana.FieldDeclaration.ParseMana("[native] private _value: Int16;");
+            => VeinAst.FieldDeclaration.ParseVein("[native] private _value: Int16;");
 
         [Test]
         public void ExpressionTest()
         {
-            var result = Mana.Statement.ParseMana(@"return (this.$indexer.at(Length - 1) == value);");
+            var result = VeinAst.Statement.ParseVein(@"return (this.$indexer.at(Length - 1) == value);");
             Assert.True(result.IsBrokenToken);
-            result = Mana.Statement.ParseMana(@"return (this.indexer.at(Length - 1) == value);");
+            result = VeinAst.Statement.ParseVein(@"return (this.indexer.at(Length - 1) == value);");
             Assert.False(result.IsBrokenToken);
         }
         //[Test]
         //public void MethodTest00() =>
-        //    Mana.MethodDeclaration.ParseMana(@"public EndsWith(value: Char): Boolean
+        //    VeinAst.MethodDeclaration.ParseVein(@"public EndsWith(value: Char): Boolean
         //    {
         //        if (Length - 1 < Length)
         //            return false;
@@ -282,7 +283,7 @@ namespace wc_test
         //    }");
 
         [Test]
-        public void ReturnParseTest00() => Assert.False(Mana.Statement.ParseMana(@"return this == value;").IsBrokenToken);
+        public void ReturnParseTest00() => Assert.False(VeinAst.Statement.ParseVein(@"return this == value;").IsBrokenToken);
 
         [Theory]
         [TestCase("class")]
@@ -291,7 +292,7 @@ namespace wc_test
         [TestCase("static")]
         [TestCase("auto")]
         public void KeywordIsNotIdentifier(string key)
-            => Assert.Throws<ManaParseException>(() => Mana.Identifier.ParseMana(key));
+            => Assert.Throws<VeinParseException>(() => VeinAst.Identifier.ParseVein(key));
 
         [Theory]
         [TestCase("foo.bar.zet", 3)]
@@ -302,7 +303,7 @@ namespace wc_test
         [TestCase("zet.foo()[2]", 4)]
         public void MemberOrMethodTest(string key, int chainLen)
         {
-            var result = Mana.QualifiedExpression.End().ParseMana(key) as MemberAccessExpression;
+            var result = VeinAst.QualifiedExpression.End().ParseVein(key) as MemberAccessExpression;
 
             Assert.NotNull(result);
 
@@ -315,7 +316,7 @@ namespace wc_test
         public void ValidateChainMember()
         {
             var key = $"zet.foo()[2]";
-            var result = Mana.QualifiedExpression.End().ParseMana(key) as MemberAccessExpression;
+            var result = VeinAst.QualifiedExpression.End().ParseVein(key) as MemberAccessExpression;
 
             Assert.NotNull(result);
 
@@ -346,20 +347,20 @@ namespace wc_test
             var expr = default(LiteralExpressionSyntax);
             if (needFail)
             {
-                Assert.Throws<ManaParseException>(() =>
+                Assert.Throws<VeinParseException>(() =>
                 {
-                    expr = Mana.LiteralExpression.End().ParseMana(parseStr);
+                    expr = VeinAst.LiteralExpression.End().ParseVein(parseStr);
                 });
             }
             else
             {
-                expr = Mana.LiteralExpression.End().ParseMana(parseStr);
+                expr = VeinAst.LiteralExpression.End().ParseVein(parseStr);
                 Assert.NotNull(expr);
                 Assert.AreEqual(result, expr.Token);
             }
         }
         [Test]
-        public void AccessMemberTest() => Mana.QualifiedExpression.End().ParseMana(@"44.govno");
+        public void AccessMemberTest() => VeinAst.QualifiedExpression.End().ParseVein(@"44.govno");
 
         [Theory]
         [TestCase("new s()")] // new exp
@@ -397,12 +398,12 @@ namespace wc_test
         //[TestCase("hx = (asuint(min(asfloat(uux) * 1.92592994e-34f, 260042752.0f)) + 0x1000) >> 13", Skip = "todo")]
         [TestCase("basis1.x = 1.0f + sign * normal.x * normal.x * a")]
         [TestCase("hash = rol(state.x, 1) + rol(state.y, 7) + rol(state.z, 12) + rol(state.w, 18)")]
-        public void AllExpressionTest(string exp) => Mana.QualifiedExpression.End().ParseMana(exp);
+        public void AllExpressionTest(string exp) => VeinAst.QualifiedExpression.End().ParseVein(exp);
 
         [Test]
         public void NewExpTest()
         {
-            var result = Mana.QualifiedExpression.End().ParseMana(@"new Foo()");
+            var result = VeinAst.QualifiedExpression.End().ParseVein(@"new Foo()");
             IshtarAssert.IsType<NewExpressionSyntax>(result);
 
             var exp = result as NewExpressionSyntax;
@@ -414,14 +415,14 @@ namespace wc_test
         [Test]
         public void ExponentPartTest()
         {
-            Assert.AreEqual("e+23", Mana.ExponentPart.End().ParseMana("e+23"));
-            Assert.AreEqual("e-23", Mana.ExponentPart.End().ParseMana("e-23"));
+            Assert.AreEqual("e+23", VeinAst.ExponentPart.End().ParseVein("e+23"));
+            Assert.AreEqual("e-23", VeinAst.ExponentPart.End().ParseVein("e-23"));
         }
 
         [Test]
         public void LiteralAssignedExpressionTest()
         {
-            var result = Mana.FieldDeclaration.End().ParseMana("foo: Int32 = -22;");
+            var result = VeinAst.FieldDeclaration.End().ParseVein("foo: Int32 = -22;");
             Assert.NotNull(result);
             Assert.AreEqual("int32", result.Type.Identifier.ToString().ToLower());
             Assert.AreEqual("foo", result.Field.Identifier.ToString());
@@ -434,7 +435,7 @@ namespace wc_test
         [TestCase("interface")]
         public void DeclarationCanDeclareMethods(string keyword)
         {
-            var cd = Mana.ClassDeclaration.Parse($"[special] {keyword} Program {{ [special] main(): void {{}} }}");
+            var cd = VeinAst.ClassDeclaration.Parse($"[special] {keyword} Program {{ [special] main(): void {{}} }}");
             Assert.True(cd.Methods.Any());
             Assert.AreEqual("Program", cd.Identifier.ToString());
             Assert.AreEqual(ManaAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
@@ -445,13 +446,13 @@ namespace wc_test
             Assert.AreEqual(ManaAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
             Assert.False(md.Parameters.Any());
 
-            Assert.Throws<ManaParseException>(() => Mana.ClassDeclaration.ParseMana(" class Test { void Main }"));
-            Assert.Throws<ManaParseException>(() => Mana.ClassDeclaration.ParseMana("class Foo { int main() }"));
+            Assert.Throws<VeinParseException>(() => VeinAst.ClassDeclaration.ParseVein(" class Test { void Main }"));
+            Assert.Throws<VeinParseException>(() => VeinAst.ClassDeclaration.ParseVein("class Foo { int main() }"));
         }
         [Test]
         public void InheritanceTest()
         {
-            var cd = Mana.ClassDeclaration.Parse("class Program : Object {}");
+            var cd = VeinAst.ClassDeclaration.Parse("class Program : Object {}");
 
             Assert.AreEqual("Object", cd.Inheritances.Single().Identifier.ToString());
         }
@@ -459,7 +460,7 @@ namespace wc_test
         [Test]
         public void FieldsTest()
         {
-            var cd = Mana.ClassDeclaration.Parse("class Program : Object { foo: foo; }");
+            var cd = VeinAst.ClassDeclaration.Parse("class Program : Object { foo: foo; }");
 
             Assert.AreEqual("Object", cd.Inheritances.Single().Identifier.ToString());
         }
@@ -476,7 +477,7 @@ namespace wc_test
         [TestCase("foo.bar.zoo(a, b, 4, zak.woo(a, b, 4))")]
         //[TestCase("global::foo.bar.zoo(a, b, 4, 4 + 4);")]
         public void InvocationTest(string parseStr)
-            => Mana.QualifiedExpression.End().ParseMana(parseStr);
+            => VeinAst.QualifiedExpression.End().ParseVein(parseStr);
         [Theory]
         [TestCase("a")]
         [TestCase("b")]
@@ -485,7 +486,7 @@ namespace wc_test
         [TestCase("zak.woo()")]
         [TestCase("zak.woo(a, b, 4)")]
         public void ArgTest(string args)
-            => Mana.argument.End().ParseMana(args);
+            => VeinAst.argument.End().ParseVein(args);
         [Theory]
         [TestCase("a, b")]
         [TestCase("a, b, 4")]
@@ -494,7 +495,7 @@ namespace wc_test
         [TestCase("a, b, 4, zak.woo()")]
         [TestCase("a, b, 4, zak.woo(a, b, 4)")]
         public void ArgListTest(string args)
-            => Mana.argument_list.End().ParseMana(args);
+            => VeinAst.argument_list.End().ParseVein(args);
         [Theory]
         [TestCase("foo);")]
         [TestCase("foo.bar(")]
@@ -502,12 +503,12 @@ namespace wc_test
         [TestCase("foo.bar.zoo(a b, 4)")]
         [TestCase("foo.bar.zoo(a, b, 4, 4 $ 4)")]
         public void InvocationTestFail(string parseStr)
-            => Assert.Throws<ManaParseException>(() => Mana.QualifiedExpression.End().ParseMana(parseStr));
+            => Assert.Throws<VeinParseException>(() => VeinAst.QualifiedExpression.End().ParseVein(parseStr));
 
         [Test]
         public void GenericExpressionTest()
         {
-            var result = Mana.QualifiedExpression.ParseMana("foo.bar.zoo(zak.woo(a, b, c), a, b, c)");
+            var result = VeinAst.QualifiedExpression.ParseVein("foo.bar.zoo(zak.woo(a, b, c), a, b, c)");
         }
 
         [Theory]
@@ -577,7 +578,7 @@ namespace wc_test
         [TestCase("~-728565646 & ~-1896339527 && !-651565412 && ~-2116790075")]
         public void OperatorTest(string parseKey)
         {
-            var result = Mana.QualifiedExpression.End().ParseMana($"({parseKey})");
+            var result = VeinAst.QualifiedExpression.End().ParseVein($"({parseKey})");
             Console.WriteLine(result?.ExpressionString);
         }
 
@@ -585,13 +586,13 @@ namespace wc_test
         [TestCase("native(\"foo\")")]
         public void AnnotationWithArgsTest(string str)
         {
-            var result = Mana.AnnotationSyntax.End().ParseMana(str);
+            var result = VeinAst.AnnotationSyntax.End().ParseVein(str);
             Assert.IsNotEmpty(result.Args);
         }
 
         [Test]
         public void FooProgramTest() =>
-            Mana.CompilationUnit.End().ParseMana(
+            VeinAst.CompilationUnit.End().ParseVein(
                 "#use \"stl.lib\"\n" +
                 "public class Foo {" +
                 "public master(): void {}" +
@@ -600,30 +601,30 @@ namespace wc_test
         [Test]
         public void CtorAndDtorTest()
         {
-            Mana.CompilationUnit.End().ParseMana(
+            VeinAst.CompilationUnit.End().ParseVein(
                 "#use \"stl.lib\"\n" +
                 "public class Foo {" +
                 "public new() {}" +
                 "}");
-            Mana.CompilationUnit.End().ParseMana(
+            VeinAst.CompilationUnit.End().ParseVein(
                 "#use \"stl.lib\"\n" +
                 "public class Foo {" +
                 "public delete() {}" +
                 "}");
-            Mana.CompilationUnit.End().ParseMana(
+            VeinAst.CompilationUnit.End().ParseVein(
                 "#use \"stl.lib\"\n" +
                 "public class Foo {" +
                 "public new(s:S) {}" +
                 "}");
         }
         [Test]
-        public void AssignVariableTest() => Mana.QualifiedExpression.End().ParseMana("x = x");
+        public void AssignVariableTest() => VeinAst.QualifiedExpression.End().ParseVein("x = x");
 
         [Test]
-        public void MethodWithAssignVariableTest() => Mana.Statement.End().ParseMana("x = x;");
+        public void MethodWithAssignVariableTest() => VeinAst.Statement.End().ParseVein("x = x;");
 
         [Test]
-        public void FooUseTest() => Mana.UseSyntax.End().ParseMana("#use \"boo\"");
+        public void FooUseTest() => VeinAst.UseSyntax.End().ParseVein("#use \"boo\"");
 
         [Theory]
         [TestCase("this.x = 22")]
@@ -632,6 +633,6 @@ namespace wc_test
         [TestCase("this.x.w.d = zo.fo(1,2,3)")]
         [TestCase("this.x.w.d = zo.fo(1,2,3, this.x.w.d)")]
         public void ThisAccessTest(string str)
-            => Mana.QualifiedExpression.End().ParseMana(str);
+            => VeinAst.QualifiedExpression.End().ParseVein(str);
     }
 }

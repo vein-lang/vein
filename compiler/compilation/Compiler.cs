@@ -62,7 +62,7 @@ namespace vein.compilation
         internal VeinProject Project { get; set; }
 
         internal readonly CompileSettings _flags;
-        internal readonly ManaSyntax syntax = new();
+        internal readonly VeinSyntax syntax = new();
         internal readonly AssemblyResolver resolver = new ();
         internal readonly Dictionary<FileInfo, string> Sources = new ();
         internal readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
@@ -102,14 +102,14 @@ namespace vein.compilation
                 Status.ManaStatus($"Compile [grey]'{key.Name}'[/]...");
                 try
                 {
-                    var result = syntax.CompilationUnit.ParseMana(value);
+                    var result = syntax.CompilationUnit.ParseVein(value);
                     result.FileEntity = key;
                     result.SourceText = value;
                     // apply root namespace into includes
                     result.Includes.Add($"global::{result.Name}");
                     Ast.Add(key, result);
                 }
-                catch (ManaParseException e)
+                catch (VeinParseException e)
                 {
                     errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}[/] \n\t" +
                                $"at '[orange bold]{e.Position.Line} line, {e.Position.Column} column[/]' \n\t" +

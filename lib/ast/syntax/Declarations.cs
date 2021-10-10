@@ -4,7 +4,7 @@ namespace vein.syntax
     using Sprache;
     using stl;
 
-    public partial class ManaSyntax
+    public partial class VeinSyntax
     {
         private Parser<ExpressionSyntax> _assignExpression =>
             from op in Parse.Char('=').Token()

@@ -5,7 +5,7 @@ namespace vein.syntax
     using extensions;
     using Sprache;
 
-    public partial class ManaSyntax
+    public partial class VeinSyntax
     {
         #region Wrappers
 

@@ -15,7 +15,7 @@ namespace vein.syntax
             return $"{char.ToUpperInvariant(target[0])}{target.Remove(0, 1)}";
         }
     }
-    public partial class ManaSyntax : ICommentParserProvider
+    public partial class VeinSyntax : ICommentParserProvider
     {
         public virtual IComment CommentParser => new CommentParser();
 

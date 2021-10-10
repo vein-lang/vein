@@ -37,7 +37,7 @@ namespace ishtar
 
             if (result is float f)
                 return new SingleLiteralExpressionSyntax(f).AsOptimized();
-            return new ManaSyntax().LiteralExpression.End().Parse($"{result}").AsOptimized();
+            return new VeinSyntax().LiteralExpression.End().Parse($"{result}").AsOptimized();
         }
 
         public static T Eval<T>(this ExpressionSyntax exp)

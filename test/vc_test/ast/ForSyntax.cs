@@ -8,20 +8,20 @@ namespace wc_test.ast
 
     public class ForSyntax_test
     {
-        public static ManaSyntax Mana => new();
+        public static VeinSyntax Vein => new();
 
 
         [Test]
         public void ForeachParseTest1()
         {
-            Mana.KeywordExpression("foreach").Positioned().Token().End().ParseMana("foreach");
-            Mana.local_variable_declaration.Positioned().Token().End().ParseMana("auto i ");
-            Mana.KeywordExpression("in").Positioned().Token().End().ParseMana("in");
-            Mana.QualifiedExpression.Positioned().Token().End().ParseMana("Sobbaka");
-            Mana.embedded_statement.Token().Positioned().End().ParseMana("{ return 1; }");
+            Vein.KeywordExpression("foreach").Positioned().Token().End().ParseVein("foreach");
+            Vein.local_variable_declaration.Positioned().Token().End().ParseVein("auto i ");
+            Vein.KeywordExpression("in").Positioned().Token().End().ParseVein("in");
+            Vein.QualifiedExpression.Positioned().Token().End().ParseVein("Sobbaka");
+            Vein.embedded_statement.Token().Positioned().End().ParseVein("{ return 1; }");
 
 
-            var result = Mana.foreach_statement.End().ParseMana("foreach (auto i in Sobbaka) { return 1; }");
+            var result = Vein.foreach_statement.End().ParseVein("foreach (auto i in Sobbaka) { return 1; }");
 
             Assert.False(result.IsBrokenToken);
         }
@@ -29,7 +29,7 @@ namespace wc_test.ast
         [Test]
         public void ForeachParseTest2()
         {
-            var result = Mana.foreach_statement.End().ParseMana("foreach (auto i in Sobbaka) { return 1; }");
+            var result = Vein.foreach_statement.End().ParseVein("foreach (auto i in Sobbaka) { return 1; }");
 
             Assert.False(result.IsBrokenToken);
 

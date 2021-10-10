@@ -3,7 +3,7 @@ namespace vein.syntax
     using Sprache;
     using stl;
 
-    public partial class ManaSyntax
+    public partial class VeinSyntax
     {
         protected internal virtual Parser<StatementSyntax> Statement =>
             from statement in

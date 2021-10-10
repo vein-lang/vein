@@ -4,7 +4,7 @@ namespace vein.syntax
     using Sprache;
     using stl;
 
-    public partial class ManaSyntax
+    public partial class VeinSyntax
     {
         // example: SomeValue
         protected internal virtual Parser<EnumMemberDeclarationSyntax> EnumMember =>

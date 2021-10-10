@@ -93,8 +93,8 @@ namespace wc_test
         [Test, Ignore("MANUAL")]
         public void AST2ILTest()
         {
-            var w = new ManaSyntax();
-            var ast = w.CompilationUnit.ParseMana(
+            var w = new VeinSyntax();
+            var ast = w.CompilationUnit.ParseVein(
                 " class Program { main(): void { if(ze()) return x; else { return d();  } } }");
 
             var module = new ManaModuleBuilder("foo");
@@ -122,11 +122,7 @@ namespace wc_test
         [Test, Ignore("MANUAL")]
         public void ReturnStatementCompilation1()
         {
-            var ret = new ReturnStatementSyntax
-            {
-                Expression = new SingleLiteralExpressionSyntax(14.3f)
-            };
-
+            var ret = new ReturnStatementSyntax(new SingleLiteralExpressionSyntax(14.3f));
 
             var actual = CreateGenerator();
 
@@ -144,10 +140,7 @@ namespace wc_test
         [Test, Ignore("MANUAL")]
         public void ReturnStatementCompilation2()
         {
-            var ret = new ReturnStatementSyntax
-            {
-                Expression = new ExpressionSyntax("x")
-            };
+            var ret = new ReturnStatementSyntax(new ExpressionSyntax("x"));
 
 
             var actual = CreateGenerator(("x", VeinTypeCode.TYPE_STRING));
@@ -166,10 +159,7 @@ namespace wc_test
         [Test, Ignore("MANUAL")]
         public void ReturnStatementCompilation3()
         {
-            var ret = new ReturnStatementSyntax
-            {
-                Expression = new ExpressionSyntax("x")
-            };
+            var ret = new ReturnStatementSyntax(new ExpressionSyntax("x"));
 
             var actual = CreateGenerator();
 

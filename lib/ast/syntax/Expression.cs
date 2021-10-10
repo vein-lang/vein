@@ -8,7 +8,7 @@ namespace vein.syntax
     using Sprache;
     using stl;
 
-    public partial class ManaSyntax
+    public partial class VeinSyntax
     {
         protected internal virtual Parser<BlockSyntax> Block =>
             from comments in CommentParser.AnyComment.Token().Many()

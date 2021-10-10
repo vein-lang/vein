@@ -54,14 +54,14 @@ namespace vein.stl
         public static IEnumerable<T> GetOrEmpty<T>(this IOption<IEnumerable<T>> option)
             => option.GetOrElse(Array.Empty<T>());
 
-        public static T ParseMana<T>(this Parser<T> parser, string input)
+        public static T ParseVein<T>(this Parser<T> parser, string input)
         {
             var result = parser.End().TryParse(input);
             if (result.WasSuccessful)
             {
                 return result.Value;
             }
-            throw new ManaParseException(result.Message,
+            throw new VeinParseException(result.Message,
                 new Position(result.Remainder.Position, result.Remainder.Line, result.Remainder.Column));
         }
 
@@ -151,9 +151,9 @@ namespace vein.stl
         IComment CommentParser { get; }
     }
 
-    public class ManaParseException : ParseException
+    public class VeinParseException : ParseException
     {
-        public ManaParseException(string message, Position pos)
+        public VeinParseException(string message, Position pos)
             : base($"{message} at {pos}", pos)
         {
             this.ErrorMessage = message;

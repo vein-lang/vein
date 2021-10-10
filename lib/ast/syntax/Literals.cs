@@ -6,7 +6,7 @@ namespace vein.syntax
     using stl;
     using vein.extensions;
 
-    public partial class ManaSyntax
+    public partial class VeinSyntax
     {
         /// <example>
         /// "foo bar"

@@ -12,7 +12,7 @@ namespace wc_test
 
     public class expression_test
     {
-        public static ManaSyntax Syntax => new();
+        public static VeinSyntax Syntax => new();
 
 
         [Test(Description = "(40 + 50)")]
@@ -143,7 +143,7 @@ namespace wc_test
             genCtx.CurrentScope.DefineVariable(new IdentifierExpression("idi"), VeinTypeCode.TYPE_BOOLEAN.AsClass(), 0);
 
             var key = $"idi";
-            var id = Syntax.QualifiedExpression.End().ParseMana(key) as IdentifierExpression;
+            var id = Syntax.QualifiedExpression.End().ParseVein(key) as IdentifierExpression;
             var result = new MemberAccessExpression(id, Array.Empty<ExpressionSyntax>(), Array.Empty<ExpressionSyntax>());
 
             var chain = result.GetChain().ToArray();
@@ -166,7 +166,7 @@ namespace wc_test
             genCtx.CurrentScope = new ManaScope(genCtx);
 
             var key = $"ata()";
-            var result = Syntax.QualifiedExpression.End().ParseMana(key) as MemberAccessExpression;
+            var result = Syntax.QualifiedExpression.End().ParseVein(key) as MemberAccessExpression;
 
             Assert.NotNull(result);
 
@@ -201,7 +201,7 @@ namespace wc_test
 
             var result = Syntax.QualifiedExpression
                     .End()
-                    .ParseMana("ow.gota()")
+                    .ParseVein("ow.gota()")
                 as MemberAccessExpression;
 
             Assert.NotNull(result);

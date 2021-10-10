@@ -5,7 +5,7 @@ namespace vein.syntax
     using Sprache;
     using stl;
 
-    public partial class ManaSyntax
+    public partial class VeinSyntax
     {
         protected internal virtual Parser<MemberDeclarationSyntax> ClassMemberDeclaration =>
             from member in
