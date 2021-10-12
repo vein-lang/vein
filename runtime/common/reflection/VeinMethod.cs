@@ -68,6 +68,6 @@ namespace vein.runtime
 
         public int ArgLength => Arguments.Count;
 
-        public override ManaMemberKind Kind => ManaMemberKind.Method;
+        public override VeinMemberKind Kind => VeinMemberKind.Method;
     }
 }

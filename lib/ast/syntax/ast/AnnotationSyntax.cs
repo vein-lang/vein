@@ -9,16 +9,16 @@ namespace vein.syntax
 
     public class AnnotationSyntax : BaseSyntax, IPositionAware<AnnotationSyntax>
     {
-        public AnnotationSyntax(ManaAnnotationKind kind)
+        public AnnotationSyntax(VeinAnnotationKind kind)
             => this.AnnotationKind = kind;
-        public AnnotationSyntax(ManaAnnotationKind kind, IOption<ExpressionSyntax> args)
+        public AnnotationSyntax(VeinAnnotationKind kind, IOption<ExpressionSyntax> args)
         {
             (AnnotationKind, Args) = (kind,
                 ((ObjectCreationExpression)args.GetOrDefault())?.Args?.EmptyIfNull().ToArray());
             Args ??= Array.Empty<ExpressionSyntax>(); // the fuck
         }
 
-        public ManaAnnotationKind AnnotationKind { get; }
+        public VeinAnnotationKind AnnotationKind { get; }
         public ExpressionSyntax[] Args { get; } = Array.Empty<ExpressionSyntax>();
         public override SyntaxType Kind => SyntaxType.Annotation;
         public override IEnumerable<BaseSyntax> ChildNodes =>

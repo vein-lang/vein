@@ -448,7 +448,7 @@ namespace vein.compilation
             if (@class.GetDefaultCtor() is not MethodBuilder ctor)
             {
                 errors.Add($"[red bold]Class/struct '{@class.Name}' has problem with generate default ctor.[/] \n\t" +
-                           $"Please report the problem into 'https://github.com/vein-lang/vein/issues'." +
+                           PleaseReportProblemInto() +
                            $"in '[orange bold]{doc.FileEntity}[/]'.");
                 return;
             }
@@ -474,11 +474,13 @@ namespace vein.compilation
                     continue;
                 if (field.IsLiteral)
                     continue;
+                if (field.IsSpecial)
+                    continue;
                 var stx = member.Fields
                     .SingleOrDefault(x => x.Field.Identifier.ExpressionString.Equals(field.Name));
                 if (stx is null)
                 {
-                    errors.Add($"[red bold]Field '{field.Name}' in class/struct '{@class.Name}' has undefined.[/] \n\t" +
+                    errors.Add($"[red bold]Field '{field.Name}' in class/struct/interface '{@class.Name}' has undefined.[/] \n\t" +
                                $"in '[orange bold]{doc.FileEntity}[/]'.");
                     continue;
                 }
@@ -759,28 +761,28 @@ namespace vein.compilation
                 var kind = annotation.AnnotationKind;
                 switch (kind)
                 {
-                    case ManaAnnotationKind.Getter:
-                    case ManaAnnotationKind.Setter:
-                    case ManaAnnotationKind.Virtual:
+                    case VeinAnnotationKind.Getter:
+                    case VeinAnnotationKind.Setter:
+                    case VeinAnnotationKind.Virtual:
                         PrintError(
                             $"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
                             $"class/struct/interface declaration.",
                             clazz.Identifier, clazz.OwnerDocument);
                         continue;
-                    case ManaAnnotationKind.Special:
+                    case VeinAnnotationKind.Special:
                         flags |= ClassFlags.Special;
                         continue;
-                    case ManaAnnotationKind.Native:
+                    case VeinAnnotationKind.Native:
                         continue;
-                    case ManaAnnotationKind.Readonly when !clazz.IsStruct:
+                    case VeinAnnotationKind.Readonly when !clazz.IsStruct:
                         PrintError(
                             $"[orange bold]Annotation[/] [red bold]{kind}[/] can only be applied to a structure declaration.",
                             clazz.Identifier, clazz.OwnerDocument);
                         continue;
-                    case ManaAnnotationKind.Readonly when clazz.IsStruct:
+                    case VeinAnnotationKind.Readonly when clazz.IsStruct:
                         // TODO
                         continue;
-                    case ManaAnnotationKind.Forwarded:
+                    case VeinAnnotationKind.Forwarded:
                         continue;
                     default:
                         PrintError(
@@ -983,17 +985,17 @@ namespace vein.compilation
             {
                 switch (annotation.AnnotationKind)
                 {
-                    case ManaAnnotationKind.Virtual:
+                    case VeinAnnotationKind.Virtual:
                         flags |= MethodFlags.Virtual;
                         continue;
-                    case ManaAnnotationKind.Special:
+                    case VeinAnnotationKind.Special:
                         flags |= MethodFlags.Special;
                         continue;
-                    case ManaAnnotationKind.Native:
+                    case VeinAnnotationKind.Native:
                         continue;
-                    case ManaAnnotationKind.Readonly:
-                    case ManaAnnotationKind.Getter:
-                    case ManaAnnotationKind.Setter:
+                    case VeinAnnotationKind.Readonly:
+                    case VeinAnnotationKind.Getter:
+                    case VeinAnnotationKind.Setter:
                         PrintError(
                             $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.AnnotationKind}[/] " +
                             $"is not supported [orange bold]annotation[/].",

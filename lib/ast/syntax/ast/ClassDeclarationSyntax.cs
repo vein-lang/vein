@@ -72,7 +72,7 @@ namespace vein.syntax
         public virtual bool IsInterface { get; set; }
         public virtual bool IsStruct { get; set; }
 
-        public bool IsForwardedType => Annotations.Any(x => x.AnnotationKind == ManaAnnotationKind.Forwarded);
+        public bool IsForwardedType => Annotations.Any(x => x.AnnotationKind == VeinAnnotationKind.Forwarded);
 
         public List<TypeSyntax> Inheritances { get; set; } = new();
 

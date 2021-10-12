@@ -36,7 +36,7 @@ namespace vein.syntax
         internal virtual Parser<string> Keyword(string text) =>
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(text);
 
-        internal virtual Parser<ManaAnnotationKind> Keyword(ManaAnnotationKind value) =>
+        internal virtual Parser<VeinAnnotationKind> Keyword(VeinAnnotationKind value) =>
             Parse.IgnoreCase(value.ToString().ToLowerInvariant()).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not())
                 .Return(value);
 
@@ -72,14 +72,14 @@ namespace vein.syntax
             .Named("Modifier")
             .Positioned();
 
-        protected internal virtual Parser<ManaAnnotationKind> Annotation =>
-            Keyword(ManaAnnotationKind.Getter)
-                .Or(Keyword(ManaAnnotationKind.Setter))
-                .Or(Keyword(ManaAnnotationKind.Native))
-                .Or(Keyword(ManaAnnotationKind.Readonly))
-                .Or(Keyword(ManaAnnotationKind.Special))
-                .Or(Keyword(ManaAnnotationKind.Virtual))
-                .Or(Keyword(ManaAnnotationKind.Forwarded))
+        protected internal virtual Parser<VeinAnnotationKind> Annotation =>
+            Keyword(VeinAnnotationKind.Getter)
+                .Or(Keyword(VeinAnnotationKind.Setter))
+                .Or(Keyword(VeinAnnotationKind.Native))
+                .Or(Keyword(VeinAnnotationKind.Readonly))
+                .Or(Keyword(VeinAnnotationKind.Special))
+                .Or(Keyword(VeinAnnotationKind.Virtual))
+                .Or(Keyword(VeinAnnotationKind.Forwarded))
                 .Token().Named("Annotation");
 
         internal virtual Parser<TypeSyntax> NonGenericType =>

@@ -82,13 +82,13 @@ namespace ishtar.emit
             var args = Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(", ");
             if (Flags.HasFlag(Extern))
             {
-                str.Append($".method extern {RawName} ({args}) {Flags.EnumerateFlags().Except(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
+                str.Append($".method extern {RawName} ({args}) {Flags.EnumerateFlags(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
                 str.AppendLine($" -> {ReturnType.FullName.Name};");
                 return str.ToString();
             }
             var body = _generator.BakeDebugString();
 
-            str.Append($".method {(IsSpecial ? "special " : "")}'{RawName}' ({args}) {Flags.EnumerateFlags().Except(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
+            str.Append($".method {(IsSpecial ? "special " : "")}'{RawName}' ({args}) {Flags.EnumerateFlags(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
             str.AppendLine($" -> {ReturnType.FullName.Name}");
             if (Flags.HasFlag(Abstract))
                 return str.ToString();

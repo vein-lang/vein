@@ -1,6 +1,6 @@
 namespace vein.syntax
 {
-    public enum ManaAnnotationKind
+    public enum VeinAnnotationKind
     {
         Special,
         Virtual,
