@@ -119,7 +119,7 @@ namespace wc_test
         public void FieldTest00(string str)
             => VeinAst.FieldDeclaration.ParseVein(str);
 
-        [Test]
+        [Test, Ignore("broken OnPreview parser operator")]
         public void InvalidTokenFieldParse()
         {
             var result = VeinAst.CompilationUnit.ParseVein(
@@ -237,12 +237,9 @@ namespace wc_test
             Assert.AreEqual(2, d.Length);
         }
         [Test]
-        public void MemberFailTest()
-        {
-            var result =
-                VeinAst.ClassMemberDeclaration.End().ParseVein("public const MaxValue Int16 = 32767;");
-            Console.WriteLine($"type: {result.GetType()}");
-        }
+        public void MemberFailTest() => Assert.Catch<VeinParseException>(() =>
+            VeinAst.ClassMemberDeclaration.End().ParseVein("public const MaxValue Int16 = 32767;"));
+
         [Test]
         public void FieldTest()
             => VeinAst.FieldDeclaration.ParseVein("public const MaxValue: Int16 = 32767;");
