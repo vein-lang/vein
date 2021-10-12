@@ -33,13 +33,14 @@ namespace ishtar.emit
 
         internal MethodBuilder GetMethodBuilder() => _methodBuilder;
 
-        public virtual void Emit(OpCode opcode)
+        public virtual ILGenerator Emit(OpCode opcode)
         {
             EnsureCapacity<OpCode>();
             InternalEmit(opcode);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name}");
+            return this;
         }
-        public virtual void Emit(OpCode opcode, byte arg)
+        public virtual ILGenerator Emit(OpCode opcode, byte arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -47,8 +48,9 @@ namespace ishtar.emit
             InternalEmit(opcode);
             _ilBody[_position++] = arg;
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.byte");
+            return this;
         }
-        public void Emit(OpCode opcode, sbyte arg)
+        public ILGenerator Emit(OpCode opcode, sbyte arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -56,8 +58,9 @@ namespace ishtar.emit
             InternalEmit(opcode);
             _ilBody[_position++] = (byte)arg;
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.sbyte");
+            return this;
         }
-        public virtual void Emit(OpCode opcode, short arg)
+        public virtual ILGenerator Emit(OpCode opcode, short arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -66,9 +69,10 @@ namespace ishtar.emit
             BinaryPrimitives.WriteInt16LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(short);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.short");
+            return this;
         }
 
-        public virtual void Emit(OpCode opcode, int arg)
+        public virtual ILGenerator Emit(OpCode opcode, int arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -77,8 +81,9 @@ namespace ishtar.emit
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(int);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.int");
+            return this;
         }
-        public virtual void Emit(OpCode opcode, long arg)
+        public virtual ILGenerator Emit(OpCode opcode, long arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -87,9 +92,10 @@ namespace ishtar.emit
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(long);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.long");
+            return this;
         }
 
-        public virtual void Emit(OpCode opcode, ulong arg)
+        public virtual ILGenerator Emit(OpCode opcode, ulong arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -98,9 +104,10 @@ namespace ishtar.emit
             BinaryPrimitives.WriteUInt64LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(ulong);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.ulong");
+            return this;
         }
 
-        public virtual void Emit(OpCode opcode, float arg)
+        public virtual ILGenerator Emit(OpCode opcode, float arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -109,9 +116,10 @@ namespace ishtar.emit
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), BitConverter.SingleToInt32Bits(arg));
             _position += sizeof(float);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.float");
+            return this;
         }
 
-        public virtual void Emit(OpCode opcode, double arg)
+        public virtual ILGenerator Emit(OpCode opcode, double arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -120,9 +128,10 @@ namespace ishtar.emit
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), BitConverter.DoubleToInt64Bits(arg));
             _position += sizeof(double);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.double");
+            return this;
         }
 
-        public virtual void Emit(OpCode opcode, decimal arg)
+        public virtual ILGenerator Emit(OpCode opcode, decimal arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -137,11 +146,12 @@ namespace ishtar.emit
                 _position += sizeof(int);
             }
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.decimal");
+            return this;
         }
         /// <remarks>
         /// <see cref="string"/> will be interned.
         /// </remarks>
-        public virtual void Emit(OpCode opcode, string str)
+        public virtual ILGenerator Emit(OpCode opcode, string str)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -153,6 +163,7 @@ namespace ishtar.emit
             InternalEmit(opcode);
             PutInteger4(token);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} .0x{token:X8}");
+            return this;
         }
         /// <summary>
         /// Emit opcodes for stage\load value for field.
@@ -164,7 +175,7 @@ namespace ishtar.emit
         /// Only allowed <see cref="OpCodes.LDF"/>, <see cref="OpCodes.STF"/>,
         /// <see cref="OpCodes.STSF"/>, <see cref="OpCodes.LDSF"/>.
         /// </remarks>
-        public virtual void Emit(OpCode opcode, VeinField field)
+        public virtual ILGenerator Emit(OpCode opcode, VeinField field)
         {
             if (new[] { OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF }.All(x => x != opcode))
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
@@ -181,6 +192,7 @@ namespace ishtar.emit
             this.PutInteger4(typeIdx);
 
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {field.Name} {field.FieldType}");
+            return this;
         }
         /// <summary>
         /// 
@@ -192,12 +204,12 @@ namespace ishtar.emit
         /// <remarks>
         /// Only <see cref="OpCodes.LDF"/>.
         /// </remarks>
-        public virtual void Emit(OpCode opcode, FieldName field) => throw new NotImplementedException();
+        public virtual ILGenerator Emit(OpCode opcode, FieldName field) => throw new NotImplementedException();
 
         /// <summary>
         /// Emit branch instruction with label.
         /// </summary>
-        public virtual void Emit(OpCode opcode, Label label)
+        public virtual ILGenerator Emit(OpCode opcode, Label label)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -205,11 +217,12 @@ namespace ishtar.emit
             this.InternalEmit(opcode);
             this.PutInteger4(label.Value);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} label(0x{label.Value:X})");
+            return this;
         }
-        public virtual void Emit(OpCode opcode, VeinClass type)
+        public virtual ILGenerator Emit(OpCode opcode, VeinClass type)
             => Emit(opcode, type.FullName);
 
-        public virtual void Emit(OpCode opcode, QualityTypeName type)
+        public virtual ILGenerator Emit(OpCode opcode, QualityTypeName type)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -217,6 +230,7 @@ namespace ishtar.emit
             this.InternalEmit(opcode);
             this.PutTypeName(type);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} [{type}] ");
+            return this;
         }
         /// <summary>
         /// Emit LOC_INIT.
@@ -263,7 +277,7 @@ namespace ishtar.emit
         /// <remarks>
         /// Only <see cref="OpCodes.CALL"/>.
         /// </remarks>
-        public virtual void Emit(OpCode opcode, VeinMethod method)
+        public virtual ILGenerator Emit(OpCode opcode, VeinMethod method)
         {
             if (method is null)
                 throw new ArgumentNullException(nameof(method));
@@ -293,6 +307,7 @@ namespace ishtar.emit
             this.PutInteger4(tokenIdx);
             this.PutTypeName(ownerIdx);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");
+            return this;
         }
 
         internal void WriteDebugMetadata(string str) => _debugBuilder.AppendLine($"/* ::{_position:0000} */ {str}");
