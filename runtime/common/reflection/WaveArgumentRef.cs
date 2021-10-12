@@ -7,6 +7,9 @@ namespace vein.runtime
         public VeinClass Type { get; set; }
         public string Name { get; set; }
 
+        public VeinArgumentRef() { }
+        public VeinArgumentRef(string name, VeinClass clazz)
+            => (Name, Type) = (name, clazz);
 
 
         public static implicit operator VeinArgumentRef((VeinTypeCode code, string name) data)
