@@ -1,0 +1,21 @@
+#space "foo"
+#use "vein/lang"
+
+
+public class TestCase
+{
+    public _foo: Object;
+
+    public TheFoo: Object
+    {
+        get 
+        {
+            return this._foo;
+        }
+        set 
+        {
+            this._foo = value;
+        }
+    }
+}
+
