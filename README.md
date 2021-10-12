@@ -85,8 +85,8 @@ For building, you need the following tools:
 
 Checkout mana sources
 ```bash
-git clone git://github.com/0xf6/mana_lang.git --recurse-submodules
-cd mana lang
+git clone https://github.com/vein-lang/vein.git --recurse-submodules
+cd ./vein-lang
 git fetch --prune --unshallow --tags
 
 dotnet restore
@@ -95,7 +95,7 @@ dotnet restore
 #### Compile IshtarVM
 Go to ishtar folder
 ```base
-cd .\backend\mana.backend.ishtar.light
+cd ./runtime/ishtar.vm
 ```
 Compile for Windows 10 x64
 ```bash
@@ -109,7 +109,7 @@ dotnet publish -r win-arm64 -c Release
 Copy output files
 ```bash
 mkdir output
-cp -R ./backend/mana.backend.ishtar.light/bin/net6.0/win10-x64/native/ ./output
+cp -R ./runtime/ishtar.vm/bin/net6.0/win10-x64/native/ ./output
 ```
 
 The `output` folder should contain:
@@ -119,8 +119,8 @@ The `output` folder should contain:
 - ishtar.pdb - debug symbols
 
 
-#### Compile manac
-Go to mana compiler folder
+#### Compile veinc
+Go to vein compiler folder
 ```base
 cd .\compiler
 ```
@@ -135,7 +135,7 @@ cp -R ./bin/Release/net6.0/win-x64/publish ./output
 ```
 
 The `output` folder should contain:
-- manac.exe - main executable compiler file
+- veinc.exe - main executable compiler file
 
 
 ### Building on Linux (on ubuntu)
@@ -147,7 +147,7 @@ For building, you need the following tools:
 - libkrb5-dev
 - libssl-dev  
     
-and additional for arm64  
+and additional for arm64 (or maybe using [prebuiled docker image](https://github.com/vein-lang/docker-arm64))
 - clang-9
 - binutils-arm-linux-gnueabi
 - binutils-aarch64-linux-gnu
@@ -160,8 +160,8 @@ and additional for arm64
 
 Checkout mana sources
 ```bash
-git clone git://github.com/0xf6/mana_lang.git --recurse-submodules
-cd mana lang
+git clone https://github.com/vein-lang/vein.git --recurse-submodules
+cd ./vein-lang
 git fetch --prune --unshallow --tags
 
 dotnet restore
@@ -171,7 +171,7 @@ dotnet restore
 #### Compile IshtarVM
 Go to ishtar folder
 ```base
-cd .\backend\mana.backend.ishtar.light
+cd ./runtime/ishtar.vm
 ```
 ##### Compile for Linux x64
 ```bash
@@ -182,20 +182,20 @@ Compile for Linux ARM64
 cd ./cross
 sudo ./build-rootfs.sh arm64
 cd ..
-cd .\backend\mana.backend.ishtar.light
+cd ./runtime/ishtar.vm
 dotnet publish -r linux-arm64 -c Release -p:CppCompilerAndLinker=clang-9 -p:SysRoot=/home/.tools/rootfs/arm64
 ```
 
 Copy output files
 ```bash
 mkdir output
-cp -R ./backend/mana.backend.ishtar.light/bin/Release/net6.0/linux-x64/native ./output
+cp -R ./runtime/ishtar.vm/bin/Release/net6.0/linux-x64/native ./output
 ```
 
-#### Compile manac
-Go to mana compiler folder
+#### Compile veinc
+Go to vein compiler folder
 ```base
-cd .\compiler
+cd ./compiler
 ```
 Compile
 ```
@@ -208,27 +208,24 @@ cp -R ./bin/Release/net6.0/linux-x64/publish ./output
 ```
 
 The `output` folder should contain:
-- manac - main executable compiler file
+- veinc - main executable compiler file
 
 ## Contributing
 
-We welcome everyone to contribute to mana language.
+We welcome everyone to contribute to vein language.
 To do so, you need to know a couple of things about the folder structure::
 
 ```yaml
-/backend: folder contains all backend vm\generator for mana
-  /clr: variant generator for CLR VM
-  /hashlink: variant generator for Hashlink VM
-  /LLVM: variabnt generator for LLVM toolstack
-  /ishtar.generator: variant generator for IshtarVM
-  /ishtar.light: implementation of ishtar vm in C#
-/compiler: folder contains source for mana compiler
-/ide_ext: visual code extension sources
+/runtime: folder contains all backend vm\generator for vein
+  /common: shared code
+  /ishtar.base: base abstraction for generator\vm
+  /ishtar.generator: logic of IL generator for IshtarVM
+  /ishtar.vm: implementation of ishtar vm in C#
+/compiler: folder contains source for vein compiler
 /lib: folder with common libraries
   /ast: mana AST library, for parsing
   /projectsystem: project system models, for compiler
-/lsp: language server for mana lang
-/mana.std: standard library sources
+/lsp: language server for vein lang
 /samples: Wow! its samples!
 /test: folder with various tests
 ```
