@@ -381,7 +381,7 @@ namespace ishtar
 
             if (expr is MemberAccessExpression { Start: IdentifierExpression } member)
             {
-                if (member.Start is IdentifierExpression { ExpressionString: "this" })
+                if (member is { Start: IdentifierExpression { ExpressionString: "this" } } && !member.Chain.Any())
                     gen.EmitThis();
                 else
                     gen.EmitIdentifierAccess(member);
@@ -399,12 +399,12 @@ namespace ishtar
 
         public static void EmitThis(this ILGenerator gen) => gen.Emit(OpCodes.LD_THIS);
 
-        public static void EmitIdentifierReference(this ILGenerator gen, IdentifierExpression id)
+        public static void EmitIdentifierReference(this ILGenerator gen, IdentifierExpression id, bool isThis = false)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
             // first order: search variable
-            if (context.CurrentScope.HasVariable(id))
+            if (!isThis && context.CurrentScope.HasVariable(id))
             {
                 var index = context.CurrentScope.locals_index[id];
                 var type = context.CurrentScope.variables[id];
@@ -413,13 +413,16 @@ namespace ishtar
                 return;
             }
 
-            // second order: search argument
-            var args = context.ResolveArgument(id);
-            if (args is not null)
+            if (!isThis)
             {
-                var (_, index) = args.Value;
-                gen.Emit(OpCodes.LDARG_S, index + 1); // todo apply variants
-                return;
+                // second order: search argument
+                var args = context.ResolveArgument(id);
+                if (args is not null)
+                {
+                    var (_, index) = args.Value;
+                    gen.Emit(OpCodes.LDARG_S, index + 1); // todo apply variants
+                    return;
+                }
             }
 
             // third order: find field
@@ -430,7 +433,7 @@ namespace ishtar
                 return;
             }
 
-            context.LogError($"The name '{id}' does not exist in the current context.", id);
+            context.LogError($"The name '{(isThis ? "this." : "")}{id}' does not exist in the current context.", id);
         }
 
         public static void EmitBinaryExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
@@ -869,9 +872,14 @@ namespace ishtar
             Assert.IsType<IdentifierExpression>(qes.Start);
             var chain = qes.Chain.ToArray();
 
-            if (chain.Length == 1)
+            if (chain.Length == 1 && chain[0] is MethodInvocationExpression m)
             {
-                generator.EmitLocalCall((IdentifierExpression)qes.Start, (MethodInvocationExpression)chain[0]);
+                generator.EmitLocalCall((IdentifierExpression)qes.Start, m);
+                return;
+            }
+            if (chain.Length == 1 && chain[0] is IdentifierExpression i)
+            {
+                generator.EmitIdentifierReference(i, qes.Start.ExpressionString == "this");
                 return;
             }
 
@@ -1104,7 +1112,7 @@ namespace ishtar
                 //        .moduleBuilder
                 //        .FindType(unnamed02.Start.ExpressionString, @class.Includes)
                 //};
-                
+
                 //var methodName = unnamed02.Chain.First().ExpressionString;
 
                 //var call_method = type.FindMethod(methodName);
@@ -1116,7 +1124,7 @@ namespace ishtar
                 //generator.Emit(OpCodes.RET);
                 //return;
             }
-            
+
             generator.EmitExpression(statement.Expression);
             generator.Emit(OpCodes.RET);
         }
