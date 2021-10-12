@@ -94,6 +94,52 @@ namespace ishtar.emit
             return field;
         }
 
+        /// <summary>
+        /// Define auto property in current class.
+        /// </summary>
+        public VeinProperty DefineAutoProperty(string name, FieldFlags flags, VeinClass propType)
+        {
+            var prop = new VeinProperty(this, new (name, this.Name), flags, propType);
+
+            if (!IsAbstract)
+                prop.ShadowField = DefineField(VeinProperty.GetShadowFieldName(prop.FullName), flags | FieldFlags.Special,
+                    propType);
+
+            var getter =
+                DefineMethod($"get_{name}", VeinProperty.ConvertShadowFlags(flags), propType);
+            if (!IsAbstract)
+            {
+                getter.GetGenerator()
+                    .Emit(OpCodes.LDF, prop.ShadowField)
+                    .Emit(OpCodes.RET);
+            }
+            else
+                getter.Flags |= MethodFlags.Abstract;
+            prop.Getter = getter;
+
+            if (flags.HasFlag(FieldFlags.Readonly))
+                return prop;
+
+            var setter =
+                DefineMethod($"set_{name}", VeinProperty.ConvertShadowFlags(flags), VeinTypeCode.TYPE_VOID.AsClass(),
+                    new VeinArgumentRef("value", propType));
+            if (!IsAbstract)
+            {
+                setter.GetGenerator()
+                    .Emit(OpCodes.LDARG_0)
+                    .Emit(OpCodes.STF, prop.ShadowField)
+                    .Emit(OpCodes.RET);
+            }
+            else
+                setter.Flags |= MethodFlags.Abstract;
+            prop.Setter = setter;
+
+            return prop;
+        }
+
+        public VeinProperty DefineEmptyProperty(string name, FieldFlags flags, VeinClass propType)
+            => new (this, new (name, this.Name), flags, propType);
+
         byte[] IBaker.BakeByteArray()
         {
             if (Methods.Count == 0 && Fields.Count == 0)
@@ -131,12 +177,12 @@ namespace ishtar.emit
             if (IsInterface) str.Append($".interface ");
             else if (IsValueType) str.Append($".struct ");
             else str.Append($".class ");
-            str.Append($"'{FullName.Name}' {Flags.EnumerateFlags().Except(new[] { ClassFlags.None, ClassFlags.Interface }).Join(' ').ToLowerInvariant()}");
+            str.Append($"'{FullName.Name}' {Flags.EnumerateFlags(new[] { ClassFlags.None, ClassFlags.Interface }).Join(' ').ToLowerInvariant()}");
             str.AppendLine($" extends {Parents.Select(x => $"'{x.Name}'").Join(", ")}");
             str.AppendLine("{");
             foreach (var field in Fields)
             {
-                var flags = field.Flags.EnumerateFlags().Except(new [] {FieldFlags.None}).Join(' ').ToLowerInvariant();
+                var flags = field.Flags.EnumerateFlags(new [] {FieldFlags.None}).Join(' ').ToLowerInvariant();
                 str.AppendLine($"\t.field '{field.Name}' as '{field.FieldType.Name}' {flags}");
             }
             foreach (var method in Methods.OfType<IBaker>().Select(method => method.BakeDebugString()))
