@@ -109,6 +109,8 @@ namespace vein.syntax
             Identifier = typeAndName.Identifier ?? typeAndName.Type.Identifier;
             return this;
         }
+
+        public ClassDeclarationSyntax OwnerClass { get; set; }
     }
     public class AccessorDeclarationSyntax : MemberDeclarationSyntax
     {
