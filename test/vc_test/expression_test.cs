@@ -135,7 +135,7 @@ namespace wc_test
         {
             var genCtx = new GeneratorContext();
 
-            genCtx.Module = new ManaModuleBuilder("doo");
+            genCtx.Module = new VeinModuleBuilder("doo");
             var @class = genCtx.Module.DefineClass("global::mana/foo");
             genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new ManaScope(genCtx);
@@ -160,7 +160,7 @@ namespace wc_test
         {
             var genCtx = new GeneratorContext();
 
-            genCtx.Module = new ManaModuleBuilder("doo");
+            genCtx.Module = new VeinModuleBuilder("doo");
             var @class = genCtx.Module.DefineClass("global::mana/foo");
             genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass());
             genCtx.CurrentScope = new ManaScope(genCtx);
@@ -186,7 +186,7 @@ namespace wc_test
         {
             var genCtx = new GeneratorContext();
 
-            genCtx.Module = new ManaModuleBuilder("doo");
+            genCtx.Module = new VeinModuleBuilder("doo");
             var @class = genCtx.Module.DefineClass("global::mana/foo");
             var anotherClass = genCtx.Module.DefineClass("global::mana/goo");
 

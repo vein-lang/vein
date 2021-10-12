@@ -13,10 +13,10 @@ namespace ishtar
     {
         private static void act<T>(ref T t1, ref T t2, A_OperationDelegate<T> actor) => actor(ref t1, ref t2);
 
-        public static QualityTypeName readTypeName(uint index, ManaModule module)
+        public static QualityTypeName readTypeName(uint index, VeinModule module)
             => module.types_table.GetValueOrDefault((int)index);
 
-        public static RuntimeIshtarClass GetClass(uint index, ManaModule module, CallFrame frame)
+        public static RuntimeIshtarClass GetClass(uint index, VeinModule module, CallFrame frame)
         {
             var name = module.types_table.GetValueOrDefault((int)index);
             Assert(name is not null, WNE.TYPE_LOAD, $"Cant find '{index}' in class_table.", frame);
@@ -31,7 +31,7 @@ namespace ishtar
             return type as RuntimeIshtarClass;
         }
 
-        public static RuntimeIshtarMethod GetMethod(uint index, QualityTypeName owner, ManaModule module, CallFrame frame)
+        public static RuntimeIshtarMethod GetMethod(uint index, QualityTypeName owner, VeinModule module, CallFrame frame)
         {
             var clazz = module.FindType(owner);
             var name = module.GetConstStringByIndex((int) index);
@@ -47,7 +47,7 @@ namespace ishtar
             Assert(method is RuntimeIshtarMethod, WNE.MISSING_METHOD, $"metadata is corrupted.");
             return (RuntimeIshtarMethod)method;
         }
-        public static RuntimeIshtarField GetField(uint index, RuntimeIshtarClass owner, ManaModule module, CallFrame frame)
+        public static RuntimeIshtarField GetField(uint index, RuntimeIshtarClass owner, VeinModule module, CallFrame frame)
         {
             var name = module.GetFieldNameByIndex((int) index);
             var field = owner.FindField(name.Name);

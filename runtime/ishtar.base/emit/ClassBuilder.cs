@@ -12,7 +12,7 @@ namespace ishtar.emit
 
     public class ClassBuilder : VeinClass, IBaker
     {
-        internal ManaModuleBuilder moduleBuilder;
+        internal VeinModuleBuilder moduleBuilder;
 
         public List<string> Includes { get; set; } = new();
 
@@ -22,7 +22,7 @@ namespace ishtar.emit
             return this;
         }
 
-        internal ClassBuilder(ManaModuleBuilder module, VeinClass clazz)
+        internal ClassBuilder(VeinModuleBuilder module, VeinClass clazz)
         {
             this.moduleBuilder = module;
             this.FullName = clazz.FullName;
@@ -30,14 +30,14 @@ namespace ishtar.emit
             this.TypeCode = clazz.TypeCode;
             this.Owner = module;
         }
-        internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, VeinTypeCode parent = VeinTypeCode.TYPE_OBJECT)
+        internal ClassBuilder(VeinModuleBuilder module, QualityTypeName name, VeinTypeCode parent = VeinTypeCode.TYPE_OBJECT)
         {
             this.FullName = name;
             moduleBuilder = module;
             this.Parents.Add(parent.AsClass());
             this.Owner = module;
         }
-        internal ClassBuilder(ManaModuleBuilder module, QualityTypeName name, VeinClass parent)
+        internal ClassBuilder(VeinModuleBuilder module, QualityTypeName name, VeinClass parent)
         {
             this.FullName = name;
             moduleBuilder = module;
@@ -102,7 +102,7 @@ namespace ishtar.emit
             var prop = new VeinProperty(this, new (name, this.Name), flags, propType);
 
             if (!IsAbstract)
-                prop.ShadowField = DefineField(VeinProperty.GetShadowFieldName(prop.FullName), flags | FieldFlags.Special,
+                prop.ShadowField = DefineField(VeinProperty.GetShadowFieldName(prop.FullName), FieldFlags.Special,
                     propType);
 
             var getter =

@@ -44,9 +44,9 @@ namespace ishtar.emit
         }
     }
 
-    internal class ModuleReader : ManaModule
+    internal class ModuleReader : VeinModule
     {
-        public static ModuleReader Read(byte[] arr, List<ManaModule> deps, Func<string, Version, ManaModule> resolver)
+        public static ModuleReader Read(byte[] arr, List<VeinModule> deps, Func<string, Version, VeinModule> resolver)
         {
             var module = new ModuleReader();
             using var mem = new MemoryStream(arr);

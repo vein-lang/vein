@@ -6,6 +6,6 @@ namespace vein
 
     public interface IAssemblyResolver
     {
-        ManaModule ResolveDep(string name, Version version, List<ManaModule> deps);
+        VeinModule ResolveDep(string name, Version version, List<VeinModule> deps);
     }
 }

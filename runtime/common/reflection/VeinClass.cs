@@ -22,17 +22,17 @@ namespace vein.runtime
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE;
         public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
-        public ManaModule Owner { get; set; }
+        public VeinModule Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
 
-        internal VeinClass(QualityTypeName name, VeinClass parent, ManaModule module)
+        internal VeinClass(QualityTypeName name, VeinClass parent, VeinModule module)
         {
             this.FullName = name;
             if (parent is not null)
                 this.Parents.Add(parent);
             this.Owner = module;
         }
-        internal VeinClass(QualityTypeName name, VeinClass[] parents, ManaModule module)
+        internal VeinClass(QualityTypeName name, VeinClass[] parents, VeinModule module)
         {
             this.FullName = name;
             this.Parents.AddRange(parents);

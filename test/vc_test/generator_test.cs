@@ -20,7 +20,7 @@ namespace wc_test
         [Test, Ignore("MANUAL")]
         public void Test()
         {
-            var module = new ManaModuleBuilder("xuy");
+            var module = new VeinModuleBuilder("xuy");
             var clazz = module.DefineClass("xuy%global::vein/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,VeinTypeCode.TYPE_VOID.AsClass(), ("x", VeinTypeCode.TYPE_STRING));
@@ -64,7 +64,7 @@ namespace wc_test
         [Test, Ignore("MANUAL")]
         public void TestIL()
         {
-            var module = new ManaModuleBuilder("xuy");
+            var module = new VeinModuleBuilder("xuy");
             var clazz = module.DefineClass("global::vein/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass(), ("x", VeinTypeCode.TYPE_STRING));
@@ -97,7 +97,7 @@ namespace wc_test
             var ast = w.CompilationUnit.ParseVein(
                 " class Program { main(): void { if(ze()) return x; else { return d();  } } }");
 
-            var module = new ManaModuleBuilder("foo");
+            var module = new VeinModuleBuilder("foo");
 
             foreach (var member in ast.Members)
             {
@@ -169,7 +169,7 @@ namespace wc_test
 
         public static ILGenerator CreateGenerator(params VeinArgumentRef[] args)
         {
-            var module = new ManaModuleBuilder(Guid.NewGuid().ToString());
+            var module = new VeinModuleBuilder(Guid.NewGuid().ToString());
             var @class = module.DefineClass("global::foo/bar");
             var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass(), args);
             return method.GetGenerator();
@@ -218,7 +218,7 @@ puts after - before;*/
         [Test, Ignore("MANUAL")]
         public void ManualGenCallExternFunction()
         {
-            var module = new ManaModuleBuilder("hello_world");
+            var module = new VeinModuleBuilder("hello_world");
             var clazz = module.DefineClass("hello_world%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
 
@@ -251,7 +251,7 @@ puts after - before;*/
         [Test, Ignore("MANUAL")]
         public void ManualGen()
         {
-            var module = new ManaModuleBuilder("satl");
+            var module = new VeinModuleBuilder("satl");
             var clazz = module.DefineClass("satl%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
 

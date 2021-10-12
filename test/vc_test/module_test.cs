@@ -15,12 +15,12 @@ namespace wc_test
     public class module_test
     {
 
-        public static List<ManaModule> GetDeps()
+        public static List<VeinModule> GetDeps()
         {
-            var list = new List<ManaModule>();
+            var list = new List<VeinModule>();
 
 
-            var stl = new ManaModuleBuilder("stl", new Version(2,3));
+            var stl = new VeinModuleBuilder("stl", new Version(2,3));
 
             foreach (var type in VeinCore.All)
             {
@@ -49,7 +49,7 @@ namespace wc_test
         public void WriteTest()
         {
             var verSR = new Version(2, 2, 2, 2);
-            var moduleSR = new ManaModuleBuilder("set1", verSR);
+            var moduleSR = new VeinModuleBuilder("set1", verSR);
             {
                 moduleSR.Deps.AddRange(GetDeps());
 
@@ -77,7 +77,7 @@ namespace wc_test
 
             {
                 var ver = new Version(2, 2, 2, 2);
-                var module = new ManaModuleBuilder("set2", ver);
+                var module = new VeinModuleBuilder("set2", ver);
                 module.Deps.AddRange(GetDeps());
 
 

@@ -79,13 +79,17 @@ namespace vein.cmd
             project.Runtime ??= project.SDK.GetDefaultPack().Alias;
 
 
-            MarkupLine($"[blue]INF[/]: Project [orange]'{name}'[/].");
-            MarkupLine($"[blue]INF[/]: SDK [orange]'{project.SDK.Name} v{project.SDK.Version}'[/].");
-            MarkupLine($"[blue]INF[/]: Runtime [orange]'{project.Runtime}'[/].");
+            MarkupLine($"[aqua]INFO[/]: Project [orange]'{name}'[/].");
+            MarkupLine($"[aqua]INFO[/]: SDK [orange]'{project.SDK.Name} v{project.SDK.Version}'[/].");
+            MarkupLine($"[aqua]INFO[/]: Runtime [orange]'{project.Runtime}'[/].\n");
 
 
             var c = Compiler.Process(project.Sources.Select(x => new FileInfo(x)).ToArray(),
                 project, settings);
+
+
+            foreach (var info in c.infos)
+                MarkupLine($"[aqua]INFO[/]: {info.TrimEnd('\n')}");
 
             if (c.errors.Count > 0)
             {

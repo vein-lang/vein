@@ -44,7 +44,7 @@ namespace vein.pipes
         protected FileInfo OutputBinaryPath =>
             new FileInfo(Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wll"));
 
-        protected internal ManaModuleBuilder Module { get; set; }
+        protected internal VeinModuleBuilder Module { get; set; }
         protected internal VeinProject Project { get; set; }
         protected internal IshtarAssembly Assembly { get; set; }
 

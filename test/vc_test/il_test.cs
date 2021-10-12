@@ -102,7 +102,7 @@ namespace wc_test
 
         public static ILGenerator CreateGenerator(params VeinArgumentRef[] args)
         {
-            var module = new ManaModuleBuilder(Guid.NewGuid().ToString());
+            var module = new VeinModuleBuilder(Guid.NewGuid().ToString());
             var @class = new ClassBuilder(module, $"{module.Name}%global::foo/bar");
             var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass(), args);
             return method.GetGenerator();

@@ -280,9 +280,9 @@ namespace vein.lsp
             return _PROJECT_ = project;
         }
 
-        public List<ManaModule> GetCurrentDeps()
+        public List<VeinModule> GetCurrentDeps()
         {
-            var deps = new List<ManaModule>();
+            var deps = new List<VeinModule>();
             foreach (var (name, version) in GetCurrentProject().Packages)
                 deps.Add(resolver.ResolveDep(name, version.Version, deps));
             return deps;

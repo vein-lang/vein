@@ -36,7 +36,7 @@ namespace wc_test
         {
             var code = File.ReadAllText($"{FetchManaSource.RootOfManaStd}/wave/lang/Object.wave");
             var doc = Vein.CompilationUnit.End().ParseVein(code);
-            var module = new ManaModuleBuilder("wcorlib");
+            var module = new VeinModuleBuilder("wcorlib");
             //doc.CompileInto(module);
         }
 

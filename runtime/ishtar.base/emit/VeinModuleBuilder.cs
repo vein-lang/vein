@@ -14,10 +14,10 @@ namespace ishtar.emit
     using vein.extensions;
     using vein.runtime;
 
-    public class ManaModuleBuilder : ManaModule, IBaker
+    public class VeinModuleBuilder : VeinModule, IBaker
     {
-        public ManaModuleBuilder(string name) : base(name) { }
-        public ManaModuleBuilder(string name, Version ver) : base(name, ver) { }
+        public VeinModuleBuilder(string name) : base(name) { }
+        public VeinModuleBuilder(string name, Version ver) : base(name, ver) { }
 
         /// <summary>
         /// Define class by name.

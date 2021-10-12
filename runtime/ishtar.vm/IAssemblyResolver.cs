@@ -32,7 +32,7 @@ namespace vein.runtime
             return this;
         }
 
-        public ManaModule ResolveDep(string name, Version version, List<ManaModule> deps)
+        public VeinModule ResolveDep(string name, Version version, List<VeinModule> deps)
         {
             var asm = Find(name, version, deps);
 
@@ -45,15 +45,15 @@ namespace vein.runtime
         public RuntimeIshtarModule Resolve(IshtarAssembly assembly)
         {
             var (_, code) = assembly.Sections.First();
-            var module = RuntimeIshtarModule.Read(Vault, code, new List<ManaModule>(), (s, version) =>
-                this.ResolveDep(s, version, new List<ManaModule>()));
+            var module = RuntimeIshtarModule.Read(Vault, code, new List<VeinModule>(), (s, version) =>
+                this.ResolveDep(s, version, new List<VeinModule>()));
 
             Resolved?.Invoke(module);
 
             return module;
         }
 
-        public IshtarAssembly Find(string name, Version version, List<ManaModule> deps)
+        public IshtarAssembly Find(string name, Version version, List<VeinModule> deps)
         {
             var file = FindInPaths(name);
 

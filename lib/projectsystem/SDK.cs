@@ -19,7 +19,7 @@ namespace vein.project
         public SDKPack[] Packs { get; set; }
 
         internal static DirectoryInfo SDKRoot =>
-            new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".mana"));
+            new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".vein"));
 
         public DirectoryInfo GetFullPath(SDKPack sdkPack) =>
             SDKRoot.SubDirectory("sdk")

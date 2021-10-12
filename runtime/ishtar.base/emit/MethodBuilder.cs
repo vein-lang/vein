@@ -13,7 +13,7 @@ namespace ishtar.emit
     public class MethodBuilder : VeinMethod, IBaker
     {
         internal readonly ClassBuilder classBuilder;
-        internal ManaModuleBuilder moduleBuilder
+        internal VeinModuleBuilder moduleBuilder
             => classBuilder?.moduleBuilder;
         private readonly ILGenerator _generator;
 

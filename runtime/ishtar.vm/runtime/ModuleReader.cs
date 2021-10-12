@@ -13,7 +13,7 @@ namespace ishtar
     using vein.reflection;
     using vein.runtime;
 
-    public class RuntimeIshtarModule : ManaModule
+    public class RuntimeIshtarModule : VeinModule
     {
         public AppVault Vault { get; }
         public ushort ID { get; internal set; }
@@ -41,7 +41,7 @@ namespace ishtar
         }
 
 
-        public static RuntimeIshtarModule Read(AppVault vault, byte[] arr, List<ManaModule> deps, Func<string, Version, ManaModule> resolver)
+        public static RuntimeIshtarModule Read(AppVault vault, byte[] arr, List<VeinModule> deps, Func<string, Version, VeinModule> resolver)
         {
             var module = new RuntimeIshtarModule(vault);
             using var mem = new MemoryStream(arr);

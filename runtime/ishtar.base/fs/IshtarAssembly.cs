@@ -43,7 +43,7 @@ namespace vein.fs
 
         private InsomniaAssemblyMetadata metadata = new ();
 
-        private void InsertModule(ManaModuleBuilder module)
+        private void InsertModule(VeinModuleBuilder module)
         {
             if (module is null)
                 throw new ArgumentNullException(nameof(module));
@@ -55,7 +55,7 @@ namespace vein.fs
         }
 
 
-        public IshtarAssembly(ManaModuleBuilder module)
+        public IshtarAssembly(VeinModuleBuilder module)
             => this.InsertModule(module);
 
         internal IshtarAssembly()

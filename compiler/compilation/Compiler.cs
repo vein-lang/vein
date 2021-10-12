@@ -56,6 +56,7 @@ namespace vein.compilation
             _flags = flags;
             Project = project;
             var pack = project.SDK.GetPackByAlias(project.Runtime);
+            resolver = new(this);
             resolver.AddSearchPath(new(project.WorkDir));
             resolver.AddSearchPath(new(project.SDK.GetFullPath(pack).FullName));
         }
@@ -64,13 +65,14 @@ namespace vein.compilation
 
         internal readonly CompileSettings _flags;
         internal readonly VeinSyntax syntax = new();
-        internal readonly AssemblyResolver resolver = new ();
+        internal readonly AssemblyResolver resolver;
         internal readonly Dictionary<FileInfo, string> Sources = new ();
         internal readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
         internal StatusContext Status;
         public readonly List<string> warnings = new ();
         public readonly List<string> errors = new ();
-        internal ManaModuleBuilder module;
+        public readonly List<string> infos = new ();
+        internal VeinModuleBuilder module;
         internal GeneratorContext Context;
 
         private void ProcessFiles(FileInfo[] files)
@@ -83,7 +85,7 @@ namespace vein.compilation
                     Thread.Sleep(400);
                 }
             }
-            var deps = new List<ManaModule>();
+            var deps = new List<VeinModule>();
             foreach (var (name, version) in Project.Packages)
             {
                 Status.ManaStatus($"Resolve [grey]'{name}, {version}'[/]...");
@@ -120,7 +122,7 @@ namespace vein.compilation
 
             Context = new GeneratorContext();
 
-            module = new ManaModuleBuilder(Project.Name);
+            module = new VeinModuleBuilder(Project.Name);
 
             Context.Module = module;
             Context.Module.Deps.AddRange(deps);
@@ -423,7 +425,7 @@ namespace vein.compilation
 
             if (propType is null)
             {
-                PrintError($"[red bold]Unknown type detected. Can't resolve [italic]{member.Type.Identifier}[/] \n\t" +
+                PrintError($"[red bold]Unknown type detected. Can't resolve [italic]{member.Type.Identifier}[/][/] \n\t" +
                            PleaseReportProblemInto(),
                     member.Identifier, doc);
                 return default;
@@ -584,7 +586,7 @@ namespace vein.compilation
                 }
                 catch (Exception e)
                 {
-                    PrintError($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]GenerateBody(...);[/]", statement, Context.Document);
+                    PrintError($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]EmitStatement(...);[/]", statement, Context.Document);
                 }
             }
             // fucking shit fucking
@@ -964,15 +966,21 @@ namespace vein.compilation
 
             qlist.Add(strBuilder.ToString());
         }
-        private void PrintWarning(string text, BaseSyntax posed, DocumentDeclaration doc)
-        {
-            _print(text, posed, doc, warnings);
-        }
+        internal void PrintWarning(string text) => _print(text, null, null, warnings);
+        internal void PrintWarning(string text, BaseSyntax posed) => _print(text, posed, null, warnings);
+        internal void PrintWarning(string text, BaseSyntax posed, DocumentDeclaration doc)
+            => _print(text, posed, doc, warnings);
 
-        private void PrintError(string text, BaseSyntax posed, DocumentDeclaration doc)
-        {
-            _print(text, posed, doc, errors);
-        }
+        internal void PrintError(string text) => _print(text, null, null, errors);
+        internal void PrintError(string text, BaseSyntax posed) => _print(text, posed, null, errors);
+        internal void PrintError(string text, BaseSyntax posed, DocumentDeclaration doc)
+            => _print(text, posed, doc, errors);
+
+        internal void PrintInfo(string text) => _print(text, null, null, infos);
+        internal void PrintInfo(string text, BaseSyntax posed) => _print(text, posed, null, infos);
+        internal void PrintInfo(string text, BaseSyntax posed, DocumentDeclaration doc)
+            => _print(text, posed, doc, infos);
+
 
         private MethodFlags GenerateMethodFlags(MethodDeclarationSyntax method)
         {

@@ -6,7 +6,7 @@ namespace vein.runtime
 
     public static class ModuleEx
     {
-        public static RuntimeIshtarMethod GetEntryPoint(this ManaModule module)
+        public static RuntimeIshtarMethod GetEntryPoint(this VeinModule module)
         {
             foreach (var method in module.class_table.SelectMany(x => x.Methods))
             {

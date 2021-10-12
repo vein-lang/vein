@@ -24,7 +24,7 @@ namespace vein.runtime
         public static FieldName Construct(VeinClass owner, string name)
             => new(name, owner.FullName.Name);
 
-        public static FieldName Resolve(int index, ManaModule module)
+        public static FieldName Resolve(int index, VeinModule module)
         {
             var value = module.fields_table.GetValueOrDefault(index) ??
                         throw new Exception($"FieldName by index '{index}' not found in '{module.Name}' module.");

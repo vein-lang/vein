@@ -14,7 +14,7 @@ namespace ishtar
             //Console.WriteLine($"{":gear:".Emoji()} Initialized regeneration runtime libraries...");
 
 
-            //var stllib = new ManaModuleBuilder("stl");
+            //var stllib = new VeinModuleBuilder("stl");
             //Console.WriteLine($"{":smoking:".Emoji()} Generate stl.lib...");
 
             //BuiltinGen.GenerateConsole(stllib);

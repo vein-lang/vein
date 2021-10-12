@@ -7,7 +7,7 @@ namespace ishtar.emit.extensions
 
     public static class QualityTypeEx
     {
-        public static QualityTypeName ReadTypeName(this BinaryReader bin, ManaModule module)
+        public static QualityTypeName ReadTypeName(this BinaryReader bin, VeinModule module)
         {
             var typeIndex = bin.ReadInt32();
 
@@ -15,7 +15,7 @@ namespace ishtar.emit.extensions
                    throw new Exception($"TypeName by index '{typeIndex}' not found in '{module.Name}' module.");
         }
 
-        public static void WriteTypeName(this BinaryWriter bin, QualityTypeName type, ManaModuleBuilder module)
+        public static void WriteTypeName(this BinaryWriter bin, QualityTypeName type, VeinModuleBuilder module)
         {
             var key = module.InternTypeName(type);
 

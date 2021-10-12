@@ -32,7 +32,7 @@ namespace ishtar_test
     public class IshtarTestContext : IDisposable
     {
         private readonly string _testCase;
-        private readonly ManaModuleBuilder _module;
+        private readonly VeinModuleBuilder _module;
         private Action<ClassBuilder, dynamic> _classCtor;
         private readonly dynamic _context;
         private ClassBuilder @class;
@@ -95,7 +95,7 @@ namespace ishtar_test
             return frame;
         }
 
-        public IshtarTestContext(string testCase, ManaModuleBuilder module)
+        public IshtarTestContext(string testCase, VeinModuleBuilder module)
         {
             _testCase = testCase;
             _module = module;
@@ -123,14 +123,14 @@ namespace ishtar_test
 
 
 
-        private static ManaModuleBuilder _module_instance;
-        private static ManaModule _corlib;
-        protected static ManaModuleBuilder _module
+        private static VeinModuleBuilder _module_instance;
+        private static VeinModule _corlib;
+        protected static VeinModuleBuilder _module
         {
             get
             {
                 if (_module_instance is null)
-                    return _module_instance = new ManaModuleBuilder("tst") { Deps = new List<ManaModule> { _corlib } };
+                    return _module_instance = new VeinModuleBuilder("tst") { Deps = new List<VeinModule> { _corlib } };
                 return _module_instance;
             }
         }
@@ -160,11 +160,11 @@ namespace ishtar_test
             }
         }
 
-        private static ManaModule LoadCorLib()
+        private static VeinModule LoadCorLib()
         {
             var resolver = AppVault.CurrentVault.GetResolver();
             resolver.AddSearchPath(new DirectoryInfo("./"));
-            return resolver.ResolveDep("corlib", new Version(1, 0, 0), new List<ManaModule>());
+            return resolver.ResolveDep("corlib", new Version(1, 0, 0), new List<VeinModule>());
         }
 
         private static readonly object guarder = new ();
