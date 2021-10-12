@@ -255,10 +255,22 @@ namespace wc_test
             Assert.AreEqual("MaxValue", result.Identifier.ToString());
             Assert.AreEqual("Int16", result.Type.Identifier.ToString());
             Assert.True(result.Modifiers.Any(x => x.ModificatorKind == ModificatorKind.Public));
+            Assert.NotNull(result.Setter);
+            Assert.NotNull(result.Getter);
             Assert.True(result.Getter.IsGetter);
             Assert.True(result.Setter.IsSetter);
             Assert.True(result.Getter.IsEmpty);
             Assert.True(result.Setter.IsEmpty);
+
+            result = VeinAst.PropertyDeclaration.ParseVein("public MaxValue: Int16 { get; }");
+
+            Assert.True(result.Getter.IsEmpty);
+            Assert.Null(result.Setter);
+
+            result = VeinAst.PropertyDeclaration.ParseVein("public MaxValue: Int16 { get; private set; }");
+            Assert.True(result.Getter.IsEmpty);
+            Assert.NotNull(result.Setter);
+            Assert.True(result.Setter.Modifiers.Any(x => x.ModificatorKind == ModificatorKind.Private));
         }
 
         [Test]
@@ -438,12 +450,12 @@ namespace wc_test
             var cd = VeinAst.ClassDeclaration.Parse($"[special] {keyword} Program {{ [special] main(): void {{}} }}");
             Assert.True(cd.Methods.Any());
             Assert.AreEqual("Program", cd.Identifier.ToString());
-            Assert.AreEqual(ManaAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
+            Assert.AreEqual(VeinAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
 
             var md = cd.Methods.Single();
             Assert.AreEqual("void", md.ReturnType.Identifier.ToString().ToLower());
             Assert.AreEqual("main", md.Identifier.ToString());
-            Assert.AreEqual(ManaAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
+            Assert.AreEqual(VeinAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
             Assert.False(md.Parameters.Any());
 
             Assert.Throws<VeinParseException>(() => VeinAst.ClassDeclaration.ParseVein(" class Test { void Main }"));
