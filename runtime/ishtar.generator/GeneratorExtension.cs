@@ -16,7 +16,7 @@ namespace ishtar
 
     public class GeneratorContext
     {
-        internal ManaModuleBuilder Module { get; set; }
+        internal VeinModuleBuilder Module { get; set; }
         internal Dictionary<QualityTypeName, ClassBuilder> Classes { get; } = new();
         internal DocumentDeclaration Document { get; set; }
 
@@ -1090,25 +1090,33 @@ namespace ishtar
                 return;
             }
 
-            var @class = generator._methodBuilder.classBuilder;
-            var @method = generator._methodBuilder;
+            //var @class = generator._methodBuilder.classBuilder;
+            //var @method = generator._methodBuilder;
 
             if (statement.Expression is MemberAccessExpression unnamed02)
             {
-                var type = generator
-                    ._methodBuilder
-                    .moduleBuilder
-                    .FindType(unnamed02.Start.ExpressionString, @class.Includes);
+                //generator.EmitCall(unnamed02);
+                //var type = unnamed02.Start.ExpressionString switch
+                //{
+                //    "this" => @class,
+                //    _ => generator
+                //        ._methodBuilder
+                //        .moduleBuilder
+                //        .FindType(unnamed02.Start.ExpressionString, @class.Includes)
+                //};
+                
+                //var methodName = unnamed02.Chain.First().ExpressionString;
 
-                var methodName = unnamed02.Chain.First().ExpressionString;
+                //var call_method = type.FindMethod(methodName);
 
-                var call_method = type.FindMethod(methodName);
+                //if (unnamed02.Start.ExpressionString == "this")
+                //    generator.EmitThis();
 
-                generator.Emit(OpCodes.CALL, call_method);
-                generator.Emit(OpCodes.RET);
-                return;
+                //generator.Emit(OpCodes.CALL, call_method);
+                //generator.Emit(OpCodes.RET);
+                //return;
             }
-
+            
             generator.EmitExpression(statement.Expression);
             generator.Emit(OpCodes.RET);
         }
