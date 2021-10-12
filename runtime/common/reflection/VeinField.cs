@@ -2,6 +2,7 @@ namespace vein.runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using exceptions;
     using extensions;
@@ -32,6 +33,65 @@ namespace vein.runtime
 
         public override string ToString() => $"{Class}.{Name}";
     }
+
+    public class VeinProperty : VeinMember, IAspectable
+    {
+        public VeinProperty(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass propType)
+        {
+            this.Owner = owner;
+            this.FullName = fullName;
+            this.Flags = flags;
+            this.PropType = propType;
+        }
+
+        public FieldName FullName { get; protected internal set; }
+        public VeinClass PropType { get; set; }
+        public FieldFlags Flags { get; set; }
+        public VeinClass Owner { get; set; }
+        public List<Aspect> Aspects { get; } = new();
+
+        public override string Name
+        {
+            get => FullName.Name;
+            protected set => throw new NotImplementedException();
+        }
+        public override VeinMemberKind Kind => VeinMemberKind.Field;
+
+        public bool IsLiteral => this.Flags.HasFlag(FieldFlags.Literal);
+        public bool IsStatic => this.Flags.HasFlag(FieldFlags.Static);
+        public bool IsPublic => this.Flags.HasFlag(FieldFlags.Public);
+        public bool IsReadonly => this.Flags.HasFlag(FieldFlags.Readonly) && Setter is null;
+        public bool IsPrivate => !IsPublic;
+        [MaybeNull] public VeinMethod Getter { get; set; }
+        [MaybeNull] public VeinMethod Setter { get; set; }
+        [MaybeNull] public VeinField ShadowField { get; set; }
+
+
+        public static FieldName GetShadowFieldName(FieldName propName)
+            => new FieldName($"$_prop_shadow_{propName.Name}_", propName.Class);
+
+        public static MethodFlags ConvertShadowFlags(FieldFlags flags)
+        {
+            var method = default(MethodFlags);
+
+            if (flags.HasFlag(FieldFlags.Internal))
+                method |= MethodFlags.Internal;
+            if (flags.HasFlag(FieldFlags.Public))
+                method |= MethodFlags.Public;
+            if (flags.HasFlag(FieldFlags.Protected))
+                method |= MethodFlags.Protected;
+            if (flags.HasFlag(FieldFlags.Special))
+                method |= MethodFlags.Special;
+            if (flags.HasFlag(FieldFlags.Static))
+                method |= MethodFlags.Static;
+            if (flags.HasFlag(FieldFlags.Virtual))
+                method |= MethodFlags.Virtual;
+            if (flags.HasFlag(FieldFlags.Abstract))
+                method |= MethodFlags.Abstract;
+            return method;
+        }
+    }
+
     public class VeinField : VeinMember, IAspectable
     {
         public VeinField(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass fieldType)
@@ -52,9 +112,10 @@ namespace vein.runtime
             get => FullName.Name;
             protected set => throw new NotImplementedException();
         }
-        public override ManaMemberKind Kind => ManaMemberKind.Field;
+        public override VeinMemberKind Kind => VeinMemberKind.Field;
 
 
+        public override bool IsSpecial => this.Flags.HasFlag(FieldFlags.Special);
         public bool IsLiteral => this.Flags.HasFlag(FieldFlags.Literal);
         public bool IsStatic => this.Flags.HasFlag(FieldFlags.Static);
         public bool IsPublic => this.Flags.HasFlag(FieldFlags.Public);
