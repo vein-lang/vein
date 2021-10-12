@@ -41,6 +41,7 @@ namespace vein.syntax
         public override string ToString() =>
             ExpressionString;
 
+        public static implicit operator string(IdentifierExpression i) => i.ToString();
 
         // fuk it
         private string Normalize(string x) => x switch
