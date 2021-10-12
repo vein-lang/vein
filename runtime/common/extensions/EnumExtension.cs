@@ -6,12 +6,17 @@ namespace vein.extensions
 
     public static class EnumExtension
     {
-        public static IEnumerable<TEnum> EnumerateFlags<TEnum>(this TEnum flags) where TEnum : struct
+        public static IEnumerable<string> EnumerateFlags<TEnum>(this TEnum flags, TEnum[] except) where TEnum : struct
         {
             if (!typeof(TEnum).IsEnum)
                 throw new ArgumentException();
+            var exceptStrings = except.Select(x => $"{x}").ToList();
 
-            return Enum.GetValues(typeof(TEnum)).Cast<TEnum>();
+            return $"{flags}"
+                .Split(',')
+                .Select(x => x.Trim())
+                .Where(x => !exceptStrings.Contains(x))
+                .ToArray();
         }
 
         public static IEnumerable<int> GetEnumerable(this Range i) =>
