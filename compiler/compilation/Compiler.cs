@@ -3,6 +3,7 @@ namespace vein.compilation
     using MoreLinq;
     using Spectre.Console;
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
@@ -133,7 +134,8 @@ namespace vein.compilation
                 .ToList()
                 .Pipe(x => x.Item1.Transition(
                     methods => methods.ForEach(GenerateBody),
-                    fields => fields.ForEach(GenerateField)))
+                    fields => fields.ForEach(GenerateField),
+                    props => props.ForEach(GenerateProp)))
                 .Select(x => x.x)
                 .Pipe(GenerateCtor)
                 .Pipe(GenerateStaticCtor)
@@ -329,13 +331,15 @@ namespace vein.compilation
 
         public (
             List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods,
-            List<(VeinField field, FieldDeclarationSyntax syntax)>)
+            List<(VeinField field, FieldDeclarationSyntax syntax)> fields,
+            List<(VeinProperty field, PropertyDeclarationSyntax syntax)> props)
             LinkMethods((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
             var (@class, clazzSyntax) = x;
             var doc = clazzSyntax.OwnerDocument;
             var methods = new List<(MethodBuilder method, MethodDeclarationSyntax syntax)>();
             var fields = new List<(VeinField field, FieldDeclarationSyntax syntax)>();
+            var props = new List<(VeinProperty field, PropertyDeclarationSyntax syntax)>();
             foreach (var member in clazzSyntax.Members)
             {
                 switch (member)
@@ -359,19 +363,22 @@ namespace vein.compilation
                         field.OwnerClass = clazzSyntax;
                         fields.Add(CompileField(field, @class, doc));
                         break;
+                    case PropertyDeclarationSyntax prop:
+                        Status.ManaStatus($"Regeneration property [grey]'{prop.Identifier}'[/]");
+                        prop.OwnerClass = clazzSyntax;
+                        props.Add(CompileProperty(prop, @class, doc));
+                        break;
                     default:
                         warnings.Add($"[grey]Member[/] '[yellow underline]{member.GetType().Name}[/]' [grey]is not supported.[/]");
                         break;
                 }
             }
-            return (methods, fields);
+            return (methods, fields, props);
         }
 
         public (MethodBuilder method, MethodDeclarationSyntax syntax)
             CompileMethod(MethodDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
-
-
             var retType = FetchType(member.ReturnType, doc);
 
             if (retType is null)
@@ -407,6 +414,29 @@ namespace vein.compilation
             CompileAnnotation(member, doc, field);
             return (field, member);
         }
+
+        public (VeinProperty prop, PropertyDeclarationSyntax member)
+            CompileProperty(PropertyDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
+        {
+
+            var propType = FetchType(member.Type, doc);
+
+            if (propType is null)
+            {
+                PrintError($"[red bold]Unknown type detected. Can't resolve [italic]{member.Type.Identifier}[/] \n\t" +
+                           PleaseReportProblemInto(),
+                    member.Identifier, doc);
+                return default;
+            }
+
+            if (member is { Setter: { IsEmpty: true }, Getter: { IsEmpty: true } })
+                return (clazz.DefineAutoProperty(member.Identifier, GenerateFieldFlags(member), propType), member);
+            return (clazz.DefineEmptyProperty(member.Identifier, GenerateFieldFlags(member), propType), member);
+        }
+
+
+        private static string PleaseReportProblemInto()
+            => $"Please report the problem into 'https://github.com/vein-lang/vein/issues'.";
 
         public void GenerateCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
@@ -527,19 +557,24 @@ namespace vein.compilation
             }
             var (method, member) = t;
 
-            foreach (var pr in member.Body.Statements.SelectMany(x => x.ChildNodes.Concat(new[] { x })))
-                AnalyzeStatement(pr, member);
+            GenerateBody(method, member.Body, member.OwnerClass.OwnerDocument);
+        }
+
+        private void GenerateBody(MethodBuilder method, BlockSyntax block, DocumentDeclaration doc)
+        {
+            foreach (var pr in block.Statements.SelectMany(x => x.ChildNodes.Concat(new[] { x })))
+                AnalyzeStatement(pr, doc);
 
             if (method.IsAbstract)
                 return;
 
             var generator = method.GetGenerator();
-            Context.Document = member.OwnerClass.OwnerDocument;
+            Context.Document = doc;
             Context.CurrentMethod = method;
             Context.CreateScope();
             generator.StoreIntoMetadata("context", Context);
 
-            foreach (var statement in member.Body.Statements)
+            foreach (var statement in block.Statements)
             {
                 try
                 {
@@ -560,11 +595,10 @@ namespace vein.compilation
                 generator.Emit(OpCodes.RET);
         }
 
-        private void AnalyzeStatement(BaseSyntax statement, MethodDeclarationSyntax member)
+        private void AnalyzeStatement(BaseSyntax statement, DocumentDeclaration doc)
         {
             if (statement is not IPassiveParseTransition { IsBrokenToken: true } transition)
                 return;
-            var doc = member.OwnerClass.OwnerDocument;
             var pos = statement.Transform.pos;
             var e = transition.Error;
             var diff_err = statement.Transform.DiffErrorFull(doc);
@@ -573,6 +607,45 @@ namespace vein.compilation
                        $"in '[orange bold]{doc.FileEntity}[/]'." +
                        $"{diff_err}");
         }
+
+        public void GenerateProp((VeinProperty prop, PropertyDeclarationSyntax member) t)
+        {
+            if (t == default)
+            {
+                errors.Add($"[red bold]Unknown error[/] in [italic]GenerateBody(...);[/]");
+                return;
+            }
+
+            var (prop, member) = t;
+            var doc = member.OwnerClass.OwnerDocument;
+
+            if (prop.Owner is not ClassBuilder clazz)
+            {
+                errors.Add($"[red bold]Unknown error[/] in [italic]GenerateProp(...);[/]");
+                return;
+            }
+
+            if (prop.Setter is not null || prop.Getter is not null)
+                return; // skip auto property (already generated).
+
+            if (member.Setter is not null)
+            {
+                prop.Setter = clazz.DefineMethod($"set_{prop.Name}",
+                    VeinProperty.ConvertShadowFlags(prop.Flags), prop.PropType,
+                    new VeinArgumentRef("value", prop.PropType));
+
+                GenerateBody((MethodBuilder)prop.Setter, member.Setter.Body, doc);
+            }
+
+            if (member.Getter is not null)
+            {
+                prop.Getter = clazz.DefineMethod($"get_{prop.Name}",
+                    VeinProperty.ConvertShadowFlags(prop.Flags), prop.PropType);
+
+                GenerateBody((MethodBuilder)prop.Getter, member.Getter.Body, doc);
+            }
+        }
+
         public void GenerateField((VeinField field, FieldDeclarationSyntax member) t)
         {
             if (t == default)
@@ -751,37 +824,49 @@ namespace vein.compilation
             return flags;
         }
 
-        private FieldFlags GenerateFieldFlags(FieldDeclarationSyntax field)
+        private FieldFlags GenerateFieldFlags(MemberDeclarationSyntax member)
         {
             var flags = (FieldFlags)0;
 
-            var annotations = field.Annotations;
-            var mods = field.Modifiers;
-
+            var annotations = member.Annotations;
+            var mods = member.Modifiers;
+            
             foreach (var annotation in annotations)
             {
                 switch (annotation.AnnotationKind)
                 {
-                    case ManaAnnotationKind.Virtual:
+                    case VeinAnnotationKind.Virtual:
                         flags |= FieldFlags.Virtual;
                         continue;
-                    case ManaAnnotationKind.Special:
+                    case VeinAnnotationKind.Special:
                         flags |= FieldFlags.Special;
                         continue;
-                    case ManaAnnotationKind.Native:
+                    case VeinAnnotationKind.Native:
+                        flags |= FieldFlags.Special;
                         continue;
-                    case ManaAnnotationKind.Readonly:
+                    case VeinAnnotationKind.Readonly:
                         flags |= FieldFlags.Readonly;
                         continue;
-                    case ManaAnnotationKind.Getter:
-                    case ManaAnnotationKind.Setter:
+                    case VeinAnnotationKind.Getter:
+                    case VeinAnnotationKind.Setter:
                         //errors.Add($"In [orange]'{field.Field.Identifier}'[/] field [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
                         continue;
                     default:
-                        PrintError(
-                            $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{annotation.AnnotationKind}[/] " +
-                            $"is not supported [orange bold]annotation[/].",
-                            annotation, field.OwnerClass.OwnerDocument);
+                        if (member is FieldDeclarationSyntax field)
+                        {
+                            PrintError(
+                                $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{annotation.AnnotationKind}[/] " +
+                                $"is not supported [orange bold]annotation[/].",
+                                annotation, field.OwnerClass.OwnerDocument);
+                        }
+
+                        if (member is PropertyDeclarationSyntax prop)
+                        {
+                            PrintError(
+                                $"In [orange]'{prop.Identifier}'[/] property [red bold]{annotation.AnnotationKind}[/] " +
+                                $"is not supported [orange bold]annotation[/].",
+                                annotation, prop.OwnerClass.OwnerDocument);
+                        }
                         continue;
                 }
             }
@@ -810,14 +895,27 @@ namespace vein.compilation
                     case "abstract":
                         flags |= FieldFlags.Abstract;
                         continue;
+                    case "const" when member is PropertyDeclarationSyntax:
+                        goto default;
                     case "const":
                         flags |= FieldFlags.Literal;
                         continue;
                     default:
-                        PrintError(
-                            $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{mod.ModificatorKind}[/] " +
-                            $"is not supported [orange bold]modificator[/].",
-                            mod, field.OwnerClass.OwnerDocument);
+                        switch (member)
+                        {
+                            case FieldDeclarationSyntax field:
+                                PrintError(
+                                    $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{mod.ModificatorKind}[/] " +
+                                    $"is not supported [orange bold]modificator[/].",
+                                    mod, field.OwnerClass.OwnerDocument);
+                                break;
+                            case PropertyDeclarationSyntax prop:
+                                PrintError(
+                                    $"In [orange]'{prop.Identifier}'[/] property [red bold]{mod.ModificatorKind}[/] " +
+                                    $"is not supported [orange bold]modificator[/].",
+                                    mod, prop.OwnerClass.OwnerDocument);
+                                break;
+                        }
                         continue;
                 }
             }
