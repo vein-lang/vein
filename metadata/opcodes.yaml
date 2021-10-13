@@ -15,6 +15,12 @@
     S:
       description: Load into stack from argument by index.
       override-size: 4
+- STARG:
+    description: Stage into argument from stack.
+    range: true
+    S:
+      description: Stage into argument from stack by index.
+      override-size: 4
 - LD.THIS:
     description: Load into stack current instance of object.
 - LDC:
