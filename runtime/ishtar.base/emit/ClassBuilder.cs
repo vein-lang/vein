@@ -138,7 +138,7 @@ namespace ishtar.emit
         }
 
         public VeinProperty DefineEmptyProperty(string name, FieldFlags flags, VeinClass propType)
-            => new (this, new (name, this.Name), flags, propType);
+            => new(this, new(name, this.Name), flags, propType);
 
         byte[] IBaker.BakeByteArray()
         {

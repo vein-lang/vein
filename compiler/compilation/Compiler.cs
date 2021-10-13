@@ -834,7 +834,7 @@ namespace vein.compilation
 
             var annotations = member.Annotations;
             var mods = member.Modifiers;
-            
+
             foreach (var annotation in annotations)
             {
                 switch (annotation.AnnotationKind)
