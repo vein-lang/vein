@@ -40,9 +40,6 @@ insmvm.sln
 /ZERO_CHECK.vcxproj.filters
 /ALL_BUILD.vcxproj
 /ALL_BUILD.vcxproj.filters
-compiler/antrl/.antlr/
-
-compiler/antrl/generated/
 
 wave.std/bin/
 
@@ -68,3 +65,5 @@ launch.json
 mana_lang.sln.DotSettings.user
 
 *.user
+
+.antlr/
