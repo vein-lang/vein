@@ -3,12 +3,12 @@ namespace vein.syntax
     using System.Collections.Generic;
     using System.Linq;
     using Sprache;
+    using vein.extensions;
 
     public class MemberAccessExpression : ExpressionSyntax, IPositionAware<MemberAccessExpression>
     {
         public MemberAccessExpression(ExpressionSyntax start, IEnumerable<ExpressionSyntax> indexerAccess, IEnumerable<ExpressionSyntax> chain)
         {
-            this.ExpressionString = start.ExpressionString;
             Start = start;
             IndexerAccess = indexerAccess;
             Chain = chain;
@@ -36,5 +36,8 @@ namespace vein.syntax
             }
             return result;
         }
+
+        public override string ExpressionString
+            => $"{GetChain().Select(x => x.ExpressionString).Join('.')}";
     }
 }

@@ -15,6 +15,8 @@ namespace vein.syntax
             base.SetPos(startPos, length);
             return this;
         }
+
+        public override string ExpressionString => Value.ExpressionString;
     }
 
     public class VariableDeclarationSyntax : StatementSyntax, IPositionAware<VariableDeclarationSyntax>
