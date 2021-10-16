@@ -15,9 +15,8 @@ namespace wc_test
         [Test]
         public void CommentParseTest()
         {
-            var a = new VeinSyntax();
-            Assert.AreEqual(" bla ", a.CommentParser.AnyComment.ParseVein("/* bla */"));
-            Assert.AreEqual(" bla", a.CommentParser.AnyComment.ParseVein("// bla"));
+            Assert.AreEqual(" bla ", VeinAst.CommentParser.AnyComment.ParseVein("/* bla */"));
+            Assert.AreEqual(" bla", VeinAst.CommentParser.AnyComment.ParseVein("// bla"));
         }
         [Test]
         public void VariableStatementTest()
@@ -320,6 +319,17 @@ namespace wc_test
 
 
             Assert.AreEqual(chainLen, chain.Length);
+        }
+
+        [Test]
+        public void MemberNormalizedChainTest()
+        {
+            VeinSyntax.core_exp.End().ParseVein("foo");
+            VeinSyntax.core_exp.End().ParseVein("foo.bar");
+            VeinSyntax.core_exp.End().ParseVein("foo.bar.zet");
+            VeinSyntax.core_exp.End().ParseVein("foo.bar.zet.gota");
+            VeinSyntax.core_exp.End().ParseVein("foo.bar.zet.gota()");
+            // var chain = (result.Expression as MemberAccessExpression).GetNormalizedChain().ToArray();
         }
         [Test]
         public void ValidateChainMember()
