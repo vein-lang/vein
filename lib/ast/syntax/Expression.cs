@@ -236,7 +236,7 @@ namespace vein.syntax
             //    .Or(TypeExpression.Select(x => x.Downlevel()))
             //    .Positioned().Token().Optional()
             from exp in QualifiedExpression
-            select new ArgumentExpression(null, null, exp);
+            select new ArgumentExpression(exp);
 
         protected internal virtual Parser<IndexerArgument> indexer_argument =>
             from id in IdentifierExpression
