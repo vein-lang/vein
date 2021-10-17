@@ -1,10 +1,12 @@
 namespace vein.syntax
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using extensions;
     using stl;
 
+    [Obsolete("", true)]
     public class InvocationExpressionSyntax : ExpressionSyntax
     {
         public override SyntaxType Kind => SyntaxType.InvocationExpression;

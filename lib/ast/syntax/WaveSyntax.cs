@@ -23,7 +23,7 @@ namespace vein.syntax
 
         protected internal virtual Parser<string> RawIdentifier =>
             from identifier in Parse.Identifier(Parse.Letter.Or(Parse.Chars("_@")), Parse.LetterOrDigit.Or(Parse.Char('_')))
-            where !ManaKeywords.list.Contains(identifier)
+            where !VeinKeywords.list.Contains(identifier)
             select identifier;
 
         protected internal virtual Parser<string> Identifier =>

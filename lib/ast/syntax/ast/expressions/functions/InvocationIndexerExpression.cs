@@ -3,18 +3,20 @@ namespace vein.syntax;
 using System.Collections.Generic;
 using System.Linq;
 using Sprache;
+using extensions;
 
-public class InvocationIndexerExpression : ExpressionSyntax, IPositionAware<InvocationIndexerExpression>
+public class ArgumentListExpression : ExpressionSyntax, IPositionAware<ArgumentListExpression>
 {
-    public ExpressionSyntax Name { get; set; }
     public ExpressionSyntax[] Arguments { get; set; }
 
-    public InvocationIndexerExpression(ExpressionSyntax name, IEnumerable<ExpressionSyntax> args)
-        => (Name, this.Arguments) = (name, args.ToArray());
+    public ArgumentListExpression(IEnumerable<ExpressionSyntax> args)
+        => this.Arguments = args.ToArray();
 
-    public new InvocationIndexerExpression SetPos(Position startPos, int length)
+    public new ArgumentListExpression SetPos(Position startPos, int length)
     {
         base.SetPos(startPos, length);
         return this;
     }
+
+    public override string ToString() => $"{Arguments.Select(x => x.ToString()).Join(", ")}";
 }
