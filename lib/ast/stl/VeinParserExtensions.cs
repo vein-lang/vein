@@ -2,7 +2,6 @@ namespace vein.stl
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using Sprache;
     using syntax;
@@ -31,7 +30,7 @@ namespace vein.stl
         Transform Transform { get; }
     }
 
-    public static class ManaParserExtensions
+    public static class VeinParserExtensions
     {
         internal static Action<string> _log = s => {};
         static int _instance;
@@ -99,6 +98,22 @@ namespace vein.stl
         public static Parser<IBeaconCommented<T>> Commented<T>(this Parser<T> parser, ICommentParserProvider provider) =>
             parser.Commented(provider?.CommentParser)
                 .Select(x => (IBeaconCommented<T>)new Beacon<T>(x)).Positioned();
+        public static Parser<IdentifierExpression> Keyword(this string text) =>
+            Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not())
+                .Return(new IdentifierExpression(text)).Positioned();
+        public static Parser<ExpressionSyntax> Downlevel<T>(this Parser<T> p) where T : ExpressionSyntax
+            => p.Select(x => x.Downlevel());
+
+        public static ExchangeWrapper<T> Exchange<T>(this Parser<T> p) 
+            => new (p);
+
+        public struct ExchangeWrapper<T>
+        {
+            public ExchangeWrapper(Parser<T> _1) => this._ = _1;
+            public Parser<T> _;
+
+            public Parser<D> Return<D>() where D : class, new() => _.Return(new D());
+        }
 
         /// <summary>
         /// Single character look-behind parser.
@@ -154,10 +169,8 @@ namespace vein.stl
     public class VeinParseException : ParseException
     {
         public VeinParseException(string message, Position pos)
-            : base($"{message} at {pos}", pos)
-        {
+            : base($"{message} at {pos}", pos) =>
             this.ErrorMessage = message;
-        }
 
         public string ErrorMessage { get; set; }
     }
