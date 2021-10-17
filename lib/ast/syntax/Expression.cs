@@ -2,6 +2,7 @@ namespace vein.syntax
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using extensions;
@@ -180,6 +181,8 @@ namespace vein.syntax
 
         protected internal virtual Parser<ExpressionSyntax> power_expression =>
             BinaryExpression(range_expression, "^^").Positioned();
+        //protected internal virtual Parser<ExpressionSyntax> element_access2 =>
+        //    BinaryExpression(element_access, "^^").Positioned();
 
         // TODO
         protected internal virtual Parser<BinaryExpressionSyntax> switch_expression =>
@@ -381,102 +384,65 @@ namespace vein.syntax
                 select FlatIfEmptyOrNull(new ChainAccessExpression(cc.Concat(bk1)))
             ).Token().Many()
             select FlatIfEmptyOrNull(new MemberAccessExpression(pe, bk, dd));
-
-
-        protected internal virtual Parser<ExpressionSyntax> primary_expression =>
-            array_creation_expression.Or(primary_no_array_creation_expression);
-
-        protected internal static Parser<string> RawIdentifier2 =>
-            from identifier in Parse.Identifier(Parse.Letter.Or(Parse.Chars("_@")), Parse.LetterOrDigit.Or(Parse.Char('_')))
-            where !ManaKeywords.list.Contains(identifier)
-            select identifier;
-
-        protected internal static Parser<IdentifierExpression> IdentifierExpression2 =>
-            RawIdentifier2.Token().Named("Identifier").Select(x => new IdentifierExpression(x)).Positioned();
-
-        protected internal static Parser<ExpressionSyntax> core_exp =
-            from d in IdentifierExpression2.Select(x => x.Downlevel())
-                .Or(
-                    from d in Parse.Ref(() => core_exp)
-                    from dot in Parse.Char('.').Token()
-                    from i in Parse.Ref(() => IdentifierExpression2)
-                    select new MemberAccessExpressionV2(d, i))
-                .Or(
-                    from d in Parse.Ref(() => core_exp)
-                    from s1 in Parse.Char('(').Token()
-                    from i in Parse.Ref(() => IdentifierExpression2.ChainForward(Parse.Char(',').Token())).Optional()
-                    from s2 in Parse.Char(')').Token()
-                    select new InvocationExpression(d, null)
-                )
-            select d;
-
         
 
-        protected internal Parser<ExpressionSyntax> primary_no_array_creation_expression =>
+        protected internal virtual Parser<ExpressionSyntax> primary_expression =>
+            Parse.ChainRightOperator(dot_access, for_chain_expression.Select(x => x.Downlevel()), 
+                (op, left, right)
+                    => new AccessExpressionSyntax(left, right));
+        
+        public static Parser<ExpressionSyntax> dot_access =>
+            from s1 in DOT
+            select new DotAccessExp();
+
+
+        public class DotAccessExp : ExpressionSyntax {}
+
+        protected internal Parser<ExpressionSyntax> for_chain_expression =>
             from oo in
-            //post_increment_expression.Select(x => x.Downlevel()).Positioned()
-                //.Or(post_increment_expression.Positioned())
-                //.Or(post_decrement_expression.Positioned())
-                //.Or(KeywordExpression("this").Return(new ThisAccessExpression()).Positioned())
-                //.Or(KeywordExpression("base").Return(new BaseAccessExpression()).Positioned())
-                //.Or(element_access.Positioned())
-                //.Or(invocation_expression.Positioned())
-
-            Parse.Ref(() => member_accessV2).Positioned()
-                //.Or(WrappedExpression('(', ')', QualifiedExpression).Positioned())
-                .Or(Parse.Ref(() => IdentifierExpression).Positioned())
-                //.Or(LiteralExpression.Positioned())
-                select oo
-        ;
-
-
+                post_increment_expression.Select(x => x.Downlevel()).Positioned()
+                .Or(post_decrement_expression.Positioned())
+                .Or(element_access_expression.Positioned())
+                .Or(invocation_expression.Positioned())
+                .Or(array_creation_expression)
+                .Or(new_expression)
+                .Or("this".Keyword().Exchange().Return<ThisAccessExpression>().Positioned())
+                .Or("base".Keyword().Exchange().Return<BaseAccessExpression>().Positioned())
+                .Or(QualifiedExpression.Contained(OPENING_PARENTHESIS, CLOSING_PARENTHESIS).Positioned())
+                .Or(IdentifierExpression.Positioned())
+                .Or(LiteralExpression.Positioned())
+            select oo;
+        
         protected internal virtual Parser<ExpressionSyntax> array_creation_expression =>
             from keyword in KeywordExpression("new")
             from type in TypeExpression.Token().Positioned()
             from intializer in array_initializer.Token().Positioned()
             select new ArrayCreationExpression(type, intializer);
 
+        protected internal virtual Parser<IndexerAccessExpressionSyntax> element_access_expression =>
+            from p in invocation_expression.Downlevel().Or(IdentifierExpression)
+            from exc in argument_list.Contained(OPENING_SQUARE_BRACKET, CLOSING_SQUARE_BRACKET)
+            select new IndexerAccessExpressionSyntax(p, new ArgumentListExpression(exc));
 
         
-        protected internal virtual Parser<ExpressionSyntax> member_accessV2 =>
-            from p in Parse.Ref(() => primary_expression)
-                .Or(SystemTypeExpression)
-                .Or(qualified_alias_member)
-            from dot in Parse.Char('.').Token()
-            from i in Parse.Ref(() => IdentifierExpression)
-            select new MemberAccessExpressionV2(null, i);
-
-
-
-        protected internal virtual Parser<ExpressionSyntax> element_access =>
-            from p in Parse.Ref(() => primary_no_array_creation_expression)
-            from list in WrappedExpression('[', ']', expression_list)
-            select new InvocationIndexerExpression(p, list);
         protected internal virtual Parser<InvocationExpression> invocation_expression =>
-            from p in Parse.Ref(() => primary_expression)
-            from exc in WrappedExpression('(', ')', argument_list.Optional())
+            from p in Parse.Ref(() => IdentifierExpression)
+            from exc in argument_list.Optional().Contained(OPENING_PARENTHESIS, CLOSING_PARENTHESIS)
             select new InvocationExpression(p, exc);
-
-        
         protected internal virtual Parser<PostDecrementExpression> post_decrement_expression =>
-            from p in Parse.Ref(() => primary_expression).Positioned()
+            from p in Parse.Ref(() => IdentifierExpression).Positioned()
             from exc in Parse.String("--").Token()
             select new PostDecrementExpression(p);
         protected internal virtual Parser<PostIncrementExpression> post_increment_expression =>
-            from p in Parse.Ref(() => primary_expression).Positioned()
+            from p in Parse.Ref(() => IdentifierExpression).Positioned()
             from exc in Parse.String("++").Token()
             select new PostIncrementExpression(p);
-
-
         private Parser<ExpressionSyntax> UnaryOperator(string op) =>
             from o in Parse.String(op).Token()
             from u in Parse.Ref(() => unary_expression)
             select new UnaryExpressionSyntax { Operand = u, OperatorType = op.ToExpressionType(false) };
-
-
-
         protected internal virtual Parser<ExpressionSyntax> unary_expression =>
-            from f1 in primary_expression
+            from f1 in Parse.Ref(() => primary_expression)
                 .Or(UnaryOperator("++"))
                 .Or(UnaryOperator("--"))
                 .Or(UnaryOperator("+"))
