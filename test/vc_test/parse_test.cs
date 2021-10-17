@@ -324,28 +324,30 @@ namespace wc_test
         [Test]
         public void MemberNormalizedChainTest()
         {
-            VeinSyntax.core_exp.End().ParseVein("foo");
-            VeinSyntax.core_exp.End().ParseVein("foo.bar");
-            VeinSyntax.core_exp.End().ParseVein("foo.bar.zet");
-            VeinSyntax.core_exp.End().ParseVein("foo.bar.zet.gota");
-            VeinSyntax.core_exp.End().ParseVein("foo.bar.zet.gota()");
+            var r1 = VeinAst.primary_expression.End().ParseVein("foo");
+            var r2 = VeinAst.primary_expression.End().ParseVein("foo.bar");
+            var r3 = VeinAst.primary_expression.End().ParseVein("foo.bar.zet");
+            var r4 = VeinAst.primary_expression.End().ParseVein("foo.bar.zet.gota");
+            var r5 = VeinAst.primary_expression.End().ParseVein("foo.bar.zet.gota()");
+            var r6 = VeinAst.primary_expression.End().ParseVein("gota().asd");
             // var chain = (result.Expression as MemberAccessExpression).GetNormalizedChain().ToArray();
         }
         [Test]
         public void ValidateChainMember()
         {
             var key = $"zet.foo()[2]";
-            var result = VeinAst.QualifiedExpression.End().ParseVein(key) as MemberAccessExpression;
+            var result = VeinAst.QualifiedExpression.End().ParseVein(key) as AccessExpressionSyntax;
 
             Assert.NotNull(result);
+            
+            IshtarAssert.IsType<IdentifierExpression>(result.Left); // zet
+            var indexer = IshtarAssert.IsType<IndexerAccessExpressionSyntax>(result.Right); // foo
 
-            var chain = result.GetChain().ToArray();
 
-
-            IshtarAssert.IsType<IdentifierExpression>(chain[0]); // zet
-            IshtarAssert.IsType<IdentifierExpression>(chain[1]); // foo
-            IshtarAssert.IsType<MethodInvocationExpression>(chain[2]); // ()
-            IshtarAssert.IsType<BracketExpression>(chain[3]); // []
+            IshtarAssert.IsType<LiteralExpressionSyntax>(indexer.Right); // 5
+            var inv = IshtarAssert.IsType<InvocationExpression>(indexer.Left); // foo()
+            IshtarAssert.IsType<IdentifierExpression>(inv.Name); // foo
+            Assert.AreEqual("foo", $"{inv.Name}");
         }
         [Theory]
         [TestCase("class", null, true)]
