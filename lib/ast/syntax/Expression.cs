@@ -32,8 +32,11 @@ namespace vein.syntax
                 .Then(_ => QualifiedExpression.Token().XOptional())
                 .Then(x => Parse.Char(';').Token().Return(x));
 
-        protected internal virtual Parser<ExpressionSyntax> QualifiedExpression =>
+        protected internal virtual Parser<ExpressionSyntax> _shadow_QualifiedExpression =>
             assignment.Or(non_assignment_expression);
+
+        protected internal virtual Parser<ExpressionSyntax> QualifiedExpression =>
+            Parse.Ref(() => _shadow_QualifiedExpression);
         protected internal virtual Parser<ExpressionSyntax> assignment =>
             (
                 from exp in unary_expression
