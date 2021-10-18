@@ -16,7 +16,8 @@ namespace ishtar.emit
     {
         private byte[] _ilBody;
         private int _position;
-        internal List<ushort> _opcodes = new List<ushort>();
+        internal List<ushort> _opcodes = new ();
+        internal List<OpCode> _debug_list = new ();
         internal readonly MethodBuilder _methodBuilder;
         private readonly StringBuilder _debugBuilder = new ();
 
@@ -411,6 +412,7 @@ namespace ishtar.emit
             BinaryPrimitives.WriteUInt16LittleEndian(_ilBody.AsSpan(_position), num);
             _position += sizeof(ushort);
             _opcodes.Add(num);
+            _debug_list.Add(opcode);
             //this.UpdateStackSize(opcode, opcode.StackChange());
         }
         internal void EnsureCapacity<_>(params int[] sizes) where _ : struct
