@@ -1,5 +1,6 @@
 namespace vein.syntax
 {
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using Sprache;
 
@@ -18,6 +19,17 @@ namespace vein.syntax
         }
 
         public override string ToString() => $"{Left}.{Right}";
+
+        public IEnumerable<ExpressionSyntax> ToChain()
+        {
+            var chan = new List<ExpressionSyntax> { Left };
+
+            if (Right is AccessExpressionSyntax a)
+                chan.AddRange(a.ToChain());
+            else
+                chan.Add(Right);
+            return chan;
+        }
     }
 
     public class IndexerAccessExpressionSyntax : AccessExpressionSyntax, IPositionAware<IndexerAccessExpressionSyntax>
