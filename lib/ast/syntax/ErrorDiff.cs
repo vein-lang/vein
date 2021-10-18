@@ -12,6 +12,8 @@ namespace vein.syntax
             try
             {
                 var (diff, arrow_line) = DiffError(t, doc);
+                if (diff is null && arrow_line is null)
+                    return "";
                 return $"\n\t[grey] {diff.EscapeMarkup().EscapeArgumentSymbols()} [/]\n\t[red] {arrow_line.EscapeMarkup().EscapeArgumentSymbols()} [/]";
             }
             catch
@@ -22,6 +24,8 @@ namespace vein.syntax
 
         private static (string line, string arrow_line) NewDiffError(Transform t, DocumentDeclaration doc)
         {
+            if (doc is null)
+                return default;
             var line = doc.SourceLines[t.pos.Line].Length < t.len ?
                 t.pos.Line :
                 t.pos.Line - 1;
