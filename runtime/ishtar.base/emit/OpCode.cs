@@ -63,5 +63,7 @@ namespace ishtar.emit
 
         internal static int CreateFlag(byte size, FlowControl flow, ControlChain chain)
             => ((int)chain << 0xC) | 0x1F | ((int)flow << 0x11) | 0x1F | (size << 22) | 0x1F;
+
+        public override string ToString() => $"{Name} (0x{Value:X2})";
     }
 }
