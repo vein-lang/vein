@@ -4,6 +4,7 @@ namespace wc_test
     using System.Collections.Generic;
     using System.Linq;
     using NUnit.Framework;
+    using vein.extensions;
 
     public static class IshtarAssert
     {
@@ -14,6 +15,10 @@ namespace wc_test
             Assert.IsInstanceOf<T>(t);
             return default;
         }
+
+        public static void SequenceEqual<T, D>(IEnumerable<T> expected, IEnumerable<D> actual) =>
+            Assert.AreEqual($"{expected.Select(x => $"{x}").Join(", ")}",
+                $"{actual.Select(x => $"{x}").Join(", ")}");
 
         public static void NotEmpty<T>(IEnumerable<T> t) => Assert.IsNotEmpty(t);
 

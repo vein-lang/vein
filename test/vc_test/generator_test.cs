@@ -119,7 +119,7 @@ namespace wc_test
             }
         }
 
-        [Test, Ignore("MANUAL")]
+        [Test]
         public void ReturnStatementCompilation1()
         {
             var ret = new ReturnStatementSyntax(new SingleLiteralExpressionSyntax(14.3f));
@@ -137,11 +137,35 @@ namespace wc_test
             Assert.AreEqual(expected.BakeByteArray(), actual.BakeByteArray());
         }
 
-        [Test, Ignore("MANUAL")]
+        [Test]
         public void ReturnStatementCompilation2()
         {
-            var ret = new ReturnStatementSyntax(new ExpressionSyntax("x"));
+            var ret = new ReturnStatementSyntax(new IdentifierExpression("x"));
 
+            var actual = CreateGenerator();
+            var ctx_actual = actual.ConsumeFromMetadata<GeneratorContext>("context");
+
+            ctx_actual.Classes.First().Value
+                .DefineField("x", FieldFlags.None, VeinTypeCode.TYPE_STRING.AsClass());
+
+            
+            actual.EmitReturn(ret);
+
+            var expected = CreateGenerator();
+            var ctx_expected = expected.ConsumeFromMetadata<GeneratorContext>("context");
+
+            var field = ctx_expected.Classes.First().Value
+                .DefineField("x", FieldFlags.None, VeinTypeCode.TYPE_STRING.AsClass());
+
+            expected.Emit(OpCodes.LDF, field);
+            expected.Emit(OpCodes.RET);
+            
+            IshtarAssert.SequenceEqual(expected._debug_list, actual._debug_list);
+        }
+        [Test]
+        public void ReturnStatementCompilation3()
+        {
+            var ret = new ReturnStatementSyntax(new IdentifierExpression("x"));
 
             var actual = CreateGenerator(("x", VeinTypeCode.TYPE_STRING));
 
@@ -149,22 +173,10 @@ namespace wc_test
 
             var expected = CreateGenerator(("x", VeinTypeCode.TYPE_STRING));
 
-            expected.Emit(OpCodes.LDF, new FieldName("x"));
+            expected.Emit(OpCodes.LDARG_S, 0);
             expected.Emit(OpCodes.RET);
-
-
-            Assert.AreEqual(expected.BakeByteArray(), actual.BakeByteArray());
-        }
-
-        [Test, Ignore("MANUAL")]
-        public void ReturnStatementCompilation3()
-        {
-            var ret = new ReturnStatementSyntax(new ExpressionSyntax("x"));
-
-            var actual = CreateGenerator();
-
-
-            Assert.Throws<FieldIsNotDeclaredException>(() => actual.EmitReturn(ret));
+            
+            IshtarAssert.SequenceEqual(expected._debug_list, actual._debug_list);
         }
 
         public static ILGenerator CreateGenerator(params VeinArgumentRef[] args)
@@ -172,7 +184,15 @@ namespace wc_test
             var module = new VeinModuleBuilder(Guid.NewGuid().ToString());
             var @class = module.DefineClass("global::foo/bar");
             var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass(), args);
-            return method.GetGenerator();
+            
+            var gen =  method.GetGenerator();
+            var ctx = new GeneratorContext();
+            ctx.Module = module;
+            ctx.Classes.Add(@class.FullName, @class);
+            ctx.CurrentMethod = method;
+            gen.StoreIntoMetadata("context", ctx);
+            ctx.CreateScope();
+            return gen;
         }
         [Test, Ignore("MANUAL")]
         public void Fib()

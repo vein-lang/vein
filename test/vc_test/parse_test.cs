@@ -301,29 +301,11 @@ namespace wc_test
         [TestCase("auto")]
         public void KeywordIsNotIdentifier(string key)
             => Assert.Throws<VeinParseException>(() => VeinAst.Identifier.ParseVein(key));
-
-        [Theory]
-        [TestCase("foo.bar.zet", 3)]
-        [TestCase("foo.bar.zet()", 4)]
-        [TestCase("zet()", 2)]
-        [TestCase("zet++", 2)]
-        [TestCase("zet->foo()", 3)]
-        [TestCase("zet.foo()[2]", 4)]
-        public void MemberOrMethodTest(string key, int chainLen)
-        {
-            var result = VeinAst.QualifiedExpression.End().ParseVein(key) as MemberAccessExpression;
-
-            Assert.NotNull(result);
-
-            var chain = result.GetChain().ToArray();
-
-
-            Assert.AreEqual(chainLen, chain.Length);
-        }
-
+        
         [Test]
         public void MemberNormalizedChainTest()
         {
+            
             var r1 = VeinAst.primary_expression.End().ParseVein("foo");
             var r2 = VeinAst.primary_expression.End().ParseVein("foo.bar");
             var r3 = VeinAst.primary_expression.End().ParseVein("foo.bar.zet");
@@ -344,7 +326,7 @@ namespace wc_test
             var indexer = IshtarAssert.IsType<IndexerAccessExpressionSyntax>(result.Right); // foo
 
 
-            IshtarAssert.IsType<LiteralExpressionSyntax>(indexer.Right); // 5
+            IshtarAssert.IsType<ArgumentListExpression>(indexer.Right); // [5]
             var inv = IshtarAssert.IsType<InvocationExpression>(indexer.Left); // foo()
             IshtarAssert.IsType<IdentifierExpression>(inv.Name); // foo
             Assert.AreEqual("foo", $"{inv.Name}");

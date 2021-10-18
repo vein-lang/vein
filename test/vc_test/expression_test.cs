@@ -1,6 +1,7 @@
 namespace wc_test
 {
     using System;
+    using System.IO;
     using System.Linq;
     using ishtar;
     using Sprache;
@@ -128,33 +129,7 @@ namespace wc_test
 
             Assert.Throws<Exception>(() => result.DetermineType(null));
         }
-
-
-        [Test, Ignore("TODO")]
-        public void DetermineVariableType()
-        {
-            var genCtx = new GeneratorContext();
-
-            genCtx.Module = new VeinModuleBuilder("doo");
-            var @class = genCtx.Module.DefineClass("global::mana/foo");
-            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass());
-            genCtx.CurrentScope = new ManaScope(genCtx);
-
-            genCtx.CurrentScope.DefineVariable(new IdentifierExpression("idi"), VeinTypeCode.TYPE_BOOLEAN.AsClass(), 0);
-
-            var key = $"idi";
-            var id = Syntax.QualifiedExpression.End().ParseVein(key) as IdentifierExpression;
-            var result = new MemberAccessExpression(id, Array.Empty<ExpressionSyntax>(), Array.Empty<ExpressionSyntax>());
-
-            var chain = result.GetChain().ToArray();
-
-            IshtarAssert.NotEmpty(chain);
-
-            var type = result.DetermineType(genCtx);
-
-            Assert.AreEqual(VeinTypeCode.TYPE_BOOLEAN, type.TypeCode);
-        }
-
+        
         [Test]
         public void DetermineSelfMethodType()
         {
@@ -166,14 +141,10 @@ namespace wc_test
             genCtx.CurrentScope = new ManaScope(genCtx);
 
             var key = $"ata()";
-            var result = Syntax.QualifiedExpression.End().ParseVein(key) as MemberAccessExpression;
+            var result = Syntax.QualifiedExpression.End().ParseVein(key);
 
             Assert.NotNull(result);
-
-            var chain = result.GetChain().ToArray();
-
-            IshtarAssert.NotEmpty(chain);
-
+            
             var type = result.DetermineType(genCtx);
 
             Assert.IsEmpty(genCtx.Errors);
@@ -181,10 +152,11 @@ namespace wc_test
             Assert.AreEqual(VeinTypeCode.TYPE_VOID, type.TypeCode);
         }
 
-        [Test, Ignore("Bug in CI, System.InvalidOperationException : There is no currently active test.")]
+        [Test]
         public void DetermineOtherMethodType()
         {
             var genCtx = new GeneratorContext();
+            genCtx.Document = new DocumentDeclaration { FileEntity = new FileInfo("<in-memory-file>.data") };
 
             genCtx.Module = new VeinModuleBuilder("doo");
             var @class = genCtx.Module.DefineClass("global::mana/foo");
@@ -201,14 +173,12 @@ namespace wc_test
 
             var result = Syntax.QualifiedExpression
                     .End()
-                    .ParseVein("ow.gota()")
-                as MemberAccessExpression;
+                    .ParseVein("ow.gota()") as AccessExpressionSyntax
+                ;
 
             Assert.NotNull(result);
-
-            var chain = result.GetChain().ToArray();
-
-            IshtarAssert.NotEmpty(chain);
+            
+            
 
             var type = result.DetermineType(genCtx);
 
@@ -216,7 +186,6 @@ namespace wc_test
             Assert.IsEmpty(genCtx.Errors);
 
             Assert.AreEqual(VeinTypeCode.TYPE_I1, type.TypeCode);
-
         }
     }
 }
