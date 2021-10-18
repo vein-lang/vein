@@ -101,6 +101,9 @@ namespace vein.stl
         public static Parser<IdentifierExpression> Keyword(this string text) =>
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not())
                 .Return(new IdentifierExpression(text)).Positioned();
+
+        public static Parser<IdentifierExpression> Literal(this string text) =>
+            Parse.String(text).Token().Return(new IdentifierExpression(text)).Positioned();
         public static Parser<ExpressionSyntax> Downlevel<T>(this Parser<T> p) where T : ExpressionSyntax
             => p.Select(x => x.Downlevel());
 
