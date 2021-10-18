@@ -23,7 +23,7 @@ namespace vein.syntax
 
         protected internal virtual Parser<string> RawIdentifier =>
             from identifier in Parse.Identifier(Parse.Letter.Or(Parse.Chars("_@")), Parse.LetterOrDigit.Or(Parse.Char('_')))
-            where !ManaKeywords.list.Contains(identifier)
+            where !VeinKeywords.list.Contains(identifier)
             select identifier;
 
         protected internal virtual Parser<string> Identifier =>
@@ -56,7 +56,23 @@ namespace vein.syntax
                 .Token().Select(n => new TypeSyntax(n))
                 .Named("SystemType");
 
-        protected internal virtual Parser<ModificatorSyntax> Modifier =>
+        internal virtual Parser<ExpressionSyntax> SystemTypeExpression =>
+            KeywordExpression("byte").Or(
+                    KeywordExpression("sbyte")).Or(
+                    KeywordExpression("int16")).Or(
+                    KeywordExpression("uint16")).Or(
+                    KeywordExpression("int32")).Or(
+                    KeywordExpression("uint32")).Or(
+                    KeywordExpression("int64")).Or(
+                    KeywordExpression("uint64")).Or(
+                    KeywordExpression("bool")).Or(
+                    KeywordExpression("string")).Or(
+                    KeywordExpression("char")).Or(
+                    KeywordExpression("void"))
+                .Token().Select(n => new TypeExpression(new TypeSyntax(n)))
+                .Named("SystemType");
+
+        internal virtual Parser<ModificatorSyntax> Modifier =>
             (from mod in Keyword("public").Or(
                     Keyword("protected")).Or(
                     Keyword("private")).Or(

@@ -14,6 +14,8 @@ namespace vein.syntax
             this.Other = other;
         }
 
+        public ChainAccessExpression(IEnumerable<ExpressionSyntax> arr) => this.Other = arr;
+
         public new ChainAccessExpression SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);

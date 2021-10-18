@@ -8,10 +8,6 @@ public class TestCase
 
     public TheFoo: Object
     {
-        get 
-        {
-            return this._foo;
-        }
         set 
         {
             this._foo = value;

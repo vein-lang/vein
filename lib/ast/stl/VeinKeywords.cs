@@ -2,7 +2,7 @@ namespace vein.stl
 {
     using System.Collections.Generic;
 
-    public static class ManaKeywords
+    public static class VeinKeywords
     {
         public static readonly List<string> list = new()
         {

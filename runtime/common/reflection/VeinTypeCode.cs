@@ -249,7 +249,8 @@ namespace vein.runtime
             {
                 case TYPE_CHAR:
                     return VeinCore.CharClass;
-                case TYPE_I1: // TODO
+                case TYPE_I1:
+                    return VeinCore.SByteClass;
                 case TYPE_U1:
                     return VeinCore.ByteClass;
                 case TYPE_U2:

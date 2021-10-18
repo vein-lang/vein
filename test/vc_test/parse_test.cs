@@ -15,9 +15,8 @@ namespace wc_test
         [Test]
         public void CommentParseTest()
         {
-            var a = new VeinSyntax();
-            Assert.AreEqual(" bla ", a.CommentParser.AnyComment.ParseVein("/* bla */"));
-            Assert.AreEqual(" bla", a.CommentParser.AnyComment.ParseVein("// bla"));
+            Assert.AreEqual(" bla ", VeinAst.CommentParser.AnyComment.ParseVein("/* bla */"));
+            Assert.AreEqual(" bla", VeinAst.CommentParser.AnyComment.ParseVein("// bla"));
         }
         [Test]
         public void VariableStatementTest()
@@ -302,40 +301,35 @@ namespace wc_test
         [TestCase("auto")]
         public void KeywordIsNotIdentifier(string key)
             => Assert.Throws<VeinParseException>(() => VeinAst.Identifier.ParseVein(key));
-
-        [Theory]
-        [TestCase("foo.bar.zet", 3)]
-        [TestCase("foo.bar.zet()", 4)]
-        [TestCase("zet()", 2)]
-        [TestCase("zet++", 2)]
-        [TestCase("zet->foo()", 3)]
-        [TestCase("zet.foo()[2]", 4)]
-        public void MemberOrMethodTest(string key, int chainLen)
+        
+        [Test]
+        public void MemberNormalizedChainTest()
         {
-            var result = VeinAst.QualifiedExpression.End().ParseVein(key) as MemberAccessExpression;
-
-            Assert.NotNull(result);
-
-            var chain = result.GetChain().ToArray();
-
-
-            Assert.AreEqual(chainLen, chain.Length);
+            
+            var r1 = VeinAst.primary_expression.End().ParseVein("foo");
+            var r2 = VeinAst.primary_expression.End().ParseVein("foo.bar");
+            var r3 = VeinAst.primary_expression.End().ParseVein("foo.bar.zet");
+            var r4 = VeinAst.primary_expression.End().ParseVein("foo.bar.zet.gota");
+            var r5 = VeinAst.primary_expression.End().ParseVein("foo.bar.zet.gota()");
+            var r6 = VeinAst.primary_expression.End().ParseVein("gota().asd");
+            // var chain = (result.Expression as MemberAccessExpression).GetNormalizedChain().ToArray();
         }
         [Test]
         public void ValidateChainMember()
         {
             var key = $"zet.foo()[2]";
-            var result = VeinAst.QualifiedExpression.End().ParseVein(key) as MemberAccessExpression;
+            var result = VeinAst.QualifiedExpression.End().ParseVein(key) as AccessExpressionSyntax;
 
             Assert.NotNull(result);
+            
+            IshtarAssert.IsType<IdentifierExpression>(result.Left); // zet
+            var indexer = IshtarAssert.IsType<IndexerAccessExpressionSyntax>(result.Right); // foo
 
-            var chain = result.GetChain().ToArray();
 
-
-            IshtarAssert.IsType<IdentifierExpression>(chain[0]); // zet
-            IshtarAssert.IsType<IdentifierExpression>(chain[1]); // foo
-            IshtarAssert.IsType<MethodInvocationExpression>(chain[2]); // ()
-            IshtarAssert.IsType<BracketExpression>(chain[3]); // []
+            IshtarAssert.IsType<ArgumentListExpression>(indexer.Right); // [5]
+            var inv = IshtarAssert.IsType<InvocationExpression>(indexer.Left); // foo()
+            IshtarAssert.IsType<IdentifierExpression>(inv.Name); // foo
+            Assert.AreEqual("foo", $"{inv.Name}");
         }
         [Theory]
         [TestCase("class", null, true)]
