@@ -13,6 +13,7 @@ namespace ishtar
     using Spectre.Console;
     using vein.syntax;
     using Xunit;
+    using InvocationExpression = vein.syntax.InvocationExpression;
 
     public class GeneratorContext
     {
@@ -127,6 +128,7 @@ namespace ishtar
             this.LogError($"The name '{id}' does not exist in the current context.", id);
             return null;
         }
+        [Obsolete]
         public VeinMethod ResolveMethod(
             VeinClass targetType,
             IdentifierExpression target,
@@ -143,6 +145,36 @@ namespace ishtar
                           $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
             else
                 this.LogError($"The name '{id}' does not exist in the current context.", id);
+            return null;
+        }
+        public VeinMethod ResolveMethod(
+            VeinClass targetType,
+            IdentifierExpression target,
+            IdentifierExpression id,
+            InvocationExpression invocation)
+        {
+            var method = targetType.FindMethod(id.ExpressionString, invocation.Arguments.DetermineTypes(this));
+            if (method is not null)
+                return method;
+            if (target is not null)
+                this.LogError($"'{targetType.FullName.NameWithNS}' does not contain " +
+                              $"a definition for '{target.ExpressionString}' and " +
+                              $"no extension method '{id.ExpressionString}' accepting " +
+                              $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
+            else
+                this.LogError($"The name '{id}' does not exist in the current context.", id);
+            return null;
+        }
+
+        public VeinMethod ResolveMethod(
+            VeinClass targetType,
+            InvocationExpression invocation)
+        {
+            var method = targetType.FindMethod($"{invocation.Name}", invocation.Arguments.DetermineTypes(this));
+            if (method is not null)
+                return method;
+            else
+                this.LogError($"The name '{invocation.Name}' does not exist in the current context.", invocation.Name);
             return null;
         }
 
@@ -347,36 +379,36 @@ namespace ishtar
             _ => throw new NotSupportedException($"{number} is not support number.")
         };
 
-        public static void EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
+        public static ILGenerator EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
         {
             if (expr is LiteralExpressionSyntax literal)
             {
                 gen.EmitLiteral(literal);
-                return;
+                return gen;
             }
 
             if (expr is NewExpressionSyntax @new)
             {
                 gen.EmitCreateObject(@new);
-                return;
+                return gen;
             }
 
             if (expr is ArgumentExpression arg)
             {
                 gen.EmitExpression(arg.Value);
-                return;
+                return gen;
             }
 
             if (expr is BinaryExpressionSyntax bin)
             {
                 gen.EmitBinaryExpression(bin);
-                return;
+                return gen;
             }
 
             if (expr is IdentifierExpression @ref)
             {
                 gen.EmitLoadIdentifierReference(@ref);
-                return;
+                return gen;
             }
 
             if (expr is MemberAccessExpression { Start: IdentifierExpression } member)
@@ -387,7 +419,7 @@ namespace ishtar
                 }
                 else
                     gen.EmitIdentifierAccess(member);
-                return;
+                return gen;
             }
 
             throw new NotImplementedException();
@@ -722,6 +754,8 @@ namespace ishtar
                 return exp.ForceOptimization().DetermineType(context);
             if (exp is LiteralExpressionSyntax literal)
                 return literal.GetTypeCode().AsClass();
+            if (exp is AccessExpressionSyntax access)
+                return access.ResolveType(context);
             if (exp is BinaryExpressionSyntax bin)
             {
                 if (bin.OperatorType.IsLogic())
@@ -735,9 +769,11 @@ namespace ishtar
             if (exp is NewExpressionSyntax { IsArray: true })
                 return VeinTypeCode.TYPE_ARRAY.AsClass();
             if (exp is ArgumentExpression { Value: MemberAccessExpression } arg)
-                return (arg.Value as MemberAccessExpression).ResolveType(context);
+                throw new NotSupportedException();
+            if (exp is InvocationExpression inv)
+                return inv.ResolveReturnType(context);
             if (exp is MemberAccessExpression member)
-                return member.ResolveType(context);
+                throw new NotSupportedException();
             if (exp is ArgumentExpression { Value: IdentifierExpression } arg1)
                 return arg1.Value.DetermineType(context);
             if (exp is IdentifierExpression id)
@@ -746,12 +782,12 @@ namespace ishtar
             return null;
         }
 
-        public static VeinClass ResolveType(this MemberAccessExpression member, GeneratorContext context)
+        public static VeinClass ResolveType(this AccessExpressionSyntax access, GeneratorContext context)
         {
-            var chain = member.GetChain().ToArray();
+            var chain = access.ToChain().ToArray();
             var lastToken = chain.Last();
 
-            if (lastToken is MethodInvocationExpression method)
+            if (lastToken is InvocationExpression method)
                 return method.ResolveReturnType(context, chain);
             if (lastToken is IndexerExpression)
             {
@@ -763,6 +799,7 @@ namespace ishtar
             if (lastToken is IdentifierExpression)
                 return chain.ResolveMemberType(context);
             context.LogError($"Cannot determine expression.", lastToken);
+
             return null;
         }
 
@@ -798,7 +835,10 @@ namespace ishtar
             return t;
         }
 
-        public static VeinClass ResolveReturnType(this MethodInvocationExpression member,
+        public static VeinClass ResolveReturnType(this InvocationExpression inv, GeneratorContext context)
+            => context.ResolveMethod(context.CurrentMethod.Owner, inv)?.ReturnType;
+
+        public static VeinClass ResolveReturnType(this InvocationExpression member,
             GeneratorContext context, IEnumerable<ExpressionSyntax> chain)
         {
             var t = default(VeinClass);
@@ -808,7 +848,10 @@ namespace ishtar
             {
                 var exp = enumerator[i] as IdentifierExpression;
 
-                if (i + 1 == enumerator.Length - 1)
+                if (exp is null && enumerator[i] is InvocationExpression inv)
+                    exp = inv.Name as IdentifierExpression;
+
+                if (i + 1 == enumerator.Length)
                     return context.ResolveMethod(t ?? context.CurrentMethod.Owner, prev_id, exp, member)
                         ?.ReturnType;
                 t = t is null ?
@@ -820,7 +863,6 @@ namespace ishtar
             context.LogError($"Incorrect state of expression.", member);
             return null;
         }
-
 
         public static VeinClass ExplicitConversion(VeinClass t1, VeinClass t2) =>
             throw new Exception($"ExplicitConversion: {t1?.FullName.NameWithNS} and {t2?.FullName.NameWithNS}");
@@ -1011,6 +1053,7 @@ namespace ishtar
             return true;
         }
 
+        [Obsolete]
         public static void EmitReferencedCall(this ILGenerator gen, IdentifierExpression variable, IdentifierExpression func,
             MethodInvocationExpression args)
         {
@@ -1030,7 +1073,7 @@ namespace ishtar
 
             gen.Emit(OpCodes.CALL, method);
         }
-
+        [Obsolete]
         public static void EmitGlobalCall(this ILGenerator gen, IdentifierExpression className, IdentifierExpression name,
             MethodInvocationExpression args)
         {
@@ -1056,6 +1099,7 @@ namespace ishtar
 
             gen.Emit(OpCodes.CALL, method);
         }
+        [Obsolete]
         private static void EmitLocalCall(this ILGenerator gen, IdentifierExpression name,
             MethodInvocationExpression args)
         {
@@ -1140,7 +1184,7 @@ namespace ishtar
             }
         }
 
-        public static void EmitLiteral(this ILGenerator generator, LiteralExpressionSyntax literal)
+        public static ILGenerator EmitLiteral(this ILGenerator generator, LiteralExpressionSyntax literal)
         {
             if (literal is NumericLiteralExpressionSyntax numeric)
                 generator.EmitNumericLiteral(numeric);
@@ -1150,74 +1194,25 @@ namespace ishtar
                 generator.Emit(boolLiteral.Value ? OpCodes.LDC_I2_1 : OpCodes.LDC_I2_0);
             else if (literal is NullLiteralExpressionSyntax)
                 generator.Emit(OpCodes.LDNULL);
+            return generator;
         }
 
         private static string UnEscapeSymbols(string str)
             => Regex.Unescape(str);
 
-        public static void EmitReturn(this ILGenerator generator, ReturnStatementSyntax statement)
+        public static ILGenerator EmitReturn(this ILGenerator generator, ReturnStatementSyntax statement) => statement switch
         {
-            if (statement is not { Expression: { } })
-            {
-                generator.Emit(OpCodes.RET);
-                return;
-            }
-            if (statement.Expression is LiteralExpressionSyntax literal)
-            {
-                generator.EmitLiteral(literal);
-                generator.Emit(OpCodes.RET);
-                return;
-            }
-
-            if (statement.Expression.ExpressionString == "Infinity")
-            {
-                generator.Emit(OpCodes.LDC_F4, float.PositiveInfinity);
-                generator.Emit(OpCodes.RET);
-                return;
-            }
-            if (statement.Expression.ExpressionString == "(-Infinity)")
-            {
-                generator.Emit(OpCodes.LDC_F4, float.NegativeInfinity);
-                generator.Emit(OpCodes.RET);
-                return;
-            }
-            if (statement.Expression.ExpressionString == "NaN")
-            {
-                generator.Emit(OpCodes.LDC_F4, float.NaN);
-                generator.Emit(OpCodes.RET);
-                return;
-            }
-
-            //var @class = generator._methodBuilder.classBuilder;
-            //var @method = generator._methodBuilder;
-
-            if (statement.Expression is MemberAccessExpression unnamed02)
-            {
-                //generator.EmitCall(unnamed02);
-                //var type = unnamed02.Start.ExpressionString switch
-                //{
-                //    "this" => @class,
-                //    _ => generator
-                //        ._methodBuilder
-                //        .moduleBuilder
-                //        .FindType(unnamed02.Start.ExpressionString, @class.Includes)
-                //};
-
-                //var methodName = unnamed02.Chain.First().ExpressionString;
-
-                //var call_method = type.FindMethod(methodName);
-
-                //if (unnamed02.Start.ExpressionString == "this")
-                //    generator.EmitThis();
-
-                //generator.Emit(OpCodes.CALL, call_method);
-                //generator.Emit(OpCodes.RET);
-                //return;
-            }
-
-            generator.EmitExpression(statement.Expression);
-            generator.Emit(OpCodes.RET);
-        }
+            not { Expression: { } } => generator.Emit(OpCodes.RET),
+            { Expression: NaNLiteralExpressionSyntax }
+                => generator.Emit(OpCodes.LDC_F4, float.NaN).Emit(OpCodes.RET),
+            { Expression: NegativeInfinityLiteralExpressionSyntax }
+                => generator.Emit(OpCodes.LDC_F4, float.NegativeInfinity).Emit(OpCodes.RET),
+            { Expression: InfinityLiteralExpressionSyntax }
+                => generator.Emit(OpCodes.LDC_F4, float.PositiveInfinity).Emit(OpCodes.RET),
+            { Expression: LiteralExpressionSyntax lit }
+                => generator.EmitLiteral(lit).Emit(OpCodes.RET),
+            _ => generator.EmitExpression(statement.Expression).Emit(OpCodes.RET),
+        };
 
         public static void EmitWhileStatement(this ILGenerator gen, WhileStatementSyntax @while)
         {
