@@ -33,6 +33,7 @@ namespace vein.syntax
             return this;
         }
     }
+    [Obsolete]
     public class MemberAccessExpression : ExpressionSyntax, IPositionAware<MemberAccessExpression>
     {
         public MemberAccessExpression(ExpressionSyntax start, IEnumerable<ExpressionSyntax> indexerAccess, IEnumerable<ExpressionSyntax> chain)
