@@ -12,7 +12,7 @@ namespace vein
     public class AssemblyResolver : IAssemblyResolver
     {
         private readonly Compiler _c;
-        private readonly List<DirectoryInfo> search_paths = new ();
+        private readonly HashSet<DirectoryInfo> search_paths = new ();
         public AssemblyResolver(Compiler c) => _c = c;
 
         public AssemblyResolver AddSearchPath(DirectoryInfo dir)
