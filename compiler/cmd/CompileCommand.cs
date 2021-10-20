@@ -39,16 +39,16 @@ namespace vein.cmd
 
                 if (!projects.Any())
                 {
-                    MarkupLine($"[red]ERR[/]: Project not found in [orange]'{curDir.FullName}'[/] directory.");
+                    Log.Error($"Project not found in [orange]'{curDir.FullName}'[/] directory.");
                     return -1;
                 }
 
                 if (projects.Count() > 1)
                 {
-                    MarkupLine($"[red]ERR[/]: Multiple project detected.");
+                    Log.Error($"Multiple project detected.");
                     foreach (var p in projects)
-                        MarkupLine($"\t::[orange]'{p.Name}'[/] in [orange]'{curDir.FullName}'[/] directory.");
-                    MarkupLine($"[red]ERR[/]: Specify project in [orange]'manac build [[PROJECT]]'[/]");
+                        Log.Error($"\t::[orange]'{p.Name}'[/] in [orange]'{curDir.FullName}'[/] directory.");
+                    Log.Error($"Specify project in [orange]'manac build [[PROJECT]]'[/]");
                     return -1;
                 }
 
@@ -59,60 +59,60 @@ namespace vein.cmd
             var name = Path.GetFileName(settings.Project);
             if (!File.Exists(settings.Project))
             {
-                MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] not found.");
+                Log.Error($"Project [orange]'{name}'[/] not found.");
                 return -1;
             }
             var project = VeinProject.LoadFrom(new(Path.GetFullPath(settings.Project)));
 
             if (!project.Sources.Any())
             {
-                MarkupLine($"[red]ERR[/]: Project [orange]'{name}'[/] has empty.");
+                Log.Error($"Project [orange]'{name}'[/] has empty.");
                 return -1;
             }
 
             if (project.SDK is null)
             {
-                MarkupLine($"[red]ERR[/]: SDK is not installed.");
+                Log.Error($"SDK is not installed.");
                 return -1;
             }
 
             project.Runtime ??= project.SDK.GetDefaultPack().Alias;
 
 
-            MarkupLine($"[aqua]INFO[/]: Project [orange]'{name}'[/].");
-            MarkupLine($"[aqua]INFO[/]: SDK [orange]'{project.SDK.Name} v{project.SDK.Version}'[/].");
-            MarkupLine($"[aqua]INFO[/]: Runtime [orange]'{project.Runtime}'[/].\n");
+            Log.Info($"Project [orange]'{name}'[/].");
+            Log.Info($"SDK [orange]'{project.SDK.Name} v{project.SDK.Version}'[/].");
+            Log.Info($"Runtime [orange]'{project.Runtime}'[/].\n");
 
 
-            var c = Compiler.Process(project.Sources.Select(x => new FileInfo(x)).ToArray(),
+            Compiler.Process(project.Sources.Select(x => new FileInfo(x)).ToArray(),
                 project, settings);
 
 
-            foreach (var info in c.infos)
-                MarkupLine($"[aqua]INFO[/]: {info.TrimEnd('\n')}");
+            foreach (var info in Log.infos)
+                MarkupLine(info.TrimEnd('\n'));
 
-            if (c.errors.Count > 0)
+            if (Log.errors.Count > 0)
             {
-                var rule1 = new Rule($"[yellow]{c.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
+                var rule1 = new Rule($"[yellow]{Log.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
                 Render(rule1);
             }
 
-            foreach (var error in c.errors)
-                MarkupLine($"[red]ERR[/]: {error}");
+            foreach (var error in Log.errors)
+                MarkupLine(error);
 
-            if (c.warnings.Count > 0)
+            if (Log.warnings.Count > 0)
             {
-                var rule2 = new Rule($"[yellow]{c.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
+                var rule2 = new Rule($"[yellow]{Log.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
                 Render(rule2);
             }
 
-            foreach (var warn in c.warnings)
-                MarkupLine($"[orange]WARN[/]: {warn}");
+            foreach (var warn in Log.warnings)
+                MarkupLine(warn);
 
-            if (!c.warnings.Any() && !c.errors.Any())
+            if (!Log.warnings.Any() && !Log.errors.Any())
                 MarkupLine($"\n\n\n");
 
-            if (c.errors.Count > 0)
+            if (Log.errors.Count > 0)
             {
 
                 var rule3 = new Rule($"[red bold]COMPILATION FAILED[/]") {Style = Style.Parse("lime rapidblink")};

@@ -23,7 +23,6 @@ namespace vein.compilation
     using stl;
     using syntax;
     using static runtime.VeinTypeCode;
-    using static Spectre.Console.AnsiConsole;
     using reflection;
 
     public class Compiler
@@ -33,7 +32,7 @@ namespace vein.compilation
         {
             var c = new Compiler(project, flags);
 
-            return Status()
+            return AnsiConsole.Status()
                 .Spinner(Spinner.Known.Dots8Bit)
                 .Start("Processing...", ctx =>
                 {
@@ -44,8 +43,8 @@ namespace vein.compilation
                     }
                     catch (Exception e)
                     {
-                        MarkupLine("failed compilation.");
-                        WriteException(e);
+                        Log.Error("failed compilation.");
+                        Log.Error(e);
                     }
                     return c;
                 });
@@ -69,9 +68,6 @@ namespace vein.compilation
         internal readonly Dictionary<FileInfo, string> Sources = new ();
         internal readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
         internal StatusContext Status;
-        public readonly List<string> warnings = new ();
-        public readonly List<string> errors = new ();
-        public readonly List<string> infos = new ();
         internal VeinModuleBuilder module;
         internal GeneratorContext Context;
 
@@ -114,9 +110,7 @@ namespace vein.compilation
                 }
                 catch (VeinParseException e)
                 {
-                    errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}[/] \n\t" +
-                               $"at '[orange bold]{e.Position.Line} line, {e.Position.Column} column[/]' \n\t" +
-                               $"in '[orange bold]{key}[/]'.");
+                    Log.Defer.Error($"[red bold]{e.Message.Trim().EscapeMarkup()}[/]\n\tin '[orange bold]{key}[/]'.");
                 }
             }
 
@@ -143,10 +137,10 @@ namespace vein.compilation
                 .Pipe(GenerateStaticCtor)
                 .Pipe(ValidateInheritance)
                 .Consume();
-            errors.AddRange(Context.Errors);
-            if (errors.Count == 0)
+            Log.EnqueueErrorsRange(Context.Errors);
+            if (Log.errors.Count == 0)
                 PipelineRunner.Run(this);
-            MarkupLine($"[blue]INF[/]: Result assembly [orange]'{module.Name}, {module.Version}'[/].");
+            Log.Info($"Result assembly [orange]'{module.Name}, {module.Version}'[/].");
             if (_flags.PrintResultType)
             {
                 var table = new Table();
@@ -154,7 +148,7 @@ namespace vein.compilation
                 table.Border(TableBorder.Rounded);
                 foreach (var @class in module.class_table)
                     table.AddRow(new Markup($"[blue]{@class.FullName.NameWithNS}[/]"));
-                Render(table);
+                AnsiConsole.Render(table);
             }
         }
 
@@ -173,7 +167,7 @@ namespace vein.compilation
                     classes.Add((result, clazz));
                 }
                 else
-                    warnings.Add($"[grey]Member[/] [yellow underline]'{member.GetType().Name}'[/] [grey]is not supported.[/]");
+                    Log.Defer.Warn($"[grey]Member[/] [yellow underline]'{member.GetType().Name}'[/] [grey]is not supported.[/]");
             }
 
             return classes;
@@ -242,13 +236,7 @@ namespace vein.compilation
                         aspect.DefineArgument(index, calculated);
                     }
                     else
-                    {
-                        var diff_err = annotation.Transform.DiffErrorFull(doc);
-                        errors.Add($"[red bold]Annotations require compile-time constant.[/] \n\t" +
-                                   $"at '[orange bold]{annotation.Transform.pos.Line} line, {annotation.Transform.pos.Column} column[/]' \n\t" +
-                                   $"in '[orange bold]{doc.FileEntity}[/]'." +
-                                   $"{diff_err}");
-                    }
+                        Log.Defer.Error("[red bold]Annotations require compile-time constant.[/]", annotation, doc);
                 }
                 aspectable.Aspects.Add(aspect);
             }
@@ -310,7 +298,7 @@ namespace vein.compilation
 
             foreach (var method in prepairedAbstracts.Where(x => !@class.ContainsImpl(x)))
             {
-                PrintError(
+                Log.Defer.Error(
                     $"[red]'{@class.Name}'[/] does not implement inherited abstract member [red]'{method.Owner.Name}.{method.Name}'[/]"
                     , member.Identifier, member.OwnerDocument);
             }
@@ -325,7 +313,7 @@ namespace vein.compilation
 
             foreach (var method in prepairedOthers.Where(@class.Contains))
             {
-                PrintWarning(
+                Log.Defer.Warn(
                     $"[yellow]'{method.Name}' hides inherited member '{method.Name}'.[/]",
                     member.Identifier, member.OwnerDocument);
             }
@@ -348,12 +336,13 @@ namespace vein.compilation
                 {
                     case IPassiveParseTransition transition when member.IsBrokenToken:
                         var e = transition.Error;
-                        var pos = member.Transform.pos;
-                        var err_line = member.Transform.DiffErrorFull(doc);
-                        errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
-                                   $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
-                                   $"in '[orange bold]{doc.FileEntity}[/]'." +
-                                   $"{err_line}");
+                        //var pos = member.Transform.pos;
+                        //var err_line = member.Transform.DiffErrorFull(doc);
+                        //errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
+                        //           $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
+                        //           $"in '[orange bold]{doc.FileEntity}[/]'." +
+                        //           $"{err_line}");
+                        Log.Defer.Error($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/]", member, doc);
                         break;
                     case MethodDeclarationSyntax method:
                         Status.ManaStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
@@ -371,7 +360,7 @@ namespace vein.compilation
                         props.Add(CompileProperty(prop, @class, doc));
                         break;
                     default:
-                        warnings.Add($"[grey]Member[/] '[yellow underline]{member.GetType().Name}[/]' [grey]is not supported.[/]");
+                        Log.Defer.Warn($"[grey]Member[/] '[yellow underline]{member.GetType().Name}[/]' [grey]is not supported.[/]", member, doc);
                         break;
                 }
             }
@@ -425,7 +414,7 @@ namespace vein.compilation
 
             if (propType is null)
             {
-                PrintError($"[red bold]Unknown type detected. Can't resolve [italic]{member.Type.Identifier}[/][/] \n\t" +
+                Log.Defer.Error($"[red bold]Unknown type detected. Can't resolve [italic]{member.Type.Identifier}[/][/] \n\t" +
                            PleaseReportProblemInto(),
                     member.Identifier, doc);
                 return default;
@@ -449,9 +438,9 @@ namespace vein.compilation
 
             if (@class.GetDefaultCtor() is not MethodBuilder ctor)
             {
-                errors.Add($"[red bold]Class/struct '{@class.Name}' has problem with generate default ctor.[/] \n\t" +
-                           PleaseReportProblemInto() +
-                           $"in '[orange bold]{doc.FileEntity}[/]'.");
+                Log.Defer.Error($"[red bold]Class/struct '{@class.Name}' has problem with generate default ctor.[/]\n\t" +
+                    $"{PleaseReportProblemInto()}",
+                    null, doc);
                 return;
             }
 
@@ -482,8 +471,7 @@ namespace vein.compilation
                     .SingleOrDefault(x => x.Field.Identifier.ExpressionString.Equals(field.Name));
                 if (stx is null)
                 {
-                    errors.Add($"[red bold]Field '{field.Name}' in class/struct/interface '{@class.Name}' has undefined.[/] \n\t" +
-                               $"in '[orange bold]{doc.FileEntity}[/]'.");
+                    Log.Defer.Error($"[red bold]Field '{field.Name}' in class/struct/interface '{@class.Name}' has undefined.[/]", null, doc);
                     continue;
                 }
                 pregen.Add((stx.Field.Expression, field));
@@ -511,9 +499,9 @@ namespace vein.compilation
 
             if (ctor is null)
             {
-                errors.Add($"[red bold]Class/struct '{@class.Name}' has problem with generate static ctor.[/] \n\t" +
-                           $"Please report the problem into 'https://github.com/vein-lang/vein/issues'." +
-                           $"in '[orange bold]{doc.FileEntity}[/]'.");
+                Log.Defer.Error($"[red bold]Class/struct '{@class.Name}' has problem with generate static ctor.[/]\n\t" +
+                                $"{PleaseReportProblemInto()}",
+                    null, doc);
                 return;
             }
             Context.CurrentMethod = ctor;
@@ -534,8 +522,7 @@ namespace vein.compilation
                     .SingleOrDefault(x => x.Field.Identifier.ExpressionString.Equals(field.Name));
                 if (stx is null)
                 {
-                    errors.Add($"[red bold]Field '{field.Name}' in class/struct '{@class.Name}' has undefined.[/] \n\t" +
-                               $"in '[orange bold]{doc.FileEntity}[/]'.");
+                    Log.Defer.Error($"[red bold]Field '{field.Name}' in class/struct '{@class.Name}' has undefined.[/]", null, doc);
                     continue;
                 }
                 pregen.Add((stx.Field.Expression, field));
@@ -554,11 +541,7 @@ namespace vein.compilation
 
         public void GenerateBody((MethodBuilder method, MethodDeclarationSyntax member) t)
         {
-            if (t == default)
-            {
-                errors.Add($"[red bold]Unknown error[/] in [italic]GenerateBody(...);[/]");
-                return;
-            }
+            if (t == default) return;
             var (method, member) = t;
 
             GenerateBody(method, member.Body, member.OwnerClass.OwnerDocument);
@@ -584,9 +567,17 @@ namespace vein.compilation
                 {
                     generator.EmitStatement(statement);
                 }
+                catch (NotSupportedException)
+                {
+                    Log.Defer.Error($"[red bold]This syntax/statement currently is not supported.[/]", statement, Context.Document);
+                }
+                catch (NotImplementedException)
+                {
+                    Log.Defer.Error($"[red bold]This syntax/statement currently is not implemented.[/]", statement, Context.Document);
+                }
                 catch (Exception e)
                 {
-                    PrintError($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]EmitStatement(...);[/]", statement, Context.Document);
+                    Log.Defer.Error($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]EmitStatement(...);[/]", statement, Context.Document);
                 }
             }
             // fucking shit fucking
@@ -606,7 +597,7 @@ namespace vein.compilation
             var pos = statement.Transform.pos;
             var e = transition.Error;
             var diff_err = statement.Transform.DiffErrorFull(doc);
-            errors.Add($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
+            Log.errors.Enqueue($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
                        $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
                        $"in '[orange bold]{doc.FileEntity}[/]'." +
                        $"{diff_err}");
@@ -614,18 +605,15 @@ namespace vein.compilation
 
         public void GenerateProp((VeinProperty prop, PropertyDeclarationSyntax member) t)
         {
-            if (t == default)
-            {
-                errors.Add($"[red bold]Unknown error[/] in [italic]GenerateBody(...);[/]");
-                return;
-            }
+            if (t == default) return;
 
             var (prop, member) = t;
             var doc = member.OwnerClass.OwnerDocument;
 
             if (prop.Owner is not ClassBuilder clazz)
             {
-                errors.Add($"[red bold]Unknown error[/] in [italic]GenerateProp(...);[/]");
+                Log.Defer.Error($"[red bold]Internal error in[/] [orange bold]GenerateProp[/]\n\t{PleaseReportProblemInto()}",
+                    member, doc);
                 return;
             }
 
@@ -653,10 +641,7 @@ namespace vein.compilation
         public void GenerateField((VeinField field, FieldDeclarationSyntax member) t)
         {
             if (t == default)
-            {
-                errors.Add($"[red bold]Unknown error[/] in [italic]GenerateBody(...);[/]");
                 return;
-            }
 
 
             var (field, member) = t;
@@ -679,7 +664,7 @@ namespace vein.compilation
                         var variable = member.Type.Identifier;
                         var variable1 = field.FieldType.TypeCode;
 
-                        errors.Add(
+                        Log.errors.Enqueue(
                             $"[red bold]Cannot implicitly convert type[/] " +
                             $"'[purple underline]{numeric.GetTypeCode().AsClass().Name}[/]' to " +
                             $"'[purple underline]{field.FieldType.Name}[/]'.\n\t" +
@@ -691,7 +676,7 @@ namespace vein.compilation
                 else if (literal.GetTypeCode() != field.FieldType.TypeCode)
                 {
                     var diff_err = literal.Transform.DiffErrorFull(doc);
-                    errors.Add(
+                    Log.errors.Enqueue(
                         $"[red bold]Cannot implicitly convert type[/] " +
                         $"'[purple underline]{literal.GetTypeCode().AsClass().Name}[/]' to " +
                         $"'[purple underline]{member.Type.Identifier}[/]'.\n\t" +
@@ -710,7 +695,7 @@ namespace vein.compilation
                 if (assigner is NewExpressionSyntax)
                 {
                     var diff_err = assigner.Transform.DiffErrorFull(doc);
-                    errors.Add(
+                    Log.errors.Enqueue(
                         $"[red bold]The expression being assigned to[/] '[purple underline]{member.Field.Identifier}[/]' [red bold]must be constant[/]. \n\t" +
                         $"at '[orange bold]{assigner.Transform.pos.Line} line, {assigner.Transform.pos.Column} column[/]' \n\t" +
                         $"in '[orange bold]{doc.FileEntity}[/]'." +
@@ -739,7 +724,7 @@ namespace vein.compilation
             var retType = module.TryFindType(typename.Identifier.ExpressionString, doc.Includes);
 
             if (retType is null)
-                PrintError($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]'", typename, doc);
+                Log.Defer.Error($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]'", typename, doc);
             return retType;
         }
 
@@ -766,7 +751,7 @@ namespace vein.compilation
                     case VeinAnnotationKind.Getter:
                     case VeinAnnotationKind.Setter:
                     case VeinAnnotationKind.Virtual:
-                        PrintError(
+                        Log.Defer.Error(
                             $"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
                             $"class/struct/interface declaration.",
                             clazz.Identifier, clazz.OwnerDocument);
@@ -777,7 +762,7 @@ namespace vein.compilation
                     case VeinAnnotationKind.Native:
                         continue;
                     case VeinAnnotationKind.Readonly when !clazz.IsStruct:
-                        PrintError(
+                        Log.Defer.Error(
                             $"[orange bold]Annotation[/] [red bold]{kind}[/] can only be applied to a structure declaration.",
                             clazz.Identifier, clazz.OwnerDocument);
                         continue;
@@ -787,7 +772,7 @@ namespace vein.compilation
                     case VeinAnnotationKind.Forwarded:
                         continue;
                     default:
-                        PrintError(
+                        Log.Defer.Error(
                             $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{kind}[/] " +
                             $"is not supported [orange bold]annotation[/].",
                             clazz.Identifier, clazz.OwnerDocument);
@@ -817,8 +802,8 @@ namespace vein.compilation
                     case "extern":
                         continue;
                     default:
-                        PrintError($"In [orange]'{clazz.Identifier}'[/] class/struct/interface " +
-                                   $"[red bold]{mod}[/] is not supported [orange bold]modificator[/].",
+                        Log.Defer.Error($"In [orange]'{clazz.Identifier}'[/] class/struct/interface " +
+                                        $"[red bold]{mod}[/] is not supported [orange bold]modificator[/].",
                             clazz.Identifier, clazz.OwnerDocument);
 
                         continue;
@@ -858,7 +843,7 @@ namespace vein.compilation
                     default:
                         if (member is FieldDeclarationSyntax field)
                         {
-                            PrintError(
+                            Log.Defer.Error(
                                 $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{annotation.AnnotationKind}[/] " +
                                 $"is not supported [orange bold]annotation[/].",
                                 annotation, field.OwnerClass.OwnerDocument);
@@ -866,7 +851,7 @@ namespace vein.compilation
 
                         if (member is PropertyDeclarationSyntax prop)
                         {
-                            PrintError(
+                            Log.Defer.Error(
                                 $"In [orange]'{prop.Identifier}'[/] property [red bold]{annotation.AnnotationKind}[/] " +
                                 $"is not supported [orange bold]annotation[/].",
                                 annotation, prop.OwnerClass.OwnerDocument);
@@ -908,13 +893,13 @@ namespace vein.compilation
                         switch (member)
                         {
                             case FieldDeclarationSyntax field:
-                                PrintError(
+                                Log.Defer.Error(
                                     $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{mod.ModificatorKind}[/] " +
                                     $"is not supported [orange bold]modificator[/].",
                                     mod, field.OwnerClass.OwnerDocument);
                                 break;
                             case PropertyDeclarationSyntax prop:
-                                PrintError(
+                                Log.Defer.Error(
                                     $"In [orange]'{prop.Identifier}'[/] property [red bold]{mod.ModificatorKind}[/] " +
                                     $"is not supported [orange bold]modificator[/].",
                                     mod, prop.OwnerClass.OwnerDocument);
@@ -931,56 +916,6 @@ namespace vein.compilation
 
             return flags;
         }
-
-        private void _print(string text, BaseSyntax posed, DocumentDeclaration doc, List<string> qlist)
-        {
-            if (posed is { Transform: null })
-            {
-                errors.Add($"INTERNAL ERROR: TOKEN '{posed.GetType().Name}' HAS INCORRECT TRANSFORM POSITION.");
-                return;
-            }
-
-            var strBuilder = new StringBuilder();
-
-            strBuilder.Append($"{text.EscapeArgumentSymbols()}\n");
-
-
-
-            if (posed is not null)
-            {
-                strBuilder.Append(
-                    $"\tat '[orange bold]{posed.Transform.pos.Line} line, {posed.Transform.pos.Column} column[/]' \n");
-            }
-
-            if (doc is not null)
-            {
-                strBuilder.Append(
-                    $"\tin '[orange bold]{doc.FileEntity}[/]'.");
-            }
-
-            if (posed is not null && doc is not null)
-            {
-                var diff_err = posed.Transform.DiffErrorFull(doc);
-                strBuilder.Append($"\t\t{diff_err}");
-            }
-
-            qlist.Add(strBuilder.ToString());
-        }
-        internal void PrintWarning(string text) => _print(text, null, null, warnings);
-        internal void PrintWarning(string text, BaseSyntax posed) => _print(text, posed, null, warnings);
-        internal void PrintWarning(string text, BaseSyntax posed, DocumentDeclaration doc)
-            => _print(text, posed, doc, warnings);
-
-        internal void PrintError(string text) => _print(text, null, null, errors);
-        internal void PrintError(string text, BaseSyntax posed) => _print(text, posed, null, errors);
-        internal void PrintError(string text, BaseSyntax posed, DocumentDeclaration doc)
-            => _print(text, posed, doc, errors);
-
-        internal void PrintInfo(string text) => _print(text, null, null, infos);
-        internal void PrintInfo(string text, BaseSyntax posed) => _print(text, posed, null, infos);
-        internal void PrintInfo(string text, BaseSyntax posed, DocumentDeclaration doc)
-            => _print(text, posed, doc, infos);
-
 
         private MethodFlags GenerateMethodFlags(MethodDeclarationSyntax method)
         {
@@ -1004,13 +939,13 @@ namespace vein.compilation
                     case VeinAnnotationKind.Readonly:
                     case VeinAnnotationKind.Getter:
                     case VeinAnnotationKind.Setter:
-                        PrintError(
+                        Log.Defer.Error(
                             $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.AnnotationKind}[/] " +
                             $"is not supported [orange bold]annotation[/].",
                             method.Identifier, method.OwnerClass.OwnerDocument);
                         continue;
                     default:
-                        PrintError(
+                        Log.Defer.Error(
                             $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.AnnotationKind}[/] " +
                             $"is not supported [orange bold]annotation[/].",
                             method.Identifier, method.OwnerClass.OwnerDocument);
@@ -1044,7 +979,7 @@ namespace vein.compilation
                         flags |= MethodFlags.Override;
                         continue;
                     default:
-                        PrintError(
+                        Log.Defer.Error(
                             $"In [orange]'{method.Identifier}'[/] method [red bold]{mod}[/] " +
                             $"is not supported [orange bold]modificator[/].",
                             method.Identifier, method.OwnerClass.OwnerDocument);
@@ -1054,7 +989,7 @@ namespace vein.compilation
 
 
             if (flags.HasFlag(MethodFlags.Private) && flags.HasFlag(MethodFlags.Public))
-                PrintError(
+                Log.Defer.Error(
                     $"Modificator [red bold]public[/] cannot be combined with [red bold]private[/] " +
                     $"in [orange]'{method.Identifier}'[/] method.",
                     method.ReturnType, method.OwnerClass.OwnerDocument);
