@@ -446,7 +446,7 @@ namespace ishtar
                 gen.Emit(OpCodes.STLOC_S, index);
                 return;
             }
-            
+
             // second order: search argument
             var args = context.ResolveArgument(id);
             if (args is not null)
@@ -527,7 +527,7 @@ namespace ishtar
             {
 
             }
-            
+
             if (binary.Left is MemberAccessExpression member)
             {
                 var chain = member.GetChain().ToArray();
@@ -551,7 +551,7 @@ namespace ishtar
 
             var chain = member.GetChain().SkipLast(1).ToArray();
             var last = member.GetChain().TakeLast(1).ToArray().First();
-            
+
 
             if (last is MethodInvocationExpression)
             {

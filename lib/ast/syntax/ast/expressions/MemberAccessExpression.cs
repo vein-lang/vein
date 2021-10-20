@@ -60,7 +60,7 @@ namespace vein.syntax
             {
                 if (syntax is ChainAccessExpression { Start: null } chain1)
                     result.AddRange(chain1.Other);
-                else if (syntax is ChainAccessExpression { Start: {} } chain2)
+                else if (syntax is ChainAccessExpression { Start: { } } chain2)
                     result.AddRange(new[] { chain2.Start }.Concat(chain2.Other));
                 else
                     result.Add(syntax);
@@ -82,8 +82,8 @@ namespace vein.syntax
                     normalized.Add(ie);
                 else if (current is MethodInvocationExpression me)
                 {
-                    normalized.RemoveAt(normalized.Count-1);
-                    normalized.Add(new MethodActorExpression(chain[i-1] as IdentifierExpression, me));
+                    normalized.RemoveAt(normalized.Count - 1);
+                    normalized.Add(new MethodActorExpression(chain[i - 1] as IdentifierExpression, me));
                 }
                 else
                 {
