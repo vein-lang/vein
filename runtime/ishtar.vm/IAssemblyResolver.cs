@@ -6,33 +6,24 @@ namespace vein.runtime
     using System.Linq;
     using extensions;
     using fs;
-    using global::ishtar;
-    using vein.runtime;
-    using ishtar.emit;
+    using ishtar;
 
     public delegate void ModuleResolvedEvent(RuntimeIshtarModule module);
 
-    public class AssemblyResolver : IAssemblyResolver
+    public class AssemblyResolver : ModuleResolverBase
     {
         public AppVault Vault { get; }
-        private readonly HashSet<DirectoryInfo> search_paths = new ();
         private AssemblyBundle assemblyBundle;
         public event ModuleResolvedEvent Resolved;
         public AssemblyResolver(AppVault vault) => Vault = vault;
-
-        public AssemblyResolver AddSearchPath(DirectoryInfo dir)
-        {
-            search_paths.Add(dir);
-            return this;
-        }
-
+        
         public AssemblyResolver AddInMemory(AssemblyBundle bundle)
         {
             assemblyBundle = bundle;
             return this;
         }
 
-        public VeinModule ResolveDep(string name, Version version, List<VeinModule> deps)
+        public override RuntimeIshtarModule ResolveDep(string name, Version version, List<VeinModule> deps)
         {
             var asm = Find(name, version, deps);
 
@@ -73,19 +64,19 @@ namespace vein.runtime
                 return null;
 
             return assemblyBundle.Assemblies.Single(x =>
-                x.Name.Equals($"{name}.wll", StringComparison.InvariantCultureIgnoreCase));
+                x.Name.Equals($"{name}.{MODULE_FILE_EXTENSION}", StringComparison.InvariantCultureIgnoreCase));
         }
 
         private FileInfo FindInPaths(string name)
         {
             var files = search_paths.Where(x => x.Exists)
-                .SelectMany(x => x.EnumerateFiles("*.wll"))
+                .SelectMany(x => x.EnumerateFiles($"*.{MODULE_FILE_EXTENSION}"))
                 .Where(x =>
                     x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase))
                 .ToArray();
             try
             {
-                return files.Single(x => x.Name.Equals($"{name}.wll", StringComparison.InvariantCultureIgnoreCase));
+                return files.Single(x => x.Name.Equals($"{name}.{MODULE_FILE_EXTENSION}", StringComparison.InvariantCultureIgnoreCase));
             }
             catch (InvalidOperationException e)
             {
@@ -97,5 +88,7 @@ namespace vein.runtime
                 return null;
             }
         }
+
+        protected override void debug(string s) {}
     }
 }
