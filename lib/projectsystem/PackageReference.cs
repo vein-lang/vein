@@ -1,11 +1,16 @@
 namespace vein.project
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using NuGet.Versioning;
     using Sprache;
 
-    public record PackageReference(string Name, NuGetVersion Version)
+    public interface IProjectRef {}
+
+    public record ProjectReference(string path) : IProjectRef {}
+
+    public record PackageReference(string Name, NuGetVersion Version) : IProjectRef
     {
 
         internal static Parser<string> RawIdentifier =>
@@ -49,6 +54,15 @@ namespace vein.project
             from comma in Parse.Char(',')
             from vers in VersionParse
             select new PackageReference(id, vers);
+        
+        public static IProjectRef Convert(string t)
+        {
+            if (string.IsNullOrEmpty(t))
+                throw new ArgumentNullException(nameof(t));
+            if (t.EndsWith(".vproj"))
+                return new ProjectReference(t);
+            return Parser.Parse(t);
+        }
 
 
         private static IEnumerable<string> P(IOption<(string, string)> s) =>

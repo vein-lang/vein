@@ -10,9 +10,12 @@ namespace vein.pipes
 
         public override void Action()
         {
+            if (Project.SDK.Name.Equals("no-runtime"))
+                return;
+
             var current_path = OutputBinaryPath.Directory;
             var files = Project.SDK.
-                GetFullPath(Project.SDK.
+                GetFullPath(string.IsNullOrEmpty(Project.Runtime) ? Project.SDK.GetDefaultPack() : Project.SDK.
                     GetPackByAlias(Project.Runtime)).EnumerateFiles("*.wll");
 
             var bin = current_path.SubDirectory("refs");

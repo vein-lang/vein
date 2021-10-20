@@ -13,11 +13,15 @@ public abstract class ModuleResolverBase : IAssemblyResolver
 {
     public const string MODULE_FILE_EXTENSION = "wll";
     protected readonly HashSet<DirectoryInfo> search_paths = new ();
+    private readonly HashSet<string> search_paths_collider_ = new ();
 
     public ModuleResolverBase AddSearchPath(DirectoryInfo dir)
     {
-        debug($"Assembly search path '{dir}' is added.");
-        search_paths.Add(dir);
+        if (search_paths_collider_.Add(dir.FullName))
+        {
+            search_paths.Add(dir);
+            debug($"Assembly search path '{dir}' is added.");
+        }
         return this;
     }
 

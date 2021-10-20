@@ -27,16 +27,34 @@ namespace vein.compilation
 
     public class Compiler
     {
-
+        public (bool, Compiler) ProcessDependencyProject(VeinProject project, CompileSettings flags)
+        {
+            var c = new Compiler(project, flags, this.Project, this.resolver)
+            {
+                StatusCtx = StatusCtx,
+                Status = StatusCtx.AddTask($"process dependency project '{project.Name}'...")
+            };
+            var result = (c.ProcessFiles(project.Sources.Select(x => new FileInfo(x)).ToArray()), c);
+            
+            return result;
+        }
         public static Compiler Process(FileInfo[] entity, VeinProject project, CompileSettings flags)
         {
             var c = new Compiler(project, flags);
 
-            return AnsiConsole.Status()
-                .Spinner(Spinner.Known.Dots8Bit)
-                .Start("Processing...", ctx =>
+            return AnsiConsole.Progress()
+                .AutoClear(false)
+                .Columns(new ProgressColumn[] 
                 {
-                    c.Status = ctx;
+                    new TaskDescriptionColumn { Alignment = Justify.Left },    // Task description
+                    new ProgressBarColumn(),        // Progress bar
+                    new PercentageColumn(),         // Percentage
+                    new SpinnerColumn() { Spinner = Spinner.Known.Dots8Bit } ,            // Spinner
+                })
+                .Start(ctx =>
+                {
+                    c.StatusCtx = ctx;
+                    c.Status = ctx.AddTask($"Process project '{project.Name}'...", false).IsIndeterminate();
                     try
                     {
                         c.ProcessFiles(entity);
@@ -45,17 +63,19 @@ namespace vein.compilation
                     {
                         Log.Error("failed compilation.");
                         Log.Error(e);
+                        c.Status.StopTask();
                     }
                     return c;
                 });
         }
 
-        public Compiler(VeinProject project, CompileSettings flags)
+        public Compiler(VeinProject project, CompileSettings flags, VeinProject inner = null, AssemblyResolver rs = null)
         {
             _flags = flags;
+            _inner = inner;
             Project = project;
-            var pack = project.SDK.GetPackByAlias(project.Runtime);
-            resolver = new(this);
+            var pack = project.SDK.GetDefaultPack();
+            resolver = rs ?? new(this);
             resolver.AddSearchPath(new(project.WorkDir));
             resolver.AddSearchPath(new(project.SDK.GetFullPath(pack).FullName));
         }
@@ -63,33 +83,67 @@ namespace vein.compilation
         internal VeinProject Project { get; set; }
 
         internal readonly CompileSettings _flags;
+        private readonly VeinProject _inner;
         internal readonly VeinSyntax syntax = new();
         internal readonly AssemblyResolver resolver;
         internal readonly Dictionary<FileInfo, string> Sources = new ();
         internal readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
-        internal StatusContext Status;
+        internal ProgressTask Status;
+        internal ProgressContext StatusCtx;
         internal VeinModuleBuilder module;
         internal GeneratorContext Context;
 
-        private void ProcessFiles(FileInfo[] files)
+        private bool ProcessFiles(FileInfo[] files)
         {
             if (_flags.IsNeedDebuggerAttach)
             {
+                var task = StatusCtx.AddTask($"[green]Waiting debugger[/]...").IsIndeterminate();
                 while (!Debugger.IsAttached)
                 {
-                    Status.ManaStatus($"[green]Waiting debugger[/]...");
                     Thread.Sleep(400);
                 }
+                task.StopTask();
             }
             var deps = new List<VeinModule>();
-            foreach (var (name, version) in Project.Packages)
+            foreach (var p in Project.Packages.OfExactType<ProjectReference>())
             {
-                Status.ManaStatus($"Resolve [grey]'{name}, {version}'[/]...");
+                var file = new FileInfo(p.path);
+
+                if (!file.Exists)
+                {
+                    Log.Error($"Not found file project in '{file.FullName}'");
+                    this.Status.StopTask();
+                    return false;
+                }
+                var project = VeinProject.LoadFrom(new FileInfo(p.path));
+
+                if (_inner is { } && _inner.Name.Equals(project.Name))
+                {
+                    Log.Error($"Cycle project reference detected. [{Project.Name} -> {project.Name} -> {this.Project.Name} -> ...]");
+                    this.Status.StopTask();
+                    return false;
+                }
+
+                var (result, ccc) = ProcessDependencyProject(project, new CompileSettings());
+
+                if (!result)
+                {
+                    Log.Error($"Failed compile dependency project '{project.Name}'.");
+                    this.Status.StopTask();
+                    return false;
+                }
+                deps.Add(resolver.ResolveDep(ccc.module.Name, ccc.module.Version, deps));
+            }
+            Status.StartTask();
+            foreach (var (name, version) in Project.Packages.OfExactType<PackageReference>())
+            {
+                Status.VeinStatus($"Resolve [grey]'{name}, {version}'[/]...");
                 deps.Add(resolver.ResolveDep(name, version.Version, deps));
             }
+            
             foreach (var file in files)
             {
-                Status.ManaStatus($"Read [grey]'{file.Name}'[/]...");
+                Status.VeinStatus($"Read [grey]'{file.Name}'[/]...");
                 var text = File.ReadAllText(file.FullName);
                 if (text.StartsWith("#ignore"))
                     continue;
@@ -98,7 +152,7 @@ namespace vein.compilation
 
             foreach (var (key, value) in Sources)
             {
-                Status.ManaStatus($"Compile [grey]'{key.Name}'[/]...");
+                Status.VeinStatus($"Compile [grey]'{key.Name}'[/]...");
                 try
                 {
                     var result = syntax.CompilationUnit.ParseVein(value);
@@ -111,6 +165,8 @@ namespace vein.compilation
                 catch (VeinParseException e)
                 {
                     Log.Defer.Error($"[red bold]{e.Message.Trim().EscapeMarkup()}[/]\n\tin '[orange bold]{key}[/]'.");
+                    this.Status.StopTask();
+                    return false;
                 }
             }
 
@@ -122,7 +178,7 @@ namespace vein.compilation
             Context.Module.Deps.AddRange(deps);
 
             Ast.Select(x => (x.Key, x.Value))
-                .Pipe(x => Status.ManaStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
+                .Pipe(x => Status.VeinStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
                 .SelectMany(x => LinkClasses(x.Value))
                 .ToList()
                 .Pipe(LinkMetadata)
@@ -150,6 +206,8 @@ namespace vein.compilation
                     table.AddRow(new Markup($"[blue]{@class.FullName.NameWithNS}[/]"));
                 AnsiConsole.Render(table);
             }
+            this.Status.StopTask();
+            return Log.errors.Count == 0;
         }
 
         public List<(ClassBuilder clazz, ClassDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc)
@@ -160,7 +218,7 @@ namespace vein.compilation
             {
                 if (member is ClassDeclarationSyntax clazz)
                 {
-                    Status.ManaStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
+                    Status.VeinStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
                     clazz.OwnerDocument = doc;
                     var result = CompileClass(clazz, doc);
                     Context.Classes.Add(result.FullName, result);
@@ -345,17 +403,17 @@ namespace vein.compilation
                         Log.Defer.Error($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/]", member, doc);
                         break;
                     case MethodDeclarationSyntax method:
-                        Status.ManaStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
+                        Status.VeinStatus($"Regeneration method [grey]'{method.Identifier}'[/]");
                         method.OwnerClass = clazzSyntax;
                         methods.Add(CompileMethod(method, @class, doc));
                         break;
                     case FieldDeclarationSyntax field:
-                        Status.ManaStatus($"Regeneration field [grey]'{field.Field.Identifier}'[/]");
+                        Status.VeinStatus($"Regeneration field [grey]'{field.Field.Identifier}'[/]");
                         field.OwnerClass = clazzSyntax;
                         fields.Add(CompileField(field, @class, doc));
                         break;
                     case PropertyDeclarationSyntax prop:
-                        Status.ManaStatus($"Regeneration property [grey]'{prop.Identifier}'[/]");
+                        Status.VeinStatus($"Regeneration property [grey]'{prop.Identifier}'[/]");
                         prop.OwnerClass = clazzSyntax;
                         props.Add(CompileProperty(prop, @class, doc));
                         break;
@@ -433,7 +491,7 @@ namespace vein.compilation
         {
             var (@class, member) = x;
             Context.Document = member.OwnerDocument;
-            Status.ManaStatus($"Regenerate default ctor for [grey]'{member.Identifier}'[/].");
+            Status.VeinStatus($"Regenerate default ctor for [grey]'{member.Identifier}'[/].");
             var doc = member.OwnerDocument;
 
             if (@class.GetDefaultCtor() is not MethodBuilder ctor)
@@ -493,7 +551,7 @@ namespace vein.compilation
         public void GenerateStaticCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
             var (@class, member) = x;
-            Status.ManaStatus($"Regenerate static ctor for [grey]'{member.Identifier}'[/].");
+            Status.VeinStatus($"Regenerate static ctor for [grey]'{member.Identifier}'[/].");
             var ctor = @class.GetStaticCtor() as MethodBuilder;
             var doc = member.OwnerDocument;
 
@@ -1005,12 +1063,16 @@ namespace vein.compilation
         /// <param name="context">The status context.</param>
         /// <param name="status">The status message.</param>
         /// <returns>The same instance so that multiple calls can be chained.</returns>
-        public static StatusContext ManaStatus(this StatusContext context, string status)
+        public static ProgressTask VeinStatus(this ProgressTask context, string status)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
             Thread.Sleep(10); // so, i need it :(
-            context.Status = status;
+
+            if (context.State.Get<bool>("isDeps"))
+                context.Description = $"[red](dep)[/] {status}";
+            else
+                context.Description = status;
             return context;
         }
     }

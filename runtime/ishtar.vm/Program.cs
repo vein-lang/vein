@@ -56,10 +56,7 @@ namespace vein.runtime
                 resolver.AddSearchPath(entry.Directory);
                 resolver.AddSearchPath(entry.Directory.SubDirectory("refs"));
             }
-
-
-
-            resolver.AddSearchPath(new DirectoryInfo("/ManaLang"));
+            
             resolver.AddSearchPath(new DirectoryInfo("./"));
 
 

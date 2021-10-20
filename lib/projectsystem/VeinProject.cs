@@ -33,8 +33,8 @@ namespace vein.project
             .Where(x => !x.EndsWith(".temp.vein"))
             .Where(x => !x.EndsWith(".generated.vein"));
 
-        public IEnumerable<PackageReference> Packages =>
-            _project.Packages?.Ref?.Select(x => PackageReference.Parser.Parse(x.Name))
+        public IEnumerable<IProjectRef> Packages =>
+            _project.Packages?.Ref?.Select(x => PackageReference.Convert(x.Name))
             ?? new List<PackageReference>();
 
         public VeinSDK SDK => VeinSDK.Resolve(_project.Sdk);
