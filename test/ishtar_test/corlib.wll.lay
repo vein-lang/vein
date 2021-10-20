@@ -12,106 +12,122 @@
 		.s 000006:'Out'
 		.s 000007:'Range'
 		.s 000008:'StringBuilder'
-		.s 000009:'IEEEConsts'
-		.s 000010:'NetworkStream'
-		.s 000011:'global::vein/lang/network'
-		.s 000012:'TcpListener'
-		.s 000013:'TcpSocket'
-		.s 000014:'BigInt'
-		.s 000015:'global::vein/lang/numeric'
-		.s 000016:'Quaternion'
-		.s 000017:'@_get_os_value'
-		.s 000018:'@_get_os_value()'
-		.s 000019:'@_exit'
-		.s 000020:'@_exit(String,Int32)'
-		.s 000021:'@_switch_flag'
-		.s 000022:'@_switch_flag(String,Boolean)'
-		.s 000023:'GetFrameworkName'
-		.s 000024:'GetFrameworkName()'
-		.s 000025:'Shutdown'
-		.s 000026:'Shutdown(String,Int32)'
-		.s 000027:'SwitchFlag'
-		.s 000028:'SwitchFlag(String,Boolean)'
-		.s 000029:'toString'
-		.s 000030:'toString()'
-		.s 000031:'get_Epsilon'
-		.s 000032:'get_Epsilon()'
-		.s 000033:'get_PositiveInfinity'
-		.s 000034:'get_PositiveInfinity()'
-		.s 000035:'get_NegativeInfinity'
-		.s 000036:'get_NegativeInfinity()'
-		.s 000037:'get_NaN'
-		.s 000038:'get_NaN()'
-		.s 000039:'Abs'
-		.s 000040:'Abs(Float)'
-		.s 000041:'@_println'
-		.s 000042:'@_println(String)'
-		.s 000043:'new'
-		.s 000044:'new(UInt32,UInt32)'
-		.s 000045:'getHalfNaN'
-		.s 000046:'getHalfNaN()'
-		.s 000047:'getFloatNaN'
-		.s 000048:'getFloatNaN()'
-		.s 000049:'getDecimalNaN'
-		.s 000050:'getDecimalNaN()'
-		.s 000051:'getDoubleNaN'
-		.s 000052:'getDoubleNaN()'
-		.s 000053:'getHalfInfinity'
-		.s 000054:'getHalfInfinity()'
-		.s 000055:'getFloatInfinity'
-		.s 000056:'getFloatInfinity()'
-		.s 000057:'getDecimalInfinity'
-		.s 000058:'getDecimalInfinity()'
-		.s 000059:'getDoubleInfinity'
-		.s 000060:'getDoubleInfinity()'
-		.s 000061:'getHalfNegativeInfinity'
-		.s 000062:'getHalfNegativeInfinity()'
-		.s 000063:'getFloatNegativeInfinity'
-		.s 000064:'getFloatNegativeInfinity()'
-		.s 000065:'getDecimalNegativeInfinity'
-		.s 000066:'getDecimalNegativeInfinity()'
-		.s 000067:'getDoubleNegativeInfinity'
-		.s 000068:'getDoubleNegativeInfinity()'
-		.s 000069:'create'
-		.s 000070:'create(UInt16)'
-		.s 000071:'IsActive'
-		.s 000072:'IsActive()'
-		.s 000073:'Start'
-		.s 000074:'Start()'
-		.s 000075:'new(UInt16)'
-		.s 000076:'IsBlocked'
-		.s 000077:'IsBlocked()'
-		.s 000078:'IsListed'
-		.s 000079:'IsListed()'
-		.s 000080:'IsConnected'
-		.s 000081:'IsConnected()'
-		.s 000082:'Bind'
-		.s 000083:'Bind()'
-		.s 000084:'Send'
-		.s 000085:'Send(Byte)'
-		.s 000086:'Listen'
-		.s 000087:'Listen(Int32)'
-		.s 000088:'Create'
-		.s 000089:'Create(UInt16)'
-		.s 000090:'IsZero'
-		.s 000091:'IsZero()'
-		.s 000092:'Application.getPlatform()'
-		.s 000093:'ctor()'
-		.s 000094:'type_ctor()'
-		.s 000095:'Array'
-		.s 000096:'<Object>'
-		.s 000097:'<Value>'
-		.s 000098:'msg'
-		.s 000099:'exitCode'
-		.s 000100:'key'
-		.s 000101:'value'
-		.s 000102:'x'
-		.s 000103:'start'
-		.s 000104:'end'
-		.s 000105:'port'
-		.s 000106:'buffer'
-		.s 000107:'cq'
-		.s 000108:'1.0.0.0'
+		.s 000009:'IYieldable'
+		.s 000010:'global::vein/lang/collections'
+		.s 000011:'IYield'
+		.s 000012:'Yieldable'
+		.s 000013:'IEEEConsts'
+		.s 000014:'NetworkStream'
+		.s 000015:'global::vein/lang/network'
+		.s 000016:'TcpListener'
+		.s 000017:'TcpSocket'
+		.s 000018:'BigInt'
+		.s 000019:'global::vein/lang/numeric'
+		.s 000020:'Quaternion'
+		.s 000021:'@_get_os_value'
+		.s 000022:'@_get_os_value()'
+		.s 000023:'@_exit'
+		.s 000024:'@_exit(String,Int32)'
+		.s 000025:'@_switch_flag'
+		.s 000026:'@_switch_flag(String,Boolean)'
+		.s 000027:'GetFrameworkName'
+		.s 000028:'GetFrameworkName()'
+		.s 000029:'Shutdown'
+		.s 000030:'Shutdown(String,Int32)'
+		.s 000031:'SwitchFlag'
+		.s 000032:'SwitchFlag(String,Boolean)'
+		.s 000033:'toString'
+		.s 000034:'toString()'
+		.s 000035:'get_Epsilon'
+		.s 000036:'get_Epsilon()'
+		.s 000037:'get_PositiveInfinity'
+		.s 000038:'get_PositiveInfinity()'
+		.s 000039:'get_NegativeInfinity'
+		.s 000040:'get_NegativeInfinity()'
+		.s 000041:'get_NaN'
+		.s 000042:'get_NaN()'
+		.s 000043:'Abs'
+		.s 000044:'Abs(Float)'
+		.s 000045:'@_println'
+		.s 000046:'@_println(String)'
+		.s 000047:'new'
+		.s 000048:'new(UInt32,UInt32)'
+		.s 000049:'get_Current'
+		.s 000050:'get_Current()'
+		.s 000051:'set_Current'
+		.s 000052:'set_Current(Object)'
+		.s 000053:'MoveNext'
+		.s 000054:'MoveNext()'
+		.s 000055:'Reset'
+		.s 000056:'Reset()'
+		.s 000057:'get_Yield'
+		.s 000058:'get_Yield()'
+		.s 000059:'set_Yield'
+		.s 000060:'set_Yield(IYieldable)'
+		.s 000061:'getHalfNaN'
+		.s 000062:'getHalfNaN()'
+		.s 000063:'getFloatNaN'
+		.s 000064:'getFloatNaN()'
+		.s 000065:'getDecimalNaN'
+		.s 000066:'getDecimalNaN()'
+		.s 000067:'getDoubleNaN'
+		.s 000068:'getDoubleNaN()'
+		.s 000069:'getHalfInfinity'
+		.s 000070:'getHalfInfinity()'
+		.s 000071:'getFloatInfinity'
+		.s 000072:'getFloatInfinity()'
+		.s 000073:'getDecimalInfinity'
+		.s 000074:'getDecimalInfinity()'
+		.s 000075:'getDoubleInfinity'
+		.s 000076:'getDoubleInfinity()'
+		.s 000077:'getHalfNegativeInfinity'
+		.s 000078:'getHalfNegativeInfinity()'
+		.s 000079:'getFloatNegativeInfinity'
+		.s 000080:'getFloatNegativeInfinity()'
+		.s 000081:'getDecimalNegativeInfinity'
+		.s 000082:'getDecimalNegativeInfinity()'
+		.s 000083:'getDoubleNegativeInfinity'
+		.s 000084:'getDoubleNegativeInfinity()'
+		.s 000085:'create'
+		.s 000086:'create(UInt16)'
+		.s 000087:'IsActive'
+		.s 000088:'IsActive()'
+		.s 000089:'Start'
+		.s 000090:'Start()'
+		.s 000091:'new(UInt16)'
+		.s 000092:'IsBlocked'
+		.s 000093:'IsBlocked()'
+		.s 000094:'IsListed'
+		.s 000095:'IsListed()'
+		.s 000096:'IsConnected'
+		.s 000097:'IsConnected()'
+		.s 000098:'Bind'
+		.s 000099:'Bind()'
+		.s 000100:'Send'
+		.s 000101:'Send(Byte)'
+		.s 000102:'Listen'
+		.s 000103:'Listen(Int32)'
+		.s 000104:'Create'
+		.s 000105:'Create(UInt16)'
+		.s 000106:'IsZero'
+		.s 000107:'IsZero()'
+		.s 000108:'Application.getPlatform()'
+		.s 000109:'ctor()'
+		.s 000110:'type_ctor()'
+		.s 000111:'Array'
+		.s 000112:'<Object>'
+		.s 000113:'<Value>'
+		.s 000114:'msg'
+		.s 000115:'exitCode'
+		.s 000116:'key'
+		.s 000117:'value'
+		.s 000118:'x'
+		.s 000119:'start'
+		.s 000120:'end'
+		.s 000121:'port'
+		.s 000122:'buffer'
+		.s 000123:'cq'
+		.s 000124:'1.0.0.0'
 		.t 000000:'corlib%global::vein/lang/Application'
 		.t 000001:'corlib%global::vein/lang/Exception'
 		.t 000002:'corlib%global::vein/lang/ValueType'
@@ -119,30 +135,33 @@
 		.t 000004:'corlib%global::vein/lang/IEEEConsts'
 		.t 000005:'corlib%global::vein/lang/Half'
 		.t 000006:'corlib%global::vein/lang/Range'
-		.t 000007:'corlib%global::vein/lang/String'
+		.t 000007:'corlib%global::vein/lang/collections/Yieldable'
 		.t 000008:'corlib%global::vein/lang/network/TcpListener'
 		.t 000009:'corlib%global::vein/lang/network/TcpSocket'
 		.t 000010:'corlib%global::vein/lang/numeric/Quaternion'
 		.t 000011:'corlib%global::vein/lang/Object'
 		.t 000012:'corlib%global::vein/lang/Int32'
 		.t 000013:'corlib%global::vein/lang/Void'
-		.t 000014:'corlib%global::vein/lang/Boolean'
-		.t 000015:'corlib%global::vein/lang/Array'
-		.t 000016:'corlib%global::vein/lang/Int64'
-		.t 000017:'corlib%global::vein/lang/BitConvert'
-		.t 000018:'corlib%global::vein/lang/Byte'
-		.t 000019:'corlib%global::vein/lang/Char'
-		.t 000020:'corlib%global::vein/lang/Decimal'
-		.t 000021:'corlib%global::vein/lang/Double'
-		.t 000022:'corlib%global::vein/lang/Float'
-		.t 000023:'corlib%global::vein/lang/Int16'
-		.t 000024:'corlib%global::vein/lang/Mathf'
-		.t 000025:'corlib%global::vein/lang/Out'
-		.t 000026:'corlib%global::vein/lang/UInt32'
-		.t 000027:'corlib%global::vein/lang/StringBuilder'
-		.t 000028:'corlib%global::vein/lang/UInt16'
-		.t 000029:'corlib%global::vein/lang/network/NetworkStream'
-		.t 000030:'corlib%global::vein/lang/numeric/BigInt'
+		.t 000014:'corlib%global::vein/lang/String'
+		.t 000015:'corlib%global::vein/lang/Boolean'
+		.t 000016:'corlib%global::vein/lang/Array'
+		.t 000017:'corlib%global::vein/lang/Int64'
+		.t 000018:'corlib%global::vein/lang/BitConvert'
+		.t 000019:'corlib%global::vein/lang/Byte'
+		.t 000020:'corlib%global::vein/lang/Char'
+		.t 000021:'corlib%global::vein/lang/Decimal'
+		.t 000022:'corlib%global::vein/lang/Double'
+		.t 000023:'corlib%global::vein/lang/Float'
+		.t 000024:'corlib%global::vein/lang/Int16'
+		.t 000025:'corlib%global::vein/lang/Mathf'
+		.t 000026:'corlib%global::vein/lang/Out'
+		.t 000027:'corlib%global::vein/lang/UInt32'
+		.t 000028:'corlib%global::vein/lang/StringBuilder'
+		.t 000029:'corlib%global::vein/lang/UInt16'
+		.t 000030:'corlib%global::vein/lang/collections/IYieldable'
+		.t 000031:'corlib%global::vein/lang/collections/IYield'
+		.t 000032:'corlib%global::vein/lang/network/NetworkStream'
+		.t 000033:'corlib%global::vein/lang/numeric/BigInt'
 		.f 000000:'Array._value'
 		.f 000001:'Array._block'
 		.f 000002:'Array.Length'
@@ -190,20 +209,21 @@
 		.f 000044:'UInt32._value'
 		.f 000045:'UInt32.MaxValue'
 		.f 000046:'UInt32.MinValue'
-		.f 000047:'TcpListener._port'
-		.f 000048:'TcpListener._dualMode'
-		.f 000049:'TcpListener._active'
-		.f 000050:'TcpListener._socket'
-		.f 000051:'TcpListener.ExclusiveAddressUse'
-		.f 000052:'TcpSocket._port'
-		.f 000053:'TcpSocket._is_listing'
-		.f 000054:'TcpSocket._handle'
-		.f 000055:'TcpSocket._blocked'
-		.f 000056:'TcpSocket._connected'
-		.f 000057:'Quaternion.X'
-		.f 000058:'Quaternion.Y'
-		.f 000059:'Quaternion.Z'
-		.f 000060:'Quaternion.W'
+		.f 000047:'Yieldable._current'
+		.f 000048:'TcpListener._port'
+		.f 000049:'TcpListener._dualMode'
+		.f 000050:'TcpListener._active'
+		.f 000051:'TcpListener._socket'
+		.f 000052:'TcpListener.ExclusiveAddressUse'
+		.f 000053:'TcpSocket._port'
+		.f 000054:'TcpSocket._is_listing'
+		.f 000055:'TcpSocket._handle'
+		.f 000056:'TcpSocket._blocked'
+		.f 000057:'TcpSocket._connected'
+		.f 000058:'Quaternion.X'
+		.f 000059:'Quaternion.Y'
+		.f 000060:'Quaternion.Z'
+		.f 000061:'Quaternion.W'
 	}
 
 	@'aspect/Native/class/Application._0' = 'internal.h'
@@ -287,7 +307,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x0000005C
+			/* ::0006 */ .ldc.str .0x0000006C
 			/* ::0008 */ .ret
 			
 		}
@@ -308,16 +328,16 @@
 		
 		.method 'SwitchFlag' (key: String, value: Boolean) public static -> Void
 		{
-			.size 27
+			.size 25
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0002 */ .ld.this
-			/* ::0008 */ .ldarg.s 0x00000001.int
-			/* ::0014 */ .ldarg.s 0x00000002.int
-			/* ::0025 */ .call Application::@_switch_flag(key: String,value: Boolean)
-			/* ::0027 */ .ret
+			/* ::0006 */ .ldarg.s 0x00000001.int
+			/* ::0012 */ .ldarg.s 0x00000002.int
+			/* ::0023 */ .call Application::@_switch_flag(key: String,value: Boolean)
+			/* ::0025 */ .ret
+			
 		}
 		
 		.method special 'ctor' () public special -> Void
@@ -339,10 +359,10 @@
 	.namespace 'global::vein/lang'
 	.struct 'Array' public special extends 'Object'
 	{
-		.field '_value' as 'ValueType' 
-		.field '_block' as 'Int64' 
-		.field 'Length' as 'Int64' public readonly
-		.field 'Rank' as 'Int64' public readonly
+		.field '_value' as 'ValueType' special
+		.field '_block' as 'Int64' special
+		.field 'Length' as 'Int64' public special readonly
+		.field 'Rank' as 'Int64' public special readonly
 		.method 'toString' () public override -> String
 		{
 			.size 8
@@ -350,7 +370,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x0000005F
+			/* ::0006 */ .ldc.str .0x0000006F
 			/* ::0008 */ .ret
 			
 		}
@@ -393,7 +413,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Boolean' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.field 'True' as 'Boolean' literal public
 		.field 'False' as 'Boolean' literal public
 		.field 'TrueString' as 'String' literal public
@@ -417,7 +437,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Byte' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.method special 'ctor' () public special -> Void
 		{
 			.size 0
@@ -437,7 +457,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Char' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.method special 'ctor' () public special -> Void
 		{
 			.size 0
@@ -457,7 +477,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Decimal' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.method special 'ctor' () public special -> Void
 		{
 			.size 0
@@ -477,7 +497,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Double' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.method special 'ctor' () public special -> Void
 		{
 			.size 0
@@ -522,7 +542,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Float' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.method special 'ctor' () public special -> Void
 		{
 			.size 0
@@ -581,7 +601,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Half' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.field 'NaN' as 'Half' public static
 		.field 'NegativeInfinity' as 'Half' public static
 		.field 'PositiveInfinity' as 'Half' public static
@@ -664,7 +684,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Int16' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.field 'MaxValue' as 'Int16' literal public
 		.field 'MinValue' as 'Int16' literal public
 		.method special 'ctor' () public special -> Void
@@ -686,7 +706,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Int32' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.field 'MaxValue' as 'Int32' literal public
 		.field 'MinValue' as 'Int32' literal public
 		.method special 'ctor' () public special -> Void
@@ -708,7 +728,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Int64' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.field 'MaxValue' as 'Int64' literal public
 		.field 'MinValue' as 'Int64' literal public
 		.method special 'ctor' () public special -> Void
@@ -772,7 +792,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000060
+			/* ::0006 */ .ldc.str .0x00000070
 			/* ::0008 */ .ret
 			
 		}
@@ -826,10 +846,10 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .ldf Start corlib%global::vein/lang/UInt32, Public, Special
-			/* ::0016 */ .ldarg.s 0x00000001.int
-			/* ::0026 */ .ldf End corlib%global::vein/lang/UInt32, Public, Special
-			/* ::0032 */ .ldarg.s 0x00000002.int
+			/* ::0006 */ .ldarg.s 0x00000001.int
+			/* ::0016 */ .stf Start corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0022 */ .ldarg.s 0x00000002.int
+			/* ::0032 */ .stf End corlib%global::vein/lang/UInt32, Public, Special
 			/* ::0034 */ .ret
 			
 		}
@@ -861,18 +881,13 @@
 	.namespace 'global::vein/lang'
 	.struct 'String' public special extends 'Object'
 	{
-		.field '_value' as 'ValueType' 
-		.field 'Length' as 'Int32' public
+		.field '_value' as 'ValueType' special
+		.field 'Length' as 'Int32' public special
 		.method special 'ctor' () public special -> Void
 		{
-			.size 12
+			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
-			
-			.locals { }
-			/* ::0002 */ .ldnull
-			/* ::0012 */ .stf Length corlib%global::vein/lang/Int32, Public, Special
-			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
@@ -906,7 +921,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'UInt16' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.field 'MaxValue' as 'UInt16' literal public
 		.field 'MinValue' as 'UInt16' literal public
 		.method special 'ctor' () public special -> Void
@@ -928,7 +943,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'UInt32' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' 
+		.field '_value' as 'ValueType' special
 		.field 'MaxValue' as 'UInt32' literal public
 		.field 'MinValue' as 'UInt32' literal public
 		.method special 'ctor' () public special -> Void
@@ -957,7 +972,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000061
+			/* ::0006 */ .ldc.str .0x00000071
 			/* ::0008 */ .ret
 			
 		}
@@ -986,6 +1001,105 @@
 			.size 0
 			.maxstack 0x00000040
 			.locals 0x00000000
+		}
+		
+		.method special 'type_ctor' () public static special -> Void
+		{
+			.size 0
+			.maxstack 0x00000040
+			.locals 0x00000000
+		}
+		
+	}
+	
+	.namespace 'global::vein/lang/collections'
+	.interface 'IYieldable' public abstract extends 'Object'
+	{
+		.method 'get_Current' () abstract -> Object
+		
+		.method 'set_Current' (value: Object) abstract -> Void
+		
+		.method 'MoveNext' () public abstract -> Boolean
+		
+		.method 'Reset' () public abstract -> Void
+		
+		.method special 'ctor' () public special -> Void
+		{
+			.size 0
+			.maxstack 0x00000040
+			.locals 0x00000000
+		}
+		
+		.method special 'type_ctor' () public static special -> Void
+		{
+			.size 0
+			.maxstack 0x00000040
+			.locals 0x00000000
+		}
+		
+	}
+	
+	.namespace 'global::vein/lang/collections'
+	.interface 'IYield' public abstract extends 'Object'
+	{
+		.method 'get_Yield' () public abstract -> IYieldable
+		
+		.method 'set_Yield' (value: IYieldable) public abstract -> Void
+		
+		.method special 'ctor' () public special -> Void
+		{
+			.size 0
+			.maxstack 0x00000040
+			.locals 0x00000000
+		}
+		
+		.method special 'type_ctor' () public static special -> Void
+		{
+			.size 0
+			.maxstack 0x00000040
+			.locals 0x00000000
+		}
+		
+	}
+	
+	.namespace 'global::vein/lang/collections'
+	.class 'Yieldable' public extends 'Object'
+	{
+		.field '_current' as 'Object' 
+		.method 'set_Current' (value: Object) public -> Object
+		{
+			.size 16
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0006 */ .ldarg.s 0x00000001.int
+			/* ::0016 */ .stf _current corlib%global::vein/lang/Object, Public, Special
+			
+		}
+		
+		.method 'get_Current' () public -> Object
+		{
+			.size 12
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0010 */ .ldf _current corlib%global::vein/lang/Object, Public, Special
+			/* ::0012 */ .ret
+			
+		}
+		
+		.method special 'ctor' () public special -> Void
+		{
+			.size 12
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldnull
+			/* ::0012 */ .stf _current corlib%global::vein/lang/Object, Public, Special
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
