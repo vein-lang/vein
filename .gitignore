@@ -16,7 +16,7 @@ node_modules/
 .bin/
 
 log*
-
+!Log.cs
 obj/
 *.vcxproj
 
