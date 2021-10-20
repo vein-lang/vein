@@ -1,9 +1,12 @@
+using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Globalization;
+using System.IO;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using vein;
 using vein.cmd;
@@ -33,6 +36,13 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
     Culture = CultureInfo.InvariantCulture
 };
 
+var font = new FileInfo($"{AppDomain.CurrentDomain.BaseDirectory}/resources/isometric1.flf");
+if (font.Exists)
+{
+    Render(new FigletText(FigletFont.Load(font.FullName), "Vein Lang")
+            .LeftAligned()
+            .Color(Color.Red));
+}
 
 
 MarkupLine($"[grey]Vein Lang Compiler[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
