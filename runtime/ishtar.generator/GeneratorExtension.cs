@@ -6,6 +6,7 @@ namespace ishtar
     using System.Linq;
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
+    using System.Threading;
     using vein.extensions;
     using emit;
     using vein.reflection;
@@ -55,6 +56,19 @@ namespace ishtar
             => Module.FindType(targetTypeTypeword.ExpressionString,
                 Classes[CurrentMethod.Owner.FullName].Includes);
 
+        public bool HasDefinedType(IdentifierExpression id)
+        {
+            try
+            {
+                Module.FindType(id.ExpressionString,
+                    Classes[CurrentMethod.Owner.FullName].Includes);
+                return true;
+            }
+            catch (TypeNotFoundException)
+            {
+                return false;
+            }
+        }
 
         public ClassBuilder CreateHiddenType(TypeSyntax targetTypeTypeword)
             => CreateHiddenType(targetTypeTypeword.Identifier);
@@ -86,6 +100,16 @@ namespace ishtar
                     return (argument, index);
             }
             return null;
+        }
+        public (VeinArgumentRef, int index) GetCurrentArgument(IdentifierExpression id)
+        {
+            foreach (var (argument, index) in CurrentMethod.Arguments.Select((x, i) => (x, i)))
+            {
+                if (argument.Name.Equals(id.ExpressionString))
+                    return (argument, index);
+            }
+
+            throw new Exception($"Argument '{id}' is not found in '{this.CurrentMethod.Name}' function.");
         }
         public VeinClass ResolveScopedIdentifierType(IdentifierExpression id)
         {
@@ -128,25 +152,6 @@ namespace ishtar
             this.LogError($"The name '{id}' does not exist in the current context.", id);
             return null;
         }
-        [Obsolete]
-        public VeinMethod ResolveMethod(
-            VeinClass targetType,
-            IdentifierExpression target,
-            IdentifierExpression id,
-            MethodInvocationExpression invocation)
-        {
-            var method = targetType.FindMethod(id.ExpressionString, invocation.Arguments.DetermineTypes(this));
-            if (method is not null)
-                return method;
-            if (target is not null)
-                this.LogError($"'{targetType.FullName.NameWithNS}' does not contain " +
-                          $"a definition for '{target.ExpressionString}' and " +
-                          $"no extension method '{id.ExpressionString}' accepting " +
-                          $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
-            else
-                this.LogError($"The name '{id}' does not exist in the current context.", id);
-            return null;
-        }
         public VeinMethod ResolveMethod(
             VeinClass targetType,
             IdentifierExpression target,
@@ -175,18 +180,6 @@ namespace ishtar
                 return method;
             else
                 this.LogError($"The name '{invocation.Name}' does not exist in the current context.", invocation.Name);
-            return null;
-        }
-
-        public VeinMethod ResolveMethod(
-            VeinClass targetType,
-            IdentifierExpression id,
-            MethodInvocationExpression invocation)
-        {
-            var method = targetType.FindMethod(id.ExpressionString, invocation.Arguments.DetermineTypes(this));
-            if (method is not null)
-                return method;
-            this.LogError($"The name '{id}' does not exist in the current context.", id);
             return null;
         }
     }
@@ -240,6 +233,9 @@ namespace ishtar
 
         public bool HasVariable(IdentifierExpression id)
             => variables.ContainsKey(id);
+
+        public (VeinClass @class, int index) GetVariable(IdentifierExpression id)
+            => (variables[id], locals_index[id]);
 
         public ManaScope DefineVariable(IdentifierExpression id, VeinClass type, int localIndex)
         {
@@ -381,6 +377,12 @@ namespace ishtar
 
         public static ILGenerator EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
         {
+            if (expr is AccessExpressionSyntax access)
+            {
+                gen.EmitAccess(access);
+                return gen;
+            }
+
             if (expr is LiteralExpressionSyntax literal)
             {
                 gen.EmitLiteral(literal);
@@ -411,64 +413,50 @@ namespace ishtar
                 return gen;
             }
 
-            if (expr is MemberAccessExpression { Start: IdentifierExpression } member)
-            {
-                if (member is { Start: IdentifierExpression { ExpressionString: "this" } })
-                {
-                    throw new NotSupportedException();
-                }
-                else
-                    gen.EmitIdentifierAccess(member);
-                return gen;
-            }
+            
 
             throw new NotImplementedException();
         }
 
-        public static void EmitIdentifierAccess(this ILGenerator gen, MemberAccessExpression member)
-        {
-            Assert.IsType<IdentifierExpression>(member.Start);
-            gen.EmitCall(member);
-        }
-
         public static void EmitThis(this ILGenerator gen) => gen.Emit(OpCodes.LD_THIS);
 
-        public static void EmitStageIdentifierReference(this ILGenerator gen, IdentifierExpression id)
+        [Flags]
+        public enum AccessFlags
+        {
+            NONE = 0,
+            VARIABLE = 1 << 1,
+            ARGUMENT = 1 << 2,
+            FIELD = 1 << 3,
+            STATIC_FIELD = 1 << 4,
+            CLASS = 1 << 5
+        }
+
+        public static AccessFlags GetAccessFlags(this ILGenerator gen, IdentifierExpression id)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            var flags = AccessFlags.NONE;
 
-            // first order: search variable
             if (context.CurrentScope.HasVariable(id))
-            {
-                var index = context.CurrentScope.locals_index[id];
-                var type = context.CurrentScope.variables[id];
-                gen.WriteDebugMetadata($"/* stage local, var: '{id}', index: '{index}', type: '{type.FullName.NameWithNS}' */");
-                gen.Emit(OpCodes.STLOC_S, index);
-                return;
-            }
+                flags |= AccessFlags.VARIABLE;
             
             // second order: search argument
             var args = context.ResolveArgument(id);
             if (args is not null)
-            {
-                var (arg, index) = args.Value;
-                gen.WriteDebugMetadata($"/* stage value, var: '{id}', index: '{index}', arg: '{arg.Name}' */");
-                gen.Emit(OpCodes.STARG_S, index + 1); // todo apply variants
-                return;
-            }
+                flags |= AccessFlags.ARGUMENT;
 
             // third order: find field
             var field = context.ResolveField(id);
-            if (field is not null)
-            {
-                gen.WriteDebugMetadata($"/* stage value, field: '{id}', name: '{field.Name}' */");
-                gen.Emit(field.IsStatic ? OpCodes.STSF : OpCodes.STF, field);
-                return;
-            }
+            if (field is { IsStatic: false })
+                flags |= AccessFlags.FIELD;
+            if (field is { IsStatic: true })
+                flags |= AccessFlags.STATIC_FIELD;
 
-            context.LogError($"The name '{id}' does not exist in the current context.", id);
+            // four order: find class
+            if (context.HasDefinedType(id))
+                flags |= AccessFlags.CLASS;
+
+            return flags;
         }
-
         public static void EmitLoadIdentifierReference(this ILGenerator gen, IdentifierExpression id)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
@@ -518,56 +506,7 @@ namespace ishtar
             gen.EmitBinaryOperator(bin.OperatorType);
             gen.EmitExpression(right);
         }
-
-        public static void EmitChainAccessWithAssign(this ILGenerator gen, BinaryExpressionSyntax binary)
-        {
-            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
-
-            if (binary.Left is IdentifierExpression or LiteralExpressionSyntax && binary.Right is MemberAccessExpression)
-            {
-
-            }
-            
-            if (binary.Left is MemberAccessExpression member)
-            {
-                var chain = member.GetChain().ToArray();
-
-                if (chain.Last() is MethodInvocationExpression)
-                {
-                    gen.EmitChainCall(member);
-                    return;
-                }
-            }
-        }
-
-        public static void EmitChainCall(this ILGenerator gen, MemberAccessExpression chain)
-        {
-
-        }
-
-        public static void EmitChainStage(this ILGenerator gen, MemberAccessExpression member, ExpressionSyntax assign)
-        {
-            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
-
-            var chain = member.GetChain().SkipLast(1).ToArray();
-            var last = member.GetChain().TakeLast(1).ToArray().First();
-            
-
-            if (last is MethodInvocationExpression)
-            {
-                context.LogError($"The left-hand side of an assignment must be a variable, property or indexer.", last);
-                return;
-            }
-
-            foreach (var syntax in chain)
-            {
-                if (syntax is MethodInvocationExpression m)
-                {
-                }
-            }
-
-        }
-
+        
         public static void EmitAssignExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
@@ -580,26 +519,21 @@ namespace ishtar
                 return;
             }
 
-            if (bin.Left is MemberAccessExpression { Start: { ExpressionString: "this" } })
+            if (bin is { Left: AccessExpressionSyntax { Left: ThisAccessExpression, Right: IdentifierExpression id1 }})
             {
-
-            }
-
-
-
-            if (bin.Left is MemberAccessExpression member)
-            {
-                if (member.Chain.Count() == 1)
-                    gen.EmitLoadIdentifierReference(member.Chain.Single() as IdentifierExpression);
-                else
-                    throw new NotSupportedException();
+                var field = context.ResolveField(context.CurrentMethod.Owner, id1);
+                if (field.IsStatic)
+                {
+                    context.LogError($"Static member '{id1}' cannot be accessed with an instance reference.", id1);
+                    return;
+                }
                 gen.EmitExpression(bin.Right);
+                gen.Emit(OpCodes.STF, field);
                 return;
             }
 
             throw new NotSupportedException();
         }
-
         public static bool CanImplicitlyCast(this VeinTypeCode code, NumericLiteralExpressionSyntax numeric)
         {
             if (code.IsCompatibleNumber(numeric.GetTypeCode()))
@@ -915,18 +849,24 @@ namespace ishtar
                 generator.EmitReturn(ret1);
             else if (statement is IfStatementSyntax theIf)
                 generator.EmitIfElse(theIf);
+            else if (statement is QualifiedExpressionStatement { Value: InvocationExpression invoke })
+            {
+                var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
+                generator.EmitCall(ctx.CurrentMethod.Owner, invoke);
+            }
+            else if (statement is QualifiedExpressionStatement { Value: AccessExpressionSyntax access })
+                generator.EmitAccess(access);
             else if (statement is WhileStatementSyntax @while)
                 generator.EmitWhileStatement(@while);
-            else if (statement is QualifiedExpressionStatement { Value: MemberAccessExpression } qes1)
-                generator.EmitCall((MemberAccessExpression)qes1.Value);
             else if (statement is QualifiedExpressionStatement { Value: BinaryExpressionSyntax } qes2)
                 generator.EmitBinaryExpression((BinaryExpressionSyntax)qes2.Value);
+            
             else if (statement is LocalVariableDeclaration localVariable)
                 generator.EmitLocalVariable(localVariable);
             else if (statement is ForeachStatementSyntax @foreach)
                 generator.EmitForeach(@foreach);
             else
-                throw new NotImplementedException();
+                throw new NotImplementedException(); 
         }
 
 
@@ -996,127 +936,100 @@ namespace ishtar
             generator.Emit(OpCodes.STLOC_S, locIndex); // TODO optimization for STLOC_0,1,2 and etc
         }
 
-        public static void EmitCall(this ILGenerator generator, MemberAccessExpression qes)
+        public static ILGenerator EmitAccess(this ILGenerator gen, AccessExpressionSyntax access)
         {
-            var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
-
-            Assert.IsType<IdentifierExpression>(qes.Start);
-            var chain = qes.Chain.ToArray();
-
-            if (chain.Length == 1 && chain[0] is MethodInvocationExpression m)
+            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            
+            if (access is { Left: IdentifierExpression id, Right: InvocationExpression invoke })
             {
-                generator.EmitLocalCall((IdentifierExpression)qes.Start, m);
-                return;
-            }
-            if (chain.Length == 1 && chain[0] is IdentifierExpression i)
-            {
-                throw new NotSupportedException();
-                //generator.EmitLoadIdentifierReference(i);
-                //return;
-            }
+                var flags = gen.GetAccessFlags(id);
 
-            if (chain.Length == 2)
-            {
-                if (generator.HasClassIdentifier((IdentifierExpression)qes.Start))
+                // first order: variable
+                if (flags.HasFlag(AccessFlags.VARIABLE))
                 {
-                    generator.EmitGlobalCall((IdentifierExpression)qes.Start,
-                        chain[0] as IdentifierExpression, chain[1] as MethodInvocationExpression);
+                    var (@class, var_index) = ctx.CurrentScope.GetVariable(id);
+                    
+                    return gen.Emit(OpCodes.LDLOC_S, var_index).
+                        EmitCall(@class, invoke);
                 }
-                else
+                // second order: argument
+                if (flags.HasFlag(AccessFlags.ARGUMENT))
                 {
-                    generator.EmitReferencedCall((IdentifierExpression)qes.Start,
-                        chain[0] as IdentifierExpression, chain[1] as MethodInvocationExpression);
+                    var (arg, index) = ctx.GetCurrentArgument(id);
+                    return gen.Emit(OpCodes.LDARG_S, index)
+                        .EmitCall(arg.Type, invoke);
                 }
-                return;
+                // three order: field
+                if (flags.HasFlag(AccessFlags.FIELD))
+                {
+                    var field = ctx.ResolveField(id);
+                    return gen.Emit(OpCodes.LDF, field)
+                        .EmitCall(field.FieldType, invoke);
+                }
+                // four order: static field
+                if (flags.HasFlag(AccessFlags.STATIC_FIELD))
+                {
+                    var field = ctx.ResolveField(id);
+                    return gen.Emit(OpCodes.LDSF, field)
+                        .EmitCall(field.FieldType, invoke);
+                }
+                // five order: static class
+                if (flags.HasFlag(AccessFlags.CLASS))
+                {
+                    var @class = ctx.ResolveType(id);
+                    return gen.EmitCall(@class, invoke);
+                }
+
+                return gen;
             }
 
-            if (chain.Length == 3)
+            if (access is { Left: ThisAccessExpression, Right: IdentifierExpression id1 })
             {
-                generator.EmitReferencedCall((IdentifierExpression)chain[0],
-                    chain[1] as IdentifierExpression, chain[2] as MethodInvocationExpression);
-                return;
+                var flags = gen.GetAccessFlags(id1);
+
+                // first order: variable
+                if (flags.HasFlag(AccessFlags.VARIABLE))
+                {
+                    var (_, var_index) = ctx.CurrentScope.GetVariable(id1);
+                    return gen.Emit(OpCodes.LDLOC_S, var_index);
+                }
+                // second order: argument
+                if (flags.HasFlag(AccessFlags.ARGUMENT))
+                {
+                    var (_, index) = ctx.GetCurrentArgument(id1);
+                    return gen.Emit(OpCodes.LDARG_S, index);
+                }
+                // three order: field
+                if (flags.HasFlag(AccessFlags.FIELD))
+                {
+                    var field = ctx.ResolveField(id1);
+                    return gen.Emit(OpCodes.LDF, field);
+                }
+                // four order: static field
+                if (flags.HasFlag(AccessFlags.STATIC_FIELD))
+                    ctx.LogError($"Static member '{id1}' cannot be accessed with an instance reference.", id1);
+                // five order: static class
+                if (flags.HasFlag(AccessFlags.CLASS))
+                    ctx.LogError($"'{id1}' is a type, which is not valid in current context.", id1);
+                
+                return gen;
             }
+
             throw new NotSupportedException();
         }
-
-        public static bool HasClassIdentifier(this ILGenerator gen, IdentifierExpression id)
-        {
-            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
-
-            if (context.CurrentScope.HasVariable(id))
-                return false;
-            if (context.ResolveArgument(id) is not null)
-                return false;
-            if (context.ResolveField(id) is not null)
-                return false;
-
-            return true;
-        }
-
-        [Obsolete]
-        public static void EmitReferencedCall(this ILGenerator gen, IdentifierExpression variable, IdentifierExpression func,
-            MethodInvocationExpression args)
+        
+        public static ILGenerator EmitCall(this ILGenerator gen, VeinClass @class, InvocationExpression invocation)
         {
             var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
-            var clazz = ctx.ResolveScopedIdentifierType(variable);
 
-            var method = ctx.ResolveMethod(clazz, func, args);
+            var method = ctx.ResolveMethod(@class, invocation);
+            var args = invocation.Arguments;
 
-            if (method is null)
-            {
-                ctx.LogError($"'{clazz.FullName.NameWithNS}' does not contain a definition for '{func}'.", func);
-                return;
-            }
-            gen.EmitLoadIdentifierReference(variable);
-            foreach (var arg in args.Arguments)
+            foreach (var arg in args)
                 gen.EmitExpression(arg);
 
             gen.Emit(OpCodes.CALL, method);
-        }
-        [Obsolete]
-        public static void EmitGlobalCall(this ILGenerator gen, IdentifierExpression className, IdentifierExpression name,
-            MethodInvocationExpression args)
-        {
-            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
-            var clazz = ctx.ResolveType(className);
-
-            if (clazz is null)
-            {
-                ctx.LogError($"The name '{className}' does not exist in the current context.", className);
-                return;
-            }
-
-            var method = ctx.ResolveMethod(clazz, name, args);
-
-            if (method is null)
-            {
-                ctx.LogError($"'{clazz.FullName.NameWithNS}' does not contain a definition for '{name}'.", name);
-                return;
-            }
-
-            foreach (var arg in args.Arguments)
-                gen.EmitExpression(arg);
-
-            gen.Emit(OpCodes.CALL, method);
-        }
-        [Obsolete]
-        private static void EmitLocalCall(this ILGenerator gen, IdentifierExpression name,
-            MethodInvocationExpression args)
-        {
-            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
-            var method = ctx.ResolveMethod(ctx.CurrentMethod.Owner, name, args);
-
-            if (method is null)
-            {
-                ctx.LogError($"'{ctx.CurrentMethod.Owner.FullName.NameWithNS}' does not contain a definition for '{name}'.", name);
-                return;
-            }
-            gen.EmitThis();
-
-            foreach (var arg in args.Arguments)
-                gen.EmitExpression(arg);
-
-            gen.Emit(OpCodes.CALL, method);
+            return gen;
         }
 
         public static void EmitNumericLiteral(this ILGenerator generator, NumericLiteralExpressionSyntax literal)

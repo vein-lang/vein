@@ -6,7 +6,7 @@ namespace vein.extensions
 
     public static class EnumExtension
     {
-        public static IEnumerable<string> EnumerateFlags<TEnum>(this TEnum flags, TEnum[] except) where TEnum : struct
+        public static IEnumerable<string> EnumerateFlags<TEnum>(this TEnum flags, params TEnum[] except) where TEnum : struct
         {
             if (!typeof(TEnum).IsEnum)
                 throw new ArgumentException();
