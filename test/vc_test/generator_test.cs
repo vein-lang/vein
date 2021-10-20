@@ -148,7 +148,7 @@ namespace wc_test
             ctx_actual.Classes.First().Value
                 .DefineField("x", FieldFlags.None, VeinTypeCode.TYPE_STRING.AsClass());
 
-            
+
             actual.EmitReturn(ret);
 
             var expected = CreateGenerator();
@@ -159,7 +159,7 @@ namespace wc_test
 
             expected.Emit(OpCodes.LDF, field);
             expected.Emit(OpCodes.RET);
-            
+
             IshtarAssert.SequenceEqual(expected._debug_list, actual._debug_list);
         }
         [Test]
@@ -175,7 +175,7 @@ namespace wc_test
 
             expected.Emit(OpCodes.LDARG_S, 0);
             expected.Emit(OpCodes.RET);
-            
+
             IshtarAssert.SequenceEqual(expected._debug_list, actual._debug_list);
         }
 
@@ -184,7 +184,7 @@ namespace wc_test
             var module = new VeinModuleBuilder(Guid.NewGuid().ToString());
             var @class = module.DefineClass("global::foo/bar");
             var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass(), args);
-            
+
             var gen =  method.GetGenerator();
             var ctx = new GeneratorContext();
             ctx.Module = module;

@@ -11,7 +11,7 @@ namespace vein.ast.v2.syntax
     {
         public void X()
         {
-            
+
         }
 
         protected internal TextParser<string> RawIdentifier =

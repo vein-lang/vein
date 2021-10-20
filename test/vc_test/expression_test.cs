@@ -129,7 +129,7 @@ namespace wc_test
 
             Assert.Throws<Exception>(() => result.DetermineType(null));
         }
-        
+
         [Test]
         public void DetermineSelfMethodType()
         {
@@ -144,7 +144,7 @@ namespace wc_test
             var result = Syntax.QualifiedExpression.End().ParseVein(key);
 
             Assert.NotNull(result);
-            
+
             var type = result.DetermineType(genCtx);
 
             Assert.IsEmpty(genCtx.Errors);
@@ -177,8 +177,8 @@ namespace wc_test
                 ;
 
             Assert.NotNull(result);
-            
-            
+
+
 
             var type = result.DetermineType(genCtx);
 
