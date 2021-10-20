@@ -20,7 +20,7 @@ namespace vein.pipes
                 OutputDirectory.EnumerateFiles("*.*", SearchOption.AllDirectories).ForEach(x => x.Delete());
 
 
-            var wil_file = new FileInfo(Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wvil.bin"));
+            var wil_file = new FileInfo(Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wll.bin"));
 
             var wil_data = Module.BakeByteArray();
 
@@ -74,7 +74,7 @@ namespace vein.pipes
             {
                 if (!pipe.CanApply(compiler._flags))
                     continue;
-                compiler.Status.ManaStatus($"Apply '{pipe.GetType().Name}' pipeline...");
+                compiler.Status.VeinStatus($"Apply '{pipe.GetType().Name}' pipeline...");
                 pipe.Project = lastPipe?.Project ?? compiler.Project;
                 pipe.Assembly = lastPipe?.Assembly;
                 pipe.Module = lastPipe?.Module ?? compiler.module;

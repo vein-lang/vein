@@ -23,6 +23,7 @@ namespace ishtar
         internal RuntimeIshtarClass(QualityTypeName name, VeinClass parent, RuntimeIshtarModule module)
             : base(name, parent, module)
         {
+            if (module is null) return;
             ID = module.Vault.TokenGranted.GrantClassID();
             runtime_token = new RuntimeToken(module.ID, ID);
         }
@@ -30,6 +31,7 @@ namespace ishtar
         internal RuntimeIshtarClass(QualityTypeName name, VeinClass[] parents, RuntimeIshtarModule module)
             : base(name, parents, module)
         {
+            if (module is null) return;
             ID = module.Vault.TokenGranted.GrantClassID();
             runtime_token = new RuntimeToken(module.ID, ID);
         }
@@ -136,8 +138,8 @@ namespace ishtar
                 }
 
 #if DEBUG_VTABLE
-                var flat = parents.SelectMany(x => x.dvtable.vtable).ToArray();
-                for (var i = 0ul; i != vtable_offset; i++)
+                var flat = parents.SelectMany(x => x?.dvtable?.vtable).ToArray();
+                for (var i = 0ul; i != vtable_offset; i++) if (dvtable.vtable != null)
                     dvtable.vtable[i] = flat[i];
 #endif
             }
