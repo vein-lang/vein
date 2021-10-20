@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "compile mana std": {
+    "compile vein std": {
       "commandName": "Project",
       "commandLineArgs": "build C:\\git\\vein-std\\src\\corlib.vproj --EF:+exp_simplify_optimize"
     },
