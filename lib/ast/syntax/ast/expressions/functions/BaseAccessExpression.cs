@@ -17,7 +17,7 @@ public class PostDecrementExpression : UnaryExpressionSyntax, IPositionAware<Pos
 {
     public PostDecrementExpression(ExpressionSyntax exp)
         => (Operand, OperatorType) = (exp, ExpressionType.PostDecrementAssign);
-    
+
 
     public new PostDecrementExpression SetPos(Position startPos, int length)
     {
@@ -29,7 +29,7 @@ public class PostIncrementExpression : UnaryExpressionSyntax, IPositionAware<Pos
 {
     public PostIncrementExpression(ExpressionSyntax exp)
         => (Operand, OperatorType) = (exp, ExpressionType.PostIncrementAssign);
-    
+
 
     public new PostIncrementExpression SetPos(Position startPos, int length)
     {

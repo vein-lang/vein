@@ -4,7 +4,7 @@ namespace vein.syntax
     using System.Linq.Expressions;
     using System.Text;
     using Sprache;
-    
+
 
     public class BinaryExpressionSyntax : OperatorExpressionSyntax, IPositionAware<BinaryExpressionSyntax>
     {

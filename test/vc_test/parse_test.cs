@@ -301,11 +301,11 @@ namespace wc_test
         [TestCase("auto")]
         public void KeywordIsNotIdentifier(string key)
             => Assert.Throws<VeinParseException>(() => VeinAst.Identifier.ParseVein(key));
-        
+
         [Test]
         public void MemberNormalizedChainTest()
         {
-            
+
             var r1 = VeinAst.primary_expression.End().ParseVein("foo");
             var r2 = VeinAst.primary_expression.End().ParseVein("foo.bar");
             var r3 = VeinAst.primary_expression.End().ParseVein("foo.bar.zet");
@@ -321,7 +321,7 @@ namespace wc_test
             var result = VeinAst.QualifiedExpression.End().ParseVein(key) as AccessExpressionSyntax;
 
             Assert.NotNull(result);
-            
+
             IshtarAssert.IsType<IdentifierExpression>(result.Left); // zet
             var indexer = IshtarAssert.IsType<IndexerAccessExpressionSyntax>(result.Right); // foo
 

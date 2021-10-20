@@ -141,7 +141,7 @@ namespace vein.syntax
 
     public sealed class InfinityLiteralExpressionSyntax : NumericLiteralExpressionSyntax<float>, IPositionAware<InfinityLiteralExpressionSyntax>
     {
-        public InfinityLiteralExpressionSyntax() : base(float.PositiveInfinity) {}
+        public InfinityLiteralExpressionSyntax() : base(float.PositiveInfinity) { }
         public new InfinityLiteralExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
@@ -150,7 +150,7 @@ namespace vein.syntax
     }
     public sealed class NegativeInfinityLiteralExpressionSyntax : NumericLiteralExpressionSyntax<float>, IPositionAware<NegativeInfinityLiteralExpressionSyntax>
     {
-        public NegativeInfinityLiteralExpressionSyntax() : base(float.NegativeInfinity) {}
+        public NegativeInfinityLiteralExpressionSyntax() : base(float.NegativeInfinity) { }
         public new NegativeInfinityLiteralExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
@@ -159,7 +159,7 @@ namespace vein.syntax
     }
     public sealed class NaNLiteralExpressionSyntax : NumericLiteralExpressionSyntax<float>, IPositionAware<NaNLiteralExpressionSyntax>
     {
-        public NaNLiteralExpressionSyntax() : base(float.NaN) {}
+        public NaNLiteralExpressionSyntax() : base(float.NaN) { }
 
         public new NaNLiteralExpressionSyntax SetPos(Position startPos, int length)
         {

@@ -227,7 +227,7 @@ namespace vein.syntax
             RawIdentifier.Token().Named("Identifier").Select(x => new IdentifierExpression(x)).Positioned();
         internal virtual Parser<IdentifierExpression> KeywordExpression(string text) =>
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(new IdentifierExpression(text)).Positioned();
-        
+
 
         protected internal virtual Parser<ExpressionSyntax> argument =>
             //from id in IdentifierExpression
@@ -291,7 +291,7 @@ namespace vein.syntax
             Identifier.Then(x => Parse.String("::").Token().Return($"{x}::"))
                 .Then(x => Identifier.Select(z => $"{x}{z}"))
                 .Select(x => new IdentifierExpression(x)).Positioned();
-        
+
         protected internal virtual Parser<ExpressionSyntax> new_expression =>
             KeywordExpression("new").Token().Then(_ =>
                 from type in TypeExpression.Token().Positioned()
@@ -315,18 +315,18 @@ namespace vein.syntax
 
         protected internal virtual Parser<ExpressionSyntax> variable_initializer =>
             QualifiedExpression.Or(array_initializer);
-        
+
         protected internal virtual Parser<ExpressionSyntax> primary_expression =>
-            Parse.ChainRightOperator(dot_access, for_chain_expression.Select(x => x.Downlevel()), 
+            Parse.ChainRightOperator(dot_access, for_chain_expression.Select(x => x.Downlevel()),
                 (op, left, right)
                     => new AccessExpressionSyntax(left, right));
-        
+
         public static Parser<ExpressionSyntax> dot_access =>
             from s1 in DOT
             select new DotAccessExp();
 
 
-        public class DotAccessExp : ExpressionSyntax {}
+        public class DotAccessExp : ExpressionSyntax { }
 
         protected internal Parser<ExpressionSyntax> for_chain_expression =>
             from oo in
@@ -345,7 +345,7 @@ namespace vein.syntax
                 .Or(IdentifierExpression.Positioned())
                 .Or(LiteralExpression.Positioned())
             select oo;
-        
+
         protected internal virtual Parser<ExpressionSyntax> array_creation_expression =>
             from keyword in KeywordExpression("new")
             from type in TypeExpression.Token().Positioned()
@@ -357,7 +357,7 @@ namespace vein.syntax
             from exc in argument_list.Contained(OPENING_SQUARE_BRACKET, CLOSING_SQUARE_BRACKET)
             select new IndexerAccessExpressionSyntax(p, new ArgumentListExpression(exc));
 
-        
+
         protected internal virtual Parser<InvocationExpression> invocation_expression =>
             from p in Parse.Ref(() => IdentifierExpression)
             from exc in argument_list.Optional().Contained(OPENING_PARENTHESIS, CLOSING_PARENTHESIS)
