@@ -339,6 +339,7 @@ namespace vein.syntax
                 .Or("-Infinity".Literal().Exchange().Return<NegativeInfinityLiteralExpressionSyntax>().Positioned())
                 .Or("Infinity".Literal().Exchange().Return<InfinityLiteralExpressionSyntax>().Positioned())
                 .Or("NaN".Literal().Exchange().Return<NaNLiteralExpressionSyntax>().Positioned())
+                .Or("null".Keyword().Exchange().Return<NullLiteralExpressionSyntax>().Positioned())
                 .Or("this".Keyword().Exchange().Return<ThisAccessExpression>().Positioned())
                 .Or("base".Keyword().Exchange().Return<BaseAccessExpression>().Positioned())
                 .Or(QualifiedExpression.Contained(OPENING_PARENTHESIS, CLOSING_PARENTHESIS).Positioned())

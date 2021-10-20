@@ -41,12 +41,18 @@ namespace vein.syntax
         public string Value => Token;
     }
 
-    public sealed class NullLiteralExpressionSyntax : LiteralExpressionSyntax
+    public sealed class NullLiteralExpressionSyntax : LiteralExpressionSyntax, IPositionAware<NullLiteralExpressionSyntax>
     {
         public NullLiteralExpressionSyntax()
         {
             this.Token = "null";
             this.LiteralType = LiteralType.Null;
+        }
+
+        public new NullLiteralExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
         }
     }
 
