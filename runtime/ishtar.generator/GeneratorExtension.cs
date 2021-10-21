@@ -413,7 +413,7 @@ namespace ishtar
                 return gen;
             }
 
-            
+
 
             throw new NotImplementedException();
         }
@@ -438,7 +438,7 @@ namespace ishtar
 
             if (context.CurrentScope.HasVariable(id))
                 flags |= AccessFlags.VARIABLE;
-            
+
             // second order: search argument
             var args = context.ResolveArgument(id);
             if (args is not null)
@@ -506,7 +506,7 @@ namespace ishtar
             gen.EmitBinaryOperator(bin.OperatorType);
             gen.EmitExpression(right);
         }
-        
+
         public static void EmitAssignExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
@@ -519,7 +519,7 @@ namespace ishtar
                 return;
             }
 
-            if (bin is { Left: AccessExpressionSyntax { Left: ThisAccessExpression, Right: IdentifierExpression id1 }})
+            if (bin is { Left: AccessExpressionSyntax { Left: ThisAccessExpression, Right: IdentifierExpression id1 } })
             {
                 var field = context.ResolveField(context.CurrentMethod.Owner, id1);
                 if (field.IsStatic)
@@ -860,13 +860,13 @@ namespace ishtar
                 generator.EmitWhileStatement(@while);
             else if (statement is QualifiedExpressionStatement { Value: BinaryExpressionSyntax } qes2)
                 generator.EmitBinaryExpression((BinaryExpressionSyntax)qes2.Value);
-            
+
             else if (statement is LocalVariableDeclaration localVariable)
                 generator.EmitLocalVariable(localVariable);
             else if (statement is ForeachStatementSyntax @foreach)
                 generator.EmitForeach(@foreach);
             else
-                throw new NotImplementedException(); 
+                throw new NotImplementedException();
         }
 
 
@@ -939,7 +939,7 @@ namespace ishtar
         public static ILGenerator EmitAccess(this ILGenerator gen, AccessExpressionSyntax access)
         {
             var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
-            
+
             if (access is { Left: IdentifierExpression id, Right: InvocationExpression invoke })
             {
                 var flags = gen.GetAccessFlags(id);
@@ -948,7 +948,7 @@ namespace ishtar
                 if (flags.HasFlag(AccessFlags.VARIABLE))
                 {
                     var (@class, var_index) = ctx.CurrentScope.GetVariable(id);
-                    
+
                     return gen.Emit(OpCodes.LDLOC_S, var_index).
                         EmitCall(@class, invoke);
                 }
@@ -1011,13 +1011,13 @@ namespace ishtar
                 // five order: static class
                 if (flags.HasFlag(AccessFlags.CLASS))
                     ctx.LogError($"'{id1}' is a type, which is not valid in current context.", id1);
-                
+
                 return gen;
             }
 
             throw new NotSupportedException();
         }
-        
+
         public static ILGenerator EmitCall(this ILGenerator gen, VeinClass @class, InvocationExpression invocation)
         {
             var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");

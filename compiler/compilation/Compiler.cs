@@ -35,7 +35,7 @@ namespace vein.compilation
                 Status = StatusCtx.AddTask($"process dependency project '{project.Name}'...")
             };
             var result = (c.ProcessFiles(project.Sources.Select(x => new FileInfo(x)).ToArray()), c);
-            
+
             return result;
         }
         public static Compiler Process(FileInfo[] entity, VeinProject project, CompileSettings flags)
@@ -44,7 +44,7 @@ namespace vein.compilation
 
             return AnsiConsole.Progress()
                 .AutoClear(false)
-                .Columns(new ProgressColumn[] 
+                .Columns(new ProgressColumn[]
                 {
                     new TaskDescriptionColumn { Alignment = Justify.Left },    // Task description
                     new ProgressBarColumn(),        // Progress bar
@@ -140,7 +140,7 @@ namespace vein.compilation
                 Status.VeinStatus($"Resolve [grey]'{name}, {version}'[/]...");
                 deps.Add(resolver.ResolveDep(name, version.Version, deps));
             }
-            
+
             foreach (var file in files)
             {
                 Status.VeinStatus($"Read [grey]'{file.Name}'[/]...");

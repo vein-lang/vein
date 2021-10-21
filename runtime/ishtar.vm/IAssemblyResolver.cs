@@ -16,7 +16,7 @@ namespace vein.runtime
         private AssemblyBundle assemblyBundle;
         public event ModuleResolvedEvent Resolved;
         public AssemblyResolver(AppVault vault) => Vault = vault;
-        
+
         public AssemblyResolver AddInMemory(AssemblyBundle bundle)
         {
             assemblyBundle = bundle;
@@ -89,6 +89,6 @@ namespace vein.runtime
             }
         }
 
-        protected override void debug(string s) {}
+        protected override void debug(string s) { }
     }
 }
