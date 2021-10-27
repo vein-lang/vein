@@ -84,8 +84,7 @@ namespace vein.cmd
             Log.Info($"Runtime [orange]'{project.Runtime}'[/].\n");
 
 
-            Compiler.Process(project.Sources.Select(x => new FileInfo(x)).ToArray(),
-                project, settings);
+            CompilationTask.Run(project.WorkDir);
 
 
             foreach (var info in Log.infos)
