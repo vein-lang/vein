@@ -7,6 +7,7 @@ using System.Linq;
 using emit;
 using vein;
 using vein.fs;
+using vein.project;
 using vein.runtime;
 
 public abstract class ModuleResolverBase : IAssemblyResolver
@@ -15,17 +16,21 @@ public abstract class ModuleResolverBase : IAssemblyResolver
     protected readonly HashSet<DirectoryInfo> search_paths = new ();
     private readonly HashSet<string> search_paths_collider_ = new ();
 
-    public ModuleResolverBase AddSearchPath(DirectoryInfo dir)
+    public ModuleResolverBase AddSearchPath(params DirectoryInfo[] dirs)
     {
-        if (search_paths_collider_.Add(dir.FullName))
+        foreach (var dir in dirs)
         {
+            if (!search_paths_collider_.Add(dir.FullName)) continue;
             search_paths.Add(dir);
             debug($"Assembly search path '{dir}' is added.");
         }
         return this;
     }
 
-    public virtual VeinModule ResolveDep(string name, Version version, List<VeinModule> deps)
+    public virtual VeinModule ResolveDep(PackageReference package, IReadOnlyList<VeinModule> deps)
+        => ResolveDep(package.Name, package.Version.Version, deps);
+
+    public virtual VeinModule ResolveDep(string name, Version version, IReadOnlyList<VeinModule> deps)
     {
         var file = FindInPaths(name);
         if (file is null)
