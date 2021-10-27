@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Description>Mana Lang backend for Ishtar VM</Description>
+		<Description>Base classes for Ishtar VM</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<AssemblyName>ishtar.base</AssemblyName>
 		<RootNamespace>ishtar.base</RootNamespace>

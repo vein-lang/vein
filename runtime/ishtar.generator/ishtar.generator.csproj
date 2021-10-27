@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Description>Mana Lang generator for Ishtar VM</Description>
+		<Description>Generator for Ishtar VM</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<AssemblyName>ishtar.generator</AssemblyName>
 		<RootNamespace>ishtar</RootNamespace>

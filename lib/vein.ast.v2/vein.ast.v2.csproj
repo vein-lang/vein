@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Description>Collections of classes and structures for AST WaveLang.</Description>
+		<Description>Collections of classes and structures for AST Vein Lang.</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<AssemblyName>vein.ast.v2</AssemblyName>
 		<RootNamespace>vein.ast.v2</RootNamespace>
