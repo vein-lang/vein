@@ -6,14 +6,10 @@
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="IDisposableAnalyzers" Version="3.4.13">
+		<PackageReference Include="IDisposableAnalyzers" Version="3.4.15">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="morelinq" Version="3.3.2" />
-		<PackageReference Include="ReflectionAnalyzers" Version="0.1.22-dev">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 	</ItemGroup>
 </Project>
