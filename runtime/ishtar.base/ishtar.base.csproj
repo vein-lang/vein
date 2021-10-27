@@ -12,6 +12,7 @@
 		<PackageReference Include="BinaryTools.Elf" Version="0.3.0" />
 	</ItemGroup>
 	<ItemGroup>
+	  <ProjectReference Include="..\..\lib\projectsystem\vein.project.csproj" />
 	  <ProjectReference Include="..\common\vein.common.csproj" />
 	</ItemGroup>
 	<ItemGroup>
