@@ -11,6 +11,7 @@ namespace vein.compilation
     using System.Linq.Expressions;
     using System.Text;
     using System.Threading;
+    using System.Threading.Tasks;
     using ishtar;
     using vein;
     using cmd;
@@ -25,67 +26,326 @@ namespace vein.compilation
     using static runtime.VeinTypeCode;
     using reflection;
 
-    public class Compiler
+    public enum CompilationStatus
     {
-        public (bool, Compiler) ProcessDependencyProject(VeinProject project, CompileSettings flags)
+        NotStarted,
+        Success,
+        Failed
+    }
+
+    public class CompilationLog
+    {
+        public Queue<string> Info { get; } = new();
+        public Queue<string> Warn { get; } = new();
+        public Queue<string> Error { get; } = new();
+    }
+    public enum ArtifactKind
+    {
+        NONE,
+        BINARY,
+        DEBUG_SYMBOLS,
+        IL,
+        RESOURCES
+    }
+    public class VeinArtifact
+    {
+        public FileInfo Path { get; set; }
+        public ArtifactKind Kind { get; set; }
+    }
+
+    public class CompilationTarget : IEquatable<CompilationTarget>
+    {
+        private CompilationStatus _status { get; set; } = CompilationStatus.NotStarted;
+
+        public VeinProject Project { get; }
+
+        public CompilationStatus Status
         {
-            var c = new Compiler(project, flags, this.Project, this.resolver)
+            get => _status;
+            set
             {
-                StatusCtx = StatusCtx,
-                Status = StatusCtx.AddTask($"process dependency project '{project.Name}'...")
-            };
-            var result = (c.ProcessFiles(project.Sources.Select(x => new FileInfo(x)).ToArray()), c);
-            
-            return result;
+                if (value == CompilationStatus.Failed)
+                {
+                    Task.Description($"[red]{Task.Description}[/]");
+                    Task.StopTask();
+                }
+                if (value == CompilationStatus.Success)
+                {
+                    Task.Description($"[green]{Task.Description}[/]");
+                    Task.StopTask();
+                }
+
+                this._status = value;
+            }
         }
-        public static Compiler Process(FileInfo[] entity, VeinProject project, CompileSettings flags)
+        public CompilationLog Log { get; } = new ();
+        public List<CompilationTarget> Dependencies { get; } = new();
+        public ProgressTask Task { get; set; }
+        public IReadOnlyCollection<VeinArtifact> Artifacts { get; private set; }
+        public HashSet<VeinModule> LoadedModules { get; } = new();
+
+        public CompilationTarget(VeinProject p, ProgressContext ctx)
+            => (Project, Task) = (p, ctx.AddTask($"[red](waiting)[/] Compile [orange]'{p.Name}'[/]..."));
+
+
+        public CompilationTarget AcceptArtifacts(IReadOnlyCollection<VeinArtifact> artifacts)
         {
-            var c = new Compiler(project, flags);
-
-            return AnsiConsole.Progress()
-                .AutoClear(false)
-                .Columns(new ProgressColumn[] 
-                {
-                    new TaskDescriptionColumn { Alignment = Justify.Left },    // Task description
-                    new ProgressBarColumn(),        // Progress bar
-                    new PercentageColumn(),         // Percentage
-                    new SpinnerColumn() { Spinner = Spinner.Known.Dots8Bit } ,            // Spinner
-                })
-                .Start(ctx =>
-                {
-                    c.StatusCtx = ctx;
-                    c.Status = ctx.AddTask($"Process project '{project.Name}'...", false).IsIndeterminate();
-                    try
-                    {
-                        c.ProcessFiles(entity);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error("failed compilation.");
-                        Log.Error(e);
-                        c.Status.StopTask();
-                    }
-                    return c;
-                });
+            if (this is not { Status: CompilationStatus.Success } or { Artifacts: null })
+                throw new Exception();
+            Artifacts = artifacts;
+            return this;
         }
 
-        public Compiler(VeinProject project, CompileSettings flags, VeinProject inner = null, AssemblyResolver rs = null)
+
+        #region IEquatable
+
+        public bool Equals(CompilationTarget other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(Project.Name, other.Project.Name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((CompilationTarget)obj);
+        }
+
+        public override int GetHashCode() => (Project != null ? Project.Name.GetHashCode() : 0);
+
+        #endregion
+    }
+
+    public class CompilationTask
+    {
+        public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info) => AnsiConsole
+            .Progress()
+            .AutoClear(false)
+            .Columns(
+                new ProgressBarColumn(),
+                new PercentageColumn(),
+                new SpinnerColumn { Spinner = Spinner.Known.Dots8Bit },
+                new TaskDescriptionColumn { Alignment = Justify.Left })
+            .Start(ctx => Run(info, ctx));
+
+        public static IReadOnlyCollection<CompilationTarget> Collect(DirectoryInfo info, ProgressTask task, ProgressContext ctx)
+        {
+            var files = info.EnumerateFiles("*.vproj", SearchOption.AllDirectories)
+                .ToList()
+                .AsReadOnly();
+            
+            if (!files.Any()) 
+            {
+                Log.Error($"Projects not found in [orange]'{info}'[/] directory.");
+                return null;
+            }
+
+            task.IsIndeterminate(false);
+            task.MaxValue = files.Count;
+
+            var targets = new Dictionary<VeinProject, CompilationTarget>();
+
+            foreach (var file in files)
+            {
+                var p = VeinProject.LoadFrom(file);
+                
+                if (p is null)
+                {
+                    Log.Error($"Failed to load [orange]'{file}'[/] project.");
+                    return null;
+                }
+                task.Increment(1);
+                task.VeinStatus($"Reading [orange]'{p.Name}'[/]");
+
+                var t = new CompilationTarget(p, ctx);
+
+                targets.Add(p, t);
+            }
+
+            task.IsIndeterminate();
+            task.Description("[gray]Build dependency tree...[/]");
+
+            foreach (var compilationTarget in targets.Values)
+            foreach (var reference in compilationTarget.Project.Dependencies.Projects)
+            {
+                var path = new Uri(reference.path, UriKind.RelativeOrAbsolute).IsAbsoluteUri
+                    ? reference.path
+                    : Path.Combine(info.FullName, reference.path);
+
+                var fi = new FileInfo(path);
+
+                if (!fi.Exists)
+                {
+                    Log.Error($"Failed to load [orange]'{fi.FullName}'[/] project. [not found]", compilationTarget);
+                    continue;
+                }
+
+                var project = VeinProject.LoadFrom(fi);
+                if (targets.ContainsKey(project))
+                    compilationTarget.Dependencies.Add(targets[project]);
+                else
+                    targets.Add(project, new CompilationTarget(project, ctx));
+            }
+
+            task.StopTask();
+
+            return targets.Values.ToList().AsReadOnly();
+        }
+
+        public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info, ProgressContext context)
+        {
+            var collection =
+                Collect(info, context.AddTask("Collect projects"), context);
+            var list = new List<VeinModule>();
+
+            Parallel.ForEach(collection, (target) =>
+            {
+                if (target.Project.Dependencies.Packages.Count == 0)
+                    return;
+                var task = context.AddTask($"Collect modules for '{target.Project.Name}'...").IsIndeterminate();
+                var loader = new AssemblyResolver();
+                loader.AddSearchPath(target.Project.SDK.GetFullPath());
+                loader.AddSearchPath(target.Project.WorkDir);
+                 
+                foreach (var package in target.Project.Dependencies.Packages)
+                    list.Add(loader.ResolveDep(package, list));
+                task.StopTask();
+            });
+
+            Parallel.ForEachAsync(collection, async (target, token) =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    if (target.Dependencies.Any(x => x.Status == CompilationStatus.NotStarted))
+                        await Task.Delay(200, token);
+                    else
+                        break;
+                }
+
+                if (target.Dependencies.Any(x => x.Status == CompilationStatus.Failed))
+                    return;
+                var c = new CompilationTask(target.Project, new CompileSettings())
+                {
+                    StatusCtx = context,
+                    Status = target.Task
+                };
+                
+                target.Status = c.ProcessFiles(target.Project.Sources, target.LoadedModules)
+                    ? CompilationStatus.Success
+                    : CompilationStatus.Failed;
+            }).Wait();
+
+            return collection;
+        }
+
+        //public static object Run(VeinProject targetProject, ProgressContext context)
+        //{
+        //    var pack = targetProject.SDK.GetDefaultPack();
+
+        //    var resolver = new AssemblyResolver();
+        //    resolver.AddSearchPath(new(targetProject.WorkDir));
+        //    resolver.AddSearchPath(new(targetProject.SDK.GetFullPath(pack).FullName));
+
+        //    var deps = new List<Lazy<VeinModule>>();
+        //    var depsFuture = new Lazy<IReadOnlyList<VeinModule>>(
+        //        () => deps.Select(x => x.Value).ToList().AsReadOnly());
+        //    var processing = context.AddTask($"Processing '{targetProject.Name}'").IsIndeterminate();
+
+        //    var graph = new LinkedList<VeinProject>();
+
+        //    targetProject.Packages.OfExactType<PackageReference>().Pipe(x =>
+        //        deps.Add(new Lazy<VeinModule>(() =>
+        //            resolver.ResolveDep(x.Name, x.Version.Version, depsFuture.Value))))
+        //        .Consume();
+            
+        //    foreach (var p in targetProject.Packages.OfExactType<ProjectReference>())
+        //    {
+        //        var file = new FileInfo(p.path);
+
+        //        if (!file.Exists)
+        //        {
+        //            Log.Error($"Not found file project in '{file.FullName}'");
+        //            processing.StopTask();
+        //            return false;
+        //        }
+        //        var project = VeinProject.LoadFrom(new FileInfo(p.path));
+
+
+        //        graph.AddFirst(project);
+                
+        //        //if (_inner is { } && _inner.Name.Equals(project.Name))
+        //        //{
+        //        //    Log.Error($"Cycle project reference detected. [{Project.Name} -> {project.Name} -> {this.Project.Name} -> ...]");
+        //        //    processing.StopTask();
+        //        //    return false;
+        //        //}
+
+        //        var (result, ccc) = ProcessDependencyProject(project, new CompileSettings());
+
+        //        if (!result)
+        //        {
+        //            Log.Error($"Failed compile dependency project '{project.Name}'.");
+        //            processing.StopTask();
+        //            return false;
+        //        }
+        //        deps.Add(resolver.ResolveDep(ccc.module.Name, ccc.module.Version, depsFuture.Value));
+        //    }
+        //}
+        //public (bool, CompilationTask) ProcessDependencyProject(VeinProject project, CompileSettings flags)
+        //{
+        //    var c = new CompilationTask(project, flags, this.Project, this.resolver)
+        //    {
+        //        StatusCtx = StatusCtx,
+        //        Status = StatusCtx.AddTask($"process dependency project '{project.Name}'...")
+        //    };
+        //    var result = (c.ProcessFiles(project.Sources.Select(x => new FileInfo(x)).ToArray()), c);
+            
+        //    return result;
+        //}
+        //public static CompilationTask Process(FileInfo[] entity, VeinProject project, CompileSettings flags)
+        //{
+        //    var c = new CompilationTask(project, flags);
+
+        //    return AnsiConsole.Progress()
+        //        .AutoClear(false)
+        //        .Columns(new ProgressColumn[] 
+        //        {
+        //            new TaskDescriptionColumn { Alignment = Justify.Left },    // Task description
+        //            new ProgressBarColumn(),        // Progress bar
+        //            new PercentageColumn(),         // Percentage
+        //            new SpinnerColumn() { Spinner = Spinner.Known.Dots8Bit } ,            // Spinner
+        //        })
+        //        .Start(ctx =>
+        //        {
+        //            c.StatusCtx = ctx;
+        //            c.Status = ctx.AddTask($"Process project '{project.Name}'...", false).IsIndeterminate();
+        //            try
+        //            {
+        //                c.ProcessFiles(entity);
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                Log.Error("failed compilation.");
+        //                Log.Error(e);
+        //                c.Status.StopTask();
+        //            }
+        //            return c;
+        //        });
+        //}
+
+        public CompilationTask(VeinProject project, CompileSettings flags)
         {
             _flags = flags;
-            _inner = inner;
             Project = project;
-            var pack = project.SDK.GetDefaultPack();
-            resolver = rs ?? new(this);
-            resolver.AddSearchPath(new(project.WorkDir));
-            resolver.AddSearchPath(new(project.SDK.GetFullPath(pack).FullName));
         }
 
         internal VeinProject Project { get; set; }
 
         internal readonly CompileSettings _flags;
-        private readonly VeinProject _inner;
         internal readonly VeinSyntax syntax = new();
-        internal readonly AssemblyResolver resolver;
         internal readonly Dictionary<FileInfo, string> Sources = new ();
         internal readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
         internal ProgressTask Status;
@@ -93,7 +353,7 @@ namespace vein.compilation
         internal VeinModuleBuilder module;
         internal GeneratorContext Context;
 
-        private bool ProcessFiles(FileInfo[] files)
+        private bool ProcessFiles(IReadOnlyCollection<FileInfo> files, IReadOnlyCollection<VeinModule> deps)
         {
             if (_flags.IsNeedDebuggerAttach)
             {
@@ -104,43 +364,6 @@ namespace vein.compilation
                 }
                 task.StopTask();
             }
-            var deps = new List<VeinModule>();
-            foreach (var p in Project.Packages.OfExactType<ProjectReference>())
-            {
-                var file = new FileInfo(p.path);
-
-                if (!file.Exists)
-                {
-                    Log.Error($"Not found file project in '{file.FullName}'");
-                    this.Status.StopTask();
-                    return false;
-                }
-                var project = VeinProject.LoadFrom(new FileInfo(p.path));
-
-                if (_inner is { } && _inner.Name.Equals(project.Name))
-                {
-                    Log.Error($"Cycle project reference detected. [{Project.Name} -> {project.Name} -> {this.Project.Name} -> ...]");
-                    this.Status.StopTask();
-                    return false;
-                }
-
-                var (result, ccc) = ProcessDependencyProject(project, new CompileSettings());
-
-                if (!result)
-                {
-                    Log.Error($"Failed compile dependency project '{project.Name}'.");
-                    this.Status.StopTask();
-                    return false;
-                }
-                deps.Add(resolver.ResolveDep(ccc.module.Name, ccc.module.Version, deps));
-            }
-            Status.StartTask();
-            foreach (var (name, version) in Project.Packages.OfExactType<PackageReference>())
-            {
-                Status.VeinStatus($"Resolve [grey]'{name}, {version}'[/]...");
-                deps.Add(resolver.ResolveDep(name, version.Version, deps));
-            }
-            
             foreach (var file in files)
             {
                 Status.VeinStatus($"Read [grey]'{file.Name}'[/]...");
@@ -150,9 +373,12 @@ namespace vein.compilation
                 Sources.Add(file, text);
             }
 
+            Status.MaxValue = Sources.Count;
+
             foreach (var (key, value) in Sources)
             {
                 Status.VeinStatus($"Compile [grey]'{key.Name}'[/]...");
+                Status.Increment(1);
                 try
                 {
                     var result = syntax.CompilationUnit.ParseVein(value);
@@ -176,6 +402,8 @@ namespace vein.compilation
 
             Context.Module = module;
             Context.Module.Deps.AddRange(deps);
+
+            Status.IsIndeterminate();
 
             Ast.Select(x => (x.Key, x.Value))
                 .Pipe(x => Status.VeinStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
