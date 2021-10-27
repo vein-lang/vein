@@ -27,6 +27,12 @@ namespace vein.project
                 .ThrowIfNotExist($"'{Name}-v{Version}' is not installed.")
                 .SubDirectory(sdkPack.Name);
 
+        public DirectoryInfo GetFullPath() =>
+            SDKRoot.SubDirectory("sdk")
+                .SubDirectory($"{Name}-v{Version}")
+                .ThrowIfNotExist($"'{Name}-v{Version}' is not installed.")
+                .SubDirectory(GetDefaultPack().Name);
+
         public SDKPack GetDefaultPack()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
