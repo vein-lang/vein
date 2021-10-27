@@ -206,27 +206,27 @@ let before = clock();
 puts fib(40);
 let after = clock();
 puts after - before;*/
-            long f(long n)
-            {
-                if (n == 0)
-                {
-                    return 0;
-                }
-                if (n == 1)
-                {
-                    return 1;
-                }
-                long first = 0;
-                long second = 1;
-                long nth = 1;
-                for (long i = 2; i <= n; i++)
-                {
-                    nth = first + second;
-                    first = second;
-                    second = nth;
-                }
-                return nth;
-            }
+            //long f(long n)
+            //{
+            //    if (n == 0)
+            //    {
+            //        return 0;
+            //    }
+            //    if (n == 1)
+            //    {
+            //        return 1;
+            //    }
+            //    long first = 0;
+            //    long second = 1;
+            //    long nth = 1;
+            //    for (long i = 2; i <= n; i++)
+            //    {
+            //        nth = first + second;
+            //        first = second;
+            //        second = nth;
+            //    }
+            //    return nth;
+            //}
 
             var s = new Stopwatch();
 

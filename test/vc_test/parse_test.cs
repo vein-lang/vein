@@ -31,28 +31,7 @@ namespace wc_test
             foreach (var statement in result.Statements)
                 Assert.False(statement.IsBrokenToken);
         }
-
-        [Test]
-        public void SingleVariableTest()
-        {
-            var result = VeinAst.VariableDeclaration.End().ParseVein($"auto f: Int32 = 12;");
-        }
-
-        //        [Test]
-        //        public void VariableInFunctionTest()
-        //        {
-        //            var result = VeinAst.MethodDeclaration.End().ParseVein(@"public Foo(): Int32 {
-        //    auto f = 12;
-
-        //    return f;
-        //}");
-        //            Assert.False(result.IsBrokenToken);
-        //            var statements = result.Body.Statements;
-
-        //            IshtarAssert.IsType<LocalVariableDeclaration>(statements[0]);
-        //            IshtarAssert.IsType<ReturnStatementSyntax>(statements[1]);
-        //        }
-
+        
         [Test]
         public void IdentifierParseTest()
         {
@@ -197,11 +176,8 @@ namespace wc_test
 
             if (needFail)
             {
-                Assert.Throws<VeinParseException>(() =>
-                {
-                    d = a.OperationDeclaration
-                        .ParseVein(parseStr + "{body{}}");
-                });
+                Assert.Throws<VeinParseException>(() => d = a.OperationDeclaration
+                    .ParseVein(parseStr + "{body{}}"));
             }
             else
             {
@@ -350,10 +326,7 @@ namespace wc_test
             var expr = default(LiteralExpressionSyntax);
             if (needFail)
             {
-                Assert.Throws<VeinParseException>(() =>
-                {
-                    expr = VeinAst.LiteralExpression.End().ParseVein(parseStr);
-                });
+                Assert.Throws<VeinParseException>(() => expr = VeinAst.LiteralExpression.End().ParseVein(parseStr));
             }
             else
             {

@@ -70,12 +70,12 @@ namespace vein.runtime
                     return nameHas && argsHas;
                 });
 
-        public VeinField? FindField(string name) =>
+        public VeinField FindField(string name) =>
             this.Fields.Concat(Parents.SelectMany(x => x.Fields))
                 .FirstOrDefault(x => x.Name.Equals(name));
 
 
-        public VeinMethod? FindMethod(string name, Func<VeinMethod, bool> eq = null)
+        public VeinMethod FindMethod(string name, Func<VeinMethod, bool> eq = null)
         {
             eq ??= s => s.RawName.Equals(name);
 

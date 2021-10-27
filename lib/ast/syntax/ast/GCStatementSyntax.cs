@@ -18,6 +18,6 @@ namespace vein.syntax
 
         public bool IsAuto { get; set; }
         public bool IsNoControl { get; set; }
-        public new BlockSyntax Body { get; set; }
+        public BlockSyntax Body { get; set; }
     }
 }

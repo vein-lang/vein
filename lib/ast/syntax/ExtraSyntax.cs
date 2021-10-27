@@ -1,8 +1,6 @@
 namespace vein.syntax
 {
-    using System.Linq;
     using System.Linq.Expressions;
-    using extensions;
     using Sprache;
 
     public partial class VeinSyntax
@@ -42,19 +40,6 @@ namespace vein.syntax
         {
             if (coalescing is not { First: null, Second: null })
                 return new BinaryExpressionSyntax(exp, coalescing, "?:");
-            return exp;
-        }
-        private ExpressionSyntax FlatIfEmptyOrNull(ChainAccessExpression exp)
-        {
-            if (!exp.Other.EmptyIfNull().Any())
-                return exp.Start;
-            return exp;
-        }
-        // fucking shit
-        private ExpressionSyntax FlatIfEmptyOrNull(MemberAccessExpression exp)
-        {
-            if (exp.IndexerAccess.EmptyIfNull().Count() == 0 && exp.Chain.EmptyIfNull().Count() == 0)
-                return exp.Start;
             return exp;
         }
         private ExpressionSyntax FlatIfEmptyOrNull<T>(ExpressionSyntax exp, (string op, T exp)[] data) where T : ExpressionSyntax

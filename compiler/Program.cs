@@ -11,7 +11,9 @@ using Spectre.Console.Cli;
 using vein;
 using vein.cmd;
 using static System.Console;
+#pragma warning disable CS0436 // Type conflicts with imported type
 using static GitVersionInformation;
+#pragma warning restore CS0436 // Type conflicts with imported type
 using static Spectre.Console.AnsiConsole;
 
 [assembly: InternalsVisibleTo("veinc_test")]
@@ -59,10 +61,7 @@ var app = new CommandApp();
 
 
 
-app.Configure(config =>
-{
-    config.AddCommand<CompileCommand>("build");
-});
+app.Configure(config => config.AddCommand<CompileCommand>("build"));
 
 var result = app.Run(args);
 

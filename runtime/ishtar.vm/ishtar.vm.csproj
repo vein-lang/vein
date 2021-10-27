@@ -10,6 +10,7 @@
     <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
     <IlcDisableUnhandledExceptionExperience>true</IlcDisableUnhandledExceptionExperience>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.9.0" />

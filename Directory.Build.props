@@ -7,6 +7,7 @@
     <Version>0.4.1182</Version>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <SupportedPlatform Include="Linux" />

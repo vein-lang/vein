@@ -26,13 +26,13 @@ namespace ishtar
         public IshtarObject* memory;
         public Block _block;
 
-        public IshtarObject* this[uint index, CallFrame? frame]
+        public IshtarObject* this[uint index, CallFrame frame]
         {
             get => Get(index, frame);
             set => Set(index, value, frame);
         }
 
-        public IshtarObject* Get(uint index, CallFrame? frame = null)
+        public IshtarObject* Get(uint index, CallFrame frame = null)
         {
             if (!ElementClass.IsPrimitive) return elements[index];
             var result = IshtarGC.AllocObject(ElementClass);

@@ -48,7 +48,7 @@ namespace vein.project
             Packs.FirstOrDefault(x => x.Alias.Equals(alias)) ??
             throw new DirectoryNotFoundException($"Pack '{alias}' not installed in '{Name}' sdk.");
 
-        public static VeinSDK? Resolve(string name)
+        public static VeinSDK Resolve(string name)
         {
             if (!SDKRoot.Exists)
                 throw new SDKNotInstalled($"Sdk is not installed.");

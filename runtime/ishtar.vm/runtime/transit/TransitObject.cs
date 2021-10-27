@@ -10,6 +10,7 @@ namespace ishtar
         {
             this.@class = AppVault.CurrentVault.GlobalFindType(q);
             validate();
+            instance = null;
         }
         public TransitObject(RuntimeIshtarClass clazz)
         {
@@ -24,7 +25,7 @@ namespace ishtar
 
         private RuntimeIshtarClass @class;
         private IshtarObject* instance;
-        private bool is_inited;
+        private bool is_inited = false;
         protected IValueLayer<X> Field<X>(string name)
             => new ValueLayer<X>(this, @class.Field[name]);
         public readonly struct ValueLayer<X> : IValueLayer<X>
@@ -71,11 +72,6 @@ namespace ishtar
         {
         }
 
-        public bool ExclusiveAddressUse
-        {
-            get => Field<bool>("ExclusiveAddressUse").MarshaledValue;
-        }
-
-
+        public bool ExclusiveAddressUse => Field<bool>("ExclusiveAddressUse").MarshaledValue;
     }
 }

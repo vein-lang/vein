@@ -5,7 +5,7 @@ namespace vein.syntax
     public class LocalVariableDeclaration : StatementSyntax, IPositionAware<LocalVariableDeclaration>
     {
         public readonly IdentifierExpression Identifier;
-        public new readonly IOption<ExpressionSyntax> Body;
+        public readonly IOption<ExpressionSyntax> Body;
 
         public LocalVariableDeclaration(IdentifierExpression id, IOption<ExpressionSyntax> body)
         {

@@ -5,7 +5,6 @@
 	  <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Spectre.Console.Analyzer" Version="0.42.1-preview.0.3" />
     <PackageReference Include="Spectre.Console.ImageSharp" Version="0.41.1-preview.0.14" />
     <PackageReference Include="xunit.assert" Version="2.4.1" />
   </ItemGroup>

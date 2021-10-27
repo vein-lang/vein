@@ -19,7 +19,9 @@ namespace wc_test
             for (var i = 0; i < f.Length; ++i)
             {
                 overrides[i * 2] = f[i];
+#pragma warning disable CS8909 // Do not compare function pointer values
                 if (f[i] != (delegate*<void>)&Foo)
+#pragma warning restore CS8909 // Do not compare function pointer values
                     continue;
                 Thread.MemoryBarrier();
                 var tmp = overrides[(i * 2)];
@@ -64,17 +66,9 @@ namespace wc_test
         }
 
 
-        public static void Foo()
-        {
-            Console.WriteLine("Foo");
-        }
-        public static void Bar()
-        {
-            Console.WriteLine("Bar");
-        }
-        public static void FooOverride()
-        {
-            Console.WriteLine("FooOverride");
-        }
+        public static void Foo() => Console.WriteLine("Foo");
+
+        public static void Bar() => Console.WriteLine("Bar");
+        public static void FooOverride() => Console.WriteLine("FooOverride");
     }
 }

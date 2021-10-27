@@ -19,7 +19,7 @@ namespace vein
 
     public static class AppFlags
     {
-        private static Dictionary<string, string> flags = new();
+        private static readonly Dictionary<string, string> flags = new();
         // filter only extra flag
         public static void RegisterArgs(ref string[] args)
         {
@@ -49,7 +49,7 @@ namespace vein
         private static string[] GetAppFlagValues(FilterFlagValue filter) => Enum.GetNames<ApplicationFlag>()
             .Where(x =>
             {
-                ExperimentalAttribute? Get() => typeof(ApplicationFlag).GetMember(x).Single()
+                ExperimentalAttribute Get() => typeof(ApplicationFlag).GetMember(x).Single()
                     .GetCustomAttribute<ExperimentalAttribute>();
 
                 if (filter == FilterFlagValue.All)
@@ -77,7 +77,7 @@ namespace vein
             return false;
         }
 
-        private class ParserExtraFlag
+        private static class ParserExtraFlag
         {
             public static Parser<KeyValuePair<string, string>> unit =>
                 from ef in Parse.String("--EF")

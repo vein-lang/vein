@@ -265,9 +265,9 @@ namespace ishtar
                 return field.default_value = IshtarGC.AllocValue(field.FieldType);
             return null;
         }
-        public new RuntimeIshtarField? FindField(string name)
+        public new RuntimeIshtarField FindField(string name)
             => base.FindField(name) as RuntimeIshtarField;
-        public RuntimeIshtarMethod? FindMethod(string fullyName)
+        public RuntimeIshtarMethod FindMethod(string fullyName)
             => Methods.FirstOrDefault(method => method.Name.Equals(fullyName)) as RuntimeIshtarMethod;
 
 

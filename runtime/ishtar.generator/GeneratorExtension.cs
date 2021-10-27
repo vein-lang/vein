@@ -702,12 +702,8 @@ namespace ishtar
                 return context.ResolveType(@new.TargetType.Typeword);
             if (exp is NewExpressionSyntax { IsArray: true })
                 return VeinTypeCode.TYPE_ARRAY.AsClass();
-            if (exp is ArgumentExpression { Value: MemberAccessExpression } arg)
-                throw new NotSupportedException();
             if (exp is InvocationExpression inv)
                 return inv.ResolveReturnType(context);
-            if (exp is MemberAccessExpression member)
-                throw new NotSupportedException();
             if (exp is ArgumentExpression { Value: IdentifierExpression } arg1)
                 return arg1.Value.DetermineType(context);
             if (exp is IdentifierExpression id)

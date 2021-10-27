@@ -780,10 +780,9 @@ namespace vein.compilation
         {
             var (@class, member) = x;
             Status.VeinStatus($"Regenerate static ctor for [grey]'{member.Identifier}'[/].");
-            var ctor = @class.GetStaticCtor() as MethodBuilder;
             var doc = member.OwnerDocument;
 
-            if (ctor is null)
+            if (@class.GetStaticCtor() is not MethodBuilder ctor)
             {
                 Log.Defer.Error($"[red bold]Class/struct '{@class.Name}' has problem with generate static ctor.[/]\n\t" +
                                 $"{PleaseReportProblemInto()}",
