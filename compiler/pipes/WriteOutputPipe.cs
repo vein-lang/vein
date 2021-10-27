@@ -40,9 +40,9 @@ namespace vein.pipes
     public abstract class CompilerPipeline
     {
         protected DirectoryInfo OutputDirectory
-            => new(Path.Combine(Project.WorkDir, "bin"));
+            => new(Path.Combine(Project.WorkDir.FullName, "bin"));
         protected FileInfo OutputBinaryPath =>
-            new FileInfo(Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wll"));
+            new (Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wll"));
 
         protected internal VeinModuleBuilder Module { get; set; }
         protected internal VeinProject Project { get; set; }
@@ -67,7 +67,7 @@ namespace vein.pipes
         };
 
 
-        public static void Run(Compiler compiler)
+        public static void Run(CompilationTask compiler)
         {
             var lastPipe = default(CompilerPipeline);
             foreach (var pipe in GetPipes())
