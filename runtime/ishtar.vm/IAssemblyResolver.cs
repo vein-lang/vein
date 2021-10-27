@@ -23,7 +23,7 @@ namespace vein.runtime
             return this;
         }
 
-        public override RuntimeIshtarModule ResolveDep(string name, Version version, List<VeinModule> deps)
+        public override RuntimeIshtarModule ResolveDep(string name, Version version, IReadOnlyList<VeinModule> deps)
         {
             var asm = Find(name, version, deps);
 
@@ -44,7 +44,7 @@ namespace vein.runtime
             return module;
         }
 
-        public IshtarAssembly Find(string name, Version version, List<VeinModule> deps)
+        public IshtarAssembly Find(string name, Version version, IReadOnlyList<VeinModule> deps)
         {
             var file = FindInPaths(name);
 

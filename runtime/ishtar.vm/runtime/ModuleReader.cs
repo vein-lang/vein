@@ -41,7 +41,7 @@ namespace ishtar
         }
 
 
-        public static RuntimeIshtarModule Read(AppVault vault, byte[] arr, List<VeinModule> deps, Func<string, Version, VeinModule> resolver)
+        public static RuntimeIshtarModule Read(AppVault vault, byte[] arr, IReadOnlyList<VeinModule> deps, Func<string, Version, VeinModule> resolver)
         {
             var module = new RuntimeIshtarModule(vault);
             using var mem = new MemoryStream(arr);
