@@ -78,7 +78,7 @@ namespace vein.compilation
                 this._status = value;
             }
         }
-        public CompilationLog Log { get; } = new ();
+        public CompilationLog Log { get; } = new();
         public List<CompilationTarget> Dependencies { get; } = new();
         public ProgressTask Task { get; set; }
         public IReadOnlyCollection<VeinArtifact> Artifacts { get; private set; }
@@ -136,8 +136,8 @@ namespace vein.compilation
             var files = info.EnumerateFiles("*.vproj", SearchOption.AllDirectories)
                 .ToList()
                 .AsReadOnly();
-            
-            if (!files.Any()) 
+
+            if (!files.Any())
             {
                 Log.Error($"Projects not found in [orange]'{info}'[/] directory.");
                 return null;
@@ -151,7 +151,7 @@ namespace vein.compilation
             foreach (var file in files)
             {
                 var p = VeinProject.LoadFrom(file);
-                
+
                 if (p is null)
                 {
                     Log.Error($"Failed to load [orange]'{file}'[/] project.");
@@ -169,26 +169,26 @@ namespace vein.compilation
             task.Description("[gray]Build dependency tree...[/]");
 
             foreach (var compilationTarget in targets.Values)
-            foreach (var reference in compilationTarget.Project.Dependencies.Projects)
-            {
-                var path = new Uri(reference.path, UriKind.RelativeOrAbsolute).IsAbsoluteUri
+                foreach (var reference in compilationTarget.Project.Dependencies.Projects)
+                {
+                    var path = new Uri(reference.path, UriKind.RelativeOrAbsolute).IsAbsoluteUri
                     ? reference.path
                     : Path.Combine(info.FullName, reference.path);
 
-                var fi = new FileInfo(path);
+                    var fi = new FileInfo(path);
 
-                if (!fi.Exists)
-                {
-                    Log.Error($"Failed to load [orange]'{fi.FullName}'[/] project. [not found]", compilationTarget);
-                    continue;
+                    if (!fi.Exists)
+                    {
+                        Log.Error($"Failed to load [orange]'{fi.FullName}'[/] project. [not found]", compilationTarget);
+                        continue;
+                    }
+
+                    var project = VeinProject.LoadFrom(fi);
+                    if (targets.ContainsKey(project))
+                        compilationTarget.Dependencies.Add(targets[project]);
+                    else
+                        targets.Add(project, new CompilationTarget(project, ctx));
                 }
-
-                var project = VeinProject.LoadFrom(fi);
-                if (targets.ContainsKey(project))
-                    compilationTarget.Dependencies.Add(targets[project]);
-                else
-                    targets.Add(project, new CompilationTarget(project, ctx));
-            }
 
             task.StopTask();
 
@@ -209,7 +209,7 @@ namespace vein.compilation
                 var loader = new AssemblyResolver();
                 loader.AddSearchPath(target.Project.SDK.GetFullPath());
                 loader.AddSearchPath(target.Project.WorkDir);
-                 
+
                 foreach (var package in target.Project.Dependencies.Packages)
                     list.Add(loader.ResolveDep(package, list));
                 task.StopTask();
@@ -232,7 +232,7 @@ namespace vein.compilation
                     StatusCtx = context,
                     Status = target.Task
                 };
-                
+
                 target.Status = c.ProcessFiles(target.Project.Sources, target.LoadedModules)
                     ? CompilationStatus.Success
                     : CompilationStatus.Failed;
@@ -260,7 +260,7 @@ namespace vein.compilation
         //        deps.Add(new Lazy<VeinModule>(() =>
         //            resolver.ResolveDep(x.Name, x.Version.Version, depsFuture.Value))))
         //        .Consume();
-            
+
         //    foreach (var p in targetProject.Packages.OfExactType<ProjectReference>())
         //    {
         //        var file = new FileInfo(p.path);
@@ -275,7 +275,7 @@ namespace vein.compilation
 
 
         //        graph.AddFirst(project);
-                
+
         //        //if (_inner is { } && _inner.Name.Equals(project.Name))
         //        //{
         //        //    Log.Error($"Cycle project reference detected. [{Project.Name} -> {project.Name} -> {this.Project.Name} -> ...]");
@@ -302,7 +302,7 @@ namespace vein.compilation
         //        Status = StatusCtx.AddTask($"process dependency project '{project.Name}'...")
         //    };
         //    var result = (c.ProcessFiles(project.Sources.Select(x => new FileInfo(x)).ToArray()), c);
-            
+
         //    return result;
         //}
         //public static CompilationTask Process(FileInfo[] entity, VeinProject project, CompileSettings flags)

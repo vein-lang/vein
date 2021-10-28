@@ -62,7 +62,7 @@ namespace vein.project
                 .ToList()
                 .AsReadOnly();
         }
-        
+
 
         public VeinSDK SDK => VeinSDK.Resolve(_project.Sdk);
 
