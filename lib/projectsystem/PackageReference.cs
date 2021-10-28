@@ -6,9 +6,9 @@ namespace vein.project
     using NuGet.Versioning;
     using Sprache;
 
-    public interface IProjectRef {}
+    public interface IProjectRef { }
 
-    public record ProjectReference(string path) : IProjectRef {}
+    public record ProjectReference(string path) : IProjectRef { }
 
     public record PackageReference(string Name, NuGetVersion Version) : IProjectRef
     {
@@ -54,7 +54,7 @@ namespace vein.project
             from comma in Parse.Char(',')
             from vers in VersionParse
             select new PackageReference(id, vers);
-        
+
         public static IProjectRef Convert(string t)
         {
             if (string.IsNullOrEmpty(t))

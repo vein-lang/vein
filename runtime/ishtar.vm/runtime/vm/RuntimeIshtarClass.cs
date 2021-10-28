@@ -140,7 +140,7 @@ namespace ishtar
 #if DEBUG_VTABLE
                 var flat = parents.SelectMany(x => x?.dvtable?.vtable).ToArray();
                 for (var i = 0ul; i != vtable_offset; i++) if (dvtable.vtable != null)
-                    dvtable.vtable[i] = flat[i];
+                        dvtable.vtable[i] = flat[i];
 #endif
             }
 
