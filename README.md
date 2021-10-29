@@ -14,7 +14,7 @@
 <!-- classic badges -->
 <p align="center">
   <a href="https://www.codacy.com/gh/vein-lang/vein/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=vein-lang/vein&amp;utm_campaign=Badge_Grade">
-    <img src="https://app.codacy.com/project/badge/Grade/9dc3cb6f384747c39d0b83241e725de2">
+    <img src="https://app.codacy.com/project/badge/Grade/ef714af013574e85acfa3c8d59434c47">
   </a>
   <a href="https://www.codacy.com/gh/vein-lang/vein/dashboard?utm_source=github.com&utm_medium=referral&utm_content=vein-lang/vein&utm_campaign=Badge_Coverage">
     <img src="https://app.codacy.com/project/badge/Coverage/9dc3cb6f384747c39d0b83241e725de2">
