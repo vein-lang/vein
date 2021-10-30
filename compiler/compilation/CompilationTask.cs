@@ -25,6 +25,8 @@ namespace vein.compilation
     using syntax;
     using static runtime.VeinTypeCode;
     using reflection;
+    using vein.fs;
+    using vein.styles;
 
     public enum CompilationStatus
     {
@@ -51,34 +53,34 @@ namespace vein.compilation
             set
             {
                 if (value == CompilationStatus.Failed)
-                {
-                    Task.Description($"[red]{Task.Description}[/]");
-                    Task.StopTask();
-                }
+                    Task.FailTask();
                 if (value == CompilationStatus.Success)
-                {
-                    Task.Description($"[green]{Task.Description}[/]");
-                    Task.StopTask();
-                }
-
+                    Task.SuccessTask();
                 this._status = value;
             }
         }
-        public CompilationLog Log { get; } = new ();
+
+        public CompilationTarget This() => this;
+        public CompilationLog Logs { get; } = new ();
         public List<CompilationTarget> Dependencies { get; } = new();
         public ProgressTask Task { get; set; }
-        public IReadOnlyCollection<VeinArtifact> Artifacts { get; private set; }
+        public IReadOnlyCollection<VeinArtifact> Artifacts { get; private set; } = new List<VeinArtifact>();
         public HashSet<VeinModule> LoadedModules { get; } = new();
-
+        public AssemblyResolver Resolver { get; }
         public CompilationTarget(VeinProject p, ProgressContext ctx)
-            => (Project, Task) = (p, ctx.AddTask($"[red](waiting)[/] Compile [orange]'{p.Name}'[/]..."));
+            => (Project, Task, Resolver) = (p, ctx.AddTask($"[red](waiting)[/] Compile [orange]'{p.Name}'[/]..."), new (this));
 
+
+        public DirectoryInfo GetOutputDirectory()
+            => new (Path.Combine(Project.WorkDir.FullName, "bin"));
 
         public CompilationTarget AcceptArtifacts(IReadOnlyCollection<VeinArtifact> artifacts)
         {
-            if (this is not { Status: CompilationStatus.Success } or { Artifacts: null })
+            if (this is not { Status: CompilationStatus.Success })
                 throw new Exception();
             Artifacts = artifacts;
+            foreach (var artifact in artifacts)
+                Log.Info($"Populated artifact with [purple]'{artifact.Kind}'[/] type, path: [gray]'{artifact.Path}'[/]", this);
             return this;
         }
 
@@ -113,9 +115,9 @@ namespace vein.compilation
             .Columns(
                 new ProgressBarColumn(),
                 new PercentageColumn(),
-                new SpinnerColumn { Spinner = Spinner.Known.Dots8Bit },
+                new SpinnerColumn { Spinner = Spinner.Known.Dots8Bit, CompletedText = "✅", FailedText = "❌" },
                 new TaskDescriptionColumn { Alignment = Justify.Left })
-            .Start(ctx => Run(info, ctx));
+        .Start(ctx => Run(info, ctx));
 
         public static IReadOnlyCollection<CompilationTarget> Collect(DirectoryInfo info, ProgressTask task, ProgressContext ctx)
         {
@@ -141,6 +143,7 @@ namespace vein.compilation
                 if (p is null)
                 {
                     Log.Error($"Failed to load [orange]'{file}'[/] project.");
+                    task.FailTask();
                     return null;
                 }
                 task.Increment(1);
@@ -154,7 +157,7 @@ namespace vein.compilation
             task.IsIndeterminate();
             task.Description("[gray]Build dependency tree...[/]");
 
-            foreach (var compilationTarget in targets.Values)
+            foreach (var compilationTarget in targets.Values.ToList())
             foreach (var reference in compilationTarget.Project.Dependencies.Projects)
             {
                 var path = new Uri(reference.path, UriKind.RelativeOrAbsolute).IsAbsoluteUri
@@ -165,7 +168,7 @@ namespace vein.compilation
 
                 if (!fi.Exists)
                 {
-                    Log.Error($"Failed to load [orange]'{fi.FullName}'[/] project. [not found]", compilationTarget);
+                    Log.Error($"Failed to load [orange]'{fi.FullName}'[/] project. [[not found]]", compilationTarget);
                     continue;
                 }
 
@@ -173,7 +176,10 @@ namespace vein.compilation
                 if (targets.ContainsKey(project))
                     compilationTarget.Dependencies.Add(targets[project]);
                 else
+                {
                     targets.Add(project, new CompilationTarget(project, ctx));
+                    compilationTarget.Dependencies.Add(targets[project]);
+                }
             }
 
             task.StopTask();
@@ -192,12 +198,11 @@ namespace vein.compilation
                 if (target.Project.Dependencies.Packages.Count == 0)
                     return;
                 var task = context.AddTask($"Collect modules for '{target.Project.Name}'...").IsIndeterminate();
-                var loader = new AssemblyResolver();
-                loader.AddSearchPath(target.Project.SDK.GetFullPath());
-                loader.AddSearchPath(target.Project.WorkDir);
+                target.Resolver.AddSearchPath(target.Project.SDK.GetFullPath());
+                target.Resolver.AddSearchPath(target.Project.WorkDir);
                  
                 foreach (var package in target.Project.Dependencies.Packages)
-                    list.Add(loader.ResolveDep(package, list));
+                    list.Add(target.Resolver.ResolveDep(package, list));
                 task.StopTask();
             });
 
@@ -263,7 +268,7 @@ namespace vein.compilation
                 {
                     Thread.Sleep(400);
                 }
-                task.StopTask();
+                task.SuccessTask();
             }
             foreach (var file in files)
             {
@@ -274,12 +279,14 @@ namespace vein.compilation
                 Sources.Add(file, text);
             }
 
-            Status.MaxValue = Sources.Count;
+            var read_task = StatusCtx.AddTask($"[gray]Compiling files[/]...");
+
+            read_task.MaxValue = Sources.Count;
 
             foreach (var (key, value) in Sources)
             {
-                Status.VeinStatus($"Compile [grey]'{key.Name}'[/]...");
-                Status.Increment(1);
+                read_task.VeinStatus($"Compile [grey]'{key.Name}'[/]...");
+                read_task.Increment(1);
                 try
                 {
                     var result = syntax.CompilationUnit.ParseVein(value);
@@ -292,10 +299,12 @@ namespace vein.compilation
                 catch (VeinParseException e)
                 {
                     Log.Defer.Error($"[red bold]{e.Message.Trim().EscapeMarkup()}[/]\n\tin '[orange bold]{key}[/]'.");
-                    this.Status.StopTask();
+                    read_task.FailTask();
                     return false;
                 }
             }
+
+            read_task.SuccessTask();
 
             Context = new GeneratorContext();
 
@@ -305,6 +314,7 @@ namespace vein.compilation
             Context.Module.Deps.AddRange(deps);
 
             Status.IsIndeterminate();
+            Status.Increment(100);
 
             Ast.Select(x => (x.Key, x.Value))
                 .Pipe(x => Status.VeinStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
@@ -331,9 +341,8 @@ namespace vein.compilation
                 table.Border(TableBorder.Rounded);
                 foreach (var @class in module.class_table)
                     table.AddRow(new Markup($"[blue]{@class.FullName.NameWithNS}[/]"));
-                AnsiConsole.Render(table);
+                AnsiConsole.Write(table);
             }
-            this.Status.StopTask();
             return Log.errors.Count == 0;
         }
 

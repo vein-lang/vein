@@ -84,45 +84,52 @@ namespace vein.cmd
             Log.Info($"Runtime [orange]'{project.Runtime}'[/].\n");
 
 
-            CompilationTask.Run(project.WorkDir);
+            var targets = CompilationTask.Run(project.WorkDir);
 
 
+            foreach (var info in targets.SelectMany(x => x.Logs.Info).Reverse())
+                MarkupLine(info.TrimEnd('\n'));
             foreach (var info in Log.infos)
                 MarkupLine(info.TrimEnd('\n'));
 
-            if (Log.errors.Count > 0)
+            if (new []{Log.errors.Count, targets.Sum(x => x.Logs.Error.Count)}.Sum() > 0)
             {
                 var rule1 = new Rule($"[yellow]{Log.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
-                Render(rule1);
+                Write(rule1);
             }
+
+            foreach (var target in targets.SelectMany(x => x.Logs.Error).Reverse())
+                MarkupLine(target);
 
             foreach (var error in Log.errors)
                 MarkupLine(error);
 
-            if (Log.warnings.Count > 0)
+            if (new []{Log.warnings.Count, targets.Sum(x => x.Logs.Warn.Count)}.Sum() > 0)
             {
                 var rule2 = new Rule($"[yellow]{Log.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
-                Render(rule2);
+                Write(rule2);
             }
 
+            foreach (var warn in targets.SelectMany(x => x.Logs.Warn).Reverse())
+                MarkupLine(warn);
             foreach (var warn in Log.warnings)
                 MarkupLine(warn);
 
             if (!Log.warnings.Any() && !Log.errors.Any())
                 MarkupLine($"\n\n\n");
 
-            if (Log.errors.Count > 0)
+            if (new []{Log.errors.Count, targets.Sum(x => x.Logs.Error.Count)}.Sum() > 0)
             {
 
                 var rule3 = new Rule($"[red bold]COMPILATION FAILED[/]") {Style = Style.Parse("lime rapidblink")};
-                Render(rule3);
+                Write(rule3);
                 MarkupLine($"\n");
                 return -1;
             }
             else
             {
                 var rule3 = new Rule($"[green bold]COMPILATION SUCCESS[/]") {Style = Style.Parse("lime rapidblink")};
-                Render(rule3);
+                Write(rule3);
                 MarkupLine($"\n");
                 return 0;
             }
