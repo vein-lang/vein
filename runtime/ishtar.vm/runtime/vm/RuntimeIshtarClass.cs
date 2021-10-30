@@ -111,6 +111,9 @@ namespace ishtar
             if (computed_size == 0)
             {
                 is_inited = true;
+#if DEBUG_VTABLE
+                dvtable.vtable = new object[0];
+#endif
                 return;
             }
 
@@ -138,7 +141,7 @@ namespace ishtar
                 }
 
 #if DEBUG_VTABLE
-                var flat = parents.SelectMany(x => x?.dvtable?.vtable).ToArray();
+                var flat = parents.SelectMany(x => x.dvtable.vtable).ToArray();
                 for (var i = 0ul; i != vtable_offset; i++) if (dvtable.vtable != null)
                         dvtable.vtable[i] = flat[i];
 #endif
