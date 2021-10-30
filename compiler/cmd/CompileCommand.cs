@@ -92,7 +92,7 @@ namespace vein.cmd
             foreach (var info in Log.infos)
                 MarkupLine(info.TrimEnd('\n'));
 
-            if (new []{Log.errors.Count, targets.Sum(x => x.Logs.Error.Count)}.Sum() > 0)
+            if (new[] { Log.errors.Count, targets.Sum(x => x.Logs.Error.Count) }.Sum() > 0)
             {
                 var rule1 = new Rule($"[yellow]{Log.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
                 Write(rule1);
@@ -104,7 +104,7 @@ namespace vein.cmd
             foreach (var error in Log.errors)
                 MarkupLine(error);
 
-            if (new []{Log.warnings.Count, targets.Sum(x => x.Logs.Warn.Count)}.Sum() > 0)
+            if (new[] { Log.warnings.Count, targets.Sum(x => x.Logs.Warn.Count) }.Sum() > 0)
             {
                 var rule2 = new Rule($"[yellow]{Log.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
                 Write(rule2);
@@ -118,7 +118,7 @@ namespace vein.cmd
             if (!Log.warnings.Any() && !Log.errors.Any())
                 MarkupLine($"\n\n\n");
 
-            if (new []{Log.errors.Count, targets.Sum(x => x.Logs.Error.Count)}.Sum() > 0)
+            if (new[] { Log.errors.Count, targets.Sum(x => x.Logs.Error.Count) }.Sum() > 0)
             {
 
                 var rule3 = new Rule($"[red bold]COMPILATION FAILED[/]") {Style = Style.Parse("lime rapidblink")};

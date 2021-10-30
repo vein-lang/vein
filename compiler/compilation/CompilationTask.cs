@@ -61,18 +61,18 @@ namespace vein.compilation
         }
 
         public CompilationTarget This() => this;
-        public CompilationLog Logs { get; } = new ();
+        public CompilationLog Logs { get; } = new();
         public List<CompilationTarget> Dependencies { get; } = new();
         public ProgressTask Task { get; set; }
         public IReadOnlyCollection<VeinArtifact> Artifacts { get; private set; } = new List<VeinArtifact>();
         public HashSet<VeinModule> LoadedModules { get; } = new();
         public AssemblyResolver Resolver { get; }
         public CompilationTarget(VeinProject p, ProgressContext ctx)
-            => (Project, Task, Resolver) = (p, ctx.AddTask($"[red](waiting)[/] Compile [orange]'{p.Name}'[/]..."), new (this));
+            => (Project, Task, Resolver) = (p, ctx.AddTask($"[red](waiting)[/] Compile [orange]'{p.Name}'[/]..."), new(this));
 
 
         public DirectoryInfo GetOutputDirectory()
-            => new (Path.Combine(Project.WorkDir.FullName, "bin"));
+            => new(Path.Combine(Project.WorkDir.FullName, "bin"));
 
         public CompilationTarget AcceptArtifacts(IReadOnlyCollection<VeinArtifact> artifacts)
         {
@@ -158,29 +158,29 @@ namespace vein.compilation
             task.Description("[gray]Build dependency tree...[/]");
 
             foreach (var compilationTarget in targets.Values.ToList())
-            foreach (var reference in compilationTarget.Project.Dependencies.Projects)
-            {
-                var path = new Uri(reference.path, UriKind.RelativeOrAbsolute).IsAbsoluteUri
+                foreach (var reference in compilationTarget.Project.Dependencies.Projects)
+                {
+                    var path = new Uri(reference.path, UriKind.RelativeOrAbsolute).IsAbsoluteUri
                     ? reference.path
                     : Path.Combine(info.FullName, reference.path);
 
                     var fi = new FileInfo(path);
 
-                if (!fi.Exists)
-                {
-                    Log.Error($"Failed to load [orange]'{fi.FullName}'[/] project. [[not found]]", compilationTarget);
-                    continue;
-                }
+                    if (!fi.Exists)
+                    {
+                        Log.Error($"Failed to load [orange]'{fi.FullName}'[/] project. [[not found]]", compilationTarget);
+                        continue;
+                    }
 
-                var project = VeinProject.LoadFrom(fi);
-                if (targets.ContainsKey(project))
-                    compilationTarget.Dependencies.Add(targets[project]);
-                else
-                {
-                    targets.Add(project, new CompilationTarget(project, ctx));
-                    compilationTarget.Dependencies.Add(targets[project]);
+                    var project = VeinProject.LoadFrom(fi);
+                    if (targets.ContainsKey(project))
+                        compilationTarget.Dependencies.Add(targets[project]);
+                    else
+                    {
+                        targets.Add(project, new CompilationTarget(project, ctx));
+                        compilationTarget.Dependencies.Add(targets[project]);
+                    }
                 }
-            }
 
             task.StopTask();
 
@@ -200,7 +200,7 @@ namespace vein.compilation
                 var task = context.AddTask($"Collect modules for '{target.Project.Name}'...").IsIndeterminate();
                 target.Resolver.AddSearchPath(target.Project.SDK.GetFullPath());
                 target.Resolver.AddSearchPath(target.Project.WorkDir);
-                 
+
                 foreach (var package in target.Project.Dependencies.Packages)
                     list.Add(target.Resolver.ResolveDep(package, list));
                 task.StopTask();
@@ -240,7 +240,7 @@ namespace vein.compilation
 
             return collection;
         }
-        
+
         public CompilationTask(VeinProject project, CompileSettings flags)
         {
             _flags = flags;
@@ -257,7 +257,7 @@ namespace vein.compilation
         internal ProgressContext StatusCtx;
         internal VeinModuleBuilder module;
         internal GeneratorContext Context;
-        internal List<VeinArtifact> artifacts { get; } = new ();
+        internal List<VeinArtifact> artifacts { get; } = new();
 
         private bool ProcessFiles(IReadOnlyCollection<FileInfo> files, IReadOnlyCollection<VeinModule> deps)
         {
