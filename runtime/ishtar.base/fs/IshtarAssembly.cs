@@ -61,7 +61,22 @@ namespace vein.fs
         internal IshtarAssembly()
         {
         }
-
+        
+        public static bool TryLoadFromFile(FileInfo file, out IshtarAssembly result, out Exception exception)
+        {
+            try
+            {
+                result = LoadFromFile(file.FullName);
+                exception = null;
+                return true;
+            }
+            catch (BadImageFormatException e)
+            {
+                exception = e;
+                result = null;
+                return false;
+            }
+        }
         /// <exception cref="BadImageFormatException"/>
         public static IshtarAssembly LoadFromFile(FileInfo file)
             => LoadFromFile(file.FullName);
