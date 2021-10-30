@@ -1,5 +1,6 @@
 namespace vein.pipes
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Threading;
@@ -30,6 +31,10 @@ namespace vein.pipes
             IshtarAssembly.WriteTo(Assembly, OutputBinaryPath.FullName);
 
             File.WriteAllBytes(wil_file.FullName, wil_data);
+
+            PopulateArtifact(new ILArtifact(wil_file, Project));
+            PopulateArtifact(new BinaryArtifact(OutputBinaryPath, Project));
+            PopulateArtifact(new DebugSymbolArtifact(new FileInfo($"{wil_file.FullName}.lay"), Project));
         }
 
         public override bool CanApply(CompileSettings flags) => true;
@@ -50,7 +55,7 @@ namespace vein.pipes
 
         public abstract void Action();
 
-
+        public Action<VeinArtifact> PopulateArtifact;
 
         public abstract bool CanApply(CompileSettings flags);
         public abstract int Order { get; }
@@ -70,11 +75,19 @@ namespace vein.pipes
         public static void Run(CompilationTask compiler)
         {
             var lastPipe = default(CompilerPipeline);
-            foreach (var pipe in GetPipes())
+
+            var pipes = GetPipes();
+            var task = compiler.StatusCtx.AddTask("Running post-compile task...", maxValue: pipes.Count);
+            
+            foreach (var pipe in pipes)
             {
                 if (!pipe.CanApply(compiler._flags))
+                {
+                    task.Increment(1);
                     continue;
-                compiler.Status.VeinStatus($"Apply '{pipe.GetType().Name}' pipeline...");
+                }
+                task.VeinStatus($"Apply [orange]'{pipe.GetType().Name}'[/] pipeline...");
+                pipe.PopulateArtifact = (x) => compiler.artifacts.Add(x);
                 pipe.Project = lastPipe?.Project ?? compiler.Project;
                 pipe.Assembly = lastPipe?.Assembly;
                 pipe.Module = lastPipe?.Module ?? compiler.module;
@@ -83,7 +96,9 @@ namespace vein.pipes
                 Thread.Sleep(400);
 
                 lastPipe = pipe;
+                task.Increment(1);
             }
+            task.StopTask();
         }
     }
 }

@@ -213,6 +213,11 @@ namespace vein.compilation
 
                 if (target.Dependencies.Any(x => x.Status == CompilationStatus.Failed))
                     return;
+                target.Dependencies
+                    .SelectMany(x => x.Artifacts)
+                    .OfType<BinaryArtifact>().Pipe(x => target.Resolver.ResolveDep(x, list))
+                    .Consume();
+
                 var c = new CompilationTask(target.Project, new CompileSettings())
                 {
                     StatusCtx = context,
@@ -222,6 +227,10 @@ namespace vein.compilation
                 target.Status = c.ProcessFiles(target.Project.Sources, target.LoadedModules)
                     ? CompilationStatus.Success
                     : CompilationStatus.Failed;
+                if (target.Status is CompilationStatus.Success)
+                    PipelineRunner.Run(c);
+                if (target.Status is CompilationStatus.Success)
+                    target.AcceptArtifacts(c.artifacts.AsReadOnly());
             }).Wait();
 
             return collection;
@@ -243,6 +252,7 @@ namespace vein.compilation
         internal ProgressContext StatusCtx;
         internal VeinModuleBuilder module;
         internal GeneratorContext Context;
+        internal List<VeinArtifact> artifacts { get; } = new ();
 
         private bool ProcessFiles(IReadOnlyCollection<FileInfo> files, IReadOnlyCollection<VeinModule> deps)
         {
@@ -313,8 +323,6 @@ namespace vein.compilation
                 .Pipe(ValidateInheritance)
                 .Consume();
             Log.EnqueueErrorsRange(Context.Errors);
-            if (Log.errors.Count == 0)
-                PipelineRunner.Run(this);
             Log.Info($"Result assembly [orange]'{module.Name}, {module.Version}'[/].");
             if (_flags.PrintResultType)
             {
