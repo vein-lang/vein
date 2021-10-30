@@ -27,6 +27,27 @@ public abstract class ModuleResolverBase : IAssemblyResolver
         return this;
     }
 
+    public virtual VeinModule ResolveDep(VeinArtifact artifact, IReadOnlyList<VeinModule> deps)
+    {
+        if (artifact.Path is null or { Exists: false })
+        {
+            debug($"Failed resolve 'unnamed' dependency for '{artifact.Project.Name}' project.");
+            throw new FileNotFoundException();
+        }
+
+        if (!IshtarAssembly.TryLoadFromFile(artifact.Path, out var asm, out var exception))
+        {
+            debug($"Failed resolve '{artifact.Path.Name}' dependency for '{artifact.Project.Name}' project.");
+            throw exception;
+        }
+
+        var mod = ModuleReader.Read(asm.Sections.First().data, deps,
+            (s, v) => ResolveDep(s, v, deps));
+
+        debug($"Dependency '{mod.Name}@{mod.Version}' is resolved.");
+        return mod;
+    }
+
     public virtual VeinModule ResolveDep(PackageReference package, IReadOnlyList<VeinModule> deps)
         => ResolveDep(package.Name, package.Version.Version, deps);
 
