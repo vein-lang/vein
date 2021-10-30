@@ -30,7 +30,7 @@ var watch = Stopwatch.StartNew();
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     OutputEncoding = Encoding.Unicode;
-JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
+JsonConvert.DefaultSettings = () => new JsonSerializerSettings
 {
     NullValueHandling = NullValueHandling.Ignore,
     Formatting = Formatting.Indented,
@@ -41,7 +41,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
 var font = new FileInfo($"{AppDomain.CurrentDomain.BaseDirectory}/resources/isometric1.flf");
 if (font.Exists)
 {
-    Render(new FigletText(FigletFont.Load(font.FullName), "Vein Lang")
+    Write(new FigletText(FigletFont.Load(font.FullName), "Vein Lang")
             .LeftAligned()
             .Color(Color.Red));
 }
@@ -53,8 +53,6 @@ MarkupLine($"[grey]Copyright (C)[/] [cyan3]2021[/] [bold]Yuuki Wesp[/].\n\n");
 ColorShim.Apply();
 
 AppFlags.RegisterArgs(ref args);
-
-
 
 
 var app = new CommandApp();

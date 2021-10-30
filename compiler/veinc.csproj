@@ -5,10 +5,10 @@
 	  <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Spectre.Console.ImageSharp" Version="0.41.1-preview.0.14" />
     <PackageReference Include="xunit.assert" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\lib\spectre.console\src\Spectre.Console\Spectre.Console.csproj" />
     <ProjectReference Include="..\runtime\ishtar.generator\ishtar.generator.csproj" />
     <ProjectReference Include="..\lib\projectsystem\vein.project.csproj" />
   </ItemGroup>
@@ -16,5 +16,8 @@
     <None Update="resources\isometric1.flf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="styles\" />
   </ItemGroup>
 </Project>

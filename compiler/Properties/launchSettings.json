@@ -4,6 +4,10 @@
       "commandName": "Project",
       "commandLineArgs": "build C:\\git\\vein-std\\src\\corlib.vproj --EF:+exp_simplify_optimize"
     },
+    "compile vein std - test": {
+      "commandName": "Project",
+      "commandLineArgs": "build C:\\git\\vein-std\\test\\test.corlib.vproj"
+    },
     "compile hello world": {
       "commandName": "Project",
       "commandLineArgs": "build C:\\git\\vein-lang\\samples\\hello_world\\hello_world.vproj"

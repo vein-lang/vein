@@ -43,6 +43,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "libs", "libs", "{B79D9C1A-8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.ast.v2", "lib\vein.ast.v2\vein.ast.v2.csproj", "{692BB75A-9493-4D36-A5FD-B86926E93AE5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spectre.Console", "lib\spectre.console\src\Spectre.Console\Spectre.Console.csproj", "{EB9D2288-BF49-4A04-844C-8876AB8C1169}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -173,6 +175,18 @@ Global
 		{692BB75A-9493-4D36-A5FD-B86926E93AE5}.Release|x64.Build.0 = Release|Any CPU
 		{692BB75A-9493-4D36-A5FD-B86926E93AE5}.Release|x86.ActiveCfg = Release|Any CPU
 		{692BB75A-9493-4D36-A5FD-B86926E93AE5}.Release|x86.Build.0 = Release|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Debug|x64.Build.0 = Debug|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Debug|x86.Build.0 = Debug|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Release|x64.ActiveCfg = Release|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Release|x64.Build.0 = Release|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Release|x86.ActiveCfg = Release|Any CPU
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -188,6 +202,7 @@ Global
 		{69B6693D-395C-4EA3-AC8D-6ACD3CBDCFE3} = {F1A3DE9B-263D-4F44-9A88-9ED37E9A9330}
 		{6394F865-DD02-4610-B817-5A243862D20A} = {5AF546C3-347F-4595-9CA9-3DE286DBC585}
 		{692BB75A-9493-4D36-A5FD-B86926E93AE5} = {B79D9C1A-8074-4105-8447-93A5A059A2CB}
+		{EB9D2288-BF49-4A04-844C-8876AB8C1169} = {B79D9C1A-8074-4105-8447-93A5A059A2CB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2BB3994-6F65-4E41-BA44-6258F00A3A28}
