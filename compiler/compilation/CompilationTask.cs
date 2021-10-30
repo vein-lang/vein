@@ -34,7 +34,7 @@ namespace vein.compilation
         Success,
         Failed
     }
-
+    
     public class CompilationLog
     {
         public Queue<string> Info { get; } = new();
@@ -68,7 +68,9 @@ namespace vein.compilation
         public HashSet<VeinModule> LoadedModules { get; } = new();
         public AssemblyResolver Resolver { get; }
         public CompilationTarget(VeinProject p, ProgressContext ctx)
-            => (Project, Task, Resolver) = (p, ctx.AddTask($"[red](waiting)[/] Compile [orange]'{p.Name}'[/]..."), new (this));
+            => (Project, Task, Resolver) =
+               (p, ctx.AddTask($"[red](waiting)[/] Compile [orange]'{p.Name}'[/]...")
+                   .WithState("project", p), new (this));
 
 
         public DirectoryInfo GetOutputDirectory()
@@ -1206,6 +1208,8 @@ namespace vein.compilation
 
             if (context.State.Get<bool>("isDeps"))
                 context.Description = $"[red](dep)[/] {status}";
+            if (context.State.Get<VeinProject>("project") is { } p)
+                context.Description = $"[orange](project [purple]{p.Name}[/])[/] {status}";
             else
                 context.Description = status;
             return context;
