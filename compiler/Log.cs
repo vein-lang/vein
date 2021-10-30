@@ -45,9 +45,9 @@ public static class Log
     public static void Error(string s) => MarkupLine($"[red]ERROR[/]: {s}");
     public static void Error(Exception s) => WriteException(s);
 
-    public static void Info(string s, CompilationTarget t) => t.Log.Info.Enqueue($"[aqua]INFO[/]: {s}");
-    public static void Warn(string s, CompilationTarget t) => t.Log.Warn.Enqueue($"[orange]WARN[/]: {s}");
-    public static void Error(string s, CompilationTarget t) => t.Log.Error.Enqueue($"[red]ERROR[/]: {s}");
+    public static void Info(string s, CompilationTarget t) => t.Logs.Info.Enqueue($"[aqua]INFO[/]: {s}");
+    public static void Warn(string s, CompilationTarget t) => t.Logs.Warn.Enqueue($"[orange]WARN[/]: {s}");
+    public static void Error(string s, CompilationTarget t) => t.Logs.Error.Enqueue($"[red]ERROR[/]: {s}");
 
     private static void _print(string text, BaseSyntax posed, DocumentDeclaration doc, Queue<string> queue)
     {
