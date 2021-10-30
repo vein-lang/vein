@@ -69,7 +69,7 @@ namespace vein.compilation
         public AssemblyResolver Resolver { get; }
         public CompilationTarget(VeinProject p, ProgressContext ctx)
             => (Project, Task, Resolver) =
-               (p, ctx.AddTask($"[red](waiting)[/] Compile [orange]'{p.Name}'[/]...")
+               (p, ctx.AddTask($"[red](waiting)[/] Compile [orange]'{p.Name}'[/]...", allowHide: false)
                    .WithState("project", p), new (this));
 
 
@@ -78,8 +78,6 @@ namespace vein.compilation
 
         public CompilationTarget AcceptArtifacts(IReadOnlyCollection<VeinArtifact> artifacts)
         {
-            if (this is not { Status: CompilationStatus.Success })
-                throw new Exception();
             Artifacts = artifacts;
             foreach (var artifact in artifacts)
                 Log.Info($"Populated artifact with [purple]'{artifact.Kind}'[/] type, path: [gray]'{artifact.Path}'[/]", this);
@@ -114,6 +112,8 @@ namespace vein.compilation
         public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info) => AnsiConsole
             .Progress()
             .AutoClear(false)
+            .AutoRefresh(true)
+            .HideCompleted(true)
             .Columns(
                 new ProgressBarColumn(),
                 new PercentageColumn(),
@@ -210,6 +210,7 @@ namespace vein.compilation
 
             Parallel.ForEachAsync(collection, async (target, token) =>
             {
+                var q = collection;
                 while (!token.IsCancellationRequested)
                 {
                     if (target.Dependencies.Any(x => x.Status == CompilationStatus.NotStarted))
@@ -222,8 +223,12 @@ namespace vein.compilation
                     return;
                 target.Dependencies
                     .SelectMany(x => x.Artifacts)
-                    .OfType<BinaryArtifact>().Pipe(x => target.Resolver.ResolveDep(x, list))
+                    .OfType<BinaryArtifact>()
+                    .Select(x => target.Resolver.ResolveDep(x, list))
+                    .Pipe(list.Add)
                     .Consume();
+
+                target.LoadedModules.AddRange(list);
 
                 var c = new CompilationTask(target.Project, new CompileSettings())
                 {
@@ -231,13 +236,14 @@ namespace vein.compilation
                     Status = target.Task
                 };
 
-                target.Status = c.ProcessFiles(target.Project.Sources, target.LoadedModules)
+                var status = c.ProcessFiles(target.Project.Sources, target.LoadedModules)
                     ? CompilationStatus.Success
                     : CompilationStatus.Failed;
-                if (target.Status is CompilationStatus.Success)
+                if (status is CompilationStatus.Success)
                     PipelineRunner.Run(c);
-                if (target.Status is CompilationStatus.Success)
+                if (status is CompilationStatus.Success)
                     target.AcceptArtifacts(c.artifacts.AsReadOnly());
+                target.Status = status;
             }).Wait();
 
             return collection;
@@ -316,7 +322,7 @@ namespace vein.compilation
             Context.Module.Deps.AddRange(deps);
 
             Status.IsIndeterminate();
-            Status.Increment(100);
+            
 
             Ast.Select(x => (x.Key, x.Value))
                 .Pipe(x => Status.VeinStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
@@ -345,6 +351,7 @@ namespace vein.compilation
                     table.AddRow(new Markup($"[blue]{@class.FullName.NameWithNS}[/]"));
                 AnsiConsole.Write(table);
             }
+            Status.Increment(100);
             return Log.errors.Count == 0;
         }
 
