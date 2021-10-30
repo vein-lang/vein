@@ -3,6 +3,7 @@ namespace vein.project
     using System;
     using System.Xml.Serialization;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Xml;
@@ -10,6 +11,7 @@ namespace vein.project
     using Sprache;
 
 
+    [DebuggerDisplay("{Name}.vproj")]
     public class VeinProject
     {
         internal readonly XML.Project _project;
