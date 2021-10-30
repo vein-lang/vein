@@ -124,8 +124,8 @@ namespace vein.compilation
             var files = info.EnumerateFiles("*.vproj", SearchOption.AllDirectories)
                 .ToList()
                 .AsReadOnly();
-            
-            if (!files.Any()) 
+
+            if (!files.Any())
             {
                 Log.Error($"Projects not found in [orange]'{info}'[/] directory.");
                 return null;
@@ -139,7 +139,7 @@ namespace vein.compilation
             foreach (var file in files)
             {
                 var p = VeinProject.LoadFrom(file);
-                
+
                 if (p is null)
                 {
                     Log.Error($"Failed to load [orange]'{file}'[/] project.");
@@ -164,7 +164,7 @@ namespace vein.compilation
                     ? reference.path
                     : Path.Combine(info.FullName, reference.path);
 
-                var fi = new FileInfo(path);
+                    var fi = new FileInfo(path);
 
                 if (!fi.Exists)
                 {
@@ -228,7 +228,7 @@ namespace vein.compilation
                     StatusCtx = context,
                     Status = target.Task
                 };
-                
+
                 target.Status = c.ProcessFiles(target.Project.Sources, target.LoadedModules)
                     ? CompilationStatus.Success
                     : CompilationStatus.Failed;

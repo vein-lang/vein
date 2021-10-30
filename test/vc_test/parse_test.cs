@@ -31,7 +31,7 @@ namespace wc_test
             foreach (var statement in result.Statements)
                 Assert.False(statement.IsBrokenToken);
         }
-        
+
         [Test]
         public void IdentifierParseTest()
         {
