@@ -39,20 +39,6 @@ namespace vein.compilation
         public Queue<string> Warn { get; } = new();
         public Queue<string> Error { get; } = new();
     }
-    public enum ArtifactKind
-    {
-        NONE,
-        BINARY,
-        DEBUG_SYMBOLS,
-        IL,
-        RESOURCES
-    }
-    public class VeinArtifact
-    {
-        public FileInfo Path { get; set; }
-        public ArtifactKind Kind { get; set; }
-    }
-
     public class CompilationTarget : IEquatable<CompilationTarget>
     {
         private CompilationStatus _status { get; set; } = CompilationStatus.NotStarted;
