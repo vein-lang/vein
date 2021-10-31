@@ -61,7 +61,7 @@ namespace vein.fs
         internal IshtarAssembly()
         {
         }
-        
+
         public static bool TryLoadFromFile(FileInfo file, out IshtarAssembly result, out Exception exception)
         {
             try
