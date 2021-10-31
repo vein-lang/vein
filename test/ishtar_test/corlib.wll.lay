@@ -12,156 +12,161 @@
 		.s 000006:'Out'
 		.s 000007:'Range'
 		.s 000008:'StringBuilder'
-		.s 000009:'IYieldable'
-		.s 000010:'global::vein/lang/collections'
-		.s 000011:'IYield'
-		.s 000012:'Yieldable'
-		.s 000013:'IEEEConsts'
-		.s 000014:'NetworkStream'
-		.s 000015:'global::vein/lang/network'
-		.s 000016:'TcpListener'
-		.s 000017:'TcpSocket'
-		.s 000018:'BigInt'
-		.s 000019:'global::vein/lang/numeric'
-		.s 000020:'Quaternion'
-		.s 000021:'@_get_os_value'
-		.s 000022:'@_get_os_value()'
-		.s 000023:'@_exit'
-		.s 000024:'@_exit(String,Int32)'
-		.s 000025:'@_switch_flag'
-		.s 000026:'@_switch_flag(String,Boolean)'
-		.s 000027:'GetFrameworkName'
-		.s 000028:'GetFrameworkName()'
-		.s 000029:'Shutdown'
-		.s 000030:'Shutdown(String,Int32)'
-		.s 000031:'SwitchFlag'
-		.s 000032:'SwitchFlag(String,Boolean)'
-		.s 000033:'toString'
-		.s 000034:'toString()'
-		.s 000035:'get_Epsilon'
-		.s 000036:'get_Epsilon()'
-		.s 000037:'get_PositiveInfinity'
-		.s 000038:'get_PositiveInfinity()'
-		.s 000039:'get_NegativeInfinity'
-		.s 000040:'get_NegativeInfinity()'
-		.s 000041:'get_NaN'
-		.s 000042:'get_NaN()'
-		.s 000043:'Abs'
-		.s 000044:'Abs(Float)'
-		.s 000045:'@_println'
-		.s 000046:'@_println(String)'
-		.s 000047:'new'
-		.s 000048:'new(UInt32,UInt32)'
-		.s 000049:'get_Current'
-		.s 000050:'get_Current()'
-		.s 000051:'set_Current'
-		.s 000052:'set_Current(Object)'
-		.s 000053:'MoveNext'
-		.s 000054:'MoveNext()'
-		.s 000055:'Reset'
-		.s 000056:'Reset()'
-		.s 000057:'get_Yield'
-		.s 000058:'get_Yield()'
-		.s 000059:'set_Yield'
-		.s 000060:'set_Yield(IYieldable)'
-		.s 000061:'getHalfNaN'
-		.s 000062:'getHalfNaN()'
-		.s 000063:'getFloatNaN'
-		.s 000064:'getFloatNaN()'
-		.s 000065:'getDecimalNaN'
-		.s 000066:'getDecimalNaN()'
-		.s 000067:'getDoubleNaN'
-		.s 000068:'getDoubleNaN()'
-		.s 000069:'getHalfInfinity'
-		.s 000070:'getHalfInfinity()'
-		.s 000071:'getFloatInfinity'
-		.s 000072:'getFloatInfinity()'
-		.s 000073:'getDecimalInfinity'
-		.s 000074:'getDecimalInfinity()'
-		.s 000075:'getDoubleInfinity'
-		.s 000076:'getDoubleInfinity()'
-		.s 000077:'getHalfNegativeInfinity'
-		.s 000078:'getHalfNegativeInfinity()'
-		.s 000079:'getFloatNegativeInfinity'
-		.s 000080:'getFloatNegativeInfinity()'
-		.s 000081:'getDecimalNegativeInfinity'
-		.s 000082:'getDecimalNegativeInfinity()'
-		.s 000083:'getDoubleNegativeInfinity'
-		.s 000084:'getDoubleNegativeInfinity()'
-		.s 000085:'create'
-		.s 000086:'create(UInt16)'
-		.s 000087:'IsActive'
-		.s 000088:'IsActive()'
-		.s 000089:'Start'
-		.s 000090:'Start()'
-		.s 000091:'new(UInt16)'
-		.s 000092:'IsBlocked'
-		.s 000093:'IsBlocked()'
-		.s 000094:'IsListed'
-		.s 000095:'IsListed()'
-		.s 000096:'IsConnected'
-		.s 000097:'IsConnected()'
-		.s 000098:'Bind'
-		.s 000099:'Bind()'
-		.s 000100:'Send'
-		.s 000101:'Send(Byte)'
-		.s 000102:'Listen'
-		.s 000103:'Listen(Int32)'
-		.s 000104:'Create'
-		.s 000105:'Create(UInt16)'
-		.s 000106:'IsZero'
-		.s 000107:'IsZero()'
-		.s 000108:'Application.getPlatform()'
-		.s 000109:'ctor()'
-		.s 000110:'type_ctor()'
-		.s 000111:'Array'
-		.s 000112:'<Object>'
-		.s 000113:'<Value>'
-		.s 000114:'msg'
-		.s 000115:'exitCode'
-		.s 000116:'key'
-		.s 000117:'value'
-		.s 000118:'x'
-		.s 000119:'start'
-		.s 000120:'end'
-		.s 000121:'port'
-		.s 000122:'buffer'
-		.s 000123:'cq'
-		.s 000124:'1.0.0.0'
+		.s 000009:'Sys'
+		.s 000010:'IYieldable'
+		.s 000011:'global::vein/lang/collections'
+		.s 000012:'IYield'
+		.s 000013:'Yieldable'
+		.s 000014:'IEEEConsts'
+		.s 000015:'NetworkStream'
+		.s 000016:'global::vein/lang/network'
+		.s 000017:'TcpListener'
+		.s 000018:'TcpSocket'
+		.s 000019:'BigInt'
+		.s 000020:'global::vein/lang/numeric'
+		.s 000021:'Quaternion'
+		.s 000022:'@_get_os_value'
+		.s 000023:'@_get_os_value()'
+		.s 000024:'@_exit'
+		.s 000025:'@_exit(String,Int32)'
+		.s 000026:'@_switch_flag'
+		.s 000027:'@_switch_flag(String,Boolean)'
+		.s 000028:'GetFrameworkName'
+		.s 000029:'GetFrameworkName()'
+		.s 000030:'Shutdown'
+		.s 000031:'Shutdown(String,Int32)'
+		.s 000032:'SwitchFlag'
+		.s 000033:'SwitchFlag(String,Boolean)'
+		.s 000034:'toString'
+		.s 000035:'toString()'
+		.s 000036:'get_Epsilon'
+		.s 000037:'get_Epsilon()'
+		.s 000038:'get_PositiveInfinity'
+		.s 000039:'get_PositiveInfinity()'
+		.s 000040:'get_NegativeInfinity'
+		.s 000041:'get_NegativeInfinity()'
+		.s 000042:'get_NaN'
+		.s 000043:'get_NaN()'
+		.s 000044:'Abs'
+		.s 000045:'Abs(Float)'
+		.s 000046:'@_println'
+		.s 000047:'@_println(String)'
+		.s 000048:'print'
+		.s 000049:'print(String)'
+		.s 000050:'new'
+		.s 000051:'new(UInt32,UInt32)'
+		.s 000052:'toString(ValueType)'
+		.s 000053:'get_Current'
+		.s 000054:'get_Current()'
+		.s 000055:'set_Current'
+		.s 000056:'set_Current(Object)'
+		.s 000057:'MoveNext'
+		.s 000058:'MoveNext()'
+		.s 000059:'Reset'
+		.s 000060:'Reset()'
+		.s 000061:'get_Yield'
+		.s 000062:'get_Yield()'
+		.s 000063:'set_Yield'
+		.s 000064:'set_Yield(IYieldable)'
+		.s 000065:'getHalfNaN'
+		.s 000066:'getHalfNaN()'
+		.s 000067:'getFloatNaN'
+		.s 000068:'getFloatNaN()'
+		.s 000069:'getDecimalNaN'
+		.s 000070:'getDecimalNaN()'
+		.s 000071:'getDoubleNaN'
+		.s 000072:'getDoubleNaN()'
+		.s 000073:'getHalfInfinity'
+		.s 000074:'getHalfInfinity()'
+		.s 000075:'getFloatInfinity'
+		.s 000076:'getFloatInfinity()'
+		.s 000077:'getDecimalInfinity'
+		.s 000078:'getDecimalInfinity()'
+		.s 000079:'getDoubleInfinity'
+		.s 000080:'getDoubleInfinity()'
+		.s 000081:'getHalfNegativeInfinity'
+		.s 000082:'getHalfNegativeInfinity()'
+		.s 000083:'getFloatNegativeInfinity'
+		.s 000084:'getFloatNegativeInfinity()'
+		.s 000085:'getDecimalNegativeInfinity'
+		.s 000086:'getDecimalNegativeInfinity()'
+		.s 000087:'getDoubleNegativeInfinity'
+		.s 000088:'getDoubleNegativeInfinity()'
+		.s 000089:'create'
+		.s 000090:'create(UInt16)'
+		.s 000091:'IsActive'
+		.s 000092:'IsActive()'
+		.s 000093:'Start'
+		.s 000094:'Start()'
+		.s 000095:'new(UInt16)'
+		.s 000096:'IsBlocked'
+		.s 000097:'IsBlocked()'
+		.s 000098:'IsListed'
+		.s 000099:'IsListed()'
+		.s 000100:'IsConnected'
+		.s 000101:'IsConnected()'
+		.s 000102:'Bind'
+		.s 000103:'Bind()'
+		.s 000104:'Send'
+		.s 000105:'Send(Byte)'
+		.s 000106:'Listen'
+		.s 000107:'Listen(Int32)'
+		.s 000108:'Create'
+		.s 000109:'Create(UInt16)'
+		.s 000110:'IsZero'
+		.s 000111:'IsZero()'
+		.s 000112:'Application.getPlatform()'
+		.s 000113:'ctor()'
+		.s 000114:'type_ctor()'
+		.s 000115:'Array'
+		.s 000116:'<Object>'
+		.s 000117:'msg'
+		.s 000118:'exitCode'
+		.s 000119:'key'
+		.s 000120:'value'
+		.s 000121:'<this>'
+		.s 000122:'x'
+		.s 000123:'start'
+		.s 000124:'end'
+		.s 000125:'port'
+		.s 000126:'buffer'
+		.s 000127:'cq'
+		.s 000128:'1.0.0.0'
 		.t 000000:'corlib%global::vein/lang/Application'
 		.t 000001:'corlib%global::vein/lang/Exception'
 		.t 000002:'corlib%global::vein/lang/ValueType'
 		.t 000003:'corlib%global::vein/lang/Guid'
 		.t 000004:'corlib%global::vein/lang/IEEEConsts'
 		.t 000005:'corlib%global::vein/lang/Half'
-		.t 000006:'corlib%global::vein/lang/Range'
-		.t 000007:'corlib%global::vein/lang/collections/Yieldable'
-		.t 000008:'corlib%global::vein/lang/network/TcpListener'
-		.t 000009:'corlib%global::vein/lang/network/TcpSocket'
-		.t 000010:'corlib%global::vein/lang/numeric/Quaternion'
-		.t 000011:'corlib%global::vein/lang/Object'
-		.t 000012:'corlib%global::vein/lang/Int32'
-		.t 000013:'corlib%global::vein/lang/Void'
-		.t 000014:'corlib%global::vein/lang/String'
-		.t 000015:'corlib%global::vein/lang/Boolean'
-		.t 000016:'corlib%global::vein/lang/Array'
-		.t 000017:'corlib%global::vein/lang/Int64'
-		.t 000018:'corlib%global::vein/lang/BitConvert'
-		.t 000019:'corlib%global::vein/lang/Byte'
-		.t 000020:'corlib%global::vein/lang/Char'
-		.t 000021:'corlib%global::vein/lang/Decimal'
-		.t 000022:'corlib%global::vein/lang/Double'
-		.t 000023:'corlib%global::vein/lang/Float'
-		.t 000024:'corlib%global::vein/lang/Int16'
-		.t 000025:'corlib%global::vein/lang/Mathf'
-		.t 000026:'corlib%global::vein/lang/Out'
-		.t 000027:'corlib%global::vein/lang/UInt32'
-		.t 000028:'corlib%global::vein/lang/StringBuilder'
-		.t 000029:'corlib%global::vein/lang/UInt16'
-		.t 000030:'corlib%global::vein/lang/collections/IYieldable'
-		.t 000031:'corlib%global::vein/lang/collections/IYield'
-		.t 000032:'corlib%global::vein/lang/network/NetworkStream'
-		.t 000033:'corlib%global::vein/lang/numeric/BigInt'
+		.t 000006:'corlib%global::vein/lang/Out'
+		.t 000007:'corlib%global::vein/lang/Range'
+		.t 000008:'corlib%global::vein/lang/String'
+		.t 000009:'corlib%global::vein/lang/Sys'
+		.t 000010:'corlib%global::vein/lang/collections/Yieldable'
+		.t 000011:'corlib%global::vein/lang/network/TcpListener'
+		.t 000012:'corlib%global::vein/lang/network/TcpSocket'
+		.t 000013:'corlib%global::vein/lang/numeric/Quaternion'
+		.t 000014:'corlib%global::vein/lang/Object'
+		.t 000015:'corlib%global::vein/lang/Int32'
+		.t 000016:'corlib%global::vein/lang/Void'
+		.t 000017:'corlib%global::vein/lang/Boolean'
+		.t 000018:'corlib%global::vein/lang/Array'
+		.t 000019:'corlib%global::vein/lang/Int64'
+		.t 000020:'corlib%global::vein/lang/BitConvert'
+		.t 000021:'corlib%global::vein/lang/Byte'
+		.t 000022:'corlib%global::vein/lang/Char'
+		.t 000023:'corlib%global::vein/lang/Decimal'
+		.t 000024:'corlib%global::vein/lang/Double'
+		.t 000025:'corlib%global::vein/lang/Float'
+		.t 000026:'corlib%global::vein/lang/Int16'
+		.t 000027:'corlib%global::vein/lang/Mathf'
+		.t 000028:'corlib%global::vein/lang/UInt32'
+		.t 000029:'corlib%global::vein/lang/StringBuilder'
+		.t 000030:'corlib%global::vein/lang/UInt16'
+		.t 000031:'corlib%global::vein/lang/collections/IYieldable'
+		.t 000032:'corlib%global::vein/lang/collections/IYield'
+		.t 000033:'corlib%global::vein/lang/network/NetworkStream'
+		.t 000034:'corlib%global::vein/lang/numeric/BigInt'
 		.f 000000:'Array._value'
 		.f 000001:'Array._block'
 		.f 000002:'Array.Length'
@@ -226,9 +231,7 @@
 		.f 000061:'Quaternion.W'
 	}
 
-	@'aspect/Native/class/Application._0' = 'internal.h'
-	@'aspect/Native/class/Application/method/@_get_os_value._0' = 'internal.h'
-	@'aspect/Native/class/Application/method/@_get_os_value._1' = '@_get_os_value'
+	@'aspect/Native/class/Application/method/@_get_os_value._0' = '@_get_os_value'
 	@'aspect/Native/class/Array/field/_value._0' = '!!value'
 	@'aspect/Native/class/Array/field/_block._0' = '!!block'
 	@'aspect/Native/class/Array/field/Length._0' = '!!size'
@@ -243,35 +246,23 @@
 	@'aspect/Native/class/Int16/field/_value._0' = '!!value'
 	@'aspect/Native/class/Int32/field/_value._0' = '!!value'
 	@'aspect/Native/class/Int64/field/_value._0' = '!!value'
-	@'aspect/Native/class/Out/method/@_println._0' = 'internal.h'
-	@'aspect/Native/class/Out/method/@_println._1' = '@_println'
+	@'aspect/Native/class/Out/method/@_println._0' = '@_println'
 	@'aspect/Native/class/String/field/_value._0' = '!!value'
+	@'aspect/Native/class/Sys/method/toString._0' = '@value2string'
 	@'aspect/Native/class/UInt16/field/_value._0' = '!!value'
 	@'aspect/Native/class/UInt32/field/_value._0' = '!!value'
-	@'aspect/Native/class/IEEEConsts/method/getHalfNaN._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getHalfNaN._1' = 'i_call_get_Half_NaN'
-	@'aspect/Native/class/IEEEConsts/method/getFloatNaN._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getFloatNaN._1' = 'i_call_get_Float_NaN'
-	@'aspect/Native/class/IEEEConsts/method/getDecimalNaN._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getDecimalNaN._1' = 'i_call_get_Decimal_NaN'
-	@'aspect/Native/class/IEEEConsts/method/getDoubleNaN._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getDoubleNaN._1' = 'i_call_get_Double_NaN'
-	@'aspect/Native/class/IEEEConsts/method/getHalfInfinity._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getHalfInfinity._1' = 'i_call_get_Half_Infinity'
-	@'aspect/Native/class/IEEEConsts/method/getFloatInfinity._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getFloatInfinity._1' = 'i_call_get_Float_Infinity'
-	@'aspect/Native/class/IEEEConsts/method/getDecimalInfinity._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getDecimalInfinity._1' = 'i_call_get_Decimal_Infinity'
-	@'aspect/Native/class/IEEEConsts/method/getDoubleInfinity._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getDoubleInfinity._1' = 'i_call_get_Double_Infinity'
-	@'aspect/Native/class/IEEEConsts/method/getHalfNegativeInfinity._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getHalfNegativeInfinity._1' = 'i_call_get_Half_NegativeInfinity'
-	@'aspect/Native/class/IEEEConsts/method/getFloatNegativeInfinity._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getFloatNegativeInfinity._1' = 'i_call_get_Float_NegativeInfinity'
-	@'aspect/Native/class/IEEEConsts/method/getDecimalNegativeInfinity._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getDecimalNegativeInfinity._1' = 'i_call_get_Decimal_NegativeInfinity'
-	@'aspect/Native/class/IEEEConsts/method/getDoubleNegativeInfinity._0' = 'internal.h'
-	@'aspect/Native/class/IEEEConsts/method/getDoubleNegativeInfinity._1' = 'i_call_get_Double_NegativeInfinity'
+	@'aspect/Native/class/IEEEConsts/method/getHalfNaN._0' = 'i_call_get_Half_NaN'
+	@'aspect/Native/class/IEEEConsts/method/getFloatNaN._0' = 'i_call_get_Float_NaN'
+	@'aspect/Native/class/IEEEConsts/method/getDecimalNaN._0' = 'i_call_get_Decimal_NaN'
+	@'aspect/Native/class/IEEEConsts/method/getDoubleNaN._0' = 'i_call_get_Double_NaN'
+	@'aspect/Native/class/IEEEConsts/method/getHalfInfinity._0' = 'i_call_get_Half_Infinity'
+	@'aspect/Native/class/IEEEConsts/method/getFloatInfinity._0' = 'i_call_get_Float_Infinity'
+	@'aspect/Native/class/IEEEConsts/method/getDecimalInfinity._0' = 'i_call_get_Decimal_Infinity'
+	@'aspect/Native/class/IEEEConsts/method/getDoubleInfinity._0' = 'i_call_get_Double_Infinity'
+	@'aspect/Native/class/IEEEConsts/method/getHalfNegativeInfinity._0' = 'i_call_get_Half_NegativeInfinity'
+	@'aspect/Native/class/IEEEConsts/method/getFloatNegativeInfinity._0' = 'i_call_get_Float_NegativeInfinity'
+	@'aspect/Native/class/IEEEConsts/method/getDecimalNegativeInfinity._0' = 'i_call_get_Decimal_NegativeInfinity'
+	@'aspect/Native/class/IEEEConsts/method/getDoubleNegativeInfinity._0' = 'i_call_get_Double_NegativeInfinity'
 	@'Boolean.True' = 'True'
 	@'Boolean.False' = 'False'
 	@'Boolean.TrueString' = 'true'
@@ -307,36 +298,36 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x0000006C
+			/* ::0006 */ .ldc.str .0x00000070
 			/* ::0008 */ .ret
 			
 		}
 		
 		.method 'Shutdown' (msg: String, exitCode: Int32) public static -> Void
 		{
-			.size 25
+			.size 24
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0006 */ .ldarg.s 0x00000001.int
 			/* ::0012 */ .ldarg.s 0x00000002.int
-			/* ::0023 */ .call Application::@_exit(msg: String,exitCode: Int32)
-			/* ::0025 */ .ret
+			/* ::0022 */ .call Application::@_exit(msg: String,exitCode: Int32)
+			/* ::0024 */ .ret
 			
 		}
 		
 		.method 'SwitchFlag' (key: String, value: Boolean) public static -> Void
 		{
-			.size 25
+			.size 24
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0006 */ .ldarg.s 0x00000001.int
 			/* ::0012 */ .ldarg.s 0x00000002.int
-			/* ::0023 */ .call Application::@_switch_flag(key: String,value: Boolean)
-			/* ::0025 */ .ret
+			/* ::0022 */ .call Application::@_switch_flag(key: String,value: Boolean)
+			/* ::0024 */ .ret
 			
 		}
 		
@@ -363,14 +354,14 @@
 		.field '_block' as 'Int64' special
 		.field 'Length' as 'Int64' public special readonly
 		.field 'Rank' as 'Int64' public special readonly
-		.method 'toString' () public override -> String
+		.method 'toString' (<this>: Array) public override -> String
 		{
 			.size 8
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x0000006F
+			/* ::0006 */ .ldc.str .0x00000073
 			/* ::0008 */ .ret
 			
 		}
@@ -568,31 +559,31 @@
 		.field '_c' as 'Int16' 
 		.method special 'ctor' () public special -> Void
 		{
-			.size 47
+			.size 46
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0011 */ .call ValueType::ctor()
-			/* ::0013 */ .ldnull
-			/* ::0023 */ .stf _a corlib%global::vein/lang/Int32, Public, Special
-			/* ::0025 */ .ldnull
-			/* ::0035 */ .stf _b corlib%global::vein/lang/Int16, Public, Special
-			/* ::0037 */ .ldnull
-			/* ::0047 */ .stf _c corlib%global::vein/lang/Int16, Public, Special
+			/* ::0010 */ .call ValueType::ctor()
+			/* ::0012 */ .ldnull
+			/* ::0022 */ .stf _a corlib%global::vein/lang/Int32, Public, Special
+			/* ::0024 */ .ldnull
+			/* ::0034 */ .stf _b corlib%global::vein/lang/Int16, Public, Special
+			/* ::0036 */ .ldnull
+			/* ::0046 */ .stf _c corlib%global::vein/lang/Int16, Public, Special
 			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 27
+			.size 26
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0006 */ .newobj [corlib%global::vein/lang/Guid] 
-			/* ::0017 */ .call Guid::ctor()
-			/* ::0027 */ .stsf Empty corlib%global::vein/lang/Guid, Public
+			/* ::0016 */ .call Guid::ctor()
+			/* ::0026 */ .stsf Empty corlib%global::vein/lang/Guid, Public
 			
 		}
 		
@@ -606,7 +597,7 @@
 		.field 'NegativeInfinity' as 'Half' public static
 		.field 'PositiveInfinity' as 'Half' public static
 		.field 'Epsilon' as 'Half' public static
-		.method special 'get_Epsilon' () public special -> Half
+		.method special 'get_Epsilon' (<this>: Half) public special -> Half
 		{
 			.size 8
 			.maxstack 0x00000040
@@ -618,39 +609,39 @@
 			
 		}
 		
-		.method special 'get_PositiveInfinity' () public special -> Half
+		.method special 'get_PositiveInfinity' (<this>: Half) public special -> Half
 		{
-			.size 13
+			.size 12
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0011 */ .call IEEEConsts::getHalfInfinity()
-			/* ::0013 */ .ret
+			/* ::0010 */ .call IEEEConsts::getHalfInfinity()
+			/* ::0012 */ .ret
 			
 		}
 		
-		.method special 'get_NegativeInfinity' () public special -> Half
+		.method special 'get_NegativeInfinity' (<this>: Half) public special -> Half
 		{
-			.size 13
+			.size 12
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0011 */ .call IEEEConsts::getHalfNegativeInfinity()
-			/* ::0013 */ .ret
+			/* ::0010 */ .call IEEEConsts::getHalfNegativeInfinity()
+			/* ::0012 */ .ret
 			
 		}
 		
-		.method special 'get_NaN' () public special -> Half
+		.method special 'get_NaN' (<this>: Half) public special -> Half
 		{
-			.size 13
+			.size 12
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0011 */ .call IEEEConsts::getHalfNaN()
-			/* ::0013 */ .ret
+			/* ::0010 */ .call IEEEConsts::getHalfNaN()
+			/* ::0012 */ .ret
 			
 		}
 		
@@ -785,14 +776,14 @@
 	.namespace 'global::vein/lang'
 	.struct 'Object' public special extends 
 	{
-		.method 'toString' () public virtual -> String
+		.method 'toString' (<this>: Object) public virtual -> String
 		{
 			.size 8
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000070
+			/* ::0006 */ .ldc.str .0x00000074
 			/* ::0008 */ .ret
 			
 		}
@@ -818,6 +809,19 @@
 	{
 		.method extern @_println (value: String) public static -> Void;
 		
+		.method 'print' (value: String) public static -> Void
+		{
+			.size 18
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0006 */ .ldarg.s 0x00000001.int
+			/* ::0016 */ .call Out::@_println(value: String)
+			/* ::0018 */ .ret
+			
+		}
+		
 		.method special 'ctor' () public special -> Void
 		{
 			.size 0
@@ -839,16 +843,16 @@
 	{
 		.field 'Start' as 'UInt32' public
 		.field 'End' as 'UInt32' public
-		.method 'new' (start: UInt32, end: UInt32)  -> Void
+		.method 'new' (<this>: Range, start: UInt32, end: UInt32)  -> Void
 		{
 			.size 34
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldarg.s 0x00000001.int
+			/* ::0006 */ .ldarg.s 0x00000002.int
 			/* ::0016 */ .stf Start corlib%global::vein/lang/UInt32, Public, Special
-			/* ::0022 */ .ldarg.s 0x00000002.int
+			/* ::0022 */ .ldarg.s 0x00000003.int
 			/* ::0032 */ .stf End corlib%global::vein/lang/UInt32, Public, Special
 			/* ::0034 */ .ret
 			
@@ -856,16 +860,16 @@
 		
 		.method special 'ctor' () public special -> Void
 		{
-			.size 35
+			.size 34
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0011 */ .call ValueType::ctor()
-			/* ::0013 */ .ldnull
-			/* ::0023 */ .stf Start corlib%global::vein/lang/UInt32, Public, Special
-			/* ::0025 */ .ldnull
-			/* ::0035 */ .stf End corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0010 */ .call ValueType::ctor()
+			/* ::0012 */ .ldnull
+			/* ::0022 */ .stf Start corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0024 */ .ldnull
+			/* ::0034 */ .stf End corlib%global::vein/lang/UInt32, Public, Special
 			
 		}
 		
@@ -883,6 +887,19 @@
 	{
 		.field '_value' as 'ValueType' special
 		.field 'Length' as 'Int32' public special
+		.method 'toString' (<this>: String) public override -> String
+		{
+			.size 22
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0010 */ .ldf _value corlib%global::vein/lang/ValueType, Public, Special
+			/* ::0020 */ .call Sys::toString(value: ValueType)
+			/* ::0022 */ .ret
+			
+		}
+		
 		.method special 'ctor' () public special -> Void
 		{
 			.size 0
@@ -902,6 +919,27 @@
 	.namespace 'global::vein/lang'
 	.class 'StringBuilder' public extends 'Object'
 	{
+		.method special 'ctor' () public special -> Void
+		{
+			.size 0
+			.maxstack 0x00000040
+			.locals 0x00000000
+		}
+		
+		.method special 'type_ctor' () public static special -> Void
+		{
+			.size 0
+			.maxstack 0x00000040
+			.locals 0x00000000
+		}
+		
+	}
+	
+	.namespace 'global::vein/lang'
+	.class 'Sys' static internal extends 'Object'
+	{
+		.method extern toString (value: ValueType) public static -> String;
+		
 		.method special 'ctor' () public special -> Void
 		{
 			.size 0
@@ -965,15 +1003,16 @@
 	.namespace 'global::vein/lang'
 	.struct 'ValueType' public special extends 
 	{
-		.method 'toString' () public virtual -> String
+		.method 'toString' (<this>: ValueType) public virtual -> String
 		{
-			.size 8
+			.size 14
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000071
-			/* ::0008 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Sys::toString(value: ValueType)
+			/* ::0014 */ .ret
 			
 		}
 		
@@ -1019,9 +1058,9 @@
 		
 		.method 'set_Current' (value: Object) abstract -> Void
 		
-		.method 'MoveNext' () public abstract -> Boolean
+		.method 'MoveNext' (<this>: IYieldable) public abstract -> Boolean
 		
-		.method 'Reset' () public abstract -> Void
+		.method 'Reset' (<this>: IYieldable) public abstract -> Void
 		
 		.method special 'ctor' () public special -> Void
 		{
@@ -1193,7 +1232,7 @@
 			
 		}
 		
-		.method 'IsActive' () public -> Boolean
+		.method 'IsActive' (<this>: TcpListener) public -> Boolean
 		{
 			.size 12
 			.maxstack 0x00000040
@@ -1205,7 +1244,7 @@
 			
 		}
 		
-		.method 'Start' () public -> Void
+		.method 'Start' (<this>: TcpListener) public -> Void
 		{
 			.size 2
 			.maxstack 0x00000040
@@ -1216,7 +1255,7 @@
 			
 		}
 		
-		.method 'new' (port: UInt16) private -> Void
+		.method 'new' (<this>: TcpListener, port: UInt16) private -> Void
 		{
 			.size 2
 			.maxstack 0x00000040
@@ -1264,7 +1303,7 @@
 		.field '_handle' as 'ValueType' 
 		.field '_blocked' as 'Boolean' 
 		.field '_connected' as 'Boolean' 
-		.method 'IsBlocked' () public -> Boolean
+		.method 'IsBlocked' (<this>: TcpSocket) public -> Boolean
 		{
 			.size 12
 			.maxstack 0x00000040
@@ -1276,7 +1315,7 @@
 			
 		}
 		
-		.method 'IsListed' () public -> Boolean
+		.method 'IsListed' (<this>: TcpSocket) public -> Boolean
 		{
 			.size 12
 			.maxstack 0x00000040
@@ -1288,7 +1327,7 @@
 			
 		}
 		
-		.method 'IsConnected' () public -> Boolean
+		.method 'IsConnected' (<this>: TcpSocket) public -> Boolean
 		{
 			.size 12
 			.maxstack 0x00000040
@@ -1300,7 +1339,7 @@
 			
 		}
 		
-		.method 'Bind' () public -> Void
+		.method 'Bind' (<this>: TcpSocket) public -> Void
 		{
 			.size 2
 			.maxstack 0x00000040
@@ -1311,7 +1350,7 @@
 			
 		}
 		
-		.method 'Send' (buffer: Byte) public -> Int32
+		.method 'Send' (<this>: TcpSocket, buffer: Byte) public -> Int32
 		{
 			.size 4
 			.maxstack 0x00000040
@@ -1323,7 +1362,7 @@
 			
 		}
 		
-		.method 'Listen' (cq: Int32) public -> Void
+		.method 'Listen' (<this>: TcpSocket, cq: Int32) public -> Void
 		{
 			.size 2
 			.maxstack 0x00000040
@@ -1375,12 +1414,12 @@
 	{
 		.method special 'ctor' () public special -> Void
 		{
-			.size 11
+			.size 10
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0011 */ .call ValueType::ctor()
+			/* ::0010 */ .call ValueType::ctor()
 			
 		}
 		
@@ -1400,7 +1439,7 @@
 		.field 'Y' as 'Float' public
 		.field 'Z' as 'Float' public
 		.field 'W' as 'Float' public
-		.method 'IsZero' () public -> Boolean
+		.method 'IsZero' (<this>: Quaternion) public -> Boolean
 		{
 			.size 52
 			.maxstack 0x00000040
@@ -1422,20 +1461,20 @@
 		
 		.method special 'ctor' () public special -> Void
 		{
-			.size 59
+			.size 58
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0011 */ .call ValueType::ctor()
-			/* ::0013 */ .ldnull
-			/* ::0023 */ .stf X corlib%global::vein/lang/Float, Public, Special
-			/* ::0025 */ .ldnull
-			/* ::0035 */ .stf Y corlib%global::vein/lang/Float, Public, Special
-			/* ::0037 */ .ldnull
-			/* ::0047 */ .stf Z corlib%global::vein/lang/Float, Public, Special
-			/* ::0049 */ .ldnull
-			/* ::0059 */ .stf W corlib%global::vein/lang/Float, Public, Special
+			/* ::0010 */ .call ValueType::ctor()
+			/* ::0012 */ .ldnull
+			/* ::0022 */ .stf X corlib%global::vein/lang/Float, Public, Special
+			/* ::0024 */ .ldnull
+			/* ::0034 */ .stf Y corlib%global::vein/lang/Float, Public, Special
+			/* ::0036 */ .ldnull
+			/* ::0046 */ .stf Z corlib%global::vein/lang/Float, Public, Special
+			/* ::0048 */ .ldnull
+			/* ::0058 */ .stf W corlib%global::vein/lang/Float, Public, Special
 			
 		}
 		
