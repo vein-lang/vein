@@ -121,7 +121,7 @@ namespace vein.syntax
 
         internal virtual Parser<ParameterSyntax> ParameterDeclaration =>
             from modifiers in Modifier.Token().Many().Commented(this)
-            from name in IdentifierExpression.Commented(this)
+            from name in IdentifierExpression.Positioned().Commented(this)
             from @as in Parse.Char(':').Token().Commented(this)
             from type in TypeReference.Token().Positioned().Commented(this)
             select new ParameterSyntax(type.Value, name.Value)
@@ -132,7 +132,7 @@ namespace vein.syntax
             };
 
         protected internal virtual Parser<IEnumerable<ParameterSyntax>> ParameterDeclarations =>
-            ParameterDeclaration.DelimitedBy(Parse.Char(',').Token());
+            ParameterDeclaration.Positioned().DelimitedBy(Parse.Char(',').Token());
 
         // example: (string a, char delimiter)
         protected internal virtual Parser<List<ParameterSyntax>> MethodParameters =>

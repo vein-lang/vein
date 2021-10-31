@@ -4,6 +4,8 @@ namespace vein.runtime
 
     public class VeinArgumentRef
     {
+        public const string THIS_ARGUMENT = "<this>";
+
         public VeinClass Type { get; set; }
         public string Name { get; set; }
 

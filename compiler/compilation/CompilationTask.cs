@@ -322,24 +322,28 @@ namespace vein.compilation
             Context.Module.Deps.AddRange(deps);
 
             Status.IsIndeterminate();
-            
 
-            Ast.Select(x => (x.Key, x.Value))
-                .Pipe(x => Status.VeinStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
-                .SelectMany(x => LinkClasses(x.Value))
-                .ToList()
-                .Pipe(LinkMetadata)
-                .Select(x => (LinkMethods(x), x))
-                .ToList()
-                .Pipe(x => x.Item1.Transition(
-                    methods => methods.ForEach(GenerateBody),
-                    fields => fields.ForEach(GenerateField),
-                    props => props.ForEach(GenerateProp)))
-                .Select(x => x.x)
-                .Pipe(GenerateCtor)
-                .Pipe(GenerateStaticCtor)
-                .Pipe(ValidateInheritance)
-                .Consume();
+            try
+            {
+                Ast.Select(x => (x.Key, x.Value))
+                    .Pipe(x => Status.VeinStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
+                    .SelectMany(x => LinkClasses(x.Value))
+                    .ToList()
+                    .Pipe(LinkMetadata)
+                    .Select(x => (LinkMethods(x), x))
+                    .ToList()
+                    .Pipe(x => x.Item1.Transition(
+                        methods => methods.ForEach(GenerateBody),
+                        fields => fields.ForEach(GenerateField),
+                        props => props.ForEach(GenerateProp)))
+                    .Select(x => x.x)
+                    .Pipe(GenerateCtor)
+                    .Pipe(GenerateStaticCtor)
+                    .Pipe(ValidateInheritance)
+                    .Consume();
+            }
+            catch (SkipStatementException) { }
+           
             Log.EnqueueErrorsRange(Context.Errors);
             if (Log.errors.Count == 0)
                 Status.VeinStatus($"Result assembly [orange]'{module.Name}, {module.Version}'[/].");
@@ -938,9 +942,16 @@ namespace vein.compilation
         private VeinArgumentRef[] GenerateArgument(MethodDeclarationSyntax method, DocumentDeclaration doc)
         {
             var args = new List<VeinArgumentRef>();
+            var reserved = method.Parameters.FirstOrDefault(x => $"{x.Identifier}".Equals(VeinArgumentRef.THIS_ARGUMENT));
+
+            if (reserved is not null)
+            {
+                Log.Defer.Error("Cannot use reserved argument name.", reserved.Identifier, doc);
+                throw new SkipStatementException();
+            }
 
             if (!method.Modifiers.Any(x => x.ModificatorKind == ModificatorKind.Static))
-                args.Add(new VeinArgumentRef("_this_", FetchType(method.OwnerClass.Identifier, doc)));
+                args.Add(new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, FetchType(method.OwnerClass.Identifier, doc)));
 
             if (method.Parameters.Count == 0)
                 return args.ToArray();

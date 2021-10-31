@@ -65,10 +65,12 @@ namespace vein.runtime
                 .FirstOrDefault(x =>
                 {
                     var nameHas = x.RawName.Equals(name);
-                    var argsHas = x.Arguments.Select(z => z.Type).SequenceEqual(args_types);
+                    var argsHas = x.Arguments.Where(NotThis).Select(z => z.Type).SequenceEqual(args_types);
 
                     return nameHas && argsHas;
                 });
+
+        public static bool NotThis(VeinArgumentRef arg) => !arg.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
 
         public VeinField FindField(string name) =>
             this.Fields.Concat(Parents.SelectMany(x => x.Fields))

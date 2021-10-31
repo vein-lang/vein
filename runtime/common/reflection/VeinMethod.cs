@@ -48,7 +48,7 @@ namespace vein.runtime
                 ? n : GetFullName(n, Arguments);
 
         public static string GetFullName(string name, List<VeinArgumentRef> args)
-            => $"{name}({args.Select(x => x.Type?.Name).Join(",")})";
+            => $"{name}({args.Where(x => !x.Name.Equals(VeinArgumentRef.THIS_ARGUMENT)).Select(x => x.Type?.Name).Join(",")})";
 
 
         public MethodFlags Flags { get; set; }
