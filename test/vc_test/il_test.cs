@@ -16,13 +16,13 @@ namespace wc_test
 
             gen.Emit(OpCodes.ADD);
             gen.Emit(OpCodes.DIV);
-            gen.Emit(OpCodes.LDARG_0);
+            gen.Emit(OpCodes.LDARG_1);
             var (result, _) = ILReader.Deconstruct(gen.BakeByteArray(), null);
 
 
             Assert.AreEqual(OpCodes.ADD.Value, result[0]);
             Assert.AreEqual(OpCodes.DIV.Value, result[1]);
-            Assert.AreEqual(OpCodes.LDARG_0.Value, result[2]);
+            Assert.AreEqual(OpCodes.LDARG_1.Value, result[2]);
         }
         [Test, Ignore("MANUAL")]
         public void DeconstructOpcodes2()

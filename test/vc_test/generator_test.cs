@@ -173,7 +173,7 @@ namespace wc_test
 
             var expected = CreateGenerator(("x", VeinTypeCode.TYPE_STRING));
 
-            expected.Emit(OpCodes.LDARG_S, 0);
+            expected.Emit(OpCodes.LDARG_S, 1);
             expected.Emit(OpCodes.RET);
 
             IshtarAssert.SequenceEqual(expected._debug_list, actual._debug_list);
@@ -293,13 +293,13 @@ puts after - before;*/
             var for_body = fibGen.DefineLabel();
 
             // if (x == 0) return 0;
-            fibGen.Emit(OpCodes.LDARG_0);
+            fibGen.Emit(OpCodes.LDARG_1);
             fibGen.Emit(OpCodes.JMP_T, label_if_1);
             fibGen.Emit(OpCodes.LDC_I4_0);
             fibGen.Emit(OpCodes.RET);
             fibGen.UseLabel(label_if_1);
             // if (x == 1) return 1;
-            fibGen.Emit(OpCodes.LDARG_0);
+            fibGen.Emit(OpCodes.LDARG_1);
             fibGen.Emit(OpCodes.LDC_I4_1);
             fibGen.Emit(OpCodes.JMP_NN, label_if_2);
             fibGen.Emit(OpCodes.LDC_I4_1);
@@ -347,7 +347,7 @@ puts after - before;*/
             // i <= n
             fibGen.UseLabel(for_1);
             fibGen.Emit(OpCodes.NOP);
-            fibGen.Emit(OpCodes.LDARG_0);
+            fibGen.Emit(OpCodes.LDARG_1);
             fibGen.Emit(OpCodes.LDLOC_3);
             fibGen.Emit(OpCodes.JMP_LQ, for_body);
             // return nth;

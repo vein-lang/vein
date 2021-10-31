@@ -126,7 +126,7 @@ namespace ishtar.emit
             if (!IsAbstract)
             {
                 setter.GetGenerator()
-                    .Emit(OpCodes.LDARG_0)
+                    .Emit(OpCodes.LDARG_1)
                     .Emit(OpCodes.STF, prop.ShadowField)
                     .Emit(OpCodes.RET);
             }
