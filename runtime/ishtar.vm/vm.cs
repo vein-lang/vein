@@ -249,8 +249,8 @@ namespace ishtar
                             sp->type = TYPE_ARRAY;
                             if (invocation.method.IsStatic)
                                 sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, null, invocation);
-                            else fixed (IshtarObject** node = &invocation._this_)
-                                    sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
+                            //else fixed (IshtarObject** node = &invocation._this_)
+                            //       sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
                             ++sp;
                         }
                         break;
@@ -342,11 +342,6 @@ namespace ishtar
                         break;
                     case CALL:
                         {
-                            ++ip;
-                            var call_ctx = (CallContext)(*ip);
-
-                            if (call_ctx is not (CallContext.THIS_CALL or CallContext.NATIVE_CALL or CallContext.STATIC_CALL or CallContext.BACKWARD_CALL))
-                                throw new NotImplementedException();
                             var child_frame = new CallFrame();
                             ++ip;
                             var tokenIdx = *ip;
@@ -356,7 +351,7 @@ namespace ishtar
                             printf("%%call %ws self function.\n", method->Name.c_str());
 #endif
                             ++ip;
-
+                            
                             var method_args = stackval.Alloc(method.ArgLength);
                             for (var i = 0; i != method.ArgLength; i++)
                             {
@@ -370,6 +365,7 @@ namespace ishtar
                             fixed (stackval* p = method_args)
                                 child_frame.args = p;
                             child_frame.method = method;
+                            
                             if (method.IsExtern)
                                 exec_method_native(child_frame);
                             else

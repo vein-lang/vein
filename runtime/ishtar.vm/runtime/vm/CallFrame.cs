@@ -7,7 +7,6 @@ namespace ishtar
         public CallFrame parent;
         public RuntimeIshtarMethod method;
         public stackval* returnValue;
-        public IshtarObject* _this_;
         public stackval* args;
         public stackval* stack;
         public OpCodeValue last_ip;

@@ -411,16 +411,13 @@ namespace ishtar
             }
 
             if (expr is ThisAccessExpression)
-            {
-                gen.Emit(OpCodes.LD_THIS);
-                return gen;
-            }
+                return gen.EmitThis();
 
 
             throw new NotImplementedException();
         }
 
-        public static void EmitThis(this ILGenerator gen) => gen.Emit(OpCodes.LD_THIS);
+        public static ILGenerator EmitThis(this ILGenerator gen) => gen.Emit(OpCodes.LDARG_0); // load this
 
         [Flags]
         public enum AccessFlags
