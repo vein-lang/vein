@@ -6,7 +6,7 @@ namespace ishtar
 	using global::System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 16;
+		internal static int SetVersion = 17;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -352,11 +352,11 @@ namespace ishtar
 		public static readonly OpCode RET = new (0x30, 0x0000001F);
 		/// <summary>
 		/// Call operation.
-		/// size: 9
+		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CALL = new (0x31, 0x0240001F);
+		public static readonly OpCode CALL = new (0x31, 0x0200001F);
 		/// <summary>
 		/// Load NULL into stack.
 		/// size: 0

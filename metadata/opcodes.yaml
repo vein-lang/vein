@@ -53,7 +53,7 @@
     description: Return operation.
 - CALL:
     description: Call operation.
-    override-size: 9
+    override-size: 8
 - LDNULL:
     description: Load NULL into stack.
 - LDF:
