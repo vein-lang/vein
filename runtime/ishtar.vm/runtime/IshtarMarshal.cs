@@ -192,6 +192,29 @@ namespace ishtar
             return StringStorage.GetString(p);
         }
 
+        public static IshtarObject* ToIshtarString(IshtarObject* obj, CallFrame frame) => obj->DecodeClass().TypeCode switch
+        {
+            TYPE_U1 => ToIshtarObject($"{ToDotnetUInt8(obj, frame)}"),
+            TYPE_I1 => ToIshtarObject($"{ToDotnetInt8(obj, frame)}"),
+            TYPE_U2 => ToIshtarObject($"{ToDotnetUInt16(obj, frame)}"),
+            TYPE_I2 => ToIshtarObject($"{ToDotnetInt16(obj, frame)}"),
+            TYPE_U4 => ToIshtarObject($"{ToDotnetUInt32(obj, frame)}"),
+            TYPE_I4 => ToIshtarObject($"{ToDotnetInt32(obj, frame)}"),
+            TYPE_U8 => ToIshtarObject($"{ToDotnetUInt64(obj, frame)}"),
+            TYPE_I8 => ToIshtarObject($"{ToDotnetInt64(obj, frame)}"),
+            TYPE_BOOLEAN => ToIshtarObject($"{ToDotnetBoolean(obj, frame)}"),
+            TYPE_CHAR => ToIshtarObject($"{ToDotnetChar(obj, frame)}"),
+            _ => ReturnDefault(nameof(ToIshtarString), $"Convert to '{obj->DecodeClass().TypeCode}' not supported.", frame),
+        };
+
+        private static IshtarObject* ReturnDefault(string name, string msg, CallFrame frame)
+        {
+            VM.FastFail(WNE.TYPE_MISMATCH,
+                $"[marshal::{name}] {msg}", frame);
+            VM.ValidateLastError();
+            return default;
+        }
+
         public static stackval UnBoxing(CallFrame frame, IshtarObject* obj)
         {
             var @class = obj->DecodeClass();

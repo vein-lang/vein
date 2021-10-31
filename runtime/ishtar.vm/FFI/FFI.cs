@@ -7,13 +7,14 @@ namespace ishtar
 
     public static unsafe class FFI
     {
-        public static Dictionary<string, RuntimeIshtarMethod> method_table = new();
+        public static Dictionary<string, RuntimeIshtarMethod> method_table { get; } = new();
 
         public static void INIT()
         {
             B_Out.InitTable(method_table);
             B_App.InitTable(method_table);
             B_IEEEConsts.InitTable(method_table);
+            B_Sys.InitTable(method_table);
         }
 
 
