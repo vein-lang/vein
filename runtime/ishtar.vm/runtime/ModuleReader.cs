@@ -10,6 +10,7 @@ namespace ishtar
     using vein.extensions;
     using emit;
     using emit.extensions;
+    using MoreLinq;
     using vein.reflection;
     using vein.runtime;
 
@@ -160,6 +161,7 @@ namespace ishtar
 
             DistributionAspects(module);
             ValidateRuntimeTokens(module);
+            LinkFFIMethods(module);
 
             return module;
         }
@@ -278,25 +280,56 @@ namespace ishtar
                 ishtarModule.FindType(retType, true, false),
                 @class, args.ToArray());
 
-            if (flags.HasFlag(MethodFlags.Extern))
-            {
-                var m = FFI.GetMethod(mth.Name);
-
-                if (m is null)
-                {
-                    VM.FastFail(WNE.TYPE_LOAD, $"Extern '{mth.Name}' method not found in native mapping.");
-                    VM.ValidateLastError();
-                    return null;
-                }
-
-                mth.PIInfo = m.PIInfo;
-
+            if (mth.IsExtern)
                 return mth;
-            }
 
             ConstructIL(mth, body, stacksize);
 
             return mth;
+        }
+
+        public static unsafe void LinkFFIMethods(VeinModule module) =>
+            module.class_table
+                .Select(x => x.Methods.OfExactType<RuntimeIshtarMethod>())
+                .Pipe(LinkFFIMethods)
+                .Consume();
+
+        public static unsafe void LinkFFIMethods(IEnumerable<RuntimeIshtarMethod> methods)
+        {
+            foreach (var method in methods.Where(x => x.IsExtern))
+            {
+                var aspect = method.Aspects.FirstOrDefault(x => x.Name.Equals("Native"));
+                var name = method.Name;
+                if (aspect is not null)
+                {
+                    if (aspect.Arguments.Count != 1)
+                    {
+                        VM.FastFail(WNE.TYPE_LOAD, $"(0x1) Native aspect incorrect arguments. [{method.Name}]");
+                        VM.ValidateLastError();
+                        return;
+                    }
+
+                    if (aspect.Arguments[0].Value is not string s)
+                    {
+                        VM.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{method.Name}]");
+                        VM.ValidateLastError();
+                        return;
+                    }
+
+                    name = VeinMethodBase.GetFullName(s, method.Arguments);
+                }
+
+                var m = FFI.GetMethod(name);
+
+                if (m is null)
+                {
+                    VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name} -> {name}' method not found in native mapping.");
+                    VM.ValidateLastError();
+                    return;
+                }
+
+                method.PIInfo = m.PIInfo;
+            }
         }
 
 
