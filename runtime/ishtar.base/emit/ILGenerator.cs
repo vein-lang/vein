@@ -293,18 +293,7 @@ namespace ishtar.emit
                 sizeof(int) /* tokenIdx */ +
                 sizeof(int) /* ownerIdx */);
             this.InternalEmit(opcode);
-
-
-            /* todo: remove directing call flag */
-            if (method.Owner.FullName == this._methodBuilder.Owner.FullName)
-                this.PutByte((byte)CallContext.THIS_CALL);
-            else if (method.IsExtern)
-                this.PutByte((byte)CallContext.NATIVE_CALL);
-            else if (method.IsStatic)
-                this.PutByte((byte)CallContext.STATIC_CALL);
-            else
-                this.PutByte((byte)CallContext.BACKWARD_CALL);
-
+            
             this.PutInteger4(tokenIdx);
             this.PutTypeName(ownerIdx);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");

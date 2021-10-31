@@ -21,8 +21,6 @@
     S:
       description: Stage into argument from stack by index.
       override-size: 4
-- LD.THIS:
-    description: Load into stack current instance of object.
 - LDC:
     description: Load constant into stack.
     variations: [F4, F2, STR]

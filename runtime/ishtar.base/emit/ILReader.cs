@@ -73,8 +73,7 @@ namespace ishtar.emit
                 {
                     // call
                     case var _ when value.Value == (ushort)OpCodeValue.CALL:
-                        // 1+4+4
-                        list.Add((uint)bin.ReadByte());
+                        // 4+4
                         list.Add((uint)bin.ReadInt32());
                         list.Add((uint)bin.ReadInt32());
                         break;
