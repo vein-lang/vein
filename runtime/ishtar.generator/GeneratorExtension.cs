@@ -109,7 +109,8 @@ namespace ishtar
                     return (argument, index);
             }
 
-            throw new Exception($"Argument '{id}' is not found in '{this.CurrentMethod.Name}' function.");
+            this.LogError($"Argument '{id}' is not found in '{this.CurrentMethod.Name}' function.", id);
+            throw new SkipStatementException();
         }
         public VeinClass ResolveScopedIdentifierType(IdentifierExpression id)
         {
@@ -122,11 +123,11 @@ namespace ishtar
                 return CurrentScope.variables[id];
             if (CurrentMethod.Owner.ContainsField(id))
                 return CurrentMethod.Owner.ResolveField(id)?.FieldType;
-            var modType = Module.FindType(id.ExpressionString, Classes[CurrentMethod.Owner.FullName].Includes);
+            var modType = Module.FindType(id.ExpressionString, Classes[CurrentMethod.Owner.FullName].Includes, false);
             if (modType is not null)
                 return modType;
             this.LogError($"The name '{id}' does not exist in the current context.", id);
-            return null;
+            throw new SkipStatementException();
         }
         public VeinField ResolveField(VeinClass targetType, IdentifierExpression target, IdentifierExpression id)
         {
@@ -138,7 +139,7 @@ namespace ishtar
                           $"a definition for '{target.ExpressionString}' and " +
                           $"no extension method '{id.ExpressionString}' accepting " +
                           $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
-            return null;
+            throw new SkipStatementException();
         }
         public VeinField ResolveField(IdentifierExpression id)
             => CurrentMethod.Owner.FindField(id.ExpressionString);
@@ -150,7 +151,7 @@ namespace ishtar
             if (field is not null)
                 return field;
             this.LogError($"The name '{id}' does not exist in the current context.", id);
-            return null;
+            throw new SkipStatementException();
         }
         public VeinMethod ResolveMethod(
             VeinClass targetType,
@@ -166,9 +167,8 @@ namespace ishtar
                               $"a definition for '{target.ExpressionString}' and " +
                               $"no extension method '{id.ExpressionString}' accepting " +
                               $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
-            else
-                this.LogError($"The name '{id}' does not exist in the current context.", id);
-            return null;
+            this.LogError($"The name '{id}' does not exist in the current context.", id);
+            throw new SkipStatementException();
         }
 
         public VeinMethod ResolveMethod(
@@ -178,9 +178,8 @@ namespace ishtar
             var method = targetType.FindMethod($"{invocation.Name}", invocation.Arguments.DetermineTypes(this));
             if (method is not null)
                 return method;
-            else
-                this.LogError($"The name '{invocation.Name}' does not exist in the current context.", invocation.Name);
-            return null;
+            this.LogError($"The name '{invocation.Name}' does not exist in the current context.", invocation.Name);
+            throw new SkipStatementException();
         }
     }
 
@@ -709,7 +708,7 @@ namespace ishtar
             if (exp is IdentifierExpression id)
                 return context.ResolveScopedIdentifierType(id);
             context.LogError($"Cannot determine expression.", exp);
-            return null;
+            throw new SkipStatementException();
         }
 
         public static VeinClass ResolveType(this AccessExpressionSyntax access, GeneratorContext context)
