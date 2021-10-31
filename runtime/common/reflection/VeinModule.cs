@@ -55,7 +55,7 @@ namespace vein.runtime
         /// Find type by name (without namespace) with namespace includes.
         /// </summary>
         /// <exception cref="TypeNotFoundException"></exception>
-        public VeinClass FindType(string typename, List<string> includes)
+        public VeinClass FindType(string typename, List<string> includes, bool throwWhenNotFound = true)
         {
             var result = class_table.Where(x => includes.Contains(x.FullName.Namespace)).
                 FirstOrDefault(x => x.Name.Equals(typename));
@@ -63,10 +63,13 @@ namespace vein.runtime
                 return result;
             foreach (var module in Deps)
             {
-                result = module.FindType(typename, includes);
+                result = module.FindType(typename, includes, throwWhenNotFound);
                 if (result is not null)
                     return result;
             }
+
+            if (!throwWhenNotFound)
+                return null;
             throw new TypeNotFoundException($"'{typename}' not found in modules and dependency assemblies.");
         }
         /// <summary>
