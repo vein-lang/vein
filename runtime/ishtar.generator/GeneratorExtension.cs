@@ -2,11 +2,9 @@ namespace ishtar
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
-    using System.Threading;
     using vein.extensions;
     using emit;
     using vein.reflection;
@@ -412,6 +410,11 @@ namespace ishtar
                 return gen;
             }
 
+            if (expr is ThisAccessExpression)
+            {
+                gen.Emit(OpCodes.LD_THIS);
+                return gen;
+            }
 
 
             throw new NotImplementedException();
@@ -705,8 +708,13 @@ namespace ishtar
                 return inv.ResolveReturnType(context);
             if (exp is ArgumentExpression { Value: IdentifierExpression } arg1)
                 return arg1.Value.DetermineType(context);
+            if (exp is ArgumentExpression { Value: ThisAccessExpression })
+                return context.CurrentMethod.Owner;
+            if (exp is ThisAccessExpression)
+                return context.CurrentMethod.Owner;
             if (exp is IdentifierExpression id)
                 return context.ResolveScopedIdentifierType(id);
+            
             context.LogError($"Cannot determine expression.", exp);
             throw new SkipStatementException();
         }
@@ -729,7 +737,7 @@ namespace ishtar
                 return chain.ResolveMemberType(context);
             context.LogError($"Cannot determine expression.", lastToken);
 
-            return null;
+            throw new SkipStatementException();
         }
 
         public static (VeinClass, VeinClass) Fusce(this BinaryExpressionSyntax binary, GeneratorContext context)
@@ -775,6 +783,12 @@ namespace ishtar
             var enumerator = chain.ToArray();
             for (var i = 0; i != enumerator.Length; i++)
             {
+                if (enumerator[i] is LiteralExpressionSyntax literal)
+                {
+                    t = literal.GetTypeCode().AsClass();
+                    continue;
+                }
+
                 var exp = enumerator[i] as IdentifierExpression;
 
                 if (exp is null && enumerator[i] is InvocationExpression inv)
@@ -931,6 +945,7 @@ namespace ishtar
             generator.Emit(OpCodes.STLOC_S, locIndex); // TODO optimization for STLOC_0,1,2 and etc
         }
 
+
         public static ILGenerator EmitAccess(this ILGenerator gen, AccessExpressionSyntax access)
         {
             var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
@@ -976,6 +991,13 @@ namespace ishtar
                 }
 
                 return gen;
+            }
+
+            // literal access call
+            if (access is { Left: LiteralExpressionSyntax literal, Right: InvocationExpression invoke1 })
+            {
+                var @class = literal.GetTypeCode().AsClass();
+                return gen.EmitLiteral(literal).EmitCall(@class, invoke1);
             }
 
             if (access is { Left: ThisAccessExpression, Right: IdentifierExpression id1 })
