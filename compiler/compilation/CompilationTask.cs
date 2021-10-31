@@ -341,7 +341,8 @@ namespace vein.compilation
                 .Pipe(ValidateInheritance)
                 .Consume();
             Log.EnqueueErrorsRange(Context.Errors);
-            Log.Info($"Result assembly [orange]'{module.Name}, {module.Version}'[/].");
+            if (Log.errors.Count == 0)
+                Status.VeinStatus($"Result assembly [orange]'{module.Name}, {module.Version}'[/].");
             if (_flags.PrintResultType)
             {
                 var table = new Table();
@@ -636,7 +637,6 @@ namespace vein.compilation
         {
             var (@class, member) = x;
             Context.Document = member.OwnerDocument;
-            Status.VeinStatus($"Regenerate default ctor for [grey]'{member.Identifier}'[/].");
             var doc = member.OwnerDocument;
 
             if (@class.GetDefaultCtor() is not MethodBuilder ctor)
@@ -696,7 +696,6 @@ namespace vein.compilation
         public void GenerateStaticCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)
         {
             var (@class, member) = x;
-            Status.VeinStatus($"Regenerate static ctor for [grey]'{member.Identifier}'[/].");
             var doc = member.OwnerDocument;
 
             if (@class.GetStaticCtor() is not MethodBuilder ctor)
@@ -751,6 +750,7 @@ namespace vein.compilation
 
         private void GenerateBody(MethodBuilder method, BlockSyntax block, DocumentDeclaration doc)
         {
+            Status.VeinStatus($"Emitting [gray]'{method.Owner.FullName}:{method.Name}'[/]");
             foreach (var pr in block.Statements.SelectMany(x => x.ChildNodes.Concat(new[] { x })))
                 AnalyzeStatement(pr, doc);
 
@@ -771,15 +771,19 @@ namespace vein.compilation
                 }
                 catch (NotSupportedException)
                 {
-                    Log.Defer.Error($"[red bold]This syntax/statement currently is not supported.[/]", statement, Context.Document);
+                    Log.Defer.Error($"[red bold]This syntax/statement currently is not supported.[/]", statement,
+                        Context.Document);
                 }
                 catch (NotImplementedException)
                 {
-                    Log.Defer.Error($"[red bold]This syntax/statement currently is not implemented.[/]", statement, Context.Document);
+                    Log.Defer.Error($"[red bold]This syntax/statement currently is not implemented.[/]", statement,
+                        Context.Document);
                 }
+                catch (SkipStatementException) { }
                 catch (Exception e)
                 {
-                    Log.Defer.Error($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]EmitStatement(...);[/]", statement, Context.Document);
+                    Log.Defer.Error($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]EmitStatement(...);[/]",
+                        statement, Context.Document);
                 }
             }
             // fucking shit fucking
