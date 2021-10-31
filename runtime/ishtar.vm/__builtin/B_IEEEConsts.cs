@@ -10,45 +10,47 @@ namespace ishtar
         [IshtarExportFlags(Public | Static)]
         public static IshtarObject* getHalfNaN(CallFrame current, IshtarObject** args)
         {
+            VM.FastFail(WNE.MISSING_METHOD, "[B_IEEEConsts::getHalfNaN]");
+            VM.ValidateLastError();
             return null;
         }
 
         public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
         {
-            new RuntimeIshtarMethod("getHalfNaN", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Half_NaN", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getFloatNaN", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Float_NaN", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getDecimalNaN", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Decimal_NaN", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getDoubleNaN", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Double_NaN", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getHalfInfinity", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Half_Infinity", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getFloatInfinity", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Float_Infinity", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getDecimalInfinity", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Decimal_Infinity", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getDoubleInfinity", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Double_Infinity", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getHalfNegativeInfinity", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Half_NegativeInfinity", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getFloatNegativeInfinity", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Float_NegativeInfinity", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getDecimalNegativeInfinity", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Decimal_NegativeInfinity", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
-            new RuntimeIshtarMethod("getDoubleNegativeInfinity", Public | Static | Extern)
+            new RuntimeIshtarMethod("i_call_get_Double_NegativeInfinity", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
                 .AddInto(table, x => x.Name);
         }
