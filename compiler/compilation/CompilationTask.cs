@@ -924,22 +924,29 @@ namespace vein.compilation
                 }
             }
         }
-
-        private VeinClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
+        private VeinClass FetchType(IdentifierExpression typename, DocumentDeclaration doc)
         {
-            var retType = module.TryFindType(typename.Identifier.ExpressionString, doc.Includes);
+            var retType = module.TryFindType(typename.ExpressionString, doc.Includes);
 
             if (retType is null)
-                Log.Defer.Error($"[red bold]Cannot resolve type[/] '[purple underline]{typename.Identifier}[/]'", typename, doc);
+                Log.Defer.Error($"[red bold]Cannot resolve type[/] '[purple underline]{typename}[/]'", typename, doc);
             return retType;
         }
+        private VeinClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
+            => FetchType(typename.Identifier, doc);
 
         private VeinArgumentRef[] GenerateArgument(MethodDeclarationSyntax method, DocumentDeclaration doc)
         {
+            var args = new List<VeinArgumentRef>();
+
+            if (!method.Modifiers.Any(x => x.ModificatorKind == ModificatorKind.Static))
+                args.Add(new VeinArgumentRef("_this_", FetchType(method.OwnerClass.Identifier, doc)));
+
             if (method.Parameters.Count == 0)
-                return Array.Empty<VeinArgumentRef>();
-            return method.Parameters.Select(parameter => new VeinArgumentRef
-            { Type = FetchType(parameter.Type, doc), Name = parameter.Identifier.ExpressionString })
+                return args.ToArray();
+
+            return args.Concat(method.Parameters.Select(parameter => new VeinArgumentRef
+                    { Type = FetchType(parameter.Type, doc), Name = parameter.Identifier.ExpressionString }))
                 .ToArray();
         }
         private ClassFlags GenerateClassFlags(ClassDeclarationSyntax clazz)
