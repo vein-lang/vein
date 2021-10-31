@@ -711,6 +711,8 @@ namespace ishtar
                 return context.CurrentMethod.Owner;
             if (exp is IdentifierExpression id)
                 return context.ResolveScopedIdentifierType(id);
+            if (exp is ArgumentExpression arg)
+                return arg.Value.DetermineType(context);
             
             context.LogError($"Cannot determine expression.", exp);
             throw new SkipStatementException();
