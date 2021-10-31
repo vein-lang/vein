@@ -30,9 +30,7 @@ namespace ishtar
         [IshtarExport(0, "@_readline")]
         [IshtarExportFlags(Public | Static)]
         public static IshtarObject* FReadLine(CallFrame current, IshtarObject** args)
-        {
-            return IshtarMarshal.ToIshtarObject(In.ReadLine());
-        }
+            => IshtarMarshal.ToIshtarObject(In.ReadLine());
 
 
         public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)

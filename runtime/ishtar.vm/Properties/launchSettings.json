@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "mana.backend.ishtar.light": {
+    "run test": {
       "commandName": "Project",
-      "commandLineArgs": ".\\hello_world.wll"
+      "commandLineArgs": "C:\\git\\vein-std\\test\\bin\\test.corlib.wll"
     },
     "run test_case 00": {
       "commandName": "Project",
