@@ -475,7 +475,7 @@ namespace ishtar
             if (args is not null)
             {
                 var (_, index) = args.Value;
-                gen.Emit(OpCodes.LDARG_S, index + 1); // todo apply variants
+                gen.Emit(OpCodes.LDARG_S, index); // todo apply variants
                 return;
             }
 
