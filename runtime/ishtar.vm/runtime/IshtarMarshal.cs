@@ -231,7 +231,7 @@ namespace ishtar
                 VM.FastFail(WNE.ACCESS_VIOLATION,
                     "Scalar value type cannot be extracted.\n" +
                     "Invalid memory address is possible.\n" +
-                    "Please report the problem into https://github.com/0xF6/mana_lang/issues.",
+                    "Please report the problem into https://github.com/vein-lang/vein/issues",
                     frame);
                 VM.ValidateLastError();
                 return default;
@@ -273,7 +273,7 @@ namespace ishtar
                     VM.FastFail(WNE.ACCESS_VIOLATION,
                         $"Scalar value type '{val.type}' cannot be extracted.\n" +
                         "Currently is not support.\n" +
-                        "Please report the problem into https://github.com/0xF6/mana_lang/issues.",
+                        "Please report the problem into https://github.com/vein-lang/vein/issues",
                         frame);
                     VM.ValidateLastError();
                     return default;
