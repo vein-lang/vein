@@ -239,7 +239,7 @@ namespace ishtar
             if (HasVariable(id))
             {
                 Context.LogError($"A local variable named '{id}' is already defined in this scope", id);
-                return this;
+                throw new SkipStatementException();
             }
             variables.Add(id, type);
             locals_index.Add(id, localIndex);
@@ -488,6 +488,7 @@ namespace ishtar
             }
 
             context.LogError($"The name '{id}' does not exist in the current context.", id);
+            throw new SkipStatementException();
         }
 
         public static void EmitBinaryExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
@@ -550,7 +551,7 @@ namespace ishtar
                 if (field.IsStatic)
                 {
                     context.LogError($"Static member '{id1}' cannot be accessed with an instance reference.", id1);
-                    return;
+                    throw new SkipStatementException();
                 }
                 gen.EmitExpression(bin.Right);
                 gen.Emit(OpCodes.STF, field);
@@ -596,7 +597,7 @@ namespace ishtar
             if (type.IsStatic)
             {
                 context.LogError($"Cannot create an instance of the static class '{type}'", @new.TargetType);
-                return;
+                throw new SkipStatementException();
             }
 
             if (@new.IsObject)
@@ -612,7 +613,7 @@ namespace ishtar
                     context.LogError(
                         $"'{type}' does not contain a constructor that takes '{args.Length}' arguments.",
                         @new.TargetType);
-                    return;
+                    throw new SkipStatementException();
                 }
 
                 gen.Emit(OpCodes.CALL, ctor);
@@ -785,7 +786,7 @@ namespace ishtar
                 if (exp is not IdentifierExpression id)
                 {
                     context.LogError($"Incorrect state of expression.", exp);
-                    return null;
+                    throw new SkipStatementException();
                 }
 
                 t = t is null ?
@@ -829,7 +830,7 @@ namespace ishtar
             }
 
             context.LogError($"Incorrect state of expression.", member);
-            return null;
+            throw new SkipStatementException();
         }
 
         public static VeinClass ExplicitConversion(VeinClass t1, VeinClass t2) =>
