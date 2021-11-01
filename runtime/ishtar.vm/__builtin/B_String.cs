@@ -11,15 +11,35 @@ namespace ishtar
         internal static extern string FastAllocateString(int length);
 
 
-        [IshtarExportFlags(Public | Static)]
-        [IshtarExport(2, "@_fast_concat_string")]
-        public static IshtarObject* FastConcat(CallFrame frame, IshtarObject** args)
+        public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
+        {
+            new RuntimeIshtarMethod("i_call_String_Concat", Private | Static | Extern,
+                    ("v1", TYPE_STRING), ("v2", TYPE_STRING))
+                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Concat)
+                .AddInto(table, x => x.Name);
+
+            new RuntimeIshtarMethod("i_call_String_Trim_Start", Private | Static | Extern,
+                    ("v1", TYPE_STRING))
+                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&TrimStart)
+                .AddInto(table, x => x.Name);
+
+            new RuntimeIshtarMethod("i_call_String_Trim_End", Private | Static | Extern,
+                    ("v1", TYPE_STRING))
+                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&TrimEnd)
+                .AddInto(table, x => x.Name);
+        }
+
+        [IshtarExportFlags(Private | Static)]
+        [IshtarExport(2, "i_call_String_Concat")]
+        public static IshtarObject* Concat(CallFrame frame, IshtarObject** args)
         {
             var i_str1 = args[0];
             var i_str2 = args[1];
 
             FFI.StaticValidate(frame, &i_str1);
             FFI.StaticValidate(frame, &i_str2);
+            FFI.StaticTypeOf(frame, &i_str1, TYPE_STRING);
+            FFI.StaticTypeOf(frame, &i_str2, TYPE_STRING);
 
 
             var str1 = IshtarMarshal.ToDotnetString(i_str1, frame);
@@ -30,6 +50,7 @@ namespace ishtar
             return IshtarMarshal.ToIshtarObject(result, frame);
         }
 
+        
         public static IshtarObject* TemplateFunctionApply(CallFrame frame, IshtarObject** args, Func<string, string> apply)
         {
             var str1 = args[0];
@@ -44,11 +65,12 @@ namespace ishtar
         }
 
 
-        [IshtarExport(1, "@_fast_trim_start_string")]
-        public static IshtarObject* FastTrimStart(CallFrame frame, IshtarObject** args)
+        [IshtarExportFlags(Private | Static)]
+        [IshtarExport(1, "i_call_String_trim_start")]
+        public static IshtarObject* TrimStart(CallFrame frame, IshtarObject** args)
             => TemplateFunctionApply(frame, args, x => x.TrimStart());
-        [IshtarExport(1, "@_fast_trim_end_string")]
-        public static IshtarObject* FastTrimEnd(CallFrame frame, IshtarObject** args)
+        [IshtarExport(1, "i_call_String_trim_end")]
+        public static IshtarObject* TrimEnd(CallFrame frame, IshtarObject** args)
             => TemplateFunctionApply(frame, args, x => x.TrimEnd());
 
         [IshtarExport(1, "@_fast_allocate_string")]
