@@ -498,12 +498,38 @@ namespace ishtar
                 return;
             }
 
+            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
             var left = bin.Left;
             var right = bin.Right;
+            var op = bin.OperatorType;
 
             gen.EmitExpression(left);
-            gen.EmitBinaryOperator(bin.OperatorType);
             gen.EmitExpression(right);
+
+            var left_type = left.DetermineType(context);
+            var right_type = right.DetermineType(context);
+
+            if (left_type.TypeCode.HasNumber() && right_type.TypeCode.HasNumber())
+                gen.EmitBinaryOperator(op);
+            else
+            {
+                var name = $"op_{op}";
+                var args = new[] { left_type, right_type };
+
+                var methodName = VeinMethodBase.GetFullName(name, args);
+
+                var method = left_type.FindMethod(name, args);
+                if (method is null || !method.IsStatic || !method.IsSpecial)
+                {
+                    context.LogError($"Operator '{op.GetSymbol()}' " +
+                                     $"cannot be applied to operand of type '{left_type.Name}' and '{right_type.Name}'.", bin);
+                    context.LogError($"Not found definition for '{op.GetSymbol()}' operator in '{left_type.Name}'. [{methodName}]", bin);
+                    throw new SkipStatementException();
+                }
+
+                gen.Emit(OpCodes.CALL, method);
+            }
         }
 
         public static void EmitAssignExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
