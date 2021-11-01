@@ -47,9 +47,10 @@ namespace vein.runtime
             Regex.IsMatch(n, @"\S+\((.+)?\)", RegexOptions.Compiled)
                 ? n : GetFullName(n, Arguments);
 
-        public static string GetFullName(string name, List<VeinArgumentRef> args)
+        public static string GetFullName(string name, IEnumerable<VeinArgumentRef> args)
             => $"{name}({args.Where(x => !x.Name.Equals(VeinArgumentRef.THIS_ARGUMENT)).Select(x => x.Type?.Name).Join(",")})";
-
+        public static string GetFullName(string name, IEnumerable<VeinClass> args)
+            => $"{name}({args.Select(x => x.Name).Join(",")})";
 
         public MethodFlags Flags { get; set; }
 

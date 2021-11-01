@@ -44,7 +44,7 @@ public abstract class ModuleResolverBase : IAssemblyResolver
         var mod = ModuleReader.Read(asm.Sections.First().data, deps,
             (s, v) => ResolveDep(s, v, deps));
 
-        debug($"Dependency '{mod.Name}@{mod.Version}' is resolved.");
+        debug($"Dependency '{mod.Name}@{mod.Version}' is resolved. [[from artifacts]]");
         return mod;
     }
 
@@ -64,7 +64,7 @@ public abstract class ModuleResolverBase : IAssemblyResolver
 
         var mod = ModuleReader.Read(asm.Sections.First().data, deps,
             (s, v) => ResolveDep(s, v, deps));
-        debug($"Dependency '{name}@{mod.Version}' is resolved.");
+        debug($"Dependency '{name}@{mod.Version}' is resolved. [[from '{file}']]");
         return mod;
     }
 

@@ -15,6 +15,7 @@ namespace ishtar
             B_App.InitTable(method_table);
             B_IEEEConsts.InitTable(method_table);
             B_Sys.InitTable(method_table);
+            B_String.InitTable(method_table);
         }
 
 

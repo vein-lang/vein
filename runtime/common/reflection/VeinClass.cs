@@ -3,10 +3,20 @@ namespace vein.runtime
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using collections;
     using extensions;
     using reflection;
     using static VeinTypeCode;
+
+    #if DEBUG
+    public static class DebugRefenrence
+    {
+        private static ulong ID = 0;
+
+        public static ulong Get() => Interlocked.Increment(ref ID);
+    }
+    #endif
 
 
     public class VeinClass : IEquatable<VeinClass>, IAspectable
@@ -24,6 +34,9 @@ namespace vein.runtime
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
         public VeinModule Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
+        #if DEBUG
+        public ulong ReferenceID = DebugRefenrence.Get();
+        #endif
 
         internal VeinClass(QualityTypeName name, VeinClass parent, VeinModule module)
         {

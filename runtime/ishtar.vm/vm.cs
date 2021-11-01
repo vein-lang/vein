@@ -138,6 +138,12 @@ namespace ishtar
                         ++sp;
                         ++ip;
                         break;
+                    case LDARG_S:
+                        ++ip;
+                        *sp = args[(*ip)];
+                        ++sp;
+                        ++ip;
+                        break;
                     case LDC_I2_0:
                     case LDC_I2_1:
                     case LDC_I2_2:

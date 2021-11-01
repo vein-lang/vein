@@ -3,6 +3,7 @@ namespace vein.pipes
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading;
     using cmd;
     using fs;
@@ -41,6 +42,20 @@ namespace vein.pipes
         public override int Order => 0;
     }
 
+    public class CopyDependencies : CompilerPipeline
+    {
+        public override void Action()
+        {
+            foreach (var dependency in Target.Dependencies.SelectMany(x => x.Artifacts))
+            {
+                if (dependency.Kind is ArtifactKind.BINARY)
+                    File.Copy(dependency.Path.FullName,
+                        Path.Combine(OutputDirectory.FullName, Path.GetFileName(dependency.Path.FullName)));
+            }
+        }
+        public override bool CanApply(CompileSettings flags) => true;
+        public override int Order => 0;
+    }
 
     public abstract class CompilerPipeline
     {
@@ -52,6 +67,7 @@ namespace vein.pipes
         protected internal VeinModuleBuilder Module { get; set; }
         protected internal VeinProject Project { get; set; }
         protected internal IshtarAssembly Assembly { get; set; }
+        protected internal CompilationTarget Target { get; set; }
 
         public abstract void Action();
 
@@ -68,11 +84,12 @@ namespace vein.pipes
         {
             new WriteOutputPipe(),
             new SingleFileOutputPipe(),
-            new CopySDKBinaries()
+            new CopySDKBinaries(),
+            new CopyDependencies()
         };
 
 
-        public static void Run(CompilationTask compiler)
+        public static void Run(CompilationTask compiler, CompilationTarget target)
         {
             var lastPipe = default(CompilerPipeline);
 
@@ -91,6 +108,7 @@ namespace vein.pipes
                 pipe.Project = lastPipe?.Project ?? compiler.Project;
                 pipe.Assembly = lastPipe?.Assembly;
                 pipe.Module = lastPipe?.Module ?? compiler.module;
+                pipe.Target = target;
 
                 pipe.Action();
                 Thread.Sleep(400);

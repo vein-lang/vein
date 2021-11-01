@@ -239,7 +239,7 @@ namespace ishtar
             if (HasVariable(id))
             {
                 Context.LogError($"A local variable named '{id}' is already defined in this scope", id);
-                return this;
+                throw new SkipStatementException();
             }
             variables.Add(id, type);
             locals_index.Add(id, localIndex);
@@ -456,7 +456,19 @@ namespace ishtar
 
             return flags;
         }
-        public static void EmitLoadIdentifierReference(this ILGenerator gen, IdentifierExpression id)
+
+        public static ILGenerator EmitLoadArgument(this ILGenerator gen, int i) => i switch
+        {
+            0 => gen.Emit(OpCodes.LDARG_0),
+            1 => gen.Emit(OpCodes.LDARG_1),
+            2 => gen.Emit(OpCodes.LDARG_2),
+            3 => gen.Emit(OpCodes.LDARG_3),
+            4 => gen.Emit(OpCodes.LDARG_4),
+            5 => gen.Emit(OpCodes.LDARG_5),
+            _ => gen.Emit(OpCodes.LDARG_S, i)
+        };
+
+        public static ILGenerator EmitLoadIdentifierReference(this ILGenerator gen, IdentifierExpression id)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
@@ -466,28 +478,21 @@ namespace ishtar
                 var index = context.CurrentScope.locals_index[id];
                 var type = context.CurrentScope.variables[id];
                 gen.WriteDebugMetadata($"/* access local, var: '{id}', index: '{index}', type: '{type.FullName.NameWithNS}' */");
-                gen.Emit(OpCodes.LDLOC_S, index);
-                return;
+                return gen.Emit(OpCodes.LDLOC_S, index);
             }
 
             // second order: search argument
             var args = context.ResolveArgument(id);
             if (args is not null)
-            {
-                var (_, index) = args.Value;
-                gen.Emit(OpCodes.LDARG_S, index + 1); // todo apply variants
-                return;
-            }
+                return gen.EmitLoadArgument(args.Value.index);
 
             // third order: find field
             var field = context.ResolveField(id);
             if (field is not null)
-            {
-                gen.Emit(field.IsStatic ? OpCodes.LDSF : OpCodes.LDF, field);
-                return;
-            }
+                return gen.Emit(field.IsStatic ? OpCodes.LDSF : OpCodes.LDF, field);
 
             context.LogError($"The name '{id}' does not exist in the current context.", id);
+            throw new SkipStatementException();
         }
 
         public static void EmitBinaryExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
@@ -498,12 +503,38 @@ namespace ishtar
                 return;
             }
 
+            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
             var left = bin.Left;
             var right = bin.Right;
+            var op = bin.OperatorType;
 
             gen.EmitExpression(left);
-            gen.EmitBinaryOperator(bin.OperatorType);
             gen.EmitExpression(right);
+
+            var left_type = left.DetermineType(context);
+            var right_type = right.DetermineType(context);
+
+            if (left_type.TypeCode.HasNumber() && right_type.TypeCode.HasNumber())
+                gen.EmitBinaryOperator(op);
+            else
+            {
+                var name = $"op_{op}";
+                var args = new[] { left_type, right_type };
+
+                var methodName = VeinMethodBase.GetFullName(name, args);
+
+                var method = left_type.FindMethod(name, args);
+                if (method is null || !method.IsStatic || !method.IsSpecial)
+                {
+                    context.LogError($"Operator '{op.GetSymbol()}' " +
+                                     $"cannot be applied to operand of type '{left_type.Name}' and '{right_type.Name}'.", bin);
+                    context.LogError($"Not found definition for '{op.GetSymbol()}' operator in '{left_type.Name}'. [{methodName}]", bin);
+                    throw new SkipStatementException();
+                }
+
+                gen.Emit(OpCodes.CALL, method);
+            }
         }
 
         public static void EmitAssignExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
@@ -524,7 +555,7 @@ namespace ishtar
                 if (field.IsStatic)
                 {
                     context.LogError($"Static member '{id1}' cannot be accessed with an instance reference.", id1);
-                    return;
+                    throw new SkipStatementException();
                 }
                 gen.EmitExpression(bin.Right);
                 gen.Emit(OpCodes.STF, field);
@@ -570,7 +601,7 @@ namespace ishtar
             if (type.IsStatic)
             {
                 context.LogError($"Cannot create an instance of the static class '{type}'", @new.TargetType);
-                return;
+                throw new SkipStatementException();
             }
 
             if (@new.IsObject)
@@ -586,7 +617,7 @@ namespace ishtar
                     context.LogError(
                         $"'{type}' does not contain a constructor that takes '{args.Length}' arguments.",
                         @new.TargetType);
-                    return;
+                    throw new SkipStatementException();
                 }
 
                 gen.Emit(OpCodes.CALL, ctor);
@@ -711,7 +742,8 @@ namespace ishtar
                 return context.CurrentMethod.Owner;
             if (exp is IdentifierExpression id)
                 return context.ResolveScopedIdentifierType(id);
-
+            if (exp is ArgumentExpression arg)
+                return arg.Value.DetermineType(context);
             context.LogError($"Cannot determine expression.", exp);
             throw new SkipStatementException();
         }
@@ -757,7 +789,7 @@ namespace ishtar
                 if (exp is not IdentifierExpression id)
                 {
                     context.LogError($"Incorrect state of expression.", exp);
-                    return null;
+                    throw new SkipStatementException();
                 }
 
                 t = t is null ?
@@ -801,7 +833,7 @@ namespace ishtar
             }
 
             context.LogError($"Incorrect state of expression.", member);
-            return null;
+            throw new SkipStatementException();
         }
 
         public static VeinClass ExplicitConversion(VeinClass t1, VeinClass t2) =>
@@ -963,7 +995,7 @@ namespace ishtar
                 if (flags.HasFlag(AccessFlags.ARGUMENT))
                 {
                     var (arg, index) = ctx.GetCurrentArgument(id);
-                    return gen.Emit(OpCodes.LDARG_S, index)
+                    return gen.EmitLoadArgument(index)
                         .EmitCall(arg.Type, invoke);
                 }
                 // three order: field
@@ -1011,7 +1043,7 @@ namespace ishtar
                 if (flags.HasFlag(AccessFlags.ARGUMENT))
                 {
                     var (_, index) = ctx.GetCurrentArgument(id1);
-                    return gen.Emit(OpCodes.LDARG_S, index);
+                    return gen.EmitLoadArgument(index);
                 }
                 // three order: field
                 if (flags.HasFlag(AccessFlags.FIELD))

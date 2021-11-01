@@ -201,90 +201,59 @@ namespace vein.runtime
                 _ => false
             };
         }
-        public static bool HasFloat(this VeinTypeCode code)
+        public static bool HasFloat(this VeinTypeCode code) => code switch
         {
-            switch (code)
-            {
-                case TYPE_R2:
-                case TYPE_R4:
-                case TYPE_R8:
-                case TYPE_R16:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-        public static bool HasUnsigned(this VeinTypeCode code)
+            TYPE_R2 => true,
+            TYPE_R4 => true,
+            TYPE_R8 => true,
+            TYPE_R16 => true,
+            _ => false
+        };
+
+        public static bool HasUnsigned(this VeinTypeCode code) => code switch
         {
-            switch (code)
-            {
-                case TYPE_U1:
-                case TYPE_U2:
-                case TYPE_U4:
-                case TYPE_U8:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-        public static bool HasSigned(this VeinTypeCode code)
+            TYPE_U1 => true,
+            TYPE_U2 => true,
+            TYPE_U4 => true,
+            TYPE_U8 => true,
+            _ => false
+        };
+
+        public static bool HasSigned(this VeinTypeCode code) => code switch
         {
-            switch (code)
-            {
-                case TYPE_I1:
-                case TYPE_I2:
-                case TYPE_I4:
-                case TYPE_I8:
-                    return true;
-                default:
-                    return false;
-            }
-        }
+            TYPE_I1 => true,
+            TYPE_I2 => true,
+            TYPE_I4 => true,
+            TYPE_I8 => true,
+            _ => false
+        };
+
         public static bool HasInteger(this VeinTypeCode code) =>
             HasSigned(code) || HasUnsigned(code);
 
-        public static VeinClass AsClass(this VeinTypeCode code)
+        public static bool HasNumber(this VeinTypeCode code) =>
+            HasInteger(code) || HasFloat(code);
+        
+        public static VeinClass AsClass(this VeinTypeCode code) => code switch
         {
-            switch (code)
-            {
-                case TYPE_CHAR:
-                    return VeinCore.CharClass;
-                case TYPE_I1:
-                    return VeinCore.SByteClass;
-                case TYPE_U1:
-                    return VeinCore.ByteClass;
-                case TYPE_U2:
-                    return VeinCore.UInt16Class;
-                case TYPE_U4:
-                    return VeinCore.UInt32Class;
-                case TYPE_U8:
-                    return VeinCore.UInt64Class;
-                case TYPE_R8:
-                    return VeinCore.DoubleClass;
-                case TYPE_R4:
-                    return VeinCore.FloatClass;
-                case TYPE_R2:
-                    return VeinCore.HalfClass;
-                case TYPE_ARRAY:
-                    return VeinCore.ArrayClass;
-                case TYPE_BOOLEAN:
-                    return VeinCore.BoolClass;
-                case TYPE_VOID:
-                    return VeinCore.VoidClass;
-                case TYPE_OBJECT:
-                    return VeinCore.ObjectClass;
-                case TYPE_I2:
-                    return VeinCore.Int16Class;
-                case TYPE_I4:
-                    return VeinCore.Int32Class;
-                case TYPE_I8:
-                    return VeinCore.Int64Class;
-                case TYPE_STRING:
-                    return VeinCore.StringClass;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(code), code, null);
-            }
-        }
-
+            TYPE_CHAR => VeinCore.CharClass,
+            TYPE_I1 => VeinCore.SByteClass,
+            TYPE_U1 => VeinCore.ByteClass,
+            TYPE_U2 => VeinCore.UInt16Class,
+            TYPE_U4 => VeinCore.UInt32Class,
+            TYPE_U8 => VeinCore.UInt64Class,
+            TYPE_R8 => VeinCore.DoubleClass,
+            TYPE_R4 => VeinCore.FloatClass,
+            TYPE_R2 => VeinCore.HalfClass,
+            TYPE_ARRAY => VeinCore.ArrayClass,
+            TYPE_BOOLEAN => VeinCore.BoolClass,
+            TYPE_VOID => VeinCore.VoidClass,
+            TYPE_OBJECT => VeinCore.ObjectClass,
+            TYPE_I2 => VeinCore.Int16Class,
+            TYPE_I4 => VeinCore.Int32Class,
+            TYPE_I8 => VeinCore.Int64Class,
+            TYPE_STRING => VeinCore.StringClass,
+            _ => throw new ArgumentOutOfRangeException(nameof(code), code, null)
+        };
     }
 }

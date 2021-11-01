@@ -240,7 +240,7 @@ namespace vein.compilation
                     ? CompilationStatus.Success
                     : CompilationStatus.Failed;
                 if (status is CompilationStatus.Success)
-                    PipelineRunner.Run(c);
+                    PipelineRunner.Run(c, target);
                 if (status is CompilationStatus.Success)
                     target.AcceptArtifacts(c.artifacts.AsReadOnly());
                 target.Status = status;
@@ -330,6 +330,7 @@ namespace vein.compilation
                     .SelectMany(x => LinkClasses(x.Value))
                     .ToList()
                     .Pipe(LinkMetadata)
+                    .Pipe(x => ShitcodePlug(x.clazz))
                     .Select(x => (LinkMethods(x), x))
                     .ToList()
                     .Pipe(x => x.Item1.Transition(
@@ -383,7 +384,6 @@ namespace vein.compilation
 
         public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc)
         {
-
             if (member.IsForwardedType)
             {
                 var result = VeinCore.All.
@@ -393,9 +393,9 @@ namespace vein.compilation
                 {
                     var clz = new ClassBuilder(module, result);
                     module.class_table.Add(clz);
-
+                    
                     clz.Includes.AddRange(doc.Includes);
-
+                    TypeForwarder.Indicate(clz);
                     CompileAnnotation(member, doc, clz);
                     return clz;
                 }
@@ -408,6 +408,24 @@ namespace vein.compilation
             CompileAnnotation(member, doc, clazz);
             return clazz;
         }
+
+
+        private void ShitcodePlug(ClassBuilder clz)
+        {
+            var dd = clz.Parents.FirstOrDefault(x => x.FullName == VeinCore.ValueTypeClass.FullName);
+            if (dd is not null && dd != VeinCore.ValueTypeClass)
+            {
+                clz.Parents.Remove(dd);
+                clz.Parents.Add(VeinCore.ValueTypeClass);
+            }
+            var ss = clz.Parents.FirstOrDefault(x => x.FullName == VeinCore.ObjectClass.FullName);
+            if (ss is not null && ss != VeinCore.ObjectClass)
+            {
+                clz.Parents.Remove(ss);
+                clz.Parents.Add(VeinCore.ObjectClass);
+            }
+        }
+
         public void CompileAnnotation(FieldDeclarationSyntax field, DocumentDeclaration doc, IAspectable aspectable) =>
             CompileAnnotation(field.Annotations, x =>
                 $"aspect/{x.AnnotationKind}/class/{field.OwnerClass.Identifier}/field/{field.Field.Identifier}.",
