@@ -240,7 +240,7 @@ namespace vein.compilation
                     ? CompilationStatus.Success
                     : CompilationStatus.Failed;
                 if (status is CompilationStatus.Success)
-                    PipelineRunner.Run(c);
+                    PipelineRunner.Run(c, target);
                 if (status is CompilationStatus.Success)
                     target.AcceptArtifacts(c.artifacts.AsReadOnly());
                 target.Status = status;
