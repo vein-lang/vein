@@ -95,7 +95,7 @@ namespace vein.pipes
 
             var pipes = GetPipes();
             var task = compiler.StatusCtx.AddTask("Running post-compile task...", maxValue: pipes.Count);
-            
+
             foreach (var pipe in pipes)
             {
                 if (!pipe.CanApply(compiler._flags))
