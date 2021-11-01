@@ -168,7 +168,7 @@ namespace ishtar
             this.LogError($"The name '{id}' does not exist in the current context.", id);
             throw new SkipStatementException();
         }
-        
+
         public VeinMethod ResolveMethod(
             VeinClass targetType,
             InvocationExpression invocation)
@@ -711,7 +711,7 @@ namespace ishtar
                 return context.CurrentMethod.Owner;
             if (exp is IdentifierExpression id)
                 return context.ResolveScopedIdentifierType(id);
-            
+
             context.LogError($"Cannot determine expression.", exp);
             throw new SkipStatementException();
         }

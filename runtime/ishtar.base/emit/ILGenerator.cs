@@ -293,7 +293,7 @@ namespace ishtar.emit
                 sizeof(int) /* tokenIdx */ +
                 sizeof(int) /* ownerIdx */);
             this.InternalEmit(opcode);
-            
+
             this.PutInteger4(tokenIdx);
             this.PutTypeName(ownerIdx);
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");

@@ -351,7 +351,7 @@ namespace ishtar
                             printf("%%call %ws self function.\n", method->Name.c_str());
 #endif
                             ++ip;
-                            
+
                             var method_args = stackval.Alloc(method.ArgLength);
                             for (var i = 0; i != method.ArgLength; i++)
                             {
@@ -365,7 +365,7 @@ namespace ishtar
                             fixed (stackval* p = method_args)
                                 child_frame.args = p;
                             child_frame.method = method;
-                            
+
                             if (method.IsExtern)
                                 exec_method_native(child_frame);
                             else
