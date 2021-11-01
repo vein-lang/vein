@@ -456,7 +456,19 @@ namespace ishtar
 
             return flags;
         }
-        public static void EmitLoadIdentifierReference(this ILGenerator gen, IdentifierExpression id)
+
+        public static ILGenerator EmitLoadArgument(this ILGenerator gen, int i) => i switch
+        {
+            0 => gen.Emit(OpCodes.LDARG_0),
+            1 => gen.Emit(OpCodes.LDARG_1),
+            2 => gen.Emit(OpCodes.LDARG_2),
+            3 => gen.Emit(OpCodes.LDARG_3),
+            4 => gen.Emit(OpCodes.LDARG_4),
+            5 => gen.Emit(OpCodes.LDARG_5),
+            _ => gen.Emit(OpCodes.LDARG_S, i)
+        };
+
+        public static ILGenerator EmitLoadIdentifierReference(this ILGenerator gen, IdentifierExpression id)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
@@ -466,26 +478,18 @@ namespace ishtar
                 var index = context.CurrentScope.locals_index[id];
                 var type = context.CurrentScope.variables[id];
                 gen.WriteDebugMetadata($"/* access local, var: '{id}', index: '{index}', type: '{type.FullName.NameWithNS}' */");
-                gen.Emit(OpCodes.LDLOC_S, index);
-                return;
+                return gen.Emit(OpCodes.LDLOC_S, index);
             }
 
             // second order: search argument
             var args = context.ResolveArgument(id);
             if (args is not null)
-            {
-                var (_, index) = args.Value;
-                gen.Emit(OpCodes.LDARG_S, index); // todo apply variants
-                return;
-            }
+                return gen.EmitLoadArgument(args.Value.index);
 
             // third order: find field
             var field = context.ResolveField(id);
             if (field is not null)
-            {
-                gen.Emit(field.IsStatic ? OpCodes.LDSF : OpCodes.LDF, field);
-                return;
-            }
+                return gen.Emit(field.IsStatic ? OpCodes.LDSF : OpCodes.LDF, field);
 
             context.LogError($"The name '{id}' does not exist in the current context.", id);
             throw new SkipStatementException();
@@ -992,7 +996,7 @@ namespace ishtar
                 if (flags.HasFlag(AccessFlags.ARGUMENT))
                 {
                     var (arg, index) = ctx.GetCurrentArgument(id);
-                    return gen.Emit(OpCodes.LDARG_S, index)
+                    return gen.EmitLoadArgument(index)
                         .EmitCall(arg.Type, invoke);
                 }
                 // three order: field
@@ -1040,7 +1044,7 @@ namespace ishtar
                 if (flags.HasFlag(AccessFlags.ARGUMENT))
                 {
                     var (_, index) = ctx.GetCurrentArgument(id1);
-                    return gen.Emit(OpCodes.LDARG_S, index);
+                    return gen.EmitLoadArgument(index);
                 }
                 // three order: field
                 if (flags.HasFlag(AccessFlags.FIELD))
