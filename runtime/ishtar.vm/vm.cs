@@ -318,6 +318,25 @@ namespace ishtar
                             ++ip;
                         }
                         break;
+                    case STF:
+                    {
+                        --sp;
+                        var fieldIdx = *++ip;
+                        var @class = GetClass(*++ip, _module, invocation);
+                        var field = GetField(fieldIdx, @class, _module, invocation);
+                        var @this = sp;
+                        if (@this->type == TYPE_NONE)
+                        {
+                            // TODO
+                            CallFrame.FillStackTrace(invocation);
+                            FastFail(WNE.NONE, $"NullReferenceError", invocation);
+                            ValidateLastError();
+                        }
+
+                        CallFrame.FillStackTrace(invocation);
+                        FastFail(WNE.NONE, $"STF TODO", invocation);
+                    }
+                        break;
                     case LDNULL:
                         sp->type = TYPE_OBJECT;
                         sp->data.ul = 0;
@@ -762,9 +781,9 @@ namespace ishtar
                     default:
                         CallFrame.FillStackTrace(invocation);
 
-                        FastFail(WNE.STATE_CORRUPT, $"Unknown opcode: {*ip}\n" +
-                                                                    $"{ip - start}\n" +
-                                                                    $"{invocation.exception.stack_trace}");
+                        FastFail(WNE.STATE_CORRUPT, $"Unknown opcode: {invocation.last_ip}\n" +
+                            $"{ip - start}\n" +
+                            $"{invocation.exception.stack_trace}");
                         ++ip;
                         break;
                 }
