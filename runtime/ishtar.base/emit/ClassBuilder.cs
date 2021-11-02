@@ -102,16 +102,29 @@ namespace ishtar.emit
             var prop = new VeinProperty(this, new (name, this.Name), flags, propType);
 
             if (!IsAbstract)
+            {
                 prop.ShadowField = DefineField(VeinProperty.GetShadowFieldName(prop.FullName), FieldFlags.Special,
                     propType);
+                if (flags.HasFlag(FieldFlags.Static))
+                    prop.ShadowField.Flags |= FieldFlags.Static;
+            }
+               
+
+
 
             var getter =
                 DefineMethod($"get_{name}", VeinProperty.ConvertShadowFlags(flags), propType);
             if (!IsAbstract)
             {
-                getter.GetGenerator()
-                    .Emit(OpCodes.LDF, prop.ShadowField)
-                    .Emit(OpCodes.RET);
+                if (flags.HasFlag(FieldFlags.Static))
+                    getter.GetGenerator()
+                        .Emit(OpCodes.LDSF, prop.ShadowField)
+                        .Emit(OpCodes.RET);
+                else
+                    getter.GetGenerator()
+                        .Emit(OpCodes.LDARG_0)
+                        .Emit(OpCodes.LDF, prop.ShadowField)
+                        .Emit(OpCodes.RET);
             }
             else
                 getter.Flags |= MethodFlags.Abstract;
@@ -125,10 +138,17 @@ namespace ishtar.emit
                     new VeinArgumentRef("value", propType));
             if (!IsAbstract)
             {
-                setter.GetGenerator()
-                    .Emit(OpCodes.LDARG_1)
-                    .Emit(OpCodes.STF, prop.ShadowField)
-                    .Emit(OpCodes.RET);
+                if (flags.HasFlag(FieldFlags.Static))
+                    setter.GetGenerator()
+                        .Emit(OpCodes.LDARG_0) // emit value ref
+                        .Emit(OpCodes.STSF, prop.ShadowField)
+                        .Emit(OpCodes.RET);
+                else
+                    setter.GetGenerator()
+                        .Emit(OpCodes.LDARG_1) // emit value ref
+                        .Emit(OpCodes.LDARG_0) // emit this
+                        .Emit(OpCodes.STF, prop.ShadowField)
+                        .Emit(OpCodes.RET);
             }
             else
                 setter.Flags |= MethodFlags.Abstract;
