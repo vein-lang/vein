@@ -818,6 +818,12 @@ namespace ishtar
                     continue;
                 }
 
+                if (enumerator[i] is ThisAccessExpression @this)
+                {
+                    t = context.CurrentMethod.Owner;
+                    continue;
+                }
+
                 var exp = enumerator[i] as IdentifierExpression;
 
                 if (exp is null && enumerator[i] is InvocationExpression inv)
@@ -1059,6 +1065,11 @@ namespace ishtar
                     ctx.LogError($"'{id1}' is a type, which is not valid in current context.", id1);
 
                 return gen;
+            }
+
+            if (access is { Left: ThisAccessExpression, Right: InvocationExpression inv1 })
+            {
+                return gen.EmitCall(ctx.CurrentMethod.Owner, inv1);
             }
 
             throw new NotSupportedException();
