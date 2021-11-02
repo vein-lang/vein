@@ -688,11 +688,14 @@ namespace vein.compilation
                 if (field.IsStatic)
                     continue;
                 if (field.IsLiteral)
-                    continue;
-                if (field.IsSpecial)
-                    continue;
+                    continue; // TODO
                 var stx = member.Fields
                     .SingleOrDefault(x => x.Field.Identifier.ExpressionString.Equals(field.Name));
+                if (stx is null && field.IsSpecial)
+                {
+                    pregen.Add((null, field));
+                    continue;
+                }
                 if (stx is null)
                 {
                     Log.Defer.Error($"[red bold]Field '{field.Name}' in class/struct/interface '{@class.Name}' has undefined.[/]", null, doc);
@@ -742,6 +745,12 @@ namespace vein.compilation
                     continue;
                 var stx = member.Fields
                     .SingleOrDefault(x => x.Field.Identifier.ExpressionString.Equals(field.Name));
+
+                if (stx is null && field.IsSpecial)
+                {
+                    pregen.Add((null, field));
+                    continue;
+                }
                 if (stx is null)
                 {
                     Log.Defer.Error($"[red bold]Field '{field.Name}' in class/struct '{@class.Name}' has undefined.[/]", null, doc);
