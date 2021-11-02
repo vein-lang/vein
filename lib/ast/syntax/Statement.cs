@@ -50,7 +50,7 @@ namespace vein.syntax
         protected internal virtual Parser<StatementSyntax> simple_embedded_statement =>
             Parse.Char(';').Token().Return((StatementSyntax)new EmptyStatementSyntax())
             .Or(QualifiedExpression.Then(x => Parse.Char(';').Token().Return(new QualifiedExpressionStatement(x))).Positioned())
-            .Or(IfStatement)
+            .Or(IfStatement.Positioned())
             .Or(WhileStatement)
             .Or(ReturnStatement.Positioned())
             .Or(foreach_statement.Positioned())
