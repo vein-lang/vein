@@ -9,14 +9,14 @@ namespace vein.runtime
     using reflection;
     using static VeinTypeCode;
 
-    #if DEBUG
+#if DEBUG
     public static class DebugRefenrence
     {
         private static ulong ID = 0;
 
         public static ulong Get() => Interlocked.Increment(ref ID);
     }
-    #endif
+#endif
 
 
     public class VeinClass : IEquatable<VeinClass>, IAspectable
@@ -34,9 +34,9 @@ namespace vein.runtime
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
         public VeinModule Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
-        #if DEBUG
+#if DEBUG
         public ulong ReferenceID = DebugRefenrence.Get();
-        #endif
+#endif
 
         internal VeinClass(QualityTypeName name, VeinClass parent, VeinModule module)
         {
