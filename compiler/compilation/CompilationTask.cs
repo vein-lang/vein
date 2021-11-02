@@ -635,7 +635,6 @@ namespace vein.compilation
         public (VeinProperty prop, PropertyDeclarationSyntax member)
             CompileProperty(PropertyDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
-
             var propType = FetchType(member.Type, doc);
 
             if (propType is null)
@@ -791,17 +790,28 @@ namespace vein.compilation
                 {
                     generator.EmitStatement(statement);
                 }
-                catch (NotSupportedException)
+                catch (NotSupportedException e)
                 {
                     Log.Defer.Error($"[red bold]This syntax/statement currently is not supported.[/]", statement,
                         Context.Document);
+#if DEBUG
+                    AnsiConsole.WriteException(e);
+#endif
                 }
-                catch (NotImplementedException)
+                catch (NotImplementedException e)
                 {
                     Log.Defer.Error($"[red bold]This syntax/statement currently is not implemented.[/]", statement,
                         Context.Document);
+#if DEBUG
+                    AnsiConsole.WriteException(e);
+#endif
                 }
-                catch (SkipStatementException) { }
+                catch (SkipStatementException e)
+                {
+#if DEBUG
+                    AnsiConsole.WriteException(e);
+#endif
+                }
                 catch (Exception e)
                 {
                     Log.Defer.Error($"[red bold]{e.Message.EscapeMarkup()}[/] in [italic]EmitStatement(...);[/]",
