@@ -50,7 +50,7 @@ namespace ishtar
             return IshtarMarshal.ToIshtarObject(result, frame);
         }
 
-        
+
         public static IshtarObject* TemplateFunctionApply(CallFrame frame, IshtarObject** args, Func<string, string> apply)
         {
             var str1 = args[0];

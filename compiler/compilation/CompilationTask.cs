@@ -393,7 +393,7 @@ namespace vein.compilation
                 {
                     var clz = new ClassBuilder(module, result);
                     module.class_table.Add(clz);
-                    
+
                     clz.Includes.AddRange(doc.Includes);
                     TypeForwarder.Indicate(clz);
                     CompileAnnotation(member, doc, clz);
