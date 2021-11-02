@@ -413,6 +413,11 @@ namespace ishtar
             if (expr is ThisAccessExpression)
                 return gen.EmitThis();
 
+            if (expr is InvocationExpression inv)
+            {
+                var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+                return gen.EmitCall(ctx.CurrentMethod.Owner, inv);
+            }
 
             throw new NotImplementedException();
         }
@@ -909,8 +914,19 @@ namespace ishtar
                 generator.EmitLocalVariable(localVariable);
             else if (statement is ForeachStatementSyntax @foreach)
                 generator.EmitForeach(@foreach);
+            else if (statement is BlockSyntax block)
+                generator.EmitBlock(block);
             else
                 throw new NotImplementedException();
+        }
+
+        public static void EmitBlock(this ILGenerator gen, BlockSyntax block)
+        {
+            if (block is EmptyBlockSyntax)
+                return;
+            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            using var scope = ctx.CurrentScope.EnterScope();
+            foreach (var v in block.Statements) gen.EmitStatement(v);
         }
 
 
