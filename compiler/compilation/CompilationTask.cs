@@ -1104,31 +1104,28 @@ namespace vein.compilation
 
             foreach (var mod in mods)
             {
-                switch (mod.ModificatorKind.ToString().ToLower())
+                switch (mod.ModificatorKind)
                 {
-                    case "private":
+                    case ModificatorKind.Private:
                         continue;
-                    case "public":
+                    case ModificatorKind.Public:
                         flags |= FieldFlags.Public;
                         continue;
-                    case "static":
+                    case ModificatorKind.Static:
                         flags |= FieldFlags.Static;
                         continue;
-                    case "protected":
+                    case ModificatorKind.Protected:
                         flags |= FieldFlags.Protected;
                         continue;
-                    case "internal":
+                    case ModificatorKind.Internal:
                         flags |= FieldFlags.Internal;
                         continue;
-                    case "override":
+                    case ModificatorKind.Override:
                         flags |= FieldFlags.Override;
                         continue;
-                    case "abstract":
-                        flags |= FieldFlags.Abstract;
-                        continue;
-                    case "const" when member is PropertyDeclarationSyntax:
+                    case ModificatorKind.Const when member is PropertyDeclarationSyntax:
                         goto default;
-                    case "const":
+                    case ModificatorKind.Const:
                         flags |= FieldFlags.Literal;
                         continue;
                     default:
