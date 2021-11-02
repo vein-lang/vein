@@ -233,7 +233,7 @@ namespace vein.runtime
 
         public static bool HasNumber(this VeinTypeCode code) =>
             HasInteger(code) || HasFloat(code);
-        
+
         public static VeinClass AsClass(this VeinTypeCode code) => code switch
         {
             TYPE_CHAR => VeinCore.CharClass,
