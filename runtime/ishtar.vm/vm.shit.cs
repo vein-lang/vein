@@ -8,7 +8,7 @@ namespace ishtar
     using vein.runtime;
     using static OpCodeValue;
     using static vein.runtime.VeinTypeCode;
-
+    
     public static unsafe partial class VM
     {
         private static void act<T>(ref T t1, ref T t2, A_OperationDelegate<T> actor) => actor(ref t1, ref t2);

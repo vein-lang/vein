@@ -35,7 +35,7 @@ namespace vein.syntax
             int takeLen()
             {
                 var r = original.Skip(t.pos.Column - 1).Take(t.len).ToArray().Last();
-                if (r == ' ' || r == ';' || r == ',')
+                if (r is ' ' or ';' or ',')
                     return t.len - 1;
                 return t.len;
             }

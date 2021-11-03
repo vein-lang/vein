@@ -32,79 +32,48 @@ namespace vein.runtime
 
     public static class ManaTypeCodeEx
     {
-        public static TypeCode ToCLRTypeCode(this VeinTypeCode type_code)
+        public static TypeCode ToCLRTypeCode(this VeinTypeCode type_code) => type_code switch
         {
-            switch (type_code)
-            {
-                case TYPE_BOOLEAN:
-                    return TypeCode.Boolean;
-                case TYPE_CHAR:
-                    return TypeCode.Char;
-                case TYPE_I1:
-                    return TypeCode.SByte;
-                case TYPE_U1:
-                    return TypeCode.Byte;
-                case TYPE_I2:
-                    return TypeCode.Int16;
-                case TYPE_U2:
-                    return TypeCode.UInt16;
-                case TYPE_I4:
-                    return TypeCode.Int32;
-                case TYPE_U4:
-                    return TypeCode.UInt32;
-                case TYPE_I8:
-                    return TypeCode.Int64;
-                case TYPE_U8:
-                    return TypeCode.UInt64;
-                case TYPE_R4:
-                    return TypeCode.Single;
-                case TYPE_R8:
-                    return TypeCode.Double;
-                case TYPE_R16:
-                    return TypeCode.Decimal;
-                case TYPE_STRING:
-                    return TypeCode.String;
-                default:
-                    throw new NotSupportedException($"'{type_code}' cant convert to CLR type code.");
-            }
-        }
+            TYPE_BOOLEAN => TypeCode.Boolean,
+            TYPE_CHAR => TypeCode.Char,
+            TYPE_I1 => TypeCode.SByte,
+            TYPE_U1 => TypeCode.Byte,
+            TYPE_I2 => TypeCode.Int16,
+            TYPE_U2 => TypeCode.UInt16,
+            TYPE_I4 => TypeCode.Int32,
+            TYPE_U4 => TypeCode.UInt32,
+            TYPE_I8 => TypeCode.Int64,
+            TYPE_U8 => TypeCode.UInt64,
+            TYPE_R4 => TypeCode.Single,
+            TYPE_R8 => TypeCode.Double,
+            TYPE_R16 => TypeCode.Decimal,
+            TYPE_STRING => TypeCode.String,
+            _ => throw new NotSupportedException($"'{type_code}' cant convert to CLR type code.")
+        };
+
         public static VeinTypeCode DetermineTypeCode<T>(this T value)
         {
             var clr_code = Type.GetTypeCode(value.GetType());
 
-            switch (clr_code)
+            return clr_code switch
             {
-                case TypeCode.Boolean:
-                    return TYPE_BOOLEAN;
-                case TypeCode.Char:
-                    return TYPE_CHAR;
-                case TypeCode.SByte:
-                    return TYPE_I1;
-                case TypeCode.Byte:
-                    return TYPE_U1;
-                case TypeCode.Int16:
-                    return TYPE_I2;
-                case TypeCode.UInt16:
-                    return TYPE_U2;
-                case TypeCode.Int32:
-                    return TYPE_I4;
-                case TypeCode.UInt32:
-                    return TYPE_U4;
-                case TypeCode.Int64:
-                    return TYPE_I8;
-                case TypeCode.UInt64:
-                    return TYPE_U8;
-                case TypeCode.Single:
-                    return TYPE_R4;
-                case TypeCode.Double:
-                    return TYPE_R8;
-                case TypeCode.Decimal:
-                    return TYPE_R16;
-                case TypeCode.String:
-                    return TYPE_STRING;
-                default:
-                    throw new NotSupportedException($"'{clr_code}', '{value}', '{value.GetType()}' cant convert to Ishtar type code.");
-            }
+                TypeCode.Boolean => TYPE_BOOLEAN,
+                TypeCode.Char => TYPE_CHAR,
+                TypeCode.SByte => TYPE_I1,
+                TypeCode.Byte => TYPE_U1,
+                TypeCode.Int16 => TYPE_I2,
+                TypeCode.UInt16 => TYPE_U2,
+                TypeCode.Int32 => TYPE_I4,
+                TypeCode.UInt32 => TYPE_U4,
+                TypeCode.Int64 => TYPE_I8,
+                TypeCode.UInt64 => TYPE_U8,
+                TypeCode.Single => TYPE_R4,
+                TypeCode.Double => TYPE_R8,
+                TypeCode.Decimal => TYPE_R16,
+                TypeCode.String => TYPE_STRING,
+                _ => throw new NotSupportedException(
+                    $"'{clr_code}', '{value}', '{value.GetType()}' cant convert to Ishtar type code.")
+            };
         }
 
         public static bool IsCompatibleNumber(this VeinTypeCode variable, VeinTypeCode assign)

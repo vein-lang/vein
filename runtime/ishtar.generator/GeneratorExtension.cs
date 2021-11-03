@@ -619,7 +619,7 @@ namespace ishtar
                     gen.EmitExpression(arg);
                 gen.Emit(OpCodes.NEWOBJ, type);
                 var ctor = type.FindMethod("ctor", args.DetermineTypes(context));
-
+                
                 if (ctor is null)
                 {
                     context.LogError(
