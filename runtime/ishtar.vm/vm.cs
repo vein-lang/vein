@@ -119,6 +119,11 @@ namespace ishtar
                         --sp;
                         A_OP(sp, 3, ip, invocation);
                         break;
+                    case MOD:
+                        ++ip;
+                        --sp;
+                        A_OP(sp, 4, ip, invocation);
+                        break;
                     case DUP:
                         *sp = sp[-1];
                         ++sp;

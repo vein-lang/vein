@@ -80,6 +80,9 @@ namespace ishtar
                         case 3:
                             i1 /= i2;
                             break;
+                        case 4:
+                            i1 %= i2;
+                            break;
                     }
                 });
             else if (sp->type == TYPE_I8)
@@ -98,6 +101,9 @@ namespace ishtar
                             break;
                         case 3:
                             i1 /= i2;
+                            break;
+                        case 4:
+                            i1 %= i2;
                             break;
                     }
                 });
@@ -118,6 +124,9 @@ namespace ishtar
                         case 3:
                             i1 /= i2;
                             break;
+                        case 4:
+                            i1 %= i2;
+                            break;
                     }
                 });
             else if (sp->type == TYPE_I1)
@@ -136,6 +145,9 @@ namespace ishtar
                             break;
                         case 3:
                             i1 /= i2;
+                            break;
+                        case 4:
+                            i1 %= i2;
                             break;
                     }
                 });
@@ -156,6 +168,9 @@ namespace ishtar
                         case 3:
                             i1 /= i2;
                             break;
+                        case 4:
+                            i1 %= i2;
+                            break;
                     }
                 });
             else if (sp->type == TYPE_U1)
@@ -174,6 +189,9 @@ namespace ishtar
                             break;
                         case 3:
                             i1 /= i2;
+                            break;
+                        case 4:
+                            i1 %= i2;
                             break;
                     }
                 });
@@ -194,6 +212,9 @@ namespace ishtar
                         case 3:
                             i1 /= i2;
                             break;
+                        case 4:
+                            i1 %= i2;
+                            break;
                     }
                 });
             else if (sp->type == TYPE_U8)
@@ -212,6 +233,9 @@ namespace ishtar
                             break;
                         case 3:
                             i1 /= i2;
+                            break;
+                        case 4:
+                            i1 %= i2;
                             break;
                     }
                 });
@@ -232,6 +256,9 @@ namespace ishtar
                         case 3:
                             i1 /= i2;
                             break;
+                        case 4:
+                            i1 %= i2;
+                            break;
                     }
                 });
             else if (sp->type == TYPE_R4)
@@ -251,6 +278,9 @@ namespace ishtar
                         case 3:
                             i1 /= i2;
                             break;
+                        case 4:
+                            i1 %= i2;
+                            break;
                     }
                 });
             else if (sp->type == TYPE_R16)
@@ -269,6 +299,9 @@ namespace ishtar
                             break;
                         case 3:
                             i1 /= i2;
+                            break;
+                        case 4:
+                            i1 %= i2;
                             break;
                     }
                 });

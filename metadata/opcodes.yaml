@@ -9,6 +9,8 @@
     description: Divide operation.
 - MUL:
     description: Multiple operation.
+- MOD:
+    description: Modulo operation.
 - LDARG:
     description: Load into stack from argument.
     range: true

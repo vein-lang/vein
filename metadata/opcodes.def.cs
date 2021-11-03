@@ -24,400 +24,404 @@ namespace ishtar
 		/// </summary>
 		MUL = 0x04,
 		/// <summary>
-		/// Load into stack from argument.
+		/// Modulo operation.
 		/// </summary>
-		LDARG_0 = 0x05,
+		MOD = 0x05,
 		/// <summary>
 		/// Load into stack from argument.
 		/// </summary>
-		LDARG_1 = 0x06,
+		LDARG_0 = 0x06,
 		/// <summary>
 		/// Load into stack from argument.
 		/// </summary>
-		LDARG_2 = 0x07,
+		LDARG_1 = 0x07,
 		/// <summary>
 		/// Load into stack from argument.
 		/// </summary>
-		LDARG_3 = 0x08,
+		LDARG_2 = 0x08,
 		/// <summary>
 		/// Load into stack from argument.
 		/// </summary>
-		LDARG_4 = 0x09,
+		LDARG_3 = 0x09,
 		/// <summary>
 		/// Load into stack from argument.
 		/// </summary>
-		LDARG_5 = 0x0A,
+		LDARG_4 = 0x0A,
+		/// <summary>
+		/// Load into stack from argument.
+		/// </summary>
+		LDARG_5 = 0x0B,
 		/// <summary>
 		/// Load into stack from argument by index.
 		/// </summary>
-		LDARG_S = 0x0B,
+		LDARG_S = 0x0C,
 		/// <summary>
 		/// Stage into argument from stack.
 		/// </summary>
-		STARG_0 = 0x0C,
+		STARG_0 = 0x0D,
 		/// <summary>
 		/// Stage into argument from stack.
 		/// </summary>
-		STARG_1 = 0x0D,
+		STARG_1 = 0x0E,
 		/// <summary>
 		/// Stage into argument from stack.
 		/// </summary>
-		STARG_2 = 0x0E,
+		STARG_2 = 0x0F,
 		/// <summary>
 		/// Stage into argument from stack.
 		/// </summary>
-		STARG_3 = 0x0F,
+		STARG_3 = 0x10,
 		/// <summary>
 		/// Stage into argument from stack.
 		/// </summary>
-		STARG_4 = 0x10,
+		STARG_4 = 0x11,
 		/// <summary>
 		/// Stage into argument from stack.
 		/// </summary>
-		STARG_5 = 0x11,
+		STARG_5 = 0x12,
 		/// <summary>
 		/// Stage into argument from stack by index.
 		/// </summary>
-		STARG_S = 0x12,
+		STARG_S = 0x13,
 		/// <summary>
 		/// Load constant into stack.
 		/// </summary>
-		LDC_F4 = 0x13,
+		LDC_F4 = 0x14,
 		/// <summary>
 		/// Load constant into stack.
 		/// </summary>
-		LDC_F2 = 0x14,
+		LDC_F2 = 0x15,
 		/// <summary>
 		/// Load constant into stack.
 		/// </summary>
-		LDC_STR = 0x15,
+		LDC_STR = 0x16,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_0 = 0x16,
+		LDC_I4_0 = 0x17,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_1 = 0x17,
+		LDC_I4_1 = 0x18,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_2 = 0x18,
+		LDC_I4_2 = 0x19,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_3 = 0x19,
+		LDC_I4_3 = 0x1A,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_4 = 0x1A,
+		LDC_I4_4 = 0x1B,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_5 = 0x1B,
+		LDC_I4_5 = 0x1C,
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// </summary>
-		LDC_I4_S = 0x1C,
+		LDC_I4_S = 0x1D,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_0 = 0x1D,
+		LDC_I2_0 = 0x1E,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_1 = 0x1E,
+		LDC_I2_1 = 0x1F,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_2 = 0x1F,
+		LDC_I2_2 = 0x20,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_3 = 0x20,
+		LDC_I2_3 = 0x21,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_4 = 0x21,
+		LDC_I2_4 = 0x22,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_5 = 0x22,
+		LDC_I2_5 = 0x23,
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// </summary>
-		LDC_I2_S = 0x23,
+		LDC_I2_S = 0x24,
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_0 = 0x24,
+		LDC_I8_0 = 0x25,
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_1 = 0x25,
+		LDC_I8_1 = 0x26,
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_2 = 0x26,
+		LDC_I8_2 = 0x27,
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_3 = 0x27,
+		LDC_I8_3 = 0x28,
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_4 = 0x28,
+		LDC_I8_4 = 0x29,
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_5 = 0x29,
+		LDC_I8_5 = 0x2A,
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// </summary>
-		LDC_I8_S = 0x2A,
+		LDC_I8_S = 0x2B,
 		/// <summary>
 		/// Load float64 constant into stack.
 		/// </summary>
-		LDC_F8 = 0x2B,
+		LDC_F8 = 0x2C,
 		/// <summary>
 		/// Load float128 constant into stack.
 		/// </summary>
-		LDC_F16 = 0x2C,
+		LDC_F16 = 0x2D,
 		/// <summary>
 		/// Reserved operation.
 		/// </summary>
-		RESERVED_0 = 0x2D,
+		RESERVED_0 = 0x2E,
 		/// <summary>
 		/// Reserved operation.
 		/// </summary>
-		RESERVED_1 = 0x2E,
+		RESERVED_1 = 0x2F,
 		/// <summary>
 		/// Reserved operation.
 		/// </summary>
-		RESERVED_2 = 0x2F,
+		RESERVED_2 = 0x30,
 		/// <summary>
 		/// Return operation.
 		/// </summary>
-		RET = 0x30,
+		RET = 0x31,
 		/// <summary>
 		/// Call operation.
 		/// </summary>
-		CALL = 0x31,
+		CALL = 0x32,
 		/// <summary>
 		/// Load NULL into stack.
 		/// </summary>
-		LDNULL = 0x32,
+		LDNULL = 0x33,
 		/// <summary>
 		/// Load value from field in instance into stack.
 		/// </summary>
-		LDF = 0x33,
+		LDF = 0x34,
 		/// <summary>
 		/// Load value from static field into stack.
 		/// </summary>
-		LDSF = 0x34,
+		LDSF = 0x35,
 		/// <summary>
 		/// Stage into instance field value from stack.
 		/// </summary>
-		STF = 0x35,
+		STF = 0x36,
 		/// <summary>
 		/// Stage into static field value from stack.
 		/// </summary>
-		STSF = 0x36,
+		STSF = 0x37,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_0 = 0x37,
+		LDLOC_0 = 0x38,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_1 = 0x38,
+		LDLOC_1 = 0x39,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_2 = 0x39,
+		LDLOC_2 = 0x3A,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_3 = 0x3A,
+		LDLOC_3 = 0x3B,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_4 = 0x3B,
+		LDLOC_4 = 0x3C,
 		/// <summary>
 		/// Load from locals into stack.
 		/// </summary>
-		LDLOC_5 = 0x3C,
+		LDLOC_5 = 0x3D,
 		/// <summary>
 		/// 
 		/// </summary>
-		LDLOC_S = 0x3D,
+		LDLOC_S = 0x3E,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_0 = 0x3E,
+		STLOC_0 = 0x3F,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_1 = 0x3F,
+		STLOC_1 = 0x40,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_2 = 0x40,
+		STLOC_2 = 0x41,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_3 = 0x41,
+		STLOC_3 = 0x42,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_4 = 0x42,
+		STLOC_4 = 0x43,
 		/// <summary>
 		/// Load from stack into locals.
 		/// </summary>
-		STLOC_5 = 0x43,
+		STLOC_5 = 0x44,
 		/// <summary>
 		/// 
 		/// </summary>
-		STLOC_S = 0x44,
+		STLOC_S = 0x45,
 		/// <summary>
 		/// Initialization locals stack.
 		/// </summary>
-		LOC_INIT = 0x45,
+		LOC_INIT = 0x46,
 		/// <summary>
 		/// (part of LOD.INIT) Initialization locals slot as derrived type.
 		/// </summary>
-		LOC_INIT_X = 0x46,
+		LOC_INIT_X = 0x47,
 		/// <summary>
 		/// Duplicate memory from stack.
 		/// </summary>
-		DUP = 0x47,
+		DUP = 0x48,
 		/// <summary>
 		/// XOR Operation.
 		/// </summary>
-		XOR = 0x48,
+		XOR = 0x49,
 		/// <summary>
 		/// OR Operation.
 		/// </summary>
-		OR = 0x49,
+		OR = 0x4A,
 		/// <summary>
 		/// AND Operation.
 		/// </summary>
-		AND = 0x4A,
+		AND = 0x4B,
 		/// <summary>
 		/// Shift Right Operation.
 		/// </summary>
-		SHR = 0x4B,
+		SHR = 0x4C,
 		/// <summary>
 		/// Shift Left Operation.
 		/// </summary>
-		SHL = 0x4C,
+		SHL = 0x4D,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_R4 = 0x4D,
+		CONV_R4 = 0x4E,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_R8 = 0x4E,
+		CONV_R8 = 0x4F,
 		/// <summary>
 		/// Convertation operation.
 		/// </summary>
-		CONV_I4 = 0x4F,
+		CONV_I4 = 0x50,
 		/// <summary>
 		/// Throw exception operation.
 		/// </summary>
-		THROW = 0x50,
+		THROW = 0x51,
 		/// <summary>
 		/// New object Operation.
 		/// </summary>
-		NEWOBJ = 0x51,
+		NEWOBJ = 0x52,
 		/// <summary>
 		/// Allocate array onto evaluation stack by specified size and type.
 		/// </summary>
-		NEWARR = 0x52,
+		NEWARR = 0x53,
 		/// <summary>
 		/// Load size of Array onto evaluation stack.
 		/// </summary>
-		LDLEN = 0x53,
+		LDLEN = 0x54,
 		/// <summary>
 		/// 
 		/// </summary>
-		LDELEM_S = 0x54,
+		LDELEM_S = 0x55,
 		/// <summary>
 		/// 
 		/// </summary>
-		STELEM_S = 0x55,
+		STELEM_S = 0x56,
 		/// <summary>
 		/// Load type token.
 		/// </summary>
-		LD_TYPE = 0x56,
+		LD_TYPE = 0x57,
 		/// <summary>
 		/// Compare two value, when first value is less than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a <= b)
 		/// </summary>
-		EQL_LQ = 0x57,
+		EQL_LQ = 0x58,
 		/// <summary>
 		/// Compare two value, when first value is less second value stage 1 (int32) into stack, otherwise 0 (int32). (a < b)
 		/// </summary>
-		EQL_L = 0x58,
+		EQL_L = 0x59,
 		/// <summary>
 		/// Compare two value, when first value is greater than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a >= b)
 		/// </summary>
-		EQL_HQ = 0x59,
+		EQL_HQ = 0x5A,
 		/// <summary>
 		/// Compare two value, when first value is greater second value stage 1 (int32) into stack, otherwise 0 (int32). (a > b)
 		/// </summary>
-		EQL_H = 0x5A,
+		EQL_H = 0x5B,
 		/// <summary>
 		/// Compare two value, when two integer/float is equal stage 1 (int32) into stack, otherwise 0 (int32). (a == b)
 		/// </summary>
-		EQL_NQ = 0x5B,
+		EQL_NQ = 0x5C,
 		/// <summary>
 		/// Compare two value, when two integer/float is not equal stage 1 (int32) into stack, otherwise 0 (int32). (a != b)
 		/// </summary>
-		EQL_NN = 0x5C,
+		EQL_NN = 0x5D,
 		/// <summary>
 		/// Compare two value, when value has false, null or zero stage 1 (int32) into stack, otherwise 0 (int32). (!a)
 		/// </summary>
-		EQL_F = 0x5D,
+		EQL_F = 0x5E,
 		/// <summary>
 		/// Compare two value, when value has true or either differs from null or from zero stage 1 (int32) into stack, otherwise 0 (int32). (a)
 		/// </summary>
-		EQL_T = 0x5E,
+		EQL_T = 0x5F,
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// </summary>
-		JMP = 0x5F,
+		JMP = 0x60,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value. (a <= b)
 		/// </summary>
-		JMP_LQ = 0x60,
+		JMP_LQ = 0x61,
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value. (a < b)
 		/// </summary>
-		JMP_L = 0x61,
+		JMP_L = 0x62,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value. (a >= b)
 		/// </summary>
-		JMP_HQ = 0x62,
+		JMP_HQ = 0x63,
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value. (a > b)
 		/// </summary>
-		JMP_H = 0x63,
+		JMP_H = 0x64,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal. (a == b)
 		/// </summary>
-		JMP_NQ = 0x64,
+		JMP_NQ = 0x65,
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal. (a != b)
 		/// </summary>
-		JMP_NN = 0x65,
+		JMP_NN = 0x66,
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero. (!a)
 		/// </summary>
-		JMP_F = 0x66,
+		JMP_F = 0x67,
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero. (a)
 		/// </summary>
-		JMP_T = 0x67,
+		JMP_T = 0x68,
 	}
 }

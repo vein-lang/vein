@@ -319,6 +319,9 @@ namespace ishtar
                 case ExpressionType.ExclusiveOr:
                     gen.Emit(OpCodes.XOR);
                     return;
+                case ExpressionType.Modulo:
+                    gen.Emit(OpCodes.MOD);
+                    return;
                 default:
                     throw new NotSupportedException();
             }
