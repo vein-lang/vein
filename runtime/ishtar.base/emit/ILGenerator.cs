@@ -257,6 +257,18 @@ namespace ishtar.emit
             }
         }
 
+        private uint GetLocalsILOffset()
+        {
+            if (LocalsSize == 0)
+                return 0;
+
+            var size = (uint)LocalsBuilder.Count();
+            var offset = 2u /* opcode size */ + (uint)OpCodes.LOC_INIT.Size /* body of opcode size */;
+
+            offset += size * offset; /* multiple to size locals */ 
+            return offset;
+        }
+
         public LocalsBuilder LocalsBuilder { get; } = new();
         /// <summary>
         /// Ensure local slot
@@ -362,8 +374,9 @@ namespace ishtar.emit
             bin.Write(_labels_count);
             if (_labels_count == 0)
                 return mem.ToArray();
+            var loc_offset = GetLocalsILOffset();
             foreach (var i in _labels)
-                bin.Write(i);
+                bin.Write(i + loc_offset);
             return mem.ToArray();
         }
 
