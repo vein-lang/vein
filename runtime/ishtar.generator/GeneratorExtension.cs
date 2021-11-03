@@ -876,7 +876,7 @@ namespace ishtar
             else if (expType.TypeCode == VeinTypeCode.TYPE_BOOLEAN)
             {
                 generator.EmitExpression(ifStatement.Expression);
-                generator.Emit(OpCodes.JMP_F, elseLabel);
+                generator.Emit(OpCodes.JMP_T, elseLabel);
                 generator.EmitStatement(ifStatement.ThenStatement);
             }
             else
