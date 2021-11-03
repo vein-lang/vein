@@ -108,7 +108,7 @@ namespace ishtar.emit
                 if (flags.HasFlag(FieldFlags.Static))
                     prop.ShadowField.Flags |= FieldFlags.Static;
             }
-               
+
 
 
 

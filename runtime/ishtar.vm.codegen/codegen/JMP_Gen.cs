@@ -7,7 +7,7 @@ using System.Text;
 [Generator]
 public partial class JMP_Gen : ISourceGenerator
 {
-    public void Initialize(GeneratorInitializationContext context) {}
+    public void Initialize(GeneratorInitializationContext context) { }
 
     public void Execute(GeneratorExecutionContext context)
     {
@@ -25,7 +25,7 @@ public partial class JMP_Gen : ISourceGenerator
 
 
         context.AddSource($"{nameof(JMP_Gen)}.generated.cs", SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
-        
+
     }
 
     private static StringBuilder AddHeader()
