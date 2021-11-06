@@ -121,9 +121,7 @@ namespace ishtar
 
             return arr_obj;
         }
-
-
-
+        
         public static IshtarObject* AllocObject(RuntimeIshtarClass @class, IshtarObject** node = null)
         {
             var p = (IshtarObject*) Marshal.AllocHGlobal(sizeof(IshtarObject));
@@ -139,7 +137,11 @@ namespace ishtar
             p->vtable_size = (uint)@class.computed_size;
 
             GCStats.alive_objects++;
+            #if DEBUG
+            p->__gc_id = (long)GCStats.total_allocations++;
+            #else
             GCStats.total_allocations++;
+            #endif
             GCStats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*);
             GCStats.total_bytes_requested += (ulong)sizeof(IshtarObject);
 
