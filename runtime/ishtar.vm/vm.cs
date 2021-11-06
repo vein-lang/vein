@@ -159,7 +159,6 @@ namespace ishtar
                         ++ip;
                         ++sp;
                         break;
-
                     case LDC_I4_0:
                     case LDC_I4_1:
                     case LDC_I4_2:
@@ -170,7 +169,6 @@ namespace ishtar
                         ++ip;
                         ++sp;
                         break;
-
                     case LDC_I8_0:
                     case LDC_I8_1:
                     case LDC_I8_2:
@@ -330,6 +328,7 @@ namespace ishtar
                             var @class = GetClass(*++ip, _module, invocation);
                             var field = GetField(fieldIdx, @class, _module, invocation);
                             var @this = sp;
+                            --sp;
                             if (@this->type == TYPE_NONE)
                             {
                                 // TODO
@@ -337,10 +336,36 @@ namespace ishtar
                                 FastFail(WNE.NONE, $"NullReferenceError", invocation);
                                 ValidateLastError();
                             }
-
-                            CallFrame.FillStackTrace(invocation);
-                            FastFail(WNE.NONE, $"STF TODO", invocation);
+                            FFI.StaticValidate(invocation, @this, field.Owner);
+                            var value = sp;
+                            var this_obj = (IshtarObject*)@this->data.p;
+                            var target_class = this_obj->decodeClass();
+                            this_obj->vtable[field.vtable_offset] = IshtarMarshal.Boxing(invocation, value);
+                            ++ip;
                         }
+                        break;
+                    case LDF:
+                    {
+                        --sp;
+                        var fieldIdx = *++ip;
+                        var @class = GetClass(*++ip, _module, invocation);
+                        var field = GetField(fieldIdx, @class, _module, invocation);
+                        var @this = sp;
+                        if (@this->type == TYPE_NONE)
+                        {
+                            // TODO
+                            CallFrame.FillStackTrace(invocation);
+                            FastFail(WNE.NONE, $"NullReferenceError", invocation);
+                            ValidateLastError();
+                        }
+                        FFI.StaticValidate(invocation, @this, field.Owner);
+                        var this_obj = (IshtarObject*)@this->data.p;
+                        var target_class = this_obj->decodeClass();
+                        var value = IshtarMarshal.UnBoxing(invocation, (IshtarObject*)this_obj->vtable[field.vtable_offset]);
+                        *sp = value;
+                        ++ip;
+                        ++sp;
+                    }
                         break;
                     case LDNULL:
                         sp->type = TYPE_OBJECT;
@@ -377,9 +402,6 @@ namespace ishtar
                             var tokenIdx = *ip;
                             var owner = readTypeName(*++ip, _module);
                             var method = GetMethod(tokenIdx, owner, _module, invocation);
-#if DEBUG_IL
-                            printf("%%call %ws self function.\n", method->Name.c_str());
-#endif
                             ++ip;
 
                             var method_args = stackval.Alloc(method.ArgLength);
