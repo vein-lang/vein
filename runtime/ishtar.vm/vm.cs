@@ -324,23 +324,23 @@ namespace ishtar
                         }
                         break;
                     case STF:
-                    {
-                        --sp;
-                        var fieldIdx = *++ip;
-                        var @class = GetClass(*++ip, _module, invocation);
-                        var field = GetField(fieldIdx, @class, _module, invocation);
-                        var @this = sp;
-                        if (@this->type == TYPE_NONE)
                         {
-                            // TODO
-                            CallFrame.FillStackTrace(invocation);
-                            FastFail(WNE.NONE, $"NullReferenceError", invocation);
-                            ValidateLastError();
-                        }
+                            --sp;
+                            var fieldIdx = *++ip;
+                            var @class = GetClass(*++ip, _module, invocation);
+                            var field = GetField(fieldIdx, @class, _module, invocation);
+                            var @this = sp;
+                            if (@this->type == TYPE_NONE)
+                            {
+                                // TODO
+                                CallFrame.FillStackTrace(invocation);
+                                FastFail(WNE.NONE, $"NullReferenceError", invocation);
+                                ValidateLastError();
+                            }
 
-                        CallFrame.FillStackTrace(invocation);
-                        FastFail(WNE.NONE, $"STF TODO", invocation);
-                    }
+                            CallFrame.FillStackTrace(invocation);
+                            FastFail(WNE.NONE, $"STF TODO", invocation);
+                        }
                         break;
                     case LDNULL:
                         sp->type = TYPE_OBJECT;
