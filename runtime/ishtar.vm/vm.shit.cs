@@ -63,6 +63,13 @@ namespace ishtar
 
         private static void A_OP(stackval* sp, int a_t, uint* ip, CallFrame frame)
         {
+            if (sp[-1].type != sp[0].type)
+            {
+                FastFail(WNE.TYPE_MISMATCH, $"Currently math operation for '{sp[-1].type}' and '{sp[0].type}' not supported.", frame);
+                ValidateLastError();
+                return;
+            }
+
             if (sp->type == TYPE_I4) /*first check int32, most frequent type*/
                 act(ref sp[-1].data.i, ref sp[0].data.i, (ref int i1, ref int i2) =>
                 {
@@ -78,6 +85,12 @@ namespace ishtar
                             i1 *= i2;
                             break;
                         case 3:
+                            if (i2 == 0)
+                            {
+                                // TODO
+                                FastFail(WNE.ACCESS_VIOLATION, $"YOUR JUST OPEN A BLACKHOLE!!! [DivideByZeroError]", frame);
+                                ValidateLastError();
+                            }
                             i1 /= i2;
                             break;
                         case 4:
