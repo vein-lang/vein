@@ -411,6 +411,21 @@ namespace ishtar
                                 var _a = method.Arguments[i];
                                 // TODO, type eq validate
                                 --sp;
+                                #if DEBUG
+                                var arg_class = _a.Type as RuntimeIshtarClass;
+                                if (arg_class.Name is not "Object" and not "ValueType")
+                                {
+                                    var sp_obj = IshtarMarshal.Boxing(invocation, sp);
+                                    var sp_class = sp_obj->decodeClass();
+                                
+                                    if (sp_class.ID != arg_class.ID)
+                                    {
+                                        FastFail(WNE.TYPE_MISMATCH, $"Argument '{_a.Name}: {_a.Type.Name}'" +
+                                                                    $" is not matched for '{method.Name}' function.");
+                                        ValidateLastError();
+                                    }
+                                }
+                                #endif
                                 method_args[i] = *sp;
                             }
                             child_frame.level = invocation.level + 1;
@@ -1220,5 +1235,6 @@ namespace ishtar
             FastFail(type, $"static assert failed: '{msg}'", frame);
             ValidateLastError();
         }
+        
     }
 }
