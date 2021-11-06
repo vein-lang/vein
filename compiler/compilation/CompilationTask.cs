@@ -692,6 +692,8 @@ namespace vein.compilation
             {
                 if (field.IsStatic)
                     continue;
+                if (gen.FieldHasAlreadyInited(field))
+                    continue;
                 if (field.IsLiteral)
                     continue; // TODO
                 var stx = member.Fields
@@ -747,6 +749,8 @@ namespace vein.compilation
                 // skip non-static field,
                 // they do not need to be initialized in the static constructor
                 if (!field.IsStatic)
+                    continue;
+                if (gen.FieldHasAlreadyInited(field))
                     continue;
                 var stx = member.Fields
                     .SingleOrDefault(x => x.Field.Identifier.ExpressionString.Equals(field.Name));

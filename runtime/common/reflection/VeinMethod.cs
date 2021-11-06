@@ -60,6 +60,9 @@ namespace vein.runtime
         public bool IsAbstract => Flags.HasFlag(MethodFlags.Abstract);
         public bool IsVirtual => Flags.HasFlag(MethodFlags.Virtual);
         public bool IsOverride => !Flags.HasFlag(MethodFlags.Abstract) && Flags.HasFlag(MethodFlags.Override);
+        public bool IsConstructor => RawName.Equals("ctor");
+        public bool IsTypeConstructor => RawName.Equals("type_ctor");
+        public bool IsDeconstructor => RawName.Equals("dtor");
         public override bool IsSpecial => Flags.HasFlag(MethodFlags.Special);
 
         public sealed override string Name { get; protected set; }

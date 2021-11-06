@@ -181,6 +181,9 @@ namespace ishtar.emit
             if (new[] { OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF }.All(x => x != opcode))
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
 
+            if (this._methodBuilder.IsConstructor && opcode == OpCodes.STF) // shit
+                this.FieldMarkAsInited(field);
+
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
             this.EnsureCapacity<OpCode>(sizeof(int) * 2);
@@ -454,5 +457,19 @@ namespace ishtar.emit
 
         public T ConsumeFromMetadata<T>(string key) where T : class => Metadata[key] as T;
         public void StoreIntoMetadata(string key, object o) => Metadata.Add(key, o);
+        public bool HasMetadata(string key) => Metadata.ContainsKey(key);
+    }
+
+
+    public static class ILGeneratorExtensions
+    {
+        private static string castFieldToMetadataKey(VeinField field) =>
+            $"key_{field.Owner.FullName}$${field.Name}";
+
+        public static bool FieldHasAlreadyInited(this ILGenerator generator, VeinField field)
+            => generator.HasMetadata(castFieldToMetadataKey(field));
+
+        public static void FieldMarkAsInited(this ILGenerator generator, VeinField field)
+            => generator.StoreIntoMetadata(castFieldToMetadataKey(field), true);
     }
 }
