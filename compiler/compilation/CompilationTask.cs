@@ -694,7 +694,7 @@ namespace vein.compilation
 
             // emit calling based ctors
             @class.Parents.Select(z => z.GetDefaultCtor()).Where(z => z != null)
-                .Pipe(z => gen.Emit(OpCodes.CALL, z))
+                .Pipe(z => gen.EmitThis().Emit(OpCodes.CALL, z))
                 .Consume();
 
 
@@ -732,7 +732,7 @@ namespace vein.compilation
                         gen.Emit(OpCodes.LDNULL);
                     else
                         gen.EmitExpression(exp);
-                    gen.Emit(OpCodes.STF, field);
+                    gen.EmitStageField(field);
                 }
             }
             // ctors has return himself
@@ -893,17 +893,29 @@ namespace vein.compilation
 
             if (member.Setter is not null)
             {
+                var args = prop.IsStatic
+                    ? new VeinArgumentRef[1] { new VeinArgumentRef("value", prop.PropType) }
+                    : new VeinArgumentRef[2]
+                    {
+                        new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, prop.Owner),
+                        new VeinArgumentRef("value", prop.PropType)
+                    };
                 prop.Setter = clazz.DefineMethod($"set_{prop.Name}",
-                    VeinProperty.ConvertShadowFlags(prop.Flags), prop.PropType,
-                    new VeinArgumentRef("value", prop.PropType));
+                    VeinProperty.ConvertShadowFlags(prop.Flags), prop.PropType, args);
 
                 GenerateBody((MethodBuilder)prop.Setter, member.Setter.Body, doc);
             }
 
             if (member.Getter is not null)
             {
+                var args = prop.IsStatic
+                    ? new VeinArgumentRef[0]
+                    : new VeinArgumentRef[1]
+                    {
+                        new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, prop.Owner)
+                    };
                 prop.Getter = clazz.DefineMethod($"get_{prop.Name}",
-                    VeinProperty.ConvertShadowFlags(prop.Flags), prop.PropType);
+                    VeinProperty.ConvertShadowFlags(prop.Flags), prop.PropType, args);
 
                 GenerateBody((MethodBuilder)prop.Getter, member.Getter.Body, doc);
             }

@@ -110,10 +110,15 @@ namespace ishtar.emit
             }
 
 
-
+            var args = prop.IsStatic
+                ? new VeinArgumentRef[0]
+                : new VeinArgumentRef[1]
+                {
+                    new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, prop.Owner)
+                };
 
             var getter =
-                DefineMethod($"get_{name}", VeinProperty.ConvertShadowFlags(flags), propType);
+                DefineMethod($"get_{name}", VeinProperty.ConvertShadowFlags(flags), propType, args);
             if (!IsAbstract)
             {
                 if (flags.HasFlag(FieldFlags.Static))
@@ -132,10 +137,16 @@ namespace ishtar.emit
 
             if (flags.HasFlag(FieldFlags.Readonly))
                 return prop;
-
+            args = prop.IsStatic
+                ? new VeinArgumentRef[1] { new VeinArgumentRef("value", prop.PropType) }
+                : new VeinArgumentRef[2]
+                {
+                    new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, prop.Owner),
+                    new VeinArgumentRef("value", prop.PropType)
+                };
             var setter =
                 DefineMethod($"set_{name}", VeinProperty.ConvertShadowFlags(flags), VeinTypeCode.TYPE_VOID.AsClass(),
-                    new VeinArgumentRef("value", propType));
+                    args);
             if (!IsAbstract)
             {
                 if (flags.HasFlag(FieldFlags.Static))
