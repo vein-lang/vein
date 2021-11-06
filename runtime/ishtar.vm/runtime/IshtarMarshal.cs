@@ -54,6 +54,15 @@ namespace ishtar
             return obj;
         }
 
+        public static IshtarObject* ToIshtarObject(float dotnet_value, CallFrame frame = null, IshtarObject** node = null)
+        {
+            var obj = IshtarGC.AllocObject(TYPE_I8.AsRuntimeClass(), node);
+            var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
+            obj->vtable[clazz.Field["!!value"].vtable_offset] = (int*)BitConverter.SingleToInt32Bits(dotnet_value);
+
+            return obj;
+        }
+
         public static IshtarObject* ToIshtarObject<X>(X value, CallFrame frame, IshtarObject** node = null)
         {
             switch (typeof(X))
@@ -209,9 +218,10 @@ namespace ishtar
             TYPE_I4 => ToIshtarObject($"{ToDotnetInt32(obj, frame)}"),
             TYPE_U8 => ToIshtarObject($"{ToDotnetUInt64(obj, frame)}"),
             TYPE_I8 => ToIshtarObject($"{ToDotnetInt64(obj, frame)}"),
+            TYPE_R4 => ToIshtarObject($"{ToDotnetFloat(obj, frame)}"),
             TYPE_BOOLEAN => ToIshtarObject($"{ToDotnetBoolean(obj, frame)}"),
             TYPE_CHAR => ToIshtarObject($"{ToDotnetChar(obj, frame)}"),
-            _ => ReturnDefault(nameof(ToIshtarString), $"Convert to '{obj->DecodeClass().TypeCode}' not supported.", frame),
+            _ => ReturnDefault(nameof(ToIshtarString), $"Convert to '{obj->decodeClass().TypeCode}' not supported.", frame),
         };
 
         private static IshtarObject* ReturnDefault(string name, string msg, CallFrame frame)
@@ -276,7 +286,10 @@ namespace ishtar
                 case TYPE_CHAR:
                     val.data.i = ToDotnetChar(obj, frame);
                     break;
-                case TYPE_R8 or TYPE_R2 or TYPE_R16 or TYPE_R4:
+                case TYPE_R4:
+                    val.data.f_r4 = ToDotnetFloat(obj, frame);
+                    break;
+                case TYPE_R8 or TYPE_R2 or TYPE_R16:
                     VM.FastFail(WNE.ACCESS_VIOLATION,
                         $"Scalar value type '{val.type}' cannot be extracted.\n" +
                         "Currently is not support.\n" +
@@ -321,6 +334,8 @@ namespace ishtar
                 TYPE_BOOLEAN => (int*)p->data.i,
                 TYPE_CHAR => (int*)p->data.i,
                 TYPE_ARRAY => (void*)p->data.p,
+
+                TYPE_R4 => (int*)BitConverter.SingleToInt32Bits(p->data.f_r4),
 
                 _ => &*p
             };
