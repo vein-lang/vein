@@ -215,7 +215,7 @@ namespace ishtar.emit
 
         protected override VeinMethod GetOrCreateTor(string name, bool isStatic = false)
         {
-            var ctor =  base.GetOrCreateTor(name, isStatic);
+            var ctor = base.GetOrCreateTor(name, isStatic);
             if (ctor is not null)
                 return ctor;
 

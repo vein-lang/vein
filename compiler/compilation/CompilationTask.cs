@@ -327,10 +327,10 @@ namespace vein.compilation
             {
                 Ast.Select(x => (x.Key, x.Value))
                     .Pipe(x => Status.VeinStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
-                    .SelectMany(x => LinkClasses(x.Value))
+                    .SelectMany(LinkClasses)
                     .ToList()
                     .Pipe(LinkMetadata)
-                    .Pipe(x => ShitcodePlug(x.clazz))
+                    .Pipe(ShitcodePlug)
                     .Select(x => (LinkMethods(x), x))
                     .ToList()
                     .Pipe(x => x.Item1.Transition(
@@ -361,6 +361,9 @@ namespace vein.compilation
             return Log.errors.Count == 0;
         }
 
+        public List<(ClassBuilder clazz, ClassDeclarationSyntax member)>
+            LinkClasses((FileInfo, DocumentDeclaration doc) tuple)
+            => LinkClasses(tuple.doc);
         public List<(ClassBuilder clazz, ClassDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc)
         {
             var classes = new List<(ClassBuilder clazz, ClassDeclarationSyntax member)>();
@@ -409,6 +412,8 @@ namespace vein.compilation
             return clazz;
         }
 
+        private void ShitcodePlug((ClassBuilder clazz, ClassDeclarationSyntax member) clz)
+            => ShitcodePlug(clz.clazz);
 
         private void ShitcodePlug(ClassBuilder clz)
         {

@@ -1,15 +1,16 @@
 namespace ishtar
 {
+    using emit;
+    using Spectre.Console;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
+    using vein;
     using vein.extensions;
-    using emit;
     using vein.reflection;
     using vein.runtime;
-    using Spectre.Console;
     using vein.syntax;
     using Xunit;
     using InvocationExpression = vein.syntax.InvocationExpression;
@@ -139,6 +140,7 @@ namespace ishtar
                           $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
             throw new SkipStatementException();
         }
+        
         public VeinField ResolveField(IdentifierExpression id)
             => CurrentMethod.Owner.FindField(id.ExpressionString);
 
