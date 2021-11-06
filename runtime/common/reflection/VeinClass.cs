@@ -60,14 +60,14 @@ namespace vein.runtime
         public bool IsStatic => Flags.HasFlag(ClassFlags.Static);
         public bool IsInternal => Flags.HasFlag(ClassFlags.Internal);
 
-        public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor("dtor()");
-        public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor("ctor()");
+        public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor("dtor");
+        public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor("ctor");
 
-        public virtual VeinMethod GetStaticCtor() => GetOrCreateTor("type_ctor()", true);
+        public virtual VeinMethod GetStaticCtor() => GetOrCreateTor("type_ctor", true);
 
 
         protected virtual VeinMethod GetOrCreateTor(string name, bool isStatic = false)
-            => Methods.FirstOrDefault(x => x.IsStatic == isStatic && x.Name.Equals(name));
+            => Methods.FirstOrDefault(x => x.IsStatic == isStatic && x.RawName.Equals(name));
 
         public override string ToString()
             => $"{FullName}, {Flags}";

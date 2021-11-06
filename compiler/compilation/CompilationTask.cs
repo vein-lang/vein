@@ -607,6 +607,18 @@ namespace vein.compilation
                 return default;
 
             var args = GenerateArgument(member, doc);
+            
+            if (member.Identifier.ExpressionString.Equals("new"))
+            {
+                member.Identifier = new IdentifierExpression("ctor");
+
+                if (args.Length == 0)
+                    return (clazz.GetDefaultCtor() as MethodBuilder, member);
+                var ctor = clazz.DefineMethod("ctor", GenerateMethodFlags(member), clazz, args);
+                ctor.Owner = clazz;
+                CompileAnnotation(member, doc, ctor);
+                return (ctor, member);
+            }
 
             var method = clazz.DefineMethod(member.Identifier.ExpressionString, GenerateMethodFlags(member), retType, args);
 
@@ -677,7 +689,8 @@ namespace vein.compilation
 
             var gen = ctor.GetGenerator();
 
-            gen.StoreIntoMetadata("context", Context);
+            if (!gen.HasMetadata("context"))
+                gen.StoreIntoMetadata("context", Context);
 
             // emit calling based ctors
             @class.Parents.Select(z => z.GetDefaultCtor()).Where(z => z != null)
@@ -722,6 +735,8 @@ namespace vein.compilation
                     gen.Emit(OpCodes.STF, field);
                 }
             }
+            // ctors has return himself
+            gen.Emit(OpCodes.LDARG_0).Emit(OpCodes.RET);
         }
 
         public void GenerateStaticCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)

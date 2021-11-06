@@ -224,7 +224,11 @@ namespace ishtar.emit
             if (isStatic)
                 flags |= MethodFlags.Static;
 
-            ctor = DefineMethod(name, flags, VeinTypeCode.TYPE_VOID.AsClass());
+            var returnType = isStatic ? VeinTypeCode.TYPE_VOID.AsClass() : this;
+            var args = isStatic || name == "dtor" ? new VeinArgumentRef[0] :
+                new VeinArgumentRef[1] { new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, this) };
+
+            ctor = DefineMethod(name, flags, returnType, args);
             moduleBuilder.InternString(ctor.Name);
 
             return ctor;
