@@ -427,6 +427,11 @@ namespace ishtar
             throw new NotImplementedException();
         }
 
+        public static ILGenerator EmitStageField(this ILGenerator gen, VeinField field)
+        {
+            if (!field.IsStatic) return gen.EmitThis().Emit(OpCodes.STF, field);
+            return gen.Emit(OpCodes.STSF, field);
+        }
         public static ILGenerator EmitThis(this ILGenerator gen) => gen.Emit(OpCodes.LDARG_0); // load this
 
         [Flags]
@@ -509,8 +514,11 @@ namespace ishtar
             // third order: find field
             var field = context.ResolveField(id);
             if (field is not null)
-                return gen.Emit(field.IsStatic ? OpCodes.LDSF : OpCodes.LDF, field);
-
+            {
+                if (field.IsStatic)
+                    return gen.Emit(OpCodes.LDSF, field);
+                return gen.EmitThis().Emit(OpCodes.LDF, field);
+            }
             context.LogError($"The name '{id}' does not exist in the current context.", id);
             throw new SkipStatementException();
         }
@@ -564,8 +572,7 @@ namespace ishtar
             if (bin.Left is IdentifierExpression id)
             {
                 var field = context.ResolveField(context.CurrentMethod.Owner, id);
-                gen.EmitExpression(bin.Right);
-                gen.Emit(field.IsStatic ? OpCodes.STSF : OpCodes.STF, field);
+                gen.EmitExpression(bin.Right).EmitStageField(field);
                 return;
             }
 
@@ -577,8 +584,7 @@ namespace ishtar
                     context.LogError($"Static member '{id1}' cannot be accessed with an instance reference.", id1);
                     throw new SkipStatementException();
                 }
-                gen.EmitExpression(bin.Right);
-                gen.Emit(OpCodes.STF, field);
+                gen.EmitExpression(bin.Right).EmitStageField(field);
                 return;
             }
 
@@ -1114,7 +1120,7 @@ namespace ishtar
                 if (flags.HasFlag(AccessFlags.FIELD))
                 {
                     var field = ctx.ResolveField(id);
-                    return gen.Emit(OpCodes.LDF, field)
+                    return gen.EmitThis().Emit(OpCodes.LDF, field)
                         .EmitCall(field.FieldType, invoke);
                 }
                 // four order: static field
@@ -1161,7 +1167,7 @@ namespace ishtar
                 if (flags.HasFlag(AccessFlags.FIELD))
                 {
                     var field = ctx.ResolveField(id1);
-                    return gen.Emit(OpCodes.LDF, field);
+                    return gen.EmitThis().Emit(OpCodes.LDF, field);
                 }
                 // four order: static field
                 if (flags.HasFlag(AccessFlags.STATIC_FIELD))

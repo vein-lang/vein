@@ -12,7 +12,7 @@ namespace ishtar
 
         public IshtarObject** owner;
 
-        public RuntimeIshtarClass DecodeClass()
+        public RuntimeIshtarClass decodeClass()
         {
             if (clazz is null)
                 return null;

@@ -36,7 +36,7 @@ namespace ishtar
         {
             if (!ElementClass.IsPrimitive) return elements[index];
             var result = IshtarGC.AllocObject(ElementClass);
-            var offset = result->DecodeClass().Field["!!value"].vtable_offset;
+            var offset = result->decodeClass().Field["!!value"].vtable_offset;
             result->vtable[offset] = elements[index]->vtable[offset];
             return result;
         }
@@ -44,7 +44,7 @@ namespace ishtar
         public void Set(uint index, IshtarObject* value, CallFrame frame = null)
         {
             FFI.StaticValidate(frame, &value);
-            var value_class = value->DecodeClass();
+            var value_class = value->decodeClass();
             VM.Assert(value_class.TypeCode == ElementClass.TypeCode, WNE.TYPE_MISMATCH, $"", frame);
             if (index > length)
             {

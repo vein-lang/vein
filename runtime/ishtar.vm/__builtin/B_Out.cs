@@ -16,7 +16,7 @@ namespace ishtar
 
             FFI.StaticValidate(current, &arg1);
             FFI.StaticTypeOf(current, &arg1, TYPE_STRING);
-            var @class = arg1->DecodeClass();
+            var @class = arg1->decodeClass();
 
             var str = IshtarMarshal.ToDotnetString(arg1, current);
 

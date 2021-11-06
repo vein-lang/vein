@@ -125,74 +125,81 @@ namespace ishtar
         public static sbyte ToDotnetInt8(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_I1);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             return (sbyte)(sbyte*)obj->vtable[clazz.Field["!!value"].vtable_offset];
         }
         public static short ToDotnetInt16(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_I2);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             return (short)(short*)obj->vtable[clazz.Field["!!value"].vtable_offset];
         }
         public static int ToDotnetInt32(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_I4);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             return (int)(int*)obj->vtable[clazz.Field["!!value"].vtable_offset];
         }
         public static long ToDotnetInt64(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_I8);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             return (long)(long*)obj->vtable[clazz.Field["!!value"].vtable_offset];
         }
 
         public static byte ToDotnetUInt8(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_U1);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             return (byte)(byte*)obj->vtable[clazz.Field["!!value"].vtable_offset];
         }
         public static ushort ToDotnetUInt16(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_U2);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             return (ushort)(ushort*)obj->vtable[clazz.Field["!!value"].vtable_offset];
         }
         public static uint ToDotnetUInt32(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_U4);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             return (uint)(uint*)obj->vtable[clazz.Field["!!value"].vtable_offset];
         }
         public static ulong ToDotnetUInt64(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_U8);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             return (ulong)(ulong*)obj->vtable[clazz.Field["!!value"].vtable_offset];
         }
         public static bool ToDotnetBoolean(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_BOOLEAN);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             return (int)(int*)obj->vtable[clazz.Field["!!value"].vtable_offset] == 1;
         }
         public static char ToDotnetChar(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_CHAR);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             return (char)(int)(int*)obj->vtable[clazz.Field["!!value"].vtable_offset];
+        }
+
+        public static float ToDotnetFloat(IshtarObject* obj, CallFrame frame)
+        {
+            FFI.StaticTypeOf(frame, &obj, TYPE_R4);
+            var clazz = obj->decodeClass();
+            return BitConverter.Int32BitsToSingle((int)(int*)obj->vtable[clazz.Field["!!value"].vtable_offset]);
         }
 
         public static string ToDotnetString(IshtarObject* obj, CallFrame frame)
         {
             FFI.StaticTypeOf(frame, &obj, TYPE_STRING);
-            var clazz = obj->DecodeClass();
+            var clazz = obj->decodeClass();
             var p = (StrRef*)obj->vtable[clazz.Field["!!value"].vtable_offset];
             return StringStorage.GetString(p);
         }
 
-        public static IshtarObject* ToIshtarString(IshtarObject* obj, CallFrame frame) => obj->DecodeClass().TypeCode switch
+        public static IshtarObject* ToIshtarString(IshtarObject* obj, CallFrame frame) => obj->decodeClass().TypeCode switch
         {
             TYPE_U1 => ToIshtarObject($"{ToDotnetUInt8(obj, frame)}"),
             TYPE_I1 => ToIshtarObject($"{ToDotnetInt8(obj, frame)}"),
@@ -217,8 +224,8 @@ namespace ishtar
 
         public static stackval UnBoxing(CallFrame frame, IshtarObject* obj)
         {
-            var @class = obj->DecodeClass();
-
+            var @class = obj->decodeClass();
+            
             var val = new stackval { type = @class.TypeCode };
             if (@class.TypeCode is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY)
             {

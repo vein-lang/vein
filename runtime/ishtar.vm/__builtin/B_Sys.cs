@@ -13,7 +13,7 @@ public static unsafe class B_Sys
         var arg1 = args[0];
 
         FFI.StaticValidate(current, &arg1);
-        var @class = arg1->DecodeClass();
+        var @class = arg1->decodeClass();
 
         return IshtarMarshal.ToIshtarString(arg1, current);
     }
