@@ -1,5 +1,6 @@
 namespace ishtar
 {
+    using System.Runtime.CompilerServices;
     using System.Text;
 
     public unsafe class CallFrame
@@ -13,6 +14,22 @@ namespace ishtar
         public int level;
 
         public CallFrameException exception;
+
+
+        public void assert(bool conditional, [CallerArgumentExpression("conditional")] string msg = default)
+        {
+            if (conditional)
+                return;
+            VM.FastFail(WNE.STATE_CORRUPT, $"Static assert failed: '{msg}'", this);
+            VM.ValidateLastError();
+        }
+        public void assert(bool conditional, WNE type, [CallerArgumentExpression("conditional")] string msg = default)
+        {
+            if (conditional)
+                return;
+            VM.FastFail(type, $"Static assert failed: '{msg}'", this);
+            VM.ValidateLastError();
+        }
 
 
         public static void FillStackTrace(CallFrame frame)
