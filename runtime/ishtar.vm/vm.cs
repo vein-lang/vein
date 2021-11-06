@@ -24,7 +24,11 @@ namespace ishtar
         public static void ValidateLastError()
             => watcher?.ValidateLastError();
 
-        public static void println(string str) => Console.WriteLine(str);
+        public static void println(string str)
+        {
+            if (!Environment.GetCommandLineArgs().Contains("--no-log"))
+            Console.WriteLine(str);
+        }
 
         public static void halt(int exitCode = -1)
             => Environment.Exit(exitCode);
