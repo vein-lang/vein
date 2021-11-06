@@ -477,6 +477,16 @@ namespace ishtar
             5 => gen.Emit(OpCodes.LDARG_5),
             _ => gen.Emit(OpCodes.LDARG_S, i)
         };
+        public static ILGenerator EmitLoadLocal(this ILGenerator gen, int i) => i switch
+        {
+            0 => gen.Emit(OpCodes.LDLOC_0),
+            1 => gen.Emit(OpCodes.LDLOC_1),
+            2 => gen.Emit(OpCodes.LDLOC_2),
+            3 => gen.Emit(OpCodes.LDLOC_3),
+            4 => gen.Emit(OpCodes.LDLOC_4),
+            5 => gen.Emit(OpCodes.LDLOC_5),
+            _ => gen.Emit(OpCodes.LDLOC_S, i)
+        };
 
         public static ILGenerator EmitLoadIdentifierReference(this ILGenerator gen, IdentifierExpression id)
         {
@@ -546,7 +556,7 @@ namespace ishtar
                 gen.Emit(OpCodes.CALL, method);
             }
         }
-
+        
         public static void EmitAssignExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
@@ -569,6 +579,81 @@ namespace ishtar
                 }
                 gen.EmitExpression(bin.Right);
                 gen.Emit(OpCodes.STF, field);
+                return;
+            }
+
+            if (bin is { Left: AccessExpressionSyntax access, Right: IdentifierExpression id2 })
+            {
+                bool shot_load_self(bool yes = false)
+                {
+                    if (!yes) return false;
+                    if (context.CurrentMethod.IsStatic)
+                        return false;
+
+                    gen.Emit(OpCodes.LDARG_0); // load this
+                    return false;
+                }
+                bool need_load_self = true;
+                var visitedNodes = new List<BaseSyntax>();
+                var targetClass = context.CurrentMethod.Owner;
+
+                foreach (var (node, index, tag) in access.ChildNodes.Tagget())
+                {
+                    visitedNodes.Add(node);
+                    if (node is not IdentifierExpression node_id)
+                    {
+                        context.LogError($"Member '{visitedNodes.Select(x => $"{x}").Join(".")}' " +
+                                         $"cannot be accessed with an instance reference; qualify it with a type name instead", access);
+                        throw new SkipStatementException();
+                    }
+
+                    if (tag.isFirst)
+                    {
+                        var accessTag = gen.GetAccessFlags(node_id);
+
+                        if (accessTag is AccessFlags.FIELD or AccessFlags.STATIC_FIELD)
+                        {
+                            var field = context.ResolveField(targetClass, node_id);
+                            need_load_self = shot_load_self(need_load_self);
+                            gen.Emit(field.IsStatic ? OpCodes.LDSF : OpCodes.LDF, field);
+                            targetClass = field.FieldType;
+                            continue;
+                        }
+
+                        if (accessTag == AccessFlags.ARGUMENT)
+                        {
+                            var (arg, slot) = context.GetCurrentArgument(node_id);
+                            gen.EmitLoadArgument(slot);
+                            targetClass = arg.Type;
+                            continue;
+                        }
+
+                        if (accessTag == AccessFlags.CLASS)
+                        {
+                            targetClass = context.ResolveType(node_id);
+                            continue;
+                        }
+                        if (accessTag == AccessFlags.VARIABLE)
+                        {
+                            var (clazz, slot) = context.CurrentScope.GetVariable(node_id);
+                            gen.EmitLoadLocal(slot);
+                            continue;
+                        }
+                        throw new SkipStatementException();
+                    }
+                    else
+                    {
+                        var field = context.ResolveField(targetClass, node_id);
+                        
+                        targetClass = field.FieldType;
+
+                        if (tag.isLast)
+                            gen.EmitExpression(id2).Emit(OpCodes.STF);
+                        else
+                            gen.Emit(OpCodes.LDF, field);
+                    }
+                }
+
                 return;
             }
 
