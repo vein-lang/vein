@@ -134,12 +134,13 @@ namespace ishtar
                     case LDARG_2:
                     case LDARG_3:
                     case LDARG_4:
+                        if (args == null)
+                        {
+                            FastFail(WNE.OUT_OF_RANGE, $"Arguments in current function is empty, but trying access it.", invocation);
+                            ValidateLastError();
+                            return;
+                        }
                         *sp = args[(*ip) - (short)LDARG_0];
-
-#if DEBUG_IL
-                        printf("load from args -> %s %d\n", VAL_NAMES[sp->type], sp->data.i);
-#endif
-
                         ++sp;
                         ++ip;
                         break;
