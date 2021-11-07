@@ -235,7 +235,7 @@ namespace ishtar
         public static stackval UnBoxing(CallFrame frame, IshtarObject* obj)
         {
             var @class = obj->decodeClass();
-            
+
             var val = new stackval { type = @class.TypeCode };
             if (@class.TypeCode is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY)
             {

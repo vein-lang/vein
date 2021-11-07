@@ -140,7 +140,7 @@ namespace ishtar
                           $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
             throw new SkipStatementException();
         }
-        
+
         public VeinField ResolveField(IdentifierExpression id)
             => CurrentMethod.Owner.FindField(id.ExpressionString);
 
@@ -564,7 +564,7 @@ namespace ishtar
                 gen.Emit(OpCodes.CALL, method);
             }
         }
-        
+
         public static void EmitAssignExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
         {
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
@@ -650,7 +650,7 @@ namespace ishtar
                     else
                     {
                         var field = context.ResolveField(targetClass, node_id);
-                        
+
                         targetClass = field.FieldType;
 
                         if (tag.isLast)
@@ -712,7 +712,7 @@ namespace ishtar
                     gen.EmitExpression(arg);
                 gen.Emit(OpCodes.NEWOBJ, type);
                 var ctor = type.FindMethod("ctor", args.DetermineTypes(context));
-                
+
                 if (ctor is null)
                 {
                     context.LogError(
