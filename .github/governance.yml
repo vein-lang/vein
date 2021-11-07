@@ -1,0 +1,54 @@
+version: v1
+
+issue:
+  chat_ops:
+    - cmd: /close
+      type: close
+      author_association:
+        author: true
+        collaborator: true
+        member: true
+        owner: true
+
+    - cmd: /duplicate
+      type: close
+      author_association:
+        collaborator: true
+        member: true
+        owner: true
+
+    - cmd: /duplicate
+      type: comment
+      comment: |
+        @$ISSUE_AUTHOR: This issue has been marked duplicate by @$AUTHOR, if you think this is a mistake, please reopen it!
+      author_association:
+        collaborator: true
+        member: true
+        owner: true
+
+    - cmd: /duplicate
+      type: label
+      label:
+        add: duplicate
+      author_association:
+        collaborator: true
+        member: true
+        owner: true
+
+    - cmd: /cc
+      type: none
+
+    - cmd: /assign
+      type: assign
+      author_association:
+        collaborator: true
+        member: true
+        owner: true
+    - cmd: /label jit
+      type: label
+      label:
+        add: [ 'area-jit', 'area-vm', 'optimization' ]
+    - cmd: /label jit-feature
+      type: label
+      label:
+        add: [ 'area-jit', 'area-vm', 'optimization', 'feature', 'optimization' ]
