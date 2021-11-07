@@ -45,21 +45,16 @@ namespace ishtar
         {
             FFI.StaticValidate(frame, &value);
             var value_class = value->decodeClass();
-            VM.Assert(value_class.TypeCode == ElementClass.TypeCode, WNE.TYPE_MISMATCH, $"", frame);
-            if (index > length)
-            {
-                VM.FastFail(WNE.OUT_OF_RANGE, $"", frame);
-                VM.ValidateLastError();
-                return;
-            }
+
+            frame.assert(value_class.TypeCode == ElementClass.TypeCode, WNE.TYPE_MISMATCH);
+            frame.assert(index <= length, WNE.OUT_OF_RANGE);
 
             if (Class.IsPrimitive)
             {
                 var offset = value_class.Field["!!value"].vtable_offset;
                 elements[index]->vtable[offset] = value->vtable[offset];
             }
-            else
-                elements[index] = value;
+            else elements[index] = value;
         }
 
 

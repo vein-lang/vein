@@ -7,6 +7,7 @@ namespace ishtar
     using static OpCodeValue;
     using static vein.runtime.VeinTypeCode;
     using vein.extensions;
+    using static WNE;
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
@@ -42,7 +43,7 @@ namespace ishtar
 
             if (args == null)
             {
-                FastFail(WNE.OUT_OF_MEMORY, "Cannot apply boxing memory.");
+                FastFail(OUT_OF_MEMORY, "Cannot apply boxing memory.");
                 ValidateLastError();
                 return;
             }
@@ -94,7 +95,7 @@ namespace ishtar
 
                 if (ip == end)
                 {
-                    FastFail(WNE.END_EXECUTE_MEMORY, "unexpected end of executable memory.");
+                    FastFail(END_EXECUTE_MEMORY, "unexpected end of executable memory.");
                     continue;
                 }
 
@@ -140,7 +141,7 @@ namespace ishtar
                     case LDARG_4:
                         if (args == null)
                         {
-                            FastFail(WNE.OUT_OF_RANGE, $"Arguments in current function is empty, but trying access it.", invocation);
+                            FastFail(OUT_OF_RANGE, $"Arguments in current function is empty, but trying access it.", invocation);
                             ValidateLastError();
                             return;
                         }
@@ -338,7 +339,7 @@ namespace ishtar
                             {
                                 // TODO
                                 CallFrame.FillStackTrace(invocation);
-                                FastFail(WNE.NONE, $"NullReferenceError", invocation);
+                                FastFail(NONE, $"NullReferenceError", invocation);
                                 ValidateLastError();
                             }
                             FFI.StaticValidate(invocation, @this, field.Owner);
@@ -360,7 +361,7 @@ namespace ishtar
                         {
                             // TODO
                             CallFrame.FillStackTrace(invocation);
-                            FastFail(WNE.NONE, $"NullReferenceError", invocation);
+                            FastFail(NONE, $"NullReferenceError", invocation);
                             ValidateLastError();
                         }
                         FFI.StaticValidate(invocation, @this, field.Owner);
@@ -412,8 +413,7 @@ namespace ishtar
                             var method_args = stackval.Alloc(method.ArgLength);
                             for (var i = 0; i != method.ArgLength; i++)
                             {
-                                var _a = method.Arguments[i];
-                                // TODO, type eq validate
+                                var _a = method.Arguments[i]; // TODO, type eq validate
                                 --sp;
                                 #if DEBUG
                                 var arg_class = _a.Type as RuntimeIshtarClass;
@@ -421,47 +421,34 @@ namespace ishtar
                                 {
                                     var sp_obj = IshtarMarshal.Boxing(invocation, sp);
                                     var sp_class = sp_obj->decodeClass();
-                                
-                                    if (sp_class.ID != arg_class.ID)
-                                    {
-                                        FastFail(WNE.TYPE_MISMATCH, $"Argument '{_a.Name}: {_a.Type.Name}'" +
-                                                                    $" is not matched for '{method.Name}' function.");
-                                        ValidateLastError();
-                                    }
+
+                                    invocation.assert(sp_class.ID == arg_class.ID, TYPE_MISMATCH,
+                                        $"Argument '{_a.Name}: {_a.Type.Name}' is not matched for '{method.Name}' function.");
                                 }
                                 #endif
                                 method_args[i] = *sp;
                             }
-                            child_frame.level = invocation.level + 1;
-                            child_frame.parent = invocation;
+
+                            (child_frame.level, child_frame.parent, child_frame.method)
+                                = (invocation.level + 1, invocation, method);
                             fixed (stackval* p = method_args)
                                 child_frame.args = p;
-                            child_frame.method = method;
-
-                            if (method.IsExtern)
-                                exec_method_native(child_frame);
-                            else
-                                exec_method(child_frame);
+                            
+                            if (method.IsExtern) exec_method_native(child_frame);
+                            else                 exec_method(child_frame);
 
                             if (child_frame.exception is not null)
                             {
-                                invocation.exception = child_frame.exception;
-                                method_args = null;
-                                child_frame = null;
+                                (invocation.exception, method_args, child_frame) = (child_frame.exception, null, null);
                                 break;
                             }
                             if (method.ReturnType.TypeCode != TYPE_VOID)
                             {
-                                if (child_frame.returnValue is null)
-                                {
-                                    FastFail(WNE.STATE_CORRUPT, "Method has return zero memory.");
-                                    continue;
-                                }
+                                invocation.assert(child_frame.returnValue is not null, STATE_CORRUPT, "Method has return zero memory.");
                                 *sp = *child_frame.returnValue;
                                 sp++;
                             }
-                            method_args = null;
-                            child_frame = null;
+                            (method_args, child_frame) = (null, null);
                         }
                         break;
                     case LOC_INIT:
@@ -1221,7 +1208,7 @@ namespace ishtar
                     default:
                         CallFrame.FillStackTrace(invocation);
 
-                        FastFail(WNE.STATE_CORRUPT, $"Unknown opcode: {invocation.last_ip}\n" +
+                        FastFail(STATE_CORRUPT, $"Unknown opcode: {invocation.last_ip}\n" +
                             $"{ip - start}\n" +
                             $"{invocation.exception.stack_trace}");
                         ++ip;
