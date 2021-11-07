@@ -11,9 +11,9 @@ namespace ishtar
         public uint vtable_size;
 
         public IshtarObject** owner;
-        #if DEBUG
+#if DEBUG
         public long __gc_id = -1;
-        #endif
+#endif
 
         public RuntimeIshtarClass decodeClass()
         {

@@ -22,10 +22,10 @@ namespace vein
         public static FileInfo File(this DirectoryInfo info, string name)
         {
             if (info.Exists) foreach (var file in info.GetFiles())
-            {
-                if (file.Name.Equals(name))
-                    return file;
-            }
+                {
+                    if (file.Name.Equals(name))
+                        return file;
+                }
 
             return new FileInfo(Path.Combine(info.FullName, name));
         }
