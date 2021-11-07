@@ -157,6 +157,7 @@ namespace wc_test
             var field = ctx_expected.Classes.First().Value
                 .DefineField("x", FieldFlags.None, VeinTypeCode.TYPE_STRING.AsClass());
 
+            expected.Emit(OpCodes.LDARG_0);
             expected.Emit(OpCodes.LDF, field);
             expected.Emit(OpCodes.RET);
 
@@ -173,7 +174,7 @@ namespace wc_test
 
             var expected = CreateGenerator(("x", VeinTypeCode.TYPE_STRING));
 
-            expected.Emit(OpCodes.LDARG_S, 1);
+            expected.Emit(OpCodes.LDARG_0);
             expected.Emit(OpCodes.RET);
 
             IshtarAssert.SequenceEqual(expected._debug_list, actual._debug_list);
