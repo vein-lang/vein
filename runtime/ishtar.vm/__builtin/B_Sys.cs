@@ -1,5 +1,6 @@
 namespace ishtar;
 
+using System.Diagnostics;
 using vein.runtime;
 using static System.Console;
 using static vein.runtime.MethodFlags;
@@ -18,8 +19,19 @@ public static unsafe class B_Sys
         return IshtarMarshal.ToIshtarString(arg1, current);
     }
 
-    public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table) =>
-        new RuntimeIshtarMethod("@value2string", Public | Static | Extern, new VeinArgumentRef("value", VeinCore.ValueTypeClass))
+    [IshtarExport(0, "@queryPerformanceCounter")]
+    [IshtarExportFlags(Public | Static)]
+    public static IshtarObject* QueryPerformanceCounter(CallFrame current, IshtarObject** _)
+        => IshtarMarshal.ToIshtarObject(Stopwatch.GetTimestamp(), current);
+
+    public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
+    {
+        new RuntimeIshtarMethod("@value2string", Public | Static | Extern,
+                new VeinArgumentRef("value", VeinCore.ValueTypeClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ValueToString)
             .AddInto(table, x => x.Name);
+        new RuntimeIshtarMethod("@queryPerformanceCounter", Public | Static | Extern)
+            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&QueryPerformanceCounter)
+            .AddInto(table, x => x.Name);
+    }
 }
