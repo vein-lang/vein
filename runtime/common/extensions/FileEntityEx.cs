@@ -18,9 +18,21 @@ namespace vein
         public static FileInfo SingleFileByPattern(this DirectoryInfo info, string pattern)
             => info.GetFiles(pattern, SearchOption.TopDirectoryOnly).Single();
 
+
+        public static FileInfo File(this DirectoryInfo info, string name)
+        {
+            if (info.Exists) foreach (var file in info.GetFiles())
+            {
+                if (file.Name.Equals(name))
+                    return file;
+            }
+
+            return new FileInfo(Path.Combine(info.FullName, name));
+        }
+
         public static string ReadToEnd(this FileInfo info)
-            => File.ReadAllText(info.FullName);
+            => System.IO.File.ReadAllText(info.FullName);
         public static byte[] ReadAllBytes(this FileInfo info)
-            => File.ReadAllBytes(info.FullName);
+            => System.IO.File.ReadAllBytes(info.FullName);
     }
 }

@@ -12,6 +12,8 @@ namespace vein.pipes
         {
             if (Project.SDK.Name.Equals("no-runtime"))
                 return;
+            if (!Target.HasChanged)
+                return;
 
             var current_path = OutputBinaryPath.Directory;
             var files = Project.SDK.

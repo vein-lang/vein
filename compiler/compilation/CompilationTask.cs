@@ -9,6 +9,7 @@ namespace vein.compilation
     using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Security.Cryptography;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -55,7 +56,11 @@ namespace vein.compilation
                 if (value == CompilationStatus.Failed)
                     Task.FailTask();
                 if (value == CompilationStatus.Success)
+                {
+                    Task.MaxValue = 10;
+                    Task.Value(10);
                     Task.SuccessTask();
+                }
                 this._status = value;
             }
         }
@@ -71,6 +76,10 @@ namespace vein.compilation
             => (Project, Task, Resolver) =
                (p, ctx.AddTask($"[red](waiting)[/] Compile [orange]'{p.Name}'[/]...", allowHide: false)
                    .WithState("project", p), new(this));
+
+
+        // Indicate files has changed
+        public bool HasChanged { get; set; }
 
 
         public DirectoryInfo GetOutputDirectory()
@@ -230,7 +239,7 @@ namespace vein.compilation
 
                 target.LoadedModules.AddRange(list);
 
-                var c = new CompilationTask(target.Project, new CompileSettings())
+                var c = new CompilationTask(target, new CompileSettings())
                 {
                     StatusCtx = context,
                     Status = target.Task
@@ -249,13 +258,15 @@ namespace vein.compilation
             return collection;
         }
 
-        public CompilationTask(VeinProject project, CompileSettings flags)
+        public CompilationTask(CompilationTarget target, CompileSettings flags)
         {
             _flags = flags;
-            Project = project;
+            Project = target.Project;
+            Target = target;
         }
 
         internal VeinProject Project { get; set; }
+        internal CompilationTarget Target { get; set; }
 
         internal readonly CompileSettings _flags;
         internal readonly VeinSyntax syntax = new();
@@ -290,6 +301,17 @@ namespace vein.compilation
             var read_task = StatusCtx.AddTask($"[gray]Compiling files[/]...");
 
             read_task.MaxValue = Sources.Count;
+            
+            var asset = Cache.Validate(Target, read_task, Sources);
+
+            if (!Target.HasChanged)
+            {
+                read_task.SuccessTask();
+                Status.VeinStatus("[gray]unchanged[/]");
+                return true;
+            }
+
+            read_task.Value(0);
 
             foreach (var (key, value) in Sources)
             {
@@ -358,6 +380,8 @@ namespace vein.compilation
                 AnsiConsole.Write(table);
             }
             Status.Increment(100);
+            if (Log.errors.Count == 0)
+                Cache.SaveAssets(asset);
             return Log.errors.Count == 0;
         }
 

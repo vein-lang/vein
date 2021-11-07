@@ -18,21 +18,25 @@ namespace vein.pipes
         {
             if (!OutputDirectory.Exists)
                 OutputDirectory.Create();
-            else
+            else if(Target.HasChanged)
                 OutputDirectory.EnumerateFiles("*.*", SearchOption.AllDirectories).ForEach(x => x.Delete());
 
 
             var wil_file = new FileInfo(Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wll.bin"));
 
-            var wil_data = Module.BakeByteArray();
+
+            if (Target.HasChanged)
+            {
+                var wil_data = Module.BakeByteArray();
 
 
-            Assembly = new IshtarAssembly(Module);
+                Assembly = new IshtarAssembly(Module);
 
-            IshtarAssembly.WriteTo(Assembly, OutputBinaryPath.FullName);
+                IshtarAssembly.WriteTo(Assembly, OutputBinaryPath.FullName);
 
-            File.WriteAllBytes(wil_file.FullName, wil_data);
-
+                File.WriteAllBytes(wil_file.FullName, wil_data);
+            }
+           
             PopulateArtifact(new ILArtifact(wil_file, Project));
             PopulateArtifact(new BinaryArtifact(OutputBinaryPath, Project));
             PopulateArtifact(new DebugSymbolArtifact(new FileInfo($"{wil_file.FullName}.lay"), Project));
@@ -46,6 +50,9 @@ namespace vein.pipes
     {
         public override void Action()
         {
+            if(!Target.HasChanged)
+                return;
+
             foreach (var dependency in Target.Dependencies.SelectMany(x => x.Artifacts))
             {
                 if (dependency.Kind is ArtifactKind.BINARY)
