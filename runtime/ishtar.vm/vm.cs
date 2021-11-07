@@ -28,7 +28,7 @@ namespace ishtar
         public static void println(string str)
         {
             if (!Environment.GetCommandLineArgs().Contains("--no-log"))
-            Console.WriteLine(str);
+                Console.WriteLine(str);
         }
 
         public static void halt(int exitCode = -1)
@@ -351,27 +351,27 @@ namespace ishtar
                         }
                         break;
                     case LDF:
-                    {
-                        --sp;
-                        var fieldIdx = *++ip;
-                        var @class = GetClass(*++ip, _module, invocation);
-                        var field = GetField(fieldIdx, @class, _module, invocation);
-                        var @this = sp;
-                        if (@this->type == TYPE_NONE)
                         {
-                            // TODO
-                            CallFrame.FillStackTrace(invocation);
-                            FastFail(NONE, $"NullReferenceError", invocation);
-                            ValidateLastError();
+                            --sp;
+                            var fieldIdx = *++ip;
+                            var @class = GetClass(*++ip, _module, invocation);
+                            var field = GetField(fieldIdx, @class, _module, invocation);
+                            var @this = sp;
+                            if (@this->type == TYPE_NONE)
+                            {
+                                // TODO
+                                CallFrame.FillStackTrace(invocation);
+                                FastFail(WNE.NONE, $"NullReferenceError", invocation);
+                                ValidateLastError();
+                            }
+                            FFI.StaticValidate(invocation, @this, field.Owner);
+                            var this_obj = (IshtarObject*)@this->data.p;
+                            var target_class = this_obj->decodeClass();
+                            var value = IshtarMarshal.UnBoxing(invocation, (IshtarObject*)this_obj->vtable[field.vtable_offset]);
+                            *sp = value;
+                            ++ip;
+                            ++sp;
                         }
-                        FFI.StaticValidate(invocation, @this, field.Owner);
-                        var this_obj = (IshtarObject*)@this->data.p;
-                        var target_class = this_obj->decodeClass();
-                        var value = IshtarMarshal.UnBoxing(invocation, (IshtarObject*)this_obj->vtable[field.vtable_offset]);
-                        *sp = value;
-                        ++ip;
-                        ++sp;
-                    }
                         break;
                     case LDNULL:
                         sp->type = TYPE_OBJECT;
@@ -415,17 +415,21 @@ namespace ishtar
                             {
                                 var _a = method.Arguments[i]; // TODO, type eq validate
                                 --sp;
-                                #if DEBUG
+#if DEBUG
                                 var arg_class = _a.Type as RuntimeIshtarClass;
                                 if (arg_class.Name is not "Object" and not "ValueType")
                                 {
                                     var sp_obj = IshtarMarshal.Boxing(invocation, sp);
                                     var sp_class = sp_obj->decodeClass();
 
-                                    invocation.assert(sp_class.ID == arg_class.ID, TYPE_MISMATCH,
-                                        $"Argument '{_a.Name}: {_a.Type.Name}' is not matched for '{method.Name}' function.");
+                                    if (sp_class.ID != arg_class.ID)
+                                    {
+                                        FastFail(WNE.TYPE_MISMATCH, $"Argument '{_a.Name}: {_a.Type.Name}'" +
+                                                                    $" is not matched for '{method.Name}' function.");
+                                        ValidateLastError();
+                                    }
                                 }
-                                #endif
+#endif
                                 method_args[i] = *sp;
                             }
 
@@ -475,16 +479,16 @@ namespace ishtar
                         }
                         break;
                     case EQL_H:
-                    {
-                        ++ip;
-                        --sp;
-                        var first = *sp;
-                        --sp;
-                        var second = *sp;
+                        {
+                            ++ip;
+                            --sp;
+                            var first = *sp;
+                            --sp;
+                            var second = *sp;
 
-                        println($"$$$ EQL_H : {first.data.i} > {second.data.i} == {first.data.i < second.data.i}");
+                            println($"$$$ EQL_H : {first.data.i} > {second.data.i} == {first.data.i < second.data.i}");
 
-                        if (first.type == second.type)
+                            if (first.type == second.type)
                             {
                                 switch (first.type)
                                 {
@@ -639,19 +643,19 @@ namespace ishtar
                             }
                             else
                                 throw new NotImplementedException();
-                    }
+                        }
                         break;
                     case EQL_L:
-                    {
-                        ++ip;
-                        --sp;
-                        var first = *sp;
-                        --sp;
-                        var second = *sp;
+                        {
+                            ++ip;
+                            --sp;
+                            var first = *sp;
+                            --sp;
+                            var second = *sp;
 
-                        println($"$$$ : {first.data.i} < {second.data.i} == {first.data.i < second.data.i}");
+                            println($"$$$ : {first.data.i} < {second.data.i} == {first.data.i < second.data.i}");
 
-                        if (first.type == second.type)
+                            if (first.type == second.type)
                             {
                                 switch (first.type)
                                 {
@@ -806,7 +810,7 @@ namespace ishtar
                             }
                             else
                                 throw new NotImplementedException();
-                    }
+                        }
                         break;
                     case JMP_L:
                         {
@@ -1078,64 +1082,65 @@ namespace ishtar
                         jump_now();
                         break;
                     case JMP_F:
-                    {
-                        ++ip;
-                        --sp;
-                        var first = *sp;
-                        switch (first.type)
                         {
-                            case TYPE_I1:
-                                if (first.data.b == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_U1:
-                                if (first.data.ub == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_I2:
-                                if (first.data.s == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_U2:
-                                if (first.data.us == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_I4:
-                                if (first.data.i == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_U4:
-                                if (first.data.ui == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_I8:
-                                if (first.data.l == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_U8:
-                                if (first.data.ul == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_R2:
-                                if (first.data.hf == (Half)0f)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_R4:
-                                if (first.data.f_r4 == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_R8:
-                                if (first.data.f == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            case TYPE_R16:
-                                if (first.data.d == 0)
-                                    jump_now();
-                                else ++ip; break;
-                            default:
-                                throw new NotImplementedException();
+                            ++ip;
+                            --sp;
+                            var first = *sp;
+                            switch (first.type)
+                            {
+                                case TYPE_I1:
+                                    if (first.data.b == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_U1:
+                                    if (first.data.ub == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_I2:
+                                    if (first.data.s == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_U2:
+                                    if (first.data.us == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_I4:
+                                    if (first.data.i == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_U4:
+                                    if (first.data.ui == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_I8:
+                                    if (first.data.l == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_U8:
+                                    if (first.data.ul == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_R2:
+                                    if (first.data.hf == (Half)0f)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_R4:
+                                    if (first.data.f_r4 == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_R8:
+                                    if (first.data.f == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                case TYPE_R16:
+                                    if (first.data.d == 0)
+                                        jump_now();
+                                    else ++ip; break;
+                                default:
+                                    throw new NotImplementedException();
+                            }
                         }
-                    } break;
+                        break;
                     case LDLOC_0:
                     case LDLOC_1:
                     case LDLOC_2:
@@ -1226,6 +1231,6 @@ namespace ishtar
             FastFail(type, $"static assert failed: '{msg}'", frame);
             ValidateLastError();
         }
-        
+
     }
 }

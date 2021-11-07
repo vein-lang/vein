@@ -301,7 +301,7 @@ namespace vein.compilation
             var read_task = StatusCtx.AddTask($"[gray]Compiling files[/]...");
 
             read_task.MaxValue = Sources.Count;
-            
+
             var asset = Cache.Validate(Target, read_task, Sources);
 
             if (!Target.HasChanged)
@@ -631,7 +631,7 @@ namespace vein.compilation
                 return default;
 
             var args = GenerateArgument(member, doc);
-            
+
             if (member.Identifier.ExpressionString.Equals("new"))
             {
                 member.Identifier = new IdentifierExpression("ctor");

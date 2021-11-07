@@ -18,7 +18,7 @@ namespace vein.pipes
         {
             if (!OutputDirectory.Exists)
                 OutputDirectory.Create();
-            else if(Target.HasChanged)
+            else if (Target.HasChanged)
                 OutputDirectory.EnumerateFiles("*.*", SearchOption.AllDirectories).ForEach(x => x.Delete());
 
 
@@ -36,7 +36,7 @@ namespace vein.pipes
 
                 File.WriteAllBytes(wil_file.FullName, wil_data);
             }
-           
+
             PopulateArtifact(new ILArtifact(wil_file, Project));
             PopulateArtifact(new BinaryArtifact(OutputBinaryPath, Project));
             PopulateArtifact(new DebugSymbolArtifact(new FileInfo($"{wil_file.FullName}.lay"), Project));
@@ -50,7 +50,7 @@ namespace vein.pipes
     {
         public override void Action()
         {
-            if(!Target.HasChanged)
+            if (!Target.HasChanged)
                 return;
 
             foreach (var dependency in Target.Dependencies.SelectMany(x => x.Artifacts))

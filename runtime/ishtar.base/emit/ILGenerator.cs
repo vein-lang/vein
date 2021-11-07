@@ -268,7 +268,7 @@ namespace ishtar.emit
             var size = (uint)LocalsBuilder.Count();
             var offset = 2u /* opcode size */ + (uint)OpCodes.LOC_INIT.Size /* body of opcode size */;
 
-            offset += size * offset; /* multiple to size locals */ 
+            offset += size * offset; /* multiple to size locals */
             return offset;
         }
 
