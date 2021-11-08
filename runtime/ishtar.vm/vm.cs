@@ -437,9 +437,9 @@ namespace ishtar
                                 = (invocation.level + 1, invocation, method);
                             fixed (stackval* p = method_args)
                                 child_frame.args = p;
-                            
+
                             if (method.IsExtern) exec_method_native(child_frame);
-                            else                 exec_method(child_frame);
+                            else exec_method(child_frame);
 
                             if (child_frame.exception is not null)
                             {
