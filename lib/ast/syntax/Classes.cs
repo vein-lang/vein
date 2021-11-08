@@ -11,6 +11,7 @@ namespace vein.syntax
             from member in
                 FieldDeclaration
                     .Or(MethodDeclaration).Token()
+                    .Or(PropertyDeclarationShortform).Token()
                     .Or(PropertyDeclaration).Token()
                     .Or(CtorDeclaration).Token()
                     .Commented(this)
@@ -39,6 +40,19 @@ namespace vein.syntax
                 Identifier = typeAndName.Identifier,
                 Accessors = accessors.Accessors,
             };
+        protected internal virtual Parser<PropertyDeclarationSyntax> PropertyDeclarationShortform =>
+            from heading in MemberDeclarationHeading
+            from typeAndName in NameAndType
+            from op in Parse.String("|>").Token()
+            from exp in QualifiedExpression.Positioned()
+            from end in Parse.IgnoreCase(";").Token()
+            select new PropertyDeclarationSyntax(heading)
+            {
+                Type = typeAndName.Type,
+                Identifier = typeAndName.Identifier,
+                Expression = exp
+            };
+        
         /// example: private static x, y, z: int = 3;
         protected internal virtual Parser<FieldDeclarationSyntax> FieldDeclaration =>
             from heading in MemberDeclarationHeading.Token()

@@ -915,33 +915,40 @@ namespace vein.compilation
             if (prop.Setter is not null || prop.Getter is not null)
                 return; // skip auto property (already generated).
 
+            VeinArgumentRef[] getArgList(bool isSetter)
+            {
+                var val_ref = new VeinArgumentRef("value", prop.PropType);
+                var this_ref = new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, prop.Owner);
+                if (prop.IsStatic && !isSetter)
+                    return new VeinArgumentRef[0];
+                if (prop.IsStatic && isSetter)
+                    return new VeinArgumentRef[1] { val_ref };
+                if (!prop.IsStatic && isSetter)
+                    return new VeinArgumentRef[2] { this_ref, val_ref };
+                if (!prop.IsStatic && !isSetter)
+                    return new VeinArgumentRef[1] { this_ref };
+                throw new ArgumentException();
+            }
+            
             if (member.Setter is not null)
             {
-                var args = prop.IsStatic
-                    ? new VeinArgumentRef[1] { new VeinArgumentRef("value", prop.PropType) }
-                    : new VeinArgumentRef[2]
-                    {
-                        new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, prop.Owner),
-                        new VeinArgumentRef("value", prop.PropType)
-                    };
+                var args = getArgList(true);
                 prop.Setter = clazz.DefineMethod($"set_{prop.Name}",
                     VeinProperty.ConvertShadowFlags(prop.Flags), prop.PropType, args);
 
                 GenerateBody((MethodBuilder)prop.Setter, member.Setter.Body, doc);
             }
 
-            if (member.Getter is not null)
+            if (member.Getter is not null || member.IsShortform())
             {
-                var args = prop.IsStatic
-                    ? new VeinArgumentRef[0]
-                    : new VeinArgumentRef[1]
-                    {
-                        new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, prop.Owner)
-                    };
+                var args = getArgList(false);
                 prop.Getter = clazz.DefineMethod($"get_{prop.Name}",
                     VeinProperty.ConvertShadowFlags(prop.Flags), prop.PropType, args);
 
-                GenerateBody((MethodBuilder)prop.Getter, member.Getter.Body, doc);
+                if (member.Getter is not null)
+                    GenerateBody((MethodBuilder)prop.Getter, member.Getter.Body, doc);
+                if (member.IsShortform())
+                    GenerateBody((MethodBuilder)prop.Getter, new (new ReturnStatementSyntax(member.Expression)), doc);
             }
         }
 

@@ -15,6 +15,8 @@ namespace vein.syntax
 
         public BlockSyntax(IEnumerable<StatementSyntax> statements)
             => Statements.AddRange(statements.EmptyIfNull());
+        public BlockSyntax(params StatementSyntax[] statements)
+            => Statements.AddRange(statements.EmptyIfNull());
 
         public override SyntaxType Kind => SyntaxType.Block;
 
