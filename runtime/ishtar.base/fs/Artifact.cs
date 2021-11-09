@@ -1,7 +1,6 @@
 namespace vein.fs;
 
 using System.IO;
-using project;
 
 public enum ArtifactKind
 {
@@ -15,42 +14,42 @@ public abstract class VeinArtifact
 {
     public FileInfo Path { get; protected set; }
     public ArtifactKind Kind { get; protected set; }
-    public VeinProject Project { get; protected set; }
+    public string ProjectName { get; protected set; }
 }
 
 public class DebugSymbolArtifact : VeinArtifact
 {
-    public DebugSymbolArtifact(FileInfo path, VeinProject project)
+    public DebugSymbolArtifact(FileInfo path, string project)
     {
         base.Kind = ArtifactKind.DEBUG_SYMBOLS;
         base.Path = path;
-        base.Project = project;
+        base.ProjectName = project;
     }
 }
 public class BinaryArtifact : VeinArtifact
 {
-    public BinaryArtifact(FileInfo path, VeinProject project)
+    public BinaryArtifact(FileInfo path, string project)
     {
         base.Kind = ArtifactKind.BINARY;
         base.Path = path;
-        base.Project = project;
+        base.ProjectName = project;
     }
 }
 public class ILArtifact : VeinArtifact
 {
-    public ILArtifact(FileInfo path, VeinProject project)
+    public ILArtifact(FileInfo path, string project)
     {
         base.Kind = ArtifactKind.IL;
         base.Path = path;
-        base.Project = project;
+        base.ProjectName = project;
     }
 }
 public class ResourceArtifact : VeinArtifact
 {
-    public ResourceArtifact(FileInfo path, VeinProject project)
+    public ResourceArtifact(FileInfo path, string project)
     {
         base.Kind = ArtifactKind.RESOURCES;
         base.Path = path;
-        base.Project = project;
+        base.ProjectName = project;
     }
 }

@@ -7,7 +7,6 @@ using System.Linq;
 using emit;
 using vein;
 using vein.fs;
-using vein.project;
 using vein.runtime;
 
 public abstract class ModuleResolverBase : IAssemblyResolver
@@ -31,13 +30,13 @@ public abstract class ModuleResolverBase : IAssemblyResolver
     {
         if (artifact.Path is null or { Exists: false })
         {
-            debug($"Failed resolve 'unnamed' dependency for '{artifact.Project.Name}' project.");
+            debug($"Failed resolve 'unnamed' dependency for '{artifact.ProjectName}' project.");
             throw new FileNotFoundException();
         }
 
         if (!IshtarAssembly.TryLoadFromFile(artifact.Path, out var asm, out var exception))
         {
-            debug($"Failed resolve '{artifact.Path.Name}' dependency for '{artifact.Project.Name}' project.");
+            debug($"Failed resolve '{artifact.Path.Name}' dependency for '{artifact.ProjectName}' project.");
             throw exception;
         }
 
@@ -48,8 +47,8 @@ public abstract class ModuleResolverBase : IAssemblyResolver
         return mod;
     }
 
-    public virtual VeinModule ResolveDep(PackageReference package, IReadOnlyList<VeinModule> deps)
-        => ResolveDep(package.Name, package.Version.Version, deps);
+    public virtual VeinModule ResolveDep(IDependency package, IReadOnlyList<VeinModule> deps)
+        => ResolveDep(package.Name, package.Version, deps);
 
     public virtual VeinModule ResolveDep(string name, Version version, IReadOnlyList<VeinModule> deps)
     {

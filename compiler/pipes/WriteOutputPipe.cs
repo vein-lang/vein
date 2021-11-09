@@ -37,9 +37,9 @@ namespace vein.pipes
                 File.WriteAllBytes(wil_file.FullName, wil_data);
             }
 
-            PopulateArtifact(new ILArtifact(wil_file, Project));
-            PopulateArtifact(new BinaryArtifact(OutputBinaryPath, Project));
-            PopulateArtifact(new DebugSymbolArtifact(new FileInfo($"{wil_file.FullName}.lay"), Project));
+            PopulateArtifact(new ILArtifact(wil_file, Project.Name));
+            PopulateArtifact(new BinaryArtifact(OutputBinaryPath, Project.Name));
+            PopulateArtifact(new DebugSymbolArtifact(new FileInfo($"{wil_file.FullName}.lay"), Project.Name));
         }
 
         public override bool CanApply(CompileSettings flags) => true;

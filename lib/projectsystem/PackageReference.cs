@@ -10,7 +10,7 @@ namespace vein.project
 
     public record ProjectReference(string path) : IProjectRef { }
 
-    public record PackageReference(string Name, NuGetVersion Version) : IProjectRef
+    public record PackageReference(string Name, NuGetVersion Version) : IProjectRef, IDependency
     {
 
         internal static Parser<string> RawIdentifier =>
@@ -54,6 +54,9 @@ namespace vein.project
             from comma in Parse.Char(',')
             from vers in VersionParse
             select new PackageReference(id, vers);
+
+        string IDependency.Name => Name;
+        Version IDependency.Version => Version.Version;
 
         public static IProjectRef Convert(string t)
         {
