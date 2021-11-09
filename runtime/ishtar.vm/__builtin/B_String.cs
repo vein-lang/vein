@@ -1,16 +1,11 @@
 namespace ishtar
 {
     using System;
-    using System.Runtime.CompilerServices;
     using static vein.runtime.MethodFlags;
     using static vein.runtime.VeinTypeCode;
 
     public static unsafe class B_String
     {
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        internal static extern string FastAllocateString(int length);
-
-
         public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
         {
             new RuntimeIshtarMethod("i_call_String_Concat", Private | Static | Extern,
@@ -71,6 +66,6 @@ namespace ishtar
             => TemplateFunctionApply(frame, args, x => x.TrimStart());
         [IshtarExport(1, "i_call_String_trim_end")]
         public static IshtarObject* TrimEnd(CallFrame frame, IshtarObject** args)
-            => TemplateFunctionApply(frame, args, x => x.TrimEnd());\
+            => TemplateFunctionApply(frame, args, x => x.TrimEnd());
     }
 }
