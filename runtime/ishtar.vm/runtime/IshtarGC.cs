@@ -46,6 +46,7 @@ namespace ishtar
                 return null;
             var p = AllocValue();
             p->type = @class.TypeCode;
+            p->data.l = 0;
             return p;
         }
 
@@ -124,12 +125,12 @@ namespace ishtar
 
         public static IshtarObject* AllocObject(RuntimeIshtarClass @class, IshtarObject** node = null)
         {
-            var p = (IshtarObject*) Marshal.AllocHGlobal(sizeof(IshtarObject));
+            var p = (IshtarObject*) NativeMemory.Alloc((nuint)sizeof(IshtarObject));
 
             Unsafe.InitBlock(p, 0, (uint)sizeof(IshtarObject));
 
-
-            p->vtable = (void**)Marshal.AllocHGlobal(new IntPtr(sizeof(void*) * (long)@class.computed_size));
+            
+            p->vtable = (void**)NativeMemory.Alloc((nuint)(sizeof(void*) * (long)@class.computed_size));
             Unsafe.InitBlock(p->vtable, 0, (uint)(sizeof(void*) * (long)@class.computed_size));
 
             Unsafe.CopyBlock(p->vtable, @class.vtable, (uint)@class.computed_size * (uint)sizeof(void*));
@@ -137,17 +138,16 @@ namespace ishtar
             p->vtable_size = (uint)@class.computed_size;
 
             GCStats.alive_objects++;
-#if DEBUG
+            #if DEBUG
             p->__gc_id = (long)GCStats.total_allocations++;
-#else
+            #else
             GCStats.total_allocations++;
-#endif
+            #endif
             GCStats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*);
             GCStats.total_bytes_requested += (ulong)sizeof(IshtarObject);
 
-            if (node is null || *node is null)
-                fixed (IshtarObject** o = &root)
-                    p->owner = o;
+            if (node is null || *node is null) fixed (IshtarObject** o = &root)
+                p->owner = o;
             else
                 p->owner = node;
 
@@ -155,10 +155,10 @@ namespace ishtar
         }
         public static void FreeObject(IshtarObject** obj)
         {
-            Marshal.FreeHGlobal(new IntPtr((*obj)->vtable));
+            NativeMemory.Free((*obj)->vtable);
             (*obj)->vtable = null;
             (*obj)->clazz = null;
-            Marshal.FreeHGlobal((nint)(*obj));
+            NativeMemory.Free(*obj);
             GCStats.alive_objects--;
         }
     }
