@@ -63,10 +63,19 @@ namespace ishtar
             return obj;
         }
 
+        public static IshtarObject* ToIshtarObject(nint dotnet_value, CallFrame frame = null, IshtarObject** node = null)
+        {
+            var obj = IshtarGC.AllocObject(TYPE_RAW.AsRuntimeClass(), node);
+            obj->vtable = (void**)dotnet_value;
+            return obj;
+        }
+
         public static IshtarObject* ToIshtarObject<X>(X value, CallFrame frame, IshtarObject** node = null)
         {
             switch (typeof(X))
             {
+                case { } when typeof(X) == typeof(nint):
+                    return ToIshtarObject(cast<nint>(value), frame, node);
                 case { } when typeof(X) == typeof(sbyte):
                     return ToIshtarObject(cast<sbyte>(value), frame, node);
                 case { } when typeof(X) == typeof(byte):
@@ -101,6 +110,8 @@ namespace ishtar
         {
             switch (typeof(X))
             {
+                case { } when typeof(X) == typeof(nint):
+                    return (X)(object)ToDotnetPointer(obj, frame);
                 case { } when typeof(X) == typeof(sbyte):
                     return (X)(object)ToDotnetInt8(obj, frame);
                 case { } when typeof(X) == typeof(byte):
@@ -208,6 +219,12 @@ namespace ishtar
             return StringStorage.GetString(p);
         }
 
+        public static nint ToDotnetPointer(IshtarObject* obj, CallFrame frame)
+        {
+            FFI.StaticTypeOf(frame, &obj, TYPE_RAW);
+            return (nint)obj->vtable;
+        }
+
         public static IshtarObject* ToIshtarString(IshtarObject* obj, CallFrame frame) => obj->decodeClass().TypeCode switch
         {
             TYPE_U1 => ToIshtarObject($"{ToDotnetUInt8(obj, frame)}"),
@@ -221,6 +238,7 @@ namespace ishtar
             TYPE_R4 => ToIshtarObject($"{ToDotnetFloat(obj, frame)}"),
             TYPE_BOOLEAN => ToIshtarObject($"{ToDotnetBoolean(obj, frame)}"),
             TYPE_CHAR => ToIshtarObject($"{ToDotnetChar(obj, frame)}"),
+            TYPE_RAW => ToIshtarObject($"0x{ToDotnetPointer(obj, frame):X8}"),
             _ => ReturnDefault(nameof(ToIshtarString), $"Convert to '{obj->decodeClass().TypeCode}' not supported.", frame),
         };
 
@@ -237,7 +255,7 @@ namespace ishtar
             var @class = obj->decodeClass();
 
             var val = new stackval { type = @class.TypeCode };
-            if (@class.TypeCode is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY)
+            if (@class.TypeCode is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_RAW)
             {
                 val.data.p = (nint)obj;
                 return val;
@@ -246,7 +264,7 @@ namespace ishtar
             if (@class.TypeCode is TYPE_NONE or > TYPE_ARRAY or < TYPE_NONE)
             {
                 VM.FastFail(WNE.ACCESS_VIOLATION,
-                    "Scalar value type cannot be extracted.\n" +
+                    $"Scalar value type cannot be extracted. [{@class.FullName}]\n" +
                     "Invalid memory address is possible.\n" +
                     "Please report the problem into https://github.com/vein-lang/vein/issues",
                     frame);
@@ -291,6 +309,7 @@ namespace ishtar
                     break;
                 case TYPE_R8 or TYPE_R2 or TYPE_R16:
                     VM.FastFail(WNE.ACCESS_VIOLATION,
+                        "Unboxing operation error.\n" +
                         $"Scalar value type '{val.type}' cannot be extracted.\n" +
                         "Currently is not support.\n" +
                         "Please report the problem into https://github.com/vein-lang/vein/issues",
@@ -301,14 +320,16 @@ namespace ishtar
 
             return val;
         }
+        
         public static IshtarObject* Boxing(CallFrame frame, stackval* p, IshtarObject** node = null)
         {
-            if (p->type is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY)
+            if (p->type is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_RAW)
                 return (IshtarObject*)p->data.p;
             if (p->type is TYPE_NONE or > TYPE_ARRAY or < TYPE_NONE)
             {
                 VM.FastFail(WNE.ACCESS_VIOLATION,
-                    "Scalar value type cannot be extracted.\n" +
+                    "Boxing operation error.\n" +
+                    $"Scalar value type cannot be extracted. [{p->type}]\n" +
                     "Invalid memory address is possible.\n" +
                     "Please report the problem into https://github.com/vein-lang/vein/issues",
                     frame);
@@ -333,7 +354,6 @@ namespace ishtar
 
                 TYPE_BOOLEAN => (int*)p->data.i,
                 TYPE_CHAR => (int*)p->data.i,
-                TYPE_ARRAY => (void*)p->data.p,
 
                 TYPE_R4 => (int*)BitConverter.SingleToInt32Bits(p->data.f_r4),
 

@@ -79,6 +79,14 @@ namespace ishtar
         {
             if (is_inited)
                 return;
+            if (TypeCode is VeinTypeCode.TYPE_RAW)
+            {
+                computed_size = (ulong)sizeof(void*);
+                vtable_size = (ulong)sizeof(void*);
+                vtable = (void**)NativeMemory.AllocZeroed((nuint)sizeof(void*));
+                is_inited = true;
+                return;
+            }
             computed_size = 0;
 
             var parents = Parents.OfType<RuntimeIshtarClass>().ToArray();

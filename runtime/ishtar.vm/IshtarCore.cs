@@ -29,6 +29,7 @@ namespace vein.runtime
             VeinCore.CharClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Char", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_CHAR };
             VeinCore.ArrayClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Array", VeinCore.ObjectClass, null) { TypeCode = VeinTypeCode.TYPE_ARRAY };
             VeinCore.ExceptionClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Exception", VeinCore.ObjectClass, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };
+            VeinCore.RawClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/raw", (VeinClass)null, null) { TypeCode = VeinTypeCode.TYPE_RAW };
 
             INIT_ADDITIONAL_MAPPING();
         }
@@ -41,14 +42,14 @@ namespace vein.runtime
 
             (VeinCore.ValueTypeClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special | FieldFlags.Internal,
-                    VeinCore.ValueTypeClass);
+                    VeinCore.RawClass);
             (VeinCore.StringClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special | FieldFlags.Internal,
-                    VeinCore.ValueTypeClass);
+                    VeinCore.RawClass);
 
             (VeinCore.ArrayClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special,
-                    VeinCore.ValueTypeClass);
+                    VeinCore.RawClass);
             (VeinCore.ArrayClass as RuntimeIshtarClass)
                 !.DefineField("!!block", FieldFlags.Special,
                     VeinCore.Int64Class);

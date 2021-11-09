@@ -27,7 +27,8 @@ namespace vein.runtime
         TYPE_STRING, /* string */
         TYPE_CLASS, /* custom class */
         TYPE_ARRAY, /* Array<?> */
-        TYPE_TOKEN  /* type token */
+        TYPE_TOKEN, /* type token */
+        TYPE_RAW
     }
 
     public static class ManaTypeCodeEx

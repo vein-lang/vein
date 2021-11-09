@@ -52,6 +52,7 @@ namespace vein.syntax
                     KeywordExpression("bool")).Or(
                     KeywordExpression("string")).Or(
                     KeywordExpression("char")).Or(
+                    KeywordExpression("raw")).Or(
                     KeywordExpression("void"))
                 .Token().Select(n => new TypeSyntax(n))
                 .Named("SystemType");
@@ -68,6 +69,7 @@ namespace vein.syntax
                     KeywordExpression("bool")).Or(
                     KeywordExpression("string")).Or(
                     KeywordExpression("char")).Or(
+                    KeywordExpression("raw")).Or(
                     KeywordExpression("void"))
                 .Token().Select(n => new TypeExpression(new TypeSyntax(n)))
                 .Named("SystemType");
