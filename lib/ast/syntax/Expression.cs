@@ -27,6 +27,24 @@ namespace vein.syntax
             .SetEnd(closeBrace.Transform.pos)
             .As<BlockSyntax>();
 
+        protected internal virtual Parser<BlockSyntax> BlockShortform =>
+            from comments in CommentParser.AnyComment.Token().Many()
+            from op in Parse.String("|>").Token()
+            from exp in QualifiedExpression.Token().Positioned()
+            from end in Parse.Char(';').Token()
+            select new BlockSyntax
+            {
+                LeadingComments = comments.ToList(),
+                Statements = new List<StatementSyntax>()
+                {
+                    new ReturnStatementSyntax(exp).SetPos<ReturnStatementSyntax>(exp.Transform)
+                }
+            }
+            .SetStart(exp.Transform.pos)
+            .SetEnd(exp.Transform.pos)
+            .As<BlockSyntax>();
+
+
         protected internal virtual Parser<IOption<ExpressionSyntax>> KeywordExpressionStatement(string keyword) =>
             KeywordExpression(keyword)
                 .Token()
