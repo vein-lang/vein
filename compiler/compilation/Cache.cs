@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using MoreLinq;
 using Newtonsoft.Json;
 
 
@@ -51,6 +52,21 @@ public class Cache
         }
         target.HasChanged = true;
         return (Asset)asset;
+    }
+
+    public static void SaveAstAsset(CompilationTarget target)
+    {
+        var cacheFolder = target.Project.CacheDir.SubDirectory("ast");
+
+        if (!cacheFolder.Exists) cacheFolder.Create();
+        cacheFolder.EnumerateFiles("*.ast.json").Pipe(x => x.Delete()).Consume();
+
+        foreach (var (key, val) in target.AST)
+        {
+            var name = key.Name;
+            var result = JsonConvert.SerializeObject(val, Formatting.Indented);
+            File.WriteAllText(cacheFolder.File($"{name}.ast.json").FullName, result);
+        }
     }
 
     public interface IAssetable

@@ -4,17 +4,22 @@ namespace vein.syntax
     using System.Collections.Generic;
     using System.Linq;
     using extensions;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
     using Sprache;
 
     public abstract class BaseSyntax : IPositionAware<BaseSyntax>, IPassiveParseTransition
     {
+        [JsonConverter(typeof(StringEnumConverter))]
         public abstract SyntaxType Kind { get; }
 
+        [JsonIgnore]
         public abstract IEnumerable<BaseSyntax> ChildNodes { get; }
 
         protected IEnumerable<BaseSyntax> GetNodes(params BaseSyntax[] nodes) =>
             nodes.EmptyIfNull().Where(n => n != null);
 
+        [JsonIgnore]
         protected IEnumerable<BaseSyntax> NoChildren => Enumerable.Empty<BaseSyntax>();
 
         public List<string> LeadingComments { get; set; } = new();

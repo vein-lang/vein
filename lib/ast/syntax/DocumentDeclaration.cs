@@ -4,6 +4,7 @@ namespace vein.syntax
     using System.IO;
     using System.Linq;
     using extensions;
+    using Newtonsoft.Json;
 
     public class DocumentDeclaration
     {
@@ -17,6 +18,7 @@ namespace vein.syntax
         private List<string> _includes;
 
 
+        [JsonIgnore]
         public IEnumerable<BaseSyntax> ChildNodes =>
             Members.SelectMany(x => x.ChildNodes)
                 .Concat(Directives.SelectMany(x => x.ChildNodes));

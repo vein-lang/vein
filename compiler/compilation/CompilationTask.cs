@@ -81,6 +81,7 @@ namespace vein.compilation
         // Indicate files has changed
         public bool HasChanged { get; set; }
 
+        public Dictionary<FileInfo, DocumentDeclaration> AST { get; } = new ();
 
         public DirectoryInfo GetOutputDirectory()
             => new(Path.Combine(Project.WorkDir.FullName, "bin"));
@@ -271,7 +272,6 @@ namespace vein.compilation
         internal readonly CompileSettings _flags;
         internal readonly VeinSyntax syntax = new();
         internal readonly Dictionary<FileInfo, string> Sources = new ();
-        internal readonly Dictionary<FileInfo, DocumentDeclaration> Ast = new();
         internal ProgressTask Status;
         internal ProgressContext StatusCtx;
         internal VeinModuleBuilder module;
@@ -324,7 +324,7 @@ namespace vein.compilation
                     result.SourceText = value;
                     // apply root namespace into includes
                     result.Includes.Add($"global::{result.Name}");
-                    Ast.Add(key, result);
+                    Target.AST.Add(key, result);
                 }
                 catch (VeinParseException e)
                 {
@@ -347,7 +347,7 @@ namespace vein.compilation
 
             try
             {
-                Ast.Select(x => (x.Key, x.Value))
+                Target.AST.Select(x => (x.Key, x.Value))
                     .Pipe(x => Status.VeinStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
                     .SelectMany(LinkClasses)
                     .ToList()
@@ -364,6 +364,9 @@ namespace vein.compilation
                     .Pipe(GenerateStaticCtor)
                     .Pipe(ValidateInheritance)
                     .Consume();
+
+                Cache.SaveAstAsset(Target);
+                
             }
             catch (SkipStatementException) { }
 

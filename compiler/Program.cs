@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using vein;
@@ -15,6 +17,7 @@ using static System.Console;
 using static GitVersionInformation;
 #pragma warning restore CS0436 // Type conflicts with imported type
 using static Spectre.Console.AnsiConsole;
+using vein.json;
 
 [assembly: InternalsVisibleTo("veinc_test")]
 
@@ -35,7 +38,12 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     NullValueHandling = NullValueHandling.Ignore,
     Formatting = Formatting.Indented,
     ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-    Culture = CultureInfo.InvariantCulture
+    Culture = CultureInfo.InvariantCulture,
+    Converters = new List<JsonConverter>()
+    {
+        new FileInfoSerializer(),
+        new StringEnumConverter()
+    }
 };
 
 var font = new FileInfo($"{AppDomain.CurrentDomain.BaseDirectory}/resources/isometric1.flf");
