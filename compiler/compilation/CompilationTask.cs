@@ -929,7 +929,7 @@ namespace vein.compilation
                     return new VeinArgumentRef[1] { this_ref };
                 throw new ArgumentException();
             }
-            
+
             if (member.Setter is not null)
             {
                 var args = getArgList(true);
@@ -948,7 +948,7 @@ namespace vein.compilation
                 if (member.Getter is not null)
                     GenerateBody((MethodBuilder)prop.Getter, member.Getter.Body, doc);
                 if (member.IsShortform())
-                    GenerateBody((MethodBuilder)prop.Getter, new (new ReturnStatementSyntax(member.Expression)), doc);
+                    GenerateBody((MethodBuilder)prop.Getter, new(new ReturnStatementSyntax(member.Expression)), doc);
             }
         }
 
