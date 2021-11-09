@@ -24,8 +24,11 @@ namespace vein.cmd
         public bool HasSingleFile { get; set; }
 
         [Description("Wait to attach debbugger (ONLY DEBUG COMPILER)")]
-        [CommandOption("--debugger|-d")]
+        [CommandOption("--sys-debugger")]
         public bool IsNeedDebuggerAttach { get; set; }
+        [Description("Enable stacktrace printing when error.")]
+        [CommandOption("--sys-stack-trace")]
+        public bool DisplayStacktraceGenerator { get; set; }
     }
     public class CompileCommand : Command<CompileSettings>
     {
@@ -84,7 +87,7 @@ namespace vein.cmd
             Log.Info($"Runtime [orange]'{project.Runtime}'[/].\n");
 
 
-            var targets = CompilationTask.Run(project.WorkDir);
+            var targets = CompilationTask.Run(project.WorkDir, settings);
 
 
             foreach (var info in targets.SelectMany(x => x.Logs.Info).Reverse())
