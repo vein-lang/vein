@@ -992,6 +992,8 @@ namespace ishtar
 
             if (statement is ReturnStatementSyntax ret1)
                 generator.EmitReturn(ret1);
+            else if (statement is SingleStatementSyntax single)
+                generator.EmitExpression(single.Expression);
             else if (statement is IfStatementSyntax theIf)
                 generator.EmitIfElse(theIf);
             else if (statement is QualifiedExpressionStatement { Value: InvocationExpression invoke })

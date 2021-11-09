@@ -165,7 +165,7 @@ namespace vein.syntax
             from parameters in MethodParameters
             from @as in Parse.Char(':').Token().Commented(this)
             from type in TypeReference.Commented(this)
-            from methodBody in BlockShortform.Or(Block.Or(Parse.Char(';').Return(new EmptyBlockSyntax())))
+            from methodBody in BlockShortform<ReturnStatementSyntax>().Or(Block.Or(Parse.Char(';').Return(new EmptyBlockSyntax())))
                 .Token().Positioned().Commented(this)
             select new MethodDeclarationSyntax
             {
@@ -177,7 +177,7 @@ namespace vein.syntax
 
         protected internal virtual Parser<MethodDeclarationSyntax> CtorParametersAndBody =>
             from parameters in MethodParameters
-            from methodBody in BlockShortform.Or(Block.Or(Parse.Char(';').Return(new EmptyBlockSyntax())))
+            from methodBody in BlockShortform<SingleStatementSyntax>().Or(Block.Or(Parse.Char(';').Return(new EmptyBlockSyntax())))
                 .Token().Positioned()
             select new MethodDeclarationSyntax
             {

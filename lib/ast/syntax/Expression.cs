@@ -27,7 +27,7 @@ namespace vein.syntax
             .SetEnd(closeBrace.Transform.pos)
             .As<BlockSyntax>();
 
-        protected internal virtual Parser<BlockSyntax> BlockShortform =>
+        protected internal virtual Parser<BlockSyntax> BlockShortform<T>() where T : StatementSyntax =>
             from comments in CommentParser.AnyComment.Token().Many()
             from op in Parse.String("|>").Token()
             from exp in QualifiedExpression.Token().Positioned()
@@ -37,7 +37,9 @@ namespace vein.syntax
                 LeadingComments = comments.ToList(),
                 Statements = new List<StatementSyntax>()
                 {
-                    new ReturnStatementSyntax(exp).SetPos<ReturnStatementSyntax>(exp.Transform)
+                    typeof(T) == typeof(ReturnStatementSyntax) ?
+                        new ReturnStatementSyntax(exp).SetPos<ReturnStatementSyntax>(exp.Transform) :
+                        new SingleStatementSyntax(exp)
                 }
             }
             .SetStart(exp.Transform.pos)
