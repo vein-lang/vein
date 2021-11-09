@@ -46,11 +46,8 @@ public class Cache
 
         var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(file.ReadToEnd());
 
-        if (result.SequenceEqual(hashmap))
-        {
-            return default;
-        }
-        target.HasChanged = true;
+        if (!result.SequenceEqual(hashmap))
+            target.HasChanged = true;    
         return (Asset)asset;
     }
 

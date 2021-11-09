@@ -119,7 +119,7 @@ namespace vein.compilation
 
     public class CompilationTask
     {
-        public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info) => AnsiConsole
+        public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info, CompileSettings settings) => AnsiConsole
             .Progress()
             .AutoClear(false)
             .AutoRefresh(true)
@@ -129,7 +129,7 @@ namespace vein.compilation
                 new PercentageColumn(),
                 new SpinnerColumn { Spinner = Spinner.Known.Dots8Bit, CompletedText = "✅", FailedText = "❌" },
                 new TaskDescriptionColumn { Alignment = Justify.Left })
-        .Start(ctx => Run(info, ctx));
+        .Start(ctx => Run(info, ctx, settings));
 
         public static IReadOnlyCollection<CompilationTarget> Collect(DirectoryInfo info, ProgressTask task, ProgressContext ctx)
         {
@@ -199,7 +199,7 @@ namespace vein.compilation
             return targets.Values.ToList().AsReadOnly();
         }
 
-        public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info, ProgressContext context)
+        public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info, ProgressContext context, CompileSettings settings)
         {
             var collection =
                 Collect(info, context.AddTask("Collect projects"), context);
@@ -240,7 +240,7 @@ namespace vein.compilation
 
                 target.LoadedModules.AddRange(list);
 
-                var c = new CompilationTask(target, new CompileSettings())
+                var c = new CompilationTask(target, settings)
                 {
                     StatusCtx = context,
                     Status = target.Task
@@ -306,9 +306,14 @@ namespace vein.compilation
 
             if (!Target.HasChanged)
             {
-                read_task.SuccessTask();
-                Status.VeinStatus("[gray]unchanged[/]");
-                return true;
+                if (Target.Dependencies.All(x => !x.HasChanged))
+                {
+                    read_task.SuccessTask();
+                    Status.VeinStatus("[gray]unchanged[/]");
+                    return true;
+                }
+
+                Target.HasChanged = true;
             }
 
             read_task.Value(0);
@@ -363,10 +368,11 @@ namespace vein.compilation
                     .Pipe(GenerateCtor)
                     .Pipe(GenerateStaticCtor)
                     .Pipe(ValidateInheritance)
+                    .ToList()
+                    .Pipe(x => x.clazz.Methods.OfExactType<MethodBuilder>().Pipe(PostgenerateBody).Consume())
                     .Consume();
 
                 Cache.SaveAstAsset(Target);
-                
             }
             catch (SkipStatementException) { }
 
@@ -465,7 +471,7 @@ namespace vein.compilation
 
         public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc, IAspectable aspectable) =>
             CompileAnnotation(method.Annotations, x =>
-                $"aspect/{x.AnnotationKind}/class/{method.OwnerClass.Identifier}/method/{method.Identifier}.",
+                $"aspect/{x.AnnotationKind}/class/{method.OwnerClass.Identifier}/method/{method.GetQualityName()}.",
                 doc, aspectable, AspectTarget.Method);
 
         public void CompileAnnotation(ClassDeclarationSyntax clazz, DocumentDeclaration doc, IAspectable aspectable) =>
@@ -669,8 +675,23 @@ namespace vein.compilation
 
             if (fieldType is null)
                 return default;
+            var name = member.Field.Identifier.ExpressionString;
+            var @override = member.Annotations.FirstOrDefault(x => x.AnnotationKind is VeinAnnotationKind.Native);
 
-            var field = clazz.DefineField(member.Field.Identifier.ExpressionString, GenerateFieldFlags(member), fieldType);
+            if (@override is not null && @override.Args.Any())
+            {
+                var exp = @override.Args[0];
+                if (exp is ArgumentExpression { Value: StringLiteralExpressionSyntax value })
+                    name = value.Value;
+                else
+                {
+                    Log.Defer.Error($"Invalid argument expression", exp);
+                    throw new SkipStatementException();
+                }
+            }
+                
+
+            var field = clazz.DefineField(name, GenerateFieldFlags(member), fieldType);
 
             CompileAnnotation(member, doc, field);
             return (field, member);
@@ -829,6 +850,19 @@ namespace vein.compilation
             GenerateBody(method, member.Body, member.OwnerClass.OwnerDocument);
         }
 
+        public void PostgenerateBody(MethodBuilder method)
+        {
+            var generator = method.GetGenerator();
+            // fucking shit fucking
+            // VM needs the end-of-method notation, which is RETURN.
+            // but in case of the VOID method, user may not write it
+            // and i didnt think of anything smarter than checking last OpCode
+            if (!generator._opcodes.Any() && method.ReturnType.TypeCode == TYPE_VOID)
+                generator.Emit(OpCodes.RET);
+            if (generator._opcodes.Any() && generator._opcodes.Last() != OpCodes.RET.Value && method.ReturnType.TypeCode == TYPE_VOID)
+                generator.Emit(OpCodes.RET);
+        }
+
         private void GenerateBody(MethodBuilder method, BlockSyntax block, DocumentDeclaration doc)
         {
             Status.VeinStatus($"Emitting [gray]'{method.Owner.FullName}:{method.Name}'[/]");
@@ -855,7 +889,8 @@ namespace vein.compilation
                     Log.Defer.Error($"[red bold]This syntax/statement currently is not supported.[/]", statement,
                         Context.Document);
 #if DEBUG
-                    AnsiConsole.WriteException(e);
+                    if (_flags.DisplayStacktraceGenerator)
+                        AnsiConsole.WriteException(e);
 #endif
                 }
                 catch (NotImplementedException e)
@@ -863,13 +898,15 @@ namespace vein.compilation
                     Log.Defer.Error($"[red bold]This syntax/statement currently is not implemented.[/]", statement,
                         Context.Document);
 #if DEBUG
-                    AnsiConsole.WriteException(e);
+                    if (_flags.DisplayStacktraceGenerator)
+                        AnsiConsole.WriteException(e);
 #endif
                 }
                 catch (SkipStatementException e)
                 {
 #if DEBUG
-                    AnsiConsole.WriteException(e);
+                    if (_flags.DisplayStacktraceGenerator)
+                        AnsiConsole.WriteException(e);
 #endif
                 }
                 catch (Exception e)
@@ -878,14 +915,6 @@ namespace vein.compilation
                         statement, Context.Document);
                 }
             }
-            // fucking shit fucking
-            // VM needs the end-of-method notation, which is RETURN.
-            // but in case of the VOID method, user may not write it
-            // and i didnt think of anything smarter than checking last OpCode
-            if (!generator._opcodes.Any() && method.ReturnType.TypeCode == TYPE_VOID)
-                generator.Emit(OpCodes.RET);
-            if (generator._opcodes.Any() && generator._opcodes.Last() != OpCodes.RET.Value && method.ReturnType.TypeCode == TYPE_VOID)
-                generator.Emit(OpCodes.RET);
         }
 
         private void AnalyzeStatement(BaseSyntax statement, DocumentDeclaration doc)
