@@ -4,7 +4,7 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
-    <Version>0.4.1182</Version>
+    <Version>0.9</Version>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
     <LangVersion>preview</LangVersion>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
