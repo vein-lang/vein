@@ -52,7 +52,7 @@ namespace vein.syntax
                 Identifier = typeAndName.Identifier,
                 Expression = exp
             };
-        
+
         /// example: private static x, y, z: int = 3;
         protected internal virtual Parser<FieldDeclarationSyntax> FieldDeclaration =>
             from heading in MemberDeclarationHeading.Token()
