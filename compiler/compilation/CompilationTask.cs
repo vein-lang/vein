@@ -81,7 +81,7 @@ namespace vein.compilation
         // Indicate files has changed
         public bool HasChanged { get; set; }
 
-        public Dictionary<FileInfo, DocumentDeclaration> AST { get; } = new ();
+        public Dictionary<FileInfo, DocumentDeclaration> AST { get; } = new();
 
         public DirectoryInfo GetOutputDirectory()
             => new(Path.Combine(Project.WorkDir.FullName, "bin"));
@@ -366,7 +366,7 @@ namespace vein.compilation
                     .Consume();
 
                 Cache.SaveAstAsset(Target);
-                
+
             }
             catch (SkipStatementException) { }
 
