@@ -10,6 +10,13 @@ namespace ishtar
 
         public uint vtable_offset;
 
+        public static RuntimeIshtarMethod DefineEmptySystemMethod(string name)
+            => new RuntimeIshtarMethod(name, MethodFlags.Extern, VeinTypeCode.TYPE_VOID.AsClass(),
+                new VeinArgumentRef[0]);
+        public static RuntimeIshtarMethod DefineEmptySystemMethod(string name, VeinClass clazz)
+            => new RuntimeIshtarMethod(name, MethodFlags.Extern, clazz, new VeinArgumentRef("i", clazz))
+                { Owner = clazz };
+
         internal RuntimeIshtarMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
             : base(name, flags, args) =>
             this.ReturnType = VeinTypeCode.TYPE_VOID.AsClass();

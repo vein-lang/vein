@@ -18,7 +18,8 @@ namespace ishtar
         ITransitionAlignment<string, RuntimeIshtarField>,
         ITransitionAlignment<string, RuntimeIshtarMethod>,
         IVTableCollectible,
-        IDisposable
+        IDisposable,
+        IFrameProvider
     {
         internal RuntimeIshtarClass(QualityTypeName name, VeinClass parent, RuntimeIshtarModule module)
             : base(name, parent, module)
@@ -273,7 +274,8 @@ namespace ishtar
             if (field.default_value is not null)
                 return field.default_value;
             if (field.FieldType.IsPrimitive)
-                return field.default_value = IshtarGC.AllocValue(field.FieldType);
+                return field.default_value = IshtarMarshal.Boxing(_sys_frame ??= IshtarFrames.VTableFrame(this),
+                    IshtarGC.AllocValue(field.FieldType));
             return null;
         }
         public new RuntimeIshtarField FindField(string name)
@@ -281,11 +283,11 @@ namespace ishtar
         public RuntimeIshtarMethod FindMethod(string fullyName)
             => Methods.FirstOrDefault(method => method.Name.Equals(fullyName)) as RuntimeIshtarMethod;
 
-
+        private CallFrame _sys_frame;
 
         public ITransitionAlignment<string, RuntimeIshtarField> Field => this;
         public ITransitionAlignment<string, RuntimeIshtarMethod> Method => this;
-
+        
         RuntimeIshtarField ITransitionAlignment<string, RuntimeIshtarField>.this[string key]
         {
             get

@@ -14,7 +14,7 @@ namespace ishtar
     using vein.reflection;
     using vein.runtime;
 
-    public class RuntimeIshtarModule : VeinModule
+    public class RuntimeIshtarModule : VeinModule, IFrameProvider
     {
         public AppVault Vault { get; }
         public ushort ID { get; internal set; }
@@ -57,7 +57,7 @@ namespace ishtar
             {
                 var exp = new ILCompatibleException(ilVersion, OpCodes.SetVersion);
 
-                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Unable to load assembly: '{exp.Message}'.");
+                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Unable to load assembly: '{exp.Message}'.", sys_frame);
                 VM.ValidateLastError();
                 return null;
             }
@@ -158,6 +158,8 @@ namespace ishtar
             module.Name = module.GetConstStringByIndex(idx);
             module.Version = Version.Parse(module.GetConstStringByIndex(vdx));
             module.aspects.AddRange(Aspect.Deconstruct(module.const_table.storage));
+
+            module.SetupBootstraper(vault);
 
             DistributionAspects(module);
             ValidateRuntimeTokens(module);
@@ -304,14 +306,14 @@ namespace ishtar
                 {
                     if (aspect.Arguments.Count != 1)
                     {
-                        VM.FastFail(WNE.TYPE_LOAD, $"(0x1) Native aspect incorrect arguments. [{method.Name}]");
+                        VM.FastFail(WNE.TYPE_LOAD, $"(0x1) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
                         VM.ValidateLastError();
                         return;
                     }
 
                     if (aspect.Arguments[0].Value is not string s)
                     {
-                        VM.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{method.Name}]");
+                        VM.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
                         VM.ValidateLastError();
                         return;
                     }
@@ -323,7 +325,7 @@ namespace ishtar
 
                 if (m is null)
                 {
-                    VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name} -> {name}' method not found in native mapping.");
+                    VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name} -> {name}' method not found in native mapping.", sys_frame);
                     VM.ValidateLastError();
                     return;
                 }
@@ -376,5 +378,12 @@ namespace ishtar
         }
         public RuntimeIshtarModule(AppVault vault) : base(null) => Vault = vault;
         public RuntimeIshtarModule(AppVault vault, string name) : base(name) => Vault = vault;
+
+
+        private void SetupBootstraper(AppVault vault) =>
+            Bootstrapper = new RuntimeIshtarClass(new QualityTypeName(Name, "boot", "<sys>"), new VeinClass[0], this);
+        public RuntimeIshtarClass Bootstrapper { get; private set; }
+
+        public static CallFrame sys_frame => IshtarFrames.ModuleLoaderFrame;
     }
 }
