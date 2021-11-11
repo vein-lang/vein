@@ -19,6 +19,18 @@ public static unsafe class B_Sys
         return IshtarMarshal.ToIshtarString(arg1, current);
     }
 
+    [IshtarExport(1, "@object2string")]
+    [IshtarExportFlags(Public | Static)]
+    public static IshtarObject* ObjectToString(CallFrame current, IshtarObject** args)
+    {
+        var arg1 = args[0];
+
+        FFI.StaticValidate(current, &arg1);
+        var @class = arg1->decodeClass();
+
+        return IshtarMarshal.ToIshtarString(arg1, current);
+    }
+
     [IshtarExport(0, "@queryPerformanceCounter")]
     [IshtarExportFlags(Public | Static)]
     public static IshtarObject* QueryPerformanceCounter(CallFrame current, IshtarObject** _)
@@ -29,6 +41,10 @@ public static unsafe class B_Sys
         new RuntimeIshtarMethod("@value2string", Public | Static | Extern,
                 new VeinArgumentRef("value", VeinCore.ValueTypeClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ValueToString)
+            .AddInto(table, x => x.Name);
+        new RuntimeIshtarMethod("@object2string", Public | Static | Extern,
+                new VeinArgumentRef("value", VeinCore.ObjectClass))
+            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ObjectToString)
             .AddInto(table, x => x.Name);
         new RuntimeIshtarMethod("@queryPerformanceCounter", Public | Static | Extern)
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&QueryPerformanceCounter)
