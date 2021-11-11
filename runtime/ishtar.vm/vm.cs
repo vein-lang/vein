@@ -409,13 +409,14 @@ namespace ishtar
                             var owner = readTypeName(*++ip, _module);
                             var method = GetMethod(tokenIdx, owner, _module, invocation);
                             ++ip;
-
+                            println($"@@@ {owner.NameWithNS}::{method.Name}");
                             var method_args = stackval.Alloc(method.ArgLength);
                             for (var i = 0; i != method.ArgLength; i++)
                             {
                                 var _a = method.Arguments[i]; // TODO, type eq validate
                                 --sp;
 #if DEBUG
+                                println($"@@@@<< {_a.Name}: {_a.Type.FullName.NameWithNS}");
                                 var arg_class = _a.Type as RuntimeIshtarClass;
                                 if (arg_class.Name is not "Object" and not "ValueType")
                                 {
@@ -424,8 +425,8 @@ namespace ishtar
 
                                     if (sp_class.ID != arg_class.ID)
                                     {
-                                        FastFail(WNE.TYPE_MISMATCH, $"Argument '{_a.Name}: {_a.Type.Name}'" +
-                                                                    $" is not matched for '{method.Name}' function.");
+                                        FastFail(TYPE_MISMATCH, $"Argument '{_a.Name}: {_a.Type.Name}'" +
+                                                                $" is not matched for '{method.Name}' function.");
                                         ValidateLastError();
                                     }
                                 }

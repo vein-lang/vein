@@ -8,7 +8,7 @@ namespace ishtar_test
     public class WatchDogEffluentException : Exception
     {
         public WatchDogEffluentException(NativeException exp)
-            : base($"native exception was thrown. [{exp.code}] '{exp.msg}'")
+            : base($"Ishtar internal error was thrown. [{exp.code}] '{exp.msg}'")
         { }
     }
     public class TestWatchDog : IWatchDog
