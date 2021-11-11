@@ -18,8 +18,7 @@ namespace ishtar
         ITransitionAlignment<string, RuntimeIshtarField>,
         ITransitionAlignment<string, RuntimeIshtarMethod>,
         IVTableCollectible,
-        IDisposable,
-        IFrameProvider
+        IDisposable
     {
         internal RuntimeIshtarClass(QualityTypeName name, VeinClass parent, RuntimeIshtarModule module)
             : base(name, parent, module)
