@@ -196,7 +196,7 @@ namespace ishtar
                             foreach (var method in ishtarModule.class_table
                                 .Where(@class => @class.Name.Equals(methodAspect.ClassName))
                                 .SelectMany(@class => @class.Methods
-                                    .Where(method => method.RawName.Equals(methodAspect.MethodName))))
+                                    .Where(method => method.Name.Equals(methodAspect.MethodName))))
                                 method.Aspects.Add(aspect);
                             break;
                         }

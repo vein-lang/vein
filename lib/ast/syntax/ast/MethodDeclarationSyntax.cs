@@ -2,6 +2,7 @@ namespace vein.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
+    using vein.extensions;
 
     public class MethodDeclarationSyntax : MemberDeclarationSyntax
     {
@@ -24,6 +25,9 @@ namespace vein.syntax
         public BlockSyntax Body { get; set; }
 
         public bool IsAbstract => Body == null;
+
+        public string GetQualityName()
+            => $"{Identifier}({Parameters.Select(x => $"{x.Type.Identifier}").Join(",")})";
 
         public override MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName)
         {
