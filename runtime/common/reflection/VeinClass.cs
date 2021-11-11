@@ -78,10 +78,33 @@ namespace vein.runtime
                 .FirstOrDefault(x =>
                 {
                     var nameHas = x.RawName.Equals(name);
-                    var argsHas = x.Arguments.Where(NotThis).Select(z => z.Type).SequenceEqual(args_types);
+                    var args = x.Arguments.Where(NotThis).Select(z => z.Type).ToArray();
+                    var argsHas = args.SequenceEqual(args_types);
+
+                    if (nameHas && !argsHas)
+                    {
+                        argsHas = CheckInheritance(args_types.ToArray(), args);
+                    }
 
                     return nameHas && argsHas;
                 });
+
+        // TODO
+        private bool CheckInheritance(VeinClass[] current, VeinClass[] target)
+        {
+            if (current.Length != target.Length)
+                return false;
+            var result = true;
+            for (int i = 0; i != current.Length; i++)
+            {
+                var t1 = current[i];
+                var t2 = target[i];
+                
+                result &= t1.Parents.Any(x => x.FullName.Equals(t2.FullName));
+            }
+
+            return result;
+        }
 
         public static bool NotThis(VeinArgumentRef arg) => !arg.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
 
