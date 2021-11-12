@@ -4,7 +4,6 @@
     <AssemblyName>ishtar</AssemblyName>
     <DefineConstants>DEBUG;STATIC_VALIDATE_IL;DEBUG_VTABLE;VALIDATE_RUNTIME_TOKEN</DefineConstants>
     <ImplicitUsings>enable</ImplicitUsings>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <TrimMode>link</TrimMode>
@@ -19,7 +18,6 @@
     <PackageReference Include="runtime.linux-arm64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
     <PackageReference Include="runtime.osx-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
     <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
-    <PackageReference Include="System.Runtime.Experimental" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\common\vein.common.csproj" />

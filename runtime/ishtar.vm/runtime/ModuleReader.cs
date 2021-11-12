@@ -14,7 +14,7 @@ namespace ishtar
     using vein.reflection;
     using vein.runtime;
 
-    public class RuntimeIshtarModule : VeinModule, IFrameProvider
+    public class RuntimeIshtarModule : VeinModule
     {
         public AppVault Vault { get; }
         public ushort ID { get; internal set; }

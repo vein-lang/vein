@@ -14,9 +14,3 @@ public static class IshtarFrames
 
     };
 }
-
-
-public interface IFrameProvider
-{
-    public static abstract CallFrame sys_frame { get; }
-}
