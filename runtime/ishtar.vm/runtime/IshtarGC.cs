@@ -129,7 +129,7 @@ namespace ishtar
 
             Unsafe.InitBlock(p, 0, (uint)sizeof(IshtarObject));
 
-            
+
             p->vtable = (void**)NativeMemory.Alloc((nuint)(sizeof(void*) * (long)@class.computed_size));
             Unsafe.InitBlock(p->vtable, 0, (uint)(sizeof(void*) * (long)@class.computed_size));
 
@@ -138,16 +138,16 @@ namespace ishtar
             p->vtable_size = (uint)@class.computed_size;
 
             GCStats.alive_objects++;
-            #if DEBUG
+#if DEBUG
             p->__gc_id = (long)GCStats.total_allocations++;
-            #else
+#else
             GCStats.total_allocations++;
-            #endif
+#endif
             GCStats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*);
             GCStats.total_bytes_requested += (ulong)sizeof(IshtarObject);
 
             if (node is null || *node is null) fixed (IshtarObject** o = &root)
-                p->owner = o;
+                    p->owner = o;
             else
                 p->owner = node;
 

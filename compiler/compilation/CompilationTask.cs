@@ -689,7 +689,7 @@ namespace vein.compilation
                     throw new SkipStatementException();
                 }
             }
-                
+
 
             var field = clazz.DefineField(name, GenerateFieldFlags(member), fieldType);
 
