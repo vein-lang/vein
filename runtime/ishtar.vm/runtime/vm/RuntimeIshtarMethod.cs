@@ -15,7 +15,7 @@ namespace ishtar
                 new VeinArgumentRef[0]);
         public static RuntimeIshtarMethod DefineEmptySystemMethod(string name, VeinClass clazz)
             => new RuntimeIshtarMethod(name, MethodFlags.Extern, clazz, new VeinArgumentRef("i", clazz))
-                { Owner = clazz };
+            { Owner = clazz };
 
         internal RuntimeIshtarMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
             : base(name, flags, args) =>

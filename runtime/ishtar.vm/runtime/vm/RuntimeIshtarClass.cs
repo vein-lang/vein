@@ -286,7 +286,7 @@ namespace ishtar
 
         public ITransitionAlignment<string, RuntimeIshtarField> Field => this;
         public ITransitionAlignment<string, RuntimeIshtarMethod> Method => this;
-        
+
         RuntimeIshtarField ITransitionAlignment<string, RuntimeIshtarField>.this[string key]
         {
             get
