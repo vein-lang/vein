@@ -320,7 +320,7 @@ namespace ishtar
 
             return val;
         }
-        
+
         public static IshtarObject* Boxing(CallFrame frame, stackval* p, IshtarObject** node = null)
         {
             if (p->type is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_RAW)

@@ -11,7 +11,7 @@ public static class IshtarFrames
     public static CallFrame VTableFrame(VeinClass clazz) => new CallFrame()
     {
         method = RuntimeIshtarMethod.DefineEmptySystemMethod("loader", clazz),
-        
+
     };
 }
 
