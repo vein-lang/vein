@@ -2,11 +2,11 @@
   "profiles": {
     "run test": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\git\\vein-std\\test\\bin\\test.corlib.wll"
+      "commandLineArgs": "C:\\git\\vein-std\\test\\bin\\test.corlib.wll --sys::log::use-console=1"
     },
     "run test_case 00": {
       "commandName": "Project",
-      "commandLineArgs": "O:\\wave_vm\\test\\mana_test\\00\\bin\\00.wll"
+      "commandLineArgs": "O:\\wave_vm\\test\\mana_test\\00\\bin\\00.wll --sys::log::use-console=1"
     }
   }
 }

@@ -1,6 +1,7 @@
 namespace ishtar
 {
     using System;
+    using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using vein.runtime;
@@ -25,11 +26,8 @@ namespace ishtar
         public static void ValidateLastError()
             => watcher?.ValidateLastError();
 
-        public static void println(string str)
-        {
-            if (!Environment.GetCommandLineArgs().Contains("--no-log"))
-                Console.WriteLine(str);
-        }
+        [Conditional("DEBUG")]
+        public static void println(string str) => Trace.println(str);
 
         public static void halt(int exitCode = -1)
             => Environment.Exit(exitCode);

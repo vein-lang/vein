@@ -5,14 +5,10 @@ namespace vein.runtime
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Text;
-    using System.Threading;
     using fs;
     using global::ishtar;
-    using vein.runtime;
-    using ishtar.emit;
 
     internal class Program
     {
@@ -24,6 +20,7 @@ namespace vein.runtime
 
         public static unsafe int Main(string[] args)
         {
+            ishtar.Trace.init();
             //while (!Debugger.IsAttached)
             //    Thread.Sleep(200);
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

@@ -12,192 +12,220 @@
 		.s 000006:'Out'
 		.s 000007:'Range'
 		.s 000008:'StringBuilder'
-		.s 000009:'Sys'
+		.s 000009:'TimeSpan'
 		.s 000010:'IYieldable'
 		.s 000011:'global::vein/lang/collections'
 		.s 000012:'IYield'
 		.s 000013:'Yieldable'
 		.s 000014:'IEEEConsts'
-		.s 000015:'NetworkStream'
-		.s 000016:'global::vein/lang/network'
-		.s 000017:'TcpListener'
-		.s 000018:'TcpSocket'
-		.s 000019:'BigInt'
-		.s 000020:'global::vein/lang/numeric'
-		.s 000021:'Quaternion'
-		.s 000022:'@_get_os_value'
-		.s 000023:'@_get_os_value()'
-		.s 000024:'@_exit'
-		.s 000025:'@_exit(String,Int32)'
-		.s 000026:'@_switch_flag'
-		.s 000027:'@_switch_flag(String,Boolean)'
-		.s 000028:'GetFrameworkName'
-		.s 000029:'GetFrameworkName()'
-		.s 000030:'Shutdown'
-		.s 000031:'Shutdown(String,Int32)'
-		.s 000032:'SwitchFlag'
-		.s 000033:'SwitchFlag(String,Boolean)'
-		.s 000034:'toString'
-		.s 000035:'toString()'
-		.s 000036:'get_Epsilon'
-		.s 000037:'get_Epsilon()'
-		.s 000038:'get_PositiveInfinity'
-		.s 000039:'get_PositiveInfinity()'
-		.s 000040:'get_NegativeInfinity'
-		.s 000041:'get_NegativeInfinity()'
-		.s 000042:'get_NaN'
-		.s 000043:'get_NaN()'
-		.s 000044:'Abs'
-		.s 000045:'Abs(Float)'
-		.s 000046:'@_println'
-		.s 000047:'@_println(String)'
-		.s 000048:'print'
-		.s 000049:'print(String)'
-		.s 000050:'new'
-		.s 000051:'new(UInt32,UInt32)'
-		.s 000052:'toString(ValueType)'
-		.s 000053:'get_Current'
-		.s 000054:'get_Current()'
-		.s 000055:'set_Current'
-		.s 000056:'set_Current(Object)'
-		.s 000057:'MoveNext'
-		.s 000058:'MoveNext()'
-		.s 000059:'Reset'
-		.s 000060:'Reset()'
-		.s 000061:'get_Yield'
-		.s 000062:'get_Yield()'
-		.s 000063:'set_Yield'
-		.s 000064:'set_Yield(IYieldable)'
-		.s 000065:'getHalfNaN'
-		.s 000066:'getHalfNaN()'
-		.s 000067:'getFloatNaN'
-		.s 000068:'getFloatNaN()'
-		.s 000069:'getDecimalNaN'
-		.s 000070:'getDecimalNaN()'
-		.s 000071:'getDoubleNaN'
-		.s 000072:'getDoubleNaN()'
-		.s 000073:'getHalfInfinity'
-		.s 000074:'getHalfInfinity()'
-		.s 000075:'getFloatInfinity'
-		.s 000076:'getFloatInfinity()'
-		.s 000077:'getDecimalInfinity'
-		.s 000078:'getDecimalInfinity()'
-		.s 000079:'getDoubleInfinity'
-		.s 000080:'getDoubleInfinity()'
-		.s 000081:'getHalfNegativeInfinity'
-		.s 000082:'getHalfNegativeInfinity()'
-		.s 000083:'getFloatNegativeInfinity'
-		.s 000084:'getFloatNegativeInfinity()'
-		.s 000085:'getDecimalNegativeInfinity'
-		.s 000086:'getDecimalNegativeInfinity()'
-		.s 000087:'getDoubleNegativeInfinity'
-		.s 000088:'getDoubleNegativeInfinity()'
-		.s 000089:'create'
-		.s 000090:'create(UInt16)'
-		.s 000091:'IsActive'
-		.s 000092:'IsActive()'
-		.s 000093:'Start'
-		.s 000094:'Start()'
-		.s 000095:'new(UInt16)'
-		.s 000096:'IsBlocked'
-		.s 000097:'IsBlocked()'
-		.s 000098:'IsListed'
-		.s 000099:'IsListed()'
-		.s 000100:'IsConnected'
-		.s 000101:'IsConnected()'
-		.s 000102:'Bind'
-		.s 000103:'Bind()'
-		.s 000104:'Send'
-		.s 000105:'Send(Byte)'
-		.s 000106:'Listen'
-		.s 000107:'Listen(Int32)'
-		.s 000108:'Create'
-		.s 000109:'Create(UInt16)'
-		.s 000110:'IsZero'
-		.s 000111:'IsZero()'
-		.s 000112:'Application.getPlatform()'
-		.s 000113:'ctor()'
-		.s 000114:'type_ctor()'
-		.s 000115:'Array'
-		.s 000116:'<Object>'
-		.s 000117:'msg'
-		.s 000118:'exitCode'
-		.s 000119:'key'
-		.s 000120:'value'
-		.s 000121:'<this>'
-		.s 000122:'x'
-		.s 000123:'start'
-		.s 000124:'end'
-		.s 000125:'port'
-		.s 000126:'buffer'
-		.s 000127:'cq'
-		.s 000128:'1.0.0.0'
+		.s 000015:'Sys'
+		.s 000016:'NetworkStream'
+		.s 000017:'global::vein/lang/network'
+		.s 000018:'TcpListener'
+		.s 000019:'TcpSocket'
+		.s 000020:'BigInt'
+		.s 000021:'global::vein/lang/numeric'
+		.s 000022:'Quaternion'
+		.s 000023:'@_get_os_value'
+		.s 000024:'@_get_os_value()'
+		.s 000025:'@_exit'
+		.s 000026:'@_exit(String,Int32)'
+		.s 000027:'@_switch_flag'
+		.s 000028:'@_switch_flag(String,Boolean)'
+		.s 000029:'GetFrameworkName'
+		.s 000030:'GetFrameworkName()'
+		.s 000031:'Shutdown'
+		.s 000032:'Shutdown(String,Int32)'
+		.s 000033:'SwitchFlag'
+		.s 000034:'SwitchFlag(String,Boolean)'
+		.s 000035:'toString'
+		.s 000036:'toString()'
+		.s 000037:'get_Epsilon'
+		.s 000038:'get_Epsilon()'
+		.s 000039:'get_PositiveInfinity'
+		.s 000040:'get_PositiveInfinity()'
+		.s 000041:'get_NegativeInfinity'
+		.s 000042:'get_NegativeInfinity()'
+		.s 000043:'get_NaN'
+		.s 000044:'get_NaN()'
+		.s 000045:'Abs'
+		.s 000046:'Abs(Float)'
+		.s 000047:'@_println'
+		.s 000048:'@_println(String)'
+		.s 000049:'print'
+		.s 000050:'print(String)'
+		.s 000051:'ctor'
+		.s 000052:'ctor(UInt32,UInt32)'
+		.s 000053:'op_Add'
+		.s 000054:'op_Add(String,String)'
+		.s 000055:'op_Add(String,Int32)'
+		.s 000056:'Concat'
+		.s 000057:'Concat(String,String)'
+		.s 000058:'ctor(Int64)'
+		.s 000059:'get_Current'
+		.s 000060:'get_Current()'
+		.s 000061:'set_Current'
+		.s 000062:'set_Current(Object)'
+		.s 000063:'MoveNext'
+		.s 000064:'MoveNext()'
+		.s 000065:'Reset'
+		.s 000066:'Reset()'
+		.s 000067:'get_Yield'
+		.s 000068:'get_Yield()'
+		.s 000069:'set_Yield'
+		.s 000070:'set_Yield(IYieldable)'
+		.s 000071:'getHalfNaN'
+		.s 000072:'getHalfNaN()'
+		.s 000073:'getFloatNaN'
+		.s 000074:'getFloatNaN()'
+		.s 000075:'getDecimalNaN'
+		.s 000076:'getDecimalNaN()'
+		.s 000077:'getDoubleNaN'
+		.s 000078:'getDoubleNaN()'
+		.s 000079:'getHalfInfinity'
+		.s 000080:'getHalfInfinity()'
+		.s 000081:'getFloatInfinity'
+		.s 000082:'getFloatInfinity()'
+		.s 000083:'getDecimalInfinity'
+		.s 000084:'getDecimalInfinity()'
+		.s 000085:'getDoubleInfinity'
+		.s 000086:'getDoubleInfinity()'
+		.s 000087:'getHalfNegativeInfinity'
+		.s 000088:'getHalfNegativeInfinity()'
+		.s 000089:'getFloatNegativeInfinity'
+		.s 000090:'getFloatNegativeInfinity()'
+		.s 000091:'getDecimalNegativeInfinity'
+		.s 000092:'getDecimalNegativeInfinity()'
+		.s 000093:'getDoubleNegativeInfinity'
+		.s 000094:'getDoubleNegativeInfinity()'
+		.s 000095:'toString(ValueType)'
+		.s 000096:'toString(Object)'
+		.s 000097:'queryPerformanceCounter'
+		.s 000098:'queryPerformanceCounter()'
+		.s 000099:'create'
+		.s 000100:'create(UInt16)'
+		.s 000101:'IsActive'
+		.s 000102:'IsActive()'
+		.s 000103:'Start'
+		.s 000104:'Start()'
+		.s 000105:'ctor(UInt16)'
+		.s 000106:'IsBlocked'
+		.s 000107:'IsBlocked()'
+		.s 000108:'IsListed'
+		.s 000109:'IsListed()'
+		.s 000110:'IsConnected'
+		.s 000111:'IsConnected()'
+		.s 000112:'Bind'
+		.s 000113:'Bind()'
+		.s 000114:'Send'
+		.s 000115:'Send(Byte)'
+		.s 000116:'Listen'
+		.s 000117:'Listen(Int32)'
+		.s 000118:'Create'
+		.s 000119:'Create(UInt16)'
+		.s 000120:'IsZero'
+		.s 000121:'IsZero()'
+		.s 000122:'Application.getPlatform()'
+		.s 000123:'ctor()'
+		.s 000124:'type_ctor'
+		.s 000125:'type_ctor()'
+		.s 000126:'Array'
+		.s 000127:'<Object>'
+		.s 000128:'get_Ticks'
+		.s 000129:'get_Ticks()'
+		.s 000130:'get_Days'
+		.s 000131:'get_Days()'
+		.s 000132:'get_Hours'
+		.s 000133:'get_Hours()'
+		.s 000134:'get_Milliseconds'
+		.s 000135:'get_Milliseconds()'
+		.s 000136:'get_Minutes'
+		.s 000137:'get_Minutes()'
+		.s 000138:'get_Seconds'
+		.s 000139:'get_Seconds()'
+		.s 000140:'msg'
+		.s 000141:'exitCode'
+		.s 000142:'key'
+		.s 000143:'value'
+		.s 000144:'<this>'
+		.s 000145:'x'
+		.s 000146:'start'
+		.s 000147:'end'
+		.s 000148:'v1'
+		.s 000149:'v2'
+		.s 000150:'ticks'
+		.s 000151:'port'
+		.s 000152:'buffer'
+		.s 000153:'cq'
+		.s 000154:'1.0.0.0'
 		.t 000000:'corlib%global::vein/lang/Application'
-		.t 000001:'corlib%global::vein/lang/Exception'
+		.t 000001:'corlib%global::vein/lang/Object'
 		.t 000002:'corlib%global::vein/lang/ValueType'
-		.t 000003:'corlib%global::vein/lang/Guid'
-		.t 000004:'corlib%global::vein/lang/IEEEConsts'
-		.t 000005:'corlib%global::vein/lang/Half'
-		.t 000006:'corlib%global::vein/lang/Out'
-		.t 000007:'corlib%global::vein/lang/Range'
-		.t 000008:'corlib%global::vein/lang/String'
+		.t 000003:'corlib%global::vein/lang/Exception'
+		.t 000004:'corlib%global::vein/lang/Guid'
+		.t 000005:'corlib%global::vein/lang/IEEEConsts'
+		.t 000006:'corlib%global::vein/lang/Half'
+		.t 000007:'corlib%global::vein/lang/Out'
+		.t 000008:'corlib%global::vein/lang/Range'
 		.t 000009:'corlib%global::vein/lang/Sys'
-		.t 000010:'corlib%global::vein/lang/collections/Yieldable'
-		.t 000011:'corlib%global::vein/lang/network/TcpListener'
-		.t 000012:'corlib%global::vein/lang/network/TcpSocket'
-		.t 000013:'corlib%global::vein/lang/numeric/Quaternion'
-		.t 000014:'corlib%global::vein/lang/Object'
-		.t 000015:'corlib%global::vein/lang/Int32'
-		.t 000016:'corlib%global::vein/lang/Void'
-		.t 000017:'corlib%global::vein/lang/Boolean'
-		.t 000018:'corlib%global::vein/lang/Array'
-		.t 000019:'corlib%global::vein/lang/Int64'
-		.t 000020:'corlib%global::vein/lang/BitConvert'
-		.t 000021:'corlib%global::vein/lang/Byte'
-		.t 000022:'corlib%global::vein/lang/Char'
-		.t 000023:'corlib%global::vein/lang/Decimal'
-		.t 000024:'corlib%global::vein/lang/Double'
-		.t 000025:'corlib%global::vein/lang/Float'
-		.t 000026:'corlib%global::vein/lang/Int16'
-		.t 000027:'corlib%global::vein/lang/Mathf'
-		.t 000028:'corlib%global::vein/lang/UInt32'
-		.t 000029:'corlib%global::vein/lang/StringBuilder'
-		.t 000030:'corlib%global::vein/lang/UInt16'
-		.t 000031:'corlib%global::vein/lang/collections/IYieldable'
-		.t 000032:'corlib%global::vein/lang/collections/IYield'
-		.t 000033:'corlib%global::vein/lang/network/NetworkStream'
-		.t 000034:'corlib%global::vein/lang/numeric/BigInt'
-		.f 000000:'Array._value'
-		.f 000001:'Array._block'
-		.f 000002:'Array.Length'
-		.f 000003:'Array.Rank'
-		.f 000004:'Boolean._value'
+		.t 000010:'corlib%global::vein/lang/String'
+		.t 000011:'corlib%global::vein/lang/TimeSpan'
+		.t 000012:'corlib%global::vein/lang/collections/Yieldable'
+		.t 000013:'corlib%global::vein/lang/network/TcpListener'
+		.t 000014:'corlib%global::vein/lang/network/TcpSocket'
+		.t 000015:'corlib%global::vein/lang/numeric/Quaternion'
+		.t 000016:'corlib%global::vein/lang/Int32'
+		.t 000017:'corlib%global::vein/lang/Void'
+		.t 000018:'corlib%global::vein/lang/Boolean'
+		.t 000019:'corlib%global::vein/lang/Array'
+		.t 000020:'corlib%global::vein/lang/Int64'
+		.t 000021:'corlib%global::vein/lang/BitConvert'
+		.t 000022:'corlib%global::vein/lang/Byte'
+		.t 000023:'corlib%global::vein/lang/Char'
+		.t 000024:'corlib%global::vein/lang/Decimal'
+		.t 000025:'corlib%global::vein/lang/Double'
+		.t 000026:'corlib%global::vein/lang/Float'
+		.t 000027:'corlib%global::vein/lang/Int16'
+		.t 000028:'corlib%global::vein/lang/Mathf'
+		.t 000029:'corlib%global::vein/lang/UInt32'
+		.t 000030:'corlib%global::vein/lang/raw'
+		.t 000031:'corlib%global::vein/lang/StringBuilder'
+		.t 000032:'corlib%global::vein/lang/UInt16'
+		.t 000033:'corlib%global::vein/lang/collections/IYieldable'
+		.t 000034:'corlib%global::vein/lang/collections/IYield'
+		.t 000035:'corlib%global::vein/lang/network/NetworkStream'
+		.t 000036:'corlib%global::vein/lang/numeric/BigInt'
+		.f 000000:'Array.!!value'
+		.f 000001:'Array.!!block'
+		.f 000002:'Array.!!size'
+		.f 000003:'Array.!!rank'
+		.f 000004:'Boolean.!!value'
 		.f 000005:'Boolean.True'
 		.f 000006:'Boolean.False'
 		.f 000007:'Boolean.TrueString'
 		.f 000008:'Boolean.FalseString'
-		.f 000009:'Byte._value'
-		.f 000010:'Char._value'
-		.f 000011:'Decimal._value'
-		.f 000012:'Double._value'
+		.f 000009:'Byte.!!value'
+		.f 000010:'Char.!!value'
+		.f 000011:'Decimal.!!value'
+		.f 000012:'Double.!!value'
 		.f 000013:'Exception.message'
-		.f 000014:'Float._value'
+		.f 000014:'Float.!!value'
 		.f 000015:'Guid.Empty'
 		.f 000016:'Guid._a'
 		.f 000017:'Guid._b'
 		.f 000018:'Guid._c'
-		.f 000019:'Half._value'
+		.f 000019:'Half.!!value'
 		.f 000020:'Half.NaN'
 		.f 000021:'Half.NegativeInfinity'
 		.f 000022:'Half.PositiveInfinity'
 		.f 000023:'Half.Epsilon'
-		.f 000024:'Int16._value'
+		.f 000024:'Int16.!!value'
 		.f 000025:'Int16.MaxValue'
 		.f 000026:'Int16.MinValue'
-		.f 000027:'Int32._value'
+		.f 000027:'Int32.!!value'
 		.f 000028:'Int32.MaxValue'
 		.f 000029:'Int32.MinValue'
-		.f 000030:'Int64._value'
+		.f 000030:'Int64.!!value'
 		.f 000031:'Int64.MaxValue'
 		.f 000032:'Int64.MinValue'
 		.f 000033:'Mathf.E'
@@ -206,32 +234,39 @@
 		.f 000036:'Mathf.defaultRoundDigits'
 		.f 000037:'Range.Start'
 		.f 000038:'Range.End'
-		.f 000039:'String._value'
+		.f 000039:'String.!!value'
 		.f 000040:'String.Length'
-		.f 000041:'UInt16._value'
-		.f 000042:'UInt16.MaxValue'
-		.f 000043:'UInt16.MinValue'
-		.f 000044:'UInt32._value'
-		.f 000045:'UInt32.MaxValue'
-		.f 000046:'UInt32.MinValue'
-		.f 000047:'Yieldable._current'
-		.f 000048:'TcpListener._port'
-		.f 000049:'TcpListener._dualMode'
-		.f 000050:'TcpListener._active'
-		.f 000051:'TcpListener._socket'
-		.f 000052:'TcpListener.ExclusiveAddressUse'
-		.f 000053:'TcpSocket._port'
-		.f 000054:'TcpSocket._is_listing'
-		.f 000055:'TcpSocket._handle'
-		.f 000056:'TcpSocket._blocked'
-		.f 000057:'TcpSocket._connected'
-		.f 000058:'Quaternion.X'
-		.f 000059:'Quaternion.Y'
-		.f 000060:'Quaternion.Z'
-		.f 000061:'Quaternion.W'
+		.f 000041:'TimeSpan.TicksPerDay'
+		.f 000042:'TimeSpan.TicksPerHour'
+		.f 000043:'TimeSpan.TicksPerMinute'
+		.f 000044:'TimeSpan.TicksPerSecond'
+		.f 000045:'TimeSpan.TicksPerMillisecond'
+		.f 000046:'TimeSpan._ticks'
+		.f 000047:'UInt16.!!value'
+		.f 000048:'UInt16.MaxValue'
+		.f 000049:'UInt16.MinValue'
+		.f 000050:'UInt32.!!value'
+		.f 000051:'UInt32.MaxValue'
+		.f 000052:'UInt32.MinValue'
+		.f 000053:'ValueType.!!value'
+		.f 000054:'Yieldable._current'
+		.f 000055:'TcpListener._port'
+		.f 000056:'TcpListener._dualMode'
+		.f 000057:'TcpListener._active'
+		.f 000058:'TcpListener._socket'
+		.f 000059:'TcpListener.ExclusiveAddressUse'
+		.f 000060:'TcpSocket._port'
+		.f 000061:'TcpSocket._is_listing'
+		.f 000062:'TcpSocket._handle'
+		.f 000063:'TcpSocket._blocked'
+		.f 000064:'TcpSocket._connected'
+		.f 000065:'Quaternion.X'
+		.f 000066:'Quaternion.Y'
+		.f 000067:'Quaternion.Z'
+		.f 000068:'Quaternion.W'
 	}
 
-	@'aspect/Native/class/Application/method/@_get_os_value._0' = '@_get_os_value'
+	@'aspect/Native/class/Application/method/@_get_os_value()._0' = '@_get_os_value'
 	@'aspect/Native/class/Array/field/_value._0' = '!!value'
 	@'aspect/Native/class/Array/field/_block._0' = '!!block'
 	@'aspect/Native/class/Array/field/Length._0' = '!!size'
@@ -246,23 +281,27 @@
 	@'aspect/Native/class/Int16/field/_value._0' = '!!value'
 	@'aspect/Native/class/Int32/field/_value._0' = '!!value'
 	@'aspect/Native/class/Int64/field/_value._0' = '!!value'
-	@'aspect/Native/class/Out/method/@_println._0' = '@_println'
-	@'aspect/Native/class/String/field/_value._0' = '!!value'
-	@'aspect/Native/class/Sys/method/toString._0' = '@value2string'
+	@'aspect/Native/class/Out/method/@_println(String)._0' = '@_println'
+	@'aspect/Native/class/String/field/__value._0' = '!!value'
+	@'aspect/Native/class/String/method/Concat(String,String)._0' = 'i_call_String_Concat'
 	@'aspect/Native/class/UInt16/field/_value._0' = '!!value'
 	@'aspect/Native/class/UInt32/field/_value._0' = '!!value'
-	@'aspect/Native/class/IEEEConsts/method/getHalfNaN._0' = 'i_call_get_Half_NaN'
-	@'aspect/Native/class/IEEEConsts/method/getFloatNaN._0' = 'i_call_get_Float_NaN'
-	@'aspect/Native/class/IEEEConsts/method/getDecimalNaN._0' = 'i_call_get_Decimal_NaN'
-	@'aspect/Native/class/IEEEConsts/method/getDoubleNaN._0' = 'i_call_get_Double_NaN'
-	@'aspect/Native/class/IEEEConsts/method/getHalfInfinity._0' = 'i_call_get_Half_Infinity'
-	@'aspect/Native/class/IEEEConsts/method/getFloatInfinity._0' = 'i_call_get_Float_Infinity'
-	@'aspect/Native/class/IEEEConsts/method/getDecimalInfinity._0' = 'i_call_get_Decimal_Infinity'
-	@'aspect/Native/class/IEEEConsts/method/getDoubleInfinity._0' = 'i_call_get_Double_Infinity'
-	@'aspect/Native/class/IEEEConsts/method/getHalfNegativeInfinity._0' = 'i_call_get_Half_NegativeInfinity'
-	@'aspect/Native/class/IEEEConsts/method/getFloatNegativeInfinity._0' = 'i_call_get_Float_NegativeInfinity'
-	@'aspect/Native/class/IEEEConsts/method/getDecimalNegativeInfinity._0' = 'i_call_get_Decimal_NegativeInfinity'
-	@'aspect/Native/class/IEEEConsts/method/getDoubleNegativeInfinity._0' = 'i_call_get_Double_NegativeInfinity'
+	@'aspect/Native/class/ValueType/field/__value._0' = '!!value'
+	@'aspect/Native/class/IEEEConsts/method/getHalfNaN()._0' = 'i_call_get_Half_NaN'
+	@'aspect/Native/class/IEEEConsts/method/getFloatNaN()._0' = 'i_call_get_Float_NaN'
+	@'aspect/Native/class/IEEEConsts/method/getDecimalNaN()._0' = 'i_call_get_Decimal_NaN'
+	@'aspect/Native/class/IEEEConsts/method/getDoubleNaN()._0' = 'i_call_get_Double_NaN'
+	@'aspect/Native/class/IEEEConsts/method/getHalfInfinity()._0' = 'i_call_get_Half_Infinity'
+	@'aspect/Native/class/IEEEConsts/method/getFloatInfinity()._0' = 'i_call_get_Float_Infinity'
+	@'aspect/Native/class/IEEEConsts/method/getDecimalInfinity()._0' = 'i_call_get_Decimal_Infinity'
+	@'aspect/Native/class/IEEEConsts/method/getDoubleInfinity()._0' = 'i_call_get_Double_Infinity'
+	@'aspect/Native/class/IEEEConsts/method/getHalfNegativeInfinity()._0' = 'i_call_get_Half_NegativeInfinity'
+	@'aspect/Native/class/IEEEConsts/method/getFloatNegativeInfinity()._0' = 'i_call_get_Float_NegativeInfinity'
+	@'aspect/Native/class/IEEEConsts/method/getDecimalNegativeInfinity()._0' = 'i_call_get_Decimal_NegativeInfinity'
+	@'aspect/Native/class/IEEEConsts/method/getDoubleNegativeInfinity()._0' = 'i_call_get_Double_NegativeInfinity'
+	@'aspect/Native/class/Sys/method/toString(ValueType)._0' = '@value2string'
+	@'aspect/Native/class/Sys/method/toString(Object)._0' = '@object2string'
+	@'aspect/Native/class/Sys/method/queryPerformanceCounter()._0' = '@queryPerformanceCounter'
 	@'Boolean.True' = 'True'
 	@'Boolean.False' = 'False'
 	@'Boolean.TrueString' = 'true'
@@ -298,51 +337,62 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000070
+			/* ::0006 */ .ldc.str .0x0000007A
 			/* ::0008 */ .ret
 			
 		}
 		
 		.method 'Shutdown' (msg: String, exitCode: Int32) public static -> Void
 		{
-			.size 24
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldarg.s 0x00000001.int
-			/* ::0012 */ .ldarg.s 0x00000002.int
-			/* ::0022 */ .call Application::@_exit(msg: String,exitCode: Int32)
-			/* ::0024 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0004 */ .ldarg.1
+			/* ::0014 */ .call Application::@_exit(msg: String,exitCode: Int32)
+			/* ::0016 */ .ret
 			
 		}
 		
 		.method 'SwitchFlag' (key: String, value: Boolean) public static -> Void
 		{
-			.size 24
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldarg.s 0x00000001.int
-			/* ::0012 */ .ldarg.s 0x00000002.int
-			/* ::0022 */ .call Application::@_switch_flag(key: String,value: Boolean)
-			/* ::0024 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0004 */ .ldarg.1
+			/* ::0014 */ .call Application::@_switch_flag(key: String,value: Boolean)
+			/* ::0016 */ .ret
 			
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Application) public special -> Application
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -350,10 +400,10 @@
 	.namespace 'global::vein/lang'
 	.struct 'Array' public special extends 'Object'
 	{
-		.field '_value' as 'ValueType' special
-		.field '_block' as 'Int64' special
-		.field 'Length' as 'Int64' public special readonly
-		.field 'Rank' as 'Int64' public special readonly
+		.field '!!value' as 'ValueType' special
+		.field '!!block' as 'Int64' special
+		.field '!!size' as 'Int64' public special readonly
+		.field '!!rank' as 'Int64' public special readonly
 		.method 'toString' (<this>: Array) public override -> String
 		{
 			.size 8
@@ -361,23 +411,34 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000073
+			/* ::0006 */ .ldc.str .0x0000007E
 			/* ::0008 */ .ret
 			
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Array) public special -> Array
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -385,18 +446,29 @@
 	.namespace 'global::vein/lang'
 	.class 'BitConvert' public extends 'Object'
 	{
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: BitConvert) public special -> BitConvert
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -404,23 +476,34 @@
 	.namespace 'global::vein/lang'
 	.struct 'Boolean' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
+		.field '!!value' as 'ValueType' special
 		.field 'True' as 'Boolean' literal public
 		.field 'False' as 'Boolean' literal public
 		.field 'TrueString' as 'String' literal public
 		.field 'FalseString' as 'String' literal public
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Boolean) public special -> Boolean
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -428,19 +511,30 @@
 	.namespace 'global::vein/lang'
 	.struct 'Byte' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
-		.method special 'ctor' () public special -> Void
+		.field '!!value' as 'ValueType' special
+		.method special 'ctor' (<this>: Byte) public special -> Byte
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -448,19 +542,30 @@
 	.namespace 'global::vein/lang'
 	.struct 'Char' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
-		.method special 'ctor' () public special -> Void
+		.field '!!value' as 'ValueType' special
+		.method special 'ctor' (<this>: Char) public special -> Char
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -468,19 +573,30 @@
 	.namespace 'global::vein/lang'
 	.struct 'Decimal' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
-		.method special 'ctor' () public special -> Void
+		.field '!!value' as 'ValueType' special
+		.method special 'ctor' (<this>: Decimal) public special -> Decimal
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -488,19 +604,30 @@
 	.namespace 'global::vein/lang'
 	.struct 'Double' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
-		.method special 'ctor' () public special -> Void
+		.field '!!value' as 'ValueType' special
+		.method special 'ctor' (<this>: Double) public special -> Double
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -509,23 +636,32 @@
 	.class 'Exception' public special extends 'Object'
 	{
 		.field 'message' as 'String' public
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Exception) public special -> Exception
 		{
-			.size 12
+			.size 30
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0002 */ .ldnull
-			/* ::0012 */ .stf message corlib%global::vein/lang/String, Public, Special
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldnull
+			/* ::0016 */ .ldarg.0
+			/* ::0026 */ .stf message corlib%global::vein/lang/String, Public, Special
+			/* ::0028 */ .ldarg.0
+			/* ::0030 */ .ret
 			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -533,57 +669,77 @@
 	.namespace 'global::vein/lang'
 	.struct 'Float' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
-		.method special 'ctor' () public special -> Void
+		.field '!!value' as 'ValueType' special
+		.method special 'ctor' (<this>: Float) public special -> Float
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
 	
 	.namespace 'global::vein/lang'
-	.class 'Guid' public extends 'Object', 'ValueType'
+	.struct 'Guid' public extends 'ValueType', 'Object'
 	{
 		.field 'Empty' as 'Guid' public static readonly
 		.field '_a' as 'Int32' 
 		.field '_b' as 'Int16' 
 		.field '_c' as 'Int16' 
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Guid) public special -> Guid
 		{
-			.size 46
+			.size 70
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .call ValueType::ctor()
-			/* ::0012 */ .ldnull
-			/* ::0022 */ .stf _a corlib%global::vein/lang/Int32, Public, Special
-			/* ::0024 */ .ldnull
-			/* ::0034 */ .stf _b corlib%global::vein/lang/Int16, Public, Special
-			/* ::0036 */ .ldnull
-			/* ::0046 */ .stf _c corlib%global::vein/lang/Int16, Public, Special
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0024 */ .call Object::ctor(<this>: Object)
+			/* ::0026 */ .ldnull
+			/* ::0028 */ .ldarg.0
+			/* ::0038 */ .stf _a corlib%global::vein/lang/Int32, Public, Special
+			/* ::0040 */ .ldnull
+			/* ::0042 */ .ldarg.0
+			/* ::0052 */ .stf _b corlib%global::vein/lang/Int16, Public, Special
+			/* ::0054 */ .ldnull
+			/* ::0056 */ .ldarg.0
+			/* ::0066 */ .stf _c corlib%global::vein/lang/Int16, Public, Special
+			/* ::0068 */ .ldarg.0
+			/* ::0070 */ .ret
 			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 26
+			.size 28
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0006 */ .newobj [corlib%global::vein/lang/Guid] 
-			/* ::0016 */ .call Guid::ctor()
+			/* ::0016 */ .call Guid::ctor(<this>: Guid)
 			/* ::0026 */ .stsf Empty corlib%global::vein/lang/Guid, Public
+			/* ::0028 */ .ret
 			
 		}
 		
@@ -592,7 +748,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'Half' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
+		.field '!!value' as 'ValueType' special
 		.field 'NaN' as 'Half' public static
 		.field 'NegativeInfinity' as 'Half' public static
 		.field 'PositiveInfinity' as 'Half' public static
@@ -645,16 +801,23 @@
 			
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Half) public special -> Half
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 48
+			.size 50
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
@@ -667,6 +830,7 @@
 			/* ::0036 */ .stsf PositiveInfinity corlib%global::vein/lang/Half, Public, Special
 			/* ::0038 */ .ldnull
 			/* ::0048 */ .stsf Epsilon corlib%global::vein/lang/Half, Public, Special
+			/* ::0050 */ .ret
 			
 		}
 		
@@ -675,21 +839,32 @@
 	.namespace 'global::vein/lang'
 	.struct 'Int16' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
+		.field '!!value' as 'ValueType' special
 		.field 'MaxValue' as 'Int16' literal public
 		.field 'MinValue' as 'Int16' literal public
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Int16) public special -> Int16
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -697,21 +872,32 @@
 	.namespace 'global::vein/lang'
 	.struct 'Int32' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
+		.field '!!value' as 'ValueType' special
 		.field 'MaxValue' as 'Int32' literal public
 		.field 'MinValue' as 'Int32' literal public
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Int32) public special -> Int32
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -719,21 +905,32 @@
 	.namespace 'global::vein/lang'
 	.struct 'Int64' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
+		.field '!!value' as 'ValueType' special
 		.field 'MaxValue' as 'Int64' literal public
 		.field 'MinValue' as 'Int64' literal public
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Int64) public special -> Int64
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -757,18 +954,29 @@
 			
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Mathf) public special -> Mathf
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -783,23 +991,32 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x00000074
+			/* ::0006 */ .ldc.str .0x0000007F
 			/* ::0008 */ .ret
 			
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Object) public special -> Object
 		{
-			.size 0
+			.size 4
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0004 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -811,29 +1028,40 @@
 		
 		.method 'print' (value: String) public static -> Void
 		{
-			.size 18
+			.size 14
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldarg.s 0x00000001.int
-			/* ::0016 */ .call Out::@_println(value: String)
-			/* ::0018 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Out::@_println(value: String)
+			/* ::0014 */ .ret
 			
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Out) public special -> Out
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -843,41 +1071,67 @@
 	{
 		.field 'Start' as 'UInt32' public
 		.field 'End' as 'UInt32' public
-		.method 'new' (<this>: Range, start: UInt32, end: UInt32)  -> Void
+		.method 'ctor' (<this>: Range, start: UInt32, end: UInt32)  -> Range
 		{
-			.size 34
+			.size 56
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldarg.s 0x00000002.int
-			/* ::0016 */ .stf Start corlib%global::vein/lang/UInt32, Public, Special
-			/* ::0022 */ .ldarg.s 0x00000003.int
-			/* ::0032 */ .stf End corlib%global::vein/lang/UInt32, Public, Special
-			/* ::0034 */ .ret
-			
-		}
-		
-		.method special 'ctor' () public special -> Void
-		{
-			.size 34
-			.maxstack 0x00000040
-			.locals 0x00000000
-			
-			.locals { }
-			/* ::0010 */ .call ValueType::ctor()
-			/* ::0012 */ .ldnull
-			/* ::0022 */ .stf Start corlib%global::vein/lang/UInt32, Public, Special
-			/* ::0024 */ .ldnull
-			/* ::0034 */ .stf End corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0002 */ .ldarg.1
+			/* ::0004 */ .ldarg.0
+			/* ::0014 */ .stf Start corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0016 */ .ldarg.2
+			/* ::0018 */ .ldarg.0
+			/* ::0028 */ .stf End corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0030 */ .ldarg.0
+			/* ::0040 */ .call Object::ctor(<this>: Object)
+			/* ::0042 */ .ldarg.0
+			/* ::0052 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0054 */ .ldarg.0
+			/* ::0056 */ .ret
 			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
+		}
+		
+	}
+	
+	.namespace 'global::vein/lang'
+	.struct 'raw' internal special extends 'Object'
+	{
+		.method special 'ctor' (<this>: raw) public special -> raw
+		{
+			.size 16
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
+		}
+		
+		.method special 'type_ctor' () public static special -> Void
+		{
+			.size 2
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -885,33 +1139,83 @@
 	.namespace 'global::vein/lang'
 	.struct 'String' public special extends 'Object'
 	{
-		.field '_value' as 'ValueType' special
+		.field '!!value' as 'raw' special
 		.field 'Length' as 'Int32' public special
 		.method 'toString' (<this>: String) public override -> String
 		{
-			.size 22
+			.size 14
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .ldf _value corlib%global::vein/lang/ValueType, Public, Special
-			/* ::0020 */ .call Sys::toString(value: ValueType)
-			/* ::0022 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Sys::toString(value: Object)
+			/* ::0014 */ .ret
 			
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'op_Add' (v1: String, v2: String) public static special -> String
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0004 */ .ldarg.1
+			/* ::0014 */ .call String::Concat(v1: String,v2: String)
+			/* ::0016 */ .ret
+			
+		}
+		
+		.method special 'op_Add' (v1: String, v2: Int32) public static special -> String
+		{
+			.size 38
+			.maxstack 0x00000040
+			.locals 0x00000001
+			
+			.locals { 
+				[0]: String, {'t'}
+			};
+			/* ::0002 */ .ldarg.1
+			/* ::0012 */ .call ValueType::toString(<this>: ValueType)
+			/* ::0018 */ .stloc.s 0x00000000.int
+			/* ::0020 */ .ldarg.0
+			/* ::0020 */ /* access local, var: 't', index: '0', type: 'global::vein/lang/String' */
+			/* ::0026 */ .ldloc.s 0x00000000.int
+			/* ::0036 */ .call String::Concat(v1: String,v2: String)
+			/* ::0038 */ .ret
+			
+		}
+		
+		.method extern Concat (v1: String, v2: String) static private -> String;
+		
+		.method special 'ctor' (<this>: String) public special -> String
+		{
+			.size 30
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldnull
+			/* ::0016 */ .ldarg.0
+			/* ::0026 */ .stf Length corlib%global::vein/lang/Int32, Public, Special
+			/* ::0028 */ .ldarg.0
+			/* ::0030 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -919,39 +1223,184 @@
 	.namespace 'global::vein/lang'
 	.class 'StringBuilder' public extends 'Object'
 	{
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: StringBuilder) public special -> StringBuilder
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
 	
 	.namespace 'global::vein/lang'
-	.class 'Sys' static internal extends 'Object'
+	.class 'TimeSpan' public extends 'Object'
 	{
-		.method extern toString (value: ValueType) public static -> String;
-		
-		.method special 'ctor' () public special -> Void
+		.field 'TicksPerDay' as 'Int64' public
+		.field 'TicksPerHour' as 'Int64' public
+		.field 'TicksPerMinute' as 'Int64' public
+		.field 'TicksPerSecond' as 'Int64' public
+		.field 'TicksPerMillisecond' as 'Int64' public
+		.field '_ticks' as 'Int64' internal
+		.method 'ctor' (<this>: TimeSpan, ticks: Int64) public -> TimeSpan
 		{
-			.size 0
+			.size 140
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.1
+			/* ::0004 */ .ldarg.0
+			/* ::0014 */ .stf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0016 */ .ldarg.0
+			/* ::0026 */ .call Object::ctor(<this>: Object)
+			/* ::0036 */ .ldc.i8.s 0xC92A69C000.long
+			/* ::0038 */ .ldarg.0
+			/* ::0048 */ .stf TicksPerDay corlib%global::vein/lang/Int64, Public, Special
+			/* ::0058 */ .ldc.i8.s 0x861C46800.long
+			/* ::0060 */ .ldarg.0
+			/* ::0070 */ .stf TicksPerHour corlib%global::vein/lang/Int64, Public, Special
+			/* ::0080 */ .ldc.i8.s 0x23C34600.long
+			/* ::0082 */ .ldarg.0
+			/* ::0092 */ .stf TicksPerMinute corlib%global::vein/lang/Int64, Public, Special
+			/* ::0102 */ .ldc.i8.s 0x00989680.long
+			/* ::0104 */ .ldarg.0
+			/* ::0114 */ .stf TicksPerSecond corlib%global::vein/lang/Int64, Public, Special
+			/* ::0124 */ .ldc.i8.s 0x00002710.long
+			/* ::0126 */ .ldarg.0
+			/* ::0136 */ .stf TicksPerMillisecond corlib%global::vein/lang/Int64, Public, Special
+			/* ::0138 */ .ldarg.0
+			/* ::0140 */ .ret
+			
+		}
+		
+		.method 'get_Ticks' (<this>: TimeSpan) public -> Int64
+		{
+			.size 14
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0014 */ .ret
+			
+		}
+		
+		.method 'get_Days' (<this>: TimeSpan) public -> Int64
+		{
+			.size 28
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0014 */ .ldarg.0
+			/* ::0024 */ .ldf TicksPerDay corlib%global::vein/lang/Int64, Public, Special
+			/* ::0026 */ .div
+			/* ::0028 */ .ret
+			
+		}
+		
+		.method 'get_Hours' (<this>: TimeSpan) public -> Int64
+		{
+			.size 40
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0014 */ .ldarg.0
+			/* ::0024 */ .ldf TicksPerHour corlib%global::vein/lang/Int64, Public, Special
+			/* ::0026 */ .div
+			/* ::0036 */ .ldc.i8.s 0x00000018.long
+			/* ::0038 */ .mod
+			/* ::0040 */ .ret
+			
+		}
+		
+		.method 'get_Milliseconds' (<this>: TimeSpan) public -> Int64
+		{
+			.size 40
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0014 */ .ldarg.0
+			/* ::0024 */ .ldf TicksPerMillisecond corlib%global::vein/lang/Int64, Public, Special
+			/* ::0026 */ .div
+			/* ::0036 */ .ldc.i8.s 0x000003E8.long
+			/* ::0038 */ .mod
+			/* ::0040 */ .ret
+			
+		}
+		
+		.method 'get_Minutes' (<this>: TimeSpan) public -> Int64
+		{
+			.size 40
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0014 */ .ldarg.0
+			/* ::0024 */ .ldf TicksPerMinute corlib%global::vein/lang/Int64, Public, Special
+			/* ::0026 */ .div
+			/* ::0036 */ .ldc.i8.s 0x0000003C.long
+			/* ::0038 */ .mod
+			/* ::0040 */ .ret
+			
+		}
+		
+		.method 'get_Seconds' (<this>: TimeSpan) public -> Int64
+		{
+			.size 40
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0014 */ .ldarg.0
+			/* ::0024 */ .ldf TicksPerSecond corlib%global::vein/lang/Int64, Public, Special
+			/* ::0026 */ .div
+			/* ::0036 */ .ldc.i8.s 0x0000003C.long
+			/* ::0038 */ .mod
+			/* ::0040 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -959,21 +1408,32 @@
 	.namespace 'global::vein/lang'
 	.struct 'UInt16' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
+		.field '!!value' as 'ValueType' special
 		.field 'MaxValue' as 'UInt16' literal public
 		.field 'MinValue' as 'UInt16' literal public
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: UInt16) public special -> UInt16
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -981,21 +1441,32 @@
 	.namespace 'global::vein/lang'
 	.struct 'UInt32' public special extends 'ValueType'
 	{
-		.field '_value' as 'ValueType' special
+		.field '!!value' as 'ValueType' special
 		.field 'MaxValue' as 'UInt32' literal public
 		.field 'MinValue' as 'UInt32' literal public
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: UInt32) public special -> UInt32
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -1003,6 +1474,7 @@
 	.namespace 'global::vein/lang'
 	.struct 'ValueType' public special extends 
 	{
+		.field '!!value' as 'raw' special
 		.method 'toString' (<this>: ValueType) public virtual -> String
 		{
 			.size 14
@@ -1016,18 +1488,27 @@
 			
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: ValueType) public special -> ValueType
 		{
-			.size 0
+			.size 4
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0004 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -1035,18 +1516,29 @@
 	.namespace 'global::vein/lang'
 	.struct 'Void' public special extends 'ValueType'
 	{
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Void) public special -> Void
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -1054,26 +1546,37 @@
 	.namespace 'global::vein/lang/collections'
 	.interface 'IYieldable' public abstract extends 'Object'
 	{
-		.method 'get_Current' () abstract -> Object
+		.method 'get_Current' (<this>: IYieldable) abstract -> Object
 		
-		.method 'set_Current' (value: Object) abstract -> Void
+		.method 'set_Current' (<this>: IYieldable, value: Object) abstract -> Void
 		
 		.method 'MoveNext' (<this>: IYieldable) public abstract -> Boolean
 		
 		.method 'Reset' (<this>: IYieldable) public abstract -> Void
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: IYieldable) public special -> IYieldable
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -1081,22 +1584,33 @@
 	.namespace 'global::vein/lang/collections'
 	.interface 'IYield' public abstract extends 'Object'
 	{
-		.method 'get_Yield' () public abstract -> IYieldable
+		.method 'get_Yield' (<this>: IYield) public abstract -> IYieldable
 		
-		.method 'set_Yield' (value: IYieldable) public abstract -> Void
+		.method 'set_Yield' (<this>: IYield, value: IYieldable) public abstract -> Void
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: IYield) public special -> IYield
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -1105,47 +1619,58 @@
 	.class 'Yieldable' public extends 'Object'
 	{
 		.field '_current' as 'Object' 
-		.method 'set_Current' (value: Object) public -> Object
+		.method 'set_Current' (<this>: Yieldable, value: Object) public -> Object
 		{
-			.size 16
+			.size 14
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldarg.s 0x00000001.int
-			/* ::0016 */ .stf _current corlib%global::vein/lang/Object, Public, Special
+			/* ::0002 */ .ldarg.1
+			/* ::0004 */ .ldarg.0
+			/* ::0014 */ .stf _current corlib%global::vein/lang/Object, Public, Special
 			
 		}
 		
-		.method 'get_Current' () public -> Object
+		.method 'get_Current' (<this>: Yieldable) public -> Object
 		{
-			.size 12
+			.size 14
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .ldf _current corlib%global::vein/lang/Object, Public, Special
-			/* ::0012 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _current corlib%global::vein/lang/Object, Public, Special
+			/* ::0014 */ .ret
 			
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Yieldable) public special -> Yieldable
 		{
-			.size 12
+			.size 30
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0002 */ .ldnull
-			/* ::0012 */ .stf _current corlib%global::vein/lang/Object, Public, Special
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldnull
+			/* ::0016 */ .ldarg.0
+			/* ::0026 */ .stf _current corlib%global::vein/lang/Object, Public, Special
+			/* ::0028 */ .ldarg.0
+			/* ::0030 */ .ret
 			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -1177,18 +1702,65 @@
 		
 		.method extern getDoubleNegativeInfinity () public static -> Double;
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: IEEEConsts) public special -> IEEEConsts
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
+		}
+		
+	}
+	
+	.namespace 'global::vein/lang'
+	.class 'Sys' static internal extends 'Object'
+	{
+		.method extern toString (value: ValueType) public static -> String;
+		
+		.method extern toString (value: Object) public static -> String;
+		
+		.method extern queryPerformanceCounter () public static -> Int64;
+		
+		.method special 'ctor' (<this>: Sys) public special -> Sys
+		{
+			.size 16
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
+		}
+		
+		.method special 'type_ctor' () public static special -> Void
+		{
+			.size 2
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -1196,18 +1768,29 @@
 	.namespace 'global::vein/lang/network'
 	.class 'NetworkStream' public extends 'Object'
 	{
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: NetworkStream) public special -> NetworkStream
 		{
-			.size 0
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0016 */ .ret
+			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -1234,13 +1817,14 @@
 		
 		.method 'IsActive' (<this>: TcpListener) public -> Boolean
 		{
-			.size 12
+			.size 14
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .ldf _active corlib%global::vein/lang/Boolean, Public, Special
-			/* ::0012 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _active corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0014 */ .ret
 			
 		}
 		
@@ -1255,7 +1839,36 @@
 			
 		}
 		
-		.method 'new' (<this>: TcpListener, port: UInt16) private -> Void
+		.method 'ctor' (<this>: TcpListener, port: UInt16) private -> TcpListener
+		{
+			.size 86
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldnull
+			/* ::0016 */ .ldarg.0
+			/* ::0026 */ .stf _port corlib%global::vein/lang/UInt16, Public, Special
+			/* ::0028 */ .ldnull
+			/* ::0030 */ .ldarg.0
+			/* ::0040 */ .stf _dualMode corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0042 */ .ldnull
+			/* ::0044 */ .ldarg.0
+			/* ::0054 */ .stf _active corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0056 */ .ldnull
+			/* ::0058 */ .ldarg.0
+			/* ::0068 */ .stf _socket corlib%global::vein/lang/network/TcpSocket, Public
+			/* ::0070 */ .ldnull
+			/* ::0072 */ .ldarg.0
+			/* ::0082 */ .stf ExclusiveAddressUse corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0084 */ .ldarg.0
+			/* ::0086 */ .ret
+			
+		}
+		
+		.method special 'type_ctor' () public static special -> Void
 		{
 			.size 2
 			.maxstack 0x00000040
@@ -1264,33 +1877,6 @@
 			.locals { }
 			/* ::0002 */ .ret
 			
-		}
-		
-		.method special 'ctor' () public special -> Void
-		{
-			.size 60
-			.maxstack 0x00000040
-			.locals 0x00000000
-			
-			.locals { }
-			/* ::0002 */ .ldnull
-			/* ::0012 */ .stf _port corlib%global::vein/lang/UInt16, Public, Special
-			/* ::0014 */ .ldnull
-			/* ::0024 */ .stf _dualMode corlib%global::vein/lang/Boolean, Public, Special
-			/* ::0026 */ .ldnull
-			/* ::0036 */ .stf _active corlib%global::vein/lang/Boolean, Public, Special
-			/* ::0038 */ .ldnull
-			/* ::0048 */ .stf _socket corlib%global::vein/lang/network/TcpSocket, Public
-			/* ::0050 */ .ldnull
-			/* ::0060 */ .stf ExclusiveAddressUse corlib%global::vein/lang/Boolean, Public, Special
-			
-		}
-		
-		.method special 'type_ctor' () public static special -> Void
-		{
-			.size 0
-			.maxstack 0x00000040
-			.locals 0x00000000
 		}
 		
 	}
@@ -1305,37 +1891,40 @@
 		.field '_connected' as 'Boolean' 
 		.method 'IsBlocked' (<this>: TcpSocket) public -> Boolean
 		{
-			.size 12
+			.size 14
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .ldf _blocked corlib%global::vein/lang/Boolean, Public, Special
-			/* ::0012 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _blocked corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0014 */ .ret
 			
 		}
 		
 		.method 'IsListed' (<this>: TcpSocket) public -> Boolean
 		{
-			.size 12
+			.size 14
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .ldf _is_listing corlib%global::vein/lang/Boolean, Public, Special
-			/* ::0012 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _is_listing corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0014 */ .ret
 			
 		}
 		
 		.method 'IsConnected' (<this>: TcpSocket) public -> Boolean
 		{
-			.size 12
+			.size 14
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .ldf _connected corlib%global::vein/lang/Boolean, Public, Special
-			/* ::0012 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _connected corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0014 */ .ret
 			
 		}
 		
@@ -1380,31 +1969,44 @@
 			.locals 0x00000000
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: TcpSocket) public special -> TcpSocket
 		{
-			.size 60
+			.size 86
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0002 */ .ldnull
-			/* ::0012 */ .stf _port corlib%global::vein/lang/UInt16, Public, Special
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
-			/* ::0024 */ .stf _is_listing corlib%global::vein/lang/Boolean, Public, Special
-			/* ::0026 */ .ldnull
-			/* ::0036 */ .stf _handle corlib%global::vein/lang/ValueType, Public, Special
-			/* ::0038 */ .ldnull
-			/* ::0048 */ .stf _blocked corlib%global::vein/lang/Boolean, Public, Special
-			/* ::0050 */ .ldnull
-			/* ::0060 */ .stf _connected corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0016 */ .ldarg.0
+			/* ::0026 */ .stf _port corlib%global::vein/lang/UInt16, Public, Special
+			/* ::0028 */ .ldnull
+			/* ::0030 */ .ldarg.0
+			/* ::0040 */ .stf _is_listing corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0042 */ .ldnull
+			/* ::0044 */ .ldarg.0
+			/* ::0054 */ .stf _handle corlib%global::vein/lang/ValueType, Public, Special
+			/* ::0056 */ .ldnull
+			/* ::0058 */ .ldarg.0
+			/* ::0068 */ .stf _blocked corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0070 */ .ldnull
+			/* ::0072 */ .ldarg.0
+			/* ::0082 */ .stf _connected corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0084 */ .ldarg.0
+			/* ::0086 */ .ret
 			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -1412,22 +2014,31 @@
 	.namespace 'global::vein/lang/numeric'
 	.class 'BigInt' public extends 'Object', 'ValueType'
 	{
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: BigInt) public special -> BigInt
 		{
-			.size 10
+			.size 28
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .call ValueType::ctor()
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0024 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0026 */ .ldarg.0
+			/* ::0028 */ .ret
 			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
@@ -1441,48 +2052,65 @@
 		.field 'W' as 'Float' public
 		.method 'IsZero' (<this>: Quaternion) public -> Boolean
 		{
-			.size 52
+			.size 60
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .ldf X corlib%global::vein/lang/Float, Public, Special
-			/* ::0012 */ .add
-			/* ::0022 */ .ldf Y corlib%global::vein/lang/Float, Public, Special
-			/* ::0024 */ .add
-			/* ::0034 */ .ldf Z corlib%global::vein/lang/Float, Public, Special
-			/* ::0036 */ .add
-			/* ::0046 */ .ldf W corlib%global::vein/lang/Float, Public, Special
-			/* ::0048 */ .eql.t
-			/* ::0050 */ .ldc.i4.0
-			/* ::0052 */ .ret
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf X corlib%global::vein/lang/Float, Public, Special
+			/* ::0014 */ .ldarg.0
+			/* ::0024 */ .ldf Y corlib%global::vein/lang/Float, Public, Special
+			/* ::0026 */ .add
+			/* ::0028 */ .ldarg.0
+			/* ::0038 */ .ldf Z corlib%global::vein/lang/Float, Public, Special
+			/* ::0040 */ .add
+			/* ::0042 */ .ldarg.0
+			/* ::0052 */ .ldf W corlib%global::vein/lang/Float, Public, Special
+			/* ::0054 */ .add
+			/* ::0056 */ .ldc.i4.0
+			/* ::0058 */ .eql.t
+			/* ::0060 */ .ret
 			
 		}
 		
-		.method special 'ctor' () public special -> Void
+		.method special 'ctor' (<this>: Quaternion) public special -> Quaternion
 		{
-			.size 58
+			.size 84
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0010 */ .call ValueType::ctor()
-			/* ::0012 */ .ldnull
-			/* ::0022 */ .stf X corlib%global::vein/lang/Float, Public, Special
-			/* ::0024 */ .ldnull
-			/* ::0034 */ .stf Y corlib%global::vein/lang/Float, Public, Special
-			/* ::0036 */ .ldnull
-			/* ::0046 */ .stf Z corlib%global::vein/lang/Float, Public, Special
-			/* ::0048 */ .ldnull
-			/* ::0058 */ .stf W corlib%global::vein/lang/Float, Public, Special
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .call Object::ctor(<this>: Object)
+			/* ::0014 */ .ldarg.0
+			/* ::0024 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0026 */ .ldnull
+			/* ::0028 */ .ldarg.0
+			/* ::0038 */ .stf X corlib%global::vein/lang/Float, Public, Special
+			/* ::0040 */ .ldnull
+			/* ::0042 */ .ldarg.0
+			/* ::0052 */ .stf Y corlib%global::vein/lang/Float, Public, Special
+			/* ::0054 */ .ldnull
+			/* ::0056 */ .ldarg.0
+			/* ::0066 */ .stf Z corlib%global::vein/lang/Float, Public, Special
+			/* ::0068 */ .ldnull
+			/* ::0070 */ .ldarg.0
+			/* ::0080 */ .stf W corlib%global::vein/lang/Float, Public, Special
+			/* ::0082 */ .ldarg.0
+			/* ::0084 */ .ret
 			
 		}
 		
 		.method special 'type_ctor' () public static special -> Void
 		{
-			.size 0
+			.size 2
 			.maxstack 0x00000040
 			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
 		}
 		
 	}
