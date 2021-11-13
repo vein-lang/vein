@@ -4,6 +4,5 @@ assembly-informational-format: '{Major}.{Minor}.{Patch}.{CommitsSinceVersionSour
 merge-message-formats: {}
 commit-message-incrementing: Enabled
 patch-version-bump-message: "^(add|bump|drop|mv|improvement|fix|refactor)(.+)?"
-minor-version-bump-message: "^(resolve)(.+)"
 tag-prefix: 'IGNORE'
 next-version: 0.9
