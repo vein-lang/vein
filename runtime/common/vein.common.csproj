@@ -2,7 +2,6 @@
   <PropertyGroup>
     <RootNamespace>vein</RootNamespace>
     <AssemblyName>vein.common</AssemblyName>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
   <ItemGroup>

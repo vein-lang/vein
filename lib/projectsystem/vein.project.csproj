@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Description>Collections of classes and structures for project system vein-lang and ishtar-vm</Description>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
