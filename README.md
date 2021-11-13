@@ -22,7 +22,7 @@
     <img src="https://img.shields.io/:license-MIT-blue.svg">
   </a>
   <a href="https://github.com/vein-lang/vein/releases">
-    <img src="https://img.shields.io/github/release/vein-lang/vein.svg?logo=github&style=flat">
+    <img src="https://img.shields.io/github/v/release/vein-lang/vein?include_prereleases&logo=github">
   </a>
 </p>
 <!-- popup badges -->
