@@ -28,6 +28,7 @@ namespace vein.compilation
     using reflection;
     using vein.fs;
     using vein.styles;
+    using System.Reflection;
 
     public enum CompilationStatus
     {
@@ -199,6 +200,8 @@ namespace vein.compilation
             return targets.Values.ToList().AsReadOnly();
         }
 
+        private static string CompilerDir => Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+
         public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info, ProgressContext context, CompileSettings settings)
         {
             var collection =
@@ -212,6 +215,7 @@ namespace vein.compilation
                 var task = context.AddTask($"Collect modules for '{target.Project.Name}'...").IsIndeterminate();
                 target.Resolver.AddSearchPath(target.Project.SDK.GetFullPath());
                 target.Resolver.AddSearchPath(target.Project.WorkDir);
+                target.Resolver.AddSearchPath(new DirectoryInfo(Path.Combine(CompilerDir, "../std")));
 
                 foreach (var package in target.Project.Dependencies.Packages)
                     list.Add(target.Resolver.ResolveDep(package, list));

@@ -72,6 +72,7 @@ public abstract class ModuleResolverBase : IAssemblyResolver
         try
         {
             var files = search_paths
+                .Where(x => x.Exists)
                 .SelectMany(x => x.EnumerateFiles($"*.{MODULE_FILE_EXTENSION}"))
                 .Where(x =>
                     x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase))
