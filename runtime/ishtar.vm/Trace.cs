@@ -26,7 +26,7 @@ internal static class Trace
         useDCH = Environment.GetEnvironmentVariable("--sys::log::use-dch=1") is not null;
         useConsole = Environment.GetEnvironmentVariable("--sys::log::use-console=1") is not null;
         useFile = Environment.GetEnvironmentVariable("--sys::log::use-file=1") is not null; // TODO
-        
+
         if (useDCH)
         {
             if (!dch_file.Exists)
