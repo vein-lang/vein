@@ -16,7 +16,7 @@
     <IlcDisableUnhandledExceptionExperience>true</IlcDisableUnhandledExceptionExperience>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup  Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
     <PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
     <PackageReference Include="runtime.linux-arm64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
