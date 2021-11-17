@@ -67,3 +67,5 @@ mana_lang.sln.DotSettings.user
 *.user
 
 .antlr/
+
+tools

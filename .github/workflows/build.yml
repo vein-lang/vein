@@ -12,8 +12,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build_all:
+    strategy:
+      matrix:
+        include:
+         - os: macos-latest
+           target: osx-x64
+           install_deps: false
+         - os: ubuntu-latest
+           target: linux-x64
+           install_deps: true
+         - os: windows-latest
+           target: win10-x64
+           install_deps: false
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
       with:
@@ -23,77 +35,37 @@ jobs:
       id: cache
       with:
         path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-linux64
+        key: ${{ runner.os }}-build-aot
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.100
-    - name: Install GitVersion
-      run: dotnet tool install --global --version 5.6.7 GitVersion.Tool
-    - run: dotnet restore
-    - run: dotnet build
-  build_osx_aot:
-    runs-on: macos-latest
-    needs: [coverage]
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - run: git fetch --prune --unshallow --tags
-    - uses: actions/cache@v1
-      id: cache
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-osx-64
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.100
-    - name: Install GitVersion
-      run: dotnet tool install --global --version 5.6.7 GitVersion.Tool
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: AOT build
-      run: dotnet publish -r osx-x64 -c Release
-      working-directory: ./runtime/ishtar.vm
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
-      with:
-        name: osx-x64-build
-        path: ./runtime/ishtar.vm/bin/Release/net6.0/osx-x64/native
-        if-no-files-found: error
-  build_linux:
-    runs-on: ubuntu-latest
-    needs: [coverage]
-    steps:
     - name: install pre-req
+      if: ${{ matrix.install_deps }} 
       run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - run: git fetch --prune --unshallow --tags
-    - uses: actions/cache@v1
-      id: cache
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-linux64
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.100
     - name: Install GitVersion
       run: dotnet tool install --global --version 5.6.7 GitVersion.Tool
     - name: Restore dependencies
       run: dotnet restore
-    - name: AOT build
-      run: dotnet publish -r linux-x64 -c Release
+    - name: AOT build (VM)
+      run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../../out 
       working-directory: ./runtime/ishtar.vm
-    - name: Upload a Build Artifact
+    - name: Build (Compiler)
+      run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../out 
+      working-directory: ./compiler/
+    - name: Build (Installer)
+      run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../../out 
+      working-directory: ./installer/
+    - name: Build (DCH)
+      run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../out 
+      working-directory: ./runtime/ishtar.dch/
+    - name: Upload artifacts
       uses: actions/upload-artifact@v2.2.3
       with:
-        name: linux-x64-build
-        path: ./runtime/ishtar.vm/bin/Release/net6.0/linux-x64/native
+        name: ${{ matrix.target }}-build
+        path: ./out
         if-no-files-found: error
+        
   build_linux_arm64:
     runs-on: ubuntu-20.04
     needs: [coverage]
@@ -154,38 +126,9 @@ jobs:
         path: ./runtime/ishtar.vm/bin/Release/net6.0/win-arm64/native
         if-no-files-found: error
         
-  build_win64:
-    runs-on: windows-latest
-    needs: [coverage]
-    steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-    - run: git fetch --prune --unshallow --tags
-    - uses: actions/cache@v1
-      id: cache
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-win10-x64
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.100
-    - name: Restore dependencies
-      run: dotnet restore
-    - name: AOT build
-      run: dotnet publish -r win10-x64 -c Release --self-contained
-      working-directory: ./runtime/ishtar.vm
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.3
-      with:
-        name: win10-x64-build
-        path: ./runtime/ishtar.vm/bin/Release/net6.0/win10-x64/native
-        if-no-files-found: error
-
   coverage:
     runs-on: windows-latest
-    needs: [build]
+    needs: [build_all]
     env:
       COMPlus_StressLog: 1
       COMPlus_LogLevel: 6
