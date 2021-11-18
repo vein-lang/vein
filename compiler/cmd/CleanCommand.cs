@@ -13,8 +13,9 @@ public class CleanCommand : Command
     {
         new DirectoryInfo(Directory.GetCurrentDirectory())
             .EnumerateFiles("*.vproj", SearchOption.AllDirectories)
-            .Count(out var len)
             .Select(VeinProject.LoadFrom)
+            .Where(x => x.CacheDir.Exists)
+            .Count(out var len)
             .Pipe(x => x.CacheDir.Delete(true))
             .Consume();
 

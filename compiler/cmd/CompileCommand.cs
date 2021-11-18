@@ -38,7 +38,7 @@ namespace vein.cmd
             {
                 var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-                var projects = curDir.EnumerateFiles("*.vproj").ToArray();
+                var projects = curDir.EnumerateFiles("*.vproj", SearchOption.AllDirectories).ToArray();
 
                 if (!projects.Any())
                 {
@@ -48,14 +48,22 @@ namespace vein.cmd
 
                 if (projects.Count() > 1)
                 {
-                    Log.Error($"Multiple project detected.");
-                    foreach (var p in projects)
-                        Log.Error($"\t::[orange]'{p.Name}'[/] in [orange]'{curDir.FullName}'[/] directory.");
-                    Log.Error($"Specify project in [orange]'manac build [[PROJECT]]'[/]");
-                    return -1;
-                }
+                    Log.Warn($"Multiple project detected.\n");
 
-                settings.Project = projects.Single().FullName;
+                    foreach (var (item, index) in projects.Select((x, y) => (x, y)))
+                        MarkupLine($"({index}) [orange]'{item.Name}'[/] in [orange]'{item.Directory.FullName}'[/] directory.");
+                    WriteLine();
+                    var promt = new TextPrompt<int>("Which project should build first?")
+                        .InvalidChoiceMessage("[red]That's not a valid input[/]")
+                        .DefaultValue(0)
+                        .AddChoices(projects.Select((x, y) => y));
+                    
+                    var answer = Prompt(promt);
+
+                    settings.Project = projects[answer].FullName;
+                }
+                else
+                    settings.Project = projects.Single().FullName;
             }
 
 
