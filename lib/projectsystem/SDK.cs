@@ -44,14 +44,29 @@ namespace vein.project
             throw new NotSupportedException("OS is not support");
         }
 
-        public SDKPack GetPackByAlias(string alias) =>
-            Packs.FirstOrDefault(x => x.Alias.Equals(alias)) ??
+        public SDKPack GetPackByAlias(string alias)
+        {
+            var pack =
+                Packs.FirstOrDefault(x => x.Alias.Equals(alias)) ??
+                Packs.FirstOrDefault(x => x.Alias.Equals("*"));
+
+            if (pack is not null)
+                return pack;
             throw new DirectoryNotFoundException($"Pack '{alias}' not installed in '{Name}' sdk.");
+        }
 
         public static VeinSDK Resolve(string name)
         {
             if (name.Equals("no-runtime"))
-                return new VeinSDK { Name = name, Version = "1.0.0.0", Packs = new SDKPack[0] };
+                return new VeinSDK
+                {
+                    Name = name,
+                    Version = "1.0.0.0",
+                    Packs = new []
+                    {
+                        new SDKPack() { Alias = "*", Kind = PackKind.Sdk, Name = "All", Version = "1.0.0.0" }
+                    }
+                };
 
             if (!SDKRoot.Exists)
                 throw new SDKNotInstalled($"Sdk is not installed.");
