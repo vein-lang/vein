@@ -59,17 +59,17 @@ static void chmod(FileInfo info)
 }
 
 if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-foreach (var file in bin_folder.EnumerateFiles())
-{
-    if (file.Name.Contains("ishtar"))
-        chmod(file);
-    if (file.Name.Contains("dch"))
-        chmod(file);
-    if (file.Name.Contains("veinc"))
-        chmod(file);
-    if (file.Name.Contains("veinlsp"))
-        chmod(file);
-}
+    foreach (var file in bin_folder.EnumerateFiles())
+    {
+        if (file.Name.Contains("ishtar"))
+            chmod(file);
+        if (file.Name.Contains("dch"))
+            chmod(file);
+        if (file.Name.Contains("veinc"))
+            chmod(file);
+        if (file.Name.Contains("veinlsp"))
+            chmod(file);
+    }
 
 
 AnsiConsole.MarkupLine($"[green]Success[/] install Vein Lang [grey]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");

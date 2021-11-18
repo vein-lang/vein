@@ -199,7 +199,7 @@ namespace vein.compilation
 
             return targets.Values.ToList().AsReadOnly();
         }
-        
+
 
         public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info, ProgressContext context, CompileSettings settings)
         {
