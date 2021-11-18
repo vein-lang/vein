@@ -50,6 +50,9 @@ namespace vein.project
 
         public static VeinSDK Resolve(string name)
         {
+            if (name.Equals("no-runtime"))
+                return new VeinSDK { Name = name, Version = "1.0.0.0", Packs = new SDKPack[0] };
+
             if (!SDKRoot.Exists)
                 throw new SDKNotInstalled($"Sdk is not installed.");
 

@@ -38,11 +38,7 @@ public class FullSTDCompilation
     }
 
     [OneTimeTearDown]
-    public void Clean()
-    {
-        Assert.IsTrue(cache_folder.Exists);
-        cache_folder.Delete(true);
-    }
+    public void Clean() => Assert.IsTrue(cache_folder.Exists);
 
     [Test, Order(1)]
     public void Clone()
