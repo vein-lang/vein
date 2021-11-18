@@ -9,6 +9,7 @@ namespace vein.cmd
     using Spectre.Console.Cli;
     using static Spectre.Console.AnsiConsole;
 
+    [ExcludeFromCodeCoverage]
     public class CompileSettings : CommandSettings
     {
         [Description("Path to vproj file")]
@@ -30,6 +31,8 @@ namespace vein.cmd
         [CommandOption("--sys-stack-trace")]
         public bool DisplayStacktraceGenerator { get; set; }
     }
+
+    [ExcludeFromCodeCoverage]
     public class CompileCommand : Command<CompileSettings>
     {
         public override int Execute(CommandContext context, CompileSettings settings)

@@ -10,6 +10,7 @@ using MoreLinq;
 using syntax;
 using static Spectre.Console.AnsiConsole;
 
+[ExcludeFromCodeCoverage]
 public static class Log
 {
     public static Queue<string> warnings { get; } = new();

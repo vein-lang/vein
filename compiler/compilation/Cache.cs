@@ -11,7 +11,7 @@ using MoreLinq;
 using Newtonsoft.Json;
 
 
-
+[ExcludeFromCodeCoverage]
 public class Cache
 {
     public static Asset Validate(CompilationTarget target, ProgressTask read_task, Dictionary<FileInfo, string> sources)

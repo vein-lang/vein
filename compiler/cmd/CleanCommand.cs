@@ -7,6 +7,8 @@ using project;
 using Spectre.Console.Cli;
 using vein.extensions;
 
+
+[ExcludeFromCodeCoverage]
 public class CleanCommand : Command
 {
     public override int Execute(CommandContext context)

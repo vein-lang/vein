@@ -8,9 +8,26 @@
     <ProjectReference Include="..\..\runtime\ishtar.vm\ishtar.vm.csproj" />
     <ProjectReference Include="..\..\compiler\veinc.csproj" />
   </ItemGroup>
-	<ItemGroup>
+  <ItemGroup>
 	  <None Update="corlib.wll">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	</ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+    <Using Include="System.Runtime.Serialization" />
+    <Using Include="System.Text" />
+    <Using Include="System.Runtime.CompilerServices" />
+    <Using Include="System.Runtime.InteropServices" />
+    <Using Include="System.Threading" />
+    <Using Include="Sprache" />
+    <Using Include="vein.stl" />
+    <Using Include="vein.syntax" />
+    <Using Include="vein.fs" />
+    <Using Include="vein.runtime" />
+    <Using Include="vein.extensions" />
+    <Using Include="vein" />
+    <Using Include="ishtar" />
+    <Using Include="ishtar.emit" />
+  </ItemGroup>
 </Project>

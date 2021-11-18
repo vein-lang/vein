@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using Newtonsoft.Json;
 
+[ExcludeFromCodeCoverage]
 public class FileInfoSerializer : JsonConverter<FileInfo>
 {
     public override void WriteJson(JsonWriter writer, FileInfo value, JsonSerializer serializer)

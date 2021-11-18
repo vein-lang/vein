@@ -1,31 +1,31 @@
-namespace vein.pipes
+namespace vein.pipes;
+
+using System.IO;
+using cmd;
+using MoreLinq;
+
+[ExcludeFromCodeCoverage]
+public class CopySDKBinaries : CompilerPipeline
 {
-    using System.IO;
-    using cmd;
-    using MoreLinq;
+    public override int Order => 1;
 
-    public class CopySDKBinaries : CompilerPipeline
+    public override void Action()
     {
-        public override int Order => 1;
+        if (Project.SDK.Name.Equals("no-runtime"))
+            return;
+        if (!Target.HasChanged)
+            return;
 
-        public override void Action()
-        {
-            if (Project.SDK.Name.Equals("no-runtime"))
-                return;
-            if (!Target.HasChanged)
-                return;
+        var current_path = OutputBinaryPath.Directory;
+        var files = Project.SDK.
+            GetFullPath(string.IsNullOrEmpty(Project.Runtime) ? Project.SDK.GetDefaultPack() : Project.SDK.
+                GetPackByAlias(Project.Runtime)).EnumerateFiles("*.wll");
 
-            var current_path = OutputBinaryPath.Directory;
-            var files = Project.SDK.
-                GetFullPath(string.IsNullOrEmpty(Project.Runtime) ? Project.SDK.GetDefaultPack() : Project.SDK.
-                    GetPackByAlias(Project.Runtime)).EnumerateFiles("*.wll");
+        var bin = current_path.SubDirectory("refs");
 
-            var bin = current_path.SubDirectory("refs");
+        bin.Create();
 
-            bin.Create();
-
-            files.ForEach(f => File.Copy(f.FullName, Path.Combine(bin.FullName, f.Name)));
-        }
-        public override bool CanApply(CompileSettings flags) => true;
+        files.ForEach(f => File.Copy(f.FullName, Path.Combine(bin.FullName, f.Name)));
     }
+    public override bool CanApply(CompileSettings flags) => true;
 }
