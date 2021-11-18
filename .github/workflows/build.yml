@@ -54,10 +54,10 @@ jobs:
       run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../out 
       working-directory: ./compiler/
     - name: Build (Installer)
-      run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../../out 
+      run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../out 
       working-directory: ./installer/
     - name: Build (DCH)
-      run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../out 
+      run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../../out 
       working-directory: ./runtime/ishtar.dch/
     - name: Upload artifacts
       uses: actions/upload-artifact@v2.2.3
