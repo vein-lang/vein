@@ -1,0 +1,20 @@
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+    - run: git fetch --prune --unshallow --tags
+    - uses: actions/cache@v1
+      id: cache
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-linux64
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.100
+    - name: Install GitVersion
+      run: dotnet tool install --global --version 5.6.7 GitVersion.Tool
+    - run: dotnet restore
+    - run: dotnet build
