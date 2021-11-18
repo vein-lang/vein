@@ -59,6 +59,7 @@ namespace vein.syntax
 
         public int ArrayRank { get; set; }
         public int PointerRank { get; set; }
+        public bool IsSelf => Identifier.ToString().Equals("self");
 
 
         public string GetFullName()

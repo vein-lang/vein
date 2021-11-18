@@ -637,14 +637,15 @@ namespace vein.compilation
         public (MethodBuilder method, MethodDeclarationSyntax syntax)
             CompileMethod(MethodDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
-            var retType = FetchType(member.ReturnType, doc);
+            var retType = member.ReturnType.IsSelf ? clazz :
+                FetchType(member.ReturnType, doc);
 
             if (retType is null)
                 return default;
 
             var args = GenerateArgument(member, doc);
 
-            if (member.Identifier.ExpressionString.Equals("new"))
+            if (member.IsConstructor())
             {
                 member.Identifier = new IdentifierExpression("ctor");
 
@@ -674,7 +675,9 @@ namespace vein.compilation
         public (VeinField field, FieldDeclarationSyntax member)
             CompileField(FieldDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
-            var fieldType = FetchType(member.Type, doc);
+            var fieldType = member.Type.IsSelf ?
+                clazz :
+                FetchType(member.Type, doc);
 
             if (fieldType is null)
                 return default;
@@ -703,7 +706,9 @@ namespace vein.compilation
         public (VeinProperty prop, PropertyDeclarationSyntax member)
             CompileProperty(PropertyDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
         {
-            var propType = FetchType(member.Type, doc);
+            var propType = member.Type.IsSelf ?
+                clazz :
+                FetchType(member.Type, doc);
 
             if (propType is null)
             {
@@ -1096,8 +1101,13 @@ namespace vein.compilation
                 return args.ToArray();
 
             return args.Concat(method.Parameters.Select(parameter => new VeinArgumentRef
-            { Type = FetchType(parameter.Type, doc), Name = parameter.Identifier.ExpressionString }))
-                .ToArray();
+            {
+                Type = parameter.Type.IsSelf ?
+                    FetchType(method.OwnerClass.Identifier, doc) :
+                    FetchType(parameter.Type, doc),
+                Name = parameter.Identifier.ExpressionString
+
+            })).ToArray();
         }
         private ClassFlags GenerateClassFlags(ClassDeclarationSyntax clazz)
         {
