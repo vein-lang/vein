@@ -12,7 +12,7 @@ public class CleanCommand : Command
     public override int Execute(CommandContext context)
     {
         new DirectoryInfo(Directory.GetCurrentDirectory())
-            .EnumerateFiles("*.vproj")
+            .EnumerateFiles("*.vproj", SearchOption.AllDirectories)
             .Count(out var len)
             .Select(VeinProject.LoadFrom)
             .Pipe(x => x.CacheDir.Delete(true))
