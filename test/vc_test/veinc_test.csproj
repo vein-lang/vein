@@ -1,19 +1,31 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <ImplicitUsings>enable</ImplicitUsings>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+    <ProjectReference Include="..\..\compiler\veinc.csproj" />
+    <PackageReference Include="LibGit2Sharp" Version="0.27.0-preview-0158" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\compiler\veinc.csproj" />
+    <Using Include="NUnit.Framework" />
+    <Using Include="System.Runtime.Serialization" />
+    <Using Include="System.Text" />
+    <Using Include="System.Runtime.CompilerServices" />
+    <Using Include="System.Runtime.InteropServices" />
+    <Using Include="System.Threading" />
+    <Using Include="Sprache" />
+    <Using Include="vein.stl" />
+    <Using Include="vein.syntax" />
+    <Using Include="vein.fs" />
+    <Using Include="vein.runtime" />
+    <Using Include="vein.extensions" />
+    <Using Include="vein" />
+    <Using Include="ishtar" />
+    <Using Include="ishtar.emit" />
   </ItemGroup>
 </Project>

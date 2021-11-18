@@ -42,6 +42,7 @@ namespace vein.syntax
             return this;
         }
 
+        public bool IsConstructor() => Identifier.ExpressionString.Equals("new");
 
         public ClassDeclarationSyntax OwnerClass { get; set; }
     }

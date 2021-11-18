@@ -1,4 +1,4 @@
-namespace wc_test
+namespace veinc_test
 {
     using Newtonsoft.Json;
     using vein.project;

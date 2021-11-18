@@ -1,0 +1,67 @@
+namespace veinc_test.STD;
+
+using System.Globalization;
+using LibGit2Sharp;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using vein.cmd;
+using vein.compilation;
+using vein.json;
+using vein.project;
+
+[TestFixture]
+public class FullSTDCompilation
+{
+    public const string StdUrl = "https://github.com/vein-lang/std.git";
+
+    public DirectoryInfo cache_folder { get; set; }
+    public FileInfo project_file => cache_folder.SubDirectory("src").File("corlib.vproj");
+    [OneTimeSetUp]
+    public void Setup()
+    {
+        cache_folder = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "veinc_test_cache", Guid.NewGuid().ToString().Trim('-')));
+        cache_folder.Create();
+        ColorShim.Apply();
+        JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            Formatting = Formatting.Indented,
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Culture = CultureInfo.InvariantCulture,
+            Converters = new List<JsonConverter>()
+            {
+                new FileInfoSerializer(),
+                new StringEnumConverter()
+            }
+        };
+        Environment.SetEnvironmentVariable("NO_COLOR", "1", EnvironmentVariableTarget.Process);
+    }
+
+    [OneTimeTearDown]
+    public void Clean()
+    {
+        Assert.IsTrue(cache_folder.Exists);
+        cache_folder.Delete(true);
+    }
+
+    [Test, Order(1)]
+    public void Clone()
+    {
+        Assert.IsTrue(cache_folder.Exists);
+        Console.WriteLine(Repository.Clone(StdUrl, cache_folder.FullName));
+    }
+
+    [Test, Order(2)]
+    public void Compile()
+    {
+        var project = VeinProject.LoadFrom(project_file);
+        var settings = new CompileSettings();
+        var targets = CompilationTask.Run(project.WorkDir, settings);
+        Assert.IsNotEmpty(targets);
+        Assert.IsTrue(targets.Count == 1);
+
+        var target = targets.Single();
+
+        Assert.IsTrue(target.Status == CompilationStatus.Success);
+    }
+}
