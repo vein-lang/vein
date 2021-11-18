@@ -45,5 +45,12 @@ namespace vein.extensions
 
         public static IEnumerable<T> OfExactType<T>(this IEnumerable enumerable)
             => enumerable.OfType<T>().Where(t => t.GetType() == typeof(T));
+
+        public static IEnumerable<T> Count<T>(this IEnumerable<T> enumerable, out uint count)
+        {
+            var collection = enumerable.ToArray();
+            count = (uint)collection.Length;
+            return collection;
+        }
     }
 }

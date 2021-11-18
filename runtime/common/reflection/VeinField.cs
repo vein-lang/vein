@@ -122,7 +122,7 @@ namespace vein.runtime
         public bool IsPrivate => !IsPublic;
     }
 
-    public static class ManaFieldExtension
+    public static class VeinFieldExtension
     {
         public static Func<string, object> GetConverter(this VeinTypeCode code)
         {
