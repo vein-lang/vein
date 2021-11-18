@@ -69,3 +69,5 @@ mana_lang.sln.DotSettings.user
 .antlr/
 
 tools
+
+installer/gen/blobs/
