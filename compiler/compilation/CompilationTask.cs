@@ -578,7 +578,7 @@ namespace vein.compilation
                 .Where(x => !x.IsAbstract)
                 .Where(x => !x.IsSpecial);
 
-            foreach (var method in prepairedOthers.Where(@class.Contains))
+            foreach (var method in prepairedOthers.Where(@class.Contains).Where(x => !x.IsOverride))
             {
                 Log.Defer.Warn(
                     $"[yellow]'{method.Name}' hides inherited member '{method.Name}'.[/]",
