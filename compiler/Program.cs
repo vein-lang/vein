@@ -65,9 +65,11 @@ AppFlags.RegisterArgs(ref args);
 
 var app = new CommandApp();
 
-
-
-app.Configure(config => config.AddCommand<CompileCommand>("build"));
+app.Configure(config =>
+{
+    config.AddCommand<CompileCommand>("build");
+    config.AddCommand<CleanCommand>("clean");
+});
 
 var result = app.Run(args);
 
