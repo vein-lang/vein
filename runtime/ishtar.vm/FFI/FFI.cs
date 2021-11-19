@@ -2,7 +2,6 @@ namespace ishtar
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Linq;
     using vein.runtime;
 
     public static unsafe class FFI
@@ -16,6 +15,7 @@ namespace ishtar
             B_IEEEConsts.InitTable(method_table);
             B_Sys.InitTable(method_table);
             B_String.InitTable(method_table);
+            B_StringBuilder.InitTable(method_table);
         }
 
 

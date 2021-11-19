@@ -1,10 +1,7 @@
 namespace ishtar;
 
-using System.Diagnostics;
 using vein.runtime;
-using static System.Console;
 using static vein.runtime.MethodFlags;
-using static vein.runtime.VeinTypeCode;
 
 public unsafe static class B_StringBuilder
 {
