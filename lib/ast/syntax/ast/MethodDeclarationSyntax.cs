@@ -27,7 +27,7 @@ namespace vein.syntax
         public bool IsAbstract => Body == null;
 
         public string GetQualityName()
-            => $"{Identifier}({Parameters.Select(x => $"{x.Type.Identifier}").Join(",")})";
+            => $"{Identifier}({Parameters.Select(x => $"{(x.Type.IsSelf ? OwnerClass.Identifier : x.Type.Identifier)}").Join(",")})";
 
         public override MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName)
         {
