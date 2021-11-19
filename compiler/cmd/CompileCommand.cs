@@ -60,7 +60,7 @@ namespace vein.cmd
                         .InvalidChoiceMessage("[red]That's not a valid input[/]")
                         .DefaultValue(0)
                         .AddChoices(projects.Select((x, y) => y));
-                    
+
                     var answer = Prompt(promt);
 
                     settings.Project = projects[answer].FullName;
