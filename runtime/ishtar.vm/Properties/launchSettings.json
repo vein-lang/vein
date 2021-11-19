@@ -2,7 +2,7 @@
   "profiles": {
     "run test": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\git\\vein-std\\test\\bin\\test.corlib.wll --sys::log::use-console=1"
+      "commandLineArgs": "C:\\git\\vein-std\\test\\bin\\test.corlib.wll --sys::log::use-console=1 --sys::display-ffi-mapping"
     },
     "run test_case 00": {
       "commandName": "Project",
