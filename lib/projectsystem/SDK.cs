@@ -62,7 +62,7 @@ namespace vein.project
                 {
                     Name = name,
                     Version = "1.0.0.0",
-                    Packs = new []
+                    Packs = new[]
                     {
                         new SDKPack() { Alias = "*", Kind = PackKind.Sdk, Name = "All", Version = "1.0.0.0" }
                     }
