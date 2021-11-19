@@ -24,7 +24,7 @@ namespace vein.runtime
         public QualityTypeName FullName { get; set; }
         public string Name => FullName.Name;
         public string Path => FullName.Namespace;
-        public ClassFlags Flags { get; set; }
+        public virtual ClassFlags Flags { get; set; }
         public UniqueList<VeinClass> Parents { get; set; } = new();
         public List<VeinField> Fields { get; } = new();
         public List<VeinMethod> Methods { get; set; } = new();
