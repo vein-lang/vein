@@ -40,124 +40,149 @@
 		.s 000034:'SwitchFlag(String,Boolean)'
 		.s 000035:'toString'
 		.s 000036:'toString()'
-		.s 000037:'get_Epsilon'
-		.s 000038:'get_Epsilon()'
-		.s 000039:'get_PositiveInfinity'
-		.s 000040:'get_PositiveInfinity()'
-		.s 000041:'get_NegativeInfinity'
-		.s 000042:'get_NegativeInfinity()'
-		.s 000043:'get_NaN'
-		.s 000044:'get_NaN()'
-		.s 000045:'Abs'
-		.s 000046:'Abs(Float)'
-		.s 000047:'@_println'
-		.s 000048:'@_println(String)'
-		.s 000049:'print'
-		.s 000050:'print(String)'
-		.s 000051:'ctor'
-		.s 000052:'ctor(UInt32,UInt32)'
-		.s 000053:'op_Add'
-		.s 000054:'op_Add(String,String)'
-		.s 000055:'op_Add(String,Int32)'
-		.s 000056:'Concat'
-		.s 000057:'Concat(String,String)'
-		.s 000058:'ctor(Int64)'
-		.s 000059:'get_Current'
-		.s 000060:'get_Current()'
-		.s 000061:'set_Current'
-		.s 000062:'set_Current(Object)'
-		.s 000063:'MoveNext'
-		.s 000064:'MoveNext()'
-		.s 000065:'Reset'
-		.s 000066:'Reset()'
-		.s 000067:'get_Yield'
-		.s 000068:'get_Yield()'
-		.s 000069:'set_Yield'
-		.s 000070:'set_Yield(IYieldable)'
-		.s 000071:'getHalfNaN'
-		.s 000072:'getHalfNaN()'
-		.s 000073:'getFloatNaN'
-		.s 000074:'getFloatNaN()'
-		.s 000075:'getDecimalNaN'
-		.s 000076:'getDecimalNaN()'
-		.s 000077:'getDoubleNaN'
-		.s 000078:'getDoubleNaN()'
-		.s 000079:'getHalfInfinity'
-		.s 000080:'getHalfInfinity()'
-		.s 000081:'getFloatInfinity'
-		.s 000082:'getFloatInfinity()'
-		.s 000083:'getDecimalInfinity'
-		.s 000084:'getDecimalInfinity()'
-		.s 000085:'getDoubleInfinity'
-		.s 000086:'getDoubleInfinity()'
-		.s 000087:'getHalfNegativeInfinity'
-		.s 000088:'getHalfNegativeInfinity()'
-		.s 000089:'getFloatNegativeInfinity'
-		.s 000090:'getFloatNegativeInfinity()'
-		.s 000091:'getDecimalNegativeInfinity'
-		.s 000092:'getDecimalNegativeInfinity()'
-		.s 000093:'getDoubleNegativeInfinity'
-		.s 000094:'getDoubleNegativeInfinity()'
-		.s 000095:'toString(ValueType)'
-		.s 000096:'toString(Object)'
-		.s 000097:'queryPerformanceCounter'
-		.s 000098:'queryPerformanceCounter()'
-		.s 000099:'create'
-		.s 000100:'create(UInt16)'
-		.s 000101:'IsActive'
-		.s 000102:'IsActive()'
-		.s 000103:'Start'
-		.s 000104:'Start()'
-		.s 000105:'ctor(UInt16)'
-		.s 000106:'IsBlocked'
-		.s 000107:'IsBlocked()'
-		.s 000108:'IsListed'
-		.s 000109:'IsListed()'
-		.s 000110:'IsConnected'
-		.s 000111:'IsConnected()'
-		.s 000112:'Bind'
-		.s 000113:'Bind()'
-		.s 000114:'Send'
-		.s 000115:'Send(Byte)'
-		.s 000116:'Listen'
-		.s 000117:'Listen(Int32)'
-		.s 000118:'Create'
-		.s 000119:'Create(UInt16)'
-		.s 000120:'IsZero'
-		.s 000121:'IsZero()'
-		.s 000122:'Application.getPlatform()'
-		.s 000123:'ctor()'
-		.s 000124:'type_ctor'
-		.s 000125:'type_ctor()'
-		.s 000126:'Array'
-		.s 000127:'<Object>'
-		.s 000128:'get_Ticks'
-		.s 000129:'get_Ticks()'
-		.s 000130:'get_Days'
-		.s 000131:'get_Days()'
-		.s 000132:'get_Hours'
-		.s 000133:'get_Hours()'
-		.s 000134:'get_Milliseconds'
-		.s 000135:'get_Milliseconds()'
-		.s 000136:'get_Minutes'
-		.s 000137:'get_Minutes()'
-		.s 000138:'get_Seconds'
-		.s 000139:'get_Seconds()'
-		.s 000140:'msg'
-		.s 000141:'exitCode'
-		.s 000142:'key'
-		.s 000143:'value'
-		.s 000144:'<this>'
-		.s 000145:'x'
-		.s 000146:'start'
-		.s 000147:'end'
-		.s 000148:'v1'
-		.s 000149:'v2'
-		.s 000150:'ticks'
-		.s 000151:'port'
-		.s 000152:'buffer'
-		.s 000153:'cq'
-		.s 000154:'1.0.0.0'
+		.s 000037:'Abs'
+		.s 000038:'Abs(Float)'
+		.s 000039:'@_println'
+		.s 000040:'@_println(String)'
+		.s 000041:'print'
+		.s 000042:'print(String)'
+		.s 000043:'ctor'
+		.s 000044:'ctor(UInt32,UInt32)'
+		.s 000045:'op_Add'
+		.s 000046:'op_Add(String,String)'
+		.s 000047:'op_Add(String,Int32)'
+		.s 000048:'Concat'
+		.s 000049:'Concat(String,String)'
+		.s 000050:'append'
+		.s 000051:'append(String)'
+		.s 000052:'append(Int64)'
+		.s 000053:'append(Int32)'
+		.s 000054:'append(Int16)'
+		.s 000055:'_append'
+		.s 000056:'_append(StringBuilder,Object)'
+		.s 000057:'_append(StringBuilder,ValueType)'
+		.s 000058:'appendLine'
+		.s 000059:'appendLine(String)'
+		.s 000060:'appendLine(Int64)'
+		.s 000061:'appendLine(Int32)'
+		.s 000062:'appendLine(Int16)'
+		.s 000063:'_appendLine'
+		.s 000064:'_appendLine(StringBuilder,Object)'
+		.s 000065:'_appendLine(StringBuilder,ValueType)'
+		.s 000066:'ctor(Int64)'
+		.s 000067:'get_Current'
+		.s 000068:'get_Current()'
+		.s 000069:'set_Current'
+		.s 000070:'set_Current(Object)'
+		.s 000071:'MoveNext'
+		.s 000072:'MoveNext()'
+		.s 000073:'Reset'
+		.s 000074:'Reset()'
+		.s 000075:'get_Yield'
+		.s 000076:'get_Yield()'
+		.s 000077:'set_Yield'
+		.s 000078:'set_Yield(IYieldable)'
+		.s 000079:'getHalfNaN'
+		.s 000080:'getHalfNaN()'
+		.s 000081:'getFloatNaN'
+		.s 000082:'getFloatNaN()'
+		.s 000083:'getDecimalNaN'
+		.s 000084:'getDecimalNaN()'
+		.s 000085:'getDoubleNaN'
+		.s 000086:'getDoubleNaN()'
+		.s 000087:'getHalfInfinity'
+		.s 000088:'getHalfInfinity()'
+		.s 000089:'getFloatInfinity'
+		.s 000090:'getFloatInfinity()'
+		.s 000091:'getDecimalInfinity'
+		.s 000092:'getDecimalInfinity()'
+		.s 000093:'getDoubleInfinity'
+		.s 000094:'getDoubleInfinity()'
+		.s 000095:'getHalfNegativeInfinity'
+		.s 000096:'getHalfNegativeInfinity()'
+		.s 000097:'getFloatNegativeInfinity'
+		.s 000098:'getFloatNegativeInfinity()'
+		.s 000099:'getDecimalNegativeInfinity'
+		.s 000100:'getDecimalNegativeInfinity()'
+		.s 000101:'getDoubleNegativeInfinity'
+		.s 000102:'getDoubleNegativeInfinity()'
+		.s 000103:'toString(ValueType)'
+		.s 000104:'toString(Object)'
+		.s 000105:'queryPerformanceCounter'
+		.s 000106:'queryPerformanceCounter()'
+		.s 000107:'create'
+		.s 000108:'create(UInt16)'
+		.s 000109:'IsActive'
+		.s 000110:'IsActive()'
+		.s 000111:'Start'
+		.s 000112:'Start()'
+		.s 000113:'ctor(UInt16)'
+		.s 000114:'IsBlocked'
+		.s 000115:'IsBlocked()'
+		.s 000116:'IsListed'
+		.s 000117:'IsListed()'
+		.s 000118:'IsConnected'
+		.s 000119:'IsConnected()'
+		.s 000120:'Bind'
+		.s 000121:'Bind()'
+		.s 000122:'Send'
+		.s 000123:'Send(Byte)'
+		.s 000124:'Listen'
+		.s 000125:'Listen(Int32)'
+		.s 000126:'Create'
+		.s 000127:'Create(UInt16)'
+		.s 000128:'IsZero'
+		.s 000129:'IsZero()'
+		.s 000130:'ctor(Float,Float,Float,Float)'
+		.s 000131:'Application.getPlatform()'
+		.s 000132:'ctor()'
+		.s 000133:'type_ctor'
+		.s 000134:'type_ctor()'
+		.s 000135:'Array'
+		.s 000136:'get_Epsilon'
+		.s 000137:'get_Epsilon()'
+		.s 000138:'get_PositiveInfinity'
+		.s 000139:'get_PositiveInfinity()'
+		.s 000140:'get_NegativeInfinity'
+		.s 000141:'get_NegativeInfinity()'
+		.s 000142:'get_NaN'
+		.s 000143:'get_NaN()'
+		.s 000144:'<Object>'
+		.s 000145:''
+		.s 000146:'get_Ticks'
+		.s 000147:'get_Ticks()'
+		.s 000148:'get_Days'
+		.s 000149:'get_Days()'
+		.s 000150:'get_Hours'
+		.s 000151:'get_Hours()'
+		.s 000152:'get_Milliseconds'
+		.s 000153:'get_Milliseconds()'
+		.s 000154:'get_Minutes'
+		.s 000155:'get_Minutes()'
+		.s 000156:'get_Seconds'
+		.s 000157:'get_Seconds()'
+		.s 000158:'get_TotalSeconds'
+		.s 000159:'get_TotalSeconds()'
+		.s 000160:'msg'
+		.s 000161:'exitCode'
+		.s 000162:'key'
+		.s 000163:'value'
+		.s 000164:'<this>'
+		.s 000165:'x'
+		.s 000166:'start'
+		.s 000167:'end'
+		.s 000168:'v1'
+		.s 000169:'v2'
+		.s 000170:'builder'
+		.s 000171:'s'
+		.s 000172:'ticks'
+		.s 000173:'port'
+		.s 000174:'buffer'
+		.s 000175:'cq'
+		.s 000176:'y'
+		.s 000177:'z'
+		.s 000178:'w'
+		.s 000179:'1.0.0.0'
 		.t 000000:'corlib%global::vein/lang/Application'
 		.t 000001:'corlib%global::vein/lang/Object'
 		.t 000002:'corlib%global::vein/lang/ValueType'
@@ -214,56 +239,66 @@
 		.f 000016:'Guid._a'
 		.f 000017:'Guid._b'
 		.f 000018:'Guid._c'
-		.f 000019:'Half.!!value'
-		.f 000020:'Half.NaN'
-		.f 000021:'Half.NegativeInfinity'
-		.f 000022:'Half.PositiveInfinity'
-		.f 000023:'Half.Epsilon'
-		.f 000024:'Int16.!!value'
-		.f 000025:'Int16.MaxValue'
-		.f 000026:'Int16.MinValue'
-		.f 000027:'Int32.!!value'
-		.f 000028:'Int32.MaxValue'
-		.f 000029:'Int32.MinValue'
-		.f 000030:'Int64.!!value'
-		.f 000031:'Int64.MaxValue'
-		.f 000032:'Int64.MinValue'
-		.f 000033:'Mathf.E'
-		.f 000034:'Mathf.PI'
-		.f 000035:'Mathf.Tau'
-		.f 000036:'Mathf.defaultRoundDigits'
-		.f 000037:'Range.Start'
-		.f 000038:'Range.End'
-		.f 000039:'String.!!value'
-		.f 000040:'String.Length'
-		.f 000041:'TimeSpan.TicksPerDay'
-		.f 000042:'TimeSpan.TicksPerHour'
-		.f 000043:'TimeSpan.TicksPerMinute'
-		.f 000044:'TimeSpan.TicksPerSecond'
-		.f 000045:'TimeSpan.TicksPerMillisecond'
-		.f 000046:'TimeSpan._ticks'
-		.f 000047:'UInt16.!!value'
-		.f 000048:'UInt16.MaxValue'
-		.f 000049:'UInt16.MinValue'
-		.f 000050:'UInt32.!!value'
-		.f 000051:'UInt32.MaxValue'
-		.f 000052:'UInt32.MinValue'
-		.f 000053:'ValueType.!!value'
-		.f 000054:'Yieldable._current'
-		.f 000055:'TcpListener._port'
-		.f 000056:'TcpListener._dualMode'
-		.f 000057:'TcpListener._active'
-		.f 000058:'TcpListener._socket'
-		.f 000059:'TcpListener.ExclusiveAddressUse'
-		.f 000060:'TcpSocket._port'
-		.f 000061:'TcpSocket._is_listing'
-		.f 000062:'TcpSocket._handle'
-		.f 000063:'TcpSocket._blocked'
-		.f 000064:'TcpSocket._connected'
-		.f 000065:'Quaternion.X'
-		.f 000066:'Quaternion.Y'
-		.f 000067:'Quaternion.Z'
-		.f 000068:'Quaternion.W'
+		.f 000019:'Guid._d'
+		.f 000020:'Guid._e'
+		.f 000021:'Guid._f'
+		.f 000022:'Guid._g'
+		.f 000023:'Guid._h'
+		.f 000024:'Guid._i'
+		.f 000025:'Guid._j'
+		.f 000026:'Guid._k'
+		.f 000027:'Half.!!value'
+		.f 000028:'Half.NaN'
+		.f 000029:'Half.NegativeInfinity'
+		.f 000030:'Half.PositiveInfinity'
+		.f 000031:'Half.Epsilon'
+		.f 000032:'Int16.!!value'
+		.f 000033:'Int16.MaxValue'
+		.f 000034:'Int16.MinValue'
+		.f 000035:'Int32.!!value'
+		.f 000036:'Int32.MaxValue'
+		.f 000037:'Int32.MinValue'
+		.f 000038:'Int64.!!value'
+		.f 000039:'Int64.MaxValue'
+		.f 000040:'Int64.MinValue'
+		.f 000041:'Mathf.E'
+		.f 000042:'Mathf.PI'
+		.f 000043:'Mathf.Tau'
+		.f 000044:'Mathf.defaultRoundDigits'
+		.f 000045:'Range.Start'
+		.f 000046:'Range.End'
+		.f 000047:'String.!!value'
+		.f 000048:'String.Length'
+		.f 000049:'StringBuilder.!!buffer'
+		.f 000050:'TimeSpan.TicksPerDay'
+		.f 000051:'TimeSpan.TicksPerHour'
+		.f 000052:'TimeSpan.TicksPerMinute'
+		.f 000053:'TimeSpan.TicksPerSecond'
+		.f 000054:'TimeSpan.TicksPerMillisecond'
+		.f 000055:'TimeSpan.SecondsPerTick'
+		.f 000056:'TimeSpan._ticks'
+		.f 000057:'UInt16.!!value'
+		.f 000058:'UInt16.MaxValue'
+		.f 000059:'UInt16.MinValue'
+		.f 000060:'UInt32.!!value'
+		.f 000061:'UInt32.MaxValue'
+		.f 000062:'UInt32.MinValue'
+		.f 000063:'ValueType.!!value'
+		.f 000064:'Yieldable._current'
+		.f 000065:'TcpListener._port'
+		.f 000066:'TcpListener._dualMode'
+		.f 000067:'TcpListener._active'
+		.f 000068:'TcpListener._socket'
+		.f 000069:'TcpListener.ExclusiveAddressUse'
+		.f 000070:'TcpSocket._port'
+		.f 000071:'TcpSocket._is_listing'
+		.f 000072:'TcpSocket._handle'
+		.f 000073:'TcpSocket._blocked'
+		.f 000074:'TcpSocket._connected'
+		.f 000075:'Quaternion.X'
+		.f 000076:'Quaternion.Y'
+		.f 000077:'Quaternion.Z'
+		.f 000078:'Quaternion.W'
 	}
 
 	@'aspect/Native/class/Application/method/@_get_os_value()._0' = '@_get_os_value'
@@ -284,6 +319,11 @@
 	@'aspect/Native/class/Out/method/@_println(String)._0' = '@_println'
 	@'aspect/Native/class/String/field/__value._0' = '!!value'
 	@'aspect/Native/class/String/method/Concat(String,String)._0' = 'i_call_String_Concat'
+	@'aspect/Native/class/StringBuilder/field/__buffer._0' = '!!buffer'
+	@'aspect/Native/class/StringBuilder/method/_append(StringBuilder,Object)._0' = 'i_call_StringBuilder_append'
+	@'aspect/Native/class/StringBuilder/method/_append(StringBuilder,ValueType)._0' = 'i_call_StringBuilder_append'
+	@'aspect/Native/class/StringBuilder/method/_appendLine(StringBuilder,Object)._0' = 'i_call_StringBuilder_appendLine'
+	@'aspect/Native/class/StringBuilder/method/_appendLine(StringBuilder,ValueType)._0' = 'i_call_StringBuilder_appendLine'
 	@'aspect/Native/class/UInt16/field/_value._0' = '!!value'
 	@'aspect/Native/class/UInt32/field/_value._0' = '!!value'
 	@'aspect/Native/class/ValueType/field/__value._0' = '!!value'
@@ -337,7 +377,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x0000007A
+			/* ::0006 */ .ldc.str .0x00000083
 			/* ::0008 */ .ret
 			
 		}
@@ -411,7 +451,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x0000007E
+			/* ::0006 */ .ldc.str .0x00000087
 			/* ::0008 */ .ret
 			
 		}
@@ -704,9 +744,17 @@
 		.field '_a' as 'Int32' 
 		.field '_b' as 'Int16' 
 		.field '_c' as 'Int16' 
+		.field '_d' as 'Byte' 
+		.field '_e' as 'Byte' 
+		.field '_f' as 'Byte' 
+		.field '_g' as 'Byte' 
+		.field '_h' as 'Byte' 
+		.field '_i' as 'Byte' 
+		.field '_j' as 'Byte' 
+		.field '_k' as 'Byte' 
 		.method special 'ctor' (<this>: Guid) public special -> Guid
 		{
-			.size 70
+			.size 182
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
@@ -724,8 +772,32 @@
 			/* ::0054 */ .ldnull
 			/* ::0056 */ .ldarg.0
 			/* ::0066 */ .stf _c corlib%global::vein/lang/Int16, Public, Special
-			/* ::0068 */ .ldarg.0
-			/* ::0070 */ .ret
+			/* ::0068 */ .ldnull
+			/* ::0070 */ .ldarg.0
+			/* ::0080 */ .stf _d corlib%global::vein/lang/Byte, Public, Special
+			/* ::0082 */ .ldnull
+			/* ::0084 */ .ldarg.0
+			/* ::0094 */ .stf _e corlib%global::vein/lang/Byte, Public, Special
+			/* ::0096 */ .ldnull
+			/* ::0098 */ .ldarg.0
+			/* ::0108 */ .stf _f corlib%global::vein/lang/Byte, Public, Special
+			/* ::0110 */ .ldnull
+			/* ::0112 */ .ldarg.0
+			/* ::0122 */ .stf _g corlib%global::vein/lang/Byte, Public, Special
+			/* ::0124 */ .ldnull
+			/* ::0126 */ .ldarg.0
+			/* ::0136 */ .stf _h corlib%global::vein/lang/Byte, Public, Special
+			/* ::0138 */ .ldnull
+			/* ::0140 */ .ldarg.0
+			/* ::0150 */ .stf _i corlib%global::vein/lang/Byte, Public, Special
+			/* ::0152 */ .ldnull
+			/* ::0154 */ .ldarg.0
+			/* ::0164 */ .stf _j corlib%global::vein/lang/Byte, Public, Special
+			/* ::0166 */ .ldnull
+			/* ::0168 */ .ldarg.0
+			/* ::0178 */ .stf _k corlib%global::vein/lang/Byte, Public, Special
+			/* ::0180 */ .ldarg.0
+			/* ::0182 */ .ret
 			
 		}
 		
@@ -991,7 +1063,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x0000007F
+			/* ::0006 */ .ldc.str .0x00000090
 			/* ::0008 */ .ret
 			
 		}
@@ -1223,6 +1295,103 @@
 	.namespace 'global::vein/lang'
 	.class 'StringBuilder' public extends 'Object'
 	{
+		.field '!!buffer' as 'raw' special
+		.method 'append' (<this>: StringBuilder, value: String) public -> StringBuilder
+		{
+			.size 2
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
+		}
+		
+		.method 'append' (<this>: StringBuilder, value: Int64) public -> StringBuilder
+		{
+			.size 2
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
+		}
+		
+		.method 'append' (<this>: StringBuilder, value: Int32) public -> StringBuilder
+		{
+			.size 2
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
+		}
+		
+		.method 'append' (<this>: StringBuilder, value: Int16) public -> StringBuilder
+		{
+			.size 2
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
+		}
+		
+		.method extern _append (builder: StringBuilder, s: Object) static private -> StringBuilder;
+		
+		.method extern _append (builder: StringBuilder, s: ValueType) static private -> StringBuilder;
+		
+		.method 'appendLine' (<this>: StringBuilder, value: String) public -> StringBuilder
+		{
+			.size 2
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
+		}
+		
+		.method 'appendLine' (<this>: StringBuilder, value: Int64) public -> StringBuilder
+		{
+			.size 2
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
+		}
+		
+		.method 'appendLine' (<this>: StringBuilder, value: Int32) public -> StringBuilder
+		{
+			.size 2
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
+		}
+		
+		.method 'appendLine' (<this>: StringBuilder, value: Int16) public -> StringBuilder
+		{
+			.size 2
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ret
+			
+		}
+		
+		.method extern _appendLine (builder: StringBuilder, s: Object) static private -> StringBuilder;
+		
+		.method extern _appendLine (builder: StringBuilder, s: ValueType) static private -> StringBuilder;
+		
 		.method special 'ctor' (<this>: StringBuilder) public special -> StringBuilder
 		{
 			.size 16
@@ -1258,10 +1427,11 @@
 		.field 'TicksPerMinute' as 'Int64' public
 		.field 'TicksPerSecond' as 'Int64' public
 		.field 'TicksPerMillisecond' as 'Int64' public
+		.field 'SecondsPerTick' as 'Float' public
 		.field '_ticks' as 'Int64' internal
 		.method 'ctor' (<this>: TimeSpan, ticks: Int64) public -> TimeSpan
 		{
-			.size 140
+			.size 158
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
@@ -1286,8 +1456,23 @@
 			/* ::0124 */ .ldc.i8.s 0x00002710.long
 			/* ::0126 */ .ldarg.0
 			/* ::0136 */ .stf TicksPerMillisecond corlib%global::vein/lang/Int64, Public, Special
-			/* ::0138 */ .ldarg.0
-			/* ::0140 */ .ret
+			/* ::0142 */ .ldc.f4 1E-07.float
+			/* ::0144 */ .ldarg.0
+			/* ::0154 */ .stf SecondsPerTick corlib%global::vein/lang/Float, Public, Special
+			/* ::0156 */ .ldarg.0
+			/* ::0158 */ .ret
+			
+		}
+		
+		.method 'toString' (<this>: TimeSpan) public override -> String
+		{
+			.size 8
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0006 */ .ldc.str .0x00000091
+			/* ::0008 */ .ret
 			
 		}
 		
@@ -1389,6 +1574,22 @@
 			/* ::0036 */ .ldc.i8.s 0x0000003C.long
 			/* ::0038 */ .mod
 			/* ::0040 */ .ret
+			
+		}
+		
+		.method 'get_TotalSeconds' (<this>: TimeSpan) public -> Float
+		{
+			.size 28
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .ldarg.0
+			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0014 */ .ldarg.0
+			/* ::0024 */ .ldf SecondsPerTick corlib%global::vein/lang/Float, Public, Special
+			/* ::0026 */ .mul
+			/* ::0028 */ .ret
 			
 		}
 		
@@ -2074,29 +2275,29 @@
 			
 		}
 		
-		.method special 'ctor' (<this>: Quaternion) public special -> Quaternion
+		.method 'ctor' (<this>: Quaternion, x: Float, y: Float, z: Float, w: Float)  -> Quaternion
 		{
 			.size 84
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .call Object::ctor(<this>: Object)
-			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .call ValueType::ctor(<this>: ValueType)
-			/* ::0026 */ .ldnull
-			/* ::0028 */ .ldarg.0
-			/* ::0038 */ .stf X corlib%global::vein/lang/Float, Public, Special
-			/* ::0040 */ .ldnull
-			/* ::0042 */ .ldarg.0
-			/* ::0052 */ .stf Y corlib%global::vein/lang/Float, Public, Special
-			/* ::0054 */ .ldnull
-			/* ::0056 */ .ldarg.0
-			/* ::0066 */ .stf Z corlib%global::vein/lang/Float, Public, Special
-			/* ::0068 */ .ldnull
+			/* ::0002 */ .ldarg.1
+			/* ::0004 */ .ldarg.0
+			/* ::0014 */ .stf X corlib%global::vein/lang/Float, Public, Special
+			/* ::0016 */ .ldarg.2
+			/* ::0018 */ .ldarg.0
+			/* ::0028 */ .stf Y corlib%global::vein/lang/Float, Public, Special
+			/* ::0030 */ .ldarg.3
+			/* ::0032 */ .ldarg.0
+			/* ::0042 */ .stf Z corlib%global::vein/lang/Float, Public, Special
+			/* ::0044 */ .ldarg.4
+			/* ::0046 */ .ldarg.0
+			/* ::0056 */ .stf W corlib%global::vein/lang/Float, Public, Special
+			/* ::0058 */ .ldarg.0
+			/* ::0068 */ .call Object::ctor(<this>: Object)
 			/* ::0070 */ .ldarg.0
-			/* ::0080 */ .stf W corlib%global::vein/lang/Float, Public, Special
+			/* ::0080 */ .call ValueType::ctor(<this>: ValueType)
 			/* ::0082 */ .ldarg.0
 			/* ::0084 */ .ret
 			
