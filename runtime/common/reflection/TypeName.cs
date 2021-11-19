@@ -6,7 +6,7 @@ namespace vein.runtime
     using extensions;
 
     public class InvalidTypeNameException : Exception { public InvalidTypeNameException(string msg) : base(msg) { } }
-    public class QualityTypeName
+    public class QualityTypeName : IEquatable<QualityTypeName>
     {
         private string _name, _namespace, _asmName, _nameWithNS;
         private readonly string _fullName;
@@ -108,5 +108,6 @@ namespace vein.runtime
         }
 
         public override int GetHashCode() => (_fullName != null ? _fullName.GetHashCode() : 0);
+        bool IEquatable<QualityTypeName>.Equals(QualityTypeName other) => Equals(other);
     }
 }
