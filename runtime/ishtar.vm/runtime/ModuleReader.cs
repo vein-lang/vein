@@ -13,6 +13,7 @@ namespace ishtar
     using MoreLinq;
     using vein.reflection;
     using vein.runtime;
+    using vm;
 
     public class RuntimeIshtarModule : VeinModule
     {
@@ -325,7 +326,12 @@ namespace ishtar
 
                 if (m is null)
                 {
-                    VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name} -> {name}' method not found in native mapping.", sys_frame);
+                    if (method.Name != name)
+                        VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name} -> {name}' method not found in native mapping.", sys_frame);
+                    else
+                        VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name}' method not found in native mapping.", sys_frame);
+
+                    Commands.DisplayDefinedMapping();
                     VM.ValidateLastError();
                     return;
                 }
