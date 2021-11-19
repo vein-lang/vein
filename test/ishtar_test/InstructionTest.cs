@@ -93,6 +93,26 @@ namespace ishtar_test
         }
 
         [Test]
+        [TestCase(OpCodeValue.LDC_I8_5, VeinTypeCode.TYPE_I8)]
+        [TestCase(OpCodeValue.LDC_I4_5, VeinTypeCode.TYPE_I4)]
+        [TestCase(OpCodeValue.LDC_I2_5, VeinTypeCode.TYPE_I2)]
+        [Parallelizable(ParallelScope.None)]
+        public unsafe void MOD_Test(OpCodeValue op, VeinTypeCode code)
+        {
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
+            {
+                gen.Emit(OpCodes.all[op]);
+                gen.Emit(OpCodes.all[op]);
+                gen.Emit(OpCodes.MOD);
+                gen.Emit(OpCodes.RET);
+            });
+            Validate();
+            Assert.AreEqual(code, (*result.returnValue).type);
+            Assert.AreEqual(5 % 5, (*result.returnValue).data.l);
+        }
+
+        [Test]
         [TestCase(6f, OpCodeValue.DIV)]
         [TestCase(24f, OpCodeValue.MUL)]
         [TestCase(10f, OpCodeValue.SUB)]
@@ -105,6 +125,27 @@ namespace ishtar_test
             {
                 gen.Emit(OpCodes.LDC_F4, 12f);
                 gen.Emit(OpCodes.LDC_F4, 2f);
+                gen.Emit(OpCodes.all[actor]);
+                gen.Emit(OpCodes.RET);
+            });
+            Validate();
+            Assert.AreEqual(VeinTypeCode.TYPE_R4, (*result.returnValue).type);
+            Assert.AreEqual(expected, (*result.returnValue).data.f_r4);
+        }
+
+        [Test, Ignore("Emit 'ldc.i2.s' resulted in an invalid buffer size value. amount: 4, excepted: 2")]
+        [TestCase(6, OpCodeValue.DIV)]
+        [TestCase(24, OpCodeValue.MUL)]
+        [TestCase(10, OpCodeValue.SUB)]
+        [TestCase(14, OpCodeValue.ADD)]
+        [Parallelizable(ParallelScope.None)]
+        public unsafe void Arithmetic_LDC_I2_Test(float expected, OpCodeValue actor)
+        {
+            using var ctx = CreateContext();
+            var result = ctx.Execute((gen, _) =>
+            {
+                gen.Emit(OpCodes.LDC_I2_S, 12);
+                gen.Emit(OpCodes.LDC_I2_S, 2);
                 gen.Emit(OpCodes.all[actor]);
                 gen.Emit(OpCodes.RET);
             });
