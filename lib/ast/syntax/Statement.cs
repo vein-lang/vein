@@ -26,7 +26,7 @@ namespace vein.syntax
             select new LocalVariableDeclaration(id, body);
 
         protected internal virtual Parser<LocalVariableDeclaration> local_variable_declaration =>
-            from a in KeywordExpression("auto")
+            from a in KeywordExpression("auto").Or(KeywordExpression("let"))
             from decl in local_variable_declarator.Positioned().Token()
             select decl;
 
