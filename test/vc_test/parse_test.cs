@@ -187,7 +187,7 @@ namespace veinc_test
         }
 
 
-        
+
         [Test]
         public void InheritanceTest()
         {
