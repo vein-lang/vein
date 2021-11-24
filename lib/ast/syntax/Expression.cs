@@ -356,6 +356,8 @@ namespace vein.syntax
                 .Or(invocation_expression.Positioned())
                 .Or(array_creation_expression)
                 .Or(new_expression)
+                .Or("true".Literal().Exchange().Return<TrueLiteralExpressionSyntax>().Positioned())
+                .Or("false".Literal().Exchange().Return<FalseLiteralExpressionSyntax>().Positioned())
                 .Or("-Infinity".Literal().Exchange().Return<NegativeInfinityLiteralExpressionSyntax>().Positioned())
                 .Or("Infinity".Literal().Exchange().Return<InfinityLiteralExpressionSyntax>().Positioned())
                 .Or("NaN".Literal().Exchange().Return<NaNLiteralExpressionSyntax>().Positioned())

@@ -56,15 +56,39 @@ namespace vein.syntax
         }
     }
 
-    public sealed class BoolLiteralExpressionSyntax : LiteralExpressionSyntax
+    public sealed class TrueLiteralExpressionSyntax : BoolLiteralExpressionSyntax, IPositionAware<TrueLiteralExpressionSyntax>
+    {
+        public TrueLiteralExpressionSyntax() : base("true") {}
+        public new TrueLiteralExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
+
+        public override string ToString() => this.Token;
+    }
+
+    public sealed class FalseLiteralExpressionSyntax : BoolLiteralExpressionSyntax, IPositionAware<FalseLiteralExpressionSyntax>
+    {
+        public FalseLiteralExpressionSyntax() : base("false") {}
+        public new FalseLiteralExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
+
+        public override string ToString() => this.Token;
+    }
+
+    public class BoolLiteralExpressionSyntax : LiteralExpressionSyntax
     {
         public BoolLiteralExpressionSyntax(string value)
         {
-            this.LiteralType = LiteralType.Null;
+            this.LiteralType = LiteralType.Boolean;
             this.Token = value;
             this.Value = value.Equals("true", StringComparison.CurrentCultureIgnoreCase);
         }
-        public bool Value { get; private set; }
+        public bool Value { get; protected set; }
     }
     public abstract class NumericLiteralExpressionSyntax : LiteralExpressionSyntax, IPositionAware<NumericLiteralExpressionSyntax>
     {
