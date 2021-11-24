@@ -1149,7 +1149,7 @@ namespace ishtar
                 return gen.EmitLiteral(literal).EmitCall(@class, invoke1);
             }
 
-            if (access is { Left: ThisAccessExpression, Right: IdentifierExpression id1 })
+            if (access is { Left: ThisAccessExpression @this, Right: IdentifierExpression id1 })
             {
                 var flags = gen.GetAccessFlags(id1);
 
@@ -1161,10 +1161,7 @@ namespace ishtar
                 }
                 // second order: argument
                 if (flags.HasFlag(AccessFlags.ARGUMENT))
-                {
-                    var (_, index) = ctx.GetCurrentArgument(id1);
-                    return gen.EmitLoadArgument(index);
-                }
+                    ctx.LogError($"Keyword 'this' is not valid in a access to function argument.", @this);
                 // three order: field
                 if (flags.HasFlag(AccessFlags.FIELD))
                 {
@@ -1181,10 +1178,35 @@ namespace ishtar
                 return gen;
             }
 
-            if (access is { Left: ThisAccessExpression, Right: InvocationExpression inv1 })
+            if (access is { Left: SelfAccessExpression self, Right: IdentifierExpression id2 })
             {
-                return gen.EmitCall(ctx.CurrentMethod.Owner, inv1);
+                var flags = gen.GetAccessFlags(id2);
+                // first order: variable
+                if (flags.HasFlag(AccessFlags.VARIABLE))
+                    ctx.LogError($"Keyword 'self' is not valid in a access to variable.", self);
+                // second order: argument
+                if (flags.HasFlag(AccessFlags.ARGUMENT))
+                    ctx.LogError($"Keyword 'self' is not valid in a access to function argument.", self);
+                // three order: field
+                if (flags.HasFlag(AccessFlags.FIELD))
+                    ctx.LogError($"Keyword 'self' is not valid in a access to non-static field.", self);
+                // four order: static field
+                if (flags.HasFlag(AccessFlags.STATIC_FIELD))
+                {
+                    var field = ctx.ResolveField(id2);
+                    return gen.Emit(OpCodes.LDSF, field);
+                }
+                // five order: static class
+                if (flags.HasFlag(AccessFlags.CLASS))
+                    ctx.LogError($"Keyword 'self' is not valid in a access to class.", self);
+
+                return gen;
             }
+
+            if (access is { Left: ThisAccessExpression, Right: InvocationExpression inv1 })
+                return gen.EmitCall(ctx.CurrentMethod.Owner, inv1);
+            if (access is { Left: SelfAccessExpression, Right: InvocationExpression inv2 })
+                return gen.EmitCall(ctx.CurrentMethod.Owner, inv2);
 
             throw new NotSupportedException();
         }
