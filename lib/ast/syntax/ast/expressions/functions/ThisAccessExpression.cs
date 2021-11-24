@@ -9,4 +9,6 @@ public class ThisAccessExpression : ExpressionSyntax, IPositionAware<ThisAccessE
         base.SetPos(startPos, length);
         return this;
     }
+
+    public override string ToString() => "this";
 }
