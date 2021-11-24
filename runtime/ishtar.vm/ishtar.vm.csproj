@@ -21,8 +21,11 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics.CodeAnalysis" />
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Runtime.CompilerServices" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\lib\ishtar.native.windows\ishtar.native.windows.csproj" />
     <ProjectReference Include="..\common\vein.common.csproj" />
     <ProjectReference Include="..\ishtar.base\ishtar.base.csproj" />
   </ItemGroup>

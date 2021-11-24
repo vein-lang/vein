@@ -1,0 +1,5 @@
+LoadLibraryA
+LoadLibraryW
+VirtualAlloc
+VirtualFree
+VirtualProtect
