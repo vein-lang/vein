@@ -423,8 +423,10 @@ namespace ishtar
 
                                     if (sp_class.ID != arg_class.ID)
                                     {
-                                        FastFail(TYPE_MISMATCH, $"Argument '{_a.Name}: {_a.Type.Name}'" +
-                                                                $" is not matched for '{method.Name}' function.");
+                                        FastFail(TYPE_MISMATCH,
+                                            $"Argument '{_a.Name}: {_a.Type.Name}'" +
+                                            $" is not matched for '{method.Name}' function.",
+                                            invocation);
                                         ValidateLastError();
                                     }
                                 }
