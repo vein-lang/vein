@@ -361,6 +361,7 @@ namespace vein.syntax
                 .Or("NaN".Literal().Exchange().Return<NaNLiteralExpressionSyntax>().Positioned())
                 .Or("null".Keyword().Exchange().Return<NullLiteralExpressionSyntax>().Positioned())
                 .Or("this".Keyword().Exchange().Return<ThisAccessExpression>().Positioned())
+                .Or("self".Keyword().Exchange().Return<SelfAccessExpression>().Positioned())
                 .Or("base".Keyword().Exchange().Return<BaseAccessExpression>().Positioned())
                 .Or(QualifiedExpression.Contained(OPENING_PARENTHESIS, CLOSING_PARENTHESIS).Positioned())
                 .Or(IdentifierExpression.Positioned())
