@@ -100,6 +100,9 @@ namespace vein.runtime
                 var t1 = current[i];
                 var t2 = target[i];
 
+                if (t1.FullName.Equals(t2.FullName))
+                    continue;
+
                 result &= t1.Parents.Any(x => x.FullName.Equals(t2.FullName));
             }
 
