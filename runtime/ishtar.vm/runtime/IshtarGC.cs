@@ -33,6 +33,23 @@ namespace ishtar
             root = p;
         }
 
+        public static ImmortalObject<T>* AllocImmortal<T>() where T : class, new()
+        {
+            var p = (ImmortalObject<T>*)NativeMemory.Alloc((nuint)sizeof(ImmortalObject<T>));
+            GCStats.total_allocations++;
+            GCStats.total_bytes_requested += (ulong)sizeof(ImmortalObject<T>);
+            p->Create(new T());
+            return p;
+        }
+
+        public static void FreeImmortal<T>(ImmortalObject<T>* p) where T : class, new()
+        {
+            GCStats.total_allocations--;
+            GCStats.total_bytes_requested -= (ulong)sizeof(ImmortalObject<T>);
+            p->Delete();
+            NativeMemory.Free(p);
+        }
+
         public static stackval* AllocValue()
         {
             var p = (stackval*) Marshal.AllocHGlobal(sizeof(stackval));
