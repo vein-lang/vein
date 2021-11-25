@@ -1,7 +1,6 @@
 namespace ishtar
 {
     using System;
-    using System.Runtime.InteropServices;
     using static vein.runtime.VeinTypeCode;
     public static unsafe class IshtarMarshal
     {
@@ -239,9 +238,10 @@ namespace ishtar
             TYPE_BOOLEAN => ToIshtarObject($"{ToDotnetBoolean(obj, frame)}"),
             TYPE_CHAR => ToIshtarObject($"{ToDotnetChar(obj, frame)}"),
             TYPE_RAW => ToIshtarObject($"0x{ToDotnetPointer(obj, frame):X8}"),
+            TYPE_STRING => obj,
             _ => ReturnDefault(nameof(ToIshtarString), $"Convert to '{obj->decodeClass().TypeCode}' not supported.", frame),
         };
-
+        
         private static IshtarObject* ReturnDefault(string name, string msg, CallFrame frame)
         {
             VM.FastFail(WNE.TYPE_MISMATCH,
