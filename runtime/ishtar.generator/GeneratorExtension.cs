@@ -1107,9 +1107,7 @@ namespace ishtar
                 if (flags.HasFlag(AccessFlags.VARIABLE))
                 {
                     var (@class, var_index) = ctx.CurrentScope.GetVariable(id);
-
-                    return gen.Emit(OpCodes.LDLOC_S, var_index).
-                        EmitCall(@class, invoke);
+                    return gen.EmitLoadLocal(var_index).EmitCall(@class, invoke);
                 }
                 // second order: argument
                 if (flags.HasFlag(AccessFlags.ARGUMENT))
