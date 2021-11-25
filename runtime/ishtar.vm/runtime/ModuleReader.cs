@@ -165,6 +165,7 @@ namespace ishtar
             DistributionAspects(module);
             ValidateRuntimeTokens(module);
             LinkFFIMethods(module);
+            InitVTables(module);
 
             return module;
         }
@@ -177,6 +178,9 @@ namespace ishtar
                     $"Detected non-inited runtime token. type: '{@class.FullName.NameWithNS}'");
             }
         }
+
+        public static void InitVTables(RuntimeIshtarModule ishtarModule)
+            => ishtarModule.class_table.OfType<RuntimeIshtarClass>().Pipe(x => x.init_vtable()).Consume();
 
         // shit, todo: refactoring
         public static void DistributionAspects(RuntimeIshtarModule ishtarModule)
