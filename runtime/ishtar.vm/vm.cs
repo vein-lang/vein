@@ -79,7 +79,7 @@ namespace ishtar
             var sp = stack;
             var start = (ip + 1) - 1;
             var end = mh.code + mh.code_size;
-
+            var end_stack = stack + mh.max_stack;
             void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos - 1;
 
             while (true)
@@ -93,7 +93,13 @@ namespace ishtar
 
                 if (ip == end)
                 {
-                    FastFail(END_EXECUTE_MEMORY, "unexpected end of executable memory.");
+                    FastFail(END_EXECUTE_MEMORY, "unexpected end of executable memory.", invocation);
+                    continue;
+                }
+
+                if (sp >= end_stack)
+                {
+                    FastFail(OVERFLOW, "stack overflow error.", invocation);
                     continue;
                 }
 
@@ -377,6 +383,7 @@ namespace ishtar
                         sp->type = TYPE_OBJECT;
                         sp->data.ul = 0;
                         ++sp;
+                        ++ip;
                         break;
                     case THROW:
                         --sp;
@@ -1217,7 +1224,7 @@ namespace ishtar
 
                         FastFail(STATE_CORRUPT, $"Unknown opcode: {invocation.last_ip}\n" +
                             $"{ip - start}\n" +
-                            $"{invocation.exception.stack_trace}");
+                            $"{invocation.exception.stack_trace}", invocation);
                         ++ip;
                         break;
                 }
