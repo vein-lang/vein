@@ -85,7 +85,7 @@ namespace ishtar
             while (true)
             {
                 invocation.last_ip = (OpCodeValue)(ushort)*ip;
-                println($"@@.{invocation.last_ip} 0x{(nint)ip:X}");
+                println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)stack) - ((nint)sp))}]");
                 ValidateLastError();
 
                 if (invocation.exception is not null && invocation.level == 0)
@@ -144,12 +144,14 @@ namespace ishtar
                             return;
                         }
                         *sp = args[(*ip) - (short)LDARG_0];
+                        println($"load from args ({sp->type})");
                         ++sp;
                         ++ip;
                         break;
                     case LDARG_S:
                         ++ip;
                         *sp = args[(*ip)];
+                        println($"load from args ({sp->type})");
                         ++sp;
                         ++ip;
                         break;
@@ -409,10 +411,11 @@ namespace ishtar
                             ++ip;
                             println($"@@@ {owner.NameWithNS}::{method.Name}");
                             var method_args = stackval.Alloc(method.ArgLength);
-                            for (var i = 0; i != method.ArgLength; i++)
+                            for (int i = 0, y = method.ArgLength - 1; i != method.ArgLength; i++, y--)
                             {
-                                var _a = method.Arguments[i]; // TODO, type eq validate
+                                var _a = method.Arguments[y]; // TODO, type eq validate
                                 --sp;
+
 #if DEBUG
                                 println($"@@@@<< {_a.Name}: {_a.Type.FullName.NameWithNS}");
                                 var arg_class = _a.Type as RuntimeIshtarClass;
@@ -420,7 +423,7 @@ namespace ishtar
                                 {
                                     var sp_obj = IshtarMarshal.Boxing(invocation, sp);
                                     var sp_class = sp_obj->decodeClass();
-
+                                    
                                     if (sp_class.ID != arg_class.ID)
                                     {
                                         FastFail(TYPE_MISMATCH,
@@ -431,8 +434,10 @@ namespace ishtar
                                     }
                                 }
 #endif
-                                method_args[i] = *sp;
+
+                                method_args[y] = *sp;
                             }
+                            
 
                             (child_frame.level, child_frame.parent, child_frame.method)
                                 = (invocation.level + 1, invocation, method);
@@ -1148,9 +1153,7 @@ namespace ishtar
                     case LDLOC_3:
                     case LDLOC_4:
                         *sp = locals[(*ip) - (int)LDLOC_0];
-#if DEBUG_IL
-                        printf("load from locals -> %s %d\n", VAL_NAMES[sp->type], sp->data.i);
-#endif
+                        println($"load from locals ({sp->type})");
                         ++ip;
                         ++sp;
                         break;
@@ -1167,14 +1170,12 @@ namespace ishtar
                     case STLOC_4:
                         --sp;
                         locals[(*ip) - (int)STLOC_0] = *sp;
-#if DEBUG_IL
-                        printf("load from locals -> %s %d\n", VAL_NAMES[sp->type], sp->data.i);
-#endif
+                        println($"stage to locals ({sp->type})");
                         ++ip;
                         break;
                     case STLOC_S:
-                        --sp;
                         ++ip;
+                        --sp;
                         locals[(*ip)] = *sp;
                         ++ip;
                         break;
