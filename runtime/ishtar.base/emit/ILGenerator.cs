@@ -315,7 +315,11 @@ namespace ishtar.emit
             return this;
         }
 
-        internal void WriteDebugMetadata(string str) => _debugBuilder.AppendLine($"/* ::{_position:0000} */ {str}");
+        public ILGenerator WriteDebugMetadata(string str)
+        {
+            _debugBuilder.AppendLine($"/* ::{_position:0000} */ {str}");
+            return this;
+        }
 
         internal enum FieldDirection
         {
