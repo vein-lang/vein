@@ -23,7 +23,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
 
         var result = ctx.Execute((x, y) =>
         {
-            x.Emit(OpCodes.CALL, (MethodBuilder)y.m); 
+            x.Emit(OpCodes.CALL, (MethodBuilder)y.m);
             x.Emit(OpCodes.LDC_I4_2);
             x.Emit(OpCodes.MUL);
             x.Emit(OpCodes.RET);
@@ -54,7 +54,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
         var result = ctx.Execute((x, y) =>
         {
             x.Emit(OpCodes.LDC_I4_2);
-            x.Emit(OpCodes.CALL, (MethodBuilder)y.m); 
+            x.Emit(OpCodes.CALL, (MethodBuilder)y.m);
             x.Emit(OpCodes.LDC_I4_2);
             x.Emit(OpCodes.MUL);
             x.Emit(OpCodes.RET);
@@ -83,7 +83,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
         var result = ctx.Execute((x, y) =>
         {
             x.Emit(OpCodes.RESERVED_2);
-            x.Emit(OpCodes.CALL, (MethodBuilder)y.method); 
+            x.Emit(OpCodes.CALL, (MethodBuilder)y.method);
             x.Emit(OpCodes.RET);
         });
 

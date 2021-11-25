@@ -2,7 +2,7 @@ using vein.runtime;
 
 public sealed class IshtarMetaClass : VeinClass
 {
-    public class CannotUseMetaClassInRuntime : Exception {  }
+    public class CannotUseMetaClassInRuntime : Exception { }
 
     private IshtarMetaClass(QualityTypeName name) => this.FullName = name;
 
