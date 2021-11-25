@@ -58,7 +58,7 @@ namespace vein.syntax
 
     public sealed class TrueLiteralExpressionSyntax : BoolLiteralExpressionSyntax, IPositionAware<TrueLiteralExpressionSyntax>
     {
-        public TrueLiteralExpressionSyntax() : base("true") {}
+        public TrueLiteralExpressionSyntax() : base("true") { }
         public new TrueLiteralExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
@@ -70,7 +70,7 @@ namespace vein.syntax
 
     public sealed class FalseLiteralExpressionSyntax : BoolLiteralExpressionSyntax, IPositionAware<FalseLiteralExpressionSyntax>
     {
-        public FalseLiteralExpressionSyntax() : base("false") {}
+        public FalseLiteralExpressionSyntax() : base("false") { }
         public new FalseLiteralExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
