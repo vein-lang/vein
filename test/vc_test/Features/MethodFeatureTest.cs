@@ -11,12 +11,12 @@ public class MethodFeatureTest : TestContext
         var cd = Syntax.ClassDeclaration.Parse($"[special] {keyword} Program {{ [special] main(): void {{}} }}");
         Assert.True(cd.Methods.Any());
         Assert.AreEqual("Program", cd.Identifier.ToString());
-        Assert.AreEqual(VeinAnnotationKind.Special, cd.Annotations.Single().AnnotationKind);
+        Assert.AreEqual(VeinAnnotationKind.Special, cd.Aspects.Single().Name);
 
         var md = cd.Methods.Single();
         Assert.AreEqual("void", md.ReturnType.Identifier.ToString().ToLower());
         Assert.AreEqual("main", md.Identifier.ToString());
-        Assert.AreEqual(VeinAnnotationKind.Special, md.Annotations.Single().AnnotationKind);
+        Assert.AreEqual(VeinAnnotationKind.Special, md.Aspects.Single().Name);
         Assert.False(md.Parameters.Any());
 
         Assert.Throws<VeinParseException>(() => Syntax.ClassDeclaration.ParseVein(" class Test { void Main }"));

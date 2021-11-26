@@ -116,7 +116,7 @@ namespace vein.syntax
              from modifiers in Modifier.Many()
              select new MemberDeclarationSyntax
              {
-                 Annotations = annotation.GetOrEmpty().ToList(),
+                 Aspects = annotation.GetOrEmpty().ToList(),
                  LeadingComments = comments.ToList(),
                  Modifiers = modifiers.ToList(),
              }).Token().Positioned();

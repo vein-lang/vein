@@ -14,11 +14,11 @@ namespace vein.syntax
         public override SyntaxType Kind => SyntaxType.ClassMember;
 
         public override IEnumerable<BaseSyntax> ChildNodes =>
-            Annotations.SelectMany(x => x.ChildNodes)
+            Aspects.SelectMany(x => x.ChildNodes)
                 .Concat(Modifiers.SelectMany(x => x.ChildNodes))
                 .Concat(new[] { this });
 
-        public List<AspectSyntax> Annotations { get; set; } = new();
+        public List<AspectSyntax> Aspects { get; set; } = new();
         public List<ModificatorSyntax> Modifiers { get; set; } = new();
 
         public virtual MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName) => this;

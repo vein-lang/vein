@@ -3,14 +3,11 @@ namespace vein.compilation
     using MoreLinq;
     using Spectre.Console;
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Security.Cryptography;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using ishtar;
@@ -28,7 +25,6 @@ namespace vein.compilation
     using reflection;
     using vein.fs;
     using vein.styles;
-    using System.Reflection;
 
     public enum CompilationStatus
     {
@@ -483,18 +479,18 @@ namespace vein.compilation
         }
 
         public void CompileAnnotation(FieldDeclarationSyntax field, DocumentDeclaration doc, IAspectable aspectable) =>
-            CompileAnnotation(field.Annotations, x =>
-                $"aspect/{x.AnnotationKind}/class/{field.OwnerClass.Identifier}/field/{field.Field.Identifier}.",
+            CompileAnnotation(field.Aspects, x =>
+                $"aspect/{x.Name}/class/{field.OwnerClass.Identifier}/field/{field.Field.Identifier}.",
                 doc, aspectable, AspectTarget.Field);
 
         public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc, IAspectable aspectable) =>
-            CompileAnnotation(method.Annotations, x =>
-                $"aspect/{x.AnnotationKind}/class/{method.OwnerClass.Identifier}/method/{method.GetQualityName()}.",
+            CompileAnnotation(method.Aspects, x =>
+                $"aspect/{x.Name}/class/{method.OwnerClass.Identifier}/method/{method.GetQualityName()}.",
                 doc, aspectable, AspectTarget.Method);
 
         public void CompileAnnotation(ClassDeclarationSyntax clazz, DocumentDeclaration doc, IAspectable aspectable) =>
-            CompileAnnotation(clazz.Annotations, x =>
-                $"aspect/{x.AnnotationKind}/class/{clazz.Identifier}.", doc, aspectable, AspectTarget.Class);
+            CompileAnnotation(clazz.Aspects, x =>
+                $"aspect/{x.Name}/class/{clazz.Identifier}.", doc, aspectable, AspectTarget.Class);
 
         private void CompileAnnotation(
             List<AspectSyntax> annotations,
@@ -504,7 +500,7 @@ namespace vein.compilation
         {
             foreach (var annotation in annotations.TrimNull().Where(annotation => annotation.Args.Length != 0))
             {
-                var aspect = new Aspect(annotation.AnnotationKind.ToString(), target);
+                var aspect = new Aspect(annotation.Name.ToString(), target);
                 foreach (var (exp, index) in annotation.Args.Select((x, y) => (x, y)))
                 {
 
@@ -518,7 +514,7 @@ namespace vein.compilation
                         aspect.DefineArgument(index, calculated);
                     }
                     else
-                        Log.Defer.Error("[red bold]Annotations require compile-time constant.[/]", annotation, doc);
+                        Log.Defer.Error("[red bold]Aspects require compile-time constant.[/]", annotation, doc);
                 }
                 aspectable.Aspects.Add(aspect);
             }
@@ -697,7 +693,7 @@ namespace vein.compilation
             if (fieldType is null)
                 return default;
             var name = member.Field.Identifier.ExpressionString;
-            var @override = member.Annotations.FirstOrDefault(x => x.AnnotationKind is VeinAnnotationKind.Native);
+            var @override = member.Aspects.FirstOrDefault(x => x.IsNative);
 
             if (@override is not null && @override.Args.Any())
             {
@@ -1133,36 +1129,34 @@ namespace vein.compilation
         {
             var flags = (ClassFlags) 0;
 
-            var annotations = clazz.Annotations;
+            var annotations = clazz.Aspects;
             var mods = clazz.Modifiers;
 
             foreach (var annotation in annotations)
             {
-                var kind = annotation.AnnotationKind;
-                switch (kind)
+                var kind = annotation;
+                switch (annotation)
                 {
-                    case VeinAnnotationKind.Getter:
-                    case VeinAnnotationKind.Setter:
-                    case VeinAnnotationKind.Virtual:
-                        Log.Defer.Error(
-                            $"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
-                            $"class/struct/interface declaration.",
-                            clazz.Identifier, clazz.OwnerDocument);
-                        continue;
-                    case VeinAnnotationKind.Special:
+                    
+                        //Log.Defer.Error(
+                        //    $"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
+                        //    $"class/struct/interface declaration.",
+                        //    clazz.Identifier, clazz.OwnerDocument);
+                        //continue;
+                    case { IsSpecial: true }:
                         flags |= ClassFlags.Special;
                         continue;
-                    case VeinAnnotationKind.Native:
+                    case { IsNative: true }:
                         continue;
-                    case VeinAnnotationKind.Readonly when !clazz.IsStruct:
-                        Log.Defer.Error(
-                            $"[orange bold]Aspect[/] [red bold]{kind}[/] can only be applied to a structure declaration.",
-                            clazz.Identifier, clazz.OwnerDocument);
-                        continue;
-                    case VeinAnnotationKind.Readonly when clazz.IsStruct:
-                        // TODO
-                        continue;
-                    case VeinAnnotationKind.Forwarded:
+                    //case VeinAnnotationKind.Readonly when !clazz.IsStruct:
+                    //    Log.Defer.Error(
+                    //        $"[orange bold]Aspect[/] [red bold]{kind}[/] can only be applied to a structure declaration.",
+                    //        clazz.Identifier, clazz.OwnerDocument);
+                    //    continue;
+                    //case VeinAnnotationKind.Readonly when clazz.IsStruct:
+                    //    // TODO
+                    //    continue;
+                    case { IsForwarded: true }:
                         continue;
                     default:
                         Log.Defer.Error(
@@ -1192,8 +1186,6 @@ namespace vein.compilation
                     case "abstract":
                         flags |= ClassFlags.Abstract;
                         continue;
-                    case "extern":
-                        continue;
                     default:
                         Log.Defer.Error($"In [orange]'{clazz.Identifier}'[/] class/struct/interface " +
                                         $"[red bold]{mod}[/] is not supported [orange bold]modificator[/].",
@@ -1210,34 +1202,34 @@ namespace vein.compilation
         {
             var flags = (FieldFlags)0;
 
-            var annotations = member.Annotations;
+            var annotations = member.Aspects;
             var mods = member.Modifiers;
 
             foreach (var annotation in annotations)
             {
-                switch (annotation.AnnotationKind)
+                switch (annotation)
                 {
-                    case VeinAnnotationKind.Virtual:
-                        flags |= FieldFlags.Virtual;
-                        continue;
-                    case VeinAnnotationKind.Special:
+                    //case VeinAnnotationKind.Virtual:
+                    //    flags |= FieldFlags.Virtual;
+                    //    continue;
+                    case { IsSpecial: true }:
                         flags |= FieldFlags.Special;
                         continue;
-                    case VeinAnnotationKind.Native:
+                    case { IsNative: true }:
                         flags |= FieldFlags.Special;
                         continue;
-                    case VeinAnnotationKind.Readonly:
-                        flags |= FieldFlags.Readonly;
-                        continue;
-                    case VeinAnnotationKind.Getter:
-                    case VeinAnnotationKind.Setter:
-                        //errors.Add($"In [orange]'{field.Field.Identifier}'[/] field [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
-                        continue;
+                    //case VeinAnnotationKind.Readonly:
+                    //    flags |= FieldFlags.Readonly;
+                    //    continue;
+                    //case VeinAnnotationKind.Getter:
+                    //case VeinAnnotationKind.Setter:
+                    //    //errors.Add($"In [orange]'{field.Field.Identifier}'[/] field [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
+                    //    continue;
                     default:
                         if (member is FieldDeclarationSyntax field)
                         {
                             Log.Defer.Error(
-                                $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{annotation.AnnotationKind}[/] " +
+                                $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{annotation.Name}[/] " +
                                 $"is not supported [orange bold]annotation[/].",
                                 annotation, field.OwnerClass.OwnerDocument);
                         }
@@ -1245,7 +1237,7 @@ namespace vein.compilation
                         if (member is PropertyDeclarationSyntax prop)
                         {
                             Log.Defer.Error(
-                                $"In [orange]'{prop.Identifier}'[/] property [red bold]{annotation.AnnotationKind}[/] " +
+                                $"In [orange]'{prop.Identifier}'[/] property [red bold]{annotation.Name}[/] " +
                                 $"is not supported [orange bold]annotation[/].",
                                 annotation, prop.OwnerClass.OwnerDocument);
                         }
@@ -1311,32 +1303,32 @@ namespace vein.compilation
         {
             var flags = (MethodFlags)0;
 
-            var annotations = method.Annotations;
+            var aspects = method.Aspects;
             var mods = method.Modifiers;
 
-            foreach (var annotation in annotations)
+            foreach (var aspect in aspects)
             {
-                switch (annotation.AnnotationKind)
+                switch (aspect)
                 {
-                    case VeinAnnotationKind.Virtual:
-                        flags |= MethodFlags.Virtual;
-                        continue;
-                    case VeinAnnotationKind.Special:
+                    //case VeinAnnotationKind.Virtual:
+                    //    flags |= MethodFlags.Virtual;
+                    //    continue;
+                    case { IsSpecial: true }:
                         flags |= MethodFlags.Special;
                         continue;
-                    case VeinAnnotationKind.Native:
+                    case { IsNative: true }:
                         continue;
-                    case VeinAnnotationKind.Readonly:
-                    case VeinAnnotationKind.Getter:
-                    case VeinAnnotationKind.Setter:
-                        Log.Defer.Error(
-                            $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.AnnotationKind}[/] " +
-                            $"is not supported [orange bold]annotation[/].",
-                            method.Identifier, method.OwnerClass.OwnerDocument);
-                        continue;
+                    //case VeinAnnotationKind.Readonly:
+                    //case VeinAnnotationKind.Getter:
+                    //case VeinAnnotationKind.Setter:
+                    //    Log.Defer.Error(
+                    //        $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.Name}[/] " +
+                    //        $"is not supported [orange bold]annotation[/].",
+                    //        method.Identifier, method.OwnerClass.OwnerDocument);
+                    //    continue;
                     default:
                         Log.Defer.Error(
-                            $"In [orange]'{method.Identifier}'[/] method [red bold]{annotation.AnnotationKind}[/] " +
+                            $"In [orange]'{method.Identifier}'[/] method [red bold]{aspect.Name}[/] " +
                             $"is not supported [orange bold]annotation[/].",
                             method.Identifier, method.OwnerClass.OwnerDocument);
                         continue;
@@ -1367,6 +1359,9 @@ namespace vein.compilation
                         continue;
                     case "override":
                         flags |= MethodFlags.Override;
+                        continue;
+                    case "virtual":
+                        flags |= MethodFlags.Virtual;
                         continue;
                     default:
                         Log.Defer.Error(

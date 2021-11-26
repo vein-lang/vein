@@ -74,7 +74,7 @@ namespace vein.syntax
         public virtual bool IsStruct { get; set; }
         public virtual bool IsAspect { get; set; }
 
-        public bool IsForwardedType => Annotations.Any(x => $"{x.AnnotationKind}".Equals("forwarded"));
+        public bool IsForwardedType => Aspects.Any(x => $"{x.Name}".Equals("forwarded"));
 
         public List<TypeSyntax> Inheritances { get; set; } = new();
 
