@@ -2,9 +2,7 @@ namespace ishtar;
 
 using System.Diagnostics;
 using vein.runtime;
-using static System.Console;
 using static vein.runtime.MethodFlags;
-using static vein.runtime.VeinTypeCode;
 public static unsafe class B_Sys
 {
     [IshtarExport(1, "@value2string")]

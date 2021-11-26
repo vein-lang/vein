@@ -158,16 +158,16 @@ namespace vein.syntax
                 MemberChain = identifier.SkipLast(1).ToArray()
             };
         // native("args")
-        protected internal virtual Parser<AnnotationSyntax> AspectSyntax =>
+        protected internal virtual Parser<AspectSyntax> AspectSyntax =>
             (from kind in Aspect
              from args in object_creation_expression.Optional()
-             select new AnnotationSyntax(kind, args))
+             select new AspectSyntax(kind, args))
             .Positioned()
             .Token()
             .Named("aspect");
 
 
-        protected internal virtual Parser<AnnotationSyntax[]> AspectsExpression =>
+        protected internal virtual Parser<AspectSyntax[]> AspectsExpression =>
             (from open in Parse.Char('[')
              from kinds in Parse.Ref(() => AspectSyntax).Positioned().DelimitedBy(Parse.Char(',').Token())
              from close in Parse.Char(']')

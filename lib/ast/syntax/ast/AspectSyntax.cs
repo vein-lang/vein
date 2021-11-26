@@ -5,13 +5,12 @@ namespace vein.syntax
     using System.Linq;
     using extensions;
     using Sprache;
-    using stl;
 
-    public class AnnotationSyntax : BaseSyntax, IPositionAware<AnnotationSyntax>
+    public class AspectSyntax : BaseSyntax, IPositionAware<AspectSyntax>
     {
-        public AnnotationSyntax(IdentifierExpression kind)
+        public AspectSyntax(IdentifierExpression kind)
             => this.AnnotationKind = kind;
-        public AnnotationSyntax(IdentifierExpression kind, IOption<ExpressionSyntax> args)
+        public AspectSyntax(IdentifierExpression kind, IOption<ExpressionSyntax> args)
         {
             (AnnotationKind, Args) = (kind,
                 ((ObjectCreationExpression)args.GetOrDefault())?.Args?.EmptyIfNull().ToArray());
@@ -24,13 +23,13 @@ namespace vein.syntax
         public override IEnumerable<BaseSyntax> ChildNodes =>
             new BaseSyntax[] { this }.Concat(Args);
 
-        public new AnnotationSyntax SetPos(Position startPos, int length)
+        public new AspectSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
             return this;
         }
 
-        public override string ToString() => $"Annotation '{AnnotationKind}'";
+        public override string ToString() => $"Aspect '{AnnotationKind}'";
 
     }
 }

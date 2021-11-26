@@ -18,7 +18,7 @@ namespace vein.syntax
                 .Concat(Modifiers.SelectMany(x => x.ChildNodes))
                 .Concat(new[] { this });
 
-        public List<AnnotationSyntax> Annotations { get; set; } = new();
+        public List<AspectSyntax> Annotations { get; set; } = new();
         public List<ModificatorSyntax> Modifiers { get; set; } = new();
 
         public virtual MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName) => this;

@@ -482,8 +482,8 @@ namespace vein.compilation
                 $"aspect/{x.AnnotationKind}/class/{clazz.Identifier}.", doc, aspectable, AspectTarget.Class);
 
         private void CompileAnnotation(
-            List<AnnotationSyntax> annotations,
-            Func<AnnotationSyntax, string> nameGenerator,
+            List<AspectSyntax> annotations,
+            Func<AspectSyntax, string> nameGenerator,
             DocumentDeclaration doc, IAspectable aspectable,
             AspectTarget target)
         {
@@ -1136,7 +1136,7 @@ namespace vein.compilation
                         continue;
                     case VeinAnnotationKind.Readonly when !clazz.IsStruct:
                         Log.Defer.Error(
-                            $"[orange bold]Annotation[/] [red bold]{kind}[/] can only be applied to a structure declaration.",
+                            $"[orange bold]Aspect[/] [red bold]{kind}[/] can only be applied to a structure declaration.",
                             clazz.Identifier, clazz.OwnerDocument);
                         continue;
                     case VeinAnnotationKind.Readonly when clazz.IsStruct:
