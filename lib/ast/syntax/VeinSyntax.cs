@@ -13,7 +13,7 @@ namespace vein.syntax
 
         protected internal virtual Parser<string> RawIdentifier =>
             from identifier in Parse.Identifier(Parse.Letter.Or(Parse.Chars("_@")), Parse.LetterOrDigit.Or(Parse.Char('_')))
-            where !VeinKeywords.list.Contains(identifier)
+            //where !VeinKeywords.list.Contains(identifier)
             select identifier;
 
         protected internal virtual Parser<string> Identifier =>
@@ -46,6 +46,8 @@ namespace vein.syntax
         internal virtual Parser<ModificatorSyntax> Modifier =>
             (from mod in Keyword("public").Or(
                     Keyword("protected")).Or(
+                    Keyword("virtual")).Or(
+                    Keyword("readonly")).Or(
                     Keyword("private")).Or(
                     Keyword("internal")).Or(
                     Keyword("override")).Or(
