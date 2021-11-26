@@ -423,6 +423,19 @@ namespace vein.compilation
 
         public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc)
         {
+            void _defineClass(ClassBuilder clz)
+            {
+                var alias = member.Aspects.FirstOrDefault(x => x.IsAlias);
+                KnowClasses.Add(member.Identifier, clz);
+                if (alias is not null)
+                {
+                    var alias_value = alias.Args.SingleOrDefault() as IdentifierExpression;
+                    if (alias_value is not null)
+                        KnowClasses.Add(alias_value, clz);
+                }
+            }
+            
+
             if (member.IsForwardedType)
             {
                 var result = VeinCore.All.
@@ -436,6 +449,7 @@ namespace vein.compilation
                     clz.Includes.AddRange(doc.Includes);
                     TypeForwarder.Indicate(clz);
                     CompileAnnotation(member, doc, clz);
+                    _defineClass(clz);
                     return clz;
                 }
 
@@ -444,6 +458,7 @@ namespace vein.compilation
 
             var clazz = module.DefineClass($"global::{doc.Name}/{member.Identifier.ExpressionString}")
                 .WithIncludes(doc.Includes);
+            _defineClass(clazz);
             CompileAnnotation(member, doc, clazz);
             return clazz;
         }
@@ -1072,13 +1087,18 @@ namespace vein.compilation
                 }
             }
         }
+
+        private Dictionary<IdentifierExpression, VeinClass> KnowClasses = new ();
         private VeinClass FetchType(IdentifierExpression typename, DocumentDeclaration doc)
         {
+            if (KnowClasses.ContainsKey(typename))
+                return KnowClasses[typename];
+            
             var retType = module.TryFindType(typename.ExpressionString, doc.Includes);
 
             if (retType is null)
                 Log.Defer.Error($"[red bold]Cannot resolve type[/] '[purple underline]{typename}[/]'", typename, doc);
-            return retType;
+            return KnowClasses[typename] = retType;
         }
         private VeinClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
             => FetchType(typename.Identifier, doc);
