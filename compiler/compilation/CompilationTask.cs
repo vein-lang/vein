@@ -1179,6 +1179,8 @@ namespace vein.compilation
                         flags |= ClassFlags.Special;
                         continue;
                     case { IsNative: true }:
+                    case { IsForwarded: true }:
+                    case { IsAlias: true }:
                         continue;
                     //case VeinAnnotationKind.Readonly when !clazz.IsStruct:
                     //    Log.Defer.Error(
@@ -1188,8 +1190,7 @@ namespace vein.compilation
                     //case VeinAnnotationKind.Readonly when clazz.IsStruct:
                     //    // TODO
                     //    continue;
-                    case { IsForwarded: true }:
-                        continue;
+                   
                     default:
                         Log.Defer.Error(
                             $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{kind}[/] " +
@@ -1302,6 +1303,9 @@ namespace vein.compilation
                         goto default;
                     case ModificatorKind.Const:
                         flags |= FieldFlags.Literal;
+                        continue;
+                    case ModificatorKind.Readonly:
+                        flags |= FieldFlags.Readonly;
                         continue;
                     default:
                         switch (member)
