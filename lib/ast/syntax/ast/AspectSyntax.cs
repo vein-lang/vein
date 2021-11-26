@@ -14,11 +14,11 @@ namespace vein.syntax
         {
             (Name, Args) = (kind,
                 ((ObjectCreationExpression)args.GetOrDefault())?.Args?.EmptyIfNull().ToArray());
-            Args ??= Array.Empty<ExpressionSyntax>(); // the fuck
+            Args ??= Array.Empty<ArgumentExpression>(); // the fuck
         }
 
         public IdentifierExpression Name { get; }
-        public ExpressionSyntax[] Args { get; } = Array.Empty<ExpressionSyntax>();
+        public ArgumentExpression[] Args { get; } = Array.Empty<ArgumentExpression>();
         public override SyntaxType Kind => SyntaxType.Annotation;
         public override IEnumerable<BaseSyntax> ChildNodes =>
             new BaseSyntax[] { this }.Concat(Args);

@@ -17,7 +17,6 @@ namespace vein.syntax
 
         private List<string> _includes;
 
-
         [JsonIgnore]
         public IEnumerable<BaseSyntax> ChildNodes =>
             Members.SelectMany(x => x.ChildNodes)

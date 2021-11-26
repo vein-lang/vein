@@ -30,7 +30,7 @@ namespace vein.syntax
         }
     }
 
-    public sealed class StringLiteralExpressionSyntax : LiteralExpressionSyntax
+    public sealed class StringLiteralExpressionSyntax : LiteralExpressionSyntax, IPositionAware<StringLiteralExpressionSyntax>
     {
         public StringLiteralExpressionSyntax(string value)
         {
@@ -39,6 +39,15 @@ namespace vein.syntax
         }
 
         public string Value => Token;
+
+
+        public override string ToString() => Value;
+
+        public new StringLiteralExpressionSyntax SetPos(Position startPos, int length)
+        {
+            base.SetPos(startPos, length);
+            return this;
+        }
     }
 
     public sealed class NullLiteralExpressionSyntax : LiteralExpressionSyntax, IPositionAware<NullLiteralExpressionSyntax>

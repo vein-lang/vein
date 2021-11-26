@@ -249,7 +249,7 @@ namespace vein.syntax
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(new IdentifierExpression(text)).Positioned();
 
 
-        protected internal virtual Parser<ExpressionSyntax> argument =>
+        protected internal virtual Parser<ArgumentExpression> argument =>
             //from id in IdentifierExpression
             //    .Then(x => Parse.Char(':').Token().Return(x))
             //    .Positioned()
@@ -269,7 +269,7 @@ namespace vein.syntax
             from exp in QualifiedExpression
             select new IndexerArgument(id, exp);
 
-        protected internal virtual Parser<ExpressionSyntax[]> argument_list =>
+        protected internal virtual Parser<ArgumentExpression[]> argument_list =>
             from args in argument.Positioned().ChainForward(Parse.Char(',').Token())
             select args.ToArray();
 

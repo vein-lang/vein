@@ -6,9 +6,9 @@ namespace vein.syntax
 
     public class ObjectCreationExpression : ExpressionSyntax, IPositionAware<ObjectCreationExpression>
     {
-        public readonly IEnumerable<ExpressionSyntax> Args;
+        public readonly IEnumerable<ArgumentExpression> Args;
 
-        public ObjectCreationExpression(IEnumerable<ExpressionSyntax> args) => Args = args;
+        public ObjectCreationExpression(IEnumerable<ArgumentExpression> args) => Args = args;
 
         public override IEnumerable<BaseSyntax> ChildNodes => Args.EmptyIfNull();
 
