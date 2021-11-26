@@ -9,7 +9,7 @@ public class AnnotationFeatureTest
     [TestCase("native(\"foo\")")]
     public void AnnotationWithArgsTest(string str)
     {
-        var result = Syntax.AnnotationSyntax.End().ParseVein(str);
+        var result = Syntax.AspectSyntax.End().ParseVein(str);
         Assert.IsNotEmpty(result.Args);
     }
 
@@ -17,7 +17,7 @@ public class AnnotationFeatureTest
     public void AnnotationTest()
     {
         var a = new VeinSyntax();
-        var d = a.AnnotationExpression.End().ParseVein("[special, native]");
+        var d = a.AspectsExpression.End().ParseVein("[special, native]");
         Assert.AreEqual(2, d.Length);
     }
 }

@@ -6,7 +6,7 @@ namespace vein.syntax
     public class AspectDeclarationSyntax : MemberDeclarationSyntax, IAdvancedPositionAware<AspectDeclarationSyntax>
     {
         public List<ExpressionSyntax> Args { get; } = new();
-        public string Name { get; protected set; }
+        public IdentifierExpression Name { get; protected set; }
 
         public new AspectDeclarationSyntax SetPos(Position startPos, int length)
         {

@@ -1,20 +1,10 @@
 namespace vein.syntax
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Sprache;
     using stl;
-
-    public static class StringEx
-    {
-        public static string Capitalize(this string target)
-        {
-            if (string.IsNullOrEmpty(target))
-                return null;
-            return $"{char.ToUpperInvariant(target[0])}{target.Remove(0, 1)}";
-        }
-    }
+    
     public partial class VeinSyntax : ICommentParserProvider
     {
         public virtual IComment CommentParser => new CommentParser();
@@ -36,10 +26,6 @@ namespace vein.syntax
         internal virtual Parser<string> Keyword(string text) =>
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(text);
 
-        internal virtual Parser<VeinAnnotationKind> Keyword(VeinAnnotationKind value) =>
-            Parse.IgnoreCase(value.ToString().ToLowerInvariant()).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not())
-                .Return(value);
-
         protected internal virtual Parser<TypeSyntax> SystemType =>
             KeywordExpression("byte").Or(
                     KeywordExpression("sbyte")).Or(
@@ -56,24 +42,7 @@ namespace vein.syntax
                     KeywordExpression("void"))
                 .Token().Select(n => new TypeSyntax(n))
                 .Named("SystemType");
-
-        internal virtual Parser<ExpressionSyntax> SystemTypeExpression =>
-            KeywordExpression("byte").Or(
-                    KeywordExpression("sbyte")).Or(
-                    KeywordExpression("int16")).Or(
-                    KeywordExpression("uint16")).Or(
-                    KeywordExpression("int32")).Or(
-                    KeywordExpression("uint32")).Or(
-                    KeywordExpression("int64")).Or(
-                    KeywordExpression("uint64")).Or(
-                    KeywordExpression("bool")).Or(
-                    KeywordExpression("string")).Or(
-                    KeywordExpression("char")).Or(
-                    KeywordExpression("raw")).Or(
-                    KeywordExpression("void"))
-                .Token().Select(n => new TypeExpression(new TypeSyntax(n)))
-                .Named("SystemType");
-
+        
         internal virtual Parser<ModificatorSyntax> Modifier =>
             (from mod in Keyword("public").Or(
                     Keyword("protected")).Or(
@@ -90,15 +59,8 @@ namespace vein.syntax
             .Named("Modifier")
             .Positioned();
 
-        protected internal virtual Parser<VeinAnnotationKind> Annotation =>
-            Keyword(VeinAnnotationKind.Getter)
-                .Or(Keyword(VeinAnnotationKind.Setter))
-                .Or(Keyword(VeinAnnotationKind.Native))
-                .Or(Keyword(VeinAnnotationKind.Readonly))
-                .Or(Keyword(VeinAnnotationKind.Special))
-                .Or(Keyword(VeinAnnotationKind.Virtual))
-                .Or(Keyword(VeinAnnotationKind.Forwarded))
-                .Token().Named("Annotation");
+        protected internal virtual Parser<IdentifierExpression> Aspect =>
+            IdentifierExpression.Token().Named("Aspect");
 
         internal virtual Parser<TypeSyntax> NonGenericType =>
             SystemType.Or(QualifiedIdentifier.Select(qi => new TypeSyntax(qi)));
@@ -150,7 +112,7 @@ namespace vein.syntax
         // examples: /* this is a member */ public
         protected internal virtual Parser<MemberDeclarationSyntax> MemberDeclarationHeading =>
             (from comments in CommentParser.AnyComment.Token().Many()
-             from annotation in AnnotationExpression.Optional()
+             from annotation in AspectsExpression.Optional()
              from modifiers in Modifier.Many()
              select new MemberDeclarationSyntax
              {
@@ -196,21 +158,21 @@ namespace vein.syntax
                 MemberChain = identifier.SkipLast(1).ToArray()
             };
         // native("args")
-        protected internal virtual Parser<AnnotationSyntax> AnnotationSyntax =>
-            (from kind in Annotation
+        protected internal virtual Parser<AnnotationSyntax> AspectSyntax =>
+            (from kind in Aspect
              from args in object_creation_expression.Optional()
              select new AnnotationSyntax(kind, args))
             .Positioned()
             .Token()
-            .Named("annotation");
+            .Named("aspect");
 
 
-        protected internal virtual Parser<AnnotationSyntax[]> AnnotationExpression =>
+        protected internal virtual Parser<AnnotationSyntax[]> AspectsExpression =>
             (from open in Parse.Char('[')
-             from kinds in Parse.Ref(() => AnnotationSyntax).Positioned().DelimitedBy(Parse.Char(',').Token())
+             from kinds in Parse.Ref(() => AspectSyntax).Positioned().DelimitedBy(Parse.Char(',').Token())
              from close in Parse.Char(']')
              select kinds.ToArray())
-            .Token().Named("annotation list");
+            .Token().Named("aspect list");
 
         public virtual Parser<DocumentDeclaration> CompilationUnit =>
             from directives in

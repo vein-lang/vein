@@ -46,6 +46,7 @@ namespace vein.syntax
             Identifier = classBody.Identifier;
             IsInterface = classBody.IsInterface;
             IsStruct = classBody.IsStruct;
+            IsAspect = classBody.IsAspect;
             Inheritances = classBody.Inheritances;
             Members = classBody.Members;
             InnerComments = classBody.InnerComments;
@@ -71,8 +72,9 @@ namespace vein.syntax
 
         public virtual bool IsInterface { get; set; }
         public virtual bool IsStruct { get; set; }
+        public virtual bool IsAspect { get; set; }
 
-        public bool IsForwardedType => Annotations.Any(x => x.AnnotationKind == VeinAnnotationKind.Forwarded);
+        public bool IsForwardedType => Annotations.Any(x => $"{x.AnnotationKind}".Equals("forwarded"));
 
         public List<TypeSyntax> Inheritances { get; set; } = new();
 
