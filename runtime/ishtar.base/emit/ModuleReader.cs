@@ -164,6 +164,7 @@ namespace ishtar.emit
 
             module.Name = module.GetConstStringByIndex(idx);
             module.Version = Version.Parse(module.GetConstStringByIndex(vdx));
+            module.aspects.AddRange(Aspect.Deconstruct(module.const_table.storage));
             DistributionAspects(module);
 
             return module;
