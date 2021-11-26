@@ -9,7 +9,7 @@ namespace ishtar.emit
         {
             switch (clazz.FullName.NameWithNS)
             {
-                case "global::vein/lang/raw":
+                case "global::vein/lang/Raw":
                     clazz.TypeCode = VeinTypeCode.TYPE_RAW;
                     VeinCore.RawClass = clazz;
                     break;

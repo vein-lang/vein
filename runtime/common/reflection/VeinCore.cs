@@ -76,7 +76,7 @@ namespace vein.runtime
             CharClass = new VeinClass($"{asmName}global::vein/lang/Char", ValueTypeClass, cormodule) { TypeCode = VeinTypeCode.TYPE_CHAR };
             ArrayClass = new VeinClass($"{asmName}global::vein/lang/Array", ObjectClass, cormodule) { TypeCode = VeinTypeCode.TYPE_ARRAY };
             ExceptionClass = new VeinClass($"{asmName}global::vein/lang/Exception", ObjectClass, cormodule) { TypeCode = VeinTypeCode.TYPE_CLASS };
-            RawClass = new VeinClass($"{asmName}global::vein/lang/raw", ObjectClass, cormodule) { TypeCode = VeinTypeCode.TYPE_RAW };
+            RawClass = new VeinClass($"{asmName}global::vein/lang/Raw", ObjectClass, cormodule) { TypeCode = VeinTypeCode.TYPE_RAW };
         }
     }
 }

@@ -29,7 +29,7 @@ namespace vein.runtime
             VeinCore.CharClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Char", VeinCore.ValueTypeClass, null) { TypeCode = VeinTypeCode.TYPE_CHAR };
             VeinCore.ArrayClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Array", VeinCore.ObjectClass, null) { TypeCode = VeinTypeCode.TYPE_ARRAY };
             VeinCore.ExceptionClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Exception", VeinCore.ObjectClass, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };
-            VeinCore.RawClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/raw", (VeinClass)null, null) { TypeCode = VeinTypeCode.TYPE_RAW };
+            VeinCore.RawClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Raw", (VeinClass)null, null) { TypeCode = VeinTypeCode.TYPE_RAW };
 
             INIT_ADDITIONAL_MAPPING();
         }
