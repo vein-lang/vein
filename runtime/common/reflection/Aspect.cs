@@ -2,6 +2,7 @@ namespace vein.reflection
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using vein.runtime;
 
@@ -50,6 +51,23 @@ namespace vein.reflection
         public override string ToString() => $"Aspect '{Name}' for '{ClassName}/{FieldName}' field";
     }
 
+    public class AliasAspect
+    {
+        public AliasAspect(Aspect aspect)
+        {
+            Debug.Assert(aspect.IsAlias());
+            Debug.Assert(aspect.Arguments.Count == 1);
+            Name = (string)aspect.Arguments.Single().Value;
+        }
+
+        public string Name { get; }
+    }
+
+    public static class AspectExtensions
+    {
+        public static AliasAspect AsAlias(this Aspect aspect) => new AliasAspect(aspect);
+    }
+
     public class Aspect
     {
         public string Name { get; }
@@ -64,6 +82,11 @@ namespace vein.reflection
 
         internal void DefineArgument(int index, object value)
             => Arguments.Add(new AspectArgument(this, value, index));
+
+
+        public bool IsAlias() => Name.Equals("alias", StringComparison.InvariantCultureIgnoreCase);
+        public bool IsNative() => Name.Equals("native", StringComparison.InvariantCultureIgnoreCase);
+        public bool IsSpecial() => Name.Equals("special", StringComparison.InvariantCultureIgnoreCase);
 
 
         // maybe overhead, need refactoring
