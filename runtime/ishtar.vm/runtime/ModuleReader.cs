@@ -6,6 +6,7 @@ namespace ishtar
     using System.IO;
     using System.Linq;
     using System.Runtime.InteropServices;
+    using System.Text;
     using vein.exceptions;
     using vein.extensions;
     using emit;
@@ -183,38 +184,57 @@ namespace ishtar
             => ishtarModule.class_table.OfType<RuntimeIshtarClass>().Pipe(x => x.init_vtable()).Consume();
 
         // shit, todo: refactoring
-        public static void DistributionAspects(RuntimeIshtarModule ishtarModule)
+        public static void DistributionAspects(RuntimeIshtarModule module)
         {
-            foreach (var aspect in ishtarModule.aspects)
+            var errors = new StringBuilder();
+            var classes = module.class_table;
+
+            var class_eq = (VeinClass x, string clazz) => x.Name.Equals(clazz);
+
+            foreach (var aspect in module.aspects)
             {
                 switch (aspect)
                 {
                     case AspectOfClass classAspect:
-                        {
-                            foreach (var @class in ishtarModule.class_table
-                                .Where(@class => @class.Name.Equals(classAspect.ClassName)))
-                                @class.Aspects.Add(aspect);
-                            break;
-                        }
-                    case AspectOfMethod methodAspect:
-                        {
-                            foreach (var method in ishtarModule.class_table
-                                .Where(@class => @class.Name.Equals(methodAspect.ClassName))
-                                .SelectMany(@class => @class.Methods
-                                    .Where(method => method.Name.Equals(methodAspect.MethodName))))
-                                method.Aspects.Add(aspect);
-                            break;
-                        }
-                    case AspectOfField fieldAspect:
-                        {
-                            foreach (var field in ishtarModule.class_table
-                                .Where(@class => @class.Name.Equals(fieldAspect.ClassName))
-                                .SelectMany(@class => @class.Fields
-                                    .Where(field => field.Name.Equals(fieldAspect.FieldName))))
-                                field.Aspects.Add(aspect);
-                            break;
-                        }
+                    {
+                        var @class = classes.FirstOrDefault(x => class_eq(x, classAspect.ClassName));
+                        if (@class is not null)
+                            @class.Aspects.Add(aspect);
+                        else
+                            errors.AppendLine($"Aspect '{classAspect.Name}': class '{classAspect.ClassName}' not found.");
+                        break;
+                    }
+                    case AspectOfMethod ma:
+                    {
+                        var method = classes
+                            .Where(x => class_eq(x, ma.ClassName))
+                            .SelectMany(x => x.Methods)
+                            .FirstOrDefault(method => method.Name.Equals(ma.MethodName));
+                        if (method is not null)
+                            method.Aspects.Add(aspect);
+                        else
+                            errors.AppendLine($"Aspect '{ma.Name}': method '{ma.ClassName}/{ma.MethodName}' not found.");
+                        break;
+                    }
+                    case AspectOfField fa when !fa.IsNative(): // currently ignoring native aspect, todo
+                    {
+                        var field = classes
+                            .Where(x => class_eq(x, fa.ClassName))
+                            .SelectMany(@class => @class.Fields)
+                            .FirstOrDefault(field => field.Name.Equals(fa.Arguments));
+                        if (field is not null)
+                            field.Aspects.Add(aspect);
+                        else
+                            errors.AppendLine($"Aspect '{fa.Name}': field '{fa.ClassName}/{fa.FieldName}' not found.");
+                        break;
+                    }
                 }
+            }
+
+            if (errors.Length != 0)
+            {
+                VM.FastFail(WNE.TYPE_LOAD, $"\n{errors}", sys_frame);
+                VM.ValidateLastError();
             }
         }
 
@@ -305,7 +325,7 @@ namespace ishtar
         {
             foreach (var method in methods.Where(x => x.IsExtern))
             {
-                var aspect = method.Aspects.FirstOrDefault(x => x.Name.Equals("Native"));
+                var aspect = method.Aspects.FirstOrDefault(x => x.IsNative());
                 var name = method.Name;
                 if (aspect is not null)
                 {

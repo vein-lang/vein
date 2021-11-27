@@ -477,27 +477,27 @@ namespace vein.compilation
             }
         }
 
-        public void CompileAnnotation(FieldDeclarationSyntax field, DocumentDeclaration doc, IAspectable aspectable) =>
-            CompileAnnotation(field.Aspects, x =>
-                $"aspect/{x.Name}/class/{field.OwnerClass.Identifier}/field/{field.Field.Identifier}.",
-                doc, aspectable, AspectTarget.Field);
+        public void CompileAnnotation(FieldDeclarationSyntax dec, DocumentDeclaration doc, VeinField field) =>
+            CompileAnnotation(dec.Aspects, x =>
+                $"aspect/{x.Name}/class/{field.Owner.Name}/field/{dec.Field.Identifier}.",
+                doc, field, AspectTarget.Field);
 
-        public void CompileAnnotation(MethodDeclarationSyntax method, DocumentDeclaration doc, IAspectable aspectable) =>
-            CompileAnnotation(method.Aspects, x =>
-                $"aspect/{x.Name}/class/{method.OwnerClass.Identifier}/method/{method.GetQualityName()}.",
-                doc, aspectable, AspectTarget.Method);
+        public void CompileAnnotation(MethodDeclarationSyntax dec, DocumentDeclaration doc, VeinMethod method) =>
+            CompileAnnotation(dec.Aspects, x =>
+                $"aspect/{x.Name}/class/{method.Owner.Name}/method/{method.Name}.",
+                doc, method, AspectTarget.Method);
 
-        public void CompileAnnotation(ClassDeclarationSyntax clazz, DocumentDeclaration doc, IAspectable aspectable) =>
-            CompileAnnotation(clazz.Aspects, x =>
-                $"aspect/{x.Name}/class/{clazz.Identifier}.", doc, aspectable, AspectTarget.Class);
+        public void CompileAnnotation(ClassDeclarationSyntax dec, DocumentDeclaration doc, VeinClass clazz) =>
+            CompileAnnotation(dec.Aspects, x =>
+                $"aspect/{x.Name}/class/{clazz.Name}.", doc, clazz, AspectTarget.Class);
 
         private void CompileAnnotation(
-            List<AspectSyntax> annotations,
+            List<AspectSyntax> aspects,
             Func<AspectSyntax, string> nameGenerator,
             DocumentDeclaration doc, IAspectable aspectable,
             AspectTarget target)
         {
-            foreach (var annotation in annotations.TrimNull().Where(annotation => annotation.Args.Length != 0))
+            foreach (var annotation in aspects.TrimNull().Where(annotation => annotation.Args.Length != 0))
             {
                 var aspect = new Aspect(annotation.Name.ToString(), target);
                 foreach (var (exp, index) in annotation.Args.Select((x, y) => (x, y)))
