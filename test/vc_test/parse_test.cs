@@ -24,9 +24,9 @@ namespace veinc_test
         public void IdentifierParseTest()
         {
             var a = new VeinSyntax();
-            Assert.AreEqual("id", a.Identifier.ParseVein("id"));
-            Assert.Throws<VeinParseException>(() => a.Identifier.ParseVein("4"));
-            Assert.Throws<VeinParseException>(() => a.Identifier.ParseVein("public"));
+            Assert.AreEqual("id", $"{a.IdentifierExpression.ParseVein("id")}");
+            Assert.Throws<VeinParseException>(() => a.IdentifierExpression.ParseVein("4"));
+            Assert.IsTrue(a.IdentifierExpression.ParseVein("public").IsBrokenToken);
         }
 
 
@@ -131,7 +131,7 @@ namespace veinc_test
         [TestCase("static")]
         [TestCase("auto")]
         public void KeywordIsNotIdentifier(string key)
-            => Assert.Throws<VeinParseException>(() => VeinAst.Identifier.ParseVein(key));
+            => Assert.IsTrue(VeinAst.IdentifierExpression.ParseVein(key).IsBrokenToken);
 
         [Test]
         public void MemberNormalizedChainTest()

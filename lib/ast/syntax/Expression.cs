@@ -155,7 +155,7 @@ namespace vein.syntax
 
 
         protected internal virtual Parser<ExpressionSyntax> failable_expression =>
-            QualifiedExpression.Or(fail_expression);
+            fail_expression.Or(QualifiedExpression);
 
         protected internal virtual Parser<ExpressionSyntax> fail_expression =>
             Keyword("fail")
@@ -182,7 +182,7 @@ namespace vein.syntax
             BinaryExpression(relational_expression, "!=", "==").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> relational_expression =>
-            BinaryExpression(shift_expression.Or(AsTypePattern).Or(IsTypePattern), ">=", "<=", ">", "<").Positioned();
+            BinaryExpression(shift_expression, ">=", "<=", ">", "<").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> shift_expression =>
             BinaryExpression(additive_expression, "<<", ">>").Positioned();
@@ -210,18 +210,7 @@ namespace vein.syntax
             from ob in Parse.Char('{').Token()
             from cb in Parse.Char('}').Token()
             select new InvalidBinaryExpressionSyntax();
-
-        protected internal virtual Parser<ExpressionSyntax> AsTypePattern =>
-            from key in Keyword("as").Token()
-            from ty in TypeExpression.Token().Positioned()
-            select new AsTypePatternExpression(ty);
-
-        protected internal virtual Parser<ExpressionSyntax> IsTypePattern =>
-            from key in Keyword("is").Token()
-            from ty in TypeExpression.Token().Positioned()
-            select new IsTypePatternExpression(ty);
-
-
+        
         private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, string op) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> =>
             from c in t.Token()
             from data in
@@ -242,9 +231,6 @@ namespace vein.syntax
             from exp in QualifiedExpression
             from exps in Parse.Ref(() => QualifiedExpression).DelimitedBy(Parse.Char(',')).Token()
             select exps;
-
-        protected internal virtual Parser<IdentifierExpression> IdentifierExpression =>
-            RawIdentifier.Token().Named("Identifier").Select(x => new IdentifierExpression(x)).Positioned();
         internal virtual Parser<IdentifierExpression> KeywordExpression(string text) =>
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(new IdentifierExpression(text)).Positioned();
 
@@ -308,8 +294,8 @@ namespace vein.syntax
             select new QualifiedAliasSyntax(chain.EmptyIfNull().ToArray(), id);
 
         protected internal virtual Parser<IdentifierExpression> qualified_alias_member =>
-            Identifier.Then(x => Parse.String("::").Token().Return($"{x}::"))
-                .Then(x => Identifier.Select(z => $"{x}{z}"))
+            IdentifierExpression.Then(x => Parse.String("::").Token().Return($"{x}::"))
+                .Then(x => IdentifierExpression.Select(z => $"{x}{z}"))
                 .Select(x => new IdentifierExpression(x)).Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> new_expression =>
@@ -356,6 +342,8 @@ namespace vein.syntax
                 .Or(invocation_expression.Positioned())
                 .Or(array_creation_expression)
                 .Or(new_expression)
+                .Or(AsTypePattern)
+                .Or(IsTypePattern)
                 .Or("true".Literal().Exchange().Return<TrueLiteralExpressionSyntax>().Positioned())
                 .Or("false".Literal().Exchange().Return<FalseLiteralExpressionSyntax>().Positioned())
                 .Or("-Infinity".Literal().Exchange().Return<NegativeInfinityLiteralExpressionSyntax>().Positioned())
@@ -370,6 +358,15 @@ namespace vein.syntax
                 .Or(LiteralExpression.Positioned())
             select oo;
 
+        protected internal virtual Parser<ExpressionSyntax> AsTypePattern =>
+            from key in Keyword("as").Token()
+            from ty in TypeExpression.Token().Positioned()
+            select new AsTypePatternExpression(ty);
+
+        protected internal virtual Parser<ExpressionSyntax> IsTypePattern =>
+            from key in Keyword("is").Token()
+            from ty in TypeExpression.Token().Positioned()
+            select new IsTypePatternExpression(ty);
         protected internal virtual Parser<ExpressionSyntax> array_creation_expression =>
             from keyword in KeywordExpression("new")
             from type in TypeExpression.Token().Positioned()

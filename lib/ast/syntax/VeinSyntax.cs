@@ -8,16 +8,18 @@ namespace vein.syntax
     public partial class VeinSyntax : ICommentParserProvider
     {
         public virtual IComment CommentParser => new CommentParser();
-
-
-
+        
         protected internal virtual Parser<string> RawIdentifier =>
             from identifier in Parse.Identifier(Parse.Letter.Or(Parse.Chars("_@")), Parse.LetterOrDigit.Or(Parse.Char('_')))
-            //where !VeinKeywords.list.Contains(identifier)
             select identifier;
 
-        protected internal virtual Parser<string> Identifier =>
-            RawIdentifier.Token().Named("Identifier");
+        protected internal virtual Parser<IdentifierExpression> IdentifierExpression =>
+            RawIdentifier
+                .Token()
+                .Named("Identifier")
+                .Select(x => new IdentifierExpression(x)
+                    .MarkAsErrorWhen<IdentifierExpression>("cannot use system type as identifier", VeinKeywords.list.Contains(x)))
+                .Positioned();
 
         protected internal virtual Parser<IEnumerable<IdentifierExpression>> QualifiedIdentifier =>
             IdentifierExpression.DelimitedBy(Parse.Char('.').Token())
@@ -27,19 +29,19 @@ namespace vein.syntax
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(text);
 
         protected internal virtual Parser<TypeSyntax> SystemType =>
-            KeywordExpression("byte").Or(
-                    KeywordExpression("sbyte")).Or(
-                    KeywordExpression("int16")).Or(
-                    KeywordExpression("uint16")).Or(
-                    KeywordExpression("int32")).Or(
-                    KeywordExpression("uint32")).Or(
-                    KeywordExpression("int64")).Or(
-                    KeywordExpression("uint64")).Or(
-                    KeywordExpression("bool")).Or(
-                    KeywordExpression("string")).Or(
-                    KeywordExpression("char")).Or(
-                    KeywordExpression("raw")).Or(
-                    KeywordExpression("void"))
+            KeywordExpression("Byte").Or(
+                    KeywordExpression("SByte")).Or(
+                    KeywordExpression("Int16")).Or(
+                    KeywordExpression("UInt16")).Or(
+                    KeywordExpression("Int32")).Or(
+                    KeywordExpression("UInt32")).Or(
+                    KeywordExpression("Int64")).Or(
+                    KeywordExpression("UInt64")).Or(
+                    KeywordExpression("Boolean")).Or(
+                    KeywordExpression("String")).Or(
+                    KeywordExpression("Char")).Or(
+                    KeywordExpression("Raw")).Or(
+                    KeywordExpression("Void"))
                 .Token().Select(n => new TypeSyntax(n))
                 .Named("SystemType");
         
@@ -61,8 +63,12 @@ namespace vein.syntax
             .Named("Modifier")
             .Positioned();
 
-        protected internal virtual Parser<IdentifierExpression> Aspect =>
-            IdentifierExpression.Token().Named("Aspect");
+        protected internal virtual Parser<IdentifierExpression> Aspect => Parse
+                .Identifier(Parse.Letter.Or(Parse.Chars("_@")), Parse.LetterOrDigit.Or(Parse.Char('_')))
+                .Token()
+                .Select(x => new IdentifierExpression(x))
+                .Named("Aspect")
+                .Positioned();
 
         internal virtual Parser<TypeSyntax> NonGenericType =>
             SystemType.Or(QualifiedIdentifier.Select(qi => new TypeSyntax(qi)));

@@ -12,7 +12,7 @@ namespace vein.syntax
 
         public override SyntaxType Kind => SyntaxType.EnumMember;
 
-        public string Identifier { get; set; }
+        public IdentifierExpression Identifier { get; set; }
     }
 
     public class EnumDeclarationSyntax : MemberDeclarationSyntax
@@ -27,7 +27,7 @@ namespace vein.syntax
         public override IEnumerable<BaseSyntax> ChildNodes =>
             base.ChildNodes.Concat(Members).Where(n => n != null);
 
-        public string Identifier { get; set; }
+        public IdentifierExpression Identifier { get; set; }
 
         public List<EnumMemberDeclarationSyntax> Members { get; set; } = new();
 

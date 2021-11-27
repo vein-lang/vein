@@ -9,7 +9,7 @@ namespace vein.syntax
         // example: SomeValue
         protected internal virtual Parser<EnumMemberDeclarationSyntax> EnumMember =>
             from heading in MemberDeclarationHeading
-            from identifier in RawIdentifier.Commented(this)
+            from identifier in IdentifierExpression.Commented(this)
             select new EnumMemberDeclarationSyntax(heading)
             {
                 Identifier = identifier.Value,
@@ -29,7 +29,7 @@ namespace vein.syntax
         // example: enum Weekday { Monday, Thursday }
         protected internal virtual Parser<EnumDeclarationSyntax> EnumDeclarationBody =>
             from @enum in Parse.IgnoreCase("enum").Token()
-            from identifier in Identifier
+            from identifier in IdentifierExpression
             from skippedComments in CommentParser.AnyComment.Token().Many()
             from openBrace in Parse.Char('{').Token()
             from members in EnumMember.DelimitedBy(Parse.Char(',').Commented(this))

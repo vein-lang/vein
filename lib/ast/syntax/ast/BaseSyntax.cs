@@ -57,8 +57,17 @@ namespace vein.syntax
 
         PassiveParseError IPassiveParseTransition.Error { get; set; }
 
-
-
+        public T MarkAsErrorWhen<T>(string error, bool mark) where T : BaseSyntax
+        {
+            if (!mark)
+                return (T)this;
+            return MarkAsError<T>(error);
+        }
+        public T MarkAsError<T>(string error) where T : BaseSyntax
+        {
+            (this as IPassiveParseTransition).Error = new PassiveParseError(error, new string[0]);
+            return (T)this;
+        }
     }
 
     public interface IPassiveParseTransition
