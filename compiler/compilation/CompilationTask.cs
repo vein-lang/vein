@@ -1091,7 +1091,7 @@ namespace vein.compilation
                          .Where(x => x.Aspects.Any(x => x.IsAlias())))
             {
                 var aliases = clazz.Aspects.Where(x => x.IsAlias()).Select(x => x.AsAlias());
-                
+
                 if (aliases.Count() > 1)
                 {
                     Log.Defer.Error($"[red bold]Detected multiple alises[/] '[purple underline]{aliases.Select(x => x.Name)}[/]'");
@@ -1117,7 +1117,7 @@ namespace vein.compilation
         {
             if (KnowClasses.ContainsKey(typename))
                 return KnowClasses[typename];
-            
+
             var retType = module.TryFindType(typename.ExpressionString, doc.Includes);
 
             if (retType is null)
@@ -1125,7 +1125,7 @@ namespace vein.compilation
                 Log.Defer.Error($"[red bold]Cannot resolve type[/] '[purple underline]{typename}[/]'", typename, doc);
                 return new UnresolvedVeinClass($"{this.module.Name}%global::{doc.Name}/{typename}");
             }
-            
+
             return KnowClasses[typename] = retType;
         }
         private VeinClass FetchType(TypeSyntax typename, DocumentDeclaration doc)
@@ -1169,12 +1169,12 @@ namespace vein.compilation
                 var kind = annotation;
                 switch (annotation)
                 {
-                    
-                        //Log.Defer.Error(
-                        //    $"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
-                        //    $"class/struct/interface declaration.",
-                        //    clazz.Identifier, clazz.OwnerDocument);
-                        //continue;
+
+                    //Log.Defer.Error(
+                    //    $"Cannot apply [orange bold]annotation[/] [red bold]{kind}[/] to [orange]'{clazz.Identifier}'[/] " +
+                    //    $"class/struct/interface declaration.",
+                    //    clazz.Identifier, clazz.OwnerDocument);
+                    //continue;
                     case { IsSpecial: true }:
                         flags |= ClassFlags.Special;
                         continue;
@@ -1190,7 +1190,7 @@ namespace vein.compilation
                     //case VeinAnnotationKind.Readonly when clazz.IsStruct:
                     //    // TODO
                     //    continue;
-                   
+
                     default:
                         Log.Defer.Error(
                             $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{kind}[/] " +

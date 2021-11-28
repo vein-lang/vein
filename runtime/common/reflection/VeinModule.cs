@@ -73,7 +73,7 @@ namespace vein.runtime
                 return null;
             throw new TypeNotFoundException($"'{typename}' not found in modules and dependency assemblies.");
         }
-        
+
         /// <summary>
         /// Find type by typename.
         /// </summary>

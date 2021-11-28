@@ -430,7 +430,7 @@ namespace ishtar
                                 {
                                     var sp_obj = IshtarMarshal.Boxing(invocation, sp);
                                     var sp_class = sp_obj->decodeClass();
-                                    
+
                                     if (sp_class.ID != arg_class.ID)
                                     {
                                         FastFail(TYPE_MISMATCH,
@@ -444,7 +444,7 @@ namespace ishtar
 
                                 method_args[y] = *sp;
                             }
-                            
+
 
                             (child_frame.level, child_frame.parent, child_frame.method)
                                 = (invocation.level + 1, invocation, method);

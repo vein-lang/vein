@@ -31,13 +31,13 @@ public unsafe static class B_StringBuilder
         var arg1 = args[0];
         var arg2 = args[1];
 
-        
+
         var @class_1 = arg1->decodeClass();
         var @class_2 = arg2->decodeClass();
 
         FFI.StaticValidate(current, &arg1);
         FFI.StaticValidate(current, &arg2);
-        
+
         var buffer = (ImmortalObject<StringBuilder>*)arg1->vtable[@class_1.Field["!!buffer"].vtable_offset];
 
         buffer->Value.AppendLine(IshtarMarshal.ToDotnetString(arg2, current));
