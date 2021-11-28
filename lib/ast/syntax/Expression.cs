@@ -210,7 +210,7 @@ namespace vein.syntax
             from ob in Parse.Char('{').Token()
             from cb in Parse.Char('}').Token()
             select new InvalidBinaryExpressionSyntax();
-        
+
         private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, string op) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> =>
             from c in t.Token()
             from data in

@@ -196,38 +196,38 @@ namespace ishtar
                 switch (aspect)
                 {
                     case AspectOfClass classAspect:
-                    {
-                        var @class = classes.FirstOrDefault(x => class_eq(x, classAspect.ClassName));
-                        if (@class is not null)
-                            @class.Aspects.Add(aspect);
-                        else
-                            errors.AppendLine($"Aspect '{classAspect.Name}': class '{classAspect.ClassName}' not found.");
-                        break;
-                    }
+                        {
+                            var @class = classes.FirstOrDefault(x => class_eq(x, classAspect.ClassName));
+                            if (@class is not null)
+                                @class.Aspects.Add(aspect);
+                            else
+                                errors.AppendLine($"Aspect '{classAspect.Name}': class '{classAspect.ClassName}' not found.");
+                            break;
+                        }
                     case AspectOfMethod ma:
-                    {
-                        var method = classes
+                        {
+                            var method = classes
                             .Where(x => class_eq(x, ma.ClassName))
                             .SelectMany(x => x.Methods)
                             .FirstOrDefault(method => method.Name.Equals(ma.MethodName));
-                        if (method is not null)
-                            method.Aspects.Add(aspect);
-                        else
-                            errors.AppendLine($"Aspect '{ma.Name}': method '{ma.ClassName}/{ma.MethodName}' not found.");
-                        break;
-                    }
+                            if (method is not null)
+                                method.Aspects.Add(aspect);
+                            else
+                                errors.AppendLine($"Aspect '{ma.Name}': method '{ma.ClassName}/{ma.MethodName}' not found.");
+                            break;
+                        }
                     case AspectOfField fa when !fa.IsNative(): // currently ignoring native aspect, todo
-                    {
-                        var field = classes
+                        {
+                            var field = classes
                             .Where(x => class_eq(x, fa.ClassName))
                             .SelectMany(@class => @class.Fields)
                             .FirstOrDefault(field => field.Name.Equals(fa.Arguments));
-                        if (field is not null)
-                            field.Aspects.Add(aspect);
-                        else
-                            errors.AppendLine($"Aspect '{fa.Name}': field '{fa.ClassName}/{fa.FieldName}' not found.");
-                        break;
-                    }
+                            if (field is not null)
+                                field.Aspects.Add(aspect);
+                            else
+                                errors.AppendLine($"Aspect '{fa.Name}': field '{fa.ClassName}/{fa.FieldName}' not found.");
+                            break;
+                        }
                 }
             }
 

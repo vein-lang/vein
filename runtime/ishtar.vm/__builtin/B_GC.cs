@@ -13,7 +13,7 @@ public static unsafe class B_GC
     [IshtarExportFlags(Public | Static)]
     public static IshtarObject* GetAliveObjects(CallFrame current, IshtarObject** _)
         => IshtarMarshal.ToIshtarObject(IshtarGC.GCStats.alive_objects, current);
-    
+
     public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
     {
         new RuntimeIshtarMethod("i_call_GC_get_allocated", Public | Static | Extern)

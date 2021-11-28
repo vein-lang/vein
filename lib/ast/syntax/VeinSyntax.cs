@@ -4,11 +4,11 @@ namespace vein.syntax
     using System.Linq;
     using Sprache;
     using stl;
-    
+
     public partial class VeinSyntax : ICommentParserProvider
     {
         public virtual IComment CommentParser => new CommentParser();
-        
+
         protected internal virtual Parser<string> RawIdentifier =>
             from identifier in Parse.Identifier(Parse.Letter.Or(Parse.Chars("_@")), Parse.LetterOrDigit.Or(Parse.Char('_')))
             select identifier;
@@ -44,7 +44,7 @@ namespace vein.syntax
                     KeywordExpression("Void"))
                 .Token().Select(n => new TypeSyntax(n))
                 .Named("SystemType");
-        
+
         internal virtual Parser<ModificatorSyntax> Modifier =>
             (from mod in Keyword("public").Or(
                     Keyword("protected")).Or(

@@ -241,7 +241,7 @@ namespace ishtar
             TYPE_STRING => obj,
             _ => ReturnDefault(nameof(ToIshtarString), $"Convert to '{obj->decodeClass().TypeCode}' not supported.", frame),
         };
-        
+
         private static IshtarObject* ReturnDefault(string name, string msg, CallFrame frame)
         {
             VM.FastFail(WNE.TYPE_MISMATCH,
