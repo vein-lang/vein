@@ -7,9 +7,9 @@ using NuGet.Versioning;
 
 public record PackageManifest
 {
-    [JsonProperty("id")]
+    [JsonProperty("name")]
     public string Name { get; set; }
-    [JsonProperty("version")]
+    [JsonProperty("version"), JsonConverter(typeof(NuGetVersionConverter))]
     public NuGetVersion Version { get; set; }
     [JsonProperty("description")]
     public string Description { get; set; }
@@ -42,3 +42,6 @@ public record PackageMetadata
     [JsonProperty("id")]
     public string ID { get; set; }
 }
+
+public record PackageCertificate([JsonProperty("cert")] string PublicCertificate) { }
+

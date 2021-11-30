@@ -47,7 +47,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spectre.Console", "lib\spec
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar.debug.console.host", "runtime\ishtar.dch\ishtar.debug.console.host.csproj", "{87D06A9D-D040-4DE4-BFD5-E538534F5486}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "installer", "installer\installer.csproj", "{FC4BE8B9-A2F1-4946-932D-7D950C933383}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "installer", "installer\installer.csproj", "{FC4BE8B9-A2F1-4946-932D-7D950C933383}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
