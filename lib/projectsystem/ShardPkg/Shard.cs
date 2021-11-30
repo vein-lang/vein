@@ -77,14 +77,21 @@ public class Shard
         if (!info.Exists)
             throw new FileNotFoundException($"File '{info.FullName}' is not found.");
 
-        var shard = new Shard();
+        try
+        {
+            var shard = new Shard();
 
-        shard._archive = new PackageArchive(info);
+            shard._archive = new PackageArchive(info);
 
-        await shard.GetManifestAsync(token);
-        //await shard.GetMetadataAsync(token);
+            await shard.GetManifestAsync(token);
+            //await shard.GetMetadataAsync(token);
 
-        return shard;
+            return shard;
+        }
+        catch (Exception e)
+        {
+            throw new ShardPackageCorruptedException(e);
+        }
     }
 
 

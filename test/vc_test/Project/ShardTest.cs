@@ -38,6 +38,14 @@ public class ShardTest
         Assert.AreEqual(1, files.Count());
     }
 
+    [Test]
+    public void ValidateFailShardTest()
+    {
+        var info = new FileInfo(Path.Combine(Path.GetTempPath(), "veinc_test", Path.GetTempFileName()));
+
+        Assert.ThrowsAsync<ShardPackageCorruptedException>(async () => await Shard.OpenAsync(info));
+    }
+
 
     private async Task<FileInfo> _createShard()
     {
