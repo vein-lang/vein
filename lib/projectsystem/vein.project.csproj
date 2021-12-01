@@ -10,7 +10,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
     <PackageReference Include="NuGet.Versioning" Version="5.9.0" />
     <PackageReference Include="PgpCore" Version="5.5.0" />
-    <PackageReference Include="SharpYaml" Version="1.8.0" />
+    <PackageReference Include="YamlDotNet" Version="11.2.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\runtime\common\vein.common.csproj" />

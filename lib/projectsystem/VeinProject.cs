@@ -10,7 +10,6 @@ namespace vein.project
     using extensions;
     using NuGet.Versioning;
     using Sprache;
-    using SharpYaml.Serialization;
 
     [DebuggerDisplay("{Name}.vproj")]
     public class VeinProject
@@ -29,7 +28,7 @@ namespace vein.project
         public DirectoryInfo WorkDir { get; }
         public DirectoryInfo CacheDir => new DirectoryInfo(Path.Combine(WorkDir.FullName, "obj"));
 
-        public bool Packable => _project.Packable;
+        public bool Packable => _project.Packable ?? false;
         public string Author => _project.Author;
         public string License => _project.License;
 
@@ -79,9 +78,8 @@ namespace vein.project
 
         public static VeinProject LoadFrom(FileInfo info)
         {
-            var a = new Serializer(new SerializerSettings());
-            var b = a.Deserialize<YAML.Project>(info.OpenRead());
-            return new VeinProject(info, b);
+            var p = YAML.Project.Load(info);
+            return new VeinProject(info, p);
         }
     }
 }

@@ -45,7 +45,10 @@ namespace vein.cmd
             {
                 var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
 
-                var projects = curDir.EnumerateFiles("*.vproj", SearchOption.AllDirectories).ToArray();
+                var projects = curDir.EnumerateFiles("*.vproj", SearchOption.AllDirectories)
+                    .Where(x => x.DirectoryName != "bin")
+                    .Where(x => x.DirectoryName != "obj")
+                    .ToArray();
 
                 if (!projects.Any())
                 {

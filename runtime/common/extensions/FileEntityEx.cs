@@ -34,5 +34,7 @@ namespace vein
             => System.IO.File.ReadAllText(info.FullName);
         public static byte[] ReadAllBytes(this FileInfo info)
             => System.IO.File.ReadAllBytes(info.FullName);
+        public static string[] ReadAllLines(this FileInfo info)
+            => System.IO.File.ReadAllLines(info.FullName);
     }
 }

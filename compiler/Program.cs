@@ -18,6 +18,7 @@ using static GitVersionInformation;
 #pragma warning restore CS0436 // Type conflicts with imported type
 using static Spectre.Console.AnsiConsole;
 using vein.json;
+using vein.resources;
 
 [assembly: InternalsVisibleTo("veinc_test")]
 
@@ -46,7 +47,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     }
 };
 
-var font = new FileInfo($"{AppDomain.CurrentDomain.BaseDirectory}/resources/isometric1.flf");
+var font = Resources.Font;
 if (font.Exists)
 {
     Write(new FigletText(FigletFont.Load(font.FullName), "Vein Lang")
@@ -67,7 +68,9 @@ var app = new CommandApp();
 
 app.Configure(config =>
 {
+    config.AddCommand<NewCommand>("new");
     config.AddCommand<CompileCommand>("build");
+    config.AddCommand<PackageCommand>("package");
     config.AddCommand<CleanCommand>("clean");
 });
 
