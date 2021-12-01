@@ -20,7 +20,7 @@ public class PackageArchive : PackageBase
 
     public override IEnumerable<string> GetFiles(string folder)
         => GetFiles().Where(f => f.StartsWith(folder + "/", StringComparison.OrdinalIgnoreCase));
-    
+
     public override Stream GetStream(string path)
     {
         var stream = default(Stream);
