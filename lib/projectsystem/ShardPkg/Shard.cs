@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using MoreLinq;
 using Newtonsoft.Json;
 using NuGet.Versioning;
 using PgpCore;
@@ -232,8 +233,18 @@ public class ShardFileStorage : IStorageEntity
         => _entities;
 
     public IStorageEntity File(FileInfo path)
+        => this.File(path, true);
+
+    public IStorageEntity File(FileInfo path, bool conditional)
     {
-        _entities.Add(new StorageFile(this, path));
+        if (conditional)
+            _entities.Add(new StorageFile(this, path));
+        return this;
+    }
+
+    public IStorageEntity Files(FileInfo[] paths)
+    {
+        paths.Pipe(x => _entities.Add(new StorageFile(this, x))).Consume();
         return this;
     }
 
@@ -254,8 +265,20 @@ public record struct StorageFolder(ShardFileStorage storage, string Name) : ISto
     internal List<IStorageEntity> _entities = new();
 
     public IStorageEntity File(FileInfo path)
+        => this.File(path, true);
+
+    public IStorageEntity File(FileInfo path, bool conditional)
     {
-        _entities.Add(new StorageFile(storage, path));
+        if (conditional)
+            _entities.Add(new StorageFile(storage, path));
+        return this;
+    }
+
+    public IStorageEntity Files(FileInfo[] paths)
+    {
+        var en = _entities;
+        var st = storage;
+        paths.Pipe(x => en.Add(new StorageFile(st, x))).Consume();
         return this;
     }
 
@@ -279,6 +302,10 @@ public record struct StorageFile(ShardFileStorage storage, FileInfo info) : ISto
 
     public IStorageEntity File(FileInfo path)
         => throw new NotSupportedException("File entity cannot create inner file.");
+    public IStorageEntity File(FileInfo path, bool conditional)
+        => throw new NotSupportedException("File entity cannot create inner file.");
+    public IStorageEntity Files(FileInfo[] path)
+        => throw new NotSupportedException("File entity cannot create inner file.");
     public IStorageEntity Folder(string folderName, Action<IStorageEntity> actor)
         => throw new NotSupportedException("File entity cannot create inner folder.");
 
@@ -293,6 +320,8 @@ public interface IStorageEntity
     string Name { get; }
 
     IStorageEntity File(FileInfo path);
+    IStorageEntity File(FileInfo path, bool conditional);
+    IStorageEntity Files(FileInfo[] paths);
     IStorageEntity Folder(string folderName, Action<IStorageEntity> actor);
 
     IEnumerable<IStorageEntity> InnerEntities { get; }
