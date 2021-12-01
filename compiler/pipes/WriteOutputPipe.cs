@@ -1,18 +1,9 @@
 namespace vein.pipes;
 
-
-
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using cmd;
 using fs;
-using compilation;
-using ishtar.emit;
 using MoreLinq;
-using project;
 
 [ExcludeFromCodeCoverage]
 public class WriteOutputPipe : CompilerPipeline
@@ -40,95 +31,11 @@ public class WriteOutputPipe : CompilerPipeline
             File.WriteAllBytes(wil_file.FullName, wil_data);
         }
 
-        PopulateArtifact(new ILArtifact(wil_file, Project.Name));
-        PopulateArtifact(new BinaryArtifact(OutputBinaryPath, Project.Name));
-        PopulateArtifact(new DebugSymbolArtifact(new FileInfo($"{wil_file.FullName}.lay"), Project.Name));
+        SaveArtifacts(new ILArtifact(wil_file, Project.Name));
+        SaveArtifacts(new BinaryArtifact(OutputBinaryPath, Project.Name));
+        SaveArtifacts(new DebugSymbolArtifact(new FileInfo($"{wil_file.FullName}.lay"), Project.Name));
     }
 
     public override bool CanApply(CompileSettings flags) => true;
     public override int Order => 0;
-}
-
-[ExcludeFromCodeCoverage]
-public class CopyDependencies : CompilerPipeline
-{
-    public override void Action()
-    {
-        if (!Target.HasChanged)
-            return;
-
-        foreach (var dependency in Target.Dependencies.SelectMany(x => x.Artifacts))
-        {
-            if (dependency.Kind is ArtifactKind.BINARY)
-                File.Copy(dependency.Path.FullName,
-                    Path.Combine(OutputDirectory.FullName, Path.GetFileName(dependency.Path.FullName)));
-        }
-    }
-    public override bool CanApply(CompileSettings flags) => true;
-    public override int Order => 0;
-}
-
-[ExcludeFromCodeCoverage]
-public abstract class CompilerPipeline
-{
-    protected DirectoryInfo OutputDirectory
-        => new(Path.Combine(Project.WorkDir.FullName, "bin"));
-    protected FileInfo OutputBinaryPath =>
-        new(Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wll"));
-
-    protected internal VeinModuleBuilder Module { get; set; }
-    protected internal VeinProject Project { get; set; }
-    protected internal IshtarAssembly Assembly { get; set; }
-    protected internal CompilationTarget Target { get; set; }
-
-    public abstract void Action();
-
-    public Action<VeinArtifact> PopulateArtifact;
-
-    public abstract bool CanApply(CompileSettings flags);
-    public abstract int Order { get; }
-}
-
-[ExcludeFromCodeCoverage]
-public class PipelineRunner
-{
-    public static List<CompilerPipeline> GetPipes() =>
-    new()
-    {
-        new WriteOutputPipe(),
-        new SingleFileOutputPipe(),
-        new CopySDKBinaries(),
-        new CopyDependencies()
-    };
-
-
-    public static void Run(CompilationTask compiler, CompilationTarget target)
-    {
-        var lastPipe = default(CompilerPipeline);
-
-        var pipes = GetPipes();
-        var task = compiler.StatusCtx.AddTask("Running post-compile task...", maxValue: pipes.Count);
-
-        foreach (var pipe in pipes)
-        {
-            if (!pipe.CanApply(compiler._flags))
-            {
-                task.Increment(1);
-                continue;
-            }
-            task.VeinStatus($"Apply [orange]'{pipe.GetType().Name}'[/] pipeline...");
-            pipe.PopulateArtifact = (x) => compiler.artifacts.Add(x);
-            pipe.Project = lastPipe?.Project ?? compiler.Project;
-            pipe.Assembly = lastPipe?.Assembly;
-            pipe.Module = lastPipe?.Module ?? compiler.module;
-            pipe.Target = target;
-
-            pipe.Action();
-            Thread.Sleep(400);
-
-            lastPipe = pipe;
-            task.Increment(1);
-        }
-        task.StopTask();
-    }
 }
