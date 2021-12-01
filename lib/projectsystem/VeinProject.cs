@@ -8,15 +8,16 @@ namespace vein.project
     using System.Linq;
     using System.Xml;
     using extensions;
+    using NuGet.Versioning;
     using Sprache;
-
+    using SharpYaml.Serialization;
 
     [DebuggerDisplay("{Name}.vproj")]
     public class VeinProject
     {
-        internal readonly XML.Project _project;
+        internal readonly YAML.Project _project;
 
-        internal VeinProject(FileInfo file, XML.Project project)
+        internal VeinProject(FileInfo file, YAML.Project project)
         {
             _project = project;
             Name = Path.GetFileNameWithoutExtension(file.FullName);
@@ -27,6 +28,12 @@ namespace vein.project
         public string Name { get; }
         public DirectoryInfo WorkDir { get; }
         public DirectoryInfo CacheDir => new DirectoryInfo(Path.Combine(WorkDir.FullName, "obj"));
+
+        public bool Packable => _project.Packable;
+        public string Author => _project.Author;
+        public string License => _project.License;
+
+        public NuGetVersion Version => new NuGetVersion(_project.Version);
 
         public string Runtime
         {
@@ -42,7 +49,7 @@ namespace vein.project
             .AsReadOnly();
 
         private IEnumerable<IProjectRef> refs =>
-            _project.Packages?.Ref?.Select(x => PackageReference.Convert(x.Name))
+            _project.Packages?.Select(x => PackageReference.Convert(x))
             ?? new List<PackageReference>();
 
         public Dep Dependencies { get; }
@@ -72,21 +79,9 @@ namespace vein.project
 
         public static VeinProject LoadFrom(FileInfo info)
         {
-            try
-            {
-                var serializer = new XmlSerializer(typeof(XML.Project));
-                using var stream = new StreamReader(info.FullName);
-                using var reader = new XmlTextReader(stream)
-                {
-                    Namespaces = false
-                };
-                var p = (XML.Project)serializer.Deserialize(reader);
-                return new VeinProject(info, p);
-            }
-            catch
-            {
-                return null;
-            }
+            var a = new Serializer(new SerializerSettings());
+            var b = a.Deserialize<YAML.Project>(info.OpenRead());
+            return new VeinProject(info, b);
         }
     }
 }

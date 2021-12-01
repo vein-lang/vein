@@ -2,32 +2,28 @@ namespace vein.project
 {
     using System.Collections.Generic;
     using System.Xml.Serialization;
+    using SharpYaml.Serialization;
 
-    public static class XML
+    public static class YAML
     {
-        [XmlRoot(ElementName = "ref")]
-        public class RefBlock
-        {
-            [XmlAttribute(AttributeName = "name")]
-            public string Name { get; set; }
-        }
-        [XmlRoot(ElementName = "packages")]
-        public class Packages
-        {
-            [XmlElement(ElementName = "ref")]
-            public List<RefBlock> Ref { get; set; }
-        }
-        [XmlRoot(ElementName = "project", Namespace = "")]
         public class Project
         {
-            [XmlElement(ElementName = "target")]
+            [YamlMember("target")]
             public string Target { get; set; }
-            [XmlElement(ElementName = "runtime")]
+            [YamlMember("runtime")]
             public string Runtime { get; set; }
-            [XmlElement(ElementName = "packages")]
-            public Packages Packages { get; set; }
-            [XmlAttribute(AttributeName = "sdk")]
+            [YamlMember("packages")]
+            public List<string> Packages { get; set; }
+            [YamlMember("sdk")]
             public string Sdk { get; set; }
+            [YamlMember("packable")]
+            public bool Packable { get; set; }
+            [YamlMember("author")]
+            public string Author { get; set; }
+            [YamlMember("version")]
+            public string Version { get; set; }
+            [YamlMember("license")]
+            public string License { get; set; }
         }
     }
 }
