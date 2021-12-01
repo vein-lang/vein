@@ -29,4 +29,7 @@
     <Using Include="ishtar" />
     <Using Include="ishtar.emit" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Project\" />
+  </ItemGroup>
 </Project>

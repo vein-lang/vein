@@ -30,6 +30,10 @@ namespace vein.cmd
         [Description("Enable stacktrace printing when error.")]
         [CommandOption("--sys-stack-trace")]
         public bool DisplayStacktraceGenerator { get; set; }
+
+        [Description("Generate shard package.")]
+        [CommandOption("--gen-shard")]
+        public bool GeneratePackageOutput { get; set; }
     }
 
     [ExcludeFromCodeCoverage]
