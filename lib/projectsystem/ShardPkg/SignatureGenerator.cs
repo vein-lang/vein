@@ -47,7 +47,7 @@ public class SignatureGenerator
         if (index == -1)
             return "";
         var text = Encoding.ASCII.GetString(arr.Skip(index).ToArray());
-        
+
 
         return ExtractSign(text);
     }

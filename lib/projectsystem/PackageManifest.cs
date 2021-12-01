@@ -14,7 +14,7 @@ public record PackageManifest
     [JsonProperty("description")]
     public string Description { get; set; }
     [JsonProperty("authors")]
-    public List<string> Authors { get; set; } = new ();
+    public List<string> Authors { get; set; } = new();
     [JsonProperty("icon")]
     public string Icon { get; set; }
     [JsonProperty("license")]
@@ -28,11 +28,11 @@ public record PackageManifest
     [JsonProperty("repository")]
     public Uri Repository { get; set; }
     [JsonProperty("keywords")]
-    public List<string> Keywords { get; set; } = new ();
+    public List<string> Keywords { get; set; } = new();
     [JsonProperty("categories")]
-    public List<string> Categories { get; set; } = new ();
+    public List<string> Categories { get; set; } = new();
     [JsonProperty("dependencies")]
-    public List<PackageReference> Dependencies { get; set; } = new ();
+    public List<PackageReference> Dependencies { get; set; } = new();
 }
 
 public record PackageMetadata

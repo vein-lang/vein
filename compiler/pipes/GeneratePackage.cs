@@ -21,7 +21,7 @@ public class GeneratePackage : CompilerPipeline
         var output = OutputDirectory.File($"{Project.Name}-{Project.Version}.shard");
         var icon = Project.WorkDir.File("icon.png");
         var cert = Project.WorkDir.File("sign.cert");
-        
+
 
         if (output.Exists)
             output.Delete();
