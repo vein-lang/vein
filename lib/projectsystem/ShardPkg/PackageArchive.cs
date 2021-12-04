@@ -46,4 +46,10 @@ public class PackageArchive : PackageBase
         ZipStream = info.OpenRead();
         _zipArchive = new ZipArchive(ZipStream);
     }
+
+    public PackageArchive(Stream stream)
+    {
+        ZipStream = stream;
+        _zipArchive = new ZipArchive(ZipStream);
+    }
 }
