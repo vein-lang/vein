@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class PackageArchive : PackageBase
 {
@@ -36,6 +37,15 @@ public class PackageArchive : PackageBase
         {
             _zipArchive.Dispose();
             ZipStream.Dispose();
+        }
+    }
+
+    protected override async ValueTask DisposeAsync(bool disposing)
+    {
+        if (disposing)
+        {
+            _zipArchive.Dispose();
+            await ZipStream.DisposeAsync();
         }
     }
 

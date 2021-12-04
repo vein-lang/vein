@@ -3,8 +3,9 @@ namespace vein.project.shards;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
-public abstract class PackageBase : IDisposable
+public abstract class PackageBase : IDisposable, IAsyncDisposable
 {
     public abstract IEnumerable<string> GetFiles(string folder);
     public abstract IEnumerable<string> GetFiles();
@@ -18,5 +19,12 @@ public abstract class PackageBase : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        await AsyncDispose(true);
+        GC.SuppressFinalize(this);
+    }
+
     protected abstract void Dispose(bool disposing);
+    protected abstract ValueTask DisposeAsync(bool disposing);
 }
