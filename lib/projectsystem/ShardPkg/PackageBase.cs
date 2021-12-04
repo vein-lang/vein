@@ -21,7 +21,7 @@ public abstract class PackageBase : IDisposable, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        await AsyncDispose(true);
+        await DisposeAsync(true);
         GC.SuppressFinalize(this);
     }
 
