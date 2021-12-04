@@ -33,6 +33,8 @@ public record PackageManifest
     public List<string> Categories { get; set; } = new();
     [JsonProperty("dependencies")]
     public List<PackageReference> Dependencies { get; set; } = new();
+    [JsonProperty("requireLicenseAcceptance")]
+    public bool RequireLicenseAcceptance { get; set; }
 }
 
 public record PackageMetadata
