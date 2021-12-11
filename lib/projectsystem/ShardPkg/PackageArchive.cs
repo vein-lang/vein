@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class PackageArchive : PackageBase
 {
@@ -39,11 +40,26 @@ public class PackageArchive : PackageBase
         }
     }
 
+    protected override async ValueTask DisposeAsync(bool disposing)
+    {
+        if (disposing)
+        {
+            _zipArchive.Dispose();
+            await ZipStream.DisposeAsync();
+        }
+    }
+
     public PackageArchive(FileInfo info)
     {
         if (!info.Exists)
             throw new FileNotFoundException($"File '{info.FullName}' is not found.");
         ZipStream = info.OpenRead();
+        _zipArchive = new ZipArchive(ZipStream);
+    }
+
+    public PackageArchive(Stream stream)
+    {
+        ZipStream = stream;
         _zipArchive = new ZipArchive(ZipStream);
     }
 }

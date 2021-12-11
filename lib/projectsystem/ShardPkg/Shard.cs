@@ -11,11 +11,14 @@ using Newtonsoft.Json;
 using NuGet.Versioning;
 using PgpCore;
 
-public class Shard
+public class Shard : IDisposable, IAsyncDisposable
 {
     private PackageArchive _archive;
     private PackageManifest _manifest;
     private PackageMetadata _metadata;
+    private MemoryStream _iconStream;
+    private MemoryStream _certStream;
+    private MemoryStream _readmeStream;
 
     private bool isSigned;
 
@@ -47,12 +50,30 @@ public class Shard
     }
 
     /// <exception cref="ShardPackageCorruptedException"></exception>
-    public async Task<PackageMetadata> GetCertificate(CancellationToken token = default)
+    public async Task<Stream> GetCertificate(CancellationToken token = default)
     {
-        if (_metadata is not null)
-            return _metadata;
+        if (_certStream is not null)
+            return _certStream;
 
-        return _metadata = await GetJsonFile<PackageMetadata>("sign.cert", token);
+        return _certStream = await GetStream("sign.cert", token);
+    }
+
+    /// <exception cref="ShardPackageCorruptedException"></exception>
+    public async Task<Stream> GetReadmeAsync(CancellationToken token = default)
+    {
+        if (_readmeStream is not null)
+            return _readmeStream;
+
+        return _readmeStream = await GetStream("readme", token);
+    }
+
+    /// <exception cref="ShardPackageCorruptedException"></exception>
+    public async Task<Stream> GetIconAsync(CancellationToken token = default)
+    {
+        if (_iconStream is not null)
+            return _iconStream;
+
+        return _iconStream = await GetStream("icon.png", token);
     }
 
     public Task<byte[]> GetContent(FileInfo info)
@@ -70,7 +91,25 @@ public class Shard
     public IEnumerable<string> GetFiles(string folder)
         => _archive.GetFiles(folder);
 
+    /// <exception cref="ShardPackageCorruptedException"></exception>
+    public static async Task<Shard> OpenAsync(Stream stream, bool leaveStreamOpen = false, CancellationToken token = default)
+    {
+        try
+        {
+            var shard = new Shard();
 
+            shard._archive = new PackageArchive(stream);
+
+            await shard.GetManifestAsync(token);
+            //await shard.GetMetadataAsync(token);
+
+            return shard;
+        }
+        catch (Exception e)
+        {
+            throw new ShardPackageCorruptedException(e);
+        }
+    }
     /// <exception cref="ShardPackageCorruptedException"></exception>
     /// <exception cref="FileNotFoundException"></exception>
     public static async Task<Shard> OpenAsync(FileInfo info, CancellationToken token = default)
@@ -142,6 +181,21 @@ public class Shard
         }
     }
 
+    private async Task<MemoryStream> GetStream(string name, CancellationToken token = default)
+    {
+        try
+        {
+            using var stream = _archive.GetStream(_archive.GetFile(name));
+            using var mem = new MemoryStream();
+            await stream.CopyToAsync(mem, token);
+            return mem;
+        }
+        catch (Exception e)
+        {
+            throw new ShardPackageCorruptedException(e);
+        }
+    }
+
     private async Task CollectBytesFromFileAsync(string info, MemoryStream stream, CancellationToken token = default)
     {
         try
@@ -153,6 +207,24 @@ public class Shard
         {
             throw new ShardPackageCorruptedException(e);
         }
+    }
+
+
+    public void Dispose()
+    {
+        _iconStream?.Dispose();
+        _archive?.Dispose();
+        _certStream?.Dispose();
+        _readmeStream?.Dispose();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_iconStream is not null)
+            await _iconStream.DisposeAsync();
+        _archive?.Dispose();
+        _certStream?.Dispose();
+        _readmeStream?.Dispose();
     }
 }
 
