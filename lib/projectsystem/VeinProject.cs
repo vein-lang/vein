@@ -48,7 +48,7 @@ namespace vein.project
             .AsReadOnly();
 
         private IEnumerable<IProjectRef> refs =>
-            _project.Packages?.Select(x => PackageReference.Convert(x))
+            _project.Packages?.Select(PackageReference.Convert)
             ?? new List<PackageReference>();
 
         public Dep Dependencies { get; }

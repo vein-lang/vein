@@ -2,13 +2,18 @@ namespace vein.project
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using NuGet.Versioning;
     using Sprache;
 
     public interface IProjectRef { }
 
-    public record ProjectReference(string path) : IProjectRef { }
+    public record ProjectReference(string path) : IProjectRef
+    {
+        public VeinProject ReadProject(VeinProject owner)
+            => VeinProject.LoadFrom(new FileInfo(Path.Combine(owner.WorkDir.FullName, path)));
+    }
 
     public record PackageReference(string Name, NuGetVersion Version) : IProjectRef, IDependency
     {

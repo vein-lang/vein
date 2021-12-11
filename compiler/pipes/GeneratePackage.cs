@@ -58,6 +58,13 @@ public static class VeinProjectExtensions
         manifest.License = project.License ?? "unlicensed";
         manifest.Dependencies = project.Dependencies.Packages.ToList();
 
+        foreach (var projectReference in project.Dependencies.Projects)
+        {
+            var proj = projectReference.ReadProject(project);
+            if (proj.Packable)
+                manifest.Dependencies.Add(new PackageReference(proj.Name, proj.Version));
+        }
+
 
         var file = project.CacheDir.File("manifest.json");
 
