@@ -14,19 +14,15 @@ public record PackageManifest
     [JsonProperty("description")]
     public string Description { get; set; }
     [JsonProperty("authors")]
-    public List<string> Authors { get; set; } = new();
+    public List<PackageAuthor> Authors { get; set; } = new();
     [JsonProperty("icon")]
     public string Icon { get; set; }
     [JsonProperty("license")]
     public string License { get; set; }
     [JsonProperty("preview")]
     public bool IsPreview { get; set; }
-    [JsonProperty("bugs")]
-    public Uri BugUrl { get; set; }
-    [JsonProperty("homepage")]
-    public Uri HomepageUrl { get; set; }
-    [JsonProperty("repository")]
-    public Uri Repository { get; set; }
+    [JsonProperty("urls")]
+    public PackageUrls Urls { get; set; }
     [JsonProperty("keywords")]
     public List<string> Keywords { get; set; } = new();
     [JsonProperty("categories")]
@@ -35,6 +31,24 @@ public record PackageManifest
     public List<PackageReference> Dependencies { get; set; } = new();
     [JsonProperty("requireLicenseAcceptance")]
     public bool RequireLicenseAcceptance { get; set; }
+    [JsonProperty("hasEmbeddedIcon")]
+    public bool HasEmbeddedIcon { get; set; }
+    [JsonProperty("hasEmbbededReadme")]
+    public bool HasEmbbededReadme { get; set; }
+}
+
+public record PackageAuthor(string name, string github);
+
+public record PackageUrls
+{
+    [JsonProperty("bugs")]
+    public Uri BugUrl { get; set; }
+    [JsonProperty("homepage")]
+    public Uri HomepageUrl { get; set; }
+    [JsonProperty("repository")]
+    public Uri Repository { get; set; }
+    [JsonProperty("other")]
+    public Dictionary<string, Uri> otherUrls { get; set; }
 }
 
 public record PackageMetadata

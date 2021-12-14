@@ -4,6 +4,7 @@ namespace vein.project
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using Newtonsoft.Json;
     using NuGet.Versioning;
     using Sprache;
 
@@ -15,7 +16,8 @@ namespace vein.project
             => VeinProject.LoadFrom(new FileInfo(Path.Combine(owner.WorkDir.FullName, path)));
     }
 
-    public record PackageReference(string Name, NuGetVersion Version) : IProjectRef, IDependency
+    public record PackageReference(string Name, [JsonConverter(typeof(NuGetVersionConverter))] NuGetVersion Version)
+        : IProjectRef, IDependency
     {
 
         internal static Parser<string> RawIdentifier =>
