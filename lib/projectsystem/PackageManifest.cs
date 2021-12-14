@@ -13,7 +13,7 @@ public record PackageManifest
     [JsonProperty("version"), JsonConverter(typeof(NuGetVersionConverter))]
     public NuGetVersion Version { get; set; }
     [JsonProperty("description")]
-    public string Description { get; set; }
+    public string Description { get; set; } = "";
     [JsonProperty("authors")]
     public List<PackageAuthor> Authors { get; set; } = new();
     [JsonProperty("icon")]
@@ -58,7 +58,7 @@ public record PackageUrls
 public class ToStringConverter<T> : JsonConverter<T>
 {
     public override T ReadJson(JsonReader reader, Type objectType, [AllowNull] T existingValue, bool hasExistingValue, JsonSerializer serializer)
-        => JsonConvert.DeserializeObject<T>(reader.ReadAsString());
+        => JsonConvert.DeserializeObject<T>((string)reader.Value);
     public override void WriteJson(JsonWriter writer, [AllowNull] T value, JsonSerializer serializer)
         => writer.WriteValue(JsonConvert.SerializeObject(value));
 }
