@@ -37,18 +37,21 @@ public record PackageManifest
     public bool HasEmbbededReadme { get; set; }
 }
 
-public record PackageAuthor(string name, string github);
+public record PackageAuthor(string name, string github)
+{
+    public PackageAuthor() : this("", "") {}
+}
 
 public record PackageUrls
 {
     [JsonProperty("bugs")]
-    public Uri BugUrl { get; set; }
+    public string BugUrl { get; set; }
     [JsonProperty("homepage")]
-    public Uri HomepageUrl { get; set; }
+    public string HomepageUrl { get; set; }
     [JsonProperty("repository")]
-    public Uri Repository { get; set; }
+    public string Repository { get; set; }
     [JsonProperty("other")]
-    public Dictionary<string, Uri> otherUrls { get; set; }
+    public Dictionary<string, string> otherUrls { get; set; }
 }
 
 public record PackageMetadata

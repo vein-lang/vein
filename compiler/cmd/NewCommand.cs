@@ -1,5 +1,7 @@
 namespace vein.cmd;
 
+using System;
+using System.Collections.Generic;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
@@ -36,7 +38,7 @@ public class NewCommand : Command<NewCommandSettings>
         var project = new YAML.Project();
 
         project.Version = version;
-        project.Author = author;
+        project.Authors = new List<PackageAuthor>() { new PackageAuthor(author, "") };
         project.License = license;
 
 

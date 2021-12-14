@@ -29,8 +29,10 @@ namespace vein.project
         public DirectoryInfo CacheDir => new DirectoryInfo(Path.Combine(WorkDir.FullName, "obj"));
 
         public bool Packable => _project.Packable ?? false;
-        public string Author => _project.Author;
+        public List<PackageAuthor> Authors => _project.Authors;
+        public string Description => _project.Description;
         public string License => _project.License;
+        public PackageUrls Urls => _project.Urls;
 
         public NuGetVersion Version => new NuGetVersion(_project.Version);
 

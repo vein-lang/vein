@@ -20,6 +20,8 @@ public class GeneratePackage : CompilerPipeline
         var shard = new ShardBuilder(manifest, (x) => Log.Info(x, Target));
         var output = OutputDirectory.File($"{Project.Name}-{Project.Version}.shard");
         var icon = Project.WorkDir.File("icon.png");
+        var readme1 = Project.WorkDir.File("readme.md");
+        var readme2 = Project.WorkDir.File("readme");
         var cert = Project.WorkDir.File("sign.cert");
 
 
@@ -31,6 +33,8 @@ public class GeneratePackage : CompilerPipeline
             .Folder("lib", x => x
                 .Files(Artifacts.Where(x => x.Kind == ArtifactKind.BINARY).Select(x => x.Path).ToArray()))
             .File(icon, icon.Exists)
+            .File(readme1, readme1.Exists)
+            .File(readme2, readme2.Exists)
             .File(cert, cert.Exists)
             .Return()
             .Save(output);
@@ -49,12 +53,19 @@ public static class VeinProjectExtensions
     {
         var manifest = new PackageManifest();
         manifest.Name = project.Name;
-        manifest.Description = "";
+        manifest.Description = project.Description;
+        manifest.Urls = project.Urls;
         manifest.Version = project.Version;
         if (project.WorkDir.File("icon.png").Exists)
+        {
             manifest.Icon = "icon.png";
+            manifest.HasEmbeddedIcon = true;
+        }
+        if (project.WorkDir.File("readme").Exists || project.WorkDir.File("readme.md").Exists)
+            manifest.HasEmbbededReadme = true;
+
         manifest.IsPreview = manifest.Version.IsPrerelease;
-        manifest.Authors = new List<string>() { project.Author };
+        manifest.Authors = project.Authors;
         manifest.License = project.License ?? "unlicensed";
         manifest.Dependencies = project.Dependencies.Packages.ToList();
 

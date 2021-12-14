@@ -16,16 +16,20 @@ public static class YAML
         public string Runtime { get; set; }
         [YamlMember(Alias = "packages", Order = 999)]
         public List<string> Packages { get; set; }
+        [YamlMember(Alias = "description", Order = 2)]
+        public string Description { get; set; }
         [YamlMember(Alias = "sdk", Order = 2)]
         public string Sdk { get; set; }
         [YamlMember(Alias = "packable", Order = 15)]
         public bool? Packable { get; set; }
         [YamlMember(Alias = "author", Order = 3)]
-        public string Author { get; set; }
+        public List<PackageAuthor> Authors { get; set; }
         [YamlMember(Alias = "version", Order = 4)]
         public string Version { get; set; }
         [YamlMember(Alias = "license", Order = 5)]
         public string License { get; set; }
+        [YamlMember(Alias = "urls", Order = 6)]
+        public PackageUrls Urls { get; set; }
 
         public static Project Load(FileInfo info)
         {
