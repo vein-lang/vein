@@ -16,9 +16,6 @@ public class Shard : IDisposable, IAsyncDisposable
     private PackageArchive _archive;
     private PackageManifest _manifest;
     private PackageMetadata _metadata;
-    private MemoryStream _iconStream;
-    private MemoryStream _certStream;
-    private MemoryStream _readmeStream;
 
     private bool isSigned;
 
@@ -51,30 +48,15 @@ public class Shard : IDisposable, IAsyncDisposable
 
     /// <exception cref="ShardPackageCorruptedException"></exception>
     public async Task<Stream> GetCertificate(CancellationToken token = default)
-    {
-        if (_certStream is not null)
-            return _certStream;
-
-        return _certStream = await GetStream("sign.cert", token);
-    }
+        => await GetStream("sign.cert", token);
 
     /// <exception cref="ShardPackageCorruptedException"></exception>
     public async Task<Stream> GetReadmeAsync(CancellationToken token = default)
-    {
-        if (_readmeStream is not null)
-            return _readmeStream;
-
-        return _readmeStream = await GetStream("readme", token);
-    }
+        => await GetStream("readme.md", token);
 
     /// <exception cref="ShardPackageCorruptedException"></exception>
     public async Task<Stream> GetIconAsync(CancellationToken token = default)
-    {
-        if (_iconStream is not null)
-            return _iconStream;
-
-        return _iconStream = await GetStream("icon.png", token);
-    }
+        =>  await GetStream("icon.png", token);
 
     public Task<byte[]> GetContent(FileInfo info)
     {
@@ -186,7 +168,7 @@ public class Shard : IDisposable, IAsyncDisposable
         try
         {
             using var stream = _archive.GetStream(_archive.GetFile(name));
-            using var mem = new MemoryStream();
+            var mem = new MemoryStream();
             await stream.CopyToAsync(mem, token);
             return mem;
         }
@@ -210,21 +192,12 @@ public class Shard : IDisposable, IAsyncDisposable
     }
 
 
-    public void Dispose()
-    {
-        _iconStream?.Dispose();
-        _archive?.Dispose();
-        _certStream?.Dispose();
-        _readmeStream?.Dispose();
-    }
+    public void Dispose() => _archive?.Dispose();
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        if (_iconStream is not null)
-            await _iconStream.DisposeAsync();
         _archive?.Dispose();
-        _certStream?.Dispose();
-        _readmeStream?.Dispose();
+        return ValueTask.CompletedTask;
     }
 }
 

@@ -2,6 +2,7 @@ namespace vein.project;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using NuGet.Versioning;
 
@@ -50,8 +51,16 @@ public record PackageUrls
     public string HomepageUrl { get; set; }
     [JsonProperty("repository")]
     public string Repository { get; set; }
-    [JsonProperty("other")]
+    [JsonProperty("other"), JsonConverter(typeof(ToStringConverter<Dictionary<string, string>>))]
     public Dictionary<string, string> otherUrls { get; set; }
+}
+
+public class ToStringConverter<T> : JsonConverter<T>
+{
+    public override T ReadJson(JsonReader reader, Type objectType, [AllowNull] T existingValue, bool hasExistingValue, JsonSerializer serializer)
+        => JsonConvert.DeserializeObject<T>(reader.ReadAsString());
+    public override void WriteJson(JsonWriter writer, [AllowNull] T value, JsonSerializer serializer)
+        => writer.WriteValue(JsonConvert.SerializeObject(value));
 }
 
 public record PackageMetadata
