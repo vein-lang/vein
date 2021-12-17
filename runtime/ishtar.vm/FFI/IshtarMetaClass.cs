@@ -15,5 +15,5 @@ public sealed class IshtarMetaClass : VeinClass
     public sealed override ClassFlags Flags => throw new CannotUseMetaClassInRuntime();
 
     public static IshtarMetaClass Define(string space, string name)
-        => new IshtarMetaClass(new QualityTypeName("corlib", name, space));
+        => new IshtarMetaClass(new QualityTypeName("std", name, space));
 }

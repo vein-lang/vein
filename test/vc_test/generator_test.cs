@@ -338,7 +338,7 @@ puts after - before;*/
             fibGen.Emit(OpCodes.STLOC_3);
 
             // var exceptionType =
-            //    module.FindType(new QualityTypeName("corlib%global::wave/lang/Exception")).AsClass();
+            //    module.FindType(new QualityTypeName("std%global::wave/lang/Exception")).AsClass();
 
             //fibGen.Emit(OpCodes.NEWOBJ, exceptionType.FullName);
             //fibGen.Emit(OpCodes.CALL, exceptionType.FindMethod("ctor()"));

@@ -68,7 +68,7 @@ namespace ishtar
 
     public class X_TcpListener : TransitObject<X_TcpListener>
     {
-        public X_TcpListener() : base("corlib%global::vein/lang/network/TcpListener")
+        public X_TcpListener() : base("stdglobal::vein/lang/network/TcpListener")
         {
         }
 

@@ -14,7 +14,7 @@ namespace ishtar_test
             using var ctx = CreateContext();
             ctx.OnClassBuild((x, storage) =>
             {
-                var type = x.Owner.FindType("corlib%global::vein/lang/Out", true);
+                var type = x.Owner.FindType("std%global::vein/lang/Out", true);
 
                 storage.method = type.FindMethod("@_println");
             });

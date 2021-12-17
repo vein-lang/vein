@@ -10,26 +10,22 @@ public static class YAML
 {
     public class Project
     {
-        [YamlMember(Alias = "target", Order = 0)]
-        public string Target { get; set; }
-        [YamlMember(Alias = "runtime", Order = 1)]
-        public string Runtime { get; set; }
-        [YamlMember(Alias = "packages", Order = 999)]
-        public List<string> Packages { get; set; }
-        [YamlMember(Alias = "description", Order = 2)]
+        [YamlMember(Alias = "name", Order = 0)]
+        public string Name { get; set; }
+        [YamlMember(Alias = "description", Order = 1)]
         public string Description { get; set; }
-        [YamlMember(Alias = "sdk", Order = 2)]
-        public string Sdk { get; set; }
-        [YamlMember(Alias = "packable", Order = 15)]
-        public bool? Packable { get; set; }
+        [YamlMember(Alias = "version", Order = 2)]
+        public string Version { get; set; }
         [YamlMember(Alias = "author", Order = 3)]
         public List<PackageAuthor> Authors { get; set; }
-        [YamlMember(Alias = "version", Order = 4)]
-        public string Version { get; set; }
-        [YamlMember(Alias = "license", Order = 5)]
+        [YamlMember(Alias = "license", Order = 4)]
         public string License { get; set; }
-        [YamlMember(Alias = "urls", Order = 6)]
+        [YamlMember(Alias = "urls", Order = 5)]
         public PackageUrls Urls { get; set; }
+        [YamlMember(Alias = "packable", Order = 998)]
+        public bool? Packable { get; set; }
+        [YamlMember(Alias = "packages", Order = 999)]
+        public List<string> Packages { get; set; }
 
         public static Project Load(FileInfo info)
         {

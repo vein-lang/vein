@@ -15,7 +15,7 @@ public class FullSTDCompilation
     public const string StdUrl = "https://github.com/vein-lang/std.git";
 
     public DirectoryInfo cache_folder { get; set; }
-    public FileInfo project_file => cache_folder.SubDirectory("src").File("corlib.vproj");
+    public FileInfo project_file => cache_folder.SubDirectory("src").File("std.vproj");
     [OneTimeSetUp]
     public void Setup()
     {
