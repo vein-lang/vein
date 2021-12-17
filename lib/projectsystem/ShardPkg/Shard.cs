@@ -28,6 +28,8 @@ public class Shard : IDisposable, IAsyncDisposable
 
     public bool IsSigned => isSigned;
 
+    public long Size => _archive.Size;
+
 
     /// <exception cref="ShardPackageCorruptedException"></exception>
     public async Task<PackageManifest> GetManifestAsync(CancellationToken token = default)

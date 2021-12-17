@@ -13,6 +13,8 @@ public class PackageArchive : PackageBase
 
     protected Stream ZipStream { get; set; }
 
+    public long Size => ZipStream.Length;
+
     public override IEnumerable<string> GetFiles()
         => _zipArchive.GetFiles();
 
