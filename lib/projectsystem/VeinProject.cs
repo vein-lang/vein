@@ -1,12 +1,10 @@
 namespace vein.project
 {
     using System;
-    using System.Xml.Serialization;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
-    using System.Xml;
     using extensions;
     using NuGet.Versioning;
     using Sprache;
@@ -19,7 +17,9 @@ namespace vein.project
         internal VeinProject(FileInfo file, YAML.Project project)
         {
             _project = project;
-            Name = Path.GetFileNameWithoutExtension(file.FullName);
+            Name = string.IsNullOrEmpty(project.Name) ?
+                Path.GetFileNameWithoutExtension(file.FullName) :
+                project.Name;
             WorkDir = file.Directory;
             Dependencies = new(this);
         }
@@ -36,10 +36,11 @@ namespace vein.project
 
         public NuGetVersion Version => new NuGetVersion(_project.Version);
 
+        [Obsolete]
         public string Runtime
         {
-            get => _project.Runtime;
-            internal set => _project.Runtime = value;
+            get => "any-vcpu";
+            internal set { }
         }
 
         public IReadOnlyCollection<FileInfo> Sources => WorkDir
@@ -75,7 +76,8 @@ namespace vein.project
         }
 
 
-        public VeinSDK SDK => VeinSDK.Resolve(_project.Sdk);
+        [Obsolete]
+        public VeinSDK SDK => VeinSDK.Resolve("no-runtime");
 
 
         public static VeinProject LoadFrom(FileInfo info)
