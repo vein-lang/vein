@@ -7,7 +7,7 @@ namespace vein.runtime
     {
         public static void INIT()
         {
-            var asmName = "corlib%";
+            var asmName = "std%";
 
             VeinCore.ObjectClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/Object", (VeinClass)null, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };
             VeinCore.ValueTypeClass = new RuntimeIshtarClass($"{asmName}global::vein/lang/ValueType", (VeinClass)null, null) { TypeCode = VeinTypeCode.TYPE_OBJECT };

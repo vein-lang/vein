@@ -54,8 +54,8 @@ namespace vein.runtime
 
         public static void Init()
         {
-            var asmName = "corlib%";
-            var cormodule = new VeinModule("corlib", new Version(1, 0, 0));
+            var asmName = "std%";
+            var cormodule = new VeinModule("std", new Version(1, 0, 0));
             ObjectClass = new VeinClass($"{asmName}global::vein/lang/Object", (VeinClass)null, cormodule) { TypeCode = VeinTypeCode.TYPE_OBJECT };
             ValueTypeClass = new VeinClass($"{asmName}global::vein/lang/ValueType", (VeinClass)null, cormodule) { TypeCode = VeinTypeCode.TYPE_OBJECT };
             VoidClass = new VeinClass($"{asmName}global::vein/lang/Void", ValueTypeClass, cormodule) { TypeCode = VeinTypeCode.TYPE_VOID };

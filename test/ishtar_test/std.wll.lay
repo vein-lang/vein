@@ -1,11 +1,11 @@
-.module 'corlib'::'1.0.0.0'
+.module 'std'::'1.0.0.0'
 {
 
 	.table const
 	{
 		.s 000000:'App'
 		.s 000001:'global::vein/lang'
-		.s 000002:'corlib'
+		.s 000002:'std'
 		.s 000003:'BitConvert'
 		.s 000004:'GC'
 		.s 000005:'Guid'
@@ -202,45 +202,45 @@
 		.s 000196:'z'
 		.s 000197:'w'
 		.s 000198:'1.0.0.0'
-		.t 000000:'corlib%global::vein/lang/App'
-		.t 000001:'corlib%global::vein/lang/Object'
-		.t 000002:'corlib%global::vein/lang/ValueType'
-		.t 000003:'corlib%global::vein/lang/Exception'
-		.t 000004:'corlib%global::vein/lang/GC'
-		.t 000005:'corlib%global::vein/lang/Guid'
-		.t 000006:'corlib%global::vein/lang/IEEEConsts'
-		.t 000007:'corlib%global::vein/lang/Out'
-		.t 000008:'corlib%global::vein/lang/Range'
-		.t 000009:'corlib%global::vein/lang/Sys'
-		.t 000010:'corlib%global::vein/lang/String'
-		.t 000011:'corlib%global::vein/lang/StringBuilder'
-		.t 000012:'corlib%global::vein/lang/TimeSpan'
-		.t 000013:'corlib%global::vein/lang/collections/Yieldable'
-		.t 000014:'corlib%global::vein/lang/network/TcpListener'
-		.t 000015:'corlib%global::vein/lang/network/TcpSocket'
-		.t 000016:'corlib%global::vein/lang/numeric/Quaternion'
-		.t 000017:'corlib%global::vein/lang/Int32'
-		.t 000018:'corlib%global::vein/lang/Void'
-		.t 000019:'corlib%global::vein/lang/Boolean'
-		.t 000020:'corlib%global::vein/lang/Array'
-		.t 000021:'corlib%global::vein/lang/Int64'
-		.t 000022:'corlib%global::vein/lang/BitConvert'
-		.t 000023:'corlib%global::vein/lang/Byte'
-		.t 000024:'corlib%global::vein/lang/Char'
-		.t 000025:'corlib%global::vein/lang/Decimal'
-		.t 000026:'corlib%global::vein/lang/Double'
-		.t 000027:'corlib%global::vein/lang/Float'
-		.t 000028:'corlib%global::vein/lang/UInt64'
-		.t 000029:'corlib%global::vein/lang/Int16'
-		.t 000030:'corlib%global::vein/lang/Half'
-		.t 000031:'corlib%global::vein/lang/Mathf'
-		.t 000032:'corlib%global::vein/lang/UInt32'
-		.t 000033:'corlib%global::vein/lang/Raw'
-		.t 000034:'corlib%global::vein/lang/UInt16'
-		.t 000035:'corlib%global::vein/lang/collections/IYieldable'
-		.t 000036:'corlib%global::vein/lang/collections/IYield'
-		.t 000037:'corlib%global::vein/lang/network/NetworkStream'
-		.t 000038:'corlib%global::vein/lang/numeric/BigInt'
+		.t 000000:'std%global::vein/lang/App'
+		.t 000001:'std%global::vein/lang/Object'
+		.t 000002:'std%global::vein/lang/ValueType'
+		.t 000003:'std%global::vein/lang/Exception'
+		.t 000004:'std%global::vein/lang/GC'
+		.t 000005:'std%global::vein/lang/Guid'
+		.t 000006:'std%global::vein/lang/IEEEConsts'
+		.t 000007:'std%global::vein/lang/Out'
+		.t 000008:'std%global::vein/lang/Range'
+		.t 000009:'std%global::vein/lang/Sys'
+		.t 000010:'std%global::vein/lang/String'
+		.t 000011:'std%global::vein/lang/StringBuilder'
+		.t 000012:'std%global::vein/lang/TimeSpan'
+		.t 000013:'std%global::vein/lang/collections/Yieldable'
+		.t 000014:'std%global::vein/lang/network/TcpListener'
+		.t 000015:'std%global::vein/lang/network/TcpSocket'
+		.t 000016:'std%global::vein/lang/numeric/Quaternion'
+		.t 000017:'std%global::vein/lang/Int32'
+		.t 000018:'std%global::vein/lang/Void'
+		.t 000019:'std%global::vein/lang/Boolean'
+		.t 000020:'std%global::vein/lang/Array'
+		.t 000021:'std%global::vein/lang/Int64'
+		.t 000022:'std%global::vein/lang/BitConvert'
+		.t 000023:'std%global::vein/lang/Byte'
+		.t 000024:'std%global::vein/lang/Char'
+		.t 000025:'std%global::vein/lang/Decimal'
+		.t 000026:'std%global::vein/lang/Double'
+		.t 000027:'std%global::vein/lang/Float'
+		.t 000028:'std%global::vein/lang/UInt64'
+		.t 000029:'std%global::vein/lang/Int16'
+		.t 000030:'std%global::vein/lang/Half'
+		.t 000031:'std%global::vein/lang/Mathf'
+		.t 000032:'std%global::vein/lang/UInt32'
+		.t 000033:'std%global::vein/lang/Raw'
+		.t 000034:'std%global::vein/lang/UInt16'
+		.t 000035:'std%global::vein/lang/collections/IYieldable'
+		.t 000036:'std%global::vein/lang/collections/IYield'
+		.t 000037:'std%global::vein/lang/network/NetworkStream'
+		.t 000038:'std%global::vein/lang/numeric/BigInt'
 		.f 000000:'Array.!!value'
 		.f 000001:'Array.!!block'
 		.f 000002:'Array.!!size'
@@ -729,7 +729,7 @@
 			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
 			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .stf message corlib%global::vein/lang/String, Public, Special
+			/* ::0026 */ .stf message std%global::vein/lang/String, Public, Special
 			/* ::0028 */ .ldarg.0
 			/* ::0030 */ .ret
 			
@@ -865,37 +865,37 @@
 			/* ::0024 */ .call Object::ctor(<this>: Object)
 			/* ::0026 */ .ldnull
 			/* ::0028 */ .ldarg.0
-			/* ::0038 */ .stf _a corlib%global::vein/lang/Int32, Public, Special
+			/* ::0038 */ .stf _a std%global::vein/lang/Int32, Public, Special
 			/* ::0040 */ .ldnull
 			/* ::0042 */ .ldarg.0
-			/* ::0052 */ .stf _b corlib%global::vein/lang/Int16, Public, Special
+			/* ::0052 */ .stf _b std%global::vein/lang/Int16, Public, Special
 			/* ::0054 */ .ldnull
 			/* ::0056 */ .ldarg.0
-			/* ::0066 */ .stf _c corlib%global::vein/lang/Int16, Public, Special
+			/* ::0066 */ .stf _c std%global::vein/lang/Int16, Public, Special
 			/* ::0068 */ .ldnull
 			/* ::0070 */ .ldarg.0
-			/* ::0080 */ .stf _d corlib%global::vein/lang/Byte, Public, Special
+			/* ::0080 */ .stf _d std%global::vein/lang/Byte, Public, Special
 			/* ::0082 */ .ldnull
 			/* ::0084 */ .ldarg.0
-			/* ::0094 */ .stf _e corlib%global::vein/lang/Byte, Public, Special
+			/* ::0094 */ .stf _e std%global::vein/lang/Byte, Public, Special
 			/* ::0096 */ .ldnull
 			/* ::0098 */ .ldarg.0
-			/* ::0108 */ .stf _f corlib%global::vein/lang/Byte, Public, Special
+			/* ::0108 */ .stf _f std%global::vein/lang/Byte, Public, Special
 			/* ::0110 */ .ldnull
 			/* ::0112 */ .ldarg.0
-			/* ::0122 */ .stf _g corlib%global::vein/lang/Byte, Public, Special
+			/* ::0122 */ .stf _g std%global::vein/lang/Byte, Public, Special
 			/* ::0124 */ .ldnull
 			/* ::0126 */ .ldarg.0
-			/* ::0136 */ .stf _h corlib%global::vein/lang/Byte, Public, Special
+			/* ::0136 */ .stf _h std%global::vein/lang/Byte, Public, Special
 			/* ::0138 */ .ldnull
 			/* ::0140 */ .ldarg.0
-			/* ::0150 */ .stf _i corlib%global::vein/lang/Byte, Public, Special
+			/* ::0150 */ .stf _i std%global::vein/lang/Byte, Public, Special
 			/* ::0152 */ .ldnull
 			/* ::0154 */ .ldarg.0
-			/* ::0164 */ .stf _j corlib%global::vein/lang/Byte, Public, Special
+			/* ::0164 */ .stf _j std%global::vein/lang/Byte, Public, Special
 			/* ::0166 */ .ldnull
 			/* ::0168 */ .ldarg.0
-			/* ::0178 */ .stf _k corlib%global::vein/lang/Byte, Public, Special
+			/* ::0178 */ .stf _k std%global::vein/lang/Byte, Public, Special
 			/* ::0180 */ .ldarg.0
 			/* ::0182 */ .ret
 			
@@ -908,9 +908,9 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .newobj [corlib%global::vein/lang/Guid] 
+			/* ::0006 */ .newobj [std%global::vein/lang/Guid] 
 			/* ::0016 */ .call Guid::ctor(<this>: Guid)
-			/* ::0026 */ .stsf Empty corlib%global::vein/lang/Guid, Public
+			/* ::0026 */ .stsf Empty std%global::vein/lang/Guid, Public
 			/* ::0028 */ .ret
 			
 		}
@@ -1240,10 +1240,10 @@
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf Start corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0014 */ .stf Start std%global::vein/lang/UInt32, Public, Special
 			/* ::0016 */ .ldarg.2
 			/* ::0018 */ .ldarg.0
-			/* ::0028 */ .stf End corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0028 */ .stf End std%global::vein/lang/UInt32, Public, Special
 			/* ::0030 */ .ldarg.0
 			/* ::0040 */ .call Object::ctor(<this>: Object)
 			/* ::0042 */ .ldarg.0
@@ -1361,7 +1361,7 @@
 			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
 			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .stf Length corlib%global::vein/lang/Int32, Public, Special
+			/* ::0026 */ .stf Length std%global::vein/lang/Int32, Public, Special
 			/* ::0028 */ .ldarg.0
 			/* ::0030 */ .ret
 			
@@ -1398,7 +1398,7 @@
 			/* ::0024 */ .call Object::ctor(<this>: Object)
 			/* ::0026 */ .ldnull
 			/* ::0028 */ .ldarg.0
-			/* ::0038 */ .stf _capacity corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0038 */ .stf _capacity std%global::vein/lang/UInt32, Public, Special
 			/* ::0040 */ .ldarg.0
 			/* ::0042 */ .ret
 			
@@ -1564,7 +1564,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _capacity corlib%global::vein/lang/UInt32, Public, Special
+			/* ::0012 */ .ldf _capacity std%global::vein/lang/UInt32, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -1601,27 +1601,27 @@
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0014 */ .stf _ticks std%global::vein/lang/Int64, Public, Special
 			/* ::0016 */ .ldarg.0
 			/* ::0026 */ .call Object::ctor(<this>: Object)
 			/* ::0036 */ .ldc.i8.s 0xC92A69C000.long
 			/* ::0038 */ .ldarg.0
-			/* ::0048 */ .stf TicksPerDay corlib%global::vein/lang/Int64, Public, Special
+			/* ::0048 */ .stf TicksPerDay std%global::vein/lang/Int64, Public, Special
 			/* ::0058 */ .ldc.i8.s 0x861C46800.long
 			/* ::0060 */ .ldarg.0
-			/* ::0070 */ .stf TicksPerHour corlib%global::vein/lang/Int64, Public, Special
+			/* ::0070 */ .stf TicksPerHour std%global::vein/lang/Int64, Public, Special
 			/* ::0080 */ .ldc.i8.s 0x23C34600.long
 			/* ::0082 */ .ldarg.0
-			/* ::0092 */ .stf TicksPerMinute corlib%global::vein/lang/Int64, Public, Special
+			/* ::0092 */ .stf TicksPerMinute std%global::vein/lang/Int64, Public, Special
 			/* ::0102 */ .ldc.i8.s 0x00989680.long
 			/* ::0104 */ .ldarg.0
-			/* ::0114 */ .stf TicksPerSecond corlib%global::vein/lang/Int64, Public, Special
+			/* ::0114 */ .stf TicksPerSecond std%global::vein/lang/Int64, Public, Special
 			/* ::0124 */ .ldc.i8.s 0x00002710.long
 			/* ::0126 */ .ldarg.0
-			/* ::0136 */ .stf TicksPerMillisecond corlib%global::vein/lang/Int64, Public, Special
+			/* ::0136 */ .stf TicksPerMillisecond std%global::vein/lang/Int64, Public, Special
 			/* ::0142 */ .ldc.f4 1E-07.float
 			/* ::0144 */ .ldarg.0
-			/* ::0154 */ .stf SecondsPerTick corlib%global::vein/lang/Float, Public, Special
+			/* ::0154 */ .stf SecondsPerTick std%global::vein/lang/Float, Public, Special
 			/* ::0156 */ .ldarg.0
 			/* ::0158 */ .ret
 			
@@ -1647,7 +1647,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -1660,9 +1660,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf TicksPerDay corlib%global::vein/lang/Int64, Public, Special
+			/* ::0024 */ .ldf TicksPerDay std%global::vein/lang/Int64, Public, Special
 			/* ::0026 */ .div
 			/* ::0028 */ .ret
 			
@@ -1676,9 +1676,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf TicksPerHour corlib%global::vein/lang/Int64, Public, Special
+			/* ::0024 */ .ldf TicksPerHour std%global::vein/lang/Int64, Public, Special
 			/* ::0026 */ .div
 			/* ::0036 */ .ldc.i8.s 0x00000018.long
 			/* ::0038 */ .mod
@@ -1694,9 +1694,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf TicksPerMillisecond corlib%global::vein/lang/Int64, Public, Special
+			/* ::0024 */ .ldf TicksPerMillisecond std%global::vein/lang/Int64, Public, Special
 			/* ::0026 */ .div
 			/* ::0036 */ .ldc.i8.s 0x000003E8.long
 			/* ::0038 */ .mod
@@ -1712,9 +1712,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf TicksPerMinute corlib%global::vein/lang/Int64, Public, Special
+			/* ::0024 */ .ldf TicksPerMinute std%global::vein/lang/Int64, Public, Special
 			/* ::0026 */ .div
 			/* ::0036 */ .ldc.i8.s 0x0000003C.long
 			/* ::0038 */ .mod
@@ -1730,9 +1730,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf TicksPerSecond corlib%global::vein/lang/Int64, Public, Special
+			/* ::0024 */ .ldf TicksPerSecond std%global::vein/lang/Int64, Public, Special
 			/* ::0026 */ .div
 			/* ::0036 */ .ldc.i8.s 0x0000003C.long
 			/* ::0038 */ .mod
@@ -1748,9 +1748,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks corlib%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf SecondsPerTick corlib%global::vein/lang/Float, Public, Special
+			/* ::0024 */ .ldf SecondsPerTick std%global::vein/lang/Float, Public, Special
 			/* ::0026 */ .mul
 			/* ::0028 */ .ret
 			
@@ -2025,7 +2025,7 @@
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf _current corlib%global::vein/lang/Object, Public, Special
+			/* ::0014 */ .stf _current std%global::vein/lang/Object, Public, Special
 			
 		}
 		
@@ -2037,7 +2037,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _current corlib%global::vein/lang/Object, Public, Special
+			/* ::0012 */ .ldf _current std%global::vein/lang/Object, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -2053,7 +2053,7 @@
 			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
 			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .stf _current corlib%global::vein/lang/Object, Public, Special
+			/* ::0026 */ .stf _current std%global::vein/lang/Object, Public, Special
 			/* ::0028 */ .ldarg.0
 			/* ::0030 */ .ret
 			
@@ -2220,7 +2220,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _active corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0012 */ .ldf _active std%global::vein/lang/Boolean, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -2247,19 +2247,19 @@
 			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
 			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .stf _port corlib%global::vein/lang/UInt16, Public, Special
+			/* ::0026 */ .stf _port std%global::vein/lang/UInt16, Public, Special
 			/* ::0028 */ .ldnull
 			/* ::0030 */ .ldarg.0
-			/* ::0040 */ .stf _dualMode corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0040 */ .stf _dualMode std%global::vein/lang/Boolean, Public, Special
 			/* ::0042 */ .ldnull
 			/* ::0044 */ .ldarg.0
-			/* ::0054 */ .stf _active corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0054 */ .stf _active std%global::vein/lang/Boolean, Public, Special
 			/* ::0056 */ .ldnull
 			/* ::0058 */ .ldarg.0
-			/* ::0068 */ .stf _socket corlib%global::vein/lang/network/TcpSocket, Public
+			/* ::0068 */ .stf _socket std%global::vein/lang/network/TcpSocket, Public
 			/* ::0070 */ .ldnull
 			/* ::0072 */ .ldarg.0
-			/* ::0082 */ .stf ExclusiveAddressUse corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0082 */ .stf ExclusiveAddressUse std%global::vein/lang/Boolean, Public, Special
 			/* ::0084 */ .ldarg.0
 			/* ::0086 */ .ret
 			
@@ -2294,7 +2294,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _blocked corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0012 */ .ldf _blocked std%global::vein/lang/Boolean, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -2307,7 +2307,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _is_listing corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0012 */ .ldf _is_listing std%global::vein/lang/Boolean, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -2320,7 +2320,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _connected corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0012 */ .ldf _connected std%global::vein/lang/Boolean, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -2377,19 +2377,19 @@
 			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
 			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .stf _port corlib%global::vein/lang/UInt16, Public, Special
+			/* ::0026 */ .stf _port std%global::vein/lang/UInt16, Public, Special
 			/* ::0028 */ .ldnull
 			/* ::0030 */ .ldarg.0
-			/* ::0040 */ .stf _is_listing corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0040 */ .stf _is_listing std%global::vein/lang/Boolean, Public, Special
 			/* ::0042 */ .ldnull
 			/* ::0044 */ .ldarg.0
-			/* ::0054 */ .stf _handle corlib%global::vein/lang/ValueType, Public, Special
+			/* ::0054 */ .stf _handle std%global::vein/lang/ValueType, Public, Special
 			/* ::0056 */ .ldnull
 			/* ::0058 */ .ldarg.0
-			/* ::0068 */ .stf _blocked corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0068 */ .stf _blocked std%global::vein/lang/Boolean, Public, Special
 			/* ::0070 */ .ldnull
 			/* ::0072 */ .ldarg.0
-			/* ::0082 */ .stf _connected corlib%global::vein/lang/Boolean, Public, Special
+			/* ::0082 */ .stf _connected std%global::vein/lang/Boolean, Public, Special
 			/* ::0084 */ .ldarg.0
 			/* ::0086 */ .ret
 			
@@ -2455,15 +2455,15 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf X corlib%global::vein/lang/Float, Public, Special
+			/* ::0012 */ .ldf X std%global::vein/lang/Float, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf Y corlib%global::vein/lang/Float, Public, Special
+			/* ::0024 */ .ldf Y std%global::vein/lang/Float, Public, Special
 			/* ::0026 */ .add
 			/* ::0028 */ .ldarg.0
-			/* ::0038 */ .ldf Z corlib%global::vein/lang/Float, Public, Special
+			/* ::0038 */ .ldf Z std%global::vein/lang/Float, Public, Special
 			/* ::0040 */ .add
 			/* ::0042 */ .ldarg.0
-			/* ::0052 */ .ldf W corlib%global::vein/lang/Float, Public, Special
+			/* ::0052 */ .ldf W std%global::vein/lang/Float, Public, Special
 			/* ::0054 */ .add
 			/* ::0056 */ .ldc.i4.0
 			/* ::0058 */ .eql.t
@@ -2480,16 +2480,16 @@
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf X corlib%global::vein/lang/Float, Public, Special
+			/* ::0014 */ .stf X std%global::vein/lang/Float, Public, Special
 			/* ::0016 */ .ldarg.2
 			/* ::0018 */ .ldarg.0
-			/* ::0028 */ .stf Y corlib%global::vein/lang/Float, Public, Special
+			/* ::0028 */ .stf Y std%global::vein/lang/Float, Public, Special
 			/* ::0030 */ .ldarg.3
 			/* ::0032 */ .ldarg.0
-			/* ::0042 */ .stf Z corlib%global::vein/lang/Float, Public, Special
+			/* ::0042 */ .stf Z std%global::vein/lang/Float, Public, Special
 			/* ::0044 */ .ldarg.4
 			/* ::0046 */ .ldarg.0
-			/* ::0056 */ .stf W corlib%global::vein/lang/Float, Public, Special
+			/* ::0056 */ .stf W std%global::vein/lang/Float, Public, Special
 			/* ::0058 */ .ldarg.0
 			/* ::0068 */ .call Object::ctor(<this>: Object)
 			/* ::0070 */ .ldarg.0

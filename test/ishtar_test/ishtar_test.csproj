@@ -9,7 +9,7 @@
     <ProjectReference Include="..\..\compiler\veinc.csproj" />
   </ItemGroup>
   <ItemGroup>
-	  <None Update="corlib.wll">
+	  <None Update="std.wll">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
   </ItemGroup>

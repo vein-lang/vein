@@ -164,7 +164,7 @@ namespace ishtar_test
         {
             var resolver = AppVault.CurrentVault.GetResolver();
             resolver.AddSearchPath(new DirectoryInfo("./"));
-            return resolver.ResolveDep("corlib", new Version(1, 0, 0), new List<VeinModule>());
+            return resolver.ResolveDep("std", new Version(0, 12, 0), new List<VeinModule>());
         }
 
         private static readonly object guarder = new ();
