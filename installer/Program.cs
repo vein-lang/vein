@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Spectre.Console;
 using vein;
-using static GitVersionInformation;
+using static vein.GlobalVersion;
 
 AnsiConsole.MarkupLine($"[grey]Vein installer[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
 AnsiConsole.MarkupLine($"[grey]Copyright (C)[/] [cyan3]2021[/] [bold]Yuuki Wesp[/].\n\n");

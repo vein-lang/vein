@@ -1,5 +1,5 @@
 using Spectre.Console;
-using static GitVersionInformation;
+using static vein.GlobalVersion;
 
 AnsiConsole.MarkupLine($"[grey]Ishtar DCH[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
 AnsiConsole.MarkupLine($"[grey]Copyright (C)[/] [cyan3]2021[/] [bold]Yuuki Wesp[/].\n\n");

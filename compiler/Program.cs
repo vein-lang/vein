@@ -13,12 +13,10 @@ using Spectre.Console.Cli;
 using vein;
 using vein.cmd;
 using static System.Console;
-#pragma warning disable CS0436 // Type conflicts with imported type
-using static GitVersionInformation;
-#pragma warning restore CS0436 // Type conflicts with imported type
 using static Spectre.Console.AnsiConsole;
 using vein.json;
 using vein.resources;
+using static vein.GlobalVersion;
 
 [assembly: InternalsVisibleTo("veinc_test")]
 

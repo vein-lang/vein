@@ -10,8 +10,11 @@ public class ShardTest
 {
     public static readonly PackageManifest Manifest = new PackageManifest()
     {
-        Authors = { "Yuuki Wesp" },
-        BugUrl = new Uri("https://foobar.test"),
+        Authors = { new PackageAuthor("Yuuki Wesp", "") },
+        Urls = new PackageUrls()
+        {
+            BugUrl = "https://foobar.test"
+        },
         Description = "FooBar",
         Name = "foo-bar",
         Version = new NuGetVersion(1, 2, 3, 4),

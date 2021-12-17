@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\lib\spectre.console\src\Spectre.Console\Spectre.Console.csproj" />
+    <ProjectReference Include="..\lib\version\version.csproj" />
   </ItemGroup>
 
 </Project>
