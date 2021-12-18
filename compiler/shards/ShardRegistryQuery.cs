@@ -90,7 +90,7 @@ public class ShardRegistryQuery
 
     public async ValueTask<(RegistryResponse response, int status)> PublishPackage(FileInfo info)
     {
-        if (!info.Extension.Equals("shard"))
+        if (!info.Extension.Equals(".shard"))
             throw new ShardPackageCorruptedException($"File is not shard package.");
         var shard = await Shard.OpenAsync(info);
         var pkg = _storage.TemplateName(shard.Name, shard.Version);

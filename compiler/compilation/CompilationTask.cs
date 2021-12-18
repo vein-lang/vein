@@ -202,6 +202,7 @@ namespace vein.compilation
             var collection =
                 Collect(info, context.AddTask("Collect projects"), context);
             var list = new List<VeinModule>();
+            var shardStorage = new ShardStorage();
 
             Parallel.ForEach(collection, (target) =>
             {
@@ -211,6 +212,10 @@ namespace vein.compilation
                 target.Resolver.AddSearchPath(target.Project.SDK.GetFullPath());
                 target.Resolver.AddSearchPath(target.Project.WorkDir);
                 target.Resolver.AddSearchPath(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "../std")));
+
+                foreach (var package in target.Project.Dependencies.Packages)
+                    target.Resolver.AddSearchPath(shardStorage.GetPackageSpace(package.Name, package.Version)
+                        .SubDirectory("lib"));
 
                 foreach (var package in target.Project.Dependencies.Packages)
                     list.Add(target.Resolver.ResolveDep(package, list));

@@ -2,11 +2,11 @@
   "profiles": {
     "compile vein std": {
       "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\vein-std\\src\\corlib.vproj --EF:+exp_simplify_optimize"
+      "commandLineArgs": "build C:\\git\\vein-std\\src\\std.vproj --EF:+exp_simplify_optimize"
     },
     "compile vein std - test": {
       "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\vein-std\\test\\test.corlib.vproj"
+      "commandLineArgs": "build C:\\git\\vein-std\\test\\test.std.vproj"
     },
     "compile hello world": {
       "commandName": "Project",
