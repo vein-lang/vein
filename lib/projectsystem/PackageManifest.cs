@@ -40,7 +40,7 @@ public record PackageManifest
 
 public record PackageAuthor(string name, string github)
 {
-    public PackageAuthor() : this("", "") {}
+    public PackageAuthor() : this("", "") { }
 }
 
 public record PackageUrls
