@@ -28,7 +28,7 @@ public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
             return -1;
         }
 
-        var result = await query.PublishPackage(file);
+        var result = await query.WithApiKey(settings.ApiKey).PublishPackage(file);
 
         switch (result)
         {
