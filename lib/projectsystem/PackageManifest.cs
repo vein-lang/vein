@@ -79,10 +79,24 @@ public record RegistryPackage : PackageManifest
 
 public class ToStringConverter<T> : JsonConverter<T>
 {
-    public override T ReadJson(JsonReader reader, Type objectType, [AllowNull] T existingValue, bool hasExistingValue, JsonSerializer serializer)
-        => JsonConvert.DeserializeObject<T>((string)reader.Value);
+    public override T ReadJson(JsonReader reader, Type objectType, [AllowNull] T existingValue, bool hasExistingValue,
+        JsonSerializer serializer)
+    {
+        try
+        {
+            return JsonConvert.DeserializeObject<T>((string)reader.Value);
+            ;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return default;
+        }
+    }
     public override void WriteJson(JsonWriter writer, [AllowNull] T value, JsonSerializer serializer)
-        => writer.WriteValue(JsonConvert.SerializeObject(value));
+    {
+        if (value is not null) writer.WriteValue(JsonConvert.SerializeObject(value));
+    }
 }
 
 public record PackageMetadata
