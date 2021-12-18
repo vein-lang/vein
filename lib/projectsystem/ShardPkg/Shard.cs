@@ -58,7 +58,7 @@ public class Shard : IDisposable, IAsyncDisposable
 
     /// <exception cref="ShardPackageCorruptedException"></exception>
     public async Task<Stream> GetIconAsync(CancellationToken token = default)
-        =>  await GetStream("icon.png", token);
+        => await GetStream("icon.png", token);
 
     public Task<byte[]> GetContent(FileInfo info)
     {
@@ -315,55 +315,55 @@ public record struct StorageFolder(ShardFileStorage storage, string Name) : ISto
 {
     internal List<IStorageEntity> _entities = new();
 
-    public IStorageEntity File(FileInfo path)
-        => this.File(path, true);
+public IStorageEntity File(FileInfo path)
+    => this.File(path, true);
 
-    public IStorageEntity File(FileInfo path, bool conditional)
-    {
-        if (conditional)
-            _entities.Add(new StorageFile(storage, path));
-        return this;
-    }
+public IStorageEntity File(FileInfo path, bool conditional)
+{
+    if (conditional)
+        _entities.Add(new StorageFile(storage, path));
+    return this;
+}
 
-    public IStorageEntity Files(FileInfo[] paths)
-    {
-        var en = _entities;
-        var st = storage;
-        paths.Pipe(x => en.Add(new StorageFile(st, x))).Consume();
-        return this;
-    }
+public IStorageEntity Files(FileInfo[] paths)
+{
+    var en = _entities;
+    var st = storage;
+    paths.Pipe(x => en.Add(new StorageFile(st, x))).Consume();
+    return this;
+}
 
-    public IStorageEntity Folder(string folderName, Action<IStorageEntity> actor)
-    {
-        var entity = new StorageFolder(storage, folderName);
-        _entities.Add(entity);
-        actor(entity);
-        return this;
-    }
-    public ShardBuilder Return()
-        => storage._builder;
+public IStorageEntity Folder(string folderName, Action<IStorageEntity> actor)
+{
+    var entity = new StorageFolder(storage, folderName);
+    _entities.Add(entity);
+    actor(entity);
+    return this;
+}
+public ShardBuilder Return()
+    => storage._builder;
 
-    public IEnumerable<IStorageEntity> InnerEntities
-        => _entities;
-    }
+public IEnumerable<IStorageEntity> InnerEntities
+    => _entities;
+}
 
-    public record struct StorageFile(ShardFileStorage storage, FileInfo info) : IStorageEntity
-    {
+public record struct StorageFile(ShardFileStorage storage, FileInfo info) : IStorageEntity
+{
         public string Name => info.Name;
 
-    public IStorageEntity File(FileInfo path)
-        => throw new NotSupportedException("File entity cannot create inner file.");
-    public IStorageEntity File(FileInfo path, bool conditional)
-        => throw new NotSupportedException("File entity cannot create inner file.");
-    public IStorageEntity Files(FileInfo[] path)
-        => throw new NotSupportedException("File entity cannot create inner file.");
-    public IStorageEntity Folder(string folderName, Action<IStorageEntity> actor)
-        => throw new NotSupportedException("File entity cannot create inner folder.");
+public IStorageEntity File(FileInfo path)
+    => throw new NotSupportedException("File entity cannot create inner file.");
+public IStorageEntity File(FileInfo path, bool conditional)
+    => throw new NotSupportedException("File entity cannot create inner file.");
+public IStorageEntity Files(FileInfo[] path)
+    => throw new NotSupportedException("File entity cannot create inner file.");
+public IStorageEntity Folder(string folderName, Action<IStorageEntity> actor)
+    => throw new NotSupportedException("File entity cannot create inner folder.");
 
-    public IEnumerable<IStorageEntity> InnerEntities
-        => throw new NotSupportedException("File entity cannot contains inner entities.");
+public IEnumerable<IStorageEntity> InnerEntities
+    => throw new NotSupportedException("File entity cannot contains inner entities.");
 
-    public ShardBuilder Return() => storage._builder;
+public ShardBuilder Return() => storage._builder;
 }
 
 public interface IStorageEntity
