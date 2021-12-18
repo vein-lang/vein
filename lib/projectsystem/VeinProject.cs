@@ -22,10 +22,12 @@ namespace vein.project
                 project.Name;
             WorkDir = file.Directory;
             Dependencies = new(this);
+            ProjectFile = file;
         }
 
         public string Name { get; }
         public DirectoryInfo WorkDir { get; }
+        public FileInfo ProjectFile { get; }
         public DirectoryInfo CacheDir => new DirectoryInfo(Path.Combine(WorkDir.FullName, "obj"));
 
         public bool Packable => _project.Packable ?? false;

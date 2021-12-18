@@ -94,6 +94,7 @@ public class Shard : IDisposable, IAsyncDisposable
             throw new ShardPackageCorruptedException(e);
         }
     }
+
     /// <exception cref="ShardPackageCorruptedException"></exception>
     /// <exception cref="FileNotFoundException"></exception>
     public static async Task<Shard> OpenAsync(FileInfo info, CancellationToken token = default)
@@ -117,6 +118,9 @@ public class Shard : IDisposable, IAsyncDisposable
             throw new ShardPackageCorruptedException(e);
         }
     }
+
+    public void ExtractTo(DirectoryInfo dir)
+        => _archive.ExtractTo(dir);
 
 
     public static Task VerifySign(Shard shard)

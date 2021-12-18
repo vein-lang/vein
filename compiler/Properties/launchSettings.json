@@ -23,6 +23,10 @@
     "compile test_case 01": {
       "commandName": "Project",
       "commandLineArgs": "build C:\\git\\vein-lang\\test\\vein_test\\01\\01.vproj"
+    },
+    "add std": {
+      "commandName": "Project",
+      "commandLineArgs": "add std --version 0.12.1 --project C:\\git\\vein-std\\foobar\\foobar.vproj"
     }
   }
 }

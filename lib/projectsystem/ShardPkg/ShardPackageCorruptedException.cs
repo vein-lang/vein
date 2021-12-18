@@ -4,8 +4,6 @@ using System;
 
 public class ShardPackageCorruptedException : Exception
 {
-    public ShardPackageCorruptedException(Exception e) : base("", e)
-    {
-
-    }
+    public ShardPackageCorruptedException(Exception e) : base("See inner exception", e)  { }
+    public ShardPackageCorruptedException(string e) : base(e)  { }
 }

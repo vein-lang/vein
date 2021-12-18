@@ -70,6 +70,9 @@ app.Configure(config =>
     config.AddCommand<CompileCommand>("build");
     config.AddCommand<PackageCommand>("package");
     config.AddCommand<CleanCommand>("clean");
+    config.AddCommand<RestoreCommand>("restore");
+    config.AddCommand<AddCommand>("add");
+    config.AddCommand<PublishCommand>("publish");
 });
 
 var result = app.Run(args);

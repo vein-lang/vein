@@ -3,6 +3,7 @@ namespace vein.cmd
     using System.ComponentModel;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
     using compilation;
     using project;
     using Spectre.Console;
@@ -10,7 +11,7 @@ namespace vein.cmd
     using static Spectre.Console.AnsiConsole;
 
     [ExcludeFromCodeCoverage]
-    public class CompileSettings : CommandSettings
+    public class CompileSettings : CommandSettings, IProjectSettingProvider
     {
         [Description("Path to vproj file")]
         [CommandArgument(0, "[PROJECT]")]
@@ -36,10 +37,21 @@ namespace vein.cmd
         public bool GeneratePackageOutput { get; set; }
     }
 
-    [ExcludeFromCodeCoverage]
-    public class CompileCommand : Command<CompileSettings>
+    public interface IProjectSettingProvider
     {
-        public override int Execute(CommandContext context, CompileSettings settings)
+        string Project { get; set; }
+    }
+
+    public abstract class AsyncCommandWithProject<T> : CommandWithProject<T> where T : CommandSettings, IProjectSettingProvider
+    {
+        public sealed override int Execute(CommandContext ctx, T settigs, VeinProject project)
+            => ExecuteAsync(ctx, settigs, project).Result;
+
+        public abstract Task<int> ExecuteAsync(CommandContext ctx, T settigs, VeinProject project);
+    }
+    public abstract class CommandWithProject<T> : Command<T> where T : CommandSettings, IProjectSettingProvider
+    {
+        public sealed override int Execute(CommandContext ctx, T settings)
         {
             if (settings.Project is null)
             {
@@ -63,19 +75,20 @@ namespace vein.cmd
                     foreach (var (item, index) in projects.Select((x, y) => (x, y)))
                         MarkupLine($"({index}) [orange]'{item.Name}'[/] in [orange]'{item.Directory.FullName}'[/] directory.");
                     WriteLine();
-                    var promt = new TextPrompt<int>("Which project should build first?")
-                        .InvalidChoiceMessage("[red]That's not a valid input[/]")
-                        .DefaultValue(0)
-                        .AddChoices(projects.Select((x, y) => y));
-
-                    var answer = Prompt(promt);
-
-                    settings.Project = projects[answer].FullName;
+                    var answer = Prompt(
+                        new SelectionPrompt<string>()
+                            .Title("Which project should build first?")
+                            .PageSize(10)
+                            .MoreChoicesText("[grey](Move up and down to reveal more projects)[/]")
+                            .AddChoices(projects.Select((x, y) => x.FullName.Replace(curDir.FullName, ""))));
+                    
+                    settings.Project = projects
+                        .FirstOrDefault(x => x.FullName.Equals(Path.Combine(curDir.FullName, answer)))
+                        .FullName;
                 }
                 else
                     settings.Project = projects.Single().FullName;
             }
-
 
             var name = Path.GetFileName(settings.Project);
             if (!File.Exists(settings.Project))
@@ -100,7 +113,19 @@ namespace vein.cmd
             project.Runtime ??= project.SDK.GetDefaultPack().Alias;
 
 
-            Log.Info($"Project [orange]'{name}'[/].");
+            return Execute(ctx, settings, project);
+        }
+
+        public abstract int Execute(CommandContext ctx, T settigs, VeinProject project);
+    }
+
+
+    [ExcludeFromCodeCoverage]
+    public class CompileCommand : CommandWithProject<CompileSettings>
+    {
+        public override int Execute(CommandContext context, CompileSettings settings, VeinProject project)
+        {
+            Log.Info($"Project [orange]'{project.Name}'[/].");
             Log.Info($"SDK [orange]'{project.SDK.Name} v{project.SDK.Version}'[/].");
             Log.Info($"Runtime [orange]'{project.Runtime}'[/].\n");
 

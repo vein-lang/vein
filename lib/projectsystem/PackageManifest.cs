@@ -55,6 +55,28 @@ public record PackageUrls
     public Dictionary<string, string> otherUrls { get; set; }
 }
 
+
+public record RegistryPackage : PackageManifest
+{
+    [JsonProperty("isListed")]
+    public bool Listed { get; set; }
+
+    [JsonProperty("downloads")]
+    public ulong Downloads { get; set; }
+    
+    [JsonProperty("normalizedVersion")]
+    public string? NormalizedVersionString { get; set; }
+
+    [JsonProperty("originalVersion")]
+    public string? OriginalVersionString { get; set; }
+    
+    [JsonProperty("published")]
+    public DateTimeOffset Published { get; set; }
+
+    [JsonProperty("isVerified")]
+    public bool IsVerified { get; set; }
+}
+
 public class ToStringConverter<T> : JsonConverter<T>
 {
     public override T ReadJson(JsonReader reader, Type objectType, [AllowNull] T existingValue, bool hasExistingValue, JsonSerializer serializer)

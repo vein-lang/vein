@@ -33,6 +33,9 @@ public class PackageArchive : PackageBase
         return stream;
     }
 
+    public void ExtractTo(DirectoryInfo dir)
+        => _zipArchive.ExtractToDirectory(dir.FullName, true);
+
     protected override void Dispose(bool disposing)
     {
         if (disposing)

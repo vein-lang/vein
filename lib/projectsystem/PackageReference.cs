@@ -58,7 +58,7 @@ namespace vein.project
 
         internal static Parser<PackageReference> Parser =>
             from id in Identifier
-            from comma in Parse.Char(',')
+            from comma in Parse.Char('@')
             from vers in VersionParse
             select new PackageReference(id, vers);
 

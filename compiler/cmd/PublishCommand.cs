@@ -1,0 +1,55 @@
+namespace vein.cmd;
+
+using System;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using project;
+using Spectre.Console.Cli;
+
+public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
+{
+    public static readonly Uri VEIN_GALLERY = new Uri("https://api.vein.gallery/");
+
+    public override async Task<int> ExecuteAsync(CommandContext context, PublishCommandSettings settings,
+        VeinProject project)
+    {
+        var store = new ShardStorage();
+        var query = new ShardRegistryQuery(VEIN_GALLERY)
+            .WithStorage(store);
+        var name = project.Name;
+        var version = project.Version;
+        var pkg = store.TemplateName(project.Name, project.Version);
+
+        var file = project.WorkDir.SubDirectory("bin").File(pkg);
+
+        if (!file.Exists)
+        {
+            Log.Error($"Shard package [orange]'{pkg}'[/] not found in binary folder, maybe need build before publish?");
+            return -1;
+        }
+
+        var result = await query.PublishPackage(file);
+
+        switch (result)
+        {
+            case (_, 201):
+                Log.Info($"[green]Success[/] publish [orange]'{name}@{version}'[/] into [orange]package registry[/].");
+                return 0;
+            case (var r, var status):
+                Log.Error($"[red]Failed[/] publish [orange]'{name}@{version}'[/] into registry.");
+                Log.Error($"[red]Response[/]: ({status}) [orange]'{r.message}'[/].");
+                return -1;
+        }
+    }
+}
+
+
+public class PublishCommandSettings : CommandSettings, IProjectSettingProvider
+{
+    [Description("Path to project")]
+    [CommandOption("--project")]
+    public string Project { get; set; }
+    [Description("API Key for publishing")]
+    [CommandOption("--api-key")]
+    public string ApiKey { get; set; }
+}
