@@ -29,6 +29,9 @@ public class SecurityStorage
     public static bool HasKey(string key)
         => ReadStorage().ContainsKey(key);
 
+    public static List<string> GetAllKeys()
+        => ReadStorage().Select(x => x.Key).ToList();
+
     public static void AddKey<T>(string key, T value)
     {
         var store = ReadStorage();

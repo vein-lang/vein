@@ -101,6 +101,8 @@ app.Configure(config =>
         x.AddCommand<GetConfigCommand>("get")
             .WithExample(new string[1] { "get foo:bar" })
             .WithDescription("Get value config by key from global storage.");
+        x.AddCommand<ListConfigCommand>("list")
+            .WithDescription("Get all keys.");
     });
 });
 

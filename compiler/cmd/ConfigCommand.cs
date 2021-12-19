@@ -50,3 +50,15 @@ public class GetConfigCommand : Command<GetConfigCommandSettings>
         return 0;
     }
 }
+
+
+[ExcludeFromCodeCoverage]
+public class ListConfigCommand : Command
+{
+    public override int Execute(CommandContext context)
+    {
+        foreach (string key in SecurityStorage.GetAllKeys())
+            Log.Info($"[green]{key}[/]");
+        return 0;
+    }
+}
