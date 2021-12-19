@@ -42,7 +42,7 @@ public class ShardRegistryQuery
         var path = _storage.EnsureSpace(manifest);
         var name = manifest.Name;
         var version = manifest.Version.ToNormalizedString();
-        
+
         var result = await _client
             .Request($"@/packages/{name}/{version}")
             .AllowHttpStatus("404")
@@ -98,7 +98,7 @@ public class ShardRegistryQuery
         var response = await _client.Request("@/publish")
             .AllowHttpStatus("400,409,201,403,500")
             .PostMultipartAsync(x => x.AddFile(pkg, info.FullName, "binary/octet-stream", fileName: pkg));
-        
+
         return (await response.GetJsonAsync<RegistryResponse>(), response.StatusCode);
     }
 

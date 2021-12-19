@@ -81,7 +81,7 @@ namespace vein.cmd
                             .PageSize(10)
                             .MoreChoicesText("[grey](Move up and down to reveal more projects)[/]")
                             .AddChoices(projects.Select((x, y) => x.FullName.Replace(curDir.FullName, ""))));
-                    
+
                     settings.Project = projects
                         .FirstOrDefault(x => x.FullName.Equals(Path.Combine(curDir.FullName, answer)))
                         .FullName;

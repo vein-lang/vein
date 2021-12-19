@@ -16,14 +16,14 @@ public class AddCommand : AsyncCommandWithProject<AddCommandSettings>
     {
         var name = settings.PackageName ?? throw new ArgumentNullException(nameof(settings.PackageName));
         var version = settings.PackageVersion ?? "latest";
-        
+
         project._project.Packages ??= new List<string>();
-        
+
         var query = new ShardRegistryQuery(VEIN_GALLERY)
             .WithStorage(new ShardStorage());
-        
+
         var result = await query.DownloadShardAsync(name, version);
-        
+
         if (result is null)
         {
             Log.Error($"Shard package [orange]'{name}@{version}'[/] not found in vein gallery.");
