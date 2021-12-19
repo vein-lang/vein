@@ -28,6 +28,10 @@ public class Cache
         asset.Hashes = hashmap;
         asset.HashesFile = file;
 
+        sources = sources.ToDictionary();
+
+        sources.Add(target.Project.ProjectFile, target.Project.ProjectFile.ReadToEnd());
+
         foreach (var (key, value) in sources)
         {
             read_task.Increment(1);
