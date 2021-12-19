@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using project;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
@@ -37,7 +38,11 @@ public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
             return -1;
         }
 
-        var result = await query.WithApiKey(settings.ApiKey).PublishPackage(file);
+        var result = await AnsiConsole.Status()
+            .Spinner(Spinner.Known.Pipe)
+            .SpinnerStyle(Style.Parse("green bold"))
+            .StartAsync("publish...",
+                async ctx => await query.WithApiKey(settings.ApiKey).PublishPackage(file));
 
         switch (result)
         {
