@@ -28,6 +28,15 @@ public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
             return -1;
         }
 
+        var apiKey = settings.ApiKey ?? SecurityStorage.GetByKey<string>("registry:api:token");
+
+        if (apiKey is null)
+        {
+            Log.Error($"Api key is not [red]provided[/], set api key with parameter '--api-key' " +
+                      $"or set with config 'veinc config set registry:api:token {Guid.Empty}'");
+            return -1;
+        }
+
         var result = await query.WithApiKey(settings.ApiKey).PublishPackage(file);
 
         switch (result)

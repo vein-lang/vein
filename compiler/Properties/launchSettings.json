@@ -24,9 +24,21 @@
       "commandName": "Project",
       "commandLineArgs": "build C:\\git\\vein-lang\\test\\vein_test\\01\\01.vproj"
     },
+    "compile bump": {
+      "commandName": "Project",
+      "commandLineArgs": "build C:\\git\\bump.vein\\bump.vproj"
+    },
     "add std": {
       "commandName": "Project",
       "commandLineArgs": "add std --version 0.12.1 --project C:\\git\\vein-std\\foobar\\foobar.vproj"
+    },
+    "set config value": {
+      "commandName": "Project",
+      "commandLineArgs": "config set foo:bar value"
+    },
+    "get config value": {
+      "commandName": "Project",
+      "commandLineArgs": "config get foo:bar"
     }
   }
 }

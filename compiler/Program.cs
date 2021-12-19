@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Globalization;
-using System.IO;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -27,6 +26,9 @@ if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
     MarkupLine("Platform is not supported.");
     return -1;
 }
+
+var skipIntro = SecurityStorage.HasKey("app:novid") || Environment.GetEnvironmentVariable("VEINC_NOVID") is not null;
+
 var watch = Stopwatch.StartNew();
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -45,19 +47,27 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     }
 };
 
-var font = Resources.Font;
-if (font.Exists)
+ColorShim.Apply();
+
+if (!skipIntro)
 {
-    Write(new FigletText(FigletFont.Load(font.FullName), "Vein Lang")
+    var font = Resources.Font;
+    if (font.Exists)
+    {
+        Write(new FigletText(FigletFont.Load(font.FullName), "Vein Lang")
             .LeftAligned()
             .Color(Color.Red));
+    }
 }
 
 
-MarkupLine($"[grey]Vein Lang Compiler[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
-MarkupLine($"[grey]Copyright (C)[/] [cyan3]2021[/] [bold]Yuuki Wesp[/].\n\n");
+if (!skipIntro)
+{
+    MarkupLine($"[grey]Vein Lang Compiler[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
+    MarkupLine($"[grey]Copyright (C)[/] [cyan3]2021[/] [bold]Yuuki Wesp[/].\n\n");
+}
 
-ColorShim.Apply();
+
 
 AppFlags.RegisterArgs(ref args);
 
@@ -66,13 +76,22 @@ var app = new CommandApp();
 
 app.Configure(config =>
 {
-    config.AddCommand<NewCommand>("new");
-    config.AddCommand<CompileCommand>("build");
-    config.AddCommand<PackageCommand>("package");
-    config.AddCommand<CleanCommand>("clean");
-    config.AddCommand<RestoreCommand>("restore");
-    config.AddCommand<AddCommand>("add");
-    config.AddCommand<PublishCommand>("publish");
+    config.AddCommand<NewCommand>("new")
+        .WithDescription("Create new project.");
+    config.AddCommand<CompileCommand>("build")
+        .WithDescription("Build current project.");
+    config.AddCommand<PackageCommand>("package")
+        .WithDescription("Prepare and build project to publish into package registry.");
+    config.AddCommand<CleanCommand>("clean")
+        .WithDescription("Clean project cache");
+    config.AddCommand<RestoreCommand>("restore")
+        .WithDescription("Restore dependencies in project.");
+    config.AddCommand<AddCommand>("add")
+        .WithDescription("Find and add package into project from registry")
+        .WithExample(new string[] { "add std@0.12.1" });
+    config.AddCommand<PublishCommand>("publish")
+        .WithDescription("Publish shard package into vein gallery. (need set 'packable: true' in project or call 'veinc package')")
+        .WithExample(new string[] { "--project ./foo.vproj" });
     config.AddBranch("config", x =>
     {
         x.AddCommand<SetConfigCommand>("set")
