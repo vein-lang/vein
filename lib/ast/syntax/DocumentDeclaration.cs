@@ -1,5 +1,6 @@
 namespace vein.syntax
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -8,7 +9,19 @@ namespace vein.syntax
 
     public class DocumentDeclaration
     {
-        public string Name => Directives.OfExactType<SpaceSyntax>().Single().Value.Token;
+        public string Name
+        {
+            get
+            {
+                var space = Directives.OfExactType<SpaceSyntax>().SingleOrDefault();
+
+                if (space is null)
+                    throw new Exception($"No #space declaration detected.");
+
+                return Directives.OfExactType<SpaceSyntax>().Single().Value.Token;
+            }
+        }
+
         public IEnumerable<DirectiveSyntax> Directives { get; set; }
         public IEnumerable<MemberDeclarationSyntax> Members { get; set; }
         public FileInfo FileEntity { get; set; }
