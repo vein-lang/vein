@@ -209,7 +209,6 @@ namespace vein.compilation
                 if (target.Project.Dependencies.Packages.Count == 0)
                     return;
                 var task = context.AddTask($"Collect modules for '{target.Project.Name}'...").IsIndeterminate();
-                target.Resolver.AddSearchPath(target.Project.SDK.GetFullPath());
                 target.Resolver.AddSearchPath(target.Project.WorkDir);
                 target.Resolver.AddSearchPath(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "../std")));
 

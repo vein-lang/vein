@@ -12,7 +12,6 @@ public class PipelineRunner
     {
         new WriteOutputPipe(),
         new SingleFileOutputPipe(),
-        new CopySDKBinaries(),
         new CopyDependencies(),
         new GeneratePackage()
     };

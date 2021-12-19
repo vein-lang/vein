@@ -10,23 +10,25 @@ public class SingleFileOutputPipe : CompilerPipeline
 {
     public override void Action()
     {
-        var current_binary = OutputBinaryPath.ReadAllBytes();
-        var host = Project.SDK.
-            GetHostApplicationFile(Project.SDK.
-                GetPackByAlias(Project.Runtime));
+        // temporary not work
 
-        var host_bytes = host.ReadAllBytes().ToList();
-        var offset = host_bytes.Count;
+        //var current_binary = OutputBinaryPath.ReadAllBytes();
+        //var host = Project.SDK.
+        //    GetHostApplicationFile(Project.SDK.
+        //        GetPackByAlias(Project.Runtime));
 
-        host_bytes.AddRange(current_binary);
+        //var host_bytes = host.ReadAllBytes().ToList();
+        //var offset = host_bytes.Count;
 
-        host_bytes.AddRange(BitConverter.GetBytes(offset));
-        // magic number (for detect single file exe)
-        host_bytes.AddRange(BitConverter.GetBytes((short)0x7ABC));
+        //host_bytes.AddRange(current_binary);
 
-        var binary_name = $"{Project.Name}{Path.GetExtension(host.FullName)}";
+        //host_bytes.AddRange(BitConverter.GetBytes(offset));
+        //// magic number (for detect single file exe)
+        //host_bytes.AddRange(BitConverter.GetBytes((short)0x7ABC));
 
-        File.WriteAllBytes(Path.Combine(OutputDirectory.FullName, binary_name), host_bytes.ToArray());
+        //var binary_name = $"{Project.Name}{Path.GetExtension(host.FullName)}";
+
+        //File.WriteAllBytes(Path.Combine(OutputDirectory.FullName, binary_name), host_bytes.ToArray());
     }
 
     public override bool CanApply(CompileSettings flags) => flags.HasSingleFile;

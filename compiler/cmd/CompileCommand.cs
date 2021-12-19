@@ -103,16 +103,7 @@ namespace vein.cmd
                 Log.Error($"Project [orange]'{name}'[/] has empty.");
                 return -1;
             }
-
-            if (project.SDK is null)
-            {
-                Log.Error($"SDK is not installed.");
-                return -1;
-            }
-
-            project.Runtime ??= project.SDK.GetDefaultPack().Alias;
-
-
+            
             return Execute(ctx, settings, project);
         }
 
@@ -126,10 +117,7 @@ namespace vein.cmd
         public override int Execute(CommandContext context, CompileSettings settings, VeinProject project)
         {
             Log.Info($"Project [orange]'{project.Name}'[/].");
-            Log.Info($"SDK [orange]'{project.SDK.Name} v{project.SDK.Version}'[/].");
-            Log.Info($"Runtime [orange]'{project.Runtime}'[/].\n");
-
-
+            
             var targets = CompilationTask.Run(project.WorkDir, settings);
 
 
