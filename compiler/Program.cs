@@ -73,6 +73,16 @@ app.Configure(config =>
     config.AddCommand<RestoreCommand>("restore");
     config.AddCommand<AddCommand>("add");
     config.AddCommand<PublishCommand>("publish");
+    config.AddBranch("config", x =>
+    {
+        x.AddCommand<SetConfigCommand>("set")
+            .WithExample(new string[] { "set foo:bar value" })
+            .WithExample(new string[] { "set foo:zoo 'a sample value'" })
+            .WithDescription("Set value config by key in global storage.");
+        x.AddCommand<GetConfigCommand>("get")
+            .WithExample(new string[1] { "get foo:bar" })
+            .WithDescription("Get value config by key from global storage.");
+    });
 });
 
 var result = app.Run(args);

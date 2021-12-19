@@ -5,6 +5,11 @@
 	<OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="DeviceId" Version="6.0.0" />
+    <PackageReference Include="DeviceId.Linux" Version="6.0.0" />
+    <PackageReference Include="DeviceId.Mac" Version="6.0.0" />
+    <PackageReference Include="DeviceId.Windows" Version="6.0.0" />
+    <PackageReference Include="DeviceId.Windows.Wmi" Version="6.1.0" />
     <PackageReference Include="Flurl.Http" Version="3.2.0" />
     <PackageReference Include="xunit.assert" Version="2.4.1" />
   </ItemGroup>
