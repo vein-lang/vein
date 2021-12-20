@@ -62,3 +62,15 @@ public class ListConfigCommand : Command
         return 0;
     }
 }
+
+[ExcludeFromCodeCoverage]
+public class RemoveConfigCommand : Command<GetConfigCommandSettings>
+{
+    public override int Execute(CommandContext context, GetConfigCommandSettings settings)
+    {
+        SecurityStorage.RemoveKey(settings.Key);
+        Log.Info($"[green]Success[/] remove [orange]'{settings.Key}'[/] from [orange]global[/] configuration.");
+        return 0;
+    }
+}
+

@@ -42,6 +42,17 @@ public class SecurityStorage
     }
 
 
+    public static void RemoveKey(string key)
+    {
+        var store = ReadStorage();
+
+        if (store.ContainsKey(key))
+        {
+            store.Remove(key);
+            Save(store);
+        }
+    }
+
     private static Dictionary<string, JToken> ReadStorage()
     {
         try

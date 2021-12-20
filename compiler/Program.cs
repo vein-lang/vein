@@ -103,6 +103,8 @@ app.Configure(config =>
             .WithDescription("Get value config by key from global storage.");
         x.AddCommand<ListConfigCommand>("list")
             .WithDescription("Get all keys.");
+        x.AddCommand<RemoveConfigCommand>("remove")
+            .WithDescription("Remove key from global config.");
     });
 });
 
