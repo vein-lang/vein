@@ -324,8 +324,14 @@ namespace ishtar
                 case ExpressionType.Modulo:
                     gen.Emit(OpCodes.MOD);
                     return;
+                case ExpressionType.LeftShift:
+                    gen.Emit(OpCodes.SHL);
+                    return;
+                case ExpressionType.RightShift:
+                    gen.Emit(OpCodes.SHR);
+                    return;
                 default:
-                    throw new NotSupportedException();
+                    throw new NotSupportedException($"{op} is not currentrly support.");
             }
         }
 
