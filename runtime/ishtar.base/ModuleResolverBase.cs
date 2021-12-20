@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using emit;
 using vein;
+using vein.extensions;
 using vein.fs;
 using vein.runtime;
 
@@ -78,7 +79,15 @@ public abstract class ModuleResolverBase : IAssemblyResolver
                     x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase))
                 .ToArray();
 
-            return files.Single(x => x.Name.Equals($"{name}.{MODULE_FILE_EXTENSION}", StringComparison.InvariantCultureIgnoreCase));
+            var result =
+                files.Where(x =>
+                    x.Name.Equals($"{name}.{MODULE_FILE_EXTENSION}", StringComparison.InvariantCultureIgnoreCase))
+                    .ToArray();
+
+            if (result.Length > 1)
+                throw new MultipleAssemblyVersionDetected($"{files.Select(x => $"{x.DirectoryName}/{x.Name}").Join(',')}");
+
+            return result.Single();
         }
         catch
         {
@@ -87,4 +96,10 @@ public abstract class ModuleResolverBase : IAssemblyResolver
     }
 
     protected abstract void debug(string s);
+}
+
+
+public class MultipleAssemblyVersionDetected : Exception
+{
+    public MultipleAssemblyVersionDetected(string msg) : base($"Multiple assembly version detected: {msg}")  { }
 }
