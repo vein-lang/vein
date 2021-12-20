@@ -257,7 +257,7 @@ namespace ishtar
         public static VeinField ResolveField(this VeinClass @class, IdentifierExpression id)
             => @class.FindField(id.ExpressionString);
 
-        public static void EmitUnary(this ILGenerator gen, UnaryExpressionSyntax node)
+        public static ILGenerator EmitUnary(this ILGenerator gen, UnaryExpressionSyntax node)
         {
             if (node.OperatorType == ExpressionType.NegateChecked && node.Operand.GetTypeCode().HasInteger())
             {
@@ -266,11 +266,16 @@ namespace ishtar
                 gen.EmitExpression(node.Operand);
                 gen.EmitBinaryOperator(ExpressionType.SubtractChecked, type, type, type);
             }
-            else
+            else if (node.OperatorType == ExpressionType.Not)
             {
                 gen.EmitExpression(node.Operand);
-                //gen.EmitUnaryOperator(node.NodeType, node.Operand.Type, node.Type);
+                gen.Emit(OpCodes.LDC_I4_0);
+                gen.Emit(OpCodes.EQL_T);
             }
+            else
+                throw new NotSupportedException("EmitUnary");
+
+            return gen;
         }
 
 
@@ -428,6 +433,12 @@ namespace ishtar
             {
                 var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
                 return gen.EmitCall(ctx.CurrentMethod.Owner, inv);
+            }
+
+            if (expr is UnaryExpressionSyntax unary)
+            {
+                var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+                return gen.EmitUnary(unary);
             }
 
             throw new NotImplementedException();
