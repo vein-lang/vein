@@ -9,6 +9,10 @@ namespace ishtar.emit
         {
             switch (clazz.FullName.NameWithNS)
             {
+                case "global::vein/lang/Aspect":
+                    clazz.TypeCode = VeinTypeCode.TYPE_CLASS;
+                    VeinCore.AspectClass = clazz;
+                    break;
                 case "global::vein/lang/Raw":
                     clazz.TypeCode = VeinTypeCode.TYPE_RAW;
                     VeinCore.RawClass = clazz;

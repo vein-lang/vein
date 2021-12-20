@@ -28,6 +28,7 @@ namespace vein.syntax
         public bool IsSpecial => Name.ExpressionString.Equals("special", StringComparison.InvariantCultureIgnoreCase);
         public bool IsForwarded => Name.ExpressionString.Equals("forwarded", StringComparison.InvariantCultureIgnoreCase);
         public bool IsAlias => Name.ExpressionString.Equals("alias", StringComparison.InvariantCultureIgnoreCase);
+        public bool IsAspectUsage => Name.ExpressionString.Equals("aspectUsage", StringComparison.InvariantCultureIgnoreCase);
 
         public new AspectSyntax SetPos(Position startPos, int length)
         {

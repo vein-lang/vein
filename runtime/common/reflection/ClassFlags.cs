@@ -13,6 +13,7 @@ namespace vein.runtime
         Private     = 1 << 5,
         Abstract    = 1 << 6,
         Special     = 1 << 7,
-        Interface   = 1 << 8
+        Interface   = 1 << 8,
+        Aspect      = 1 << 9
     }
 }

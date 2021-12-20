@@ -24,17 +24,13 @@ namespace vein.syntax
 
         public IEnumerable<DirectiveSyntax> Directives { get; set; }
         public IEnumerable<MemberDeclarationSyntax> Members { get; set; }
+        public IEnumerable<AspectDeclarationSyntax> Aspects { get; set; }
         public FileInfo FileEntity { get; set; }
         public string SourceText { get; set; }
         public string[] SourceLines => SourceText.Replace("\r", "").Split("\n");
 
         private List<string> _includes;
-
-        [JsonIgnore]
-        public IEnumerable<BaseSyntax> ChildNodes =>
-            Members.SelectMany(x => x.ChildNodes)
-                .Concat(Directives.SelectMany(x => x.ChildNodes));
-
+        
         public int[] _line_offsets;
 
         public List<string> Includes => _includes ??= Directives.OfExactType<UseSyntax>().Select(x =>

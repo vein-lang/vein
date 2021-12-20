@@ -117,7 +117,6 @@ namespace vein.syntax
             from @class in
                 Parse.IgnoreCase("class").Text().Token()
                     .Or(Parse.IgnoreCase("interface").Text().Token())
-                    .Or(Parse.IgnoreCase("aspect").Text().Token())
                     .Or(Parse.IgnoreCase("struct").Text().Token()).Commented(this)
             from className in IdentifierExpression.Token().Positioned()
             from interfaces in Parse.IgnoreCase(":").Token().Then(t => TypeReference.Positioned().DelimitedBy(Parse.Char(',').Token())).Optional()
@@ -130,7 +129,6 @@ namespace vein.syntax
                 Identifier = className,
                 IsInterface = @class.Value == "interface",
                 IsStruct = @class.Value == "struct",
-                IsAspect = @class.Value == "aspect",
                 Inheritances = interfaces.GetOrElse(Enumerable.Empty<TypeSyntax>()).ToList(),
                 Members = ConvertConstructors(members, className).ToList(),
                 InnerComments = closeBrace.LeadingComments.ToList(),

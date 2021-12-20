@@ -26,6 +26,8 @@ namespace vein.runtime
         public static VeinClass ArrayClass;
         public static VeinClass ExceptionClass;
         public static VeinClass RawClass;
+        public static VeinClass AspectClass;
+
 
         public static List<VeinClass> All => new()
         {
@@ -49,8 +51,10 @@ namespace vein.runtime
             CharClass,
             ArrayClass,
             ExceptionClass,
-            RawClass
+            RawClass,
+            AspectClass
         };
+
 
         public static void Init()
         {
@@ -77,6 +81,7 @@ namespace vein.runtime
             ArrayClass = new VeinClass($"{asmName}global::vein/lang/Array", ObjectClass, cormodule) { TypeCode = VeinTypeCode.TYPE_ARRAY };
             ExceptionClass = new VeinClass($"{asmName}global::vein/lang/Exception", ObjectClass, cormodule) { TypeCode = VeinTypeCode.TYPE_CLASS };
             RawClass = new VeinClass($"{asmName}global::vein/lang/Raw", ObjectClass, cormodule) { TypeCode = VeinTypeCode.TYPE_RAW };
+            AspectClass = new VeinClass($"{asmName}global::vein/lang/Aspect", ObjectClass, cormodule) { TypeCode = VeinTypeCode.TYPE_CLASS };
         }
     }
 }

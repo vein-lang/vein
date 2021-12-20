@@ -5,12 +5,19 @@ namespace vein.syntax
 
     public class AspectDeclarationSyntax : MemberDeclarationSyntax, IAdvancedPositionAware<AspectDeclarationSyntax>
     {
-        public List<ExpressionSyntax> Args { get; } = new();
-        public IdentifierExpression Name { get; protected set; }
+        public List<ParameterSyntax> Args { get; set; } = new();
+        public IdentifierExpression Identifier { get; set; }
 
         public new AspectDeclarationSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
+            return this;
+        }
+
+        public AspectDeclarationSyntax WithHead(MemberDeclarationSyntax head)
+        {
+            Aspects.AddRange(head.Aspects);
+            Modifiers.AddRange(head.Modifiers);
             return this;
         }
     }

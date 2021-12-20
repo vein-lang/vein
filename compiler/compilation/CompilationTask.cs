@@ -415,12 +415,12 @@ namespace vein.compilation
             return Log.errors.Count == 0;
         }
 
-        public List<(ClassBuilder clazz, ClassDeclarationSyntax member)>
+        public List<(ClassBuilder clazz, MemberDeclarationSyntax member)>
             LinkClasses((FileInfo, DocumentDeclaration doc) tuple)
             => LinkClasses(tuple.doc);
-        public List<(ClassBuilder clazz, ClassDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc)
+        public List<(ClassBuilder clazz, MemberDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc)
         {
-            var classes = new List<(ClassBuilder clazz, ClassDeclarationSyntax member)>();
+            var classes = new List<(ClassBuilder clazz, MemberDeclarationSyntax member)>();
 
             foreach (var member in doc.Members)
             {
@@ -432,11 +432,53 @@ namespace vein.compilation
                     Context.Classes.Add(result.FullName, result);
                     classes.Add((result, clazz));
                 }
+                else if (member is AspectDeclarationSyntax aspect)
+                {
+                    Status.VeinStatus($"Regeneration aspect [grey]'{aspect.Identifier}'[/]");
+                    aspect.OwnerDocument = doc;
+                    var result = CompileAspect(aspect, doc);
+                    Context.Classes.Add(result.FullName, result);
+                    classes.Add((result, aspect));
+                }
                 else
                     Log.Defer.Warn($"[grey]Member[/] [yellow underline]'{member.GetType().Name}'[/] [grey]is not supported.[/]");
             }
 
             return classes;
+        }
+
+        public ClassBuilder CompileAspect(AspectDeclarationSyntax member, DocumentDeclaration doc)
+        {
+            var name = member.Identifier.ExpressionString.EndsWith("Aspect")
+                ? $"global::{doc.Name}/{member.Identifier.ExpressionString}"
+                : $"global::{doc.Name}/{member.Identifier.ExpressionString}Aspect";
+
+            var clazz = module.DefineClass(name)
+                .WithIncludes(doc.Includes);
+
+            clazz.Flags |= ClassFlags.Public; // temporary all aspect has public
+            clazz.Flags |= ClassFlags.Aspect; // indicate when it class is a aspect
+
+            clazz.Parents.Add(VeinCore.AspectClass);
+
+            var getUsages = clazz.DefineMethod("getUsages", MethodFlags.Override | MethodFlags.Public, TYPE_I4.AsClass());
+
+            var aspectUsage = member.Aspects.FirstOrDefault(x => x.IsAspectUsage);
+            var flags = 0;
+
+            if (aspectUsage is null)
+                flags = 1 << 2;
+            else
+            {
+                // TODO
+            }
+
+            getUsages
+                .GetGenerator()
+                .Emit(OpCodes.LDC_I4_S, flags)
+                .Emit(OpCodes.RET);
+
+            return clazz;
         }
 
         public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc)
@@ -478,7 +520,7 @@ namespace vein.compilation
             return clazz;
         }
 
-        private void ShitcodePlug((ClassBuilder clazz, ClassDeclarationSyntax member) clz)
+        private void ShitcodePlug((ClassBuilder clazz, MemberDeclarationSyntax member) clz)
             => ShitcodePlug(clz.clazz);
 
         private void ShitcodePlug(ClassBuilder clz)
@@ -539,9 +581,12 @@ namespace vein.compilation
             }
         }
 
-        public void LinkMetadata((ClassBuilder @class, ClassDeclarationSyntax member) x)
+        public void LinkMetadata((ClassBuilder @class, MemberDeclarationSyntax member) x)
         {
-            var (@class, member) = x;
+            if (x.member is not ClassDeclarationSyntax)
+                return;
+
+            var (@class, member) = (x.@class, x.member as ClassDeclarationSyntax);
             var doc = member.OwnerDocument;
             @class.Flags = GenerateClassFlags(member);
 
@@ -578,9 +623,11 @@ namespace vein.compilation
                 .Pipe(p => @class.Parents.Add(p)).Consume();
         }
 
-        public void ValidateInheritance((ClassBuilder @class, ClassDeclarationSyntax member) x)
+        public void ValidateInheritance((ClassBuilder @class, MemberDeclarationSyntax member) x)
         {
-            var (@class, member) = x;
+            if (x.member is not ClassDeclarationSyntax member)
+                return;
+            var (@class, _) = x;
             ValidateInheritanceInterfaces(@class, member);
             ValidateCollisionsMethods(@class, member);
         }
@@ -620,13 +667,17 @@ namespace vein.compilation
             List<(MethodBuilder method, MethodDeclarationSyntax syntax)> methods,
             List<(VeinField field, FieldDeclarationSyntax syntax)> fields,
             List<(VeinProperty field, PropertyDeclarationSyntax syntax)> props)
-            LinkMethods((ClassBuilder @class, ClassDeclarationSyntax member) x)
+            LinkMethods((ClassBuilder @class, MemberDeclarationSyntax member) x)
         {
-            var (@class, clazzSyntax) = x;
-            var doc = clazzSyntax.OwnerDocument;
             var methods = new List<(MethodBuilder method, MethodDeclarationSyntax syntax)>();
             var fields = new List<(VeinField field, FieldDeclarationSyntax syntax)>();
             var props = new List<(VeinProperty field, PropertyDeclarationSyntax syntax)>();
+
+            if (x.member is not ClassDeclarationSyntax clazzSyntax)
+                return (methods, fields, props);
+            var (@class, _) = x;
+            var doc = clazzSyntax.OwnerDocument;
+            
             foreach (var member in clazzSyntax.Members)
             {
                 switch (member)
@@ -757,9 +808,11 @@ namespace vein.compilation
         private static string PleaseReportProblemInto()
             => $"Please report the problem into 'https://github.com/vein-lang/vein/issues'.";
 
-        public void GenerateCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)
+        public void GenerateCtor((ClassBuilder @class, MemberDeclarationSyntax member) x)
         {
-            var (@class, member) = x;
+            if (x.member is not ClassDeclarationSyntax member)
+                return;
+            var (@class, _) = x;
             Context.Document = member.OwnerDocument;
             var doc = member.OwnerDocument;
 
@@ -825,9 +878,11 @@ namespace vein.compilation
             gen.Emit(OpCodes.LDARG_0).Emit(OpCodes.RET);
         }
 
-        public void GenerateStaticCtor((ClassBuilder @class, ClassDeclarationSyntax member) x)
+        public void GenerateStaticCtor((ClassBuilder @class, MemberDeclarationSyntax member) x)
         {
-            var (@class, member) = x;
+            if (x.member is not ClassDeclarationSyntax member)
+                return;
+            var (@class, _) = x;
             var doc = member.OwnerDocument;
 
             if (@class.GetStaticCtor() is not MethodBuilder ctor)
@@ -903,6 +958,9 @@ namespace vein.compilation
 
         private void GenerateBody(MethodBuilder method, BlockSyntax block, DocumentDeclaration doc)
         {
+            if (block is null)
+                return;
+
             Status.VeinStatus($"Emitting [gray]'{method.Owner.FullName}:{method.Name}'[/]");
             foreach (var pr in block.Statements.SelectMany(x => x.ChildNodes.Concat(new[] { x })))
                 AnalyzeStatement(pr, doc);
@@ -1327,6 +1385,12 @@ namespace vein.compilation
                     case ModificatorKind.Readonly:
                         flags |= FieldFlags.Readonly;
                         continue;
+                    case ModificatorKind.Abstract:
+                        flags |= FieldFlags.Abstract;
+                        continue;
+                    case ModificatorKind.Virtual:
+                        flags |= FieldFlags.Virtual;
+                        continue;
                     default:
                         switch (member)
                         {
@@ -1419,9 +1483,12 @@ namespace vein.compilation
                     case "virtual":
                         flags |= MethodFlags.Virtual;
                         continue;
+                    case "abstract":
+                        flags |= MethodFlags.Virtual;
+                        continue;
                     default:
                         Log.Defer.Error(
-                            $"In [orange]'{method.Identifier}'[/] method [red bold]{mod}[/] " +
+                            $"In [orange]'{method.Identifier}'[/] method [red bold]{mod.ModificatorKind}[/] " +
                             $"is not supported [orange bold]modificator[/].",
                             method.Identifier, method.OwnerClass.OwnerDocument);
                         continue;

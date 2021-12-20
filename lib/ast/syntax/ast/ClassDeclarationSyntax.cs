@@ -46,7 +46,6 @@ namespace vein.syntax
             Identifier = classBody.Identifier;
             IsInterface = classBody.IsInterface;
             IsStruct = classBody.IsStruct;
-            IsAspect = classBody.IsAspect;
             Inheritances = classBody.Inheritances;
             Members = classBody.Members;
             InnerComments = classBody.InnerComments;
@@ -72,7 +71,6 @@ namespace vein.syntax
 
         public virtual bool IsInterface { get; set; }
         public virtual bool IsStruct { get; set; }
-        public virtual bool IsAspect { get; set; }
 
         public bool IsForwardedType => Aspects.Any(x => $"{x.Name}".Equals("forwarded"));
 
@@ -87,8 +85,6 @@ namespace vein.syntax
         public List<FieldDeclarationSyntax> Fields => Members.OfType<FieldDeclarationSyntax>().ToList();
 
         public List<PropertyDeclarationSyntax> Properties => Members.OfType<PropertyDeclarationSyntax>().ToList();
-
-        public DocumentDeclaration OwnerDocument { get; set; }
 
 
         public new ClassDeclarationSyntax SetPos(Position startPos, int length)

@@ -28,4 +28,13 @@ public class AspectFeatureTest
         var d = a.AspectsExpression.End().ParseVein("[special, readonly, forwarded, alias(\"bool\")]");
         Assert.AreEqual(4, d.Length);
     }
+
+    [Test]
+    public void aspectDeclarationTest()
+    {
+        var a = new VeinSyntax();
+        var d = a.CompilationUnit.End().ParseVein("public aspect foo(i: i64);");
+        Assert.AreEqual(d.Members.Count(), 1);
+        Assert.IsTrue(typeof(AspectDeclarationSyntax) == d.Members.Single().GetType());
+    }
 }

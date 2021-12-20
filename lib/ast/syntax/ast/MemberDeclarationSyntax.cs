@@ -24,6 +24,7 @@ namespace vein.syntax
         public virtual MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName) => this;
         public virtual MemberDeclarationSyntax WithName(IdentifierExpression name) => this;
 
+        public DocumentDeclaration OwnerDocument { get; set; }
 
         public new MemberDeclarationSyntax SetPos(Position startPos, int length)
         {
