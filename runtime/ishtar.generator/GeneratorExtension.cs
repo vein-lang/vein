@@ -7,6 +7,7 @@ namespace ishtar
     using System.Linq;
     using System.Linq.Expressions;
     using System.Text.RegularExpressions;
+    using Sprache;
     using vein;
     using vein.extensions;
     using vein.reflection;
@@ -30,7 +31,7 @@ namespace ishtar
 
         public GeneratorContext LogError(string err, ExpressionSyntax exp)
         {
-            var pos = exp.Transform.pos;
+            var pos = exp.Transform?.pos ?? new Position(0, 0, 0);
             var diff_err = exp.Transform.DiffErrorFull(Document);
             Errors.Add($"[red bold]{err.EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
                        $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
@@ -962,11 +963,9 @@ namespace ishtar
 
         public static VeinClass ExplicitConversion(VeinClass t1, VeinClass t2) =>
             throw new Exception($"ExplicitConversion: {t1?.FullName.NameWithNS} and {t2?.FullName.NameWithNS}");
-
-        public static void EmitThrow(this ILGenerator generator, QualityTypeName type)
+        public static void EmitFail(this ILGenerator generator, FailStatementSyntax syntax)
         {
-            generator.Emit(OpCodes.NEWOBJ, type);
-            generator.Emit(OpCodes.CALL, GetDefaultCtor(type));
+            generator.EmitExpression(syntax.Expression);
             generator.Emit(OpCodes.THROW);
         }
         public static VeinMethod GetDefaultCtor(QualityTypeName t) => throw new NotImplementedException();
@@ -1031,6 +1030,8 @@ namespace ishtar
                 generator.EmitForeach(@foreach);
             else if (statement is BlockSyntax block)
                 generator.EmitBlock(block);
+            else if (statement is FailStatementSyntax fail)
+                generator.EmitFail(fail);
             else
                 throw new NotImplementedException();
         }
