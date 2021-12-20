@@ -210,11 +210,27 @@ namespace vein.compilation
                     return;
                 var task = context.AddTask($"Collect modules for '{target.Project.Name}'...").IsIndeterminate();
                 target.Resolver.AddSearchPath(target.Project.WorkDir);
-                target.Resolver.AddSearchPath(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "../std")));
 
-                foreach (var package in target.Project.Dependencies.Packages)
-                    target.Resolver.AddSearchPath(shardStorage.GetPackageSpace(package.Name, package.Version)
-                        .SubDirectory("lib"));
+
+                void add_deps_path(IReadOnlyCollection<PackageReference> refs)
+                {
+                    foreach (var package in refs)
+                    {
+                        target.Resolver.AddSearchPath(shardStorage.GetPackageSpace(package.Name, package.Version)
+                            .SubDirectory("lib"));
+                        var manifest = shardStorage.GetManifest(package.Name, package.Version);
+
+                        if (manifest is null)
+                        {
+                            Log.Error($"Failed to load [orange]'{package.Name}@{package.Version}'[/] manifest.", target);
+                            continue;
+                        }
+
+                        add_deps_path(manifest.Dependencies.AsReadOnly());
+                    }
+                }
+
+                add_deps_path(target.Project.Dependencies.Packages);
 
                 foreach (var package in target.Project.Dependencies.Packages)
                     list.Add(target.Resolver.ResolveDep(package, list));

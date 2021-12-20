@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MoreLinq;
+using Newtonsoft.Json;
 using NuGet.Versioning;
 using project;
 
@@ -76,6 +77,15 @@ public class ShardStorage : IShardStorage
         $"{name}-{version}.shard";
     public string TemplateName(RegistryPackage package) =>
         TemplateName(package.Name, package.Version);
+
+    public RegistryPackage GetManifest(string name, NuGetVersion version)
+    {
+        if (!IsAvailable(name, version))
+            return null;
+
+        var json = GetPackageSpace(name, version).File("manifest.json");
+        return JsonConvert.DeserializeObject<RegistryPackage>(json.ReadToEnd());
+    }
 }
 
 
@@ -98,4 +108,6 @@ public interface IShardStorage
     string TemplateName(string name, NuGetVersion version);
 
     string TemplateName(RegistryPackage package);
+
+    RegistryPackage GetManifest(string name, NuGetVersion version);
 }
