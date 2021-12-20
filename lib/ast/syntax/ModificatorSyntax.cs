@@ -16,7 +16,8 @@ namespace vein.syntax
         Override,
         Global,
         Virtual,
-        Readonly
+        Readonly,
+        Abstract
     }
 
     public class ModificatorSyntax : BaseSyntax, IPositionAware<ModificatorSyntax>

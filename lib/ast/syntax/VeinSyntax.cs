@@ -49,6 +49,7 @@ namespace vein.syntax
             (from mod in Keyword("public").Or(
                     Keyword("protected")).Or(
                     Keyword("virtual")).Or(
+                    Keyword("abstract")).Or(
                     Keyword("readonly")).Or(
                     Keyword("private")).Or(
                     Keyword("internal")).Or(
@@ -186,7 +187,8 @@ namespace vein.syntax
             from directives in
                 SpaceSyntax.Token()
                 .Or(UseSyntax.Token()).Many()
-            from members in ClassDeclaration.Token().AtLeastOnce()
+            from members in AspectDeclaration.Select(x => x.As<MemberDeclarationSyntax>())
+                .Or(ClassDeclaration.Select(x => x.As<MemberDeclarationSyntax>())).Token().AtLeastOnce()
             from whiteSpace in Parse.WhiteSpace.Many()
             from trailingComments in CommentParser.AnyComment.Token().Many().End()
             select new DocumentDeclaration
