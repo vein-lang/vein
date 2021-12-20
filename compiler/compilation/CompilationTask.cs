@@ -362,7 +362,7 @@ namespace vein.compilation
 
             Context = new GeneratorContext();
 
-            module = new VeinModuleBuilder(Project.Name);
+            module = new VeinModuleBuilder(Project.Name, Project.Version.Version);
 
             Context.Module = module;
             Context.Module.Deps.AddRange(deps);
