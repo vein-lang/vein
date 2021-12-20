@@ -59,6 +59,7 @@ namespace vein.runtime
         public bool IsAbstract => Flags.HasFlag(ClassFlags.Abstract);
         public bool IsStatic => Flags.HasFlag(ClassFlags.Static);
         public bool IsInternal => Flags.HasFlag(ClassFlags.Internal);
+        public bool IsAspect => Flags.HasFlag(ClassFlags.Aspect);
 
         public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor("dtor");
         public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor("ctor");

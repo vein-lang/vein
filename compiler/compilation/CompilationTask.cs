@@ -720,7 +720,7 @@ namespace vein.compilation
         {
             var retType = member.ReturnType.IsSelf ? clazz :
                 FetchType(member.ReturnType, doc);
-
+            member.OwnerDocument = doc;
             if (retType is null)
                 return default;
 
@@ -1259,6 +1259,7 @@ namespace vein.compilation
                     case { IsNative: true }:
                     case { IsForwarded: true }:
                     case { IsAlias: true }:
+                    case { IsAspectUsage: true }:
                         continue;
                     //case VeinAnnotationKind.Readonly when !clazz.IsStruct:
                     //    Log.Defer.Error(
@@ -1270,9 +1271,13 @@ namespace vein.compilation
                     //    continue;
 
                     default:
+                        var a = FindAspect(annotation, clazz.OwnerDocument);
+                        if (a is not null)
+                            continue;
+
                         Log.Defer.Error(
                             $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{kind}[/] " +
-                            $"is not supported [orange bold]annotation[/].",
+                            $"is not found [orange bold]aspect[/], maybe skip use?",
                             clazz.Identifier, clazz.OwnerDocument);
                         continue;
                 }
@@ -1337,11 +1342,15 @@ namespace vein.compilation
                     //    //errors.Add($"In [orange]'{field.Field.Identifier}'[/] field [red bold]{kind}[/] is not supported [orange bold]annotation[/].");
                     //    continue;
                     default:
+                        var a = FindAspect(annotation, member.OwnerDocument);
+                        if (a is not null)
+                            continue;
+
                         if (member is FieldDeclarationSyntax field)
                         {
                             Log.Defer.Error(
                                 $"In [orange]'{field.Field.Identifier}'[/] field [red bold]{annotation.Name}[/] " +
-                                $"is not supported [orange bold]annotation[/].",
+                                $"is not found [orange bold]aspect[/].",
                                 annotation, field.OwnerClass.OwnerDocument);
                         }
 
@@ -1349,7 +1358,7 @@ namespace vein.compilation
                         {
                             Log.Defer.Error(
                                 $"In [orange]'{prop.Identifier}'[/] property [red bold]{annotation.Name}[/] " +
-                                $"is not supported [orange bold]annotation[/].",
+                                $"is not found [orange bold]aspect[/].",
                                 annotation, prop.OwnerClass.OwnerDocument);
                         }
                         continue;
@@ -1447,9 +1456,13 @@ namespace vein.compilation
                     //        method.Identifier, method.OwnerClass.OwnerDocument);
                     //    continue;
                     default:
+                        var a = FindAspect(aspect, method.OwnerDocument);
+                        if (a is not null)
+                            continue;
+
                         Log.Defer.Error(
                             $"In [orange]'{method.Identifier}'[/] method [red bold]{aspect.Name}[/] " +
-                            $"is not supported [orange bold]annotation[/].",
+                            $"not found [orange bold]annotation[/], maybe skip use?.",
                             method.Identifier, method.OwnerClass.OwnerDocument);
                         continue;
                 }
@@ -1504,6 +1517,22 @@ namespace vein.compilation
 
 
             return flags;
+        }
+
+        // TODO validate scope for aspect usage (method, field, prop, class, assembly)
+        public Aspect FindAspect(AspectSyntax syntax, DocumentDeclaration doc)
+        {
+            var name = $"{syntax.Name}".EndsWith("Aspect") ?
+                $"{syntax.Name}" :
+                $"{syntax.Name}Aspect";
+            var includes = doc.Includes;
+
+            var aspect = this.module.FindType(name, includes);
+
+            if (aspect is null)
+                return null;
+
+            return new Aspect(aspect.Name, AspectTarget.Class);
         }
     }
 
