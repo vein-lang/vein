@@ -63,13 +63,13 @@ public record RegistryPackage : PackageManifest
 
     [JsonProperty("downloads")]
     public ulong Downloads { get; set; }
-    
+
     [JsonProperty("normalizedVersion")]
     public string? NormalizedVersionString { get; set; }
 
     [JsonProperty("originalVersion")]
     public string? OriginalVersionString { get; set; }
-    
+
     [JsonProperty("published")]
     public DateTimeOffset Published { get; set; }
 

@@ -37,7 +37,7 @@ namespace vein.project
         public PackageUrls Urls => _project.Urls;
 
         public NuGetVersion Version => new NuGetVersion(_project.Version);
-        
+
         public IReadOnlyCollection<FileInfo> Sources => WorkDir
             .EnumerateFiles("*.vein", SearchOption.AllDirectories)
             .Where(x => !x.Name.EndsWith(".temp.vein"))
@@ -69,7 +69,7 @@ namespace vein.project
                 .ToList()
                 .AsReadOnly();
         }
-        
+
         public static VeinProject LoadFrom(FileInfo info)
         {
             var p = YAML.Project.Load(info);

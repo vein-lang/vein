@@ -6,7 +6,7 @@ namespace vein.project
     using Newtonsoft.Json.Linq;
     using NuGet.Versioning;
     using JsonSerializer = Newtonsoft.Json.JsonSerializer;
-    
+
     public class NuGetVersionConverter : Newtonsoft.Json.JsonConverter<NuGetVersion>
     {
         public override void WriteJson(JsonWriter writer, NuGetVersion value, JsonSerializer serializer)
