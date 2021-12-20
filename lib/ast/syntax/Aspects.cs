@@ -1,4 +1,4 @@
-﻿namespace vein.syntax;
+namespace vein.syntax;
 
 using Sprache;
 using System.Collections.Generic;

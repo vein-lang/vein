@@ -677,7 +677,7 @@ namespace vein.compilation
                 return (methods, fields, props);
             var (@class, _) = x;
             var doc = clazzSyntax.OwnerDocument;
-            
+
             foreach (var member in clazzSyntax.Members)
             {
                 switch (member)
