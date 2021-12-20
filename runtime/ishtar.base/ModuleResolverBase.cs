@@ -21,7 +21,7 @@ public abstract class ModuleResolverBase : IAssemblyResolver
         {
             if (!search_paths_collider_.Add(dir.FullName)) continue;
             search_paths.Add(dir);
-            debug($"Assembly search path '{dir}' is added.");
+            debug($"Assembly search path [gray]'{dir}'[/] is added.");
         }
         return this;
     }
@@ -36,14 +36,14 @@ public abstract class ModuleResolverBase : IAssemblyResolver
 
         if (!IshtarAssembly.TryLoadFromFile(artifact.Path, out var asm, out var exception))
         {
-            debug($"Failed resolve '{artifact.Path.Name}' dependency for '{artifact.ProjectName}' project.");
+            debug($"Failed resolve [orange]'{artifact.Path.Name}'[/] dependency for [orange]'{artifact.ProjectName}'[/] project.");
             throw exception;
         }
 
         var mod = ModuleReader.Read(asm.Sections.First().data, deps,
             (s, v) => ResolveDep(s, v, deps));
 
-        debug($"Dependency '{mod.Name}@{mod.Version}' is resolved. [[from artifacts]]");
+        debug($"Dependency [orange]'{mod.Name}@{mod.Version}'[/] is resolved. [gray][[from artifacts]][/]");
         return mod;
     }
 
@@ -63,7 +63,7 @@ public abstract class ModuleResolverBase : IAssemblyResolver
 
         var mod = ModuleReader.Read(asm.Sections.First().data, deps,
             (s, v) => ResolveDep(s, v, deps));
-        debug($"Dependency '{name}@{mod.Version}' is resolved. [[from '{file}']]");
+        debug($"Dependency [orange]'{name}@{mod.Version}'[/] is resolved. [gray][[from '{file}']][/]");
         return mod;
     }
 
