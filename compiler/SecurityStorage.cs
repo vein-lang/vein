@@ -134,9 +134,11 @@ public class SecurityStorage
 
         var s2 = BitConverter.ToString(out2);
 
-        for (int i = 0; i < s2.Length; i++) {
+        for (int i = 0; i < s2.Length; i++)
+        {
             char c = s2[i];
-            if (c != 0) {
+            if (c != 0)
+            {
                 result.Append(c.ToString());
             }
         }

@@ -81,7 +81,7 @@ namespace vein.cmd
                             .PageSize(10)
                             .MoreChoicesText("[grey](Move up and down to reveal more projects)[/]")
                             .AddChoices(projects.Select((x, y) => x.FullName.Replace(curDir.FullName, ""))));
-                    
+
                     settings.Project = projects
                         .FirstOrDefault(x => x.FullName.Equals(Path.Combine(curDir.FullName, answer)))
                         .FullName;
@@ -103,7 +103,7 @@ namespace vein.cmd
                 Log.Error($"Project [orange]'{name}'[/] has empty.");
                 return -1;
             }
-            
+
             return Execute(ctx, settings, project);
         }
 
@@ -117,7 +117,7 @@ namespace vein.cmd
         public override int Execute(CommandContext context, CompileSettings settings, VeinProject project)
         {
             Log.Info($"Project [orange]'{project.Name}'[/].");
-            
+
             var targets = CompilationTask.Run(project.WorkDir, settings);
 
 
