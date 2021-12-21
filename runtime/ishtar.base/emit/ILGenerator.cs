@@ -3,6 +3,7 @@ namespace ishtar.emit
     using System;
     using System.Buffers.Binary;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -315,6 +316,122 @@ namespace ishtar.emit
             return this;
         }
 
+        private ExceptionBlockInfo[] exceptionBlocks;
+        private ExceptionBlockInfo[] exceptionStack;
+        private uint exceptionIndex;
+        private uint exceptionStackIndex;
+
+
+        #region Exceptions
+
+        public Label BeginTryBlock()
+        {
+            exceptionBlocks ??= new ExceptionBlockInfo[8];
+
+            if (exceptionIndex >= exceptionBlocks.Length)
+                exceptionBlocks = IncreaseCapacity(exceptionBlocks);
+            if (exceptionStackIndex >= exceptionStack.Length)
+                exceptionStack = IncreaseCapacity(exceptionStack);
+
+            var label = DefineLabel();
+            var info = new ExceptionBlockInfo(ILOffset, label);
+
+            exceptionBlocks[exceptionIndex++] = info;
+            exceptionStack[exceptionStackIndex++] = info;
+
+            return label;
+        }
+
+        public void EndTryBlock()
+        {
+            if (exceptionStackIndex == 0)
+                throw new InvalidOperationException($"Exception stack has been empty!");
+
+            var info = exceptionStack![exceptionStackIndex - 1];
+            exceptionStack![--exceptionStackIndex] = null;
+
+            var EndLabel = info.EndLabel;
+
+            if (info.State is ExceptionBlockState.FILTER or ExceptionBlockState.TRY)
+                throw new InvalidOperationException($"Exception state is incorrect!");
+
+            if (info.State is ExceptionBlockState.CATCH)
+                Emit(OpCodes.SEH_LEAVE);
+            else if (info.State is ExceptionBlockState.FINALLY or ExceptionBlockState.FAULT)
+                Emit(OpCodes.SEH_FINALLY);
+
+
+            Label label = _labels![EndLabel.Value] != -1
+                ? info.FinallyLabel
+                : EndLabel;
+            UseLabel(label);
+
+            info.Done(ILOffset);
+        }
+
+        public void BeginCatchBlock(VeinClass type)
+        {
+            if (exceptionStackIndex == 0)
+                throw new InvalidOperationException($"Exception stack has been empty!");
+
+            var info = exceptionStack![exceptionStackIndex - 1];
+
+            if (info.State is ExceptionBlockState.FILTER)
+            {
+                if (type != null)
+                    throw new InvalidOperationException($"When state FILTER, cannot specify exception type.");
+                Emit(OpCodes.SEH_FILTER);
+            }
+            else
+            {
+                if (type == null)
+                    throw new InvalidOperationException($"When state is not FILTER, need specify exception type.");
+                Emit(OpCodes.SEH_FILTER, info.EndLabel);
+            }
+
+            info.MarkCatchAddr(ILOffset, type);
+        }
+
+        public void BeginFaultBlock()
+        {
+            if (exceptionStackIndex == 0)
+                throw new InvalidOperationException($"Exception stack has been empty!");
+
+            var info = exceptionStack![exceptionStackIndex - 1];
+            Emit(OpCodes.SEH_LEAVE, info.EndLabel);
+            info.MarkFaultAddr(ILOffset);
+        }
+
+        public virtual void BeginFinallyBlock()
+        {
+            if (exceptionStackIndex == 0)
+                throw new InvalidOperationException($"Exception stack has been empty!");
+            var info = exceptionStack![exceptionStackIndex - 1];
+            var state = info.State;
+            Label endLabel = info.EndLabel;
+            int catchEndAddr = 0;
+            if (state != ExceptionBlockState.TRY)
+            {
+                // generate leave for any preceeding catch clause
+                Emit(OpCodes.SEH_LEAVE, endLabel);
+                catchEndAddr = ILOffset;
+            }
+
+            UseLabel(endLabel);
+
+            Label finallyEndLabel = DefineLabel();
+            info.SetFinallyEndLabel(finallyEndLabel);
+
+            // generate leave for try clause
+            Emit(OpCodes.SEH_LEAVE, finallyEndLabel);
+            if (catchEndAddr == 0)
+                catchEndAddr = ILOffset;
+            info.MarkFinallyAddr(ILOffset, catchEndAddr);
+        }
+
+        #endregion
+        
+
         public ILGenerator WriteDebugMetadata(string str)
         {
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ {str}");
@@ -444,6 +561,18 @@ namespace ishtar.emit
             var numArray = new byte[newsize];
             Array.Copy(_ilBody, numArray, _ilBody.Length);
             _ilBody = numArray;
+        }
+
+        internal static T[] IncreaseCapacity<T>(T[] incoming)
+            => IncreaseCapacity(incoming, incoming.Length * 2);
+
+        internal static T[] IncreaseCapacity<T>(T[] incoming, int requiredSize)
+        {
+            Debug.Assert(incoming != null);
+
+            T[] temp = new T[requiredSize];
+            Array.Copy(incoming, temp, incoming.Length);
+            return temp;
         }
 
 
