@@ -93,13 +93,15 @@
 - ALLOC_BLOCK:
     description: Allocate memory block.
     override-size: 4
-- LEAVE.S:
+- SEH.LEAVE.S:
     description: Leave from protected zone.
     override-size: 4
-- LEAVE:
+- SEH.LEAVE:
     description: Leave from protected zone.
-- FINALLY:
+- SEH.FINALLY:
     description: End of finally statement.
+- SEH.FILTER:
+    description: End of filter statement.
 - DELETE:
     description: Free memory at point in stack.
 - XOR:

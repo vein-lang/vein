@@ -538,28 +538,35 @@ namespace ishtar
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LEAVE_S = new (0x6B, 0x0100001F);
+		public static readonly OpCode SEH_LEAVE_S = new (0x6C, 0x0100001F);
 		/// <summary>
 		/// Leave from protected zone.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LEAVE = new (0x6D, 0x0000001F);
+		public static readonly OpCode SEH_LEAVE = new (0x6D, 0x0000001F);
 		/// <summary>
 		/// End of finally statement.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode FINALLY = new (0x6E, 0x0000001F);
+		public static readonly OpCode SEH_FINALLY = new (0x6E, 0x0000001F);
+		/// <summary>
+		/// End of filter statement.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode SEH_FILTER = new (0x6F, 0x0000001F);
 		/// <summary>
 		/// Free memory at point in stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode DELETE = new (0x6C, 0x0000001F);
+		public static readonly OpCode DELETE = new (0x6B, 0x0000001F);
 		/// <summary>
 		/// XOR Operation.
 		/// size: 0
@@ -862,9 +869,10 @@ namespace ishtar
 			{OpCodeValue.DUP, DUP},
 			{OpCodeValue.POP, POP},
 			{OpCodeValue.ALLOC_BLOCK, ALLOC_BLOCK},
-			{OpCodeValue.LEAVE_S, LEAVE_S},
-			{OpCodeValue.LEAVE, LEAVE},
-			{OpCodeValue.FINALLY, FINALLY},
+			{OpCodeValue.SEH_LEAVE_S, SEH_LEAVE_S},
+			{OpCodeValue.SEH_LEAVE, SEH_LEAVE},
+			{OpCodeValue.SEH_FINALLY, SEH_FINALLY},
+			{OpCodeValue.SEH_FILTER, SEH_FILTER},
 			{OpCodeValue.DELETE, DELETE},
 			{OpCodeValue.XOR, XOR},
 			{OpCodeValue.OR, OR},

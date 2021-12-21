@@ -306,19 +306,23 @@ namespace ishtar
 		/// <summary>
 		/// Leave from protected zone.
 		/// </summary>
-		LEAVE_S = 0x6B,
+		SEH_LEAVE_S = 0x6C,
 		/// <summary>
 		/// Leave from protected zone.
 		/// </summary>
-		LEAVE = 0x6D,
+		SEH_LEAVE = 0x6D,
 		/// <summary>
 		/// End of finally statement.
 		/// </summary>
-		FINALLY = 0x6E,
+		SEH_FINALLY = 0x6E,
+		/// <summary>
+		/// End of filter statement.
+		/// </summary>
+		SEH_FILTER = 0x6F,
 		/// <summary>
 		/// Free memory at point in stack.
 		/// </summary>
-		DELETE = 0x6C,
+		DELETE = 0x6B,
 		/// <summary>
 		/// XOR Operation.
 		/// </summary>

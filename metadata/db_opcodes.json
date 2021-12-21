@@ -106,8 +106,9 @@
   "JMP.T": 104,
   "POP": 105,
   "ALLOC_BLOCK": 106,
-  "LEAVE.S": 107,
-  "DELETE": 108,
-  "LEAVE": 109,
-  "FINALLY": 110
+  "DELETE": 107,
+  "SEH.LEAVE.S": 108,
+  "SEH.LEAVE": 109,
+  "SEH.FINALLY": 110,
+  "SEH.FILTER": 111
 }
