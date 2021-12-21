@@ -98,6 +98,8 @@
     override-size: 4
 - LEAVE:
     description: Leave from protected zone.
+- FINALLY:
+    description: End of finally statement.
 - DELETE:
     description: Free memory at point in stack.
 - XOR:

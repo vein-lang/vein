@@ -547,6 +547,13 @@ namespace ishtar
 		/// </summary>
 		public static readonly OpCode LEAVE = new (0x6D, 0x0000001F);
 		/// <summary>
+		/// End of finally statement.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode FINALLY = new (0x6E, 0x0000001F);
+		/// <summary>
 		/// Free memory at point in stack.
 		/// size: 0
 		/// flow: 0
@@ -857,6 +864,7 @@ namespace ishtar
 			{OpCodeValue.ALLOC_BLOCK, ALLOC_BLOCK},
 			{OpCodeValue.LEAVE_S, LEAVE_S},
 			{OpCodeValue.LEAVE, LEAVE},
+			{OpCodeValue.FINALLY, FINALLY},
 			{OpCodeValue.DELETE, DELETE},
 			{OpCodeValue.XOR, XOR},
 			{OpCodeValue.OR, OR},

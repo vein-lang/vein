@@ -312,6 +312,10 @@ namespace ishtar
 		/// </summary>
 		LEAVE = 0x6D,
 		/// <summary>
+		/// End of finally statement.
+		/// </summary>
+		FINALLY = 0x6E,
+		/// <summary>
 		/// Free memory at point in stack.
 		/// </summary>
 		DELETE = 0x6C,
