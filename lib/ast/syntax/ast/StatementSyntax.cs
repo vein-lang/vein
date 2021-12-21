@@ -1,5 +1,6 @@
 namespace vein.syntax
 {
+    using System;
     using System.Collections.Generic;
     using Sprache;
 
@@ -29,6 +30,26 @@ namespace vein.syntax
         public StatementSyntax SetEnd(Position endPos)
         {
             EndPoint = endPos;
+            return this;
+        }
+
+        public StatementSyntax SetStart(ExpressionSyntax s)
+        {
+            if (s.Transform is null)
+                throw new InvalidOperationException(
+                    $"[IAdvancedPositionAware::SetStart] '{s.GetType().Name}' has incorrect transform position.");
+
+            StartPoint = s.Transform.pos;
+            return this;
+        }
+
+        public StatementSyntax SetEnd(ExpressionSyntax s)
+        {
+            if (s.Transform is null)
+                throw new InvalidOperationException(
+                    $"[IAdvancedPositionAware::SetEnd] '{s.GetType().Name}' has incorrect transform position.");
+
+            EndPoint = s.Transform.pos;
             return this;
         }
 

@@ -52,6 +52,7 @@ namespace vein.syntax
             .Or(QualifiedExpression.Then(x => Parse.Char(';').Token().Return(new QualifiedExpressionStatement(x))).Positioned())
             .Or(IfStatement.Positioned())
             .Or(WhileStatement)
+            .Or(TryStatement.Positioned())
             .Or(ReturnStatement.Positioned())
             .Or(foreach_statement.Positioned())
             .Or(FailStatement)

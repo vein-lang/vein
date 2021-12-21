@@ -1,5 +1,6 @@
 namespace vein.syntax
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using extensions;
@@ -8,6 +9,26 @@ namespace vein.syntax
 
     public interface IAdvancedPositionAware<out T> : IPositionAware<T>
     {
+        public T SetStart(ExpressionSyntax s)
+        {
+            if (s.Transform is null)
+                throw new InvalidOperationException(
+                    $"[IAdvancedPositionAware::SetStart] '{s.GetType().Name}' has incorrect transform position.");
+
+            StartPoint = s.Transform.pos;
+            return (T)this;
+        }
+
+        public T SetEnd(ExpressionSyntax s)
+        {
+            if (s.Transform is null)
+                throw new InvalidOperationException(
+                    $"[IAdvancedPositionAware::SetEnd] '{s.GetType().Name}' has incorrect transform position.");
+
+            EndPoint = s.Transform.pos;
+            return (T)this;
+        }
+
         public T SetStart(Position startPos)
         {
             StartPoint = startPos;
