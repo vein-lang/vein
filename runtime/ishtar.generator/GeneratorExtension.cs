@@ -49,6 +49,8 @@ namespace ishtar
             return new ScopeTransit(CurrentScope);
         }
 
+        public VeinClass ResolveType(TypeExpression targetTypeExpression)
+            => ResolveType(targetTypeExpression.Typeword);
         public VeinClass ResolveType(TypeSyntax targetTypeTypeword)
             => Module.FindType(targetTypeTypeword.Identifier.ExpressionString,
                 Classes[CurrentMethod.Owner.FullName].Includes);
@@ -214,6 +216,13 @@ namespace ishtar
                 return;
             this.TopScope = owner;
             owner.Scopes.Add(this);
+        }
+
+        public void EnsureExceptionLocal(ILGenerator gen, IdentifierExpression id, VeinClass clazz)
+        {
+            var locIndex = gen.EnsureLocal($"catch${id}$", clazz);
+            DefineVariable(id, clazz, locIndex);
+            gen.Emit(OpCodes.STLOC_S, locIndex);
         }
 
         public ManaScope ExitScope()
@@ -1032,8 +1041,62 @@ namespace ishtar
                 generator.EmitBlock(block);
             else if (statement is FailStatementSyntax fail)
                 generator.EmitFail(fail);
+            else if (statement is TryStatementSyntax @try)
+                generator.EmitTry(@try);
             else
                 throw new NotImplementedException();
+        }
+
+        public static ILGenerator EmitTry(this ILGenerator gen, TryStatementSyntax @try)
+        {
+            gen.BeginTryBlock();
+            gen.EmitBlock(@try.TryBlock);
+
+            gen.EmitCatches(@try.Catches);
+            gen.EmitFinally(@try.Finally);
+
+            gen.EndExceptionBlock();
+
+            return gen;
+        }
+
+        public static void EmitFinally(this ILGenerator gen, FinallyClauseSyntax @finally)
+        {
+            if (@finally is null) return;
+            gen.BeginFinallyBlock();
+            gen.EmitBlock(@finally.Block);
+        }
+
+        public static void EmitCatches(this ILGenerator gen, IEnumerable<CatchClauseSyntax> cathes)
+        {
+            if (cathes is null)
+                return;
+            foreach (var @catch in cathes)
+                gen.EmitCatch(@catch);
+        }
+
+        public static void EmitCatch(this ILGenerator gen, CatchClauseSyntax @catch)
+        {
+            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
+            if (@catch.Specifier is null)
+            {
+                gen.BeginCatchBlock(null);
+                gen.EmitBlock(@catch.Block);
+                return;
+            }
+
+            var filterType = ctx.ResolveType(@catch.Specifier.Type);
+            gen.BeginCatchBlock(filterType);
+            using var catchScope = ctx.CurrentScope.EnterScope();
+
+            if (@catch.Specifier.Identifier.IsDefined)
+            {
+                var id = @catch.Specifier.Identifier.GetOrDefault();
+                ctx.CurrentScope.EnsureExceptionLocal(gen, id, filterType);
+            }
+            
+            foreach (var v in @catch.Block.Statements) gen.EmitStatement(v);
         }
 
         public static void EmitBlock(this ILGenerator gen, BlockSyntax block)

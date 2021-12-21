@@ -327,6 +327,7 @@ namespace ishtar.emit
         public Label BeginTryBlock()
         {
             exceptionBlocks ??= new ExceptionBlockInfo[8];
+            exceptionStack ??= new ExceptionBlockInfo[8];
 
             if (exceptionIndex >= exceptionBlocks.Length)
                 exceptionBlocks = IncreaseCapacity(exceptionBlocks);
@@ -342,7 +343,7 @@ namespace ishtar.emit
             return label;
         }
 
-        public void EndTryBlock()
+        public void EndExceptionBlock()
         {
             if (exceptionStackIndex == 0)
                 throw new InvalidOperationException($"Exception stack has been empty!");
@@ -369,7 +370,7 @@ namespace ishtar.emit
             info.Done(ILOffset);
         }
 
-        public void BeginCatchBlock(VeinClass type)
+        public void BeginCatchBlock(VeinClass? type)
         {
             if (exceptionStackIndex == 0)
                 throw new InvalidOperationException($"Exception stack has been empty!");
@@ -386,7 +387,7 @@ namespace ishtar.emit
             {
                 if (type == null)
                     throw new InvalidOperationException($"When state is not FILTER, need specify exception type.");
-                Emit(OpCodes.SEH_FILTER, info.EndLabel);
+                Emit(OpCodes.SEH_LEAVE_S, info.EndLabel);
             }
 
             info.MarkCatchAddr(ILOffset, type);
@@ -398,7 +399,7 @@ namespace ishtar.emit
                 throw new InvalidOperationException($"Exception stack has been empty!");
 
             var info = exceptionStack![exceptionStackIndex - 1];
-            Emit(OpCodes.SEH_LEAVE, info.EndLabel);
+            Emit(OpCodes.SEH_LEAVE_S, info.EndLabel);
             info.MarkFaultAddr(ILOffset);
         }
 
@@ -413,7 +414,7 @@ namespace ishtar.emit
             if (state != ExceptionBlockState.TRY)
             {
                 // generate leave for any preceeding catch clause
-                Emit(OpCodes.SEH_LEAVE, endLabel);
+                Emit(OpCodes.SEH_LEAVE_S, endLabel);
                 catchEndAddr = ILOffset;
             }
 
@@ -423,7 +424,7 @@ namespace ishtar.emit
             info.SetFinallyEndLabel(finallyEndLabel);
 
             // generate leave for try clause
-            Emit(OpCodes.SEH_LEAVE, finallyEndLabel);
+            Emit(OpCodes.SEH_LEAVE_S, finallyEndLabel);
             if (catchEndAddr == 0)
                 catchEndAddr = ILOffset;
             info.MarkFinallyAddr(ILOffset, catchEndAddr);
