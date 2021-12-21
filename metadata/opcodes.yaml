@@ -88,6 +88,18 @@
     override-size: 4
 - DUP:
     description: Duplicate memory from stack.
+- POP:
+    description: Pop value from stack.
+- ALLOC_BLOCK:
+    description: Allocate memory block.
+    override-size: 4
+- LEAVE.S:
+    description: Leave from protected zone.
+    override-size: 4
+- LEAVE:
+    description: Leave from protected zone.
+- DELETE:
+    description: Free memory at point in stack.
 - XOR:
     description: XOR Operation.
 - OR:

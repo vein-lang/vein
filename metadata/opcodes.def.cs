@@ -296,6 +296,26 @@ namespace ishtar
 		/// </summary>
 		DUP = 0x48,
 		/// <summary>
+		/// Pop value from stack.
+		/// </summary>
+		POP = 0x69,
+		/// <summary>
+		/// Allocate memory block.
+		/// </summary>
+		ALLOC_BLOCK = 0x6A,
+		/// <summary>
+		/// Leave from protected zone.
+		/// </summary>
+		LEAVE_S = 0x6B,
+		/// <summary>
+		/// Leave from protected zone.
+		/// </summary>
+		LEAVE = 0x6D,
+		/// <summary>
+		/// Free memory at point in stack.
+		/// </summary>
+		DELETE = 0x6C,
+		/// <summary>
 		/// XOR Operation.
 		/// </summary>
 		XOR = 0x49,

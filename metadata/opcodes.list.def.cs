@@ -519,6 +519,41 @@ namespace ishtar
 		/// </summary>
 		public static readonly OpCode DUP = new (0x48, 0x0000001F);
 		/// <summary>
+		/// Pop value from stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode POP = new (0x69, 0x0000001F);
+		/// <summary>
+		/// Allocate memory block.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode ALLOC_BLOCK = new (0x6A, 0x0100001F);
+		/// <summary>
+		/// Leave from protected zone.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LEAVE_S = new (0x6B, 0x0100001F);
+		/// <summary>
+		/// Leave from protected zone.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LEAVE = new (0x6D, 0x0000001F);
+		/// <summary>
+		/// Free memory at point in stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode DELETE = new (0x6C, 0x0000001F);
+		/// <summary>
 		/// XOR Operation.
 		/// size: 0
 		/// flow: 0
@@ -818,6 +853,11 @@ namespace ishtar
 			{OpCodeValue.LOC_INIT, LOC_INIT},
 			{OpCodeValue.LOC_INIT_X, LOC_INIT_X},
 			{OpCodeValue.DUP, DUP},
+			{OpCodeValue.POP, POP},
+			{OpCodeValue.ALLOC_BLOCK, ALLOC_BLOCK},
+			{OpCodeValue.LEAVE_S, LEAVE_S},
+			{OpCodeValue.LEAVE, LEAVE},
+			{OpCodeValue.DELETE, DELETE},
 			{OpCodeValue.XOR, XOR},
 			{OpCodeValue.OR, OR},
 			{OpCodeValue.AND, AND},
