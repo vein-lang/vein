@@ -1095,7 +1095,7 @@ namespace ishtar
                 var id = @catch.Specifier.Identifier.GetOrDefault();
                 ctx.CurrentScope.EnsureExceptionLocal(gen, id, filterType);
             }
-            
+
             foreach (var v in @catch.Block.Statements) gen.EmitStatement(v);
         }
 
