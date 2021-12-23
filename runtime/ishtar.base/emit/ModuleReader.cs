@@ -22,7 +22,7 @@ namespace ishtar.emit
             var size = reader.ReadInt32();
             return Encoding.UTF8.GetString(reader.ReadBytes(size));
         }
-        public static void WriteInsomniaString(this BinaryWriter writer, string value)
+        public static void WriteIshtarString(this BinaryWriter writer, string value)
         {
             writer.WriteMagicFlag();
             var body = Encoding.UTF8.GetBytes(value);

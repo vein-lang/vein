@@ -148,29 +148,29 @@ namespace ishtar.emit
             foreach (var (key, value) in strings_table)
             {
                 binary.Write(key);
-                binary.WriteInsomniaString(value);
+                binary.WriteIshtarString(value);
             }
             binary.Write(types_table.Count);
             foreach (var (key, value) in types_table)
             {
                 binary.Write(key);
-                binary.WriteInsomniaString(value.AssemblyName);
-                binary.WriteInsomniaString(value.Namespace);
-                binary.WriteInsomniaString(value.Name);
+                binary.WriteIshtarString(value.AssemblyName);
+                binary.WriteIshtarString(value.Namespace);
+                binary.WriteIshtarString(value.Name);
             }
             binary.Write(fields_table.Count);
             foreach (var (key, value) in fields_table)
             {
                 binary.Write(key);
-                binary.WriteInsomniaString(value.Name);
-                binary.WriteInsomniaString(value.Class);
+                binary.WriteIshtarString(value.Name);
+                binary.WriteIshtarString(value.Class);
             }
 
             binary.Write(Deps.Count);
             foreach (var dep in Deps)
             {
-                binary.WriteInsomniaString(dep.Name);
-                binary.WriteInsomniaString(dep.Version.ToString());
+                binary.WriteIshtarString(dep.Name);
+                binary.WriteIshtarString(dep.Version.ToString());
             }
 
             binary.Write(class_table.Count);

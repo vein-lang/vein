@@ -23,8 +23,8 @@ namespace ishtar.emit.extensions
                     var type_code = value.DetermineTypeCode();
 
                     bin.Write((int)type_code);
-                    bin.WriteInsomniaString(key.fullName);
-                    bin.WriteInsomniaString(value.ToString());
+                    bin.WriteIshtarString(key.fullName);
+                    bin.WriteIshtarString(value.ToString());
                 }
                 catch (NotSupportedException e)
                 {
