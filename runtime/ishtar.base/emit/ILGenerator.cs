@@ -431,7 +431,7 @@ namespace ishtar.emit
         }
 
         #endregion
-        
+
 
         public ILGenerator WriteDebugMetadata(string str)
         {
