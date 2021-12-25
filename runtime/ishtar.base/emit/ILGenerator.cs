@@ -4,12 +4,14 @@ namespace ishtar.emit
     using System.Buffers.Binary;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
     using extensions;
     using global::ishtar;
+    using vein.extensions;
     using vein.runtime;
     using static global::ishtar.OpCodeValue;
 
@@ -315,14 +317,28 @@ namespace ishtar.emit
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");
             return this;
         }
+        
+        #region Exceptions
 
         private ExceptionBlockInfo[] exceptionBlocks;
         private ExceptionBlockInfo[] exceptionStack;
         private uint exceptionIndex;
         private uint exceptionStackIndex;
 
+        public ExceptionBlockInfo[] GetExceptions()
+        {
+            if (exceptionBlocks is null)
+                return new ExceptionBlockInfo[0];
+            return exceptionBlocks.Where(x => x is not null).ToArray() ?? new ExceptionBlockInfo[0];
+        }
 
-        #region Exceptions
+        public VeinClass[] GetEffectedExceptions()
+        {
+            if (exceptionIndex == 0)
+                return new VeinClass[0];
+            return new HashSet<VeinClass>(exceptionBlocks.Where(x => x is not null)
+                .SelectMany(x => x.CatchClass).Where(x => x is not null)).ToArray();
+        }
 
         public Label BeginTryBlock()
         {
@@ -334,15 +350,19 @@ namespace ishtar.emit
             if (exceptionStackIndex >= exceptionStack.Length)
                 exceptionStack = IncreaseCapacity(exceptionStack);
 
+            Emit(OpCodes.SEH_ENTER, (int)exceptionIndex);
+
             var label = DefineLabel();
             var info = new ExceptionBlockInfo(ILOffset, label);
 
             exceptionBlocks[exceptionIndex++] = info;
             exceptionStack[exceptionStackIndex++] = info;
 
+            WriteDebugMetadata($"/* begin protection zone @0x{info.StartAddr:X} */");
+            
             return label;
         }
-
+        
         public void EndExceptionBlock()
         {
             if (exceptionStackIndex == 0)
@@ -353,14 +373,13 @@ namespace ishtar.emit
 
             var EndLabel = info.EndLabel;
 
-            if (info.State is ExceptionBlockState.FILTER or ExceptionBlockState.TRY)
+            if (info.State is ExceptionBlockState.TRY)
                 throw new InvalidOperationException($"Exception state is incorrect!");
 
             if (info.State is ExceptionBlockState.CATCH)
                 Emit(OpCodes.SEH_LEAVE);
-            else if (info.State is ExceptionBlockState.FINALLY or ExceptionBlockState.FAULT)
+            if (info.State is ExceptionBlockState.FINALLY)
                 Emit(OpCodes.SEH_FINALLY);
-
 
             Label label = _labels![EndLabel.Value] != -1
                 ? info.FinallyLabel
@@ -368,41 +387,29 @@ namespace ishtar.emit
             UseLabel(label);
 
             info.Done(ILOffset);
+            WriteDebugMetadata($"/* end protection zone @0x{info.StartAddr:X} */");
         }
 
-        public void BeginCatchBlock(VeinClass? type)
+        public int BeginCatchBlock(VeinClass? type)
         {
             if (exceptionStackIndex == 0)
                 throw new InvalidOperationException($"Exception stack has been empty!");
 
             var info = exceptionStack![exceptionStackIndex - 1];
 
-            if (info.State is ExceptionBlockState.FILTER)
-            {
-                if (type != null)
-                    throw new InvalidOperationException($"When state FILTER, cannot specify exception type.");
-                Emit(OpCodes.SEH_FILTER);
-            }
-            else
-            {
-                if (type == null)
-                    throw new InvalidOperationException($"When state is not FILTER, need specify exception type.");
-                Emit(OpCodes.SEH_LEAVE_S, info.EndLabel);
-            }
-
-            info.MarkCatchAddr(ILOffset, type);
-        }
-
-        public void BeginFaultBlock()
-        {
-            if (exceptionStackIndex == 0)
-                throw new InvalidOperationException($"Exception stack has been empty!");
-
-            var info = exceptionStack![exceptionStackIndex - 1];
             Emit(OpCodes.SEH_LEAVE_S, info.EndLabel);
-            info.MarkFaultAddr(ILOffset);
-        }
 
+            /* temporary shit */
+            Emit(OpCodes.NOP);
+            var label = DefineLabel();
+            UseLabel(label);
+            /*                */
+
+            info.MarkCatchAddr(label.Value, type);
+            WriteDebugMetadata($"/* catch block $'{(type is null ? "any" : type.Name)}' @{info.StartAddr} */");
+            return info.CurrentCatch;
+        }
+        
         public virtual void BeginFinallyBlock()
         {
             if (exceptionStackIndex == 0)
@@ -410,41 +417,26 @@ namespace ishtar.emit
             var info = exceptionStack![exceptionStackIndex - 1];
             var state = info.State;
             Label endLabel = info.EndLabel;
-            int catchEndAddr = 0;
             if (state != ExceptionBlockState.TRY)
-            {
-                // generate leave for any preceeding catch clause
                 Emit(OpCodes.SEH_LEAVE_S, endLabel);
-                catchEndAddr = ILOffset;
-            }
-
             UseLabel(endLabel);
 
             Label finallyEndLabel = DefineLabel();
             info.SetFinallyEndLabel(finallyEndLabel);
-
-            // generate leave for try clause
-            Emit(OpCodes.SEH_LEAVE_S, finallyEndLabel);
-            if (catchEndAddr == 0)
-                catchEndAddr = ILOffset;
-            info.MarkFinallyAddr(ILOffset, catchEndAddr);
+            info.MarkFinallyAddr(ILOffset);
+            WriteDebugMetadata($"/* finally block @0x{info.StartAddr:X} */");
         }
 
         #endregion
         
 
-        public ILGenerator WriteDebugMetadata(string str)
+        public ILGenerator WriteDebugMetadata(string str, int pos = 0)
         {
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ {str}");
+            if (pos == 0) pos = _position;
+            _debugBuilder.AppendLine($"/* ::{pos:0000} */ {str}");
             return this;
         }
-
-        internal enum FieldDirection
-        {
-            Arg,
-            Local,
-            Member
-        }
+        
 
         private int[] _labels;
         private int _labels_count;
@@ -456,7 +448,7 @@ namespace ishtar.emit
         {
             _labels ??= new int[4];
             if (_labels_count >= _labels.Length)
-                RepackArray(_labels);
+                _labels = IncreaseCapacity(_labels);
             _labels[_labels_count] = -1;
             return new Label(_labels_count++);
         }
@@ -500,11 +492,24 @@ namespace ishtar.emit
             if (_labels_count == 0)
                 return mem.ToArray();
             var loc_offset = GetLocalsILOffset();
-            foreach (var i in _labels)
-                bin.Write(i + loc_offset);
+            foreach (var i in .._labels_count)
+                bin.Write((int)(_labels[i] + loc_offset));
+            bin.Write((ushort)0xF00F);
+            var exceptions = GetExceptions();
+            bin.Write(exceptions.Length);
+            foreach (var excpt in exceptions)
+            {
+                bin.Write(excpt.StartAddr);
+                bin.Write(excpt.EndAddr);
+                bin.WriteArray(excpt.FilterAddr, (x, y) => y.Write(x));
+                bin.WriteArray(excpt.CatchAddr, (x, y) => y.Write(x));
+                bin.WriteArray(excpt.CatchClass.Where(x => x is not null).ToArray(),
+                    (x, y) => y.WriteTypeName(x.FullName, this._methodBuilder.moduleBuilder));
+                bin.WriteArray(excpt.Types, (x, y) => y.Write((byte)x));
+            }
             return mem.ToArray();
         }
-
+        
         internal string BakeDebugString()
             => _position == 0 ? "" : $"{LocalsBuilder}\n{_debugBuilder}";
 
@@ -553,7 +558,7 @@ namespace ishtar.emit
                 return;
             IncreaseCapacity(size);
         }
-
+        
         private void IncreaseCapacity(int size)
         {
             var newsize = Math.Max(_ilBody.Length * 2, _position + size + 2);
@@ -564,9 +569,10 @@ namespace ishtar.emit
             _ilBody = numArray;
         }
 
+        [Pure]
         internal static T[] IncreaseCapacity<T>(T[] incoming)
             => IncreaseCapacity(incoming, incoming.Length * 2);
-
+        [Pure]
         internal static T[] IncreaseCapacity<T>(T[] incoming, int requiredSize)
         {
             Debug.Assert(incoming != null);
@@ -574,17 +580,6 @@ namespace ishtar.emit
             T[] temp = new T[requiredSize];
             Array.Copy(incoming, temp, incoming.Length);
             return temp;
-        }
-
-
-
-        internal static T[] RepackArray<T>(T[] arr) => RepackArray<T>(arr, arr.Length * 2);
-
-        internal static T[] RepackArray<T>(T[] arr, int newSize)
-        {
-            var objArray = new T[newSize];
-            Array.Copy(arr, objArray, arr.Length);
-            return objArray;
         }
 
         public Dictionary<string, object> Metadata { get; } = new();

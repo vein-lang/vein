@@ -218,9 +218,9 @@ namespace ishtar
             owner.Scopes.Add(this);
         }
 
-        public void EnsureExceptionLocal(ILGenerator gen, IdentifierExpression id, VeinClass clazz)
+        public void EnsureExceptionLocal(ILGenerator gen, IdentifierExpression id, int catchId, VeinClass clazz)
         {
-            var locIndex = gen.EnsureLocal($"catch${id}$", clazz);
+            var locIndex = gen.EnsureLocal($"catch${catchId}${id}$", clazz);
             DefineVariable(id, clazz, locIndex);
             gen.Emit(OpCodes.STLOC_S, locIndex);
         }
@@ -1087,15 +1087,17 @@ namespace ishtar
             }
 
             var filterType = ctx.ResolveType(@catch.Specifier.Type);
-            gen.BeginCatchBlock(filterType);
+            var catchId = gen.BeginCatchBlock(filterType);
             using var catchScope = ctx.CurrentScope.EnterScope();
 
             if (@catch.Specifier.Identifier.IsDefined)
             {
                 var id = @catch.Specifier.Identifier.GetOrDefault();
-                ctx.CurrentScope.EnsureExceptionLocal(gen, id, filterType);
+                ctx.CurrentScope.EnsureExceptionLocal(gen, id, catchId, filterType);
             }
-            
+            else
+                gen.Emit(OpCodes.POP); // clear exception ref in stack
+
             foreach (var v in @catch.Block.Statements) gen.EmitStatement(v);
         }
 

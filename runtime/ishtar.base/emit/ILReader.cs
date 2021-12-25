@@ -2,14 +2,16 @@ namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
+    using System.Linq;
     using global::ishtar;
     using vein.extensions;
     using vein.runtime;
 
     internal static unsafe class ILReader
     {
-        public static List<int> DeconstructLabels(byte[] arr, int offset)
+        public static List<ProtectedZone> DeconstructExceptions(byte[] arr, int offset, VeinModule module)
         {
             if (arr.Length == 0)
                 return new();
@@ -19,13 +21,67 @@ namespace ishtar.emit
 
             mem.Seek(offset, SeekOrigin.Begin);
 
+            if (arr.Length == offset)
+                return new();
+
+            var magic = bin.ReadInt16();
+
+            if (magic != -0xFF1)
+                return new();
+            
+            var size = bin.ReadInt32();
+
+            if (size == 0)
+                return new();
+            var result = new List<ProtectedZone>();
+
+            foreach (var i in ..size)
+            {
+                var startAddr = bin.ReadInt32();
+                var endAddr = bin.ReadInt32();
+                var filterAddr = bin.ReadIntArray();
+                var catchAddr = bin.ReadIntArray();
+                var catchClass = bin.ReadTypesArray(module);
+                var types = bin.ReadSpecialByteArray<ExceptionMarkKind>();
+                var item = new ProtectedZone(
+                    (uint)startAddr,
+                    (uint)endAddr,
+                    filterAddr,
+                    catchAddr,
+                    catchClass,
+                    types);
+                
+                result.Add(item);
+            }
+
+            return result;
+        }
+        public static List<int> DeconstructLabels(byte[] arr, int* offset)
+        {
+            if (arr.Length == 0)
+                return new();
+
+            using var mem = new MemoryStream(arr);
+            using var bin = new BinaryReader(mem);
+
+            {
+                mem.Seek(*offset - sizeof(short), SeekOrigin.Begin);
+                var magic = bin.ReadInt16();
+            }
+
+            mem.Seek(*offset, SeekOrigin.Begin);
+
             var labels_size = bin.ReadInt32();
+            (*offset) += sizeof(int);
 
             if (labels_size == 0)
                 return new List<int>();
             var result = new List<int>();
             foreach (var i in ..labels_size)
+            {
+                (*offset) += sizeof(int);
                 result.Add(bin.ReadInt32());
+            }
             return result;
         }
         public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, VeinMethod method)

@@ -87,7 +87,11 @@ namespace ishtar.emit
                 return str.ToString();
             }
             var body = _generator.BakeDebugString();
+            var expcetions = _generator.GetExceptions();
 
+            foreach (var exClass in _generator.GetEffectedExceptions())
+                str.AppendLine($"@effect {exClass.FullName.NameWithNS};");
+            
             str.Append($".method {(IsSpecial ? "special " : "")}'{RawName}' ({args}) {Flags.EnumerateFlags(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
             str.AppendLine($" -> {ReturnType.FullName.Name}");
             if (Flags.HasFlag(Abstract))

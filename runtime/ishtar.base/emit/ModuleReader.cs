@@ -2,6 +2,7 @@ namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
@@ -13,15 +14,29 @@ namespace ishtar.emit
     using vein.extensions;
     using vein.runtime;
 
+    internal class MagicNumberArmor : IDisposable
+    {
+        private readonly BinaryWriter _bin;
+
+        public MagicNumberArmor(BinaryWriter bin)
+        {
+            _bin = bin;
+            _bin.Write(0x19);
+        }
+
+        public void Dispose() => _bin.Write(0x61);
+    }
+
     internal static class BinaryExtension
     {
         [MethodImpl(MethodImplOptions.NoOptimization)] // what the hell clr
-        public static string ReadVeinString(this BinaryReader reader)
+        public static string ReadIshtarString(this BinaryReader reader)
         {
             reader.ValidateMagicFlag();
             var size = reader.ReadInt32();
             return Encoding.UTF8.GetString(reader.ReadBytes(size));
         }
+        [MethodImpl(MethodImplOptions.NoOptimization)]
         public static void WriteIshtarString(this BinaryWriter writer, string value)
         {
             writer.WriteMagicFlag();
@@ -29,7 +44,6 @@ namespace ishtar.emit
             writer.Write(body.Length);
             writer.Write(body);
         }
-
         public static void ValidateMagicFlag(this BinaryReader reader)
         {
             var m1 = reader.ReadByte();
@@ -41,6 +55,53 @@ namespace ishtar.emit
         {
             writer.Write((byte)0xFF);
             writer.Write((byte)0xFF);
+        }
+
+        public static int[] ReadIntArray(this BinaryReader bin)
+        {
+            Debug.Assert(bin.ReadInt32() == 0x19, "[magic number] bin.ReadInt32() == 0x19");
+            var sign = bin.ReadIshtarString();
+            var size = bin.ReadInt32();
+            var result = new List<int>();
+            foreach (int i in ..size)
+                result.Add(bin.ReadInt32());
+            Debug.Assert(bin.ReadInt32() == 0x61, "[magic number] bin.ReadInt32() == 0x61");
+            return result.ToArray();
+        }
+
+        public static QualityTypeName[] ReadTypesArray(this BinaryReader bin, VeinModule module)
+        {
+            Debug.Assert(bin.ReadInt32() == 0x19, "[magic number] bin.ReadInt32() == 0x19");
+            var sign = bin.ReadIshtarString();
+            var size = bin.ReadInt32();
+            var result = new List<QualityTypeName>();
+            foreach (int i in ..size)
+                result.Add(bin.ReadTypeName(module));
+            Debug.Assert(bin.ReadInt32() == 0x61, "[magic number] bin.ReadInt32() == 0x61");
+            return result.ToArray();
+        }
+
+        public static T[] ReadSpecialByteArray<T>(this BinaryReader bin) where T : Enum
+        {
+            Debug.Assert(bin.ReadInt32() == 0x19, "[magic number] bin.ReadInt32() == 0x19");
+            var sign = bin.ReadIshtarString();
+            var size = bin.ReadInt32();
+            var result = new List<T>();
+            foreach (int _ in ..size)
+                result.Add((T)(object)bin.ReadByte());
+            Debug.Assert(bin.ReadInt32() == 0x61, "[magic number] bin.ReadInt32() == 0x61");
+            return result.ToArray();
+        }
+        
+        public static void WriteArray<T>(this BinaryWriter bin, T[] arr, Action<T, BinaryWriter> selector, [CallerArgumentExpression("arr")] string name = "")
+        {
+            using (new MagicNumberArmor(bin))
+            {
+                bin.WriteIshtarString(name);
+                bin.Write(arr.Length);
+                foreach (var i in arr)
+                    selector(i, bin);
+            }
         }
     }
 
@@ -65,7 +126,7 @@ namespace ishtar.emit
                 try
                 {
                     var key = reader.ReadInt32();
-                    var value = reader.ReadVeinString();
+                    var value = reader.ReadIshtarString();
                     module.strings_table.Add(key, value);
                 }
                 catch (Exception e)
@@ -77,25 +138,25 @@ namespace ishtar.emit
             foreach (var _ in ..reader.ReadInt32())
             {
                 var key = reader.ReadInt32();
-                var asmName = reader.ReadVeinString();
-                var ns = reader.ReadVeinString();
-                var name = reader.ReadVeinString();
+                var asmName = reader.ReadIshtarString();
+                var ns = reader.ReadIshtarString();
+                var name = reader.ReadIshtarString();
                 module.types_table.Add(key, new QualityTypeName(asmName, name, ns));
             }
             // read fields table
             foreach (var _ in ..reader.ReadInt32())
             {
                 var key = reader.ReadInt32();
-                var name = reader.ReadVeinString();
-                var clazz = reader.ReadVeinString();
+                var name = reader.ReadIshtarString();
+                var clazz = reader.ReadIshtarString();
                 module.fields_table.Add(key, new FieldName(name, clazz));
             }
 
             // read deps refs
             foreach (var _ in ..reader.ReadInt32())
             {
-                var name = reader.ReadVeinString();
-                var ver = Version.Parse(reader.ReadVeinString());
+                var name = reader.ReadIshtarString();
+                var ver = Version.Parse(reader.ReadIshtarString());
                 if (module.Deps.Any(x => x.Version.Equals(ver) && x.Name.Equals(name)))
                     continue;
                 var dep = resolver(name, ver);
