@@ -2,6 +2,7 @@ namespace vein.pipes;
 
 using System.IO;
 using System.Linq;
+using System.Text;
 using cmd;
 using fs;
 
@@ -22,4 +23,25 @@ public class CopyDependencies : CompilerPipeline
     }
     public override bool CanApply(CompileSettings flags) => true;
     public override int Order => 0;
+}
+
+
+[ExcludeFromCodeCoverage]
+public class GenerateMetalinks : CompilerPipeline
+{
+    public override void Action()
+    {
+        if (!Target.HasChanged)
+            return;
+
+        var storage = new ShardStorage();
+        var metalinks = new StringBuilder();
+
+        foreach (var package in Target.Project.Dependencies.Packages)
+            metalinks.AppendLine($"{storage.GetPackageSpace(package.Name, package.Version).SubDirectory("lib").FullName}");
+
+        OutputDirectory.File("metalinks.txt").WriteAllText(metalinks.ToString());
+    }
+    public override bool CanApply(CompileSettings flags) => true;
+    public override int Order => 15;
 }

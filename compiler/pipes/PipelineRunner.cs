@@ -13,7 +13,8 @@ public class PipelineRunner
         new WriteOutputPipe(),
         new SingleFileOutputPipe(),
         new CopyDependencies(),
-        new GeneratePackage()
+        new GeneratePackage(),
+        new GenerateMetalinks()
     };
 
 

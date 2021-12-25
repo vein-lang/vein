@@ -3,6 +3,7 @@ namespace ishtar
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using vein;
     using vein.fs;
     using vein.reflection;
     using vein.runtime;
@@ -10,7 +11,7 @@ namespace ishtar
     public class AppVault : AppVaultSync
     {
         public static AppVault CurrentVault { get; internal set; } = new("app");
-
+        public DirectoryInfo WorkDirecotry { get; set; } = new DirectoryInfo("./");
 
         public string Name { get; }
         protected virtual AssemblyResolver Resolver { get; set; }
@@ -56,8 +57,19 @@ namespace ishtar
                 return Resolver;
             Resolver = new AssemblyResolver(this);
             Resolver.Resolved += ResolverOnResolved;
-
+            ReadMetalinks();
             return Resolver;
+        }
+
+        private void ReadMetalinks()
+        {
+            if (!WorkDirecotry.File("metalinks.txt").Exists)
+                return;
+
+            foreach (var line in File.ReadAllLines(WorkDirecotry.File("metalinks.txt").FullName)
+                         .Select(x => new DirectoryInfo(x))
+                         .Where(x => x.Exists))
+                Resolver.AddSearchPath(line);
         }
 
         private void ResolverOnResolved(RuntimeIshtarModule module)
