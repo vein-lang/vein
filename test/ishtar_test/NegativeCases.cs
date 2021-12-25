@@ -12,7 +12,7 @@ namespace ishtar_test
             Assert.Throws<WatchDogEffluentException>(() =>
             {
                 var invalid = (StrRef*)ulong.MaxValue;
-                StringStorage.GetString(invalid);
+                StringStorage.GetString(invalid, null);
             });
 
 

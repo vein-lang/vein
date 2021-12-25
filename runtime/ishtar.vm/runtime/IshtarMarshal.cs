@@ -215,7 +215,7 @@ namespace ishtar
             FFI.StaticTypeOf(frame, &obj, TYPE_STRING);
             var clazz = obj->decodeClass();
             var p = (StrRef*)obj->vtable[clazz.Field["!!value"].vtable_offset];
-            return StringStorage.GetString(p);
+            return StringStorage.GetString(p, frame);
         }
 
         public static nint ToDotnetPointer(IshtarObject* obj, CallFrame frame)

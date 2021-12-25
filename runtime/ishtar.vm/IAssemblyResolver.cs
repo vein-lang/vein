@@ -78,17 +78,21 @@ namespace vein.runtime
             {
                 return files.Single(x => x.Name.Equals($"{name}.{MODULE_FILE_EXTENSION}", StringComparison.InvariantCultureIgnoreCase));
             }
-            catch (InvalidOperationException e)
+            catch (InvalidOperationException)
             {
-                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Assembly '{name}' cannot be loaded.\n" +
-                    $"{e.Message}\n" +
-                    $"\t{search_paths.Select(x => $"Path '{x}', Exist: {x.Exists}").Join("\n\t")}\n" +
-                    $"\tfiles checked: {files.Select(x => $"{x}").Join("\n\t\t")}");
+                var text = $"Assembly '{name}' cannot be loaded.\n" +
+                           $"\t  {search_paths.Select(x => $"Path '{x}', Exist: {x.Exists}").Join("\n\t  ")}";
+                if (files.Length != 0)
+                    text += $"\n\tfiles checked: {files.Select(x => $"{x}").Join("\n\t\t")}";
+                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, text, sys_frame);
                 VM.ValidateLastError();
                 return null;
             }
         }
 
         protected override void debug(string s) { }
+
+
+        public static CallFrame sys_frame => IshtarFrames.ModuleLoaderFrame;
     }
 }

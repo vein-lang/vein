@@ -36,6 +36,12 @@ namespace ishtar
         {
             var str = new StringBuilder();
 
+            if (frame is null)
+            {
+                Console.WriteLine($"<<DETECTED NULL FRAME>>");
+                return;
+            }
+
             if (frame.method.Owner is not null)
                 str.AppendLine($"\tat {frame.method.Owner.FullName.NameWithNS}.{frame.method.Name}");
             else

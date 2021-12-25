@@ -21,7 +21,7 @@ namespace ishtar
         public static volatile IWatchDog watcher;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void FastFail(WNE type, string msg, CallFrame frame = null)
+        public static void FastFail(WNE type, string msg, CallFrame frame)
             => watcher?.FastFail(type, msg, frame);
         public static void ValidateLastError()
             => watcher?.ValidateLastError();
@@ -41,7 +41,7 @@ namespace ishtar
 
             if (args == null)
             {
-                FastFail(OUT_OF_MEMORY, "Cannot apply boxing memory.");
+                FastFail(OUT_OF_MEMORY, "Cannot apply boxing memory.", frame);
                 ValidateLastError();
                 return;
             }

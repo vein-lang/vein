@@ -13,12 +13,12 @@ namespace ishtar
         public void* default_value;
 
 
-        public bool init_mapping()
+        public bool init_mapping(CallFrame frame)
         {
             bool failMapping(int code)
             {
                 VM.FastFail(WNE.TYPE_LOAD,
-                    $"Native aspect has incorrect mapping for '{FullName}' field. [0x{code:X}]");
+                    $"Native aspect has incorrect mapping for '{FullName}' field. [0x{code:X}]", frame);
                 VM.ValidateLastError();
                 return false;
             }

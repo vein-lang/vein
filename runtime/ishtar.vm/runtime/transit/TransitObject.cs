@@ -45,7 +45,7 @@ namespace ishtar
                 {
                     if (!_obj.is_inited)
                     {
-                        VM.FastFail(WNE.TYPE_LOAD, $"type is not inited.");
+                        VM.FastFail(WNE.TYPE_LOAD, $"type is not inited.", null);
                         VM.ValidateLastError();
                         return default;
                     }
@@ -55,7 +55,7 @@ namespace ishtar
                 {
                     if (!_obj.is_inited)
                     {
-                        VM.FastFail(WNE.TYPE_LOAD, $"type is not inited.");
+                        VM.FastFail(WNE.TYPE_LOAD, $"type is not inited.", null);
                         VM.ValidateLastError();
                         return;
                     }

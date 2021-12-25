@@ -19,12 +19,12 @@ namespace ishtar
             return (StrRef*)p;
         }
 
-        public static string GetString(StrRef* p)
+        public static string GetString(StrRef* p, CallFrame frame)
         {
-            FFI.StaticValidate(p);
+            FFI.StaticValidate(p, frame);
             if (!storage_l.ContainsKey((ulong)p))
             {
-                VM.FastFail(WNE.ACCESS_VIOLATION, "Pointer incorrect.");
+                VM.FastFail(WNE.ACCESS_VIOLATION, "Pointer incorrect.", frame);
                 VM.ValidateLastError();
                 return null;
             }

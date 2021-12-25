@@ -112,7 +112,7 @@ namespace ishtar
 
             if (computed_size >= long.MaxValue) // fuck IntPtr ctor limit
             {
-                VM.FastFail(WNE.TYPE_LOAD, $"'{FullName}' too big object.");
+                VM.FastFail(WNE.TYPE_LOAD, $"'{FullName}' too big object.", IshtarFrames.VTableFrame(this));
                 return;
             }
 
@@ -129,7 +129,8 @@ namespace ishtar
 
             if (vtable == null)
             {
-                VM.FastFail(WNE.TYPE_LOAD, "Out of memory.");
+                // damn, trying allocate when out of memory, need fix it
+                VM.FastFail(WNE.TYPE_LOAD, "Out of memory.", IshtarFrames.VTableFrame(this)); 
                 return;
             }
 
@@ -162,7 +163,7 @@ namespace ishtar
                 if ((method!.Flags & MethodFlags.Abstract) != 0 && (this.Flags & ClassFlags.Abstract) == 0)
                 {
                     VM.FastFail(WNE.TYPE_LOAD,
-                        $"Method '{method.Name}' in '{this.Name}' type has invalid mapping.");
+                        $"Method '{method.Name}' in '{this.Name}' type has invalid mapping.", IshtarFrames.VTableFrame(this));
                     return;
                 }
 
@@ -183,7 +184,7 @@ namespace ishtar
                         VM.FastFail(WNE.MISSING_METHOD,
                             $"Method '{method.Name}' mark as OVERRIDE," +
                             $" but parent class '{parents.Select(x => x.Name).Join(',')}'" +
-                            $" no contained virtual/abstract method.");
+                            $" no contained virtual/abstract method.", IshtarFrames.VTableFrame(this));
 
                     if (w is null)
                         continue;
@@ -207,7 +208,7 @@ namespace ishtar
                     if ((field!.Flags & FieldFlags.Abstract) != 0 && (Flags & ClassFlags.Abstract) == 0)
                     {
                         VM.FastFail(WNE.TYPE_LOAD,
-                            $"Field '{field.Name}' in '{this.Name}' type has invalid mapping.");
+                            $"Field '{field.Name}' in '{this.Name}' type has invalid mapping.", IshtarFrames.VTableFrame(this));
                         return;
                     }
 
@@ -230,7 +231,7 @@ namespace ishtar
                             VM.FastFail(WNE.MISSING_FIELD,
                                 $"Field '{field.Name}' mark as OVERRIDE," +
                                 $" but parent class '{parents.Select(x => x.Name).Join(',')}' " +
-                                $"no contained virtual/abstract method.");
+                                $"no contained virtual/abstract method.", IshtarFrames.VTableFrame(this));
 
                         if (w is null)
                             continue;
@@ -247,7 +248,7 @@ namespace ishtar
             }
 
             if (Fields.Count != 0) for (var i = 0; i != Fields.Count; i++)
-                    (Fields[i] as RuntimeIshtarField)?.init_mapping();
+                    (Fields[i] as RuntimeIshtarField)?.init_mapping(IshtarFrames.VTableFrame(this));
 
             is_inited = true;
             if (!parents.Any())
