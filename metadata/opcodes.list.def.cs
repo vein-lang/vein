@@ -561,6 +561,13 @@ namespace ishtar
 		/// </summary>
 		public static readonly OpCode SEH_FILTER = new (0x6F, 0x0000001F);
 		/// <summary>
+		/// Enter protected zone.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode SEH_ENTER = new (0x70, 0x0100001F);
+		/// <summary>
 		/// Free memory at point in stack.
 		/// size: 0
 		/// flow: 0
@@ -873,6 +880,7 @@ namespace ishtar
 			{OpCodeValue.SEH_LEAVE, SEH_LEAVE},
 			{OpCodeValue.SEH_FINALLY, SEH_FINALLY},
 			{OpCodeValue.SEH_FILTER, SEH_FILTER},
+			{OpCodeValue.SEH_ENTER, SEH_ENTER},
 			{OpCodeValue.DELETE, DELETE},
 			{OpCodeValue.XOR, XOR},
 			{OpCodeValue.OR, OR},

@@ -1,11 +1,11 @@
 ---
-- NOP: 
+- NOP:
     description: Nope operation.
-- ADD: 
+- ADD:
     description: Add operation.
-- SUB: 
+- SUB:
     description: Substract operation.
-- DIV: 
+- DIV:
     description: Divide operation.
 - MUL:
     description: Multiple operation.
@@ -67,7 +67,7 @@
 - STF:
     description: Stage into instance field value from stack.
     override-size: 8
-- STSF: 
+- STSF:
     description: Stage into static field value from stack.
     override-size: 8
 - LDLOC:
@@ -102,6 +102,9 @@
     description: End of finally statement.
 - SEH.FILTER:
     description: End of filter statement.
+- SEH.ENTER:
+    description: Enter protected zone.
+    override-size: 4
 - DELETE:
     description: Free memory at point in stack.
 - XOR:
@@ -127,12 +130,12 @@
 - LDLEN:
     description: Load size of Array onto evaluation stack.
 - LDELEM:
-    description: Load element at a specified array index 
+    description: Load element at a specified array index
       onto top of evaluation stack as type specified in instruction.
     S:
       override-size: 4
 - STELEM:
-    description: Replaces array element at a given index with value on evaluation stack, 
+    description: Replaces array element at a given index with value on evaluation stack,
       whose type is specified in the instruction.
     S:
       override-size: 4
@@ -142,36 +145,36 @@
 - EQL:
     description: Compare two value, when values are equal 1 (int32) stage into stack, otherwise 0 (int32).
     LQ:
-      description: Compare two value, 
-        when first value is less than or equal to second value stage 1 (int32) into stack, 
+      description: Compare two value,
+        when first value is less than or equal to second value stage 1 (int32) into stack,
         otherwise 0 (int32). (a <= b)
     L:
-      description: Compare two value, 
-        when first value is less second value stage 1 (int32) into stack, 
+      description: Compare two value,
+        when first value is less second value stage 1 (int32) into stack,
         otherwise 0 (int32). (a < b)
     HQ:
-      description: Compare two value, 
-        when first value is greater than or equal to second value stage 1 (int32) into stack, 
+      description: Compare two value,
+        when first value is greater than or equal to second value stage 1 (int32) into stack,
         otherwise 0 (int32). (a >= b)
     H:
-      description: Compare two value, 
-        when first value is greater second value stage 1 (int32) into stack, 
+      description: Compare two value,
+        when first value is greater second value stage 1 (int32) into stack,
         otherwise 0 (int32). (a > b)
     NQ:
-      description: Compare two value, 
-        when two integer/float is equal stage 1 (int32) into stack, 
+      description: Compare two value,
+        when two integer/float is equal stage 1 (int32) into stack,
         otherwise 0 (int32). (a == b)
     NN:
-      description: Compare two value, 
-        when two integer/float is not equal stage 1 (int32) into stack, 
+      description: Compare two value,
+        when two integer/float is not equal stage 1 (int32) into stack,
         otherwise 0 (int32). (a != b)
     F:
-      description: Compare two value, 
-        when value has false, null or zero stage 1 (int32) into stack, 
+      description: Compare two value,
+        when value has false, null or zero stage 1 (int32) into stack,
         otherwise 0 (int32). (!a)
     T:
-      description: Compare two value, 
-        when value has true or either differs from null or from zero stage 1 (int32) into stack, 
+      description: Compare two value,
+        when value has true or either differs from null or from zero stage 1 (int32) into stack,
         otherwise 0 (int32). (a)
 - JMP:
     description: Control flow, jump onto label. (unconditional)

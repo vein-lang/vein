@@ -320,6 +320,10 @@ namespace ishtar
 		/// </summary>
 		SEH_FILTER = 0x6F,
 		/// <summary>
+		/// Enter protected zone.
+		/// </summary>
+		SEH_ENTER = 0x70,
+		/// <summary>
 		/// Free memory at point in stack.
 		/// </summary>
 		DELETE = 0x6B,
