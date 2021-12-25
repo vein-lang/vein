@@ -68,32 +68,32 @@ namespace ishtar
             foreach (var _ in ..reader.ReadInt32())
             {
                 var key = reader.ReadInt32();
-                var value = reader.ReadVeinString();
+                var value = reader.ReadIshtarString();
                 module.strings_table.Add(key, value);
             }
             // read types table
             foreach (var _ in ..reader.ReadInt32())
             {
                 var key = reader.ReadInt32();
-                var asmName = reader.ReadVeinString();
-                var ns = reader.ReadVeinString();
-                var name = reader.ReadVeinString();
+                var asmName = reader.ReadIshtarString();
+                var ns = reader.ReadIshtarString();
+                var name = reader.ReadIshtarString();
                 module.types_table.Add(key, new QualityTypeName(asmName, name, ns));
             }
             // read fields table
             foreach (var _ in ..reader.ReadInt32())
             {
                 var key = reader.ReadInt32();
-                var name = reader.ReadVeinString();
-                var clazz = reader.ReadVeinString();
+                var name = reader.ReadIshtarString();
+                var clazz = reader.ReadIshtarString();
                 module.fields_table.Add(key, new FieldName(name, clazz));
             }
 
             // read deps refs
             foreach (var _ in ..reader.ReadInt32())
             {
-                var name = reader.ReadVeinString();
-                var ver = Version.Parse(reader.ReadVeinString());
+                var name = reader.ReadIshtarString();
+                var ver = Version.Parse(reader.ReadIshtarString());
                 if (module.Deps.Any(x => x.Version.Equals(ver) && x.Name.Equals(name)))
                     continue;
                 var dep = resolver(name, ver);
@@ -310,7 +310,7 @@ namespace ishtar
             if (mth.IsExtern)
                 return mth;
 
-            ConstructIL(mth, body, stacksize);
+            ConstructIL(mth, body, stacksize, ishtarModule);
 
             return mth;
         }
@@ -365,14 +365,16 @@ namespace ishtar
         }
 
 
-        internal static unsafe void ConstructIL(RuntimeIshtarMethod method, byte[] body, short stacksize)
+        internal static unsafe void ConstructIL(RuntimeIshtarMethod method, byte[] body, short stacksize, RuntimeIshtarModule module)
         {
             var offset = 0;
             var body_r = ILReader.Deconstruct(body, &offset, method);
-            var labels = ILReader.DeconstructLabels(body, offset);
+            var labels = ILReader.DeconstructLabels(body, &offset);
+            var exceptions = ILReader.DeconstructExceptions(body, offset, module);
 
 
             method.Header.max_stack = stacksize;
+            method.Header.exception_handler_list = exceptions;
 
             method.Header.code = (uint*)Marshal.AllocHGlobal(sizeof(uint) * body_r.opcodes.Count);
 

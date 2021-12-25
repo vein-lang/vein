@@ -1,3 +1,4 @@
+using System;
 using vein.runtime;
 
 public sealed class IshtarMetaClass : VeinClass
@@ -16,4 +17,6 @@ public sealed class IshtarMetaClass : VeinClass
 
     public static IshtarMetaClass Define(string space, string name)
         => new IshtarMetaClass(new QualityTypeName("std", name, space));
+    public static IshtarMetaClass Define(QualityTypeName q)
+        => new IshtarMetaClass(q);
 }

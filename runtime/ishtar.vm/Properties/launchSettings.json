@@ -11,6 +11,10 @@
     "run test_case 00": {
       "commandName": "Project",
       "commandLineArgs": "O:\\wave_vm\\test\\mana_test\\00\\bin\\00.wll --sys::log::use-console=1"
+    },
+    "run vein unit": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\git\\vein.unit\\vein.unit\\bin\\vein.unit.wll --sys::log::use-console=1"
     }
   }
 }

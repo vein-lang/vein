@@ -43,8 +43,8 @@ namespace ishtar.emit.extensions
             foreach (var _ in ..bin.ReadInt32())
             {
                 var type_code = (VeinTypeCode)bin.ReadInt32();
-                var fullname = bin.ReadVeinString();
-                var value = bin.ReadVeinString();
+                var fullname = bin.ReadIshtarString();
+                var value = bin.ReadIshtarString();
                 storage.Stage(new FieldName(fullname), Convert.ChangeType(value, type_code.ToCLRTypeCode()));
             }
 
