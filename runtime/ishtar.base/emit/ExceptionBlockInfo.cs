@@ -79,6 +79,13 @@ public class ExceptionBlockInfo
             CatchAddr[currentCatch] = -1;
             CatchClass[currentCatch] = VeinCore.VoidClass;
         }
+        else if (type == ExceptionMarkKind.CATCH_ANY)
+        {
+            Types[currentCatch] = type;
+            FilterAddr[currentCatch] = -1;
+            CatchAddr[currentCatch] = addr;
+            CatchClass[currentCatch] = VeinCore.VoidClass;
+        }
         CurrentCatch++;
         if (EndAddr == -1) EndAddr = addr;
     }

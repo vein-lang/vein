@@ -110,6 +110,22 @@ namespace vein.runtime
             return result;
         }
 
+        public bool IsInner(VeinClass clazz)
+        {
+            if (Parents.Count == 0)
+                return false;
+
+            foreach (var parent in Parents)
+            {
+                if (parent.FullName == clazz.FullName)
+                    return true;
+                if (parent.IsInner(clazz))
+                    return true;
+            }
+
+            return false;
+        }
+
         public static bool NotThis(VeinArgumentRef arg) => !arg.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
 
         public VeinField FindField(string name) =>

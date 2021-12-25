@@ -4,6 +4,7 @@ namespace ishtar
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
+    using emit;
     using vein.runtime;
     using static OpCodeValue;
     using static vein.runtime.VeinTypeCode;
@@ -77,13 +78,26 @@ namespace ishtar
                 locals = p;
             var stack = invocation.stack;
             var sp = stack;
-            var start = (ip + 1) - 1;
+            var start = ip;
             var end = mh.code + mh.code_size;
             var end_stack = stack + mh.max_stack;
+            uint* endfinally_ip = null;
+            var zone = default(ProtectedZone);
             void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos - 1;
+            void jump_to(int index) => ip = start + mh.labels_map[mh.labels[index]].pos - 1;
+
+            // maybe mutable il code is bad, need research
+            void ForceFail(RuntimeIshtarClass clazz)
+            {
+                *ip = (uint)THROW;
+                sp->data.p = (nint)IshtarGC.AllocObject(clazz);
+                sp->type = TYPE_CLASS;
+                sp++;
+            }
 
             while (true)
             {
+                vm_cycle_start:
                 invocation.last_ip = (OpCodeValue)(ushort)*ip;
                 println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)stack) - ((nint)sp))}]");
                 ValidateLastError();
@@ -112,6 +126,7 @@ namespace ishtar
                         ++ip;
                         --sp;
                         A_OP(sp, 0, ip, invocation);
+                        ForceFail(KnowTypes.NullPointerException(invocation));
                         break;
                     case SUB:
                         ++ip;
@@ -367,7 +382,7 @@ namespace ishtar
                             {
                                 // TODO
                                 CallFrame.FillStackTrace(invocation);
-                                FastFail(WNE.NONE, $"NullReferenceError", invocation);
+                                FastFail(NONE, $"NullReferenceError", invocation);
                                 ValidateLastError();
                             }
                             FFI.StaticValidate(invocation, @this, field.Owner);
@@ -385,17 +400,47 @@ namespace ishtar
                         ++sp;
                         ++ip;
                         break;
+                    case SEH_ENTER:
+                        ip++;
+                        zone = mh.exception_handler_list[(int)(*ip)];
+                        break;
+                    case SEH_LEAVE:
+                    case SEH_LEAVE_S:
+                        while (sp > invocation.stack) --sp;
+                        invocation.last_ip = (OpCodeValue)(*ip);
+                        if (*ip == (uint)SEH_LEAVE_S)
+                        {
+                            ++ip;
+                            jump_now();
+                        }
+                        else
+                            ip++;
+                        endfinally_ip = ip;
+                        break;
+                    case SEH_FINALLY:
+                        ++ip;
+                        zone = default;
+                        break;
+                    case SEH_FILTER: // todo, maybe unused
+                        ++ip;
+                        break;
+                    case POP:
+                        ++ip;
+                        --sp;
+                        if (sp->type == TYPE_CLASS)
+                        {
+                            var obj = ((IshtarObject*)sp->data.p);
+                            IshtarGC.FreeObject(&obj);
+                        }
+                        break;
                     case THROW:
                         --sp;
-                        //if (sp->data.p == IntPtr.Zero)
-                        //    sp->data.p = 
-                        invocation.exception = new CallFrameException
+                        if (sp->data.p == IntPtr.Zero)
                         {
-                            last_ip = ip,
-                            value = (IshtarObject*)sp->data.p
-                        };
-                        CallFrame.FillStackTrace(invocation);
-                        goto case RET;
+                            sp->data.p = (nint)IshtarGC.AllocObject(KnowTypes.NullPointerException(invocation));
+                            sp->type = TYPE_CLASS;
+                        }
+                        goto exception_handle;
                     case NEWOBJ:
                         {
                             ++ip;
@@ -453,18 +498,22 @@ namespace ishtar
 
                             if (method.IsExtern) exec_method_native(child_frame);
                             else exec_method(child_frame);
-
-                            if (child_frame.exception is not null)
-                            {
-                                (invocation.exception, method_args, child_frame) = (child_frame.exception, null, null);
-                                break;
-                            }
+                            
                             if (method.ReturnType.TypeCode != TYPE_VOID)
                             {
                                 invocation.assert(child_frame.returnValue is not null, STATE_CORRUPT, "Method has return zero memory.");
                                 *sp = *child_frame.returnValue;
                                 sp++;
                             }
+
+                            if (child_frame.exception is not null)
+                            {
+                                sp->type = TYPE_CLASS;
+                                sp->data.p = (nint)child_frame.exception.value;
+                                (method_args, child_frame) = (null, null);
+                                goto exception_handle;
+                            }
+
                             (method_args, child_frame) = (null, null);
                         }
                         break;
@@ -1216,7 +1265,6 @@ namespace ishtar
                             sp->data.p = (nint)IshtarMarshal.ToIshtarObject(str, invocation);
                             ++sp;
                             ++ip;
-
                         }
                         break;
                     default:
@@ -1228,11 +1276,86 @@ namespace ishtar
                         ++ip;
                         break;
                 }
+
+
+                continue;
+
+
+                exception_handle:
+
+
+                void fill_frame_exception()
+                {
+                    invocation.exception = new CallFrameException
+                    {
+                        last_ip = ip,
+                        value = (IshtarObject*)sp->data.p
+                    };
+                    CallFrame.FillStackTrace(invocation);
+                    ip++;
+                }
+
+                if (zone != default)
+                {
+                    var label_addr = -1;
+                    var exception = (IshtarObject*)sp->data.p;
+                    for (int i = 0; i < zone.catchClass.Length; i++)
+                    {
+                        var t = zone.catchClass[i];
+
+                        if (t is null)
+                            continue;
+                        if (zone.types[i] == ExceptionMarkKind.FILTER)
+                        {
+                            if (t == exception->decodeClass().FullName)
+                            {
+                                label_addr = zone.filterAddr[i];
+                                break;
+                            }
+                        }
+                        else if (zone.types[i] == ExceptionMarkKind.CATCH_ANY)
+                        {
+                            label_addr = zone.catchAddr[i];
+                            break;
+                        }
+                    }
+
+                    if (label_addr == -1)
+                    {
+                        for (int i = 0; i < zone.catchClass.Length; i++)
+                        {
+                            var t = zone.catchClass[i];
+                            if (t is null)
+                                continue;
+                            if (t.Name.Equals("Void")) // skip empty type
+                                continue;
+                            if (zone.types[i] != ExceptionMarkKind.FILTER)
+                                continue;
+
+                            var filter_type = KnowTypes.FromCache(t, invocation);
+                            var fail_type = exception->decodeClass();
+                            
+                            if (fail_type.IsInner(filter_type))
+                            {
+                                label_addr = zone.filterAddr[i];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (label_addr != -1)
+                    {
+                        jump_to(label_addr);
+                        ++sp;
+                    }
+                    else fill_frame_exception();
+                }
+                else fill_frame_exception();
+
+                goto vm_cycle_start;
             }
         }
-
-
-
+        
         public static void Assert(bool conditional, WNE type, string msg, CallFrame frame = null)
         {
             if (conditional)
@@ -1240,6 +1363,5 @@ namespace ishtar
             FastFail(type, $"static assert failed: '{msg}'", frame);
             ValidateLastError();
         }
-
     }
 }
