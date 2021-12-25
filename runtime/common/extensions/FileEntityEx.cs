@@ -30,6 +30,9 @@ namespace vein
             return new FileInfo(Path.Combine(info.FullName, name));
         }
 
+        public static void WriteAllText(this FileInfo info, string content)
+            => System.IO.File.WriteAllText(info.FullName, content);
+
         public static string ReadToEnd(this FileInfo info)
             => System.IO.File.ReadAllText(info.FullName);
         public static byte[] ReadAllBytes(this FileInfo info)
