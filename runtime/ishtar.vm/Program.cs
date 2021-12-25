@@ -32,13 +32,13 @@ namespace vein.runtime
             FFI.INIT();
 
             AppVault.CurrentVault = new AppVault("app");
-
+            
             var masterModule = default(IshtarAssembly);
-            var resolver = AppVault.CurrentVault.GetResolver();
-
+            var resolver = default(AssemblyResolver);
 
             if (AssemblyBundle.IsBundle(out var bundle))
             {
+                resolver = AppVault.CurrentVault.GetResolver();
                 masterModule = bundle.Assemblies.First();
                 resolver.AddInMemory(bundle);
             }
@@ -49,12 +49,11 @@ namespace vein.runtime
                 var entry = new FileInfo(args.First());
                 if (!entry.Exists)
                     return -2;
+                AppVault.CurrentVault.WorkDirecotry = entry.Directory;
+                resolver = AppVault.CurrentVault.GetResolver();
                 masterModule = IshtarAssembly.LoadFromFile(entry);
                 resolver.AddSearchPath(entry.Directory);
-                resolver.AddSearchPath(entry.Directory.SubDirectory("refs"));
             }
-
-            resolver.AddSearchPath(new DirectoryInfo("./"));
 
 
             var module = resolver.Resolve(masterModule);
@@ -69,7 +68,7 @@ namespace vein.runtime
 
             if (entry_point is null)
             {
-                VM.FastFail(WNE.MISSING_METHOD, "Entry point is not defined.");
+                VM.FastFail(WNE.MISSING_METHOD, $"Entry point in '{module.Name}' module is not defined.", IshtarFrames.EntryPoint);
                 VM.ValidateLastError();
                 return -280;
             }
@@ -94,8 +93,12 @@ namespace vein.runtime
             VM.exec_method(frame);
 
             if (frame.exception is not null)
-                Console.WriteLine($"unhandled exception was thrown. \n" +
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"unhandled exception '{frame.exception.value->decodeClass().Name}' was thrown. \n" +
                                   $"{frame.exception.stack_trace}");
+                Console.ForegroundColor = ConsoleColor.White;
+            }
 
             watcher.Stop();
             Console.WriteLine($"Elapsed: {watcher.Elapsed}");
@@ -122,7 +125,7 @@ namespace vein.runtime
             bundle = null;
             if (string.IsNullOrEmpty(current))
             {
-                VM.FastFail(WNE.STATE_CORRUPT, "Current executable has corrupted. [process file not found]");
+                VM.FastFail(WNE.STATE_CORRUPT, "Current executable has corrupted. [process file not found]", IshtarFrames.EntryPoint);
                 VM.ValidateLastError();
                 return false;
             }
