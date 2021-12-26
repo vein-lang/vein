@@ -14,6 +14,12 @@ namespace ishtar
         {
             var arg1 = args[0];
 
+            if (arg1 == null)
+            {
+                current.ThrowException(KnowTypes.NullPointerException(current));
+                return null;
+            }
+
             FFI.StaticValidate(current, &arg1);
             FFI.StaticTypeOf(current, &arg1, TYPE_STRING);
             var @class = arg1->decodeClass();
