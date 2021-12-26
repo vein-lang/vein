@@ -343,8 +343,9 @@ namespace ishtar
                             var fieldIdx = *++ip;
                             var @class = GetClass(*++ip, _module, invocation);
                             var field = GetField(fieldIdx, @class, _module, invocation);
+                            var obj = (IshtarObject*)@class.vtable[field.vtable_offset];
 
-                            *sp = IshtarMarshal.UnBoxing(invocation, (IshtarObject*)@class.vtable[field.vtable_offset]);
+                            *sp = IshtarMarshal.UnBoxing(invocation, obj);
                             ++sp;
                             ++ip;
                         }
@@ -359,12 +360,10 @@ namespace ishtar
                             --sp;
                             if (@this->type == TYPE_NONE)
                             {
-                                // TODO
-                                CallFrame.FillStackTrace(invocation);
-                                FastFail(NONE, $"NullReferenceError", invocation);
-                                ValidateLastError();
+                                ForceFail(KnowTypes.NullPointerException(invocation));
+                                break;
                             }
-                            FFI.StaticValidate(invocation, @this, field.Owner);
+                            //FFI.StaticValidate(invocation, @this, field.Owner);
                             var value = sp;
                             var this_obj = (IshtarObject*)@this->data.p;
                             var target_class = this_obj->decodeClass();
@@ -386,10 +385,12 @@ namespace ishtar
                                 FastFail(NONE, $"NullReferenceError", invocation);
                                 ValidateLastError();
                             }
-                            FFI.StaticValidate(invocation, @this, field.Owner);
+                            //FFI.StaticValidate(invocation, @this, field.Owner);
                             var this_obj = (IshtarObject*)@this->data.p;
                             var target_class = this_obj->decodeClass();
-                            var value = IshtarMarshal.UnBoxing(invocation, (IshtarObject*)this_obj->vtable[field.vtable_offset]);
+                            var pt = target_class.Parents.First();
+                            var obj = (IshtarObject*)this_obj->vtable[field.vtable_offset];
+                            var value = IshtarMarshal.UnBoxing(invocation, obj);
                             *sp = value;
                             ++ip;
                             ++sp;
@@ -397,7 +398,7 @@ namespace ishtar
                         break;
                     case LDNULL:
                         sp->type = TYPE_OBJECT;
-                        sp->data.ul = 0;
+                        sp->data.p = (nint)0;
                         ++sp;
                         ++ip;
                         break;
@@ -475,15 +476,25 @@ namespace ishtar
                                 if (arg_class.Name is not "Object" and not "ValueType")
                                 {
                                     var sp_obj = IshtarMarshal.Boxing(invocation, sp);
+
+                                    if (sp_obj == null)
+                                        continue;
+
                                     var sp_class = sp_obj->decodeClass();
+
+                                    if (sp_class == null)
+                                        continue;
 
                                     if (sp_class.ID != arg_class.ID)
                                     {
-                                        FastFail(TYPE_MISMATCH,
-                                            $"Argument '{_a.Name}: {_a.Type.Name}'" +
-                                            $" is not matched for '{method.Name}' function.",
-                                            invocation);
-                                        ValidateLastError();
+                                        if (!sp_class.IsInner(arg_class))
+                                        {
+                                            FastFail(TYPE_MISMATCH,
+                                                $"Argument '{_a.Name}: {_a.Type.Name}'" +
+                                                $" is not matched for '{method.Name}' function.",
+                                                invocation);
+                                            break;
+                                        }
                                     }
                                 }
 #endif
@@ -1330,9 +1341,9 @@ namespace ishtar
                             var t = zone.catchClass[i];
                             if (t is null)
                                 continue;
-                            if (t.Name.Equals("Void")) // skip empty type
-                                continue;
                             if (zone.types[i] != ExceptionMarkKind.FILTER)
+                                continue;
+                            if (t.Name.Equals("Void")) // skip empty type
                                 continue;
 
                             var filter_type = KnowTypes.FromCache(t, invocation);
