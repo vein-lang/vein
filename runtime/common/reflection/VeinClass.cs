@@ -29,7 +29,7 @@ namespace vein.runtime
         public List<VeinField> Fields { get; } = new();
         public List<VeinMethod> Methods { get; set; } = new();
         public VeinTypeCode TypeCode { get; set; } = TYPE_CLASS;
-        public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE;
+        public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE and not TYPE_STRING;
         public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
         public VeinModule Owner { get; set; }
