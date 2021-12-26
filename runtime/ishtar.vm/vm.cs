@@ -85,6 +85,7 @@ namespace ishtar
             var zone = default(ProtectedZone);
             void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos - 1;
             void jump_to(int index) => ip = start + mh.labels_map[mh.labels[index]].pos - 1;
+            uint* get_jumper(int index) => start + mh.labels_map[mh.labels[index]].pos - 1;
 
             // maybe mutable il code is bad, need research
             void ForceFail(RuntimeIshtarClass clazz)
@@ -1295,7 +1296,9 @@ namespace ishtar
                     ip++;
                 }
 
-                if (zone != default)
+                var tryEndAddr = zone != default ? get_jumper(zone.tryEndLabel) : null;
+
+                if (zone != default && tryEndAddr > ip)
                 {
                     var label_addr = -1;
                     var exception = (IshtarObject*)sp->data.p;
@@ -1350,7 +1353,11 @@ namespace ishtar
                     }
                     else fill_frame_exception();
                 }
-                else fill_frame_exception();
+                else
+                {
+                    fill_frame_exception();
+                    return;
+                }
 
                 goto vm_cycle_start;
             }
