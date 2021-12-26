@@ -32,6 +32,13 @@ namespace ishtar
         }
 
 
+        public void ThrowException(RuntimeIshtarClass @class) =>
+            this.exception = new CallFrameException()
+            {
+                value = IshtarGC.AllocObject(@class)
+            };
+
+
         public static void FillStackTrace(CallFrame frame)
         {
             var str = new StringBuilder();
