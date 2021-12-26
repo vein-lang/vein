@@ -459,6 +459,7 @@ namespace vein.compilation
             clazz.Flags |= ClassFlags.Public; // temporary all aspect has public
             clazz.Flags |= ClassFlags.Aspect; // indicate when it class is a aspect
 
+            clazz.Parents.Clear(); // remove Object ref
             clazz.Parents.Add(VeinCore.AspectClass);
 
             var getUsages = clazz.DefineMethod("getUsages", MethodFlags.Override | MethodFlags.Public, TYPE_I4.AsClass());
@@ -621,6 +622,13 @@ namespace vein.compilation
                 .Select(owner => FetchType(owner, doc))
                 .Where(p => !@class.Parents.Contains(p))
                 .Pipe(p => @class.Parents.Add(p)).Consume();
+            @class
+                .Parents
+                .ToArray() // copy emumerable 
+                .SelectMany(x => x.Parents)
+                .Where(x => @class.Parents.Any(z => z.FullName == x.FullName))
+                .Pipe(v => @class.Parents.Remove(v))
+                .Consume();
         }
 
         public void ValidateInheritance((ClassBuilder @class, MemberDeclarationSyntax member) x)
