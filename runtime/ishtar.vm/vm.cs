@@ -23,9 +23,12 @@ namespace ishtar
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void FastFail(WNE type, string msg, CallFrame frame)
-            => watcher?.FastFail(type, msg, frame);
-        public static void ValidateLastError()
-            => watcher?.ValidateLastError();
+        {
+            watcher?.FastFail(type, msg, frame);
+            watcher?.ValidateLastError();
+        }
+        [Obsolete]
+        public static void ValidateLastError() {}
 
         [Conditional("DEBUG")]
         public static void println(string str) => Trace.println(str);
