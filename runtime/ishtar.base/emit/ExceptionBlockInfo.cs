@@ -14,6 +14,7 @@ public class ExceptionBlockInfo
     public int StartAddr { get; internal set; }
     public int EndAddr { get; internal set; } = -1;
     public Label EndLabel { get; protected set; }
+    public Label EndTryLabel { get; set; }
     public ExceptionBlockState State { get; set; } = ExceptionBlockState.TRY;
     public Label FinallyLabel { get; set; }
     public int EndFinally { get; set; } = -1;

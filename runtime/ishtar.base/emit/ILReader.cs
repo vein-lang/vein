@@ -38,6 +38,7 @@ namespace ishtar.emit
             foreach (var i in ..size)
             {
                 var startAddr = bin.ReadInt32();
+                var tryEndLabel = bin.ReadInt32();
                 var endAddr = bin.ReadInt32();
                 var filterAddr = bin.ReadIntArray();
                 var catchAddr = bin.ReadIntArray();
@@ -46,6 +47,7 @@ namespace ishtar.emit
                 var item = new ProtectedZone(
                     (uint)startAddr,
                     (uint)endAddr,
+                    tryEndLabel,
                     filterAddr,
                     catchAddr,
                     catchClass,

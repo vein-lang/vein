@@ -399,6 +399,12 @@ namespace ishtar.emit
 
             Emit(OpCodes.SEH_LEAVE_S, info.EndLabel);
 
+            if (info.EndTryLabel == default)
+            {
+                info.EndTryLabel = DefineLabel();
+                UseLabel(info.EndTryLabel);
+            }
+
             /* temporary shit */
             Emit(OpCodes.NOP);
             var label = DefineLabel();
@@ -500,6 +506,7 @@ namespace ishtar.emit
             foreach (var excpt in exceptions)
             {
                 bin.Write(excpt.StartAddr);
+                bin.Write(excpt.EndTryLabel.Value);
                 bin.Write(excpt.EndAddr);
                 bin.WriteArray(excpt.FilterAddr, (x, y) => y.Write(x));
                 bin.WriteArray(excpt.CatchAddr, (x, y) => y.Write(x));
