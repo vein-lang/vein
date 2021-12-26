@@ -101,5 +101,5 @@ public abstract class ModuleResolverBase : IAssemblyResolver
 
 public class MultipleAssemblyVersionDetected : Exception
 {
-    public MultipleAssemblyVersionDetected(string msg) : base($"Multiple assembly version detected: {msg}")  { }
+    public MultipleAssemblyVersionDetected(string msg) : base($"Multiple assembly version detected: {msg}") { }
 }

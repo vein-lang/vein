@@ -92,7 +92,7 @@ namespace ishtar.emit
             Debug.Assert(bin.ReadInt32() == 0x61, "[magic number] bin.ReadInt32() == 0x61");
             return result.ToArray();
         }
-        
+
         public static void WriteArray<T>(this BinaryWriter bin, T[] arr, Action<T, BinaryWriter> selector, [CallerArgumentExpression("arr")] string name = "")
         {
             using (new MagicNumberArmor(bin))

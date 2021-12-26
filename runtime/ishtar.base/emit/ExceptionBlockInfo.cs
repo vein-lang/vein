@@ -9,7 +9,7 @@ public class ExceptionBlockInfo
     public ExceptionBlockInfo(int ilOffset, Label label)
         => (StartAddr, EndLabel) = (ilOffset, label);
 
-    public ExceptionBlockInfo() {}
+    public ExceptionBlockInfo() { }
 
     public int StartAddr { get; internal set; }
     public int EndAddr { get; internal set; } = -1;

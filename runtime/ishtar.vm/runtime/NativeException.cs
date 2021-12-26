@@ -6,7 +6,7 @@ namespace ishtar
         public string msg;
         public CallFrame frame;
     };
-    
+
     public enum WNE
     {
         NONE = 0,

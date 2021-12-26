@@ -97,7 +97,7 @@ namespace ishtar
 
             while (true)
             {
-                vm_cycle_start:
+            vm_cycle_start:
                 invocation.last_ip = (OpCodeValue)(ushort)*ip;
                 println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)stack) - ((nint)sp))}]");
                 ValidateLastError();
@@ -498,7 +498,7 @@ namespace ishtar
 
                             if (method.IsExtern) exec_method_native(child_frame);
                             else exec_method(child_frame);
-                            
+
                             if (method.ReturnType.TypeCode != TYPE_VOID)
                             {
                                 invocation.assert(child_frame.returnValue is not null, STATE_CORRUPT, "Method has return zero memory.");
@@ -1281,7 +1281,7 @@ namespace ishtar
                 continue;
 
 
-                exception_handle:
+            exception_handle:
 
 
                 void fill_frame_exception()
@@ -1334,7 +1334,7 @@ namespace ishtar
 
                             var filter_type = KnowTypes.FromCache(t, invocation);
                             var fail_type = exception->decodeClass();
-                            
+
                             if (fail_type.IsInner(filter_type))
                             {
                                 label_addr = zone.filterAddr[i];
@@ -1355,7 +1355,7 @@ namespace ishtar
                 goto vm_cycle_start;
             }
         }
-        
+
         public static void Assert(bool conditional, WNE type, string msg, CallFrame frame = null)
         {
             if (conditional)

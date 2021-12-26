@@ -130,7 +130,7 @@ namespace ishtar
             if (vtable == null)
             {
                 // damn, trying allocate when out of memory, need fix it
-                VM.FastFail(WNE.TYPE_LOAD, "Out of memory.", IshtarFrames.VTableFrame(this)); 
+                VM.FastFail(WNE.TYPE_LOAD, "Out of memory.", IshtarFrames.VTableFrame(this));
                 return;
             }
 
