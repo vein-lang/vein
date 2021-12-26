@@ -252,6 +252,8 @@ namespace ishtar
 
         public static stackval UnBoxing(CallFrame frame, IshtarObject* obj)
         {
+            if (obj == null)
+                return new stackval();
             var @class = obj->decodeClass();
 
             var val = new stackval { type = @class.TypeCode };
@@ -268,7 +270,6 @@ namespace ishtar
                     "Invalid memory address is possible.\n" +
                     "Please report the problem into https://github.com/vein-lang/vein/issues",
                     frame);
-                VM.ValidateLastError();
                 return default;
             }
 
@@ -314,7 +315,6 @@ namespace ishtar
                         "Currently is not support.\n" +
                         "Please report the problem into https://github.com/vein-lang/vein/issues",
                         frame);
-                    VM.ValidateLastError();
                     return default;
             }
 
@@ -323,6 +323,9 @@ namespace ishtar
 
         public static IshtarObject* Boxing(CallFrame frame, stackval* p, IshtarObject** node = null)
         {
+            if (p->type == TYPE_NONE)
+                return null;
+
             if (p->type is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_RAW)
                 return (IshtarObject*)p->data.p;
             if (p->type is TYPE_NONE or > TYPE_ARRAY or < TYPE_NONE)
@@ -333,7 +336,7 @@ namespace ishtar
                     "Invalid memory address is possible.\n" +
                     "Please report the problem into https://github.com/vein-lang/vein/issues",
                     frame);
-                VM.ValidateLastError();
+                return null;
             }
 
             var clazz = p->type.AsRuntimeClass();
