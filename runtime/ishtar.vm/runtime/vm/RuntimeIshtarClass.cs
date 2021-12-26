@@ -8,6 +8,7 @@ namespace ishtar
     using vein.reflection;
     using vein.runtime;
     using vein.extensions;
+    using System.Diagnostics;
 
     public interface ITransitionAlignment<in TKey, out TValue>
     {
@@ -215,6 +216,11 @@ namespace ishtar
                     vtable[vtable_offset] = get_field_default_value(field);
                     field.vtable_offset = vtable_offset;
 
+                    if (!field.FieldType.IsPrimitive)
+                    {
+                        Debug.Assert(vtable[vtable_offset] != null, $"Getting default value for '{field.FieldType.Name}' has incorrect");
+                    }
+
 #if DEBUG_VTABLE
                     dvtable.vtable[vtable_offset] = $"DEFAULT_VALUE OF [{field.FullName}::{field.FieldType.Name}]";
 #endif
@@ -276,7 +282,7 @@ namespace ishtar
             if (field.FieldType.IsPrimitive)
                 return field.default_value = IshtarMarshal.Boxing(_sys_frame ??= IshtarFrames.VTableFrame(this),
                     IshtarGC.AllocValue(field.FieldType));
-            return null;
+            return field.default_value = IshtarGC.AllocObject(field.FieldType as RuntimeIshtarClass);
         }
         public new RuntimeIshtarField FindField(string name)
             => base.FindField(name) as RuntimeIshtarField;
