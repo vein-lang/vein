@@ -735,9 +735,9 @@ namespace ishtar
             if (@new.IsObject)
             {
                 var args = ((ObjectCreationExpression)@new.CtorArgs).Args.ToArray();
+                gen.Emit(OpCodes.NEWOBJ, type);
                 foreach (var arg in args)
                     gen.EmitExpression(arg);
-                gen.Emit(OpCodes.NEWOBJ, type);
                 var ctor = type.FindMethod("ctor", args.DetermineTypes(context));
 
                 if (ctor is null)
@@ -1289,7 +1289,66 @@ namespace ishtar
             if (access is { Left: SelfAccessExpression, Right: InvocationExpression inv2 })
                 return gen.EmitCall(ctx.CurrentMethod.Owner, inv2);
 
+            if (access is { Left: IdentifierExpression id6, Right: IdentifierExpression id7 })
+            {
+                var flags = gen.GetAccessFlags(id6);
+
+                // first order: variable
+                if (flags.HasFlag(AccessFlags.VARIABLE))
+                {
+                    var (@class, var_index) = ctx.CurrentScope.GetVariable(id6);
+                    return gen.EmitLoadLocal(var_index).EmitLoadField(@class, id7);
+                }
+                // second order: argument
+                if (flags.HasFlag(AccessFlags.ARGUMENT))
+                {
+                    var (arg, index) = ctx.GetCurrentArgument(id6);
+                    return gen.EmitLoadArgument(index)
+                        .EmitLoadField(arg.Type, id7);
+                }
+                // three order: field
+                if (flags.HasFlag(AccessFlags.FIELD))
+                    return gen.EmitThis().EmitLoadField(ctx.CurrentMethod.Owner, id6, id7);
+                // four order: static field
+                if (flags.HasFlag(AccessFlags.STATIC_FIELD))
+                    return gen.EmitLoadField(ctx.CurrentMethod.Owner, id6, id7);
+                // five order: static class
+                if (flags.HasFlag(AccessFlags.CLASS))
+                {
+                    var @class = ctx.ResolveType(id6);
+                    return gen.EmitLoadField(@class, id7);
+                }
+
+                return gen;
+            }
+
             throw new NotSupportedException();
+        }
+
+
+        public static ILGenerator EmitLoadField(this ILGenerator gen, VeinClass @class, params IdentifierExpression[] chain)
+        {
+            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            var clazz = @class;
+
+            foreach (var id in chain)
+            {
+                var field = clazz.FindField($"{id}");
+
+                if (field is null)
+                {
+                    ctx.LogError($"Field '{id}' is not found in '{clazz.Name}' class.", id);
+                    throw new SkipStatementException();
+                }
+
+                if (field.IsStatic)
+                    gen.Emit(OpCodes.LDSF, field);
+                else
+                    gen.Emit(OpCodes.LDF, field);
+                clazz = field.FieldType;
+            }
+
+            return gen;
         }
 
         public static ILGenerator EmitCall(this ILGenerator gen, VeinClass @class, InvocationExpression invocation)
