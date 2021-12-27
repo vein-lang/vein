@@ -250,7 +250,6 @@ namespace vein.compilation
 
             Parallel.ForEachAsync(collection, async (target, token) =>
             {
-                var q = collection;
                 while (!token.IsCancellationRequested)
                 {
                     if (target.Dependencies.Any(x => x.Status == CompilationStatus.NotStarted))
@@ -1121,9 +1120,9 @@ namespace vein.compilation
                     {
                         var diff_err = literal.Transform.DiffErrorFull(doc);
 
-                        var value = numeric.GetTypeCode();
-                        var variable = member.Type.Identifier;
-                        var variable1 = field.FieldType.TypeCode;
+                        //var value = numeric.GetTypeCode();
+                        //var variable = member.Type.Identifier;
+                        //var variable1 = field.FieldType.TypeCode;
 
                         Log.errors.Enqueue(
                             $"[red bold]Cannot implicitly convert type[/] " +
@@ -1146,8 +1145,6 @@ namespace vein.compilation
                         $"{diff_err}");
                 }
             }
-
-            var clazz = field.Owner;
 
             if (member.Modifiers.Any(x => x.ModificatorKind == ModificatorKind.Const))
             {
@@ -1323,7 +1320,7 @@ namespace vein.compilation
                         continue;
                     default:
                         Log.Defer.Error($"In [orange]'{clazz.Identifier}'[/] class/struct/interface " +
-                                        $"[red bold]{mod}[/] is not supported [orange bold]modificator[/].",
+                                        $"[red bold]{mod.ModificatorKind}[/] is not supported [orange bold]modificator[/].",
                             clazz.Identifier, clazz.OwnerDocument);
 
                         continue;

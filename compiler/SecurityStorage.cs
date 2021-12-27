@@ -62,7 +62,7 @@ public class SecurityStorage
             var content = ConfigFile.ReadToEnd();
             return JsonConvert.DeserializeObject<Dictionary<string, JToken>>(BlowfishDecrypt(content));
         }
-        catch (Exception e)
+        catch
         {
             if (ConfigFile.Exists)
                 ConfigFile.Delete();
@@ -81,7 +81,7 @@ public class SecurityStorage
             var content = JsonConvert.SerializeObject(dict);
             File.WriteAllText(ConfigFile.FullName, BlowfishEncrypt(content));
         }
-        catch (Exception e)
+        catch
         {
             if (ConfigFile.Exists)
                 ConfigFile.Delete();
@@ -110,7 +110,7 @@ public class SecurityStorage
 
             return BitConverter.ToString(outB).Replace("-", "");
         }
-        catch (Exception e)
+        catch
         {
             return "";
         }

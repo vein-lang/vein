@@ -221,7 +221,7 @@ namespace ishtar
                             var field = classes
                             .Where(x => class_eq(x, fa.ClassName))
                             .SelectMany(@class => @class.Fields)
-                            .FirstOrDefault(field => field.Name.Equals(fa.Arguments));
+                            .FirstOrDefault(field => field.Name.Equals(fa.FieldName));
                             if (field is not null)
                                 field.Aspects.Add(aspect);
                             else
