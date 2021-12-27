@@ -82,7 +82,7 @@ public class il_test
         var offset = 0;
         var body = gen.BakeByteArray();
         var (result, map) = ILReader.Deconstruct(body, &offset, null);
-        var labels = ILReader.DeconstructLabels(body, offset);
+        var labels = ILReader.DeconstructLabels(body, &offset);
 
         var first_label = result[map[labels[0]].pos];
 
