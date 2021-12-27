@@ -57,7 +57,7 @@ public abstract class ModuleResolverBase : IAssemblyResolver
         if (file is null)
         {
             debug($"Dependency '{name}' is not resolved.");
-            throw new FileNotFoundException(name);
+            throw new FileNotFoundException($"Dependency '{name}' is not resolved.");
         }
 
         var asm = IshtarAssembly.LoadFromFile(file);

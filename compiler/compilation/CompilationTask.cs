@@ -233,7 +233,18 @@ namespace vein.compilation
                 add_deps_path(target.Project.Dependencies.Packages);
 
                 foreach (var package in target.Project.Dependencies.Packages)
-                    list.Add(target.Resolver.ResolveDep(package, list));
+                {
+                    try
+                    {
+                        list.Add(target.Resolver.ResolveDep(package, list));
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error($"Failed to load dependencies.");
+                        Log.Error($"Try 'veinc restore'");
+                        throw;
+                    }
+                }
                 task.StopTask();
             });
 
