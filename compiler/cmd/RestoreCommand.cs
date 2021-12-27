@@ -19,6 +19,20 @@ public class RestoreCommand : AsyncCommandWithProject<RestoreCommandSettings>
     public override async Task<int> ExecuteAsync(CommandContext context, RestoreCommandSettings settings,
         VeinProject project)
     {
+        if (ProgressContext == null)
+            return await AnsiConsole
+                .Progress()
+                .AutoClear(false)
+                .AutoRefresh(true)
+                .HideCompleted(true)
+                .Columns(
+                    new ProgressBarColumn(),
+                    new PercentageColumn(),
+                    new SpinnerColumn { Spinner = Spinner.Known.Dots8Bit, CompletedText = "✅", FailedText = "❌" },
+                    new TaskDescriptionColumn { Alignment = Justify.Left })
+                .StartAsync(async ctx => await new RestoreCommand() { ProgressContext = ctx }
+                    .ExecuteAsync(context, new RestoreCommandSettings() { Project = settings.Project }, project));
+
         var task = ProgressContext.AddTask($"Restore [orange]'{project.Name}'[/] project.");
         var graph = await CollectDependencyGraphAsync(project, task);
         var failed = false;
