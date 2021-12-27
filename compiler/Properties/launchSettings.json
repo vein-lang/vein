@@ -36,6 +36,10 @@
       "commandName": "Project",
       "commandLineArgs": "build C:\\git\\vein.unit\\vein.unit\\vein.unit.vproj"
     },
+    "restore vein unit": {
+      "commandName": "Project",
+      "commandLineArgs": "restore --project C:\\git\\vein.unit\\vein.unit\\vein.unit.vproj"
+    },
     "add std": {
       "commandName": "Project",
       "commandLineArgs": "add std --version 0.12.1 --project C:\\git\\vein-std\\foobar\\foobar.vproj"
