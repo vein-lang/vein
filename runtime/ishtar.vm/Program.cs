@@ -32,7 +32,7 @@ namespace vein.runtime
             FFI.INIT();
 
             AppVault.CurrentVault = new AppVault("app");
-            
+
             var masterModule = default(IshtarAssembly);
             var resolver = default(AssemblyResolver);
 

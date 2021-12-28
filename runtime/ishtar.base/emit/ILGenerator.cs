@@ -317,7 +317,7 @@ namespace ishtar.emit
             _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");
             return this;
         }
-        
+
         #region Exceptions
 
         private ExceptionBlockInfo[] exceptionBlocks;
@@ -359,10 +359,10 @@ namespace ishtar.emit
             exceptionStack[exceptionStackIndex++] = info;
 
             WriteDebugMetadata($"/* begin protection zone @0x{info.StartAddr:X} */");
-            
+
             return label;
         }
-        
+
         public void EndExceptionBlock()
         {
             if (exceptionStackIndex == 0)
@@ -415,7 +415,7 @@ namespace ishtar.emit
             WriteDebugMetadata($"/* catch block $'{(type is null ? "any" : type.Name)}' @{info.StartAddr} */");
             return info.CurrentCatch;
         }
-        
+
         public virtual void BeginFinallyBlock()
         {
             if (exceptionStackIndex == 0)
@@ -434,7 +434,7 @@ namespace ishtar.emit
         }
 
         #endregion
-        
+
 
         public ILGenerator WriteDebugMetadata(string str, int pos = 0)
         {
@@ -442,7 +442,7 @@ namespace ishtar.emit
             _debugBuilder.AppendLine($"/* ::{pos:0000} */ {str}");
             return this;
         }
-        
+
 
         private int[] _labels;
         private int _labels_count;
@@ -516,7 +516,7 @@ namespace ishtar.emit
             }
             return mem.ToArray();
         }
-        
+
         internal string BakeDebugString()
             => _position == 0 ? "" : $"{LocalsBuilder}\n{_debugBuilder}";
 
@@ -565,7 +565,7 @@ namespace ishtar.emit
                 return;
             IncreaseCapacity(size);
         }
-        
+
         private void IncreaseCapacity(int size)
         {
             var newsize = Math.Max(_ilBody.Length * 2, _position + size + 2);

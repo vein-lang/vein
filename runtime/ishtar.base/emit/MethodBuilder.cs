@@ -91,7 +91,7 @@ namespace ishtar.emit
 
             foreach (var exClass in _generator.GetEffectedExceptions())
                 str.AppendLine($"@effect {exClass.FullName.NameWithNS};");
-            
+
             str.Append($".method {(IsSpecial ? "special " : "")}'{RawName}' ({args}) {Flags.EnumerateFlags(new[] { None, Extern }).Join(' ').ToLowerInvariant()}");
             str.AppendLine($" -> {ReturnType.FullName.Name}");
             if (Flags.HasFlag(Abstract))
