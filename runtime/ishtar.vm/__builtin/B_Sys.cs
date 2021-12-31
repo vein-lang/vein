@@ -34,16 +34,6 @@ public static unsafe class B_Sys
     public static IshtarObject* QueryPerformanceCounter(CallFrame current, IshtarObject** _)
         => IshtarMarshal.ToIshtarObject(Stopwatch.GetTimestamp(), current);
 
-
-    [IshtarExport(0, "debugger::break")]
-    [IshtarExportFlags(Public | Static)]
-    public static IshtarObject* DebuggerBreak(CallFrame current, IshtarObject** _)
-    {
-        if (Debugger.IsAttached)
-            Debugger.Break();
-        return null;
-    }
-
     public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
     {
         new RuntimeIshtarMethod("@value2string", Public | Static | Extern,
@@ -56,9 +46,6 @@ public static unsafe class B_Sys
             .AddInto(table, x => x.Name);
         new RuntimeIshtarMethod("@queryPerformanceCounter", Public | Static | Extern)
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&QueryPerformanceCounter)
-            .AddInto(table, x => x.Name);
-        new RuntimeIshtarMethod("debugger::break", Public | Static | Extern)
-            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&DebuggerBreak)
             .AddInto(table, x => x.Name);
     }
 }
