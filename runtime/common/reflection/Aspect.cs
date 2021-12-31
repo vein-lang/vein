@@ -83,6 +83,8 @@ namespace vein.reflection
         internal void DefineArgument(int index, object value)
             => Arguments.Add(new AspectArgument(this, value, index));
 
+        public AliasAspect AsAlias() => new AliasAspect(this);
+
 
         public bool IsAlias() => Name.Equals("alias", StringComparison.InvariantCultureIgnoreCase);
         public bool IsNative() => Name.Equals("native", StringComparison.InvariantCultureIgnoreCase);
