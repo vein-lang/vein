@@ -6,22 +6,14 @@ namespace vein.syntax
     using extensions;
     using Sprache;
 
-    public class ArrayCreationExpression : BinaryExpressionSyntax, IPositionAware<ArrayCreationExpression>
+    public class ArrayCreationExpression : ExpressionSyntax, IPositionAware<ArrayCreationExpression>
     {
-        public TypeExpression Type
-        {
-            get => (TypeExpression)base.Left;
-            set => base.Left = value;
-        }
+        public TypeExpression Type { get; set; }
 
-        public ArrayInitializerExpression Initializer
-        {
-            get => (ArrayInitializerExpression)base.Right;
-            set => base.Right = value;
-        }
+        public ArrayInitializerExpression Initializer { get; set; }
 
         public ArrayCreationExpression(TypeExpression type, ArrayInitializerExpression init)
-            => (Type, Initializer, OperatorType) = (type, init, ExpressionType.NewArrayInit);
+            => (Type, Initializer) = (type, init);
 
         public new ArrayCreationExpression SetPos(Position startPos, int length)
         {
