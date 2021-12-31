@@ -405,6 +405,24 @@ namespace ishtar
                         ++sp;
                         ++ip;
                         break;
+                    case CAST:
+                    {
+                        ++ip;
+                        --sp;
+                        var t2 = GetClass(sp->data.ui, _module, invocation);
+                        --sp;
+                        var t1 = (IshtarObject*)sp->data.p;
+                        if (t1 == null)
+                        {
+                            ForceFail(KnowTypes.NullPointerException(invocation));
+                            continue;
+                        }
+                        var r = IshtarObject.IsInstanceOf(invocation, t1, t2);
+                        if (r == null)
+                            ForceFail(KnowTypes.IncorrectCastFault(invocation));
+                        else ++sp;
+                    }
+                        break;
                     case SEH_ENTER:
                         ip++;
                         zone = mh.exception_handler_list[(int)(*ip)];

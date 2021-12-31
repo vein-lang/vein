@@ -7,11 +7,14 @@ public static class KnowTypes
 {
     public static QualityTypeName NullPointerExceptionTypeName =
         new QualityTypeName("std", "NullPointerException", "global::vein/lang");
-
+    public static QualityTypeName IncorrectCastFaultTypeName =
+        new QualityTypeName("std", "IncorrectCastFault", "global::vein/lang");
 
 
     public static RuntimeIshtarClass NullPointerException(CallFrame frame)
         => findType(NullPointerExceptionTypeName, frame);
+    public static RuntimeIshtarClass IncorrectCastFault(CallFrame frame)
+        => findType(IncorrectCastFaultTypeName, frame);
 
 
 
