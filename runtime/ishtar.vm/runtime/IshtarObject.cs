@@ -1,7 +1,6 @@
 namespace ishtar
 {
-    using System.Runtime.CompilerServices;
-
+    using System.Runtime.InteropServices;
     public unsafe struct IshtarObject
     {
         public void* clazz;

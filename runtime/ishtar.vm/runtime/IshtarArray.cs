@@ -1,10 +1,23 @@
 namespace ishtar
 {
     using System;
-    using System.Runtime.CompilerServices;
-
+    using System.Runtime.InteropServices;
+    
     public unsafe struct IshtarArray : IEquatable<IshtarArray>
     {
+        // <layout of IshtarObject>
+        public void* clazz;
+        public IshtarObject* memory;
+        public GCFlags flags;
+        public uint vtable_size;
+        public IshtarObject** owner;
+        // </do not reorder this block>
+#if DEBUG
+        public long __gc_id = -1;
+#endif
+
+        public void* element_clazz;
+
         public const uint MAX_SIZE = 0xFFFFFFFFU;
 
         public ulong rank
@@ -20,10 +33,15 @@ namespace ishtar
         public RuntimeIshtarClass ElementClass
             => element_clazz is null ? null : IshtarUnsafe.AsRef<RuntimeIshtarClass>(element_clazz);
 
-        public void* clazz => memory->clazz;
-        public void* element_clazz;
+        public void SetMemory(IshtarObject* obj)
+        {
+            memory = obj;
+            clazz = obj->clazz;
+            flags = obj->flags;
+            vtable_size = obj->vtable_size;
+            owner = obj->owner;
+        }
 
-        public IshtarObject* memory;
         public Block _block;
 
         public IshtarObject* this[uint index, CallFrame frame]
@@ -36,8 +54,9 @@ namespace ishtar
         {
             if (!ElementClass.IsPrimitive) return elements[index];
             var result = IshtarGC.AllocObject(ElementClass);
+            var el = elements[index];
             var offset = result->decodeClass().Field["!!value"].vtable_offset;
-            result->vtable[offset] = elements[index]->vtable[offset];
+            result->vtable[offset] = el->vtable[offset];
             return result;
         }
 
@@ -45,7 +64,7 @@ namespace ishtar
         {
             FFI.StaticValidate(frame, &value);
             var value_class = value->decodeClass();
-            VM.Assert(value_class.TypeCode == ElementClass.TypeCode, WNE.TYPE_MISMATCH, $"", frame);
+            VM.Assert(value_class.TypeCode == ElementClass.TypeCode || value_class.IsInner(ElementClass), WNE.TYPE_MISMATCH, $"", frame);
             if (index > length)
             {
                 VM.FastFail(WNE.OUT_OF_RANGE, $"", frame);

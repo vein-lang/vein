@@ -112,16 +112,23 @@ namespace ishtar
             FFI.StaticValidateField(frame, &obj, "!!rank");
 
             // fill array block
-            arr_obj->memory = obj;
+            arr_obj->SetMemory(obj);
             arr_obj->element_clazz = IshtarUnsafe.AsPointer(ref @class);
             arr_obj->_block.offset_value = arr.Field["!!value"].vtable_offset;
             arr_obj->_block.offset_block = arr.Field["!!block"].vtable_offset;
             arr_obj->_block.offset_size = arr.Field["!!size"].vtable_offset;
             arr_obj->_block.offset_rank = arr.Field["!!rank"].vtable_offset;
 
+
+
             // update gc stats
-            GCStats.alive_objects++;
             GCStats.total_allocations += (ulong)sizeof(IshtarArray) + bytes_len;
+            GCStats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*) * size;
+#if DEBUG
+            arr_obj->__gc_id = (long)GCStats.alive_objects++;
+#else
+            GCStats.alive_objects++;
+#endif
 
 
             // fill live table memory
@@ -154,11 +161,11 @@ namespace ishtar
             p->clazz = IshtarUnsafe.AsPointer(ref @class);
             p->vtable_size = (uint)@class.computed_size;
 
-            GCStats.alive_objects++;
-#if DEBUG
-            p->__gc_id = (long)GCStats.total_allocations++;
-#else
             GCStats.total_allocations++;
+#if DEBUG
+            p->__gc_id = (long)GCStats.alive_objects++;
+#else
+            GCStats.alive_objects++
 #endif
             GCStats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*);
             GCStats.total_bytes_requested += (ulong)sizeof(IshtarObject);
