@@ -646,11 +646,11 @@ namespace ishtar
 		public static readonly OpCode NEWOBJ = new (0x52, 0x0100001F);
 		/// <summary>
 		/// Cast T1 to T2
-		/// size: 8
+		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CAST = new (0x71, 0x0200001F);
+		public static readonly OpCode CAST = new (0x71, 0x0000001F);
 		/// <summary>
 		/// Allocate array onto evaluation stack by specified size and type.
 		/// size: 0

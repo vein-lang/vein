@@ -127,7 +127,6 @@
     override-size: 4
 - CAST:
     description: Cast T1 to T2
-    override-size: 8
 - NEWARR:
     description: Allocate array onto evaluation stack by specified size and type.
 - LDLEN:
