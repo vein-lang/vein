@@ -2,6 +2,7 @@ namespace vein.runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading;
     using collections;
@@ -18,11 +19,12 @@ namespace vein.runtime
     }
 #endif
 
-
+    [DebuggerDisplay("VeinClass {FullName}")]
     public class VeinClass : IEquatable<VeinClass>, IAspectable
     {
         public QualityTypeName FullName { get; set; }
         public string Name => FullName.Name;
+        public string Alias => Aspects.FirstOrDefault(x => x.IsAlias())?.AsAlias()?.Name ?? Name;
         public string Path => FullName.Namespace;
         public virtual ClassFlags Flags { get; set; }
         public UniqueList<VeinClass> Parents { get; set; } = new();

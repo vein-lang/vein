@@ -59,7 +59,7 @@ namespace vein.runtime
         public VeinClass FindType(string typename, List<string> includes, bool throwWhenNotFound = true)
         {
             var result = class_table.Where(x => includes.Contains(x.FullName.Namespace)).
-                FirstOrDefault(x => x.Name.Equals(typename));
+                FirstOrDefault(x => x.Name.Equals(typename) || x.Alias.Equals(typename));
             if (result is not null)
                 return result;
             foreach (var module in Deps)
