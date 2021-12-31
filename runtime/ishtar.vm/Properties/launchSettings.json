@@ -6,7 +6,7 @@
     },
     "run test": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\git\\vein-std\\test\\bin\\test.corlib.wll --sys::log::use-console=1 --sys::display-ffi-mapping"
+      "commandLineArgs": "C:\\git\\vein-std\\test\\bin\\test.std.wll --sys::log::use-console=1 --sys::display-ffi-mapping --sys::ishtar::skip-validate-args=1"
     },
     "run test_case 00": {
       "commandName": "Project",

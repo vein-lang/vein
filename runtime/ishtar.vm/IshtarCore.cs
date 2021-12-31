@@ -40,6 +40,10 @@ namespace vein.runtime
         {
             if (VeinCore.ValueTypeClass is not RuntimeIshtarClass)
                 throw new InvalidSystemMappingException();
+            if (VeinCore.StringClass is not RuntimeIshtarClass)
+                throw new InvalidSystemMappingException();
+            if (VeinCore.ArrayClass is not RuntimeIshtarClass)
+                throw new InvalidSystemMappingException();
 
             (VeinCore.ValueTypeClass as RuntimeIshtarClass)
                 !.DefineField("!!value", FieldFlags.Special | FieldFlags.Internal,

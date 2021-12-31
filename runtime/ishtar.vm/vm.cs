@@ -475,6 +475,11 @@ namespace ishtar
 
 #if DEBUG
                                 println($"@@@@<< {_a.Name}: {_a.Type.FullName.NameWithNS}");
+                                if (Environment.GetCommandLineArgs().Contains("--sys::ishtar::skip-validate-args=1"))
+                                {
+                                    method_args[y] = *sp;
+                                    continue;
+                                }
                                 var arg_class = _a.Type as RuntimeIshtarClass;
                                 if (arg_class.Name is not "Object" and not "ValueType")
                                 {
