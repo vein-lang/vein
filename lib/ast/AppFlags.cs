@@ -13,6 +13,7 @@ namespace vein
     public enum ApplicationFlag
     {
         use_experimental_options,
+        use_predef_array_type_initer,
         [Experimental]
         exp_simplify_optimize
     }
@@ -67,13 +68,23 @@ namespace vein
             All
         }
 
-        public static void Set(string key, bool val)
+        public static void Set(ApplicationFlag key, bool val = true)
+            => flags.Add($"{key}", val.ToString().ToLowerInvariant());
+
+        private static void Set(string key, bool val)
             => flags.Add(key, val.ToString().ToLowerInvariant());
         // TODO
-        public static bool HasFlag(string key)
+        private static bool HasFlag(string key)
         {
             if (flags.ContainsKey(key) && flags[key] is "false" or "true")
                 return flags[key] == "true";
+            return false;
+        }
+
+        public static bool HasFlag(ApplicationFlag key)
+        {
+            if (flags.ContainsKey($"{key}") && flags[$"{key}"] is "false" or "true")
+                return flags[$"{key}"] == "true";
             return false;
         }
 

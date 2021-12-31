@@ -56,7 +56,7 @@ namespace vein.syntax
 
         private ExpressionSyntax SimplifyOptimization(BinaryExpressionSyntax binary)
         {
-            if (!AppFlags.HasFlag("exp_simplify_optimize"))
+            if (!AppFlags.HasFlag(ApplicationFlag.exp_simplify_optimize))
                 return binary;
 
             if (binary is not { Left: { Kind: SyntaxType.LiteralExpression }, Right: { Kind: SyntaxType.LiteralExpression } })

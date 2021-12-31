@@ -2,7 +2,7 @@
   "profiles": {
     "compile vein std": {
       "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\vein-std\\src\\std.vproj --EF:+exp_simplify_optimize"
+      "commandLineArgs": "build C:\\git\\vein-std\\src\\std.vproj --ignore-cache --EF:+exp_simplify_optimize --EF:+use_predef_array_type_initer"
     },
     "compile vein std - test": {
       "commandName": "Project",
