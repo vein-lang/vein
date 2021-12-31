@@ -27,6 +27,42 @@ namespace ishtar
                     ("v1", TYPE_STRING))
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&TrimEnd)
                 .AddInto(table, x => x.Name);
+
+            new RuntimeIshtarMethod("i_call_String_fmt", Private | Static | Extern,
+                    ("template", TYPE_STRING), ("array", TYPE_ARRAY))
+                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Fmt)
+                .AddInto(table, x => x.Name);
+        }
+
+        [IshtarExportFlags(Private | Static)]
+        [IshtarExport(2, "i_call_String_fmt")]
+        public static IshtarObject* Fmt(CallFrame frame, IshtarObject** args)
+        {
+            var template_obj = args[0];
+            var array_obj = args[1];
+
+            FFI.StaticValidate(frame, &template_obj);
+            FFI.StaticValidate(frame, &array_obj);
+
+            FFI.StaticTypeOf(frame, &template_obj, TYPE_STRING);
+            FFI.StaticTypeOf(frame, &array_obj, TYPE_ARRAY);
+
+
+            var arr = (IshtarArray*)array_obj;
+
+            var dotnet_arr = new string[arr->length];
+
+            for (var i = 0ul; i != arr->length; i++)
+            {
+                dotnet_arr[i] = IshtarMarshal.ToDotnetString(arr->Get((uint)i, frame), frame);
+            }
+
+            var template = IshtarMarshal.ToDotnetString(template_obj, frame);
+
+            var result = string.Format(template, dotnet_arr);
+
+            return IshtarMarshal.ToIshtarObject(result, frame);
+
         }
 
         [IshtarExportFlags(Private | Static)]
