@@ -9,13 +9,19 @@ using System.Security.Cryptography;
 using System.Text;
 using MoreLinq;
 using Newtonsoft.Json;
-
+using vein.cmd;
 
 [ExcludeFromCodeCoverage]
 public class Cache
 {
-    public static Asset Validate(CompilationTarget target, ProgressTask read_task, Dictionary<FileInfo, string> sources)
+    public static Asset Validate(CompilationTarget target, ProgressTask read_task,
+        Dictionary<FileInfo, string> sources)
     {
+        if (target.CompilationSettings?.IgnoreCache == true)
+        {
+            target.HasChanged = true;
+            return new Asset();
+        }
         var cacheFolder = target.Project.CacheDir;
         var file = cacheFolder.File("project.assets.json");
 
@@ -85,6 +91,8 @@ public class Cache
 
     public static void SaveAssets(IAssetable asset)
     {
+        if (asset.Hashes is null)
+            return;
         if (asset.HashesFile.Exists) asset.HashesFile.Delete();
         File.WriteAllText(asset.HashesFile.FullName, JsonConvert.SerializeObject(asset.Hashes, Formatting.Indented));
     }

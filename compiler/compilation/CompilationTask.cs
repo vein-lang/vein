@@ -79,6 +79,7 @@ namespace vein.compilation
         public bool HasChanged { get; set; }
 
         public Dictionary<FileInfo, DocumentDeclaration> AST { get; } = new();
+        public CompileSettings CompilationSettings { get; internal set; }
 
         public DirectoryInfo GetOutputDirectory()
             => new(Path.Combine(Project.WorkDir.FullName, "bin"));
@@ -128,7 +129,8 @@ namespace vein.compilation
                 new TaskDescriptionColumn { Alignment = Justify.Left })
         .Start(ctx => Run(info, ctx, settings));
 
-        public static IReadOnlyCollection<CompilationTarget> Collect(DirectoryInfo info, ProgressTask task, ProgressContext ctx)
+        public static IReadOnlyCollection<CompilationTarget> Collect(
+            DirectoryInfo info, ProgressTask task, ProgressContext ctx, CompileSettings settigs)
         {
             var files = info.EnumerateFiles("*.vproj", SearchOption.AllDirectories)
                 .ToList()
@@ -159,6 +161,7 @@ namespace vein.compilation
                 task.VeinStatus($"Reading [orange]'{p.Name}'[/]");
 
                 var t = new CompilationTarget(p, ctx);
+                t.CompilationSettings = settigs;
 
                 targets.Add(p, t);
             }
@@ -186,7 +189,7 @@ namespace vein.compilation
                         compilationTarget.Dependencies.Add(targets[project]);
                     else
                     {
-                        targets.Add(project, new CompilationTarget(project, ctx));
+                        targets.Add(project, new CompilationTarget(project, ctx) { CompilationSettings = settigs });
                         compilationTarget.Dependencies.Add(targets[project]);
                     }
                 }
@@ -200,7 +203,7 @@ namespace vein.compilation
         public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info, ProgressContext context, CompileSettings settings)
         {
             var collection =
-                Collect(info, context.AddTask("Collect projects"), context);
+                Collect(info, context.AddTask("Collect projects"), context, settings);
             var list = new List<VeinModule>();
             var shardStorage = new ShardStorage();
 

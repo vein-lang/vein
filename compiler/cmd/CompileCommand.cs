@@ -35,6 +35,10 @@ namespace vein.cmd
         [Description("Generate shard package.")]
         [CommandOption("--gen-shard")]
         public bool GeneratePackageOutput { get; set; }
+
+        [Description("Ignore cache.")]
+        [CommandOption("--ignore-cache")]
+        public bool IgnoreCache { get; set; }
     }
 
     public interface IProjectSettingProvider
