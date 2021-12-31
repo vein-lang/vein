@@ -645,6 +645,13 @@ namespace ishtar
 		/// </summary>
 		public static readonly OpCode NEWOBJ = new (0x52, 0x0100001F);
 		/// <summary>
+		/// Cast T1 to T2
+		/// size: 8
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode CAST = new (0x71, 0x0200001F);
+		/// <summary>
 		/// Allocate array onto evaluation stack by specified size and type.
 		/// size: 0
 		/// flow: 0
@@ -892,6 +899,7 @@ namespace ishtar
 			{OpCodeValue.CONV_I4, CONV_I4},
 			{OpCodeValue.THROW, THROW},
 			{OpCodeValue.NEWOBJ, NEWOBJ},
+			{OpCodeValue.CAST, CAST},
 			{OpCodeValue.NEWARR, NEWARR},
 			{OpCodeValue.LDLEN, LDLEN},
 			{OpCodeValue.LDELEM_S, LDELEM_S},

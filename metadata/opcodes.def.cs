@@ -368,6 +368,10 @@ namespace ishtar
 		/// </summary>
 		NEWOBJ = 0x52,
 		/// <summary>
+		/// Cast T1 to T2
+		/// </summary>
+		CAST = 0x71,
+		/// <summary>
 		/// Allocate array onto evaluation stack by specified size and type.
 		/// </summary>
 		NEWARR = 0x53,
