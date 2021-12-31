@@ -20,7 +20,7 @@ public class QualifiedExpressionTest
     [Test]
     public void ExpSimplifyTest()
     {
-        AppFlags.Set("exp_simplify_optimize", false);
+        AppFlags.Set(ApplicationFlag.exp_simplify_optimize, false);
         var result = VeinAst.QualifiedExpression.End().ParseVein("1 + 2 - 3 * 4 / 5 ^^ 2");
         Console.WriteLine(result.ToString());
     }
