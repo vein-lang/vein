@@ -1,5 +1,7 @@
 namespace ishtar
 {
+    using System;
+    using System.Diagnostics;
     using Sprache;
     using vein.syntax;
 
@@ -13,14 +15,21 @@ namespace ishtar
                 return arg.Value.CanOptimizationApply();
             if (exp is StringLiteralExpressionSyntax)
                 return true;
+            if (exp is IdentifierExpression)
+                return false;
+            if (exp is ThisAccessExpression)
+                return false;
+            if (exp is ArrayCreationExpression)
+                return false;
 
             try
             {
                 ForceOptimization(exp);
                 return true;
             }
-            catch
+            catch (Exception e)
             {
+                Debug.WriteLine($"[CanOptimizationApply] [{exp.GetType().Name}] {e}");
                 return false;
             }
         }

@@ -178,7 +178,8 @@ namespace ishtar
             VeinClass targetType,
             InvocationExpression invocation)
         {
-            var method = targetType.FindMethod($"{invocation.Name}", invocation.Arguments.DetermineTypes(this));
+            var args = invocation.Arguments.DetermineTypes(this);
+            var method = targetType.FindMethod($"{invocation.Name}", args);
             if (method is not null)
                 return method;
             this.LogError($"The name '{invocation.Name}' does not exist in the current context.", invocation.Name);
@@ -401,16 +402,14 @@ namespace ishtar
         public static ILGenerator EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
         {
             if (expr is AccessExpressionSyntax access)
-            {
-                gen.EmitAccess(access);
-                return gen;
-            }
+                return gen.EmitAccess(access);;
+
+            if (expr is ArrayCreationExpression arr)
+                return gen.EmitArrayCreate(arr);
 
             if (expr is LiteralExpressionSyntax literal)
-            {
-                gen.EmitLiteral(literal);
-                return gen;
-            }
+                return gen.EmitLiteral(literal);
+
 
             if (expr is NewExpressionSyntax @new)
             {
@@ -419,22 +418,10 @@ namespace ishtar
             }
 
             if (expr is ArgumentExpression arg)
-            {
-                gen.EmitExpression(arg.Value);
-                return gen;
-            }
-
-            if (expr is BinaryExpressionSyntax bin)
-            {
-                gen.EmitBinaryExpression(bin);
-                return gen;
-            }
+                return gen.EmitExpression(arg.Value);
 
             if (expr is IdentifierExpression @ref)
-            {
-                gen.EmitLoadIdentifierReference(@ref);
-                return gen;
-            }
+                return gen.EmitLoadIdentifierReference(@ref);
 
             if (expr is ThisAccessExpression)
                 return gen.EmitThis();
@@ -446,9 +433,12 @@ namespace ishtar
             }
 
             if (expr is UnaryExpressionSyntax unary)
-            {
-                var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
                 return gen.EmitUnary(unary);
+
+            if (expr is BinaryExpressionSyntax bin)
+            {
+                gen.EmitBinaryExpression(bin);
+                return gen;
             }
 
             throw new NotImplementedException();
@@ -780,9 +770,50 @@ namespace ishtar
             throw new Exception("EmitCreateObject");
         }
 
+        public static ILGenerator EmitArrayCreate(this ILGenerator gen, ArrayCreationExpression arr)
+        {
+            var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            var type = context.ResolveType(arr.Type);
+            var exp = arr.Initializer;
+            var init_method = gen.ConstructArrayTypeInitialization(arr.Type,
+                exp);
+            var args = exp.Args;
+            var sizes = exp.Sizes;
+
+            if (sizes.Length > 1)
+                throw new NotSupportedException($"Currently array rank greater 1 not supported.");
+            var size = sizes.SingleOrDefault();
+            
+            if (init_method is not null) // when method for init array is successful created/resolved
+            {
+                foreach (var arg in args.FillArgs)
+                    gen.EmitExpression(arg);
+                gen.Emit(OpCodes.CALL, init_method);
+                return gen;
+            }
+
+            gen.Emit(OpCodes.LD_TYPE, type);
+            gen.EmitExpression(size); // todo maybe need resolve cast problem
+            gen.Emit(OpCodes.NEWARR);
+
+
+            if (args is not null)
+            {
+                foreach (var (arg, x) in args.FillArgs.Select((x, y) => (x, y)))
+                {
+                    gen.EmitExpression(arg);
+                    gen.Emit(OpCodes.STELEM_S, x);
+                }
+            }
+
+            return gen;
+        }
+
 
         public static VeinMethod ConstructArrayTypeInitialization(this ILGenerator gen, TypeExpression expression, ArrayInitializerExpression arrayInitializer)
         {
+            if (!AppFlags.HasFlag(ApplicationFlag.use_predef_array_type_initer))
+                return null;
             var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
             var type = context.ResolveType(expression.Typeword);
@@ -814,10 +845,17 @@ namespace ishtar
 
             arrayConstructor.Flags |= ClassFlags.Special;
 
+            var args = Enumerable.Range(0, size_value)
+                .Select(x => ($"el_{x:00}", type))
+                .Select(x => new VeinArgumentRef(x.Item1, x.type))
+                .ToArray();
+
             var method = arrayConstructor.DefineMethod("$init", MethodFlags.Public | MethodFlags.Static,
-                VeinTypeCode.TYPE_ARRAY.AsClass());
+                VeinTypeCode.TYPE_ARRAY.AsClass(), args);
 
             var body = method.GetGenerator();
+
+            body.StoreIntoMetadata("context", context);
 
             body.Emit(OpCodes.NOP);
             body.Emit(OpCodes.LD_TYPE, type);               // load type token
@@ -846,16 +884,10 @@ namespace ishtar
                 return exp.ForceOptimization().DetermineType(context);
             if (exp is LiteralExpressionSyntax literal)
                 return literal.GetTypeCode().AsClass();
+            if (exp is ArrayCreationExpression arr)
+                return VeinTypeCode.TYPE_ARRAY.AsClass();
             if (exp is AccessExpressionSyntax access)
                 return access.ResolveType(context);
-            if (exp is BinaryExpressionSyntax bin)
-            {
-                if (bin.OperatorType.IsLogic())
-                    return VeinTypeCode.TYPE_BOOLEAN.AsClass();
-                var (lt, rt) = bin.Fusce(context);
-
-                return lt == rt ? lt : ExplicitConversion(lt, rt);
-            }
             if (exp is NewExpressionSyntax { IsArray: false } @new)
                 return context.ResolveType(@new.TargetType.Typeword);
             if (exp is NewExpressionSyntax { IsArray: true })
@@ -872,6 +904,16 @@ namespace ishtar
                 return context.ResolveScopedIdentifierType(id);
             if (exp is ArgumentExpression arg)
                 return arg.Value.DetermineType(context);
+            if (exp is TypeExpression t)
+                return context.ResolveType(t.Typeword);
+            if (exp is BinaryExpressionSyntax bin)
+            {
+                if (bin.OperatorType.IsLogic())
+                    return VeinTypeCode.TYPE_BOOLEAN.AsClass();
+                var (lt, rt) = bin.Fusce(context);
+
+                return lt == rt ? lt : ExplicitConversion(lt, rt);
+            }
             context.LogError($"Cannot determine expression.", exp);
             throw new SkipStatementException();
         }
