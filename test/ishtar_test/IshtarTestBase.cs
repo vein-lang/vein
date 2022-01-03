@@ -12,6 +12,7 @@ namespace ishtar_test
     using ishtar.emit;
     using vein.runtime;
     using Xunit;
+    using Assert = NUnit.Framework.Assert;
 
     public static class IshtarRuntimeModuleEx
     {
@@ -176,6 +177,16 @@ namespace ishtar_test
 
         protected void Validate()
         {
+        }
+
+        protected unsafe void Validate(CallFrame frame)
+        {
+            if (frame.exception is not null)
+            {
+                var exception = frame.exception.value;
+                var clazz = exception->decodeClass();
+                Assert.Fail($"Fault has throw. [{clazz.Name}]");
+            }
         }
 
         protected virtual void StartUp() { }

@@ -130,7 +130,6 @@ namespace ishtar
                         ++ip;
                         --sp;
                         A_OP(sp, 0, ip, invocation);
-                        ForceFail(KnowTypes.NullPointerException(invocation));
                         break;
                     case SUB:
                         ++ip;

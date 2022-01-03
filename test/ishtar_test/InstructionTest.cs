@@ -25,7 +25,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.ADD);
                 gen.Emit(OpCodes.RET);
             });
-            Validate();
+            Validate(result);
             Assert.AreEqual(code, (*result.returnValue).type);
             Assert.AreEqual(10, (*result.returnValue).data.l);
         }
@@ -47,7 +47,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.SUB);
                 gen.Emit(OpCodes.RET);
             });
-            Validate();
+            Validate(result);
             Assert.AreEqual(code, (*result.returnValue).type);
             Assert.AreEqual(5, (*result.returnValue).data.l);
         }
@@ -67,7 +67,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.MUL);
                 gen.Emit(OpCodes.RET);
             });
-            Validate();
+            Validate(result);
             Assert.AreEqual(code, (*result.returnValue).type);
             Assert.AreEqual(5 * 5, (*result.returnValue).data.l);
         }
@@ -87,7 +87,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.DIV);
                 gen.Emit(OpCodes.RET);
             });
-            Validate();
+            Validate(result);
             Assert.AreEqual(code, (*result.returnValue).type);
             Assert.AreEqual(5 / 5, (*result.returnValue).data.l);
         }
@@ -107,7 +107,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.MOD);
                 gen.Emit(OpCodes.RET);
             });
-            Validate();
+            Validate(result);
             Assert.AreEqual(code, (*result.returnValue).type);
             Assert.AreEqual(5 % 5, (*result.returnValue).data.l);
         }
@@ -128,7 +128,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.all[actor]);
                 gen.Emit(OpCodes.RET);
             });
-            Validate();
+            Validate(result);
             Assert.AreEqual(VeinTypeCode.TYPE_R4, (*result.returnValue).type);
             Assert.AreEqual(expected, (*result.returnValue).data.f_r4);
         }
@@ -149,7 +149,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.all[actor]);
                 gen.Emit(OpCodes.RET);
             });
-            Validate();
+            Validate(result);
             Assert.AreEqual(VeinTypeCode.TYPE_R4, (*result.returnValue).type);
             Assert.AreEqual(expected, (*result.returnValue).data.f_r4);
         }
@@ -170,7 +170,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.all[actor]);
                 gen.Emit(OpCodes.RET);
             });
-            Validate();
+            Validate(result);
             Assert.AreEqual(VeinTypeCode.TYPE_R16, (*result.returnValue).type);
             Assert.AreEqual((decimal)expected, (*result.returnValue).data.d);
         }
@@ -191,7 +191,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.all[actor]);
                 gen.Emit(OpCodes.RET);
             });
-            Validate();
+            Validate(result);
             Assert.AreEqual(VeinTypeCode.TYPE_R8, (*result.returnValue).type);
             Assert.AreEqual((double)expected, (*result.returnValue).data.f);
         }
@@ -211,7 +211,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.MUL);
                 gen.Emit(OpCodes.RET);
             });
-            Validate();
+            Validate(result);
             Assert.AreEqual(code, (*result.returnValue).type);
             Assert.AreEqual(5 * 5, (*result.returnValue).data.l);
         }
