@@ -79,5 +79,31 @@ namespace ishtar_test
             Assert.AreEqual(VeinTypeCode.TYPE_U8, result.returnValue->type);
             Assert.AreEqual(5, result.returnValue->data.i);
         }
+
+
+        [Test]
+        [Parallelizable(ParallelScope.None)]
+        public void StringFormatWithArray()
+        {
+            using var ctx = CreateContext();
+
+            var result = ctx.Execute((x, _) =>
+            {
+                x.Emit(OpCodes.LDC_STR, "{0} and {1}");
+                x.Emit(OpCodes.LDC_STR, "foo");
+                x.Emit(OpCodes.LDC_STR, "bar");
+                x.Emit(OpCodes.CALL, VeinCore.StringClass.FindMethod("format", new []
+                {
+                    VeinCore.StringClass, /* template */ 
+                    VeinCore.ObjectClass, /* o1 */
+                    VeinCore.ObjectClass  /* o2 */
+                }));
+                x.Emit(OpCodes.RET);
+            });
+
+            Assert.AreEqual(VeinTypeCode.TYPE_STRING, result.returnValue->type);
+            var str = IshtarMarshal.ToDotnetString((IshtarObject*)result.returnValue->data.p, result);
+            Assert.AreEqual("foo and bar", str);
+        }
     }
 }
