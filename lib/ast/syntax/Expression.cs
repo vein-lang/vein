@@ -338,6 +338,7 @@ namespace vein.syntax
             from oo in
                 post_increment_expression.Select(x => x.Downlevel()).Positioned()
                 .Or(post_decrement_expression.Positioned())
+                .Or("nameof".Keyword().Then(QualifiedExpression.Parenthesis().Select(x => new NameOfExpressionSyntax(x))))
                 .Or(element_access_expression.Positioned())
                 .Or(invocation_expression.Positioned())
                 .Or(array_creation_expression)

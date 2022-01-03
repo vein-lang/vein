@@ -107,6 +107,12 @@ namespace vein.stl
         public static Parser<ExpressionSyntax> Downlevel<T>(this Parser<T> p) where T : ExpressionSyntax
             => p.Select(x => x.Downlevel());
 
+        public static Parser<T> Parenthesis<T>(this Parser<T> parser) =>
+            parser.Contained(VeinSyntax.OPENING_PARENTHESIS, VeinSyntax.CLOSING_PARENTHESIS);
+
+        public static Parser<D> Then<T, D>(this Parser<T> parser, Parser<D> then) =>
+            parser.Then(x => then);
+
         public static ExchangeWrapper<T> Exchange<T>(this Parser<T> p)
             => new(p);
 

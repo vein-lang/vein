@@ -441,6 +441,18 @@ namespace ishtar
                 return gen;
             }
 
+            if (expr is NameOfExpressionSyntax @nameof)
+            {
+                // TODO, validate exist variable\field\method\class\etc
+                if (@nameof.Expression is AccessExpressionSyntax nameof_exp1)
+                    return gen.Emit(OpCodes.LDC_STR, nameof_exp1.Right.ToString());
+                if (@nameof.Expression is IdentifierExpression nameof_exp2)
+                    return gen.Emit(OpCodes.LDC_STR, nameof_exp2.ToString());
+                var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+                ctx.LogError($"Target expression is not valid named expression.", expr);
+                throw new SkipStatementException();
+            }
+
             throw new NotImplementedException();
         }
 
@@ -906,6 +918,8 @@ namespace ishtar
                 return arg.Value.DetermineType(context);
             if (exp is TypeExpression t)
                 return context.ResolveType(t.Typeword);
+            if (exp is NameOfExpressionSyntax)
+                return VeinTypeCode.TYPE_STRING.AsClass();
             if (exp is BinaryExpressionSyntax bin)
             {
                 if (bin.OperatorType.IsLogic())
