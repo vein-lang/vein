@@ -98,7 +98,6 @@ namespace ishtar
                 default:
                     VM.FastFail(WNE.TYPE_MISMATCH,
                         $"[marshal::ToIshtarObject] converter for '{typeof(X).Name}' not support.", frame);
-                    VM.ValidateLastError();
                     return default;
             }
         }
@@ -136,7 +135,6 @@ namespace ishtar
                 default:
                     VM.FastFail(WNE.TYPE_MISMATCH,
                         $"[marshal::ToDotnet] converter for '{typeof(X).Name}' not support.", frame);
-                    VM.ValidateLastError();
                     return default;
             }
         }
@@ -239,6 +237,7 @@ namespace ishtar
             TYPE_CHAR => ToIshtarObject($"{ToDotnetChar(obj, frame)}"),
             TYPE_RAW => ToIshtarObject($"0x{ToDotnetPointer(obj, frame):X8}"),
             TYPE_STRING => obj,
+            TYPE_FUNCTION => ToIshtarObject(new IshtarFunction(obj, frame).Name),
             _ => ReturnDefault(nameof(ToIshtarString), $"Convert to '{obj->decodeClass().TypeCode}' not supported.", frame),
         };
 
@@ -246,7 +245,6 @@ namespace ishtar
         {
             VM.FastFail(WNE.TYPE_MISMATCH,
                 $"[marshal::{name}] {msg}", frame);
-            VM.ValidateLastError();
             return default;
         }
 
@@ -257,7 +255,7 @@ namespace ishtar
             var @class = obj->decodeClass();
 
             var val = new stackval { type = @class.TypeCode };
-            if (@class.TypeCode is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_RAW)
+            if (@class.TypeCode is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_RAW or TYPE_FUNCTION)
             {
                 val.data.p = (nint)obj;
                 return val;
@@ -326,7 +324,7 @@ namespace ishtar
             if (p->type == TYPE_NONE)
                 return null;
 
-            if (p->type is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_RAW)
+            if (p->type is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_RAW or TYPE_FUNCTION)
                 return (IshtarObject*)p->data.p;
             if (p->type is TYPE_NONE or > TYPE_ARRAY or < TYPE_NONE)
             {

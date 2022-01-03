@@ -27,7 +27,8 @@ public enum VeinTypeCode
     TYPE_CLASS, /* custom class */
     TYPE_ARRAY, /* Array<?> */
     TYPE_TOKEN, /* type token */
-    TYPE_RAW
+    TYPE_RAW, /* raw pointer */
+    TYPE_FUNCTION /* function class */
 }
 
 public static class VeinTypeCodeEx
@@ -222,6 +223,7 @@ public static class VeinTypeCodeEx
         TYPE_I4 => VeinCore.Int32Class,
         TYPE_I8 => VeinCore.Int64Class,
         TYPE_STRING => VeinCore.StringClass,
+        TYPE_FUNCTION => VeinCore.FunctionClass,
         _ => throw new ArgumentOutOfRangeException(nameof(code), code, null)
     };
 }
