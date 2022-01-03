@@ -57,16 +57,16 @@ namespace ishtar
                 return Resolver;
             Resolver = new AssemblyResolver(this);
             Resolver.Resolved += ResolverOnResolved;
-            ReadMetalinks();
+            ReadDependencyMetadata();
             return Resolver;
         }
 
-        private void ReadMetalinks()
+        private void ReadDependencyMetadata()
         {
-            if (!WorkDirecotry.File("metalinks.txt").Exists)
+            if (!WorkDirecotry.File("dependency.links").Exists)
                 return;
 
-            foreach (var line in File.ReadAllLines(WorkDirecotry.File("metalinks.txt").FullName)
+            foreach (var line in File.ReadAllLines(WorkDirecotry.File("dependency.links").FullName)
                          .Select(x => new DirectoryInfo(x))
                          .Where(x => x.Exists))
                 Resolver.AddSearchPath(line);

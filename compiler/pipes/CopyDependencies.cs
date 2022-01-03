@@ -27,20 +27,22 @@ public class CopyDependencies : CompilerPipeline
 
 
 [ExcludeFromCodeCoverage]
-public class GenerateMetalinks : CompilerPipeline
+public class GenerateDependencyLinks : CompilerPipeline
 {
     public override void Action()
     {
         if (!Target.HasChanged)
             return;
+        if (Target.Project.Dependencies.Packages.Count == 0)
+            return;
 
         var storage = new ShardStorage();
-        var metalinks = new StringBuilder();
+        var content = new StringBuilder();
 
         foreach (var package in Target.Project.Dependencies.Packages)
-            metalinks.AppendLine($"{storage.GetPackageSpace(package.Name, package.Version).SubDirectory("lib").FullName}");
+            content.AppendLine($"{storage.GetPackageSpace(package.Name, package.Version).SubDirectory("lib").FullName}");
 
-        OutputDirectory.File("metalinks.txt").WriteAllText(metalinks.ToString());
+        OutputDirectory.File("dependency.links").WriteAllText(content.ToString());
     }
     public override bool CanApply(CompileSettings flags) => true;
     public override int Order => 15;

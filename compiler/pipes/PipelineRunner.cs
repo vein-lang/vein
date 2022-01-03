@@ -14,7 +14,7 @@ public class PipelineRunner
         new SingleFileOutputPipe(),
         new CopyDependencies(),
         new GeneratePackage(),
-        new GenerateMetalinks()
+        new GenerateDependencyLinks()
     };
 
 
@@ -41,7 +41,7 @@ public class PipelineRunner
             }
             task.VeinStatus($"Apply [orange]'{pipe.GetType().Name}'[/] pipeline...");
             pipe.Action();
-            Thread.Sleep(400);
+            Thread.Sleep(100);
 
             lastPipe = pipe;
             task.Increment(1);
