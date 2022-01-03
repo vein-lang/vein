@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>ishtar.adapter</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TrimMode>link</TrimMode>
+    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+    <IlcDisableUnhandledExceptionExperience>true</IlcDisableUnhandledExceptionExperience>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
+    <PackageReference Include="Microsoft.VisualStudio.Shared.VSCodeDebugProtocol" Version="17.0.50801.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Ookii.CommandLine" Version="2.3.0" />
+    <PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
+    <PackageReference Include="runtime.linux-arm64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
+    <PackageReference Include="runtime.osx-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
+    <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ishtar.vm\ishtar.vm.csproj" />
+  </ItemGroup>
+</Project>

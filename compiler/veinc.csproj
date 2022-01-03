@@ -11,6 +11,8 @@
     <PackageReference Include="DeviceId.Windows" Version="6.0.0" />
     <PackageReference Include="DeviceId.Windows.Wmi" Version="6.1.0" />
     <PackageReference Include="Flurl.Http" Version="3.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Shared.VSCodeDebugProtocol" Version="17.0.50801.1" />
+    <PackageReference Include="Ookii.CommandLine" Version="2.3.0" />
     <PackageReference Include="xunit.assert" Version="2.4.1" />
   </ItemGroup>
   <ItemGroup>

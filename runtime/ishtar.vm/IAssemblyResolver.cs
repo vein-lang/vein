@@ -29,6 +29,7 @@ namespace vein.runtime
 
             var module = RuntimeIshtarModule.Read(Vault, asm.Sections.First().data, deps, (s, v) =>
                 ResolveDep(s, v, deps));
+            module.ModulePath = asm.AssemblyPath;
             Resolved?.Invoke(module);
             return module;
         }
