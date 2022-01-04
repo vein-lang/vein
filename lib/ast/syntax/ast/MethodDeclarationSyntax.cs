@@ -2,6 +2,7 @@ namespace vein.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
+    using runtime;
     using vein.extensions;
 
     public class MethodDeclarationSyntax : MemberDeclarationSyntax
@@ -45,5 +46,22 @@ namespace vein.syntax
         public bool IsConstructor() => Identifier.ExpressionString.Equals("new");
 
         public ClassDeclarationSyntax OwnerClass { get; set; }
+    }
+
+
+    public static class MethodDeclarationExtensions
+    {
+        public static bool IsEquals(this MethodDeclarationSyntax @this, VeinMethod method)
+        {
+            if (!$"{@this.Identifier}".Equals(method.RawName))
+                return false;
+            var args = method.Arguments
+                .Where(x => !x.Name.Equals(VeinArgumentRef.THIS_ARGUMENT))
+                .ToList();
+            if (@this.Parameters.Count != args.Count)
+                return false;
+            return @this.Parameters.Select(x => $"{x.Type.Identifier}".ToLowerInvariant())
+                .SequenceEqual(args.Select(x => x.Type.Name.ToLowerInvariant()));
+        }
     }
 }

@@ -676,11 +676,13 @@ namespace vein.compilation
                 .Where(x => !x.IsAbstract)
                 .Where(x => !x.IsSpecial);
 
-            foreach (var method in prepairedOthers.Where(@class.Contains).Where(x => !x.IsOverride))
+            foreach (var method in prepairedOthers.Where(x => @class.Methods.Any(z => !z.IsOverride && z.Name == x.Name)))
             {
+                var pos = member.Methods.FirstOrDefault(x => x.IsEquals(method));
+
                 Log.Defer.Warn(
-                    $"[yellow]'{method.Name}' hides inherited member '{method.Name}'.[/]",
-                    member.Identifier, member.OwnerDocument);
+                    $"[yellow]'{method.Owner.Name}::{method.Name}' hides inherited member '{member.Identifier}::{method.Name}'.[/]",
+                    pos.Identifier, member.OwnerDocument);
             }
         }
 
