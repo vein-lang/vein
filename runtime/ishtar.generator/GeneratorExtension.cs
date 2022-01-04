@@ -970,6 +970,10 @@ namespace ishtar
             while (enumerator.MoveNext())
             {
                 var exp = enumerator.Current;
+                if (exp is ThisAccessExpression)
+                    continue;
+                if (exp is BaseAccessExpression)
+                    continue;
                 if (exp is not IdentifierExpression id)
                 {
                     context.LogError($"Incorrect state of expression.", exp);
