@@ -1299,7 +1299,7 @@ namespace vein.compilation
                         Log.Defer.Error(
                             $"In [orange]'{clazz.Identifier}'[/] class/struct/interface [red bold]{kind}[/] " +
                             $"is not found [orange bold]aspect[/], maybe skip use?",
-                            clazz.Identifier, clazz.OwnerDocument);
+                            annotation, clazz.OwnerDocument);
                         continue;
                 }
             }
@@ -1482,9 +1482,9 @@ namespace vein.compilation
                             continue;
 
                         Log.Defer.Error(
-                            $"In [orange]'{method.Identifier}'[/] method [red bold]{aspect.Name}[/] " +
-                            $"not found [orange bold]annotation[/], maybe skip use?.",
-                            method.Identifier, method.OwnerClass.OwnerDocument);
+                            $"In [orange]'{method.Identifier}'[/] aspect [red bold]{aspect.Name}[/] " +
+                            $"not found, maybe skip use?.",
+                            aspect, method.OwnerClass.OwnerDocument);
                         continue;
                 }
             }
@@ -1548,7 +1548,7 @@ namespace vein.compilation
                 $"{syntax.Name}Aspect";
             var includes = doc.Includes;
 
-            var aspect = this.module.FindType(name, includes);
+            var aspect = this.module.FindType(name, includes, false);
 
             if (aspect is null)
                 return null;
