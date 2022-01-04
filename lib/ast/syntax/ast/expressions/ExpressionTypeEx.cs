@@ -14,13 +14,11 @@ namespace vein.syntax
 
         public static bool IsLogic(this ExpressionType exp) => exp switch
         {
-            ExpressionType.And => true,
             ExpressionType.GreaterThan => true,
             ExpressionType.GreaterThanOrEqual => true,
             ExpressionType.LessThan => true,
             ExpressionType.LessThanOrEqual => true,
             ExpressionType.Conditional => true,
-            ExpressionType.Or => true,
             ExpressionType.Not => true,
             ExpressionType.OrElse => true,
             ExpressionType.AndAlso => true,
