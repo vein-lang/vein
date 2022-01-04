@@ -18,6 +18,7 @@ namespace ishtar
             B_StringBuilder.InitTable(method_table);
             B_GC.InitTable(method_table);
             X_Utils.InitTable(method_table);
+            B_Type.InitTable(method_table);
         }
 
 
@@ -26,7 +27,6 @@ namespace ishtar
         {
             if (p != null) return;
             VM.FastFail(WNE.STATE_CORRUPT, "Null pointer state.", frame);
-            VM.ValidateLastError();
         }
         [Conditional("STATIC_VALIDATE_IL")]
         public static void StaticValidateField(CallFrame current, IshtarObject** arg1, string name)
