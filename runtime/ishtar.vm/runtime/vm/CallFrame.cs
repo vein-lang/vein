@@ -38,6 +38,20 @@ namespace ishtar
                 value = IshtarGC.AllocObject(@class)
             };
 
+        public void ThrowException(RuntimeIshtarClass @class, string message)
+        {
+            this.exception = new CallFrameException()
+            {
+                value = IshtarGC.AllocObject(@class)
+            };
+
+            if (@class.FindField("message") is null)
+                throw new InvalidOperationException($"Class '{@class.FullName}' is not contained 'message' field.");
+
+            this.exception.value->vtable[@class.Field["message"].vtable_offset]
+                = IshtarMarshal.ToIshtarObject(message);
+        }
+
 
         public static void FillStackTrace(CallFrame frame)
         {
