@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using project;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using Spectre.Console;
 
@@ -34,6 +35,13 @@ public class AddCommand : AsyncCommandWithProject<AddCommandSettings>
 
         if (project._project.Packages.Contains(package_tag))
             return 0;
+
+        // remove old versions of package
+        if (project._project.Packages.Any(x => x.StartsWith($"{name}@")))
+        {
+            var el = (project._project.Packages.First(x => x.StartsWith($"{name}@")));
+            project._project.Packages.Remove(el);
+        }
 
         project._project.Packages.Add(package_tag);
         project._project.Save(project.ProjectFile);
