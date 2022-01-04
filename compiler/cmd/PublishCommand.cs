@@ -42,7 +42,7 @@ public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
             .Spinner(Spinner.Known.Pipe)
             .SpinnerStyle(Style.Parse("green bold"))
             .StartAsync("publish...",
-                async ctx => await query.WithApiKey(settings.ApiKey).PublishPackage(file));
+                async ctx => await query.WithApiKey(apiKey).PublishPackage(file));
 
         switch (result)
         {
