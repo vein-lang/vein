@@ -798,7 +798,7 @@ namespace ishtar
             
             if (init_method is not null) // when method for init array is successful created/resolved
             {
-                foreach (var arg in args.FillArgs)
+                if (args is not null) foreach (var arg in args.FillArgs)
                     gen.EmitExpression(arg);
                 gen.Emit(OpCodes.CALL, init_method);
                 return gen;
