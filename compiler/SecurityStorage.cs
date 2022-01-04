@@ -24,7 +24,11 @@ public class SecurityStorage
 
 
     public static T GetByKey<T>(string key)
-        => ReadStorage()[key].ToObject<T>();
+    {
+        if (!HasKey(key))
+            return default;
+        return ReadStorage()[key].ToObject<T>();
+    }
 
     public static bool HasKey(string key)
         => ReadStorage().ContainsKey(key);
