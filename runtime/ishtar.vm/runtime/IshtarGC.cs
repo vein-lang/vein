@@ -144,6 +144,23 @@ namespace ishtar
             return arr_obj;
         }
 
+
+        public static IshtarObject* AllocTypeObject(RuntimeIshtarClass @class, CallFrame frame)
+        {
+            if (!@class.is_inited)
+                @class.init_vtable();
+
+            var tt = KnowTypes.Type(frame);
+            var obj = AllocObject(tt);
+
+            obj->vtable[tt.Field["_unique_id"].vtable_offset] = IshtarMarshal.ToIshtarObject(tt.ID);
+            obj->vtable[tt.Field["_flags"    ].vtable_offset] = IshtarMarshal.ToIshtarObject((int)tt.Flags);
+            obj->vtable[tt.Field["_name"     ].vtable_offset] = IshtarMarshal.ToIshtarObject(tt.Name);
+            obj->vtable[tt.Field["_namespace"].vtable_offset] = IshtarMarshal.ToIshtarObject(tt.Path);
+
+            return obj;
+        }
+
         public static IshtarObject* AllocObject(RuntimeIshtarClass @class, IshtarObject** node = null)
         {
             var p = (IshtarObject*) NativeMemory.Alloc((nuint)sizeof(IshtarObject));

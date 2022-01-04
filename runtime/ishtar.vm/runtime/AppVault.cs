@@ -39,6 +39,19 @@ namespace ishtar
             return null;
         }
 
+        public RuntimeIshtarClass[] GlobalFindType(string name)
+        {
+            var list = new List<RuntimeIshtarClass>();
+            foreach (var module in Modules)
+            {
+                var r = module.class_table.Where(x => x.Name.Equals(name)).OfType<RuntimeIshtarClass>().ToArray();
+                if (r.Length == 0)
+                    continue;
+                list.AddRange(r);
+            }
+            return list.ToArray();
+        }
+
         public RuntimeIshtarClass GlobalFindType(RuntimeToken token)
         {
             foreach (var module in Modules)
