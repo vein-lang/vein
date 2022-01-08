@@ -50,6 +50,9 @@ public class FullSTDCompilation
     [Test, Order(2)]
     public void Compile()
     {
+        AppFlags.Set(ApplicationFlag.use_experimental_options, true);
+        AppFlags.Set(ApplicationFlag.exp_simplify_optimize, true);
+        AppFlags.Set(ApplicationFlag.use_predef_array_type_initer, true);
         var project = VeinProject.LoadFrom(project_file);
         var settings = new CompileSettings();
         var targets = CompilationTask.Run(project.WorkDir, settings);

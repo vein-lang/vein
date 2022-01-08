@@ -120,6 +120,7 @@ namespace ishtar_test
         {
             public static RuntimeIshtarClass VOID => VeinTypeCode.TYPE_VOID.AsRuntimeClass();
             public static RuntimeIshtarClass OBJECT => VeinTypeCode.TYPE_OBJECT.AsRuntimeClass();
+            public static RuntimeIshtarClass STRING => VeinTypeCode.TYPE_STRING.AsRuntimeClass();
         }
 
 
@@ -165,12 +166,11 @@ namespace ishtar_test
         {
             var resolver = AppVault.CurrentVault.GetResolver();
             resolver.AddSearchPath(new DirectoryInfo("./"));
-            return resolver.ResolveDep("std", new Version(0, 12, 0), new List<VeinModule>());
+            return resolver.ResolveDep("std", new Version(0, 0, 0), new List<VeinModule>());
         }
 
         private static readonly object guarder = new ();
-
-
+        
         protected IshtarTestContext CreateContext([CallerMemberName] string caller = "<unnamed>")
             => new(caller, _module);
         void IDisposable.Dispose() => Shutdown();

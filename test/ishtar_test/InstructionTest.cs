@@ -1,14 +1,12 @@
 namespace ishtar_test
 {
-    using System;
     using ishtar;
-    using ishtar.emit;
     using vein.runtime;
     using NUnit.Framework;
     using static vein.runtime.FieldFlags;
 
     [TestFixture]
-    public class InstructionTest : IshtarTestBase
+    public class A_InstructionTest : IshtarTestBase
     {
         [Test]
         [TestCase(OpCodeValue.LDC_I8_5, VeinTypeCode.TYPE_I8)]

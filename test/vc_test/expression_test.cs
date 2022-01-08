@@ -138,7 +138,7 @@ namespace veinc_test
             genCtx.Module = new VeinModuleBuilder("doo");
             var @class = genCtx.Module.DefineClass("global::mana/foo");
             genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass());
-            genCtx.CurrentScope = new ManaScope(genCtx);
+            genCtx.CurrentScope = new VeinScope(genCtx);
 
             var key = $"ata()";
             var result = Syntax.QualifiedExpression.End().ParseVein(key);
@@ -167,7 +167,7 @@ namespace veinc_test
             @class.Includes.Add("global::mana");
 
             genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass());
-            genCtx.CurrentScope = new ManaScope(genCtx);
+            genCtx.CurrentScope = new VeinScope(genCtx);
 
             genCtx.CurrentScope.DefineVariable(new IdentifierExpression("ow"), anotherClass, 0);
 
