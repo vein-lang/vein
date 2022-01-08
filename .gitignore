@@ -72,8 +72,4 @@ tools
 
 installer/gen/blobs/
 
-*.dcvr
-
-dotCover.Output.dcvr.settings
-
 dotCover.Output.xml
