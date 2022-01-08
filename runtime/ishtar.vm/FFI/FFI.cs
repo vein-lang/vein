@@ -19,6 +19,8 @@ namespace ishtar
             B_GC.InitTable(method_table);
             X_Utils.InitTable(method_table);
             B_Type.InitTable(method_table);
+            B_Field.InitTable(method_table);
+            B_Function.InitTable(method_table);
         }
 
 

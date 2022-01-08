@@ -31,13 +31,41 @@ public static unsafe class B_Type
 
         var result = results[0];
 
-        return IshtarGC.AllocTypeObject(result, current);
+        return IshtarGC.AllocTypeInfoObject(result, current);
     }
+
+    [IshtarExport(1, "i_call_Type_findField")]
+    [IshtarExportFlags(Public | Static)]
+    public static IshtarObject* FindField(CallFrame current, IshtarObject** args)
+    {
+        var arg1 = args[0];
+        var arg2 = args[1];
+
+        FFI.StaticValidate(current, &arg1);
+        FFI.StaticValidate(current, &arg2);
+        FFI.StaticTypeOf(current, &arg2, VeinTypeCode.TYPE_STRING);
+
+        current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current));
+
+        return null;
+    }
+
+    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("vein/lang", "Type");
+
+
     public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
     {
         new RuntimeIshtarMethod("i_call_Type_findByName", Public | Static | Extern,
                 new VeinArgumentRef("name", VeinCore.StringClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindByName)
+            .AddInto(table, x => x.Name);
+        new RuntimeIshtarMethod("i_call_Type_findField", Public | Static | Extern,
+                new VeinArgumentRef("type", ThisClass), new VeinArgumentRef("name", VeinCore.StringClass))
+            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindField)
+            .AddInto(table, x => x.Name);
+        new RuntimeIshtarMethod("i_call_Type_findMethod", Public | Static | Extern,
+                new VeinArgumentRef("type", ThisClass), new VeinArgumentRef("name", VeinCore.StringClass))
+            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindField)
             .AddInto(table, x => x.Name);
     }
 }
