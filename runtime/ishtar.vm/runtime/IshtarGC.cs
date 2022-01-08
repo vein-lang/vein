@@ -145,18 +145,101 @@ namespace ishtar
         }
 
 
-        public static IshtarObject* AllocTypeObject(RuntimeIshtarClass @class, CallFrame frame)
+        private static readonly Dictionary<RuntimeToken, nint> _types_cache = new();
+        private static readonly Dictionary<RuntimeToken, Dictionary<string, nint>> _fields_cache = new();
+        private static readonly Dictionary<RuntimeToken, Dictionary<string, nint>> _methods_cache = new();
+
+        public static IshtarObject* AllocTypeInfoObject(RuntimeIshtarClass @class, CallFrame frame)
         {
             if (!@class.is_inited)
                 @class.init_vtable();
 
+            IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_TYPE_BARRIER);
+
+            if (_types_cache.ContainsKey(@class.runtime_token))
+                return (IshtarObject*)_types_cache[@class.runtime_token];
+            
             var tt = KnowTypes.Type(frame);
             var obj = AllocObject(tt);
 
-            obj->vtable[tt.Field["_unique_id"].vtable_offset] = IshtarMarshal.ToIshtarObject(tt.ID);
-            obj->vtable[tt.Field["_flags"    ].vtable_offset] = IshtarMarshal.ToIshtarObject((int)tt.Flags);
-            obj->vtable[tt.Field["_name"     ].vtable_offset] = IshtarMarshal.ToIshtarObject(tt.Name);
-            obj->vtable[tt.Field["_namespace"].vtable_offset] = IshtarMarshal.ToIshtarObject(tt.Path);
+            obj->flags |= GCFlags.IMMORTAL;
+
+            obj->vtable[tt.Field["_unique_id"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.runtime_token.ClassID);
+            obj->vtable[tt.Field["_module_id"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.runtime_token.ModuleID);
+            obj->vtable[tt.Field["_flags"    ].vtable_offset] = IshtarMarshal.ToIshtarObject((int)@class.Flags);
+            obj->vtable[tt.Field["_name"     ].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.Name);
+            obj->vtable[tt.Field["_namespace"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.Path);
+
+            _types_cache[@class.runtime_token] = (nint)obj;
+
+            IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_TYPE_BARRIER);
+
+            return obj;
+        }
+
+        public static IshtarObject* AllocFieldInfoObject(RuntimeIshtarField field, CallFrame frame)
+        {
+            var @class = field.Owner as RuntimeIshtarClass;
+            if (!@class.is_inited)
+                @class.init_vtable();
+
+            var name = field.Name;
+
+            IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_FIELD_BARRIER);
+
+            if (_fields_cache.ContainsKey(@class.runtime_token) && _fields_cache[@class.runtime_token].ContainsKey(name))
+                return (IshtarObject*)_fields_cache[@class.runtime_token][name];
+            
+            var tt = KnowTypes.Field(frame);
+            var obj = AllocObject(tt);
+
+            obj->flags |= GCFlags.IMMORTAL;
+
+            var field_owner = AllocTypeInfoObject(@class, frame);
+
+            obj->vtable[tt.Field["_target"].vtable_offset] = field_owner;
+            obj->vtable[tt.Field["_name"].vtable_offset] = IshtarMarshal.ToIshtarObject(name);
+            obj->vtable[tt.Field["_vtoffset"].vtable_offset] = IshtarMarshal.ToIshtarObject((long)field.vtable_offset);
+
+            if (!_fields_cache.ContainsKey(@class.runtime_token))
+                _fields_cache[@class.runtime_token] = new();
+            _fields_cache[@class.runtime_token][name] = (nint)obj;
+
+            IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_FIELD_BARRIER);
+
+            return obj;
+        }
+
+        public static IshtarObject* AllocMethodInfoObject(RuntimeIshtarMethod method, CallFrame frame)
+        {
+            var @class = method.Owner as RuntimeIshtarClass;
+            if (!@class.is_inited)
+                @class.init_vtable();
+
+            var key = method.Name;
+
+            IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_METHOD_BARRIER);
+
+            if (_fields_cache.ContainsKey(@class.runtime_token) && _fields_cache[@class.runtime_token].ContainsKey(key))
+                return (IshtarObject*)_fields_cache[@class.runtime_token][key];
+            
+            var tt = KnowTypes.Function(frame);
+            var obj = AllocObject(tt);
+
+            obj->flags |= GCFlags.IMMORTAL;
+
+            var method_owner = AllocTypeInfoObject(@class, frame);
+
+            obj->vtable[tt.Field["_target"].vtable_offset] = method_owner;
+            obj->vtable[tt.Field["_name"].vtable_offset] = IshtarMarshal.ToIshtarObject(method.RawName);
+            obj->vtable[tt.Field["_quality_name"].vtable_offset] = IshtarMarshal.ToIshtarObject(method.Name);
+            obj->vtable[tt.Field["_vtoffset"].vtable_offset] = IshtarMarshal.ToIshtarObject((long)method.vtable_offset);
+
+            if (!_methods_cache.ContainsKey(@class.runtime_token))
+                _methods_cache[@class.runtime_token] = new();
+            _methods_cache[@class.runtime_token][key] = (nint)obj;
+
+            IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_METHOD_BARRIER);
 
             return obj;
         }
@@ -191,8 +274,16 @@ namespace ishtar
 
             return p;
         }
-        public static void FreeObject(IshtarObject** obj)
+        public static void FreeObject(IshtarObject** obj, CallFrame frame)
         {
+            if ((*obj)->flags.HasFlag(GCFlags.IMMORTAL))
+            {
+                var clazz = (*obj)->decodeClass();
+                frame.ThrowException(KnowTypes.FreeImmortalObjectFault(frame),
+                    $"Cannot free memory instance of immortal object '{clazz.Name}'.");
+                return;
+            }
+
             NativeMemory.Free((*obj)->vtable);
             (*obj)->vtable = null;
             (*obj)->clazz = null;

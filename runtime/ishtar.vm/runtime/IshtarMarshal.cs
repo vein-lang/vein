@@ -237,7 +237,7 @@ namespace ishtar
             TYPE_CHAR => ToIshtarObject($"{ToDotnetChar(obj, frame)}"),
             TYPE_RAW => ToIshtarObject($"0x{ToDotnetPointer(obj, frame):X8}"),
             TYPE_STRING => obj,
-            TYPE_FUNCTION => ToIshtarObject(new IshtarFunction(obj, frame).Name),
+            TYPE_FUNCTION => ToIshtarObject(new IshtarLayerFunction(obj, frame).Name),
             _ => ReturnDefault(nameof(ToIshtarString), $"Convert to '{obj->decodeClass().TypeCode}' not supported.", frame),
         };
 
