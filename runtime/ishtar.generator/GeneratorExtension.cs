@@ -24,10 +24,10 @@ namespace ishtar
 
         public List<string> Errors = new ();
 
-        public Dictionary<VeinMethod, ManaScope> Scopes { get; } = new();
+        public Dictionary<VeinMethod, VeinScope> Scopes { get; } = new();
 
         public VeinMethod CurrentMethod { get; set; }
-        public ManaScope CurrentScope { get; set; }
+        public VeinScope CurrentScope { get; set; }
 
         public GeneratorContext LogError(string err, ExpressionSyntax exp)
         {
@@ -44,7 +44,7 @@ namespace ishtar
         {
             if (CurrentScope is not null)
                 return CurrentScope.EnterScope();
-            CurrentScope = new ManaScope(this);
+            CurrentScope = new VeinScope(this);
             Scopes.Add(CurrentMethod, CurrentScope);
             return new ScopeTransit(CurrentScope);
         }
@@ -187,25 +187,25 @@ namespace ishtar
 
     public class ScopeTransit : IDisposable
     {
-        public readonly ManaScope Scope;
+        public readonly VeinScope Scope;
 
-        public ScopeTransit(ManaScope scope) => Scope = scope;
+        public ScopeTransit(VeinScope scope) => Scope = scope;
 
 
         public void Dispose() => Scope.ExitScope();
     }
 
-    public class ManaScope
+    public class VeinScope
     {
-        public ManaScope TopScope { get; }
-        public List<ManaScope> Scopes { get; } = new();
+        public VeinScope TopScope { get; }
+        public List<VeinScope> Scopes { get; } = new();
         public GeneratorContext Context { get; }
 
         public Dictionary<IdentifierExpression, VeinClass> variables { get; } = new();
         public Dictionary<IdentifierExpression, int> locals_index { get; } = new();
 
 
-        public ManaScope(GeneratorContext gen, ManaScope owner = null)
+        public VeinScope(GeneratorContext gen, VeinScope owner = null)
         {
             this.Context = gen;
             if (owner is null)
@@ -221,7 +221,7 @@ namespace ishtar
             gen.Emit(OpCodes.STLOC_S, locIndex);
         }
 
-        public ManaScope ExitScope()
+        public VeinScope ExitScope()
         {
             if (this.TopScope is null)
                 throw new CannotExistMainScopeException();
@@ -231,7 +231,7 @@ namespace ishtar
 
         public IDisposable EnterScope()
         {
-            var result = new ManaScope(Context, this);
+            var result = new VeinScope(Context, this);
             Context.CurrentScope = result;
             return new ScopeTransit(result);
         }
@@ -242,7 +242,7 @@ namespace ishtar
         public (VeinClass @class, int index) GetVariable(IdentifierExpression id)
             => (variables[id], locals_index[id]);
 
-        public ManaScope DefineVariable(IdentifierExpression id, VeinClass type, int localIndex)
+        public VeinScope DefineVariable(IdentifierExpression id, VeinClass type, int localIndex)
         {
             if (HasVariable(id))
             {
