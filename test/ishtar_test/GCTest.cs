@@ -14,7 +14,7 @@ namespace ishtar_test
         public unsafe void CorrectAllocateInt()
         {
             var result = IshtarMarshal.ToIshtarObject(1);
-            IshtarGC.FreeObject(&result);
+            IshtarGC.FreeObject(&result, new CallFrame());
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace ishtar_test
         public unsafe void CorrectAllocateObject()
         {
             var result = IshtarGC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass());
-            IshtarGC.FreeObject(&result);
+            IshtarGC.FreeObject(&result, new CallFrame());
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace ishtar_test
         public unsafe void CorrectAllocateString()
         {
             var result = IshtarMarshal.ToIshtarObject("foo");
-            IshtarGC.FreeObject(&result);
+            IshtarGC.FreeObject(&result, new CallFrame());
         }
 
         [Test]

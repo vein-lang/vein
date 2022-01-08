@@ -452,7 +452,7 @@ namespace ishtar
                         if (sp->type == TYPE_CLASS)
                         {
                             var obj = ((IshtarObject*)sp->data.p);
-                            IshtarGC.FreeObject(&obj);
+                            IshtarGC.FreeObject(&obj, invocation);
                         }
                         break;
                     case THROW:
