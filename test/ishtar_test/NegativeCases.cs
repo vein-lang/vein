@@ -1,6 +1,5 @@
 namespace ishtar_test
 {
-    using System;
     using ishtar;
     using NUnit.Framework;
 
@@ -14,9 +13,5 @@ namespace ishtar_test
                 var invalid = (StrRef*)ulong.MaxValue;
                 StringStorage.GetString(invalid, null);
             });
-
-
-        protected override void StartUp() { }
-        protected override void Shutdown() { }
     }
 }

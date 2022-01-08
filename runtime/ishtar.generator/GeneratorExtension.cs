@@ -71,11 +71,6 @@ namespace ishtar
                 return false;
             }
         }
-
-        public ClassBuilder CreateHiddenType(TypeSyntax targetTypeTypeword)
-            => CreateHiddenType(targetTypeTypeword.Identifier);
-        public ClassBuilder CreateHiddenType(IdentifierExpression targetTypeTypeword)
-            => CreateHiddenType(targetTypeTypeword.ExpressionString);
         public ClassBuilder CreateHiddenType(string name)
         {
             QualityTypeName fullName = $"{Module.Name}%global::internal/{name}";

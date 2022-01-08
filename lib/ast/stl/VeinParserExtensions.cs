@@ -123,50 +123,6 @@ namespace vein.stl
 
             public Parser<D> Return<D>() where D : class, new() => _.Return(new D());
         }
-
-        /// <summary>
-        /// Single character look-behind parser.
-        /// </summary>
-        /// <param name="predicate">Predicate to match.</param>
-        /// <param name="description">Parser description.</param>
-        /// <param name="failByDefault">Whether the parser should fail on zero position.</param>
-        public static Parser<char> PrevChar(Predicate<char> predicate, string description, bool failByDefault = false)
-        {
-            if (predicate == null)
-            {
-                throw new ArgumentNullException(nameof(predicate));
-            }
-
-            if (description == null)
-            {
-                throw new ArgumentNullException(nameof(description));
-            }
-
-            return i =>
-            {
-                if (i.Position > 0 && i.Source.Length > 0)
-                {
-                    var prev = i.Source[i.Position - 1];
-                    if (predicate(prev))
-                    {
-                        return Result.Success(prev, i);
-                    }
-
-                    return Result.Failure<char>(i,
-                        $"unexpected '{prev}'",
-                        new[] { description });
-                }
-
-                if (failByDefault)
-                {
-                    return Result.Failure<char>(i,
-                        "Unexpected start of input reached",
-                        new[] { description });
-                }
-
-                return Result.Success((char)0, i);
-            };
-        }
     }
 
 
