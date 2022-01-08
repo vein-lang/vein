@@ -123,6 +123,9 @@ namespace vein.runtime
         public class MutexStorage
         {
             public object INIT_ARRAY_BARRIER = new ();
+            public object INIT_TYPE_BARRIER = new ();
+            public object INIT_FIELD_BARRIER = new ();
+            public object INIT_METHOD_BARRIER = new ();
         }
     }
 }
