@@ -69,7 +69,7 @@ namespace vein
         }
 
         public static void Set(ApplicationFlag key, bool val = true)
-            => flags.Add($"{key}", val.ToString().ToLowerInvariant());
+            => flags[$"{key}"] = val.ToString().ToLowerInvariant();
 
         private static void Set(string key, bool val)
             => flags.Add(key, val.ToString().ToLowerInvariant());
