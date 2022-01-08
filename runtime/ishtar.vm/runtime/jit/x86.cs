@@ -2,6 +2,7 @@ namespace ishtar
 {
     using System;
 
+    [ExcludeFromCodeCoverage]
     public class jit_x86
     {
         public static int EAX = 0;
@@ -14,6 +15,7 @@ namespace ishtar
         public static int EDI = 7;
     }
 
+    [ExcludeFromCodeCoverage]
     public unsafe struct jit_buffer
     {
         public void* p;
@@ -23,6 +25,7 @@ namespace ishtar
         public int* i;
     }
 
+    [ExcludeFromCodeCoverage]
     public unsafe struct _jlist
     {
         public int pos, target;

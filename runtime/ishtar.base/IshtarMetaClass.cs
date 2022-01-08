@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using vein.runtime;
 
+[ExcludeFromCodeCoverage]
 public sealed class IshtarMetaClass : VeinClass
 {
     public class CannotUseMetaClassInRuntime : Exception { }

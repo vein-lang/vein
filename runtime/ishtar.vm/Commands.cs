@@ -1,5 +1,6 @@
 namespace ishtar.vm;
 
+[ExcludeFromCodeCoverage]
 public static class Commands
 {
     public static void DisplayDefinedMapping()

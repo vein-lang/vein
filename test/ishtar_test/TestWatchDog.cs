@@ -1,16 +1,18 @@
 namespace ishtar_test
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Runtime.CompilerServices;
-    using System.Threading;
     using ishtar;
 
+    [ExcludeFromCodeCoverage]
     public class WatchDogEffluentException : Exception
     {
         public WatchDogEffluentException(NativeException exp)
             : base($"Ishtar internal error was thrown. [{exp.code}] '{exp.msg}'")
         { }
     }
+    [ExcludeFromCodeCoverage]
     public class TestWatchDog : IWatchDog
     {
         private static readonly object guarder = new();

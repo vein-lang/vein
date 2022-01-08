@@ -8,6 +8,7 @@ namespace ishtar
     using System.Security;
     using System.Threading;
 
+    [ExcludeFromCodeCoverage]
     internal class NativeProviderLoader
     {
         private static readonly object guarder = new object();
@@ -169,6 +170,7 @@ namespace ishtar
 
     [SuppressUnmanagedCodeSecurity]
     [SecurityCritical]
+    [ExcludeFromCodeCoverage]
     internal static class WindowsLoader
     {
         public static IntPtr LoadLibrary(string fileName)
@@ -183,6 +185,7 @@ namespace ishtar
 
     [SuppressUnmanagedCodeSecurity]
     [SecurityCritical]
+    [ExcludeFromCodeCoverage]
     internal static class UnixLoader
     {
         public static IntPtr LoadLibrary(string fileName)

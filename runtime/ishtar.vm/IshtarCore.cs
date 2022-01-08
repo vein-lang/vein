@@ -3,6 +3,7 @@ namespace vein.runtime
     using System;
     using global::ishtar;
 
+    [ExcludeFromCodeCoverage]
     public class IshtarCore
     {
         public static void INIT()
