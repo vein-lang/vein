@@ -10,10 +10,9 @@ namespace ishtar.emit
     using System.Runtime.CompilerServices;
     using System.Text;
     using extensions;
-    using global::ishtar;
+    using ishtar;
     using vein.extensions;
     using vein.runtime;
-    using static global::ishtar.OpCodeValue;
 
     public class ILGenerator
     {
@@ -23,6 +22,7 @@ namespace ishtar.emit
         internal List<OpCode> _debug_list = new ();
         internal readonly MethodBuilder _methodBuilder;
         private readonly StringBuilder _debugBuilder = new ();
+        public static bool DoNotGenDebugInfo = true;
 
         internal int LocalsSize { get; set; }
 
@@ -41,7 +41,7 @@ namespace ishtar.emit
         {
             EnsureCapacity<OpCode>();
             InternalEmit(opcode);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name}");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name}");
             return this;
         }
         public virtual ILGenerator Emit(OpCode opcode, byte arg)
@@ -51,7 +51,7 @@ namespace ishtar.emit
             EnsureCapacity<OpCode>(sizeof(byte));
             InternalEmit(opcode);
             _ilBody[_position++] = arg;
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.byte");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.byte");
             return this;
         }
         public ILGenerator Emit(OpCode opcode, sbyte arg)
@@ -61,7 +61,7 @@ namespace ishtar.emit
             EnsureCapacity<OpCode>(sizeof(sbyte));
             InternalEmit(opcode);
             _ilBody[_position++] = (byte)arg;
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.sbyte");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.sbyte");
             return this;
         }
         public virtual ILGenerator Emit(OpCode opcode, short arg)
@@ -72,7 +72,7 @@ namespace ishtar.emit
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt16LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(short);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.short");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.short");
             return this;
         }
 
@@ -84,7 +84,7 @@ namespace ishtar.emit
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(int);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.int");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.int");
             return this;
         }
         public virtual ILGenerator Emit(OpCode opcode, long arg)
@@ -95,7 +95,7 @@ namespace ishtar.emit
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(long);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.long");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.long");
             return this;
         }
 
@@ -107,7 +107,7 @@ namespace ishtar.emit
             InternalEmit(opcode);
             BinaryPrimitives.WriteUInt64LittleEndian(_ilBody.AsSpan(_position), arg);
             _position += sizeof(ulong);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.ulong");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.ulong");
             return this;
         }
 
@@ -119,7 +119,7 @@ namespace ishtar.emit
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), BitConverter.SingleToInt32Bits(arg));
             _position += sizeof(float);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.float");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.float");
             return this;
         }
 
@@ -131,7 +131,7 @@ namespace ishtar.emit
             InternalEmit(opcode);
             BinaryPrimitives.WriteInt64LittleEndian(_ilBody.AsSpan(_position), BitConverter.DoubleToInt64Bits(arg));
             _position += sizeof(double);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.double");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.double");
             return this;
         }
 
@@ -149,7 +149,7 @@ namespace ishtar.emit
                 BinaryPrimitives.WriteInt32LittleEndian(_ilBody.AsSpan(_position), i);
                 _position += sizeof(int);
             }
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.decimal");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} {arg}.decimal");
             return this;
         }
         /// <remarks>
@@ -166,7 +166,7 @@ namespace ishtar.emit
             this.EnsureCapacity<OpCode>(sizeof(int));
             InternalEmit(opcode);
             PutInteger4(token);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} .0x{token:X8}");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} .0x{token:X8}");
             return this;
         }
         /// <summary>
@@ -198,7 +198,7 @@ namespace ishtar.emit
             this.PutInteger4(nameIdx);
             this.PutInteger4(typeIdx);
 
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {field.Name} {field.FieldType}");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} {field.Name} {field.FieldType}");
             return this;
         }
         /// <summary>
@@ -223,7 +223,7 @@ namespace ishtar.emit
             this.EnsureCapacity<OpCode>(sizeof(int));
             this.InternalEmit(opcode);
             this.PutInteger4(label.Value);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} label(0x{label.Value:X})");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} label(0x{label.Value:X})");
             return this;
         }
         public virtual ILGenerator Emit(OpCode opcode, VeinClass type)
@@ -236,7 +236,7 @@ namespace ishtar.emit
             this.EnsureCapacity<OpCode>(sizeof(int));
             this.InternalEmit(opcode);
             this.PutTypeName(type);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} [{type}] ");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} [{type}] ");
             return this;
         }
         /// <summary>
@@ -314,7 +314,7 @@ namespace ishtar.emit
 
             this.PutInteger4(tokenIdx);
             this.PutTypeName(ownerIdx);
-            _debugBuilder.AppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");
             return this;
         }
         
@@ -439,7 +439,7 @@ namespace ishtar.emit
         public ILGenerator WriteDebugMetadata(string str, int pos = 0)
         {
             if (pos == 0) pos = _position;
-            _debugBuilder.AppendLine($"/* ::{pos:0000} */ {str}");
+            DebugAppendLine($"/* ::{pos:0000} */ {str}");
             return this;
         }
         
@@ -476,7 +476,7 @@ namespace ishtar.emit
             if (_labels[loc.Value] != -1)
                 throw new UndefinedLabelException();
             _labels[loc.Value] = _position;
-            _debugBuilder.AppendLine($"/* defined-label id: 0x{loc.Value:X}, offset: 0x{_position:X} */");
+            DebugAppendLine($"/* defined-label id: 0x{loc.Value:X}, offset: 0x{_position:X} */");
         }
         /// <summary>
         /// Get labels positions.
@@ -594,6 +594,13 @@ namespace ishtar.emit
         public T ConsumeFromMetadata<T>(string key) where T : class => Metadata[key] as T;
         public void StoreIntoMetadata(string key, object o) => Metadata.Add(key, o);
         public bool HasMetadata(string key) => Metadata.ContainsKey(key);
+
+        private void DebugAppendLine(string s)
+        {
+            if (DoNotGenDebugInfo)
+                return;
+            _debugBuilder.AppendLine(s);
+        }
     }
 
 

@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using ishtar.emit;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Spectre.Console;
@@ -48,6 +49,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
 };
 
 ColorShim.Apply();
+ILGenerator.DoNotGenDebugInfo = false;
 
 if (!skipIntro)
 {
