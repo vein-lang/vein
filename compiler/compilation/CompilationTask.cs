@@ -1021,6 +1021,10 @@ namespace vein.compilation
                         AnsiConsole.WriteException(e);
 #endif
                 }
+                catch (SkipStatementException e) when (e.IsForceStop)
+                {
+                    throw e;
+                }
                 catch (SkipStatementException e)
                 {
 #if DEBUG

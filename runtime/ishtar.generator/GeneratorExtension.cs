@@ -247,7 +247,7 @@ namespace ishtar
             if (HasVariable(id))
             {
                 Context.LogError($"A local variable named '{id}' is already defined in this scope", id);
-                throw new SkipStatementException();
+                throw new SkipStatementException(true);
             }
             variables.Add(id, type);
             locals_index.Add(id, localIndex);
