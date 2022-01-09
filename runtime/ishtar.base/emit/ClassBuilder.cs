@@ -118,7 +118,7 @@ namespace ishtar.emit
                 };
 
             var getter =
-                DefineMethod($"get_{name}", VeinProperty.ConvertShadowFlags(flags), propType, args);
+                DefineMethod(VeinProperty.GetterFnName(name), VeinProperty.ConvertShadowFlags(flags), propType, args);
             if (!IsAbstract)
             {
                 if (flags.HasFlag(FieldFlags.Static))
@@ -145,7 +145,8 @@ namespace ishtar.emit
                     new VeinArgumentRef("value", prop.PropType)
                 };
             var setter =
-                DefineMethod($"set_{name}", VeinProperty.ConvertShadowFlags(flags), VeinTypeCode.TYPE_VOID.AsClass(),
+                DefineMethod(VeinProperty.SetterFnName(name), VeinProperty.ConvertShadowFlags(flags),
+                    VeinTypeCode.TYPE_VOID.AsClass(),
                     args);
             if (!IsAbstract)
             {

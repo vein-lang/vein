@@ -76,12 +76,12 @@ namespace vein.runtime
             => $"{FullName}, {Flags}";
 
 
-        public VeinMethod FindMethod(string name, IEnumerable<VeinClass> args_types) =>
+        public VeinMethod FindMethod(string name, IEnumerable<VeinClass> args_types, bool includeThis = false) =>
             this.Methods.Concat(Parents.SelectMany(x => x.Methods))
                 .FirstOrDefault(x =>
                 {
                     var nameHas = x.RawName.Equals(name);
-                    var args = x.Arguments.Where(NotThis).Select(z => z.Type).ToArray();
+                    var args = x.Arguments.Where(z => includeThis || NotThis(z)).Select(z => z.Type).ToArray();
                     var argsHas = args.SequenceEqual(args_types);
 
                     if (nameHas && !argsHas)
@@ -133,6 +133,9 @@ namespace vein.runtime
         public VeinField FindField(string name) =>
             this.Fields.Concat(Parents.SelectMany(x => x.Fields))
                 .FirstOrDefault(x => x.Name.Equals(name));
+
+        public VeinProperty FindProperty(string name)
+            => VeinProperty.RestoreFrom(name, this);
 
 
         public VeinMethod FindMethod(string name, Func<VeinMethod, bool> eq = null)

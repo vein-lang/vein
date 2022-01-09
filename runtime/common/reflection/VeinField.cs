@@ -69,6 +69,13 @@ namespace vein.runtime
 
         public static FieldName GetShadowFieldName(FieldName propName)
             => new FieldName($"$_prop_shadow_{propName.Name}_", propName.Class);
+        public static FieldName GetShadowFieldName(string propName)
+            => $"$_prop_shadow_{propName}_";
+
+        public static string GetterFnName(string propName)
+            => $"get_{propName}";
+        public static string SetterFnName(string propName)
+            => $"set_{propName}";
 
         public static MethodFlags ConvertShadowFlags(FieldFlags flags)
         {
@@ -89,6 +96,36 @@ namespace vein.runtime
             if (flags.HasFlag(FieldFlags.Abstract))
                 method |= MethodFlags.Abstract;
             return method;
+        }
+
+        public static VeinProperty RestoreFrom(string name, VeinClass clazz)
+        {
+            var n = GetShadowFieldName(name);
+
+            var shadowField = clazz.FindField(n);
+
+            if (shadowField is null)
+                return null;
+            var prop = new VeinProperty(clazz, new FieldName(name, clazz.Name), shadowField.Flags,
+                shadowField.FieldType);
+            prop.ShadowField = shadowField;
+
+            var setterArgs = shadowField.IsStatic ?
+                new VeinClass[0] : new VeinClass[1] { clazz };
+            var getterArgs = shadowField.IsStatic ?
+                new VeinClass[1] { shadowField.FieldType } : new VeinClass[2] { clazz, shadowField.FieldType };
+
+            var getMethod = clazz.FindMethod(GetterFnName(name), setterArgs, true);
+
+            if (getMethod is not null)
+                prop.Getter = getMethod;
+
+            var setMethod = clazz.FindMethod(SetterFnName(name), getterArgs, true);
+
+            if (getMethod is not null)
+                prop.Setter = setMethod;
+
+            return prop;
         }
     }
 

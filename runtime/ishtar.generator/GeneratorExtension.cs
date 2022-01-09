@@ -120,6 +120,8 @@ namespace ishtar
                 return CurrentScope.variables[id];
             if (CurrentMethod.Owner.ContainsField(id))
                 return CurrentMethod.Owner.ResolveField(id)?.FieldType;
+            if (CurrentMethod.Owner.FindProperty(id) is not null)
+                return CurrentMethod.Owner.FindProperty(id).PropType;
             var modType = Module.FindType(id.ExpressionString, Classes[CurrentMethod.Owner.FullName].Includes, false);
             if (modType is not null)
                 return modType;
@@ -139,8 +141,24 @@ namespace ishtar
             throw new SkipStatementException();
         }
 
+        public VeinProperty ResolveProperty(VeinClass targetType, IdentifierExpression target, IdentifierExpression id)
+        {
+            var field = targetType.FindProperty(id.ExpressionString);
+
+            if (field is not null)
+                return field;
+            this.LogError($"'{targetType.FullName.NameWithNS}' does not contain " +
+                          $"a definition for '{target.ExpressionString}' and " +
+                          $"no extension method '{id.ExpressionString}' accepting " +
+                          $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
+            throw new SkipStatementException();
+        }
+
         public VeinField ResolveField(IdentifierExpression id)
             => CurrentMethod.Owner.FindField(id.ExpressionString);
+
+        public VeinProperty ResolveProperty(IdentifierExpression id)
+            => CurrentMethod.Owner.FindProperty(id.ExpressionString);
 
         public VeinField ResolveField(VeinClass targetType, IdentifierExpression id)
         {
@@ -151,6 +169,17 @@ namespace ishtar
             this.LogError($"The name '{id}' does not exist in the current context.", id);
             throw new SkipStatementException();
         }
+
+        public VeinProperty ResolveProperty(VeinClass targetType, IdentifierExpression id)
+        {
+            var field = targetType.FindProperty(id.ExpressionString);
+
+            if (field is not null)
+                return field;
+            this.LogError($"The name '{id}' does not exist in the current context.", id);
+            throw new SkipStatementException();
+        }
+
         public VeinMethod ResolveMethod(
             VeinClass targetType,
             IdentifierExpression target,
@@ -456,7 +485,12 @@ namespace ishtar
             if (!field.IsStatic) return gen.EmitThis().Emit(OpCodes.STF, field);
             return gen.Emit(OpCodes.STSF, field);
         }
-        public static ILGenerator EmitThis(this ILGenerator gen) => gen.Emit(OpCodes.LDARG_0); // load this
+        public static ILGenerator EmitThis(this ILGenerator gen, bool rly = true)
+        {
+            if (rly)
+                return gen.Emit(OpCodes.LDARG_0); // load this
+            return gen;
+        }
 
         [Flags]
         public enum AccessFlags
@@ -466,7 +500,9 @@ namespace ishtar
             ARGUMENT = 1 << 2,
             FIELD = 1 << 3,
             STATIC_FIELD = 1 << 4,
-            CLASS = 1 << 5
+            CLASS = 1 << 5,
+            PROPERTY = 1 << 6,
+            STATIC_PROPERTY = 1 << 7
         }
 
         public static AccessFlags GetAccessFlags(this ILGenerator gen, IdentifierExpression id)
@@ -488,6 +524,12 @@ namespace ishtar
                 flags |= AccessFlags.FIELD;
             if (field is { IsStatic: true })
                 flags |= AccessFlags.STATIC_FIELD;
+
+            var prop = context.ResolveProperty(id);
+            if (prop is { IsStatic: false })
+                flags |= AccessFlags.PROPERTY;
+            if (prop is { IsStatic: true })
+                flags |= AccessFlags.STATIC_PROPERTY;
 
             // four order: find class
             if (context.HasDefinedType(id))
@@ -543,6 +585,15 @@ namespace ishtar
                     return gen.Emit(OpCodes.LDSF, field);
                 return gen.EmitThis().Emit(OpCodes.LDF, field);
             }
+
+            var prop = context.ResolveProperty(id);
+            if (prop is not null)
+            {
+                if (prop.IsStatic)
+                    return gen.Emit(OpCodes.CALL, prop.Getter);
+                return gen.EmitThis().Emit(OpCodes.CALL, prop.Getter);
+            }
+
             context.LogError($"The name '{id}' does not exist in the current context.", id);
             throw new SkipStatementException();
         }
@@ -595,23 +646,73 @@ namespace ishtar
 
             if (bin.Left is IdentifierExpression id)
             {
-                var field = context.ResolveField(context.CurrentMethod.Owner, id);
-                gen.EmitExpression(bin.Right).EmitStageField(field);
-                return;
+                var accessTag = gen.GetAccessFlags(id);
+
+                if (accessTag is AccessFlags.FIELD or AccessFlags.STATIC_FIELD)
+                {
+                    var field = context.ResolveField(context.CurrentMethod.Owner, id);
+                    gen.EmitExpression(bin.Right).EmitThis(accessTag is AccessFlags.FIELD).EmitStageField(field);
+                    return;
+                }
+
+                if (accessTag is AccessFlags.PROPERTY or AccessFlags.STATIC_PROPERTY)
+                {
+                    var prop = context.ResolveProperty(context.CurrentMethod.Owner, id);
+                    gen.EmitThis(accessTag is AccessFlags.PROPERTY)
+                        .EmitExpression(bin.Right)
+                        .Emit(OpCodes.CALL, prop.Setter);
+                    return;
+                }
+
+                context.LogError($"Member '{id}' is not found in '{gen._methodBuilder.classBuilder.Owner.Name}'.", id);
+                throw new SkipStatementException();
             }
 
             if (bin is { Left: AccessExpressionSyntax { Left: ThisAccessExpression, Right: IdentifierExpression id1 } })
             {
-                var field = context.ResolveField(context.CurrentMethod.Owner, id1);
-                if (field.IsStatic)
+                var accessTag = gen.GetAccessFlags(id1);
+
+                if (accessTag == AccessFlags.PROPERTY)
                 {
-                    context.LogError($"Static member '{id1}' cannot be accessed with an instance reference.", id1);
-                    throw new SkipStatementException();
+                    var prop = context.ResolveProperty(id1);
+                    gen.EmitThis().EmitExpression(bin.Right).Emit(OpCodes.CALL, prop.Setter);
+                    return;
                 }
-                gen.EmitExpression(bin.Right).EmitStageField(field);
-                return;
+                if (accessTag == AccessFlags.FIELD)
+                {
+                    var field = context.ResolveField(context.CurrentMethod.Owner, id1);
+                    if (field.IsStatic)
+                    {
+                        context.LogError($"Member '{id1}' cannot be accessed with an instance reference.", id1);
+                        throw new SkipStatementException();
+                    }
+                    gen.EmitExpression(bin.Right).EmitThis().EmitStageField(field);
+                    return;
+                }
+                context.LogError($"Member '{id1}' is not found in '{gen._methodBuilder.classBuilder.Owner.Name}'.", id1);
+                throw new SkipStatementException();
             }
 
+            if (bin is { Left: AccessExpressionSyntax { Left: SelfAccessExpression, Right: IdentifierExpression id3 } })
+            {
+                var accessTag = gen.GetAccessFlags(id3);
+
+                if (accessTag == AccessFlags.STATIC_PROPERTY)
+                {
+                    var prop = context.ResolveProperty(id3);
+                    gen.EmitExpression(bin.Right).Emit(OpCodes.CALL, prop.Setter);
+                    return;
+                }
+                if (accessTag == AccessFlags.STATIC_FIELD)
+                {
+                    var field = context.ResolveField(context.CurrentMethod.Owner, id3);
+                    gen.EmitExpression(bin.Right).EmitStageField(field);
+                    return;
+                }
+                context.LogError($"Static member '{id3}' is not found in '{gen._methodBuilder.classBuilder.Owner.Name}'.", id3);
+                throw new SkipStatementException();
+            }
+            
             if (bin is { Left: AccessExpressionSyntax access, Right: IdentifierExpression id2 })
             {
                 bool shot_load_self(bool yes = false)
@@ -647,6 +748,15 @@ namespace ishtar
                             need_load_self = shot_load_self(need_load_self);
                             gen.Emit(field.IsStatic ? OpCodes.LDSF : OpCodes.LDF, field);
                             targetClass = field.FieldType;
+                            continue;
+                        }
+
+                        if (accessTag is AccessFlags.PROPERTY or AccessFlags.STATIC_PROPERTY)
+                        {
+                            var prop = context.ResolveProperty(targetClass, node_id);
+                            need_load_self = shot_load_self(need_load_self);
+                            gen.Emit(OpCodes.CALL, prop.Getter);
+                            targetClass = prop.PropType;
                             continue;
                         }
 
@@ -969,6 +1079,8 @@ namespace ishtar
                     continue;
                 if (exp is BaseAccessExpression)
                     continue;
+                if (exp is SelfAccessExpression)
+                    continue;
                 if (exp is not IdentifierExpression id)
                 {
                     context.LogError($"Incorrect state of expression.", exp);
@@ -977,7 +1089,8 @@ namespace ishtar
 
                 t = t is null ?
                     context.ResolveScopedIdentifierType(id) :
-                    context.ResolveField(t, prev_id, id)?.FieldType;
+                    context.ResolveField(t, prev_id, id)?.FieldType ??
+                    context.ResolveProperty(t, prev_id, id)?.PropType;
                 prev_id = id;
             }
 
@@ -1307,7 +1420,19 @@ namespace ishtar
                 // four order: static field
                 if (flags.HasFlag(AccessFlags.STATIC_FIELD))
                     ctx.LogError($"Static member '{id1}' cannot be accessed with an instance reference.", id1);
-                // five order: static class
+
+                // five order: static prop
+                if (flags.HasFlag(AccessFlags.PROPERTY))
+                {
+                    var prop = ctx.ResolveProperty(id1);
+                    return gen.EmitThis().Emit(OpCodes.CALL, prop.Getter);
+                }
+
+                // six order: static prop
+                if (flags.HasFlag(AccessFlags.STATIC_PROPERTY))
+                    ctx.LogError($"Static member '{id1}' cannot be accessed with an instance reference.", id1);
+
+                // seven order: static class
                 if (flags.HasFlag(AccessFlags.CLASS))
                     ctx.LogError($"'{id1}' is a type, which is not valid in current context.", id1);
 
@@ -1332,7 +1457,16 @@ namespace ishtar
                     var field = ctx.ResolveField(id2);
                     return gen.Emit(OpCodes.LDSF, field);
                 }
-                // five order: static class
+                // five order: prop
+                if (flags.HasFlag(AccessFlags.PROPERTY))
+                    ctx.LogError($"Keyword 'self' is not valid in a access to non-static propperty.", self);
+                // six order: static prop
+                if (flags.HasFlag(AccessFlags.STATIC_PROPERTY))
+                {
+                    var prop = ctx.ResolveProperty(id2);
+                    return gen.Emit(OpCodes.CALL, prop.Getter);
+                }
+                // seven order: static class
                 if (flags.HasFlag(AccessFlags.CLASS))
                     ctx.LogError($"Keyword 'self' is not valid in a access to class.", self);
 
@@ -1367,7 +1501,15 @@ namespace ishtar
                 // four order: static field
                 if (flags.HasFlag(AccessFlags.STATIC_FIELD))
                     return gen.EmitLoadField(ctx.CurrentMethod.Owner, id6, id7);
-                // five order: static class
+
+                // five order: prop
+                if (flags.HasFlag(AccessFlags.PROPERTY))
+                    return gen.EmitThis().EmitCallProperty(ctx.CurrentMethod.Owner, id6, id7);
+                // six order: static prop
+                if (flags.HasFlag(AccessFlags.STATIC_PROPERTY))
+                    return gen.EmitCallProperty(ctx.CurrentMethod.Owner, id6, id7);
+
+                // seven order: static class
                 if (flags.HasFlag(AccessFlags.CLASS))
                 {
                     var @class = ctx.ResolveType(id6);
@@ -1405,6 +1547,32 @@ namespace ishtar
 
             return gen;
         }
+
+        public static ILGenerator EmitCallProperty(this ILGenerator gen, VeinClass @class, params IdentifierExpression[] chain)
+        {
+            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+            var clazz = @class;
+
+            foreach (var id in chain)
+            {
+                var prop = clazz.FindProperty($"{id}");
+
+                if (prop is null)
+                {
+                    ctx.LogError($"Propperty '{id}' is not found in '{clazz.Name}' class.", id);
+                    throw new SkipStatementException();
+                }
+
+                if (prop.IsStatic)
+                    gen.Emit(OpCodes.CALL, prop.Getter);
+                else
+                    gen.EmitThis().Emit(OpCodes.CALL, prop.Getter);
+                clazz = prop.PropType;
+            }
+
+            return gen;
+        }
+
 
         public static ILGenerator EmitCall(this ILGenerator gen, VeinClass @class, InvocationExpression invocation)
         {
