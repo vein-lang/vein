@@ -159,8 +159,6 @@ public class SecurityStorage
 
     private static string CreateHardwareKey() =>
         new DeviceIdBuilder()
-            .AddMachineName()
-            .AddOsVersion()
             .OnWindows(windows => windows
                 .AddMotherboardSerialNumber()
                 .AddMachineGuid()
