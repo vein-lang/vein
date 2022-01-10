@@ -39,6 +39,8 @@ namespace vein.fs
 
         private string DebugData = "";
 
+        public FileInfo AssemblyPath { get; private set; }
+
         public void AddSegment((string name, byte[] data) seg) => Sections.Add(seg);
 
         private InsomniaAssemblyMetadata metadata = new ();
@@ -67,6 +69,7 @@ namespace vein.fs
             try
             {
                 result = LoadFromFile(file.FullName);
+                result.AssemblyPath = file;
                 exception = null;
                 return true;
             }
@@ -79,7 +82,12 @@ namespace vein.fs
         }
         /// <exception cref="BadImageFormatException"/>
         public static IshtarAssembly LoadFromFile(FileInfo file)
-            => LoadFromFile(file.FullName);
+        {
+            var result = LoadFromFile(file.FullName);
+            result.AssemblyPath = file;
+            return result;
+        }
+
         /// <exception cref="BadImageFormatException"/>
         public static IshtarAssembly LoadFromMemory(MemoryStream stream)
             => LoadFromStream(stream, "unnamed-module.wll");
@@ -156,7 +164,9 @@ namespace vein.fs
         public static IshtarAssembly LoadFromFile(string file)
         {
             using var fs = File.OpenRead(file);
-            return LoadFromStream(fs, file);
+            var result = LoadFromStream(fs, file);
+            result.AssemblyPath = new FileInfo(file);
+            return result;
         }
 
         public void WriteTo(DirectoryInfo directory)

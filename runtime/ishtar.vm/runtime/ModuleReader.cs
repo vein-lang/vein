@@ -20,6 +20,9 @@ namespace ishtar
     {
         public AppVault Vault { get; }
         public ushort ID { get; internal set; }
+        public uint Size { get; private set; }
+        public FileInfo ModulePath { get; set; }
+        public FileInfo SymbolPath { get; set; }
 
         public RuntimeIshtarClass FindType(RuntimeToken type,
             bool findExternally = false)
@@ -50,6 +53,7 @@ namespace ishtar
             using var mem = new MemoryStream(arr);
             using var reader = new BinaryReader(mem);
             module.Deps.AddRange(deps);
+            module.Size = (uint)arr.Length;
 
             var idx = reader.ReadInt32(); // name index
             var vdx = reader.ReadInt32(); // version index
