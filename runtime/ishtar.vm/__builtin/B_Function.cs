@@ -9,7 +9,7 @@ public static unsafe class B_Function
     public static IshtarObject* Call(CallFrame current, IshtarObject** args)
     {
         current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_setValue currently is not support.");
-        
+
         return null;
     }
 
@@ -18,7 +18,7 @@ public static unsafe class B_Function
     public static IshtarObject* Create(CallFrame current, IshtarObject** args)
     {
         current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_setValue currently is not support.");
-        
+
         return null;
     }
 

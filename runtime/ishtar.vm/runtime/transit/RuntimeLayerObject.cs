@@ -23,7 +23,7 @@ namespace ishtar
                 return offset_field_table[name];
 
             VM.Assert(Class.Field[name] is not null, WNE.MISSING_FIELD, $"Field '{name}' is not found in '{Class.Name}' class. [Layered object]");
-            
+
             return offset_field_table[name] = Class.Field[name].vtable_offset;
         }
         protected uint GetMethodOffset(string name)
@@ -32,7 +32,7 @@ namespace ishtar
                 return offset_method_table[name];
 
             VM.Assert(Class.Method[name] is not null, WNE.MISSING_METHOD, $"Method '{name}' is not found in '{Class.Name}' class. [Layered object]");
-            
+
             return offset_method_table[name] = Class.Method[name].vtable_offset;
         }
 

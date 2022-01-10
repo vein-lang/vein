@@ -2,7 +2,7 @@ namespace ishtar
 {
     using System;
     using System.Runtime.InteropServices;
-    
+
     public unsafe struct IshtarArray : IEquatable<IshtarArray>
     {
         // <layout of IshtarObject>

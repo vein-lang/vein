@@ -170,7 +170,7 @@ namespace ishtar_test
         }
 
         private static readonly object guarder = new ();
-        
+
         protected IshtarTestContext CreateContext([CallerMemberName] string caller = "<unnamed>")
             => new(caller, _module);
         void IDisposable.Dispose() => Shutdown();

@@ -28,7 +28,7 @@ namespace ishtar.emit
 
             if (magic != -0xFF1)
                 return new();
-            
+
             var size = bin.ReadInt32();
 
             if (size == 0)
@@ -52,7 +52,7 @@ namespace ishtar.emit
                     catchAddr,
                     catchClass,
                     types);
-                
+
                 result.Add(item);
             }
 

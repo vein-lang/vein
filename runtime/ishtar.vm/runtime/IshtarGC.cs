@@ -158,7 +158,7 @@ namespace ishtar
 
             if (_types_cache.ContainsKey(@class.runtime_token))
                 return (IshtarObject*)_types_cache[@class.runtime_token];
-            
+
             var tt = KnowTypes.Type(frame);
             var obj = AllocObject(tt);
 
@@ -166,8 +166,8 @@ namespace ishtar
 
             obj->vtable[tt.Field["_unique_id"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.runtime_token.ClassID);
             obj->vtable[tt.Field["_module_id"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.runtime_token.ModuleID);
-            obj->vtable[tt.Field["_flags"    ].vtable_offset] = IshtarMarshal.ToIshtarObject((int)@class.Flags);
-            obj->vtable[tt.Field["_name"     ].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.Name);
+            obj->vtable[tt.Field["_flags"].vtable_offset] = IshtarMarshal.ToIshtarObject((int)@class.Flags);
+            obj->vtable[tt.Field["_name"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.Name);
             obj->vtable[tt.Field["_namespace"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.Path);
 
             _types_cache[@class.runtime_token] = (nint)obj;
@@ -189,7 +189,7 @@ namespace ishtar
 
             if (_fields_cache.ContainsKey(@class.runtime_token) && _fields_cache[@class.runtime_token].ContainsKey(name))
                 return (IshtarObject*)_fields_cache[@class.runtime_token][name];
-            
+
             var tt = KnowTypes.Field(frame);
             var obj = AllocObject(tt);
 
@@ -222,7 +222,7 @@ namespace ishtar
 
             if (_fields_cache.ContainsKey(@class.runtime_token) && _fields_cache[@class.runtime_token].ContainsKey(key))
                 return (IshtarObject*)_fields_cache[@class.runtime_token][key];
-            
+
             var tt = KnowTypes.Function(frame);
             var obj = AllocObject(tt);
 

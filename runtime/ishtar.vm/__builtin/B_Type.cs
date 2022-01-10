@@ -25,7 +25,7 @@ public static unsafe class B_Type
         if (results.Length > 1)
         {
             // todo, add info about all types
-            current.ThrowException(KnowTypes.MultipleTypeFoundFault(current), $"Multiple detected '{name}' types."); 
+            current.ThrowException(KnowTypes.MultipleTypeFoundFault(current), $"Multiple detected '{name}' types.");
             return null;
         }
 

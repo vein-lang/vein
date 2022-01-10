@@ -426,7 +426,7 @@ namespace ishtar
         public static ILGenerator EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
         {
             if (expr is AccessExpressionSyntax access)
-                return gen.EmitAccess(access);;
+                return gen.EmitAccess(access); ;
 
             if (expr is ArrayCreationExpression arr)
                 return gen.EmitArrayCreate(arr);
@@ -712,7 +712,7 @@ namespace ishtar
                 context.LogError($"Static member '{id3}' is not found in '{gen._methodBuilder.classBuilder.Owner.Name}'.", id3);
                 throw new SkipStatementException();
             }
-            
+
             if (bin is { Left: AccessExpressionSyntax access, Right: IdentifierExpression id2 })
             {
                 bool shot_load_self(bool yes = false)
@@ -900,11 +900,11 @@ namespace ishtar
             if (sizes.Length > 1)
                 throw new NotSupportedException($"Currently array rank greater 1 not supported.");
             var size = sizes.SingleOrDefault();
-            
+
             if (init_method is not null) // when method for init array is successful created/resolved
             {
                 if (args is not null) foreach (var arg in args.FillArgs)
-                    gen.EmitExpression(arg);
+                        gen.EmitExpression(arg);
                 gen.Emit(OpCodes.CALL, init_method);
                 return gen;
             }

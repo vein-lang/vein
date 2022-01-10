@@ -14,7 +14,7 @@ public static unsafe class B_Field
         var arg3 = args[2];
 
         current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_setValue currently is not support.");
-        
+
         return null;
     }
 
@@ -26,7 +26,7 @@ public static unsafe class B_Field
         var arg2 = args[1];
 
         current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_getValue currently is not support.");
-        
+
         return null;
     }
 

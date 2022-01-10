@@ -8,7 +8,7 @@ public class SkipStatementException : Exception
 
     public SkipStatementException()
     {
-        
+
     }
     public SkipStatementException(bool forceStop) => IsForceStop = forceStop;
 }
