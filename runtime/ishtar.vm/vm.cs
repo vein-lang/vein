@@ -28,7 +28,7 @@ namespace ishtar
             watcher?.ValidateLastError();
         }
         [Obsolete]
-        public static void ValidateLastError() {}
+        public static void ValidateLastError() { }
 
         [Conditional("DEBUG")]
         public static void println(string str) => Trace.println(str);
@@ -100,7 +100,7 @@ namespace ishtar
 
             while (true)
             {
-                vm_cycle_start:
+            vm_cycle_start:
                 invocation.last_ip = (OpCodeValue)(ushort)*ip;
                 println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)stack) - ((nint)sp))}]");
 
@@ -401,22 +401,22 @@ namespace ishtar
                         ++ip;
                         break;
                     case CAST:
-                    {
-                        ++ip;
-                        --sp;
-                        var t2 = GetClass(sp->data.ui, _module, invocation);
-                        --sp;
-                        var t1 = (IshtarObject*)sp->data.p;
-                        if (t1 == null)
                         {
-                            ForceFail(KnowTypes.NullPointerException(invocation));
-                            continue;
+                            ++ip;
+                            --sp;
+                            var t2 = GetClass(sp->data.ui, _module, invocation);
+                            --sp;
+                            var t1 = (IshtarObject*)sp->data.p;
+                            if (t1 == null)
+                            {
+                                ForceFail(KnowTypes.NullPointerException(invocation));
+                                continue;
+                            }
+                            var r = IshtarObject.IsInstanceOf(invocation, t1, t2);
+                            if (r == null)
+                                ForceFail(KnowTypes.IncorrectCastFault(invocation));
+                            else ++sp;
                         }
-                        var r = IshtarObject.IsInstanceOf(invocation, t1, t2);
-                        if (r == null)
-                            ForceFail(KnowTypes.IncorrectCastFault(invocation));
-                        else ++sp;
-                    }
                         break;
                     case SEH_ENTER:
                         ip++;
@@ -531,7 +531,7 @@ namespace ishtar
 
                             if (method.IsExtern) exec_method_native(child_frame);
                             else exec_method(child_frame);
-                            
+
                             if (method.ReturnType.TypeCode != TYPE_VOID)
                             {
                                 invocation.assert(child_frame.returnValue is not null, STATE_CORRUPT, "Method has return zero memory.");
@@ -1314,7 +1314,7 @@ namespace ishtar
                 continue;
 
 
-                exception_handle:
+            exception_handle:
 
 
                 void fill_frame_exception()
@@ -1369,7 +1369,7 @@ namespace ishtar
 
                             var filter_type = KnowTypes.FromCache(t, invocation);
                             var fail_type = exception->decodeClass();
-                            
+
                             if (fail_type.IsInner(filter_type))
                             {
                                 label_addr = zone.filterAddr[i];
@@ -1394,7 +1394,7 @@ namespace ishtar
                 goto vm_cycle_start;
             }
         }
-        
+
         public static void Assert(bool conditional, WNE type, string msg, CallFrame frame = null)
         {
             if (conditional)
