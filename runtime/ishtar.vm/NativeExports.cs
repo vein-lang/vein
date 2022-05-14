@@ -20,9 +20,6 @@ public static unsafe class NativeExports
     }
 
     [UnmanagedCallersOnly]
-    public static void VM_VALIDATE_LAST_ERROR() => VM.ValidateLastError();
-
-    [UnmanagedCallersOnly]
     public static stackval* VM_EXECUTE_METHOD(Types.FrameRef* frame)
     {
         var type = AppVault.CurrentVault.GlobalFindType(*frame->runtime_token);
