@@ -21,14 +21,12 @@ namespace ishtar
             if (conditional)
                 return;
             VM.FastFail(WNE.STATE_CORRUPT, $"Static assert failed: '{msg}'", this);
-            VM.ValidateLastError();
         }
         public void assert(bool conditional, WNE type, [CallerArgumentExpression("conditional")] string msg = default)
         {
             if (conditional)
                 return;
             VM.FastFail(type, $"Static assert failed: '{msg}'", this);
-            VM.ValidateLastError();
         }
 
 
