@@ -1,7 +1,7 @@
 <!-- warning -->
 <p align="center">
   <a href="#">
-    <img src="https://user-images.githubusercontent.com/13326808/163280244-b20be103-074c-4e7d-849c-260359e1d174.png">
+    <!--<img src="https://user-images.githubusercontent.com/13326808/163280244-b20be103-074c-4e7d-849c-260359e1d174.png">-->
     <!--<img src="https://user-images.githubusercontent.com/13326808/118900923-c3c9c280-b91a-11eb-94f3-691feb53e0f4.png">-->
   </a>
 </p>
