@@ -46,7 +46,6 @@ namespace ishtar
             if (args == null)
             {
                 FastFail(OUT_OF_MEMORY, "Cannot apply boxing memory.", frame);
-                ValidateLastError();
                 return;
             }
 
@@ -104,7 +103,6 @@ namespace ishtar
                 vm_cycle_start:
                 invocation.last_ip = (OpCodeValue)(ushort)*ip;
                 println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)stack) - ((nint)sp))}]");
-                ValidateLastError();
 
                 if (invocation.exception is not null && invocation.level == 0)
                     return;
@@ -164,7 +162,6 @@ namespace ishtar
                         if (args == null)
                         {
                             FastFail(OUT_OF_RANGE, $"Arguments in current function is empty, but trying access it.", invocation);
-                            ValidateLastError();
                             return;
                         }
                         *sp = args[(*ip) - (short)LDARG_0];
@@ -385,7 +382,6 @@ namespace ishtar
                                 // TODO
                                 CallFrame.FillStackTrace(invocation);
                                 FastFail(NONE, $"NullReferenceError", invocation);
-                                ValidateLastError();
                             }
                             //FFI.StaticValidate(invocation, @this, field.Owner);
                             var this_obj = (IshtarObject*)@this->data.p;
@@ -1404,7 +1400,6 @@ namespace ishtar
             if (conditional)
                 return;
             FastFail(type, $"static assert failed: '{msg}'", frame);
-            ValidateLastError();
         }
     }
 }
