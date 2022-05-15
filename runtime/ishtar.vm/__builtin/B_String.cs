@@ -32,6 +32,13 @@ namespace ishtar
                     ("template", TYPE_STRING), ("array", TYPE_ARRAY))
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Fmt)
                 .AddInto(table, x => x.Name);
+
+            new RuntimeIshtarMethod("i_call_String_Contains", Private | Static | Extern,
+                    ("v1", TYPE_STRING), ("v2", TYPE_STRING))
+                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Contains)
+                .AddInto(table, x => x.Name);
+
+            
         }
 
         [IshtarExportFlags(Private | Static)]
@@ -68,6 +75,28 @@ namespace ishtar
         [IshtarExportFlags(Private | Static)]
         [IshtarExport(2, "i_call_String_Concat")]
         public static IshtarObject* Concat(CallFrame frame, IshtarObject** args)
+        {
+            var i_str1 = args[0];
+            var i_str2 = args[1];
+
+            FFI.StaticValidate(frame, &i_str1);
+            FFI.StaticValidate(frame, &i_str2);
+            FFI.StaticTypeOf(frame, &i_str1, TYPE_STRING);
+            FFI.StaticTypeOf(frame, &i_str2, TYPE_STRING);
+
+
+            var str1 = IshtarMarshal.ToDotnetString(i_str1, frame);
+            var str2 = IshtarMarshal.ToDotnetString(i_str2, frame);
+
+            var result = string.Concat(str1, str2);
+
+            return IshtarMarshal.ToIshtarObject(result, frame);
+        }
+
+
+        [IshtarExportFlags(Private | Static)]
+        [IshtarExport(2, "i_call_String_Contains")]
+        public static IshtarObject* Contains(CallFrame frame, IshtarObject** args)
         {
             var i_str1 = args[0];
             var i_str2 = args[1];
