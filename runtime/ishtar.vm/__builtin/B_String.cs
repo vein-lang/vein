@@ -37,8 +37,6 @@ namespace ishtar
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Contains)
                 .AddInto(table, x => x.Name);
-
-            
         }
 
         [IshtarExportFlags(Private | Static)]
@@ -110,7 +108,7 @@ namespace ishtar
             var str1 = IshtarMarshal.ToDotnetString(i_str1, frame);
             var str2 = IshtarMarshal.ToDotnetString(i_str2, frame);
 
-            var result = string.Concat(str1, str2);
+            var result = str1.Contains(str2);
 
             return IshtarMarshal.ToIshtarObject(result, frame);
         }
