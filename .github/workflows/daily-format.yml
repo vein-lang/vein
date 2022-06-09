@@ -2,6 +2,7 @@ name: Daily code format check
 on:
   schedule:
     - cron: 0 0 * * *
+  workflow_dispatch:
 jobs:
   dotnet-format:
     runs-on: windows-latest
