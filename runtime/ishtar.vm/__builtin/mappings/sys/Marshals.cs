@@ -18,8 +18,5 @@ public static class Marshals
     }
 
 
-    public static void Setup()
-    {
-        _list.Add(typeof(FileInfo), new FileInfoAllocator());
-    }
+    public static void Setup() => _list.Add(typeof(FileInfo), new FileInfoAllocator());
 }
