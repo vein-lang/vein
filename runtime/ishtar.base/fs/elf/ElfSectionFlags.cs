@@ -1,7 +1,7 @@
-using System;
-
 namespace vein.fs.elf
 {
+    using System;
+
     [Flags]
     public enum ElfSectionFlags
     {

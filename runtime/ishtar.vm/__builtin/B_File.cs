@@ -32,11 +32,8 @@ public static unsafe class B_File
     internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("vein/lang/fs", "File");
 
 
-    public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
-    {
-        new RuntimeIshtarMethod("i_call_fs_File_info", Public | Static | Extern,
+    public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table) => new RuntimeIshtarMethod("i_call_fs_File_info", Public | Static | Extern,
                 new VeinArgumentRef("path", VeinCore.StringClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&GetFileInfo)
             .AddInto(table, x => x.Name);
-    }
 }

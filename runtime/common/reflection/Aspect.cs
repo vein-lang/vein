@@ -94,7 +94,7 @@ namespace vein.reflection
         // maybe overhead, need refactoring
         public static Aspect[] Deconstruct(Dictionary<FieldName, object> dictionary)
         {
-            AspectTarget getTarget(FieldName name)
+            static AspectTarget getTarget(FieldName name)
             {
                 if (name.fullName.Contains("/method/"))
                     return AspectTarget.Method;
