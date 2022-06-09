@@ -23,7 +23,7 @@ jobs:
           action: "fix"
           #only-changed-files: true # only works for PRs
           workspace: "mana_lang.sln"
-      - run: dotnet format -a -w --no-restore
+      - run: dotnet format --no-restore
       - name: Commit files
         if: steps.format.outputs.has-changes == 'true'
         run: |
