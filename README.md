@@ -59,7 +59,7 @@
 
 ---
 
-> Vein is an open source high-level strictly-typed programming language with a standalone OS, arm and quantum computing support.
+> Vein is an open source experimental high-level strictly-typed programming language with a standalone OS, arm and quantum computing support.
 
 ---
 
