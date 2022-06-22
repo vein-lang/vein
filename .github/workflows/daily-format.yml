@@ -2,6 +2,7 @@ name: Daily code format check
 on:
   schedule:
     - cron: 0 0 * * *
+  workflow_dispatch:
 jobs:
   dotnet-format:
     runs-on: windows-latest
@@ -16,12 +17,12 @@ jobs:
       
       - name: Run dotnet format
         id: format 
-        uses: jfversluis/dotnet-format@v1.0.5
+        uses: xt0rted/dotnet-format@v1.2.0
         with:
           repo-token: ${{ secrets.CODE_MAID_PAT }}
           action: "fix"
           #only-changed-files: true # only works for PRs
-          workspace: "mana_lang.sln"
+          workspace: "vein_lang.sln"
       - run: dotnet format --no-restore
       - name: Commit files
         if: steps.format.outputs.has-changes == 'true'
@@ -39,6 +40,5 @@ jobs:
           committer: Code Maid <code.maid@0xf6.moe>
           author: Code Maid <code.maid@0xf6.moe>
           labels: code-quality ♻︎
-          assignees: 0xF6
           reviewers: 0xF6
           branch: code-quality/codeformatting
