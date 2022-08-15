@@ -35,5 +35,6 @@ public static class Commands
 
 public enum SysFlag
 {
-    DISPLAY_FFI_MAPPING
+    DISPLAY_FFI_MAPPING,
+    ENABLED_STATIC_CTOR
 }
