@@ -36,7 +36,13 @@ namespace ishtar
         public static void halt(int exitCode = -1)
             => Environment.Exit(exitCode);
 
-        public static unsafe void exec_method_native(CallFrame frame)
+        public static unsafe void exec_method_external_native(CallFrame frame)
+        {
+            FastFail(WNE.MISSING_METHOD, "exec_method_external_native not implemented", frame);
+            return; // TODO
+        }
+
+        public static unsafe void exec_method_internal_native(CallFrame frame)
         {
             var caller = (delegate*<CallFrame, IshtarObject**, IshtarObject*>)
                 frame.method.PIInfo.Addr;
@@ -61,6 +67,20 @@ namespace ishtar
             frame.returnValue = IshtarGC.AllocValue();
             frame.returnValue->type = frame.method.ReturnType.TypeCode;
             frame.returnValue->data.p = (nint)result;
+        }
+
+        public static unsafe void exec_method_native(CallFrame frame)
+        {
+            if (frame.method.PIInfo.Addr == null)
+            {
+                FastFail(MISSING_METHOD, "Native method not linked.", frame);
+                return;
+            }
+
+            if (frame.method.PIInfo.IsExternal())
+                exec_method_external_native(frame);
+            else
+                exec_method_internal_native(frame);
         }
 
         public static unsafe void exec_method(CallFrame invocation)
