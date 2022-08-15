@@ -82,7 +82,7 @@ For building, you need the following tools:
 - vsbuild-tools-2019 with MSVC 2019, MSVC142 for ARM64
 
 
-Checkout mana sources
+Checkout vein sources
 ```bash
 git clone https://github.com/vein-lang/vein.git --recurse-submodules
 cd ./vein-lang
