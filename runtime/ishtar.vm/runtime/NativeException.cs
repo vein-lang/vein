@@ -23,6 +23,8 @@ namespace ishtar
         OUT_OF_MEMORY,
         ACCESS_VIOLATION,
         OVERFLOW,
-        OUT_OF_RANGE
+        OUT_OF_RANGE,
+        NATIVE_LIBRARY_COULD_NOT_LOAD,
+        NATIVE_LIBRARY_SYMBOL_COULD_NOT_FOUND,
     }
 }
