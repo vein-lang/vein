@@ -6,11 +6,16 @@ public static class IshtarFrames
 {
     public static CallFrame ModuleLoaderFrame = new CallFrame()
     {
-        method = RuntimeIshtarMethod.DefineEmptySystemMethod("loader")
+        method = RuntimeIshtarMethod.DefineEmptySystemMethod(".module")
     };
     public static CallFrame VTableFrame(VeinClass clazz) => new CallFrame()
     {
-        method = RuntimeIshtarMethod.DefineEmptySystemMethod("loader", clazz),
+        method = RuntimeIshtarMethod.DefineEmptySystemMethod(".type", clazz),
+    };
+
+    public static CallFrame StaticCtor(VeinClass clazz) => new CallFrame()
+    {
+        method = RuntimeIshtarMethod.DefineEmptySystemMethod(".static_ctor", clazz),
     };
     public static CallFrame EntryPoint = new CallFrame()
     {
