@@ -3,8 +3,31 @@ namespace ishtar;
 using vein.reflection;
 using vein.runtime;
 
-public static class KnowTypes
+public static partial class KnowTypes
 {
+    public static class VeinLang
+    {
+        public static class Reflection
+        {}
+
+        public static class Native
+        {
+            public static QualityTypeName NativeHandleTypeName =
+                new QualityTypeName("std", nameof(NativeHandle), "global::vein/lang/native");
+
+            public static RuntimeIshtarClass NativeHandle(CallFrame frame)
+                => findType(NativeHandleTypeName, frame);
+        }
+
+
+        public static QualityTypeName FileNotFoundFaultTypeName =
+            new QualityTypeName("std", nameof(FileNotFoundFault), "global::vein/lang");
+
+        public static RuntimeIshtarClass FileNotFoundFault(CallFrame frame)
+            => findType(FileNotFoundFaultTypeName, frame);
+    }
+
+
     public static QualityTypeName TypeInfoTypeName =
         new QualityTypeName("std", nameof(Type), "global::vein/lang");
     public static QualityTypeName FieldInfoTypeName =
@@ -24,6 +47,8 @@ public static class KnowTypes
         new QualityTypeName("std", nameof(MultipleTypeFoundFault), "global::vein/lang/reflection");
     public static QualityTypeName PlatformIsNotSupportFaultTypeName =
         new QualityTypeName("std", nameof(PlatformIsNotSupportFault), "global::vein/lang");
+    public static QualityTypeName IshatFault =
+        new QualityTypeName("std", nameof(IshatFault), "global::vein/lang");
 
     public static RuntimeIshtarClass NullPointerException(CallFrame frame)
         => findType(NullPointerExceptionTypeName, frame);
@@ -42,6 +67,9 @@ public static class KnowTypes
 
     public static RuntimeIshtarClass PlatformIsNotSupportFault(CallFrame frame)
         => findType(PlatformIsNotSupportFaultTypeName, frame);
+
+    public static RuntimeIshtarClass NativeFault(CallFrame frame)
+        => findType(IshatFault, frame);
 
     public static RuntimeIshtarClass Type(CallFrame frame)
         => findType(TypeInfoTypeName, frame);
