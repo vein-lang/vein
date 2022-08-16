@@ -5,6 +5,8 @@ namespace ishtar
 
     public unsafe struct IshtarArray : IEquatable<IshtarArray>
     {
+        public IshtarArray() {}
+
         // <layout of IshtarObject>
         public void* clazz;
         public IshtarObject* memory;

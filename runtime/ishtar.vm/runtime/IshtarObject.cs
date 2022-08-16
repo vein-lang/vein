@@ -5,6 +5,8 @@ namespace ishtar
 
     public unsafe struct IshtarObject
     {
+        public IshtarObject() {}
+
         public static readonly IshtarObject Null = default;
         public static readonly IshtarObject* NullPointer = null;
 
