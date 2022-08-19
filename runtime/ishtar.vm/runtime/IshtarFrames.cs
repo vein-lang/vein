@@ -8,6 +8,7 @@ public static class IshtarFrames
     {
         method = RuntimeIshtarMethod.DefineEmptySystemMethod(".module")
     };
+
     public static CallFrame VTableFrame(VeinClass clazz) => new CallFrame()
     {
         method = RuntimeIshtarMethod.DefineEmptySystemMethod(".type", clazz),
@@ -17,8 +18,14 @@ public static class IshtarFrames
     {
         method = RuntimeIshtarMethod.DefineEmptySystemMethod(".static_ctor", clazz),
     };
+
     public static CallFrame EntryPoint = new CallFrame()
     {
         method = RuntimeIshtarMethod.DefineEmptySystemMethod("ishtar_entry")
+    };
+
+    public static CallFrame Jit() => new CallFrame()
+    {
+        method = RuntimeIshtarMethod.DefineEmptySystemMethod(".jit")
     };
 }

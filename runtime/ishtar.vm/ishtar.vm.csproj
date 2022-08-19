@@ -12,6 +12,7 @@
     <IlcDisableUnhandledExceptionExperience>true</IlcDisableUnhandledExceptionExperience>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Iced" Version="1.17.0" />
     <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
     <PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
     <PackageReference Include="runtime.linux-arm64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
