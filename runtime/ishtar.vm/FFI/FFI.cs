@@ -122,6 +122,7 @@ namespace ishtar
                 var symbol = NativeLibrary.GetExport(cached.handle, entity.fn);
 
                 cached.ImportedSymbols.Add(entity.fn, symbol);
+                entity.Handle = symbol;
             }
             catch
             {
@@ -138,5 +139,9 @@ namespace ishtar
     public record NativeImportEntity(string entry, string fn, RuntimeIshtarMethod importer)
     {
         public VeinModule Module => importer.Owner.Owner;
+
+        public nint Handle;
+
+        public bool IsBinded() => Handle != IntPtr.Zero;
     }
 }
