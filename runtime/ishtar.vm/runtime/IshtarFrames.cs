@@ -28,4 +28,9 @@ public static class IshtarFrames
     {
         method = RuntimeIshtarMethod.DefineEmptySystemMethod(".jit")
     };
+
+    public static CallFrame NativeLoader() => new CallFrame()
+    {
+        method = RuntimeIshtarMethod.DefineEmptySystemMethod(".ffi")
+    };
 }
