@@ -82,7 +82,7 @@ For building, you need the following tools:
 - vsbuild-tools-2019 with MSVC 2019, MSVC142 for ARM64
 
 
-Checkout mana sources
+Checkout vein sources
 ```bash
 git clone https://github.com/vein-lang/vein.git --recurse-submodules
 cd ./vein-lang
@@ -266,11 +266,11 @@ A:
 ```
 ## Special Thanks
 
-<p align="center">
+<!-- <p align="center">
   <a href="https://www.jetbrains.com/?from=vein_lang">
     <img height="128" wight="128" src="https://raw.githubusercontent.com/vein-lang/vein/master/.github/images/jetbrains-variant-3.png">
   </a>
-</p>
+</p> -->
 
 <p align="center">
   <a href="https://vercel.com/?utm_source=[team-name]&utm_campaign=oss">
