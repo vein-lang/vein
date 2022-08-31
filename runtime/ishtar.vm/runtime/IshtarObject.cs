@@ -5,6 +5,7 @@ namespace ishtar
 
     public unsafe struct IshtarObject
     {
+        public IshtarObject() {}
         public void* clazz;
         public void** vtable;
         public GCFlags flags;

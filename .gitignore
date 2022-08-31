@@ -73,3 +73,6 @@ tools
 installer/gen/blobs/
 
 dotCover.Output.xml
+
+# wtf
+!logic.cs
