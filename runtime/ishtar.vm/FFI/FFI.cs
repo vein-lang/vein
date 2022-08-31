@@ -1,5 +1,6 @@
 namespace ishtar
 {
+using ishtar.runtime.vin;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
@@ -99,7 +100,7 @@ namespace ishtar
             if (_cache.ContainsKey(entity.entry))
                 return;
 
-            var result = NativeProviderLoader.TryLoadFile(new FileInfo(entity.entry), out var handle);
+            var result = NativeStorage.TryLoad(new FileInfo(entity.entry), out var handle);
 
             if (!result)
             {
@@ -119,7 +120,7 @@ namespace ishtar
 
             try
             {
-                var symbol = NativeLibrary.GetExport(cached.handle, entity.fn);
+                var symbol = NativeStorage.GetSymbol(cached.handle, entity.fn);
 
                 cached.ImportedSymbols.Add(entity.fn, symbol);
                 entity.Handle = symbol;

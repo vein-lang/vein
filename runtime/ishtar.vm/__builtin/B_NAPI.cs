@@ -1,5 +1,6 @@
 namespace ishtar;
 
+using ishtar.runtime.vin;
 using static vein.runtime.MethodFlags;
 using static vein.runtime.VeinTypeCode;
 
@@ -30,7 +31,7 @@ public static unsafe class B_NAPI
             return IshtarObject.NullPointer;
         }
 
-        var result = NativeProviderLoader.TryLoadFile(libFile, out var h);
+        var result = NativeStorage.TryLoad(libFile, out var h);
 
         if (!result)
         {
