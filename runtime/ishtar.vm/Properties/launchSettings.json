@@ -1,5 +1,8 @@
 {
   "profiles": {
+    "default run": {
+      "commandName": "Project"
+    },
     "run test fast": {
       "commandName": "Project",
       "commandLineArgs": "C:\\git\\vein-std\\test\\bin\\test.corlib.wll"
