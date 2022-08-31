@@ -1379,6 +1379,7 @@ namespace ishtar
                     {
                         for (int i = 0; i < zone.catchClass.Length; i++)
                         {
+                            // TODO, need remove using QualityTypeName and replace to RuntimeClass ref
                             var t = zone.catchClass[i];
                             if (t is null)
                                 continue;
