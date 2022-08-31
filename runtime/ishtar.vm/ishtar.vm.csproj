@@ -4,6 +4,8 @@
     <AssemblyName>ishtar</AssemblyName>
     <DefineConstants>DEBUG;STATIC_VALIDATE_IL;DEBUG_VTABLE;VALIDATE_RUNTIME_TOKEN</DefineConstants>
     <ImplicitUsings>enable</ImplicitUsings>
+    <EnablePreviewFeatures>True</EnablePreviewFeatures>
+    <GenerateRequiresPreviewFeaturesAttribute>True</GenerateRequiresPreviewFeaturesAttribute>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <TrimMode>link</TrimMode>
@@ -25,5 +27,8 @@
   <ItemGroup>
     <ProjectReference Include="..\common\vein.common.csproj" />
     <ProjectReference Include="..\ishtar.base\ishtar.base.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="runtime\vin\loaders\" />
   </ItemGroup>
 </Project>
