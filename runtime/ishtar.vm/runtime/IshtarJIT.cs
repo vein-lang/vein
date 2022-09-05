@@ -1,10 +1,15 @@
+#if EXPERIMENTAL_JIT
 namespace ishtar;
-
+using System.Collections;
 using System.Diagnostics;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.Arm;
+using System.Runtime.Intrinsics.X86;
+using System.Text;
 using Iced.Intel;
+using vein.runtime;
 using static Iced.Intel.AssemblerRegisters;
 
 public unsafe static class IshtarJIT
@@ -48,7 +53,7 @@ public unsafe static class IshtarJIT
         c.pop(rbp);
         c.ret();
 
-        return new IntPtr(RecollectExecuteMemory(c));
+        return new IntPtr(RecollectExecutableMemory(c));
     }
     public static void* WrapNativeCall(void* procedureHandle, void** retMemory)
         => WrapNativeCall(new IntPtr(procedureHandle), new IntPtr(retMemory)).ToPointer();
@@ -73,7 +78,7 @@ public unsafe static class IshtarJIT
         
         c.ret();
 
-        return new IntPtr(RecollectExecuteMemory(c));
+        return new IntPtr(RecollectExecutableMemory(c));
     }
 
     private struct ArgConventions
@@ -101,6 +106,48 @@ public unsafe static class IshtarJIT
         }
     }
 
+
+    public static void GenerateBy(RuntimeIshtarMethod method)
+    {
+        var procedure = method.PIInfo.Addr;
+        var retIsPointer = method.ReturnType.TypeCode == VeinTypeCode.TYPE_RAW;
+        var args = method.Arguments.Select(RemapToNative).ToArray();
+        var c = AllocEmitter();
+
+
+        c.test(r11, r11);
+        c.mov(r11, new IntPtr(procedure).ToInt64());
+        c.push(rbp);
+        c.mov(rbp, rsp);
+        c.sub(rsp, 16);
+
+
+
+        if (retIsPointer)
+        {
+            c.mov(__[rbp - 4], eax);
+            c.lea(rax, __[rbp - 4]);
+            c.mov(__[new IntPtr(returnMemory).ToInt64()], rax);
+        }
+    }
+
+    private static TypeMarshalBox RemapToNative(VeinArgumentRef arg)
+    {
+        if (arg.Type.IsValueType)
+            return RemapValueTypeToNative(arg);
+        return new TypeMarshalBox((byte)sizeof(nint), arg.Type);
+    }
+
+    public record TypeMarshalBox(byte size, VeinClass clazz);
+
+    private static TypeMarshalBox RemapValueTypeToNative(VeinArgumentRef arg)
+    {
+        var type = arg.Type;
+        var size = type.TypeCode.GetNativeSize();
+
+        return new TypeMarshalBox(size, type);
+    }
+
     public class NativeCallInfo
     {
         public bool retIsPointer { get; set; }
@@ -124,19 +171,6 @@ public unsafe static class IshtarJIT
 
         if (argsMemory is not null)
         {
-            /*c.xor(eax, eax);
-            c.mov(rbp, rsp);
-            c.mov(rdi, new IntPtr(argsMemory).ToInt64());
-            c.mov(eax, 0x0);*/
-            //c.test(al, al);
-            //c.mov(__[rsp+0x28], rsi);
-            // test 2
-            /*c.test(r10, r10);
-            c.xor(edx, edx);
-            c.mov(r10, new IntPtr(argsMemory).ToInt64());
-            c.call(r10);
-            c.mov(rcx, __[rax+8]);
-            c.mov(ecx, __[rcx]);*/
             c.mov(rax, new IntPtr(argsMemory).ToInt64());
             c.mov(edi, __[rax]);
         }
@@ -169,17 +203,36 @@ public unsafe static class IshtarJIT
         //c.pop(rbp);
         //c.ret();
 
-        return RecollectExecuteMemory(c);
+        return RecollectExecutableMemory(c);
     }
-
-
-
-
-    private static void* RecollectExecuteMemory(Assembler asm)
+    
+    private static void* RecollectExecutableMemory(Assembler asm)
     {
         using var stream = new MemoryStream();
         var r = asm.Assemble(new StreamCodeWriter(stream), 0);
         var asm_code = stream.ToArray();
+        var asm_size = (uint)asm_code.Length;
+        void* asm_mem = NativeApi.VirtualAlloc(null, asm_size,  NativeApi.AllocationType.Commit,  NativeApi.MemoryProtection.ReadWrite);
+        Marshal.Copy(asm_code, 0, new IntPtr(asm_mem), asm_code.Length);
+        FlushInstructions(asm_mem, asm_size);
+        var isProtected = NativeApi.VirtualProtect(asm_mem, asm_size, NativeApi.Protection.PAGE_EXECUTE_READ, out _);
+        if (!isProtected &&
+            !isProtected &&
+            !isProtected &&
+            !isProtected &&
+            !isProtected &&
+            !isProtected &&
+            !isProtected &&
+            !isProtected )
+        {
+            VM.FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", JITFrame);
+            return null;
+        }
+        return asm_mem; //(delegate*<void>)asm_mem;
+    }
+
+    private static void* RecollectExecutableMemory(byte[] asm_code)
+    {
         var asm_size = (uint)asm_code.Length;
         void* asm_mem = NativeApi.VirtualAlloc(null, asm_size,  NativeApi.AllocationType.Commit,  NativeApi.MemoryProtection.ReadWrite);
         Marshal.Copy(asm_code, 0, new IntPtr(asm_mem), asm_code.Length);
@@ -267,3 +320,4 @@ C.ret(Int32)
     L002c: pop rbp
     L002d: ret
 */
+#endif
