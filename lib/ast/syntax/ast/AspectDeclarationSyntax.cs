@@ -5,6 +5,8 @@ namespace vein.syntax
 
     public class AspectDeclarationSyntax : MemberDeclarationSyntax, IAdvancedPositionAware<AspectDeclarationSyntax>
     {
+        public static readonly string GET_USAGES_METHOD_NAME = "getUsages";
+
         public List<ParameterSyntax> Args { get; set; } = new();
         public IdentifierExpression Identifier { get; set; }
 
