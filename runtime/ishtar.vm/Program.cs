@@ -8,8 +8,7 @@ namespace vein.runtime
     using System.Runtime.InteropServices;
     using System.Text;
     using fs;
-    using global::ishtar;
-
+    using ishtar;
     internal class Program
     {
         private static void INIT_VTABLES()
@@ -17,6 +16,30 @@ namespace vein.runtime
             foreach (var @class in VeinCore.All.OfType<RuntimeIshtarClass>())
                 @class.init_vtable();
         }
+        #if EXPERIMENTAL_JIT
+        public unsafe static void TestJitFunctional()
+        {
+            var r = IshtarJIT.CPUFeatureList();
+
+            var unused = default(NativeApi.Protection);
+            var ptr = NativeLibrary.Load("sample_native_library.dll");
+            var fnPtr1 = NativeLibrary.GetExport(ptr, "_sample_1");
+            var fnPtr5 = NativeLibrary.GetExport(ptr, "_sample_3");
+            var result1 = 0;
+            var result2 = 15;
+            int* mem1 = &result1;
+            void* mem2 = &result2;
+
+            var bw = mem1[0];
+
+
+            ((delegate*<void>)IshtarJIT.WrapNativeCall(fnPtr5.ToPointer(), mem1, mem2))();
+
+            //((delegate*<int, void>)IshtarJIT.WrapNativeCall(fnPtr5.ToPointer(), &mem))(55);
+            var b = *((int*)mem1);
+            var c = *((int*)mem2);
+        }
+        #endif
 
         public static unsafe int Main(string[] args)
         {
@@ -118,7 +141,7 @@ namespace vein.runtime
 
         public List<IshtarAssembly> Assemblies { get; private set; }
 
-
+        
         public static bool IsBundle(out AssemblyBundle bundle)
         {
             var current = Process.GetCurrentProcess()?.MainModule?.FileName;
