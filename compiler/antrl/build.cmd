@@ -1,1 +1,0 @@
-java org.antlr.v4.Tool WaveLexer.g4 WaveParser.g4 -package wave.lexer -no-listener -visitor -message-format vs2005 -Dlanguage=CSharp -o generated
