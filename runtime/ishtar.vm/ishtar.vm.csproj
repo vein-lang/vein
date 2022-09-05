@@ -28,7 +28,4 @@
     <ProjectReference Include="..\common\vein.common.csproj" />
     <ProjectReference Include="..\ishtar.base\ishtar.base.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="runtime\vin\loaders\" />
-  </ItemGroup>
 </Project>
