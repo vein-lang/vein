@@ -27,8 +27,6 @@ namespace ishtar
             watcher?.FastFail(type, msg, frame);
             watcher?.ValidateLastError();
         }
-        [Obsolete]
-        public static void ValidateLastError() { }
 
         [Conditional("DEBUG")]
         public static void println(string str) => Trace.println(str);

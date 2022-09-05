@@ -25,7 +25,6 @@ namespace ishtar
             if (!storage_l.ContainsKey((ulong)p))
             {
                 VM.FastFail(WNE.ACCESS_VIOLATION, "Pointer incorrect.", frame);
-                VM.ValidateLastError();
                 return null;
             }
             return storage_l[(ulong)p];

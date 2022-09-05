@@ -85,7 +85,6 @@ namespace vein.runtime
                 if (files.Length != 0)
                     text += $"\n\tfiles checked: {files.Select(x => $"{x}").Join("\n\t\t")}";
                 VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, text, sys_frame);
-                VM.ValidateLastError();
                 return null;
             }
         }

@@ -11,7 +11,6 @@ namespace ishtar
         public static IshtarObject* getHalfNaN(CallFrame current, IshtarObject** args)
         {
             VM.FastFail(WNE.MISSING_METHOD, "[B_IEEEConsts::getHalfNaN]", current);
-            VM.ValidateLastError();
             return null;
         }
 

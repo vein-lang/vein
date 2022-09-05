@@ -24,7 +24,6 @@ namespace ishtar
             if (type is UnresolvedVeinClass)
             {
                 FastFail(WNE.MISSING_TYPE, $"Cant load '{name.NameWithNS}' in '{name.AssemblyName}'", frame);
-                ValidateLastError();
                 return null;
             }
             Assert(type is RuntimeIshtarClass, WNE.TYPE_LOAD, $"metadata is corrupted.");
@@ -41,7 +40,6 @@ namespace ishtar
             if (method is null)
             {
                 FastFail(WNE.MISSING_METHOD, $"Method '{name}' not found in '{clazz.FullName.NameWithNS}'", frame);
-                ValidateLastError();
                 return null;
             }
             Assert(method is RuntimeIshtarMethod, WNE.MISSING_METHOD, $"metadata is corrupted.");
@@ -55,7 +53,6 @@ namespace ishtar
             if (field is null)
             {
                 FastFail(WNE.MISSING_FIELD, $"Field '{name}' not found in '{owner.FullName.NameWithNS}'", frame);
-                ValidateLastError();
                 return null;
             }
             return field;
@@ -66,7 +63,6 @@ namespace ishtar
             if (sp[-1].type != sp[0].type)
             {
                 FastFail(WNE.TYPE_MISMATCH, $"Currently math operation for '{sp[-1].type}' and '{sp[0].type}' not supported.", frame);
-                ValidateLastError();
                 return;
             }
 
@@ -89,7 +85,6 @@ namespace ishtar
                             {
                                 // TODO
                                 FastFail(WNE.ACCESS_VIOLATION, $"YOUR JUST OPEN A BLACKHOLE!!! [DivideByZeroError]", frame);
-                                ValidateLastError();
                             }
                             i1 /= i2;
                             break;

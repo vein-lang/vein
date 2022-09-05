@@ -19,7 +19,6 @@ namespace ishtar
             {
                 VM.FastFail(WNE.TYPE_LOAD,
                     $"Native aspect has incorrect mapping for '{FullName}' field. [0x{code:X}]", frame);
-                VM.ValidateLastError();
                 return false;
             }
 

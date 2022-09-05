@@ -69,7 +69,6 @@ namespace ishtar
             if (index > length)
             {
                 VM.FastFail(WNE.OUT_OF_RANGE, $"", frame);
-                VM.ValidateLastError();
                 return;
             }
 

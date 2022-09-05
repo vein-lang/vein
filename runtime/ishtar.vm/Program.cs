@@ -82,17 +82,13 @@ namespace vein.runtime
             var module = resolver.Resolve(masterModule);
 
             foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())
-            {
                 @class.init_vtable();
-                VM.ValidateLastError();
-            }
 
             var entry_point = module.GetEntryPoint();
 
             if (entry_point is null)
             {
                 VM.FastFail(WNE.MISSING_METHOD, $"Entry point in '{module.Name}' module is not defined.", IshtarFrames.EntryPoint);
-                VM.ValidateLastError();
                 return -280;
             }
 
@@ -149,7 +145,6 @@ namespace vein.runtime
             if (string.IsNullOrEmpty(current))
             {
                 VM.FastFail(WNE.STATE_CORRUPT, "Current executable has corrupted. [process file not found]", IshtarFrames.EntryPoint);
-                VM.ValidateLastError();
                 return false;
             }
 

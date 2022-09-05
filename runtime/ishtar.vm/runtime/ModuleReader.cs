@@ -60,7 +60,6 @@ namespace ishtar
                 var exp = new ILCompatibleException(ilVersion, OpCodes.SetVersion);
 
                 VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Unable to load assembly: '{exp.Message}'.", sys_frame);
-                VM.ValidateLastError();
                 return null;
             }
 
@@ -232,10 +231,7 @@ namespace ishtar
             }
 
             if (errors.Length != 0)
-            {
                 VM.FastFail(WNE.TYPE_LOAD, $"\n{errors}", sys_frame);
-                VM.ValidateLastError();
-            }
         }
 
         public static RuntimeIshtarClass DecodeClass(byte[] arr, RuntimeIshtarModule ishtarModule)

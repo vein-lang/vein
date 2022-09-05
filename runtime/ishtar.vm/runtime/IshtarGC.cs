@@ -73,14 +73,12 @@ namespace ishtar
             if (size >= IshtarArray.MAX_SIZE)
             {
                 VM.FastFail(WNE.OVERFLOW, "", frame);
-                VM.ValidateLastError();
                 return null;
             }
 
             if (rank != 1)
             {
                 VM.FastFail(WNE.TYPE_LOAD, "Currently array rank greater 1 not supported.", frame);
-                VM.ValidateLastError();
                 return null;
             }
             var arr = TYPE_ARRAY.AsRuntimeClass();
@@ -98,7 +96,6 @@ namespace ishtar
             if (arr_obj is null)
             {
                 VM.FastFail(WNE.OUT_OF_MEMORY, "", frame);
-                VM.ValidateLastError();
                 return null;
             }
 
