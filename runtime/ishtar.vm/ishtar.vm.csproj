@@ -4,6 +4,8 @@
     <AssemblyName>ishtar</AssemblyName>
     <DefineConstants>DEBUG;STATIC_VALIDATE_IL;DEBUG_VTABLE;VALIDATE_RUNTIME_TOKEN</DefineConstants>
     <ImplicitUsings>enable</ImplicitUsings>
+    <EnablePreviewFeatures>True</EnablePreviewFeatures>
+    <GenerateRequiresPreviewFeaturesAttribute>True</GenerateRequiresPreviewFeaturesAttribute>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <TrimMode>link</TrimMode>
@@ -12,6 +14,7 @@
     <IlcDisableUnhandledExceptionExperience>true</IlcDisableUnhandledExceptionExperience>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Iced" Version="1.17.0" />
     <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
     <PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />
     <PackageReference Include="runtime.linux-arm64.Microsoft.DotNet.ILCompiler" Version="6.0.0-*" />

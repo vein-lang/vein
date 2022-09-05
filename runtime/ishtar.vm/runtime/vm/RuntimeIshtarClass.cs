@@ -65,6 +65,8 @@ namespace ishtar
         public void** vtable = null;
         public ulong vtable_size = 0;
 
+        public readonly List<NativeImportEntity> nativeImports = new List<NativeImportEntity>();
+
 #if DEBUG_VTABLE
         public debug_vtable dvtable = new ();
 

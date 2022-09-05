@@ -323,45 +323,61 @@ namespace ishtar
 
         public static unsafe void LinkFFIMethods(IEnumerable<RuntimeIshtarMethod> methods)
         {
+            const string InternalTarget = "__internal__";
             foreach (var method in methods.Where(x => x.IsExtern))
             {
                 var aspect = method.Aspects.FirstOrDefault(x => x.IsNative());
                 var name = method.Name;
-                if (aspect is not null)
+                if (aspect is null)
                 {
-                    if (aspect.Arguments.Count != 1)
-                    {
-                        VM.FastFail(WNE.TYPE_LOAD, $"(0x1) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
-                        VM.ValidateLastError();
-                        return;
-                    }
-
-                    if (aspect.Arguments[0].Value is not string s)
-                    {
-                        VM.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
-                        VM.ValidateLastError();
-                        return;
-                    }
-
-                    name = VeinMethodBase.GetFullName(s, method.Arguments);
-                }
-
-                var m = FFI.GetMethod(name);
-
-                if (m is null)
-                {
-                    if (method.Name != name)
-                        VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name} -> {name}' method not found in native mapping.", sys_frame);
-                    else
-                        VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name}' method not found in native mapping.", sys_frame);
-
-                    Commands.DisplayDefinedMapping();
-                    VM.ValidateLastError();
+                    VM.FastFail(WNE.TYPE_LOAD, $"(0x1) Extern function without native aspect. [{method.Name}]", sys_frame);
                     return;
                 }
 
-                method.PIInfo = m.PIInfo;
+                if (aspect.Arguments.Count != 2)
+                {
+                    VM.FastFail(WNE.TYPE_LOAD, $"(0x1) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
+                    return;
+                }
+
+                if (aspect.Arguments[0].Value is not string importTarget)
+                {
+                    VM.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
+                    return;
+                }
+
+                if (aspect.Arguments[1].Value is not string importFn)
+                {
+                    VM.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
+                    return;
+                }
+
+                if (importTarget == InternalTarget)
+                {
+                    name = VeinMethodBase.GetFullName(importFn, method.Arguments);
+                    LinkInternalNative(name, method);
+                    return;
+                }
+
+                FFI.LinkExternalNativeLibrary(importTarget, importFn, method);
             }
+        }
+        private static void LinkInternalNative(string name, RuntimeIshtarMethod method)
+        {
+            var m = FFI.GetMethod(name);
+
+            if (m is null)
+            {
+                if (method.Name != name)
+                    VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name} -> {name}' method not found in native mapping.", sys_frame);
+                else
+                    VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name}' method not found in native mapping.", sys_frame);
+
+                Commands.DisplayDefinedMapping();
+                return;
+            }
+
+            method.PIInfo = m.PIInfo;
         }
 
 

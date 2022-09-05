@@ -17,8 +17,13 @@ public static class Commands
         var key = _cache.ContainsKey(flag) ?
             _cache[flag] :
             _cache[flag] = $"--sys::{flag.ToString().ToLowerInvariant().Replace("_", "-")}";
+        
 
-        return Environment.GetEnvironmentVariable(key) is not null;
+        var result = Environment.GetEnvironmentVariable(key) is not null;
+
+        if (result) return true;
+
+        return VM.Config.Has(key);
     }
 
 
@@ -30,5 +35,6 @@ public static class Commands
 
 public enum SysFlag
 {
-    DISPLAY_FFI_MAPPING
+    DISPLAY_FFI_MAPPING,
+    ENABLED_STATIC_CTOR
 }
