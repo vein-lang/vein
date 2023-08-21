@@ -81,29 +81,64 @@ public unsafe static class IshtarJIT
         return new IntPtr(RecollectExecutableMemory(c));
     }
 
+
+
+
+    public static void C(RuntimeIshtarMethod r)
+    {
+        r.Arguments[0].Type.
+    }
+
     private struct ArgConventions
     {
-        private readonly void* _argsMemory;
-        private byte _offset;
-        private static readonly AssemblerRegister64[] decl = new []
+        private static readonly List<IArgumentStageOperation> decl = new ()
         {
-            rdi,
-            rsi,
-            rdx,
-            r10,
-            r8,
-            r9
+            new SingleValueStage(rcx),
+            new SingleValueStage(rdx),
+            new SingleValueStage(r8),
+            new RspStackValueStage(),
+            new RspStackValueStage(),
+            new RspStackValueStage(),
+            new RspStackValueStage(),
+            new RspStackValueStage(),
+            new RspStackValueStage(),
         };
 
-        public ArgConventions(void* argsMemory) => _argsMemory = argsMemory;
-
-
-        public AssemblerRegister64 pop(out byte offset)
+        public static IArgumentStageOperation GetInstruction(int index)
         {
-            var o = _offset++;
-            offset = (byte)(0x10 + (o * 8));
-            return decl[o];
+            if (index > decl.Count)
+                throw new IndexOutOfRangeException();
+            return decl[index];
         }
+
+        public interface IArgumentStageOperation
+        {
+            
+        }
+
+        public struct SingleValueStage : IArgumentStageOperation
+        {
+            public AssemblerRegister64 Slot { get; }
+
+            public SingleValueStage(AssemblerRegister64 reg) => Slot = reg;
+        }
+
+        public struct RspStackValueStage : IArgumentStageOperation
+        {
+            public AssemblerRegister64 Slot => rsp;
+            public uint StartIndex => 0x20;
+        }
+
+
+        public static void PassArguments(Assembler asm, RuntimeIshtarClass[] types)
+        {
+            foreach (var @class in types)
+            {
+                
+            }
+        }
+
+
     }
 
 
@@ -123,12 +158,12 @@ public unsafe static class IshtarJIT
 
 
 
-        if (retIsPointer)
-        {
-            c.mov(__[rbp - 4], eax);
-            c.lea(rax, __[rbp - 4]);
-            c.mov(__[new IntPtr(returnMemory).ToInt64()], rax);
-        }
+        //if (retIsPointer)
+        //{
+        //    c.mov(__[rbp - 4], eax);
+        //    c.lea(rax, __[rbp - 4]);
+        //    c.mov(__[new IntPtr(returnMemory).ToInt64()], rax);
+        //}
     }
 
     private static TypeMarshalBox RemapToNative(VeinArgumentRef arg)
@@ -152,7 +187,26 @@ public unsafe static class IshtarJIT
     {
         public bool retIsPointer { get; set; }
     }
-    
+
+    public static void* WrapNativeCall_WithArg_Int32(void* procedure, long value)
+    {
+        var c = AllocEmitter();
+        var handle = new IntPtr(procedure).ToInt64();
+        c.sub(rsp, 0x40); // allocate stack, minimum size is 0x28
+        c.lea(rbp, __[rsp+0x40]);
+
+        c.mov(rax, handle); // move procedure to rax register
+
+        c.mov(rcx, value);
+
+        c.add(rsp, 0x40); // return stack
+
+        c.jmp(rax);
+
+        return RecollectExecutableMemory(c);
+    }
+
+
     public static void* WrapNativeCall(void* procedure, void* returnMemory, void* argsMemory)
     {
         var c = AllocEmitter();

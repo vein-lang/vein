@@ -27,7 +27,7 @@ public class AddCommand : AsyncCommandWithProject<AddCommandSettings>
 
         if (result is null)
         {
-            Log.Error($"Shard package [orange]'{name}@{version}'[/] not found in vein gallery.");
+            Log.Error($"Shard package [orange3]'{name}@{version}'[/] not found in vein gallery.");
             return -1;
         }
 
@@ -61,12 +61,12 @@ public class AddCommand : AsyncCommandWithProject<AddCommandSettings>
 
         if (exit_code != 0)
         {
-            Log.Error($"[red]Failed[/] add [orange]'{name}@{version}'[/] into [orange]'{project.Name}'[/] project.");
+            Log.Error($"[red]Failed[/] add [orange3]'{name}@{version}'[/] into [orange3]'{project.Name}'[/] project.");
             project._project.Packages.Remove(package_tag);
             project._project.Save(project.ProjectFile);
             return -1;
         }
-        Log.Info($"[green]Success[/] add [orange]'{name}@{version}'[/] into [orange]'{project.Name}'[/] project.");
+        Log.Info($"[green]Success[/] add [orange3]'{name}@{version}'[/] into [orange3]'{project.Name}'[/] project.");
         return 0;
     }
 }

@@ -19,12 +19,9 @@ namespace vein.runtime
         #if EXPERIMENTAL_JIT
         public unsafe static void TestJitFunctional()
         {
-            var r = IshtarJIT.CPUFeatureList();
-
             var unused = default(NativeApi.Protection);
             var ptr = NativeLibrary.Load("sample_native_library.dll");
-            var fnPtr1 = NativeLibrary.GetExport(ptr, "_sample_1");
-            var fnPtr5 = NativeLibrary.GetExport(ptr, "_sample_3");
+            var fnPtr2 = NativeLibrary.GetExport(ptr, "_sample_2");
             var result1 = 0;
             var result2 = 15;
             int* mem1 = &result1;
@@ -33,7 +30,7 @@ namespace vein.runtime
             var bw = mem1[0];
 
 
-            ((delegate*<void>)IshtarJIT.WrapNativeCall(fnPtr5.ToPointer(), mem1, mem2))();
+            ((delegate*<void>)IshtarJIT.WrapNativeCall_WithArg_Int32(fnPtr2.ToPointer(), 127))();
 
             //((delegate*<int, void>)IshtarJIT.WrapNativeCall(fnPtr5.ToPointer(), &mem))(55);
             var b = *((int*)mem1);
@@ -43,6 +40,8 @@ namespace vein.runtime
 
         public static unsafe int Main(string[] args)
         {
+
+            TestJitFunctional();
             ishtar.Trace.init();
             //while (!Debugger.IsAttached)
             //    Thread.Sleep(200);

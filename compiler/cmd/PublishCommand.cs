@@ -25,7 +25,7 @@ public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
 
         if (!file.Exists)
         {
-            Log.Error($"Shard package [orange]'{pkg}'[/] not found in binary folder, maybe need build before publish?");
+            Log.Error($"Shard package [orange3]'{pkg}'[/] not found in binary folder, maybe need build before publish?");
             return -1;
         }
 
@@ -47,11 +47,11 @@ public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
         switch (result)
         {
             case (_, 201):
-                Log.Info($"[green]Success[/] publish [orange]'{name}@{version}'[/] into [orange]package registry[/].");
+                Log.Info($"[green]Success[/] publish [orange3]'{name}@{version}'[/] into [orange3]package registry[/].");
                 return 0;
             case (var r, var status):
-                Log.Error($"[red]Failed[/] publish [orange]'{name}@{version}'[/] into registry.");
-                Log.Error($"[red]Response[/]: ({status}) [orange]'{r.message}'[/].");
+                Log.Error($"[red]Failed[/] publish [orange3]'{name}@{version}'[/] into registry.");
+                Log.Error($"[red]Response[/]: ({status}) [orange3]'{r.message}'[/].");
                 return -1;
         }
     }
