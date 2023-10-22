@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>veinc</AssemblyName>
     <RootNamespace>vein</RootNamespace>
@@ -14,6 +14,7 @@
     <PackageReference Include="xunit.assert" Version="2.5.3" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\lib\spectre.console\src\Spectre.Console.Cli\Spectre.Console.Cli.csproj" />
     <ProjectReference Include="..\lib\spectre.console\src\Spectre.Console\Spectre.Console.csproj" />
     <ProjectReference Include="..\lib\version\version.csproj" />
     <ProjectReference Include="..\runtime\ishtar.generator\ishtar.generator.csproj" />

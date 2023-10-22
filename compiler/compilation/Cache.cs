@@ -34,7 +34,7 @@ public class Cache
         asset.Hashes = hashmap;
         asset.HashesFile = file;
 
-        sources = sources.ToDictionary();
+        sources = sources.ToDictionary(x => x.Key, x => x.Value);
 
         sources.Add(target.Project.ProjectFile, target.Project.ProjectFile.ReadToEnd());
 

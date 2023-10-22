@@ -42,6 +42,6 @@ public static class IshtarAssert
             if (filter(obj))
                 return;
         }
-        throw new Xunit.Sdk.ContainsException((object)"(filter expression)", (object)collection);
+        throw Xunit.Sdk.ContainsException.ForCollectionItemNotFound("(filter expression)", collection.ToString());
     }
 }

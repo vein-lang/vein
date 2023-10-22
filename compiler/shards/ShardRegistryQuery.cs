@@ -46,7 +46,7 @@ public class ShardRegistryQuery
         var result = await _client
             .Request($"@/packages/{name}/{version}")
             .AllowHttpStatus("404")
-            .GetAsync(token);
+            .GetAsync(cancellationToken: token);
 
         if (result is { StatusCode: 404 })
             return null;
@@ -80,7 +80,7 @@ public class ShardRegistryQuery
             .Request($"@/package/{name}/{version}")
             .SetQueryParam(nameof(includeUnlisted), includeUnlisted)
             .AllowHttpStatus("404")
-            .GetAsync(token);
+            .GetAsync(cancellationToken: token);
 
         if (result is { StatusCode: 404 })
             return null;
@@ -112,7 +112,7 @@ public class ShardRegistryQuery
             .SetQueryParam(nameof(skip), skip)
             .SetQueryParam(nameof(take), take)
             .SetQueryParam(nameof(prerelease), prerelease)
-            .GetJsonAsync<List<RegistryPackage>>(cancellationToken);
+            .GetJsonAsync<List<RegistryPackage>>(cancellationToken: cancellationToken);
 }
 
 

@@ -98,7 +98,7 @@ public class SecurityStorage
         {
             BlowfishEngine engine = new BlowfishEngine();
 
-            PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(engine);
+            PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(engine, new ZeroBytePadding());
 
             KeyParameter keyBytes = new KeyParameter(Encoding.UTF8.GetBytes(__key__));
 
@@ -123,7 +123,7 @@ public class SecurityStorage
     private static string BlowfishDecrypt(string value)
     {
         BlowfishEngine engine = new BlowfishEngine();
-        PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(engine);
+        PaddedBufferedBlockCipher cipher = new PaddedBufferedBlockCipher(engine, new ZeroBytePadding());
 
         StringBuilder result = new StringBuilder();
 
