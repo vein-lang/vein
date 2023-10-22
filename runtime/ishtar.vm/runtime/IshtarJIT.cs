@@ -86,7 +86,7 @@ public unsafe static class IshtarJIT
 
     public static void C(RuntimeIshtarMethod r)
     {
-        r.Arguments[0].Type.
+        //r.Arguments[0].Type.
     }
 
     private struct ArgConventions

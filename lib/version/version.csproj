@@ -6,6 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="GitVersion.MsBuild" Version="5.8.1" PrivateAssets="All"/>
+    <PackageReference Include="GitVersion.MsBuild" Version="6.0.0-beta.3" PrivateAssets="All" />
   </ItemGroup>
 </Project>

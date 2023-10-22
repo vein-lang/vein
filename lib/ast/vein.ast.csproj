@@ -6,11 +6,11 @@
 		<RootNamespace>vein.ast</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="morelinq" Version="3.3.2" />
-		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-		<PackageReference Include="NuGet.Versioning" Version="5.5.1" />
+		<PackageReference Include="morelinq" Version="3.4.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="NuGet.Versioning" Version="6.7.0" />
 		<PackageReference Include="Sprache" Version="3.0.0-develop-00049" />
-		<PackageReference Include="Spectre.Console" Version="0.44.0" />
+		<PackageReference Include="Spectre.Console" Version="0.47.1-preview.0.27" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\runtime\common\vein.common.csproj" />

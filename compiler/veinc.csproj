@@ -2,16 +2,16 @@
   <PropertyGroup>
     <AssemblyName>veinc</AssemblyName>
     <RootNamespace>vein</RootNamespace>
-	<OutputType>Exe</OutputType>
+  <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DeviceId" Version="6.2.0" />
-    <PackageReference Include="DeviceId.Linux" Version="6.2.0" />
+    <PackageReference Include="DeviceId" Version="6.4.0" />
+    <PackageReference Include="DeviceId.Linux" Version="6.3.0" />
     <PackageReference Include="DeviceId.Mac" Version="6.2.0" />
-    <PackageReference Include="DeviceId.Windows" Version="6.2.0" />
-    <PackageReference Include="DeviceId.Windows.Wmi" Version="6.2.0" />
-    <PackageReference Include="Flurl.Http" Version="3.2.3" />
-    <PackageReference Include="xunit.assert" Version="2.4.1" />
+    <PackageReference Include="DeviceId.Windows" Version="6.4.0" />
+    <PackageReference Include="DeviceId.Windows.Wmi" Version="6.5.0" />
+    <PackageReference Include="Flurl.Http" Version="4.0.0-pre4" />
+    <PackageReference Include="xunit.assert" Version="2.5.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\lib\spectre.console\src\Spectre.Console\Spectre.Console.csproj" />
