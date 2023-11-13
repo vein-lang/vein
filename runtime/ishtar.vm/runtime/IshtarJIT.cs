@@ -12,7 +12,7 @@ using Iced.Intel;
 using vein.runtime;
 using static Iced.Intel.AssemblerRegisters;
 
-public unsafe static class IshtarJIT
+public static unsafe class IshtarJIT
 {
     private static readonly CallFrame JITFrame = IshtarFrames.Jit();
     public static Architecture Architecture => RuntimeInformation.ProcessArchitecture;
@@ -27,10 +27,21 @@ public unsafe static class IshtarJIT
     public static Assembler AllocEmitter()
         => new Assembler(64);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="procedureHandle"></param>
+    /// <returns></returns>
+    /// <exception cref="NotSupportedException"></exception>
     public static void* WrapNativeCall(void* procedureHandle)
         => WrapNativeCall(new IntPtr(procedureHandle)).ToPointer();
 
-    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="procedureHandle"></param>
+    /// <returns></returns>
+    /// <exception cref="NotSupportedException"></exception>
     public static IntPtr WrapNativeCall(IntPtr procedureHandle)
     {
         if (Architecture is Architecture.Arm64 or Architecture.Arm)
@@ -55,9 +66,11 @@ public unsafe static class IshtarJIT
 
         return new IntPtr(RecollectExecutableMemory(c));
     }
+    /// <exception cref="NotSupportedException"></exception>
     public static void* WrapNativeCall(void* procedureHandle, void** retMemory)
         => WrapNativeCall(new IntPtr(procedureHandle), new IntPtr(retMemory)).ToPointer();
 
+    /// <exception cref="NotSupportedException"></exception>
     public static IntPtr WrapNativeCall(IntPtr procedureHandle, IntPtr retMemory)
     {
         if (Architecture is Architecture.Arm64 or Architecture.Arm)

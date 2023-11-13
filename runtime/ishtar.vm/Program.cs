@@ -30,9 +30,11 @@ namespace vein.runtime
             var bw = mem1[0];
 
 
+            var qwe = IshtarJIT.WrapNativeCall((IntPtr)0);
+
             ((delegate*<void>)IshtarJIT.WrapNativeCall_WithArg_Int32(fnPtr2.ToPointer(), 127))();
 
-            //((delegate*<int, void>)IshtarJIT.WrapNativeCall(fnPtr5.ToPointer(), &mem))(55);
+            ((delegate*<int, void>)IshtarJIT.WrapNativeCall(fnPtr5.ToPointer(), &mem))(55);
             var b = *((int*)mem1);
             var c = *((int*)mem2);
         }
@@ -40,8 +42,7 @@ namespace vein.runtime
 
         public static unsafe int Main(string[] args)
         {
-
-            TestJitFunctional();
+            //TestJitFunctional();
             ishtar.Trace.init();
             //while (!Debugger.IsAttached)
             //    Thread.Sleep(200);
