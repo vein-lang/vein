@@ -16,8 +16,8 @@ namespace ishtar.emit
 
     public class VeinModuleBuilder : VeinModule, IBaker
     {
-        public VeinModuleBuilder(string name) : base(name) { }
-        public VeinModuleBuilder(string name, Version ver) : base(name, ver) { }
+        public VeinModuleBuilder(string name, VeinCore types) : base(name, types) { }
+        public VeinModuleBuilder(string name, Version ver, VeinCore types) : base(name, ver, types) { }
 
         /// <summary>
         /// Define class by name.

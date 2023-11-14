@@ -91,7 +91,7 @@ public static class B_Array
                 .ToArray();
 
         var method = arrayConstructor.DefineMethod("$init", MethodFlags.Public | MethodFlags.Static,
-                VeinTypeCode.TYPE_ARRAY.AsClass(), args);
+                VeinTypeCode.TYPE_ARRAY.AsClass()(Types.Storage), args);
 
         var body = method.GetGenerator();
 

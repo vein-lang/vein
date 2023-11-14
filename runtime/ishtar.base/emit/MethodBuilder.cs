@@ -22,6 +22,7 @@ namespace ishtar.emit
             : base(name, 0, returnType, clazz, args)
         {
             classBuilder = clazz;
+            Owner = clazz;
             _generator = new ILGenerator(this);
             clazz.moduleBuilder.InternString(Name);
         }
