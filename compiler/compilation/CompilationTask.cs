@@ -215,7 +215,7 @@ public partial class CompilationTask
 
         Context = new GeneratorContext();
 
-        module = new VeinModuleBuilder(Project.Name, Project.Version.Version);
+        module = new VeinModuleBuilder(Project.Name, Project.Version.Version, Types.Storage);
 
         Context.Module = module;
         Context.Module.Deps.AddRange(deps);

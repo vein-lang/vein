@@ -41,11 +41,11 @@ public partial class CompilationTask
         clazz.Flags |= ClassFlags.Aspect; // indicate when it class is a aspect
 
         clazz.Parents.Clear(); // remove Object ref
-        clazz.Parents.Add(VeinCore.AspectClass);
+        clazz.Parents.Add(Types.Storage.AspectClass);
 
         var getUsages = clazz.DefineMethod(AspectDeclarationSyntax.GET_USAGES_METHOD_NAME,
             MethodFlags.Override | MethodFlags.Public,
-            TYPE_I4.AsClass());
+            TYPE_I4.AsClass()(Types.Storage));
 
         var aspectUsage = member.Aspects.FirstOrDefault(x => x.IsAspectUsage);
         var flags = 0;
