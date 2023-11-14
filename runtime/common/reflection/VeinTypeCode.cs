@@ -224,26 +224,31 @@ public static class VeinTypeCodeEx
     public static bool HasNumber(this VeinTypeCode code) =>
         HasInteger(code) || HasFloat(code);
 
-    public static VeinClass AsClass(this VeinTypeCode code) => code switch
+    public static Func<VeinCore, VeinClass> AsClass(this VeinTypeCode code) => code switch
     {
-        TYPE_CHAR => VeinCore.CharClass,
-        TYPE_I1 => VeinCore.SByteClass,
-        TYPE_U1 => VeinCore.ByteClass,
-        TYPE_U2 => VeinCore.UInt16Class,
-        TYPE_U4 => VeinCore.UInt32Class,
-        TYPE_U8 => VeinCore.UInt64Class,
-        TYPE_R8 => VeinCore.DoubleClass,
-        TYPE_R4 => VeinCore.FloatClass,
-        TYPE_R2 => VeinCore.HalfClass,
-        TYPE_ARRAY => VeinCore.ArrayClass,
-        TYPE_BOOLEAN => VeinCore.BoolClass,
-        TYPE_VOID => VeinCore.VoidClass,
-        TYPE_OBJECT => VeinCore.ObjectClass,
-        TYPE_I2 => VeinCore.Int16Class,
-        TYPE_I4 => VeinCore.Int32Class,
-        TYPE_I8 => VeinCore.Int64Class,
-        TYPE_STRING => VeinCore.StringClass,
-        TYPE_FUNCTION => VeinCore.FunctionClass,
+        TYPE_CHAR => (x) => x.CharClass,
+        TYPE_I1 => (x) => x.SByteClass,
+        TYPE_U1 => (x) => x.ByteClass,
+        TYPE_U2 => (x) => x.UInt16Class,
+        TYPE_U4 => (x) => x.UInt32Class,
+        TYPE_U8 => (x) => x.UInt64Class,
+        TYPE_R8 => (x) => x.DoubleClass,
+        TYPE_R4 => (x) => x.FloatClass,
+        TYPE_R2 => (x) => x.HalfClass,
+        TYPE_ARRAY => (x) => x.ArrayClass,
+        TYPE_BOOLEAN => (x) => x.BoolClass,
+        TYPE_VOID => (x) => x.VoidClass,
+        TYPE_OBJECT => (x) => x.ObjectClass,
+        TYPE_I2 => (x) => x.Int16Class,
+        TYPE_I4 => (x) => x.Int32Class,
+        TYPE_I8 => (x) => x.Int64Class,
+        TYPE_STRING => (x) => x.StringClass,
+        TYPE_FUNCTION => (x) => x.FunctionClass,
         _ => throw new ArgumentOutOfRangeException(nameof(code), code, null)
     };
+
+    public static VeinClass AsClass(this VeinTypeCode code, VeinCore types) => code.AsClass()(types);
+    public static VeinClass AsClass(this VeinTypeCode code, VeinModule method) => code.AsClass()(method.Types);
+    public static VeinClass AsClass(this VeinTypeCode code, VeinClass clazz) => code.AsClass()(clazz.Owner.Types);
+    public static VeinClass AsClass(this VeinTypeCode code, VeinMethod method) => code.AsClass()(method.Owner.Owner.Types);
 }

@@ -4,16 +4,18 @@ namespace vein.runtime
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using extensions;
     using reflection;
 
     public class VeinModule
     {
+        public VeinCore Types { get; }
         public string Name { get; protected set; }
         public Version Version { get; protected set; } = new(1, 0, 0, 0);
         protected internal List<VeinModule> Deps { get; set; } = new();
 
-        internal VeinModule(string name) => Name = name;
-        internal VeinModule(string name, Version ver) => (Name, Version) = (name, ver);
+        internal VeinModule(string name, VeinCore types) => (Name, Types) = (name.AssertNotNull(), types);
+        internal VeinModule(string name, Version ver, VeinCore types) => (Name, Version, Types) = (name.AssertNotNull(), ver, types);
 
         protected internal List<Aspect> aspects { get; } = new();
         protected internal ConstStorage const_table { get; set; } = new();

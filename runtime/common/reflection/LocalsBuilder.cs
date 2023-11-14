@@ -16,8 +16,8 @@ namespace vein.runtime
             => types.Add(type);
         public void Push(VeinClass type)
             => types.Add(type.FullName);
-        public void Push(VeinTypeCode type)
-            => types.Add(type.AsClass().FullName);
+        //public void Push(VeinTypeCode type)
+        //    => types.Add(type.AsClass().FullName);
 
         public void Mark(int index, string variable) => locals_dictionary[index] = variable;
 
@@ -39,13 +39,13 @@ namespace vein.runtime
                 l.Push(type);
             return l;
         }
-        public static implicit operator LocalsBuilder(VeinTypeCode[] arr)
-        {
-            var l = new LocalsBuilder();
-            foreach (var type in arr)
-                l.Push(type);
-            return l;
-        }
+        //public static implicit operator LocalsBuilder(VeinTypeCode[] arr)
+        //{
+        //    var l = new LocalsBuilder();
+        //    foreach (var type in arr)
+        //        l.Push(type);
+        //    return l;
+        //}
         public static implicit operator LocalsBuilder(QualityTypeName[] arr)
         {
             var l = new LocalsBuilder();
