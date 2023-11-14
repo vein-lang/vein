@@ -1,16 +1,17 @@
 namespace ishtar
 {
     using System.Collections.Generic;
+    using vm;
 
-    public static unsafe partial class VM
+    public partial class VM
     {
-        public static class Config
+        public class VMConfig
         {
-            private static readonly IDictionary<string, bool> _switches = new Dictionary<string, bool>();
+            private readonly IDictionary<string, bool> _switches = new Dictionary<string, bool>();
 
-            public static void Set(string key, bool value) => _switches[key.ToLowerInvariant()] = value;
+            public void Set(string key, bool value) => _switches[key.ToLowerInvariant()] = value;
 
-            public static bool Has(string key)
+            public bool Has(string key)
             {
                 if (_switches.Count == 0) return false;
 
@@ -19,6 +20,27 @@ namespace ishtar
                     return false;
                 return _switches[key];
             }
+
+            public bool HasFlag(SysFlag flag)
+            {
+                var key = _cache.TryGetValue(flag, out string value) ?
+                    value :
+                    _cache[flag] = $"--sys::{flag.ToString().ToLowerInvariant().Replace("_", "-")}";
+
+
+                var result = Environment.GetEnvironmentVariable(key) is not null;
+
+                if (result) return true;
+
+                return Has(key);
+            }
+
+            private static Dictionary<SysFlag, string> _cache = new Dictionary<SysFlag, string>(64);
         }
+
+
+
     }
+
+
 }

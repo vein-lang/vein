@@ -6,7 +6,6 @@ public static class NativeStorage
 {
     private static readonly object guarder = new();
     private static Dictionary<string, nint> _cache = new();
-    private static CallFrame selfFrame = IshtarFrames.NativeLoader();
 
     #if LINUX
     private static INativeLoader _loader = new LinuxLoader();

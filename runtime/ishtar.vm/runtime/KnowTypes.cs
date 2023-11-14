@@ -96,13 +96,13 @@ public static partial class KnowTypes
 
         if (t is UnresolvedVeinClass)
         {
-            VM.FastFail(WNE.MISSING_TYPE, $"Cannot find '{q}' bulitin type", frame);
+            frame.vm.FastFail(WNE.MISSING_TYPE, $"Cannot find '{q}' bulitin type", frame);
             return null;
         }
 
         if (t is not RuntimeIshtarClass r)
         {
-            VM.FastFail(WNE.STATE_CORRUPT, $"'{q}' bulitin type found, but is not runtime class.", frame);
+            frame.vm.FastFail(WNE.STATE_CORRUPT, $"'{q}' bulitin type found, but is not runtime class.", frame);
             return null;
         }
 

@@ -5,42 +5,95 @@ namespace ishtar
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using emit;
-    using vein.runtime;
     using static OpCodeValue;
     using static vein.runtime.VeinTypeCode;
     using vein.extensions;
+    using vein.reflection;
+    using vein.runtime;
     using static WNE;
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
-    public static unsafe partial class VM
+    public unsafe partial class VM
     {
-        static VM() => watcher = new DefaultWatchDog();
+        VM() {}
+
+        /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
+        public static VM Create(string name)
+        {
+            var vm = new VM();
+            vm.Vault = new AppVault(vm, name);
+            vm.trace = new IshtarTrace();
+            vm.Types = new IshtarCore(vm);
+            vm.GC = new IshtarGC(vm);
+            vm.watcher = new DefaultWatchDog(vm);
+            vm.Config = new VMConfig();
+            vm.Frames = new IshtarFrames(vm);
+
+            vm.Types.InitVtables();
+
+            vm.InternalModule = new RuntimeIshtarModule(vm.Vault, "internal");
+            vm.InternalClass = new RuntimeIshtarClass(new QualityTypeName("sys", "__Internal__", "global"),
+                vm.Types.ObjectClass, vm.InternalModule);
+
+            vm.FFI = new ForeignFunctionInterface(vm);
+            
+            return vm;
+        }
 
 
-        public static volatile NativeException CurrentException;
-        public static volatile IWatchDog watcher;
+        private RuntimeIshtarModule InternalModule;
+        private RuntimeIshtarClass InternalClass;
+
+        public RuntimeIshtarMethod CreateInternalMethod(string name, MethodFlags flags, params (string name, VeinTypeCode code)[] args)
+            => InternalClass.DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, args.Select(x => VeinArgumentRef.Create(this.Types, x)).ToArray());
+
+        public RuntimeIshtarMethod CreateInternalMethod(string name, MethodFlags flags)
+            => InternalClass.DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, Array.Empty<VeinArgumentRef>());
+
+        public RuntimeIshtarMethod CreateInternalMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
+            => InternalClass.DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, args);
+
+        public RuntimeIshtarMethod CreateInternalMethod(string name, MethodFlags flags, VeinClass returnType, params VeinArgumentRef[] args)
+            => InternalClass.DefineMethod(name, returnType, flags, args);
+
+        public RuntimeIshtarMethod DefineEmptySystemMethod(string name)
+            => new(name, MethodFlags.Extern, this.Types, TYPE_VOID.AsClass()(this.Types), InternalClass, Array.Empty<VeinArgumentRef>());
+        public RuntimeIshtarMethod DefineEmptySystemMethod(string name, VeinClass clazz)
+            => new(name, MethodFlags.Extern, this.Types, clazz, new UnresolvedVeinClass(new QualityTypeName("sys", "sys", "global")), new VeinArgumentRef("i", clazz));
+
+
+        public volatile NativeException CurrentException;
+        public volatile IWatchDog watcher;
+        public volatile AppVault Vault;
+        public volatile IshtarGC GC;
+        public volatile ForeignFunctionInterface FFI;
+        public volatile VMConfig Config;
+        public volatile IshtarFrames Frames;
+        internal volatile IshtarTrace trace;
+        public IshtarCore Types;
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void FastFail(WNE type, string msg, CallFrame frame)
+        public void FastFail(WNE type, string msg, CallFrame frame)
         {
             watcher?.FastFail(type, msg, frame);
             watcher?.ValidateLastError();
         }
 
         [Conditional("DEBUG")]
-        public static void println(string str) => Trace.println(str);
+        public void println(string str) => trace.println(str);
 
-        public static void halt(int exitCode = -1)
+        public void halt(int exitCode = -1)
             => Environment.Exit(exitCode);
 
-        public static unsafe void exec_method_external_native(CallFrame frame)
+        public void exec_method_external_native(CallFrame frame)
         {
             FastFail(WNE.MISSING_METHOD, "exec_method_external_native not implemented", frame);
             return; // TODO
         }
 
-        public static unsafe void exec_method_internal_native(CallFrame frame)
+        public void exec_method_internal_native(CallFrame frame)
         {
             var caller = (delegate*<CallFrame, IshtarObject**, IshtarObject*>)
                 frame.method.PIInfo.Addr;
@@ -62,12 +115,12 @@ namespace ishtar
 
             if (frame.method.ReturnType.TypeCode == TYPE_VOID)
                 return;
-            frame.returnValue = IshtarGC.AllocValue();
+            frame.returnValue = GC.AllocValue();
             frame.returnValue->type = frame.method.ReturnType.TypeCode;
             frame.returnValue->data.p = (nint)result;
         }
 
-        public static unsafe void exec_method_native(CallFrame frame)
+        public void exec_method_native(CallFrame frame)
         {
             if (frame.method.PIInfo.Addr == null)
             {
@@ -81,7 +134,7 @@ namespace ishtar
                 exec_method_internal_native(frame);
         }
 
-        public static unsafe void exec_method(CallFrame invocation)
+        public void exec_method(CallFrame invocation)
         {
             println($"@.frame> {invocation.method.Owner.Name}::{invocation.method.Name}");
 
@@ -92,7 +145,7 @@ namespace ishtar
             var locals = default(stackval*);
 
             var ip = mh.code;
-            fixed (stackval* p = GC.AllocateArray<stackval>(mh.max_stack, true))
+            fixed (stackval* p = System.GC.AllocateArray<stackval>(mh.max_stack, true))
                 invocation.stack = p;
             fixed (stackval* p = new stackval[0])
                 locals = p;
@@ -111,14 +164,14 @@ namespace ishtar
             void ForceFail(RuntimeIshtarClass clazz)
             {
                 *ip = (uint)THROW;
-                sp->data.p = (nint)IshtarGC.AllocObject(clazz);
+                sp->data.p = (nint)GC.AllocObject(clazz);
                 sp->type = TYPE_CLASS;
                 sp++;
             }
 
             while (true)
             {
-            vm_cycle_start:
+                vm_cycle_start:
                 invocation.last_ip = (OpCodeValue)(ushort)*ip;
                 println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)stack) - ((nint)sp))}]");
 
@@ -302,7 +355,7 @@ namespace ishtar
                             --sp;
                             sp->type = TYPE_ARRAY;
                             if (invocation.method.IsStatic)
-                                sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, null, invocation);
+                                sp->data.p = (nint)GC.AllocArray(typeID, size, 1, null, invocation);
                             //else fixed (IshtarObject** node = &invocation._this_)
                             //       sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
                             ++sp;
@@ -466,14 +519,14 @@ namespace ishtar
                         if (sp->type == TYPE_CLASS)
                         {
                             var obj = ((IshtarObject*)sp->data.p);
-                            IshtarGC.FreeObject(&obj, invocation);
+                            GC.FreeObject(&obj, invocation);
                         }
                         break;
                     case THROW:
                         --sp;
                         if (sp->data.p == IntPtr.Zero)
                         {
-                            sp->data.p = (nint)IshtarGC.AllocObject(KnowTypes.NullPointerException(invocation));
+                            sp->data.p = (nint)GC.AllocObject(KnowTypes.NullPointerException(invocation));
                             sp->type = TYPE_CLASS;
                         }
                         goto exception_handle;
@@ -482,7 +535,7 @@ namespace ishtar
                             ++ip;
                             sp->type = TYPE_CLASS;
                             sp->data.p = (nint)
-                            IshtarGC.AllocObject(
+                            GC.AllocObject(
                                 (RuntimeIshtarClass) // TODO optimize search
                                 _module.FindType(_module.GetTypeNameByIndex((int)*ip), true));
                             ++ip;
@@ -491,7 +544,7 @@ namespace ishtar
                         break;
                     case CALL:
                         {
-                            var child_frame = new CallFrame();
+                            var child_frame = new CallFrame(this);
                             ++ip;
                             var tokenIdx = *ip;
                             var owner = readTypeName(*++ip, _module);
@@ -1303,9 +1356,9 @@ namespace ishtar
                     case RESERVED_2:
                         ++ip;
                         println($"*** GC DUMP ***");
-                        println($"\talive_objects: {IshtarGC.GCStats.alive_objects}");
-                        println($"\ttotal_allocations: {IshtarGC.GCStats.total_allocations}");
-                        println($"\ttotal_bytes_requested: {IshtarGC.GCStats.total_bytes_requested}");
+                        println($"\talive_objects: {GC.Stats.alive_objects}");
+                        println($"\ttotal_allocations: {GC.Stats.total_allocations}");
+                        println($"\ttotal_bytes_requested: {GC.Stats.total_bytes_requested}");
                         println($"*** END GC DUMP ***");
                         break;
                     case LDC_STR:
@@ -1313,7 +1366,7 @@ namespace ishtar
                             ++ip;
                             sp->type = TYPE_STRING;
                             var str = _module.GetConstStringByIndex((int) *ip);
-                            sp->data.p = (nint)IshtarMarshal.ToIshtarObject(str, invocation);
+                            sp->data.p = (nint)GC.ToIshtarObject(str, invocation);
                             ++sp;
                             ++ip;
                         }
@@ -1418,7 +1471,7 @@ namespace ishtar
         {
             if (conditional)
                 return;
-            FastFail(type, $"static assert failed: '{msg}'", frame);
+            frame?.vm?.FastFail(type, $"static assert failed: '{msg}'", frame);
         }
     }
 }

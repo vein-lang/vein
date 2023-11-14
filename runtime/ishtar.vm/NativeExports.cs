@@ -8,21 +8,15 @@ using vein.runtime;
 [ExcludeFromCodeCoverage]
 public static unsafe class NativeExports
 {
-    [UnmanagedCallersOnly]
     public static void VM_INIT()
     {
-        IshtarCore.INIT();
-        INIT_VTABLES();
-        IshtarGC.INIT();
-        FFI.INIT();
-
-        AppVault.CurrentVault = new AppVault("app");
+        var vm = VM.Create("app");
     }
 
-    [UnmanagedCallersOnly]
-    public static stackval* VM_EXECUTE_METHOD(Types.FrameRef* frame)
+    public static stackval* VM_EXECUTE_METHOD(VM vm, Types.FrameRef* frame)
     {
-        var type = AppVault.CurrentVault.GlobalFindType(*frame->runtime_token);
+        var vault = vm.Vault;
+        var type = vault.GlobalFindType(*frame->runtime_token);
 
         if (type is null)
             return null;
@@ -35,25 +29,19 @@ public static unsafe class NativeExports
         if (method is not { } or { IsExtern: true } or { IsStatic: false })
             return null;
 
+        
 
-        var callframe = new CallFrame()
+        var callframe = new CallFrame(vm)
         {
             args = frame->args,
             level = 0,
             method = method
         };
 
-        VM.exec_method(callframe);
+        vm.exec_method(callframe);
 
         return callframe.returnValue;
     }
-
-    private static void INIT_VTABLES()
-    {
-        foreach (var @class in VeinCore.All.OfType<RuntimeIshtarClass>())
-            @class.init_vtable();
-    }
-
 
     public static class Types
     {

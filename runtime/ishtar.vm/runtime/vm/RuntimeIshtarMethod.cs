@@ -1,6 +1,5 @@
 namespace ishtar
 {
-    using System;
     using vein.runtime;
 
     public unsafe class RuntimeIshtarMethod : VeinMethod
@@ -9,25 +8,10 @@ namespace ishtar
         public PInvokeInfo PIInfo;
 
         public uint vtable_offset;
-
-        public static RuntimeIshtarMethod DefineEmptySystemMethod(string name)
-            => new RuntimeIshtarMethod(name, MethodFlags.Extern, VeinTypeCode.TYPE_VOID.AsClass(),
-                new VeinArgumentRef[0]);
-        public static RuntimeIshtarMethod DefineEmptySystemMethod(string name, VeinClass clazz)
-            => new RuntimeIshtarMethod(name, MethodFlags.Extern, clazz, new VeinArgumentRef("i", clazz))
-            { Owner = clazz };
-
-        internal RuntimeIshtarMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
-            : base(name, flags, args) =>
-            this.ReturnType = VeinTypeCode.TYPE_VOID.AsClass();
-
-        internal RuntimeIshtarMethod(string name, MethodFlags flags, VeinClass returnType, params VeinArgumentRef[] args)
-            : base(name, flags, args) =>
-            this.ReturnType = returnType;
-
-        internal RuntimeIshtarMethod(string name, MethodFlags flags, VeinClass returnType, VeinClass owner,
+        
+        internal RuntimeIshtarMethod(string name, MethodFlags flags, VeinCore types, VeinClass returnType, VeinClass owner,
             params VeinArgumentRef[] args)
-            : base(name, flags, args)
+            : base(name, flags, types, args)
         {
             this.Owner = owner;
             this.ReturnType = returnType;

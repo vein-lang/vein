@@ -1,8 +1,5 @@
 namespace ishtar
 {
-    using System.Runtime.InteropServices;
-    using vein.runtime;
-
     public unsafe struct IshtarObject
     {
         public IshtarObject() {}
@@ -21,6 +18,7 @@ namespace ishtar
         public long __gc_id = -1;
 #endif
 
+        
         public RuntimeIshtarClass decodeClass()
         {
             if (clazz is null)
@@ -31,7 +29,7 @@ namespace ishtar
         public static IshtarObject* IsInstanceOf(CallFrame frame, IshtarObject* @this, RuntimeIshtarClass @class)
         {
             if (!@class.is_inited)
-                @class.init_vtable();
+                @class.init_vtable(frame.vm);
             if (@this == null)
                 return null;
             if (@class.IsInterface)
@@ -48,12 +46,12 @@ namespace ishtar
 
         public static bool IsAssignableFrom(CallFrame frame, RuntimeIshtarClass c1, RuntimeIshtarClass c2)
         {
-            if (!c1.is_inited) c1.init_vtable();
-            if (!c2.is_inited) c2.init_vtable();
+            if (!c1.is_inited) c1.init_vtable(frame.vm);
+            if (!c2.is_inited) c2.init_vtable(frame.vm);
             // TODO: Array detection
             // TODO: Generic detection
             // TODO: Interfrace detection
-            if (c1.FullName == VeinCore.ObjectClass.FullName)
+            if (c1.FullName == frame.vm.Types.ObjectClass.FullName)
                 return true;
             return c1.IsInner(c2);
         }

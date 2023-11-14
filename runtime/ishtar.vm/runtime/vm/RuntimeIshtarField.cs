@@ -2,7 +2,7 @@ namespace ishtar
 {
     using System.Linq;
     using vein.runtime;
-
+    
     public unsafe class RuntimeIshtarField : VeinField
     {
         public RuntimeIshtarField(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass fieldType) :
@@ -17,7 +17,7 @@ namespace ishtar
         {
             bool failMapping(int code)
             {
-                VM.FastFail(WNE.TYPE_LOAD,
+                frame.vm.FastFail(WNE.TYPE_LOAD,
                     $"Native aspect has incorrect mapping for '{FullName}' field. [0x{code:X}]", frame);
                 return false;
             }

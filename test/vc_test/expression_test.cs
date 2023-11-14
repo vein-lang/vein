@@ -135,9 +135,9 @@ namespace veinc_test
         {
             var genCtx = new GeneratorContext();
 
-            genCtx.Module = new VeinModuleBuilder("doo");
+            genCtx.Module = new VeinModuleBuilder("doo", Types.Storage);
             var @class = genCtx.Module.DefineClass("global::mana/foo");
-            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass());
+            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
             genCtx.CurrentScope = new VeinScope(genCtx);
 
             var key = $"ata()";
@@ -158,15 +158,15 @@ namespace veinc_test
             var genCtx = new GeneratorContext();
             genCtx.Document = new DocumentDeclaration { FileEntity = new FileInfo("<in-memory-file>.data") };
 
-            genCtx.Module = new VeinModuleBuilder("doo");
+            genCtx.Module = new VeinModuleBuilder("doo", Types.Storage);
             var @class = genCtx.Module.DefineClass("global::mana/foo");
             var anotherClass = genCtx.Module.DefineClass("global::mana/goo");
 
-            anotherClass.DefineMethod("gota", MethodFlags.Public, VeinTypeCode.TYPE_I1.AsClass());
+            anotherClass.DefineMethod("gota", MethodFlags.Public, VeinTypeCode.TYPE_I1.AsClass()(Types.Storage));
 
             @class.Includes.Add("global::mana");
 
-            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass());
+            genCtx.CurrentMethod = @class.DefineMethod("ata", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
             genCtx.CurrentScope = new VeinScope(genCtx);
 
             genCtx.CurrentScope.DefineVariable(new IdentifierExpression("ow"), anotherClass, 0);

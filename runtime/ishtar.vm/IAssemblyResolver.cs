@@ -81,10 +81,10 @@ namespace vein.runtime
             catch (InvalidOperationException)
             {
                 var text = $"Assembly '{name}' cannot be loaded.\n" +
-                           $"\t  {search_paths.Select(x => $"Path '{x}', Exist: {x.Exists}").Join("\n\t  ")}";
+                           $"\t  {search_paths.Select(x => $"Path '{x}', Exist: {x.Exists}").Join("\n\t  ")};";
                 if (files.Length != 0)
                     text += $"\n\tfiles checked: {files.Select(x => $"{x}").Join("\n\t\t")}";
-                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, text, sys_frame);
+                Vault.vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, text, sys_frame);
                 return null;
             }
         }
@@ -92,6 +92,6 @@ namespace vein.runtime
         protected override void debug(string s) { }
 
 
-        public static CallFrame sys_frame => IshtarFrames.ModuleLoaderFrame;
+        public CallFrame sys_frame => Vault.vm.Frames.ModuleLoaderFrame;
     }
 }

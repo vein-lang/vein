@@ -20,10 +20,10 @@ namespace veinc_test
         [Test, Ignore("MANUAL")]
         public void Test()
         {
-            var module = new VeinModuleBuilder("xuy");
+            var module = new VeinModuleBuilder("xuy", (Types.Storage));
             var clazz = module.DefineClass("xuy%global::vein/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public,VeinTypeCode.TYPE_VOID.AsClass(), ("x", VeinTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass()((Types.Storage)), VeinArgumentRef.Create(Types.Storage, ("x", VeinTypeCode.TYPE_STRING)));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var gen = method.GetGenerator();
 
@@ -64,10 +64,10 @@ namespace veinc_test
         [Test, Ignore("MANUAL")]
         public void TestIL()
         {
-            var module = new VeinModuleBuilder("xuy");
+            var module = new VeinModuleBuilder("xuy", (Types.Storage));
             var clazz = module.DefineClass("global::vein/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
-            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass(), ("x", VeinTypeCode.TYPE_STRING));
+            var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass()((Types.Storage)), VeinArgumentRef.Create(Types.Storage, ("x", VeinTypeCode.TYPE_STRING)));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var body = method.GetGenerator();
 
@@ -97,7 +97,7 @@ namespace veinc_test
             var ast = w.CompilationUnit.ParseVein(
                 " class Program { main(): void { if(ze()) return x; else { return d();  } } }");
 
-            var module = new VeinModuleBuilder("foo");
+            var module = new VeinModuleBuilder("foo", (Types.Storage));
 
             foreach (var member in ast.Members)
             {
@@ -107,7 +107,7 @@ namespace veinc_test
 
                     foreach (var methodMember in classMember.Methods)
                     {
-                        var method = @class.DefineMethod(methodMember.Identifier.ExpressionString, VeinTypeCode.TYPE_VOID.AsClass());
+                        var method = @class.DefineMethod(methodMember.Identifier.ExpressionString, VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
                         var generator = method.GetGenerator();
 
                         foreach (var statement in methodMember.Body.Statements)
@@ -146,7 +146,7 @@ namespace veinc_test
             var ctx_actual = actual.ConsumeFromMetadata<GeneratorContext>("context");
 
             ctx_actual.Classes.First().Value
-                .DefineField("x", FieldFlags.None, VeinTypeCode.TYPE_STRING.AsClass());
+                .DefineField("x", FieldFlags.None, VeinTypeCode.TYPE_STRING.AsClass()(Types.Storage));
 
 
             actual.EmitReturn(ret);
@@ -155,7 +155,7 @@ namespace veinc_test
             var ctx_expected = expected.ConsumeFromMetadata<GeneratorContext>("context");
 
             var field = ctx_expected.Classes.First().Value
-                .DefineField("x", FieldFlags.None, VeinTypeCode.TYPE_STRING.AsClass());
+                .DefineField("x", FieldFlags.None, VeinTypeCode.TYPE_STRING.AsClass()(Types.Storage));
 
             expected.Emit(OpCodes.LDARG_0);
             expected.Emit(OpCodes.LDF, field);
@@ -168,11 +168,11 @@ namespace veinc_test
         {
             var ret = new ReturnStatementSyntax(new IdentifierExpression("x"));
 
-            var actual = CreateGenerator(("x", VeinTypeCode.TYPE_STRING));
+            var actual = CreateGenerator(VeinArgumentRef.Create(Types.Storage, ("x", VeinTypeCode.TYPE_STRING)));
 
             actual.EmitReturn(ret);
 
-            var expected = CreateGenerator(("x", VeinTypeCode.TYPE_STRING));
+            var expected = CreateGenerator(VeinArgumentRef.Create(Types.Storage, ("x", VeinTypeCode.TYPE_STRING)));
 
             expected.Emit(OpCodes.LDARG_0);
             expected.Emit(OpCodes.RET);
@@ -182,9 +182,9 @@ namespace veinc_test
 
         public static ILGenerator CreateGenerator(params VeinArgumentRef[] args)
         {
-            var module = new VeinModuleBuilder(Guid.NewGuid().ToString());
+            var module = new VeinModuleBuilder(Guid.NewGuid().ToString(), (Types.Storage));
             var @class = module.DefineClass("global::foo/bar");
-            var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass(), args);
+            var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage), args);
 
             var gen =  method.GetGenerator();
             var ctx = new GeneratorContext();
@@ -239,20 +239,20 @@ puts after - before;*/
         [Test, Ignore("MANUAL")]
         public void ManualGenCallExternFunction()
         {
-            var module = new VeinModuleBuilder("hello_world");
+            var module = new VeinModuleBuilder("hello_world", (Types.Storage));
             var clazz = module.DefineClass("hello_world%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
 
 
             var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
-                VeinTypeCode.TYPE_VOID.AsClass());
+                VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
             var body = method.GetGenerator();
 
             var @while = body.DefineLabel();
 
             body.UseLabel(@while);
             body.Emit(OpCodes.NOP);
-            body.Emit(OpCodes.NEWOBJ, VeinCore.StringClass);
+            body.Emit(OpCodes.NEWOBJ, (Types.Storage).StringClass);
             body.Emit(OpCodes.RESERVED_2);
             body.Emit(OpCodes.JMP, @while);
             body.Emit(OpCodes.RET);
@@ -272,14 +272,14 @@ puts after - before;*/
         [Test, Ignore("MANUAL")]
         public void ManualGen()
         {
-            var module = new VeinModuleBuilder("satl");
+            var module = new VeinModuleBuilder("satl", (Types.Storage));
             var clazz = module.DefineClass("satl%global::wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
 
 
             var fib = clazz.DefineMethod("fib",
                 MethodFlags.Public | MethodFlags.Static,
-                VeinTypeCode.TYPE_I8.AsClass(), ("x", VeinTypeCode.TYPE_I8));
+                VeinTypeCode.TYPE_I8.AsClass()((Types.Storage)), VeinArgumentRef.Create(Types.Storage, ("x", VeinTypeCode.TYPE_I8)));
 
             var fibGen = fib.GetGenerator();
 
@@ -307,10 +307,10 @@ puts after - before;*/
             fibGen.Emit(OpCodes.RET);
             fibGen.UseLabel(label_if_2);
             // var first, second, nth, i = 0;
-            fibGen.EnsureLocal("first", VeinTypeCode.TYPE_I4.AsClass());
-            fibGen.EnsureLocal("second", VeinTypeCode.TYPE_I4.AsClass());
-            fibGen.EnsureLocal("nth", VeinTypeCode.TYPE_I4.AsClass());
-            fibGen.EnsureLocal("i", VeinTypeCode.TYPE_I4.AsClass());
+            fibGen.EnsureLocal("first", VeinTypeCode.TYPE_I4.AsClass()(Types.Storage));
+            fibGen.EnsureLocal("second", VeinTypeCode.TYPE_I4.AsClass()(Types.Storage));
+            fibGen.EnsureLocal("nth", VeinTypeCode.TYPE_I4.AsClass()(Types.Storage));
+            fibGen.EnsureLocal("i", VeinTypeCode.TYPE_I4.AsClass()(Types.Storage));
             // second, nth = 1; i = 2;
             fibGen.Emit(OpCodes.LDC_I4_1); fibGen.Emit(OpCodes.STLOC_1);
             fibGen.Emit(OpCodes.LDC_I4_1); fibGen.Emit(OpCodes.STLOC_2);
@@ -356,7 +356,7 @@ puts after - before;*/
             fibGen.Emit(OpCodes.RET);
 
             var method = clazz.DefineMethod("master", MethodFlags.Public | MethodFlags.Static,
-                VeinTypeCode.TYPE_VOID.AsClass());
+                VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
             var body = method.GetGenerator();
 
 

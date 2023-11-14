@@ -20,9 +20,9 @@ namespace veinc_test
             var list = new List<VeinModule>();
 
 
-            var stl = new VeinModuleBuilder("stl", new Version(2,3));
+            var stl = new VeinModuleBuilder("stl", new Version(2,3), (Types.Storage));
 
-            foreach (var type in VeinCore.All)
+            foreach (var type in (Types.Storage).All)
             {
                 stl.InternTypeName(type.FullName);
                 stl.InternString(type.Name);
@@ -49,7 +49,7 @@ namespace veinc_test
         public void WriteTest()
         {
             var verSR = new Version(2, 2, 2, 2);
-            var moduleSR = new VeinModuleBuilder("set1", verSR);
+            var moduleSR = new VeinModuleBuilder("set1", verSR, (Types.Storage));
             {
                 moduleSR.Deps.AddRange(GetDeps());
 
@@ -59,7 +59,7 @@ namespace veinc_test
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
                 var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                    VeinTypeCode.TYPE_VOID.AsClass());
+                    VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
 
                 var gen = method.GetGenerator();
 
@@ -77,7 +77,7 @@ namespace veinc_test
 
             {
                 var ver = new Version(2, 2, 2, 2);
-                var module = new VeinModuleBuilder("set2", ver);
+                var module = new VeinModuleBuilder("set2", ver, (Types.Storage));
                 module.Deps.AddRange(GetDeps());
 
 
@@ -86,7 +86,7 @@ namespace veinc_test
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
                 var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                    VeinTypeCode.TYPE_VOID.AsClass());
+                    VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
 
                 var gen = method.GetGenerator();
 

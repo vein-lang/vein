@@ -11,11 +11,6 @@ namespace vein.runtime
     using ishtar;
     internal class Program
     {
-        private static void INIT_VTABLES()
-        {
-            foreach (var @class in VeinCore.All.OfType<RuntimeIshtarClass>())
-                @class.init_vtable();
-        }
         #if EXPERIMENTAL_JIT
         public unsafe static void TestJitFunctional()
         {
@@ -43,37 +38,38 @@ namespace vein.runtime
         public static unsafe int Main(string[] args)
         {
             //TestJitFunctional();
-            ishtar.Trace.init();
             //while (!Debugger.IsAttached)
             //    Thread.Sleep(200);
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Console.OutputEncoding = Encoding.Unicode;
-            IshtarCore.INIT();
-            INIT_VTABLES();
-            IshtarGC.INIT();
-            FFI.INIT();
-
-            AppVault.CurrentVault = new AppVault("app");
+            var vm = VM.Create("app");
+            var vault = vm.Vault;
 
             var masterModule = default(IshtarAssembly);
             var resolver = default(AssemblyResolver);
 
             if (AssemblyBundle.IsBundle(out var bundle))
             {
-                resolver = AppVault.CurrentVault.GetResolver();
+                resolver = vault.GetResolver();
                 masterModule = bundle.Assemblies.First();
                 resolver.AddInMemory(bundle);
             }
             else
             {
                 if (args.Length < 1)
+                {
+                    vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, "0x1", vm.Frames.EntryPoint);
                     return -1;
+                }
                 var entry = new FileInfo(args.First());
                 if (!entry.Exists)
+                {
+                    vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, "0x2", vm.Frames.EntryPoint);
                     return -2;
-                AppVault.CurrentVault.WorkDirecotry = entry.Directory;
-                resolver = AppVault.CurrentVault.GetResolver();
+                }
+                vault.WorkDirecotry = entry.Directory;
+                resolver = vault.GetResolver();
                 masterModule = IshtarAssembly.LoadFromFile(entry);
                 resolver.AddSearchPath(entry.Directory);
             }
@@ -82,34 +78,28 @@ namespace vein.runtime
             var module = resolver.Resolve(masterModule);
 
             foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())
-                @class.init_vtable();
+                @class.init_vtable(vm);
 
             var entry_point = module.GetEntryPoint();
 
             if (entry_point is null)
             {
-                VM.FastFail(WNE.MISSING_METHOD, $"Entry point in '{module.Name}' module is not defined.", IshtarFrames.EntryPoint);
+                vm.FastFail(WNE.MISSING_METHOD, $"Entry point in '{module.Name}' module is not defined.", vm.Frames.EntryPoint);
                 return -280;
             }
 
             var args_ = stackalloc stackval[1];
 
-            var frame = new CallFrame
+            var frame = new CallFrame(vm)
             {
                 args = args_,
                 method = entry_point,
                 level = 0
             };
-
-            {// i don't know why
-                IshtarCore.INIT_ADDITIONAL_MAPPING();
-                INIT_VTABLES();
-            }
-
-
+            
 
             var watcher = Stopwatch.StartNew();
-            VM.exec_method(frame);
+            vm.exec_method(frame);
 
             if (frame.exception is not null)
             {
@@ -144,7 +134,7 @@ namespace vein.runtime
             bundle = null;
             if (string.IsNullOrEmpty(current))
             {
-                VM.FastFail(WNE.STATE_CORRUPT, "Current executable has corrupted. [process file not found]", IshtarFrames.EntryPoint);
+                //VM.FastFail(WNE.STATE_CORRUPT, "Current executable has corrupted. [process file not found]", IshtarFrames.EntryPoint);
                 return false;
             }
 

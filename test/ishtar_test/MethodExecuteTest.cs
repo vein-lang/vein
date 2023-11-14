@@ -13,7 +13,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
 
         ctx.OnClassBuild((x, y) =>
         {
-            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_I4.AsClass());
+            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_I4.AsClass()(Types));
             method.GetGenerator()
                 .Emit(OpCodes.LDC_I4_S, 225)
                 .Emit(OpCodes.RET);
@@ -40,8 +40,8 @@ public unsafe class MethodExecuteTest : IshtarTestBase
 
         ctx.OnClassBuild((x, y) =>
         {
-            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_I4.AsClass(),
-                new VeinArgumentRef("value", VeinTypeCode.TYPE_I4.AsClass()));
+            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_I4.AsClass()(Types),
+                new VeinArgumentRef("value", VeinTypeCode.TYPE_I4.AsClass()(Types)));
             method.GetGenerator()
                 .Emit(OpCodes.LDARG_0)
                 .Emit(OpCodes.LDARG_S, 0)
@@ -71,7 +71,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
 
         ctx.OnClassBuild((x, y) =>
         {
-            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_STRING.AsClass());
+            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_STRING.AsClass()(Types));
             method.GetGenerator()
                 .Emit(OpCodes.LDNULL)
                 .Emit(OpCodes.LDC_STR, "foo")

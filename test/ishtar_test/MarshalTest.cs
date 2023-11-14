@@ -11,7 +11,7 @@ namespace ishtar_test
         {
             short clr = short.MaxValue / 2;
 
-            var v = IshtarMarshal.ToIshtarObject(clr);
+            var v = GC.ToIshtarObject(clr);
             var r = IshtarMarshal.ToDotnetInt16(v, null);
 
             Assert.AreEqual(clr, r);
@@ -22,7 +22,7 @@ namespace ishtar_test
         {
             int clr = int.MaxValue / 2;
 
-            var v = IshtarMarshal.ToIshtarObject(clr);
+            var v = GC.ToIshtarObject(clr);
             var r = IshtarMarshal.ToDotnetInt32(v, null);
 
             Assert.AreEqual(clr, r);
@@ -33,7 +33,7 @@ namespace ishtar_test
         {
             long clr = long.MaxValue / 2;
 
-            var v = IshtarMarshal.ToIshtarObject(clr);
+            var v = GC.ToIshtarObject(clr);
             var r = IshtarMarshal.ToDotnetInt64(v, null);
 
             Assert.AreEqual(clr, r);
@@ -45,7 +45,7 @@ namespace ishtar_test
         {
             var clr = "long.MaxValue / 2";
 
-            var v = IshtarMarshal.ToIshtarObject(clr);
+            var v = GC.ToIshtarObject(clr);
             var r = IshtarMarshal.ToDotnetString(v, null);
 
             Assert.AreEqual(clr, r);

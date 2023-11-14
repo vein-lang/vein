@@ -239,7 +239,7 @@ namespace ishtar_test
         {
             using var ctx = CreateContext();
 
-            ctx.OnClassBuild((@class, o) => o.field = @class.DefineField("TEST_FIELD", Public | Static, VeinTypeCode.TYPE_I4.AsClass()));
+            ctx.OnClassBuild((@class, o) => o.field = @class.DefineField("TEST_FIELD", Public | Static, VeinTypeCode.TYPE_I4.AsClass()(Types)));
 
 
             var result = ctx.Execute((gen, storage) =>

@@ -18,7 +18,6 @@ namespace ishtar
     public unsafe class RuntimeIshtarClass : VeinClass,
         ITransitionAlignment<string, RuntimeIshtarField>,
         ITransitionAlignment<string, RuntimeIshtarMethod>,
-        IVTableCollectible,
         IDisposable
     {
         internal RuntimeIshtarClass(QualityTypeName name, VeinClass parent, RuntimeIshtarModule module)
@@ -47,10 +46,12 @@ namespace ishtar
 
         internal RuntimeIshtarMethod DefineMethod(string name, VeinClass returnType, MethodFlags flags, params VeinArgumentRef[] args)
         {
-            var method = new RuntimeIshtarMethod(name, flags, returnType, this, args);
-            method.Arguments.AddRange(args);
+            var method = new RuntimeIshtarMethod(name, flags, this.Owner.Types, returnType, this, args);
 
-            if (Methods.Any(x => x.Name.Equals(method.Name)))
+            if (Methods.Any(x =>
+                {
+                    return x.Name.Equals(method.Name);
+                }))
                 throw new Exception();
 
             Methods.Add(method);
@@ -78,7 +79,7 @@ namespace ishtar
             public ulong computed_size = 0;
         }
 #endif
-        public void init_vtable()
+        public void init_vtable(VM vm)
         {
             if (is_inited)
                 return;
@@ -90,15 +91,19 @@ namespace ishtar
                 is_inited = true;
                 return;
             }
+
             computed_size = 0;
 
             var parents = Parents.OfType<RuntimeIshtarClass>().ToArray();
 
             foreach (var parent in parents)
             {
-                parent.init_vtable();
+                parent.init_vtable(vm);
                 computed_size += parent.computed_size;
+#if DEBUG_VTABLE
                 dvtable.computed_size += parent.dvtable.computed_size;
+#endif
+
             }
 
             computed_size += (ulong)this.Methods.Count;
@@ -115,7 +120,7 @@ namespace ishtar
 
             if (computed_size >= long.MaxValue) // fuck IntPtr ctor limit
             {
-                VM.FastFail(WNE.TYPE_LOAD, $"'{FullName}' too big object.", IshtarFrames.VTableFrame(this));
+                vm.FastFail(WNE.TYPE_LOAD, $"'{FullName}' too big object.", vm.Frames.VTableFrame(this));
                 return;
             }
 
@@ -133,7 +138,7 @@ namespace ishtar
             if (vtable == null)
             {
                 // damn, trying allocate when out of memory, need fix it
-                VM.FastFail(WNE.TYPE_LOAD, "Out of memory.", IshtarFrames.VTableFrame(this));
+                vm.FastFail(WNE.TYPE_LOAD, "Out of memory.", vm.Frames.VTableFrame(this));
                 return;
             }
 
@@ -165,8 +170,8 @@ namespace ishtar
 
                 if ((method!.Flags & MethodFlags.Abstract) != 0 && (this.Flags & ClassFlags.Abstract) == 0)
                 {
-                    VM.FastFail(WNE.TYPE_LOAD,
-                        $"Method '{method.Name}' in '{this.Name}' type has invalid mapping.", IshtarFrames.VTableFrame(this));
+                    vm.FastFail(WNE.TYPE_LOAD,
+                        $"Method '{method.Name}' in '{this.Name}' type has invalid mapping.", vm.Frames.VTableFrame(this));
                     return;
                 }
 
@@ -184,10 +189,10 @@ namespace ishtar
                         ?.Method?[method.Name];
 
                     if (w == null && (method.Flags & MethodFlags.Override) != 0)
-                        VM.FastFail(WNE.MISSING_METHOD,
+                        vm.FastFail(WNE.MISSING_METHOD,
                             $"Method '{method.Name}' mark as OVERRIDE," +
                             $" but parent class '{parents.Select(x => x.Name).Join(',')}'" +
-                            $" no contained virtual/abstract method.", IshtarFrames.VTableFrame(this));
+                            $" no contained virtual/abstract method.", vm.Frames.VTableFrame(this));
 
                     if (w is null)
                         continue;
@@ -210,12 +215,12 @@ namespace ishtar
 
                     if ((field!.Flags & FieldFlags.Abstract) != 0 && (Flags & ClassFlags.Abstract) == 0)
                     {
-                        VM.FastFail(WNE.TYPE_LOAD,
-                            $"Field '{field.Name}' in '{this.Name}' type has invalid mapping.", IshtarFrames.VTableFrame(this));
+                        vm.FastFail(WNE.TYPE_LOAD,
+                            $"Field '{field.Name}' in '{this.Name}' type has invalid mapping.", vm.Frames.VTableFrame(this));
                         return;
                     }
 
-                    vtable[vtable_offset] = get_field_default_value(field);
+                    vtable[vtable_offset] = get_field_default_value(field, vm);
                     field.vtable_offset = vtable_offset;
 
                     if (!field.FieldType.IsPrimitive)
@@ -236,10 +241,10 @@ namespace ishtar
                             .Field?[field.FullName];
 
                         if (w == null && (field.Flags & FieldFlags.Override) != 0)
-                            VM.FastFail(WNE.MISSING_FIELD,
+                            vm.FastFail(WNE.MISSING_FIELD,
                                 $"Field '{field.Name}' mark as OVERRIDE," +
                                 $" but parent class '{parents.Select(x => x.Name).Join(',')}' " +
-                                $"no contained virtual/abstract method.", IshtarFrames.VTableFrame(this));
+                                $"no contained virtual/abstract method.", vm.Frames.VTableFrame(this));
 
                         if (w is null)
                             continue;
@@ -256,7 +261,7 @@ namespace ishtar
             }
 
             if (Fields.Count != 0) for (var i = 0; i != Fields.Count; i++)
-                    (Fields[i] as RuntimeIshtarField)?.init_mapping(IshtarFrames.VTableFrame(this));
+                    (Fields[i] as RuntimeIshtarField)?.init_mapping(vm.Frames.VTableFrame(this));
 
             is_inited = true;
             if (!parents.Any())
@@ -277,14 +282,14 @@ namespace ishtar
         }
 
 
-        public void* get_field_default_value(RuntimeIshtarField field)
+        public void* get_field_default_value(RuntimeIshtarField field, VM vm)
         {
             if (field.default_value is not null)
                 return field.default_value;
             if (field.FieldType.IsPrimitive)
-                return field.default_value = IshtarMarshal.Boxing(_sys_frame ??= IshtarFrames.VTableFrame(this),
-                    IshtarGC.AllocValue(field.FieldType));
-            return field.default_value = IshtarGC.AllocObject(field.FieldType as RuntimeIshtarClass);
+                return field.default_value = IshtarMarshal.Boxing(_sys_frame ??= vm.Frames.VTableFrame(this),
+                    vm.GC.AllocValue(field.FieldType));
+            return field.default_value = vm.GC.AllocObject(field.FieldType as RuntimeIshtarClass);
         }
         public new RuntimeIshtarField FindField(string name)
             => base.FindField(name) as RuntimeIshtarField;
