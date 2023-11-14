@@ -12,7 +12,7 @@ namespace ishtar
 
 
         public void validate(CallFrame frame, VeinTypeCode typeCode) =>
-            VM.Assert(type == VeinTypeCode.TYPE_ARRAY, WNE.TYPE_MISMATCH,
+            VirtualMachine.Assert(type == VeinTypeCode.TYPE_ARRAY, WNE.TYPE_MISMATCH,
                 $"stack type mismatch, current: '{type}', expected: '{typeCode}'. opcode: '{frame.last_ip}'", frame);
     }
 }

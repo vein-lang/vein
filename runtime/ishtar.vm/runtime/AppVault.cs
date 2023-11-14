@@ -12,7 +12,7 @@ namespace ishtar
     {
         public DirectoryInfo WorkDirecotry { get; set; } = new("./");
 
-        public VM vm { get; }
+        public VirtualMachine vm { get; }
         public string Name { get; }
         protected virtual AssemblyResolver Resolver { get; set; }
         public TokenInterlocker TokenGranted { get; }
@@ -20,7 +20,7 @@ namespace ishtar
 
         internal readonly List<RuntimeIshtarModule> Modules = new();
 
-        public AppVault(VM vm, string name)
+        public AppVault(VirtualMachine vm, string name)
         {
             this.vm = vm;
             Name = name;

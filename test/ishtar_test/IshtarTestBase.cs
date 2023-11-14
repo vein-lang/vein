@@ -39,7 +39,7 @@ namespace ishtar_test
         private ClassBuilder @class;
         internal string UID { get; }
 
-        public VM vm { get; }
+        public VirtualMachine vm { get; }
 
         public IshtarTestContext OnClassBuild(Action<ClassBuilder, dynamic> action)
         {
@@ -92,7 +92,7 @@ namespace ishtar_test
             return frame;
         }
 
-        public IshtarTestContext(string testCase, VeinModuleBuilder module, VM vm)
+        public IshtarTestContext(string testCase, VeinModuleBuilder module, VirtualMachine vm)
         {
             _testCase = testCase;
             _module = module;
@@ -113,7 +113,7 @@ namespace ishtar_test
 
     public abstract class IshtarTestBase : IDisposable
     {
-        public class PredefinedTypes(VM _vm)
+        public class PredefinedTypes(VirtualMachine _vm)
         {
             public RuntimeIshtarClass VOID => VeinTypeCode.TYPE_VOID.AsRuntimeClass(_vm.Types);
             public RuntimeIshtarClass OBJECT => VeinTypeCode.TYPE_OBJECT.AsRuntimeClass(_vm.Types);
@@ -133,16 +133,16 @@ namespace ishtar_test
                 return _module_instance;
             }
         }
-        private readonly VM _vm;
+        private readonly VirtualMachine _vm;
 
-        public VM GetVM() => _vm;
+        public VirtualMachine GetVM() => _vm;
         public IshtarCore Types => _vm.Types;
         public IshtarGC GC => _vm.GC;
         public PredefinedTypes T;
 
         protected IshtarTestBase()
         {
-            _vm = VM.Create("test-app");
+            _vm = VirtualMachine.Create("test-app");
             T = new PredefinedTypes(_vm);
             if (_vm.watcher is DefaultWatchDog)
                 _vm.watcher = new TestWatchDog();
@@ -177,6 +177,7 @@ namespace ishtar_test
         }
 
         protected virtual void StartUp() { }
-        protected virtual void Shutdown() { }
+
+        protected virtual void Shutdown() => _vm.Dispose();
     }
 }

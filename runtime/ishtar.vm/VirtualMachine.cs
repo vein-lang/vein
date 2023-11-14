@@ -14,14 +14,14 @@ namespace ishtar
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
-    public unsafe partial class VM
+    public unsafe partial class VirtualMachine
     {
-        VM() {}
+        VirtualMachine() {}
 
         /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
-        public static VM Create(string name)
+        public static VirtualMachine Create(string name)
         {
-            var vm = new VM();
+            var vm = new VirtualMachine();
             vm.Vault = new AppVault(vm, name);
             vm.trace = new IshtarTrace();
             vm.Types = new IshtarCore(vm);

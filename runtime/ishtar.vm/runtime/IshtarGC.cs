@@ -9,7 +9,7 @@ namespace ishtar
 
     public unsafe class IshtarGC
     {
-        private readonly VM _vm;
+        private readonly VirtualMachine _vm;
         private readonly SortedSet<nint> heap = new();
         public readonly GCStats Stats = new();
         public class GCStats
@@ -20,11 +20,11 @@ namespace ishtar
         }
 
         public IshtarObject* root;
-        public VM VM => _vm;
+        public VirtualMachine VM => _vm;
 
 
         /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
-        public IshtarGC(VM vm)
+        public IshtarGC(VirtualMachine vm)
         {
             _vm = vm;
             if (root is not null)

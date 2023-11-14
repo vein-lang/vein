@@ -9,10 +9,10 @@ using vm;
 
 public unsafe class ForeignFunctionInterface
     {
-        public readonly VM vm;
+        public readonly VirtualMachine vm;
         public Dictionary<string, RuntimeIshtarMethod> method_table { get; } = new();
 
-        public ForeignFunctionInterface(VM vm)
+        public ForeignFunctionInterface(VirtualMachine vm)
         {
             this.vm = vm;
             INIT();
@@ -45,7 +45,7 @@ public unsafe class ForeignFunctionInterface
         {
             StaticValidate(*arg1, current);
             var @class = (*arg1)->decodeClass();
-            VM.Assert(@class.FindField(name) != null, WNE.TYPE_LOAD,
+            VirtualMachine.Assert(@class.FindField(name) != null, WNE.TYPE_LOAD,
                 $"Field '{name}' not found in '{@class.Name}'.", current);
         }
 
@@ -66,15 +66,15 @@ public unsafe class ForeignFunctionInterface
         {
             StaticValidate(*arg1, current);
             var @class = (*arg1)->decodeClass();
-            VM.Assert(@class.is_inited, WNE.TYPE_LOAD, $"Class '{@class.FullName}' corrupted.", current);
-            VM.Assert(!@class.IsAbstract, WNE.TYPE_LOAD, $"Class '{@class.FullName}' abstract.", current);
+            VirtualMachine.Assert(@class.is_inited, WNE.TYPE_LOAD, $"Class '{@class.FullName}' corrupted.", current);
+            VirtualMachine.Assert(!@class.IsAbstract, WNE.TYPE_LOAD, $"Class '{@class.FullName}' abstract.", current);
         }
         [Conditional("STATIC_VALIDATE_IL")]
         public static void StaticTypeOf(CallFrame current, IshtarObject** arg1, VeinTypeCode code)
         {
             StaticValidate(*arg1, current);
             var @class = (*arg1)->decodeClass();
-            VM.Assert(@class.TypeCode == code, WNE.TYPE_MISMATCH, $"@class.{@class.TypeCode} == {code}", current);
+            VirtualMachine.Assert(@class.TypeCode == code, WNE.TYPE_MISMATCH, $"@class.{@class.TypeCode} == {code}", current);
         }
 
         public RuntimeIshtarMethod GetMethod(string FullName)

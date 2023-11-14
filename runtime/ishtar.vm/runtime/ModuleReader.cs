@@ -19,7 +19,7 @@ namespace ishtar
     public class RuntimeIshtarModule : VeinModule
     {
         public AppVault Vault { get; }
-        public VM vm => Vault.vm;
+        public VirtualMachine vm => Vault.vm;
         public ushort ID { get; internal set; }
 
         public RuntimeIshtarClass FindType(RuntimeToken type,
@@ -175,7 +175,7 @@ namespace ishtar
         {
             foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())
             {
-                VM.Assert(@class.runtime_token != RuntimeToken.Default, WNE.TYPE_LOAD,
+                VirtualMachine.Assert(@class.runtime_token != RuntimeToken.Default, WNE.TYPE_LOAD,
                     $"Detected non-inited runtime token. type: '{@class.FullName.NameWithNS}'");
             }
         }

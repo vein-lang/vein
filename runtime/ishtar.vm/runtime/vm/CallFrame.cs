@@ -8,7 +8,7 @@ namespace ishtar
         public static IshtarGC GetGC(this CallFrame frame) => frame.vm.GC;
     }
 
-    public unsafe class CallFrame(VM vm)
+    public unsafe class CallFrame(VirtualMachine vm)
     {
         public CallFrame parent;
         public RuntimeIshtarMethod method;
@@ -17,7 +17,7 @@ namespace ishtar
         public stackval* stack;
         public OpCodeValue last_ip;
         public int level;
-        public VM vm = vm;
+        public VirtualMachine vm = vm;
 
         public CallFrameException exception;
 

@@ -5,7 +5,7 @@ using System;
 using System.Threading;
 
 [ExcludeFromCodeCoverage]
-public class DefaultWatchDog(VM vm) : IWatchDog
+public class DefaultWatchDog(VirtualMachine vm) : IWatchDog
 {
     private static readonly object guarder = new();
 

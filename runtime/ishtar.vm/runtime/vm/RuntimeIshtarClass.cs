@@ -79,7 +79,7 @@ namespace ishtar
             public ulong computed_size = 0;
         }
 #endif
-        public void init_vtable(VM vm)
+        public void init_vtable(VirtualMachine vm)
         {
             if (is_inited)
                 return;
@@ -282,7 +282,7 @@ namespace ishtar
         }
 
 
-        public void* get_field_default_value(RuntimeIshtarField field, VM vm)
+        public void* get_field_default_value(RuntimeIshtarField field, VirtualMachine vm)
         {
             if (field.default_value is not null)
                 return field.default_value;

@@ -9,7 +9,7 @@ namespace ishtar
         {
             _obj = obj;
             _frame = frame;
-            VM.Assert(obj->decodeClass().runtime_token == Class.runtime_token, WNE.TYPE_MISMATCH,
+            VirtualMachine.Assert(obj->decodeClass().runtime_token == Class.runtime_token, WNE.TYPE_MISMATCH,
                 "Mismatch type when trying create layered object.", frame);
         }
 
@@ -22,7 +22,7 @@ namespace ishtar
             if (offset_field_table.ContainsKey(name))
                 return offset_field_table[name];
 
-            VM.Assert(Class.Field[name] is not null, WNE.MISSING_FIELD, $"Field '{name}' is not found in '{Class.Name}' class. [Layered object]");
+            VirtualMachine.Assert(Class.Field[name] is not null, WNE.MISSING_FIELD, $"Field '{name}' is not found in '{Class.Name}' class. [Layered object]");
 
             return offset_field_table[name] = Class.Field[name].vtable_offset;
         }
@@ -31,7 +31,7 @@ namespace ishtar
             if (offset_method_table.ContainsKey(name))
                 return offset_method_table[name];
 
-            VM.Assert(Class.Method[name] is not null, WNE.MISSING_METHOD, $"Method '{name}' is not found in '{Class.Name}' class. [Layered object]");
+            VirtualMachine.Assert(Class.Method[name] is not null, WNE.MISSING_METHOD, $"Method '{name}' is not found in '{Class.Name}' class. [Layered object]");
 
             return offset_method_table[name] = Class.Method[name].vtable_offset;
         }

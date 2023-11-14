@@ -2,7 +2,7 @@ namespace ishtar;
 
 using vein.runtime;
 
-public class IshtarFrames(VM vm)
+public class IshtarFrames(VirtualMachine vm)
 {
     public CallFrame ModuleLoaderFrame = new CallFrame(vm)
     {

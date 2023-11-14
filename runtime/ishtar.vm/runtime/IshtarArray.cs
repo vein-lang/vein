@@ -65,7 +65,7 @@ namespace ishtar
         {
             ForeignFunctionInterface.StaticValidate(frame, &value);
             var value_class = value->decodeClass();
-            VM.Assert(value_class.TypeCode == ElementClass.TypeCode || value_class.IsInner(ElementClass), WNE.TYPE_MISMATCH, $"", frame);
+            VirtualMachine.Assert(value_class.TypeCode == ElementClass.TypeCode || value_class.IsInner(ElementClass), WNE.TYPE_MISMATCH, $"", frame);
             if (index > length)
             {
                 frame.vm.FastFail(WNE.OUT_OF_RANGE, $"", frame);
