@@ -9,13 +9,15 @@ public static unsafe class B_Type
     public static IshtarObject* FindByName(CallFrame current, IshtarObject** args)
     {
         var arg1 = args[0];
+        var vault = current.vm.Vault;
+        var gc = current.GetGC();
 
-        FFI.StaticValidate(current, &arg1);
-        FFI.StaticTypeOf(current, &arg1, VeinTypeCode.TYPE_STRING);
+        ForeignFunctionInterface.StaticValidate(current, &arg1);
+        ForeignFunctionInterface.StaticTypeOf(current, &arg1, VeinTypeCode.TYPE_STRING);
 
         var name = IshtarMarshal.ToDotnetString(arg1, current);
 
-        var results = AppVault.CurrentVault.GlobalFindType(name);
+        var results = vault.GlobalFindType(name);
         if (results.Length == 0)
         {
             current.ThrowException(KnowTypes.TypeNotFoundFault(current), $"'{name}' not found.");
@@ -31,7 +33,7 @@ public static unsafe class B_Type
 
         var result = results[0];
 
-        return IshtarGC.AllocTypeInfoObject(result, current);
+        return gc.AllocTypeInfoObject(result, current);
     }
 
     [IshtarExport(1, "i_call_Type_findField")]
@@ -41,9 +43,9 @@ public static unsafe class B_Type
         var arg1 = args[0];
         var arg2 = args[1];
 
-        FFI.StaticValidate(current, &arg1);
-        FFI.StaticValidate(current, &arg2);
-        FFI.StaticTypeOf(current, &arg2, VeinTypeCode.TYPE_STRING);
+        ForeignFunctionInterface.StaticValidate(current, &arg1);
+        ForeignFunctionInterface.StaticValidate(current, &arg2);
+        ForeignFunctionInterface.StaticTypeOf(current, &arg2, VeinTypeCode.TYPE_STRING);
 
         current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current));
 
@@ -53,18 +55,19 @@ public static unsafe class B_Type
     internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("vein/lang", "Type");
 
 
-    public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
+    public static void InitTable(ForeignFunctionInterface ffi)
     {
-        new RuntimeIshtarMethod("i_call_Type_findByName", Public | Static | Extern,
-                new VeinArgumentRef("name", VeinCore.StringClass))
+        var table = ffi.method_table;
+        ffi.vm.CreateInternalMethod("i_call_Type_findByName", Public | Static | Extern,
+                new VeinArgumentRef("name", ffi.vm.Types.StringClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindByName)
             .AddInto(table, x => x.Name);
-        new RuntimeIshtarMethod("i_call_Type_findField", Public | Static | Extern,
-                new VeinArgumentRef("type", ThisClass), new VeinArgumentRef("name", VeinCore.StringClass))
+        ffi.vm.CreateInternalMethod("i_call_Type_findField", Public | Static | Extern,
+                new VeinArgumentRef("type", ThisClass), new VeinArgumentRef("name", ffi.vm.Types.StringClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindField)
             .AddInto(table, x => x.Name);
-        new RuntimeIshtarMethod("i_call_Type_findMethod", Public | Static | Extern,
-                new VeinArgumentRef("type", ThisClass), new VeinArgumentRef("name", VeinCore.StringClass))
+        ffi.vm.CreateInternalMethod("i_call_Type_findMethod", Public | Static | Extern,
+                new VeinArgumentRef("type", ThisClass), new VeinArgumentRef("name", ffi.vm.Types.StringClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindField)
             .AddInto(table, x => x.Name);
     }

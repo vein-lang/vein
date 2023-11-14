@@ -19,6 +19,7 @@ namespace ishtar
     public class RuntimeIshtarModule : VeinModule
     {
         public AppVault Vault { get; }
+        public VM vm => Vault.vm;
         public ushort ID { get; internal set; }
 
         public RuntimeIshtarClass FindType(RuntimeToken type,
@@ -46,7 +47,7 @@ namespace ishtar
 
         public static RuntimeIshtarModule Read(AppVault vault, byte[] arr, IReadOnlyList<VeinModule> deps, Func<string, Version, VeinModule> resolver)
         {
-            var module = new RuntimeIshtarModule(vault);
+            var module = new RuntimeIshtarModule(vault, "unnamed");
             using var mem = new MemoryStream(arr);
             using var reader = new BinaryReader(mem);
             module.Deps.AddRange(deps);
@@ -59,7 +60,7 @@ namespace ishtar
             {
                 var exp = new ILCompatibleException(ilVersion, OpCodes.SetVersion);
 
-                VM.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Unable to load assembly: '{exp.Message}'.", sys_frame);
+                vault.vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Unable to load assembly: '{exp.Message}'.", module.sys_frame);
                 return null;
             }
 
@@ -102,12 +103,12 @@ namespace ishtar
             foreach (var _ in ..reader.ReadInt32())
             {
                 var body = reader.ReadBytes(reader.ReadInt32());
-                var @class = DecodeClass(body, module);
+                var @class = module.DecodeClass(body, module);
                 module.class_table.Add(@class);
                 if (@class.IsSpecial)
                 {
-                    if (VeinCore.All.Any(x => x.FullName == @class.FullName))
-                        TypeForwarder.Indicate(@class);
+                    if (vault.vm.Types.All.Any(x => x.FullName == @class.FullName))
+                        TypeForwarder.Indicate(vault.vm.Types, @class);
                 }
             }
             // restore unresolved types
@@ -160,11 +161,11 @@ namespace ishtar
             module.Version = Version.Parse(module.GetConstStringByIndex(vdx));
             module.aspects.AddRange(Aspect.Deconstruct(module.const_table.storage));
 
-            module.SetupBootstraper(vault);
+            module.SetupBootstrapper(vault);
 
             DistributionAspects(module);
             ValidateRuntimeTokens(module);
-            LinkFFIMethods(module);
+            module.LinkFFIMethods(module);
             InitVTables(module);
 
             return module;
@@ -180,7 +181,7 @@ namespace ishtar
         }
 
         public static void InitVTables(RuntimeIshtarModule ishtarModule)
-            => ishtarModule.class_table.OfType<RuntimeIshtarClass>().Pipe(x => x.init_vtable()).Consume();
+            => ishtarModule.class_table.OfType<RuntimeIshtarClass>().Pipe(x => x.init_vtable(ishtarModule.vm)).Consume();
 
         // shit, todo: refactoring
         public static void DistributionAspects(RuntimeIshtarModule module)
@@ -231,10 +232,10 @@ namespace ishtar
             }
 
             if (errors.Length != 0)
-                VM.FastFail(WNE.TYPE_LOAD, $"\n{errors}", sys_frame);
+                module.Vault.vm.FastFail(WNE.TYPE_LOAD, $"\n{errors}", module.sys_frame);
         }
 
-        public static RuntimeIshtarClass DecodeClass(byte[] arr, RuntimeIshtarModule ishtarModule)
+        public RuntimeIshtarClass DecodeClass(byte[] arr, RuntimeIshtarModule ishtarModule)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -263,8 +264,7 @@ namespace ishtar
             {
                 var body =
                     binary.ReadBytes(binary.ReadInt32());
-                var method = DecodeMethod(body, @class, ishtarModule);
-                @class.Methods.Add(method);
+                DecodeAndDefineMethod(body, @class, ishtarModule);
             }
 
             DecodeField(binary, @class, ishtarModule);
@@ -272,7 +272,7 @@ namespace ishtar
             return @class;
         }
 
-        public static void DecodeField(BinaryReader binary, VeinClass @class, RuntimeIshtarModule ishtarModule)
+        public void DecodeField(BinaryReader binary, VeinClass @class, RuntimeIshtarModule ishtarModule)
         {
             foreach (var _ in ..binary.ReadInt32())
             {
@@ -285,7 +285,7 @@ namespace ishtar
             }
         }
 
-        public static unsafe RuntimeIshtarMethod DecodeMethod(byte[] arr, VeinClass @class, RuntimeIshtarModule ishtarModule)
+        public unsafe RuntimeIshtarMethod DecodeAndDefineMethod(byte[] arr, RuntimeIshtarClass @class, RuntimeIshtarModule ishtarModule)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -298,10 +298,10 @@ namespace ishtar
             var args = ReadArguments(binary, ishtarModule);
             var body = binary.ReadBytes(bodysize);
 
+            var methodName = ishtarModule.GetConstStringByIndex(idx);
+            var returnType = ishtarModule.FindType(retType, true, false);
 
-            var mth = new RuntimeIshtarMethod(ishtarModule.GetConstStringByIndex(idx), flags,
-                ishtarModule.FindType(retType, true, false),
-                @class, args.ToArray());
+            var mth = @class.DefineMethod(methodName, returnType, flags, args.ToArray());
 
             if (mth.IsExtern)
                 return mth;
@@ -311,13 +311,13 @@ namespace ishtar
             return mth;
         }
 
-        public static unsafe void LinkFFIMethods(VeinModule module) =>
+        public void LinkFFIMethods(VeinModule module) =>
             module.class_table
                 .Select(x => x.Methods.OfExactType<RuntimeIshtarMethod>())
                 .Pipe(LinkFFIMethods)
                 .Consume();
 
-        public static unsafe void LinkFFIMethods(IEnumerable<RuntimeIshtarMethod> methods)
+        public void LinkFFIMethods(IEnumerable<RuntimeIshtarMethod> methods)
         {
             const string InternalTarget = "__internal__";
             foreach (var method in methods.Where(x => x.IsExtern))
@@ -326,25 +326,25 @@ namespace ishtar
                 var name = method.Name;
                 if (aspect is null)
                 {
-                    VM.FastFail(WNE.TYPE_LOAD, $"(0x1) Extern function without native aspect. [{method.Name}]", sys_frame);
+                    vm.FastFail(WNE.TYPE_LOAD, $"(0x1) Extern function without native aspect. [{method.Name}]", sys_frame);
                     return;
                 }
 
                 if (aspect.Arguments.Count != 2)
                 {
-                    VM.FastFail(WNE.TYPE_LOAD, $"(0x1) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
+                    vm.FastFail(WNE.TYPE_LOAD, $"(0x1) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
                     return;
                 }
 
                 if (aspect.Arguments[0].Value is not string importTarget)
                 {
-                    VM.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
+                    vm.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
                     return;
                 }
 
                 if (aspect.Arguments[1].Value is not string importFn)
                 {
-                    VM.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
+                    vm.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{method.Name}]", sys_frame);
                     return;
                 }
 
@@ -352,24 +352,31 @@ namespace ishtar
                 {
                     name = VeinMethodBase.GetFullName(importFn, method.Arguments);
                     LinkInternalNative(name, method);
-                    return;
+                    continue;
                 }
 
-                FFI.LinkExternalNativeLibrary(importTarget, importFn, method);
+                ForeignFunctionInterface.LinkExternalNativeLibrary(importTarget, importFn, method);
             }
         }
-        private static void LinkInternalNative(string name, RuntimeIshtarMethod method)
+        private unsafe void LinkInternalNative(string name, RuntimeIshtarMethod method)
         {
-            var m = FFI.GetMethod(name);
+            var m = vm.FFI.GetMethod(name);
 
             if (m is null)
             {
                 if (method.Name != name)
-                    VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name} -> {name}' method not found in native mapping.", sys_frame);
+                    vm.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name} -> {name}' method not found in native mapping.", sys_frame);
                 else
-                    VM.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name}' method not found in native mapping.", sys_frame);
+                    vm.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name}' method not found in native mapping.", sys_frame);
 
-                Commands.DisplayDefinedMapping();
+                vm.FFI.DisplayDefinedMapping();
+                return;
+            }
+
+            if (m.PIInfo is { Addr: null, iflags: 0 })
+            {
+                vm.FastFail(WNE.TYPE_LOAD, $"Extern '{method.Name}' method has nul PIInfo", sys_frame);
+                vm.FFI.DisplayDefinedMapping();
                 return;
             }
 
@@ -388,7 +395,7 @@ namespace ishtar
             method.Header.max_stack = stacksize;
             method.Header.exception_handler_list = exceptions;
 
-            method.Header.code = (uint*)Marshal.AllocHGlobal(sizeof(uint) * body_r.opcodes.Count);
+            method.Header.code = (uint*)NativeMemory.AllocZeroed((nuint)(sizeof(uint) * body_r.opcodes.Count));
 
             for (var i = 0; i != body_r.opcodes.Count; i++)
                 method.Header.code[i] = body_r.opcodes[i];
@@ -420,14 +427,12 @@ namespace ishtar
             }
             return args;
         }
-        public RuntimeIshtarModule(AppVault vault) : base(null) => Vault = vault;
-        public RuntimeIshtarModule(AppVault vault, string name) : base(name) => Vault = vault;
+        public RuntimeIshtarModule(AppVault vault, string name) : base(name, vault.vm.Types) => Vault = vault;
 
-
-        private void SetupBootstraper(AppVault vault) =>
-            Bootstrapper = new RuntimeIshtarClass(new QualityTypeName(Name, "boot", "<sys>"), new VeinClass[0], this);
+        private void SetupBootstrapper(AppVault vault) =>
+            Bootstrapper = new RuntimeIshtarClass(new QualityTypeName(Name, "boot", "<sys>"), Array.Empty<VeinClass>(), this);
         public RuntimeIshtarClass Bootstrapper { get; private set; }
 
-        public static CallFrame sys_frame => IshtarFrames.ModuleLoaderFrame;
+        public CallFrame sys_frame => Vault.vm.Frames.ModuleLoaderFrame;
     }
 }

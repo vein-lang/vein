@@ -89,15 +89,15 @@ public static class G_Types
         if (exp.CanOptimizationApply())
             return exp.ForceOptimization().DetermineType(context);
         if (exp is LiteralExpressionSyntax literal)
-            return literal.GetTypeCode().AsClass();
+            return literal.GetTypeCode().AsClass()(Types.Storage);
         if (exp is ArrayCreationExpression arr)
-            return VeinTypeCode.TYPE_ARRAY.AsClass();
+            return VeinTypeCode.TYPE_ARRAY.AsClass()(Types.Storage);
         if (exp is AccessExpressionSyntax access)
             return access.ResolveType(context);
         if (exp is NewExpressionSyntax { IsArray: false } @new)
             return context.ResolveType(@new.TargetType.Typeword);
         if (exp is NewExpressionSyntax { IsArray: true })
-            return VeinTypeCode.TYPE_ARRAY.AsClass();
+            return VeinTypeCode.TYPE_ARRAY.AsClass()(Types.Storage);
         if (exp is InvocationExpression inv)
             return inv.ResolveReturnType(context);
         if (exp is ArgumentExpression { Value: IdentifierExpression } arg1)
@@ -113,11 +113,11 @@ public static class G_Types
         if (exp is TypeExpression t)
             return context.ResolveType(t.Typeword);
         if (exp is NameOfExpressionSyntax)
-            return VeinTypeCode.TYPE_STRING.AsClass();
+            return VeinTypeCode.TYPE_STRING.AsClass()(Types.Storage);
         if (exp is BinaryExpressionSyntax bin)
         {
             if (bin.OperatorType.IsLogic())
-                return VeinTypeCode.TYPE_BOOLEAN.AsClass();
+                return VeinTypeCode.TYPE_BOOLEAN.AsClass()(Types.Storage);
             var (lt, rt) = bin.Fusce(context);
 
             return lt == rt ? lt : ExplicitConversion(lt, rt);
@@ -160,7 +160,7 @@ public static class G_Types
         {
             if (enumerator[i] is LiteralExpressionSyntax literal)
             {
-                t = literal.GetTypeCode().AsClass();
+                t = literal.GetTypeCode().AsClass()(Types.Storage);
                 continue;
             }
 

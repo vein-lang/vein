@@ -42,10 +42,10 @@ public class il_test
 
         gen.Emit(OpCodes.RET);
         gen.Emit(OpCodes.AND);
-        gen.EnsureLocal("foo1", VeinTypeCode.TYPE_I8.AsClass());
+        gen.EnsureLocal("foo1", VeinTypeCode.TYPE_I8.AsClass()(Types.Storage));
         gen.Emit(OpCodes.LDC_I8_3);
         gen.Emit(OpCodes.STLOC_0);
-        gen.EnsureLocal("foo2", VeinTypeCode.TYPE_I4.AsClass());
+        gen.EnsureLocal("foo2", VeinTypeCode.TYPE_I4.AsClass()(Types.Storage));
         gen.Emit(OpCodes.LDC_I4_3);
         gen.Emit(OpCodes.STLOC_1);
 
@@ -96,9 +96,9 @@ public class il_test
 
     public static ILGenerator CreateGenerator(params VeinArgumentRef[] args)
     {
-        var module = new VeinModuleBuilder(Guid.NewGuid().ToString());
+        var module = new VeinModuleBuilder(Guid.NewGuid().ToString(), (Types.Storage));
         var @class = new ClassBuilder(module, $"{module.Name}%global::foo/bar");
-        var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass(), args);
+        var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage), args);
         return method.GetGenerator();
     }
 }

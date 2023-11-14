@@ -7,54 +7,65 @@ namespace ishtar
     using vein.runtime;
     using static vein.runtime.VeinTypeCode;
 
-    public static unsafe class IshtarGC
+    public unsafe class IshtarGC
     {
-        private static readonly SortedSet<nint> heap = new();
-        public static class GCStats
+        private readonly VM _vm;
+        private readonly SortedSet<nint> heap = new();
+        public readonly GCStats Stats = new();
+        public class GCStats
         {
-            public static ulong total_allocations;
-            public static ulong total_bytes_requested;
-            public static ulong alive_objects;
+            public ulong total_allocations;
+            public ulong total_bytes_requested;
+            public ulong alive_objects;
         }
 
-        public static IshtarObject* root;
+        public IshtarObject* root;
+        public VM VM => _vm;
 
-        public static void INIT()
+
+        /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
+        public IshtarGC(VM vm)
         {
+            _vm = vm;
             if (root is not null)
                 return;
-            var p = (IshtarObject*) Marshal.AllocHGlobal(sizeof(IshtarObject));
-            GCStats.total_bytes_requested += (ulong)sizeof(IshtarObject);
-            GCStats.alive_objects++;
-            GCStats.total_allocations++;
+            var p = (IshtarObject*) NativeMemory.Alloc((UIntPtr)sizeof(IshtarObject));
+            Stats.total_bytes_requested += (ulong)sizeof(IshtarObject);
+            Stats.alive_objects++;
+            Stats.total_allocations++;
             root = p;
         }
 
-        public static ImmortalObject<T>* AllocImmortal<T>() where T : class, new()
+
+        /// <exception cref="OutOfMemoryException">Allocating ImmortalObject of memory failed.</exception>
+        public ImmortalObject<T>* AllocImmortal<T>() where T : class, new()
         {
             var p = (ImmortalObject<T>*)NativeMemory.Alloc((nuint)sizeof(ImmortalObject<T>));
-            GCStats.total_allocations++;
-            GCStats.total_bytes_requested += (ulong)sizeof(ImmortalObject<T>);
+            Stats.total_allocations++;
+            Stats.total_bytes_requested += (ulong)sizeof(ImmortalObject<T>);
             p->Create(new T());
             return p;
         }
 
-        public static void FreeImmortal<T>(ImmortalObject<T>* p) where T : class, new()
+        public void FreeImmortal<T>(ImmortalObject<T>* p) where T : class, new()
         {
-            GCStats.total_allocations--;
-            GCStats.total_bytes_requested -= (ulong)sizeof(ImmortalObject<T>);
+            Stats.total_allocations--;
+            Stats.total_bytes_requested -= (ulong)sizeof(ImmortalObject<T>);
             p->Delete();
             NativeMemory.Free(p);
         }
 
-        public static stackval* AllocValue()
+        /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
+        public stackval* AllocValue()
         {
-            var p = (stackval*) Marshal.AllocHGlobal(sizeof(stackval));
-            GCStats.total_allocations++;
-            GCStats.total_bytes_requested += (ulong)sizeof(stackval);
+            var p = (stackval*) NativeMemory.AllocZeroed((UIntPtr)sizeof(stackval));
+            Stats.total_allocations++;
+            Stats.total_bytes_requested += (ulong)sizeof(stackval);
             return p;
         }
-        public static stackval* AllocValue(VeinClass @class)
+
+        /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
+        public stackval* AllocValue(VeinClass @class)
         {
             if (!@class.IsPrimitive)
                 return null;
@@ -65,29 +76,29 @@ namespace ishtar
         }
 
 
-        public static IshtarArray* AllocArray(RuntimeIshtarClass @class, ulong size, byte rank, IshtarObject** node = null, CallFrame frame = null)
+        public IshtarArray* AllocArray(RuntimeIshtarClass @class, ulong size, byte rank, IshtarObject** node = null, CallFrame frame = null)
         {
             if (!@class.is_inited)
-                @class.init_vtable();
+                @class.init_vtable(_vm);
 
             if (size >= IshtarArray.MAX_SIZE)
             {
-                VM.FastFail(WNE.OVERFLOW, "", frame);
+                _vm.FastFail(WNE.OVERFLOW, "", frame);
                 return null;
             }
 
             if (rank != 1)
             {
-                VM.FastFail(WNE.TYPE_LOAD, "Currently array rank greater 1 not supported.", frame);
+                _vm.FastFail(WNE.TYPE_LOAD, "Currently array rank greater 1 not supported.", frame);
                 return null;
             }
-            var arr = TYPE_ARRAY.AsRuntimeClass();
+            var arr = TYPE_ARRAY.AsRuntimeClass(_vm.Types);
             var bytes_len = @class.computed_size * size * rank;
 
             // enter critical zone
             IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
 
-            if (!arr.is_inited) arr.init_vtable();
+            if (!arr.is_inited) arr.init_vtable(_vm);
 
             var obj = AllocObject(arr, node);
 
@@ -95,15 +106,15 @@ namespace ishtar
 
             if (arr_obj is null)
             {
-                VM.FastFail(WNE.OUT_OF_MEMORY, "", frame);
+                _vm.FastFail(WNE.OUT_OF_MEMORY, "", frame);
                 return null;
             }
 
             // validate fields
-            FFI.StaticValidateField(frame, &obj, "!!value");
-            FFI.StaticValidateField(frame, &obj, "!!block");
-            FFI.StaticValidateField(frame, &obj, "!!size");
-            FFI.StaticValidateField(frame, &obj, "!!rank");
+            ForeignFunctionInterface.StaticValidateField(frame, &obj, "!!value");
+            ForeignFunctionInterface.StaticValidateField(frame, &obj, "!!block");
+            ForeignFunctionInterface.StaticValidateField(frame, &obj, "!!size");
+            ForeignFunctionInterface.StaticValidateField(frame, &obj, "!!rank");
 
             // fill array block
             arr_obj->SetMemory(obj);
@@ -116,10 +127,10 @@ namespace ishtar
 
 
             // update gc stats
-            GCStats.total_allocations += (ulong)sizeof(IshtarArray) + bytes_len;
-            GCStats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*) * size;
+            Stats.total_allocations += (ulong)sizeof(IshtarArray) + bytes_len;
+            Stats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*) * size;
 #if DEBUG
-            arr_obj->__gc_id = (long)GCStats.alive_objects++;
+            arr_obj->__gc_id = (long)Stats.alive_objects++;
 #else
             GCStats.alive_objects++;
 #endif
@@ -142,14 +153,14 @@ namespace ishtar
         }
 
 
-        private static readonly Dictionary<RuntimeToken, nint> _types_cache = new();
-        private static readonly Dictionary<RuntimeToken, Dictionary<string, nint>> _fields_cache = new();
-        private static readonly Dictionary<RuntimeToken, Dictionary<string, nint>> _methods_cache = new();
+        private readonly Dictionary<RuntimeToken, nint> _types_cache = new();
+        private readonly Dictionary<RuntimeToken, Dictionary<string, nint>> _fields_cache = new();
+        private readonly Dictionary<RuntimeToken, Dictionary<string, nint>> _methods_cache = new();
 
-        public static IshtarObject* AllocTypeInfoObject(RuntimeIshtarClass @class, CallFrame frame)
+        public IshtarObject* AllocTypeInfoObject(RuntimeIshtarClass @class, CallFrame frame)
         {
             if (!@class.is_inited)
-                @class.init_vtable();
+                @class.init_vtable(frame.vm);
 
             IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_TYPE_BARRIER);
 
@@ -158,14 +169,15 @@ namespace ishtar
 
             var tt = KnowTypes.Type(frame);
             var obj = AllocObject(tt);
+            var gc = frame.GetGC();
 
             obj->flags |= GCFlags.IMMORTAL;
 
-            obj->vtable[tt.Field["_unique_id"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.runtime_token.ClassID);
-            obj->vtable[tt.Field["_module_id"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.runtime_token.ModuleID);
-            obj->vtable[tt.Field["_flags"].vtable_offset] = IshtarMarshal.ToIshtarObject((int)@class.Flags);
-            obj->vtable[tt.Field["_name"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.Name);
-            obj->vtable[tt.Field["_namespace"].vtable_offset] = IshtarMarshal.ToIshtarObject(@class.Path);
+            obj->vtable[tt.Field["_unique_id"].vtable_offset] = gc.ToIshtarObject(@class.runtime_token.ClassID);
+            obj->vtable[tt.Field["_module_id"].vtable_offset] = gc.ToIshtarObject(@class.runtime_token.ModuleID);
+            obj->vtable[tt.Field["_flags"].vtable_offset] = gc.ToIshtarObject((int)@class.Flags);
+            obj->vtable[tt.Field["_name"].vtable_offset] = gc.ToIshtarObject(@class.Name);
+            obj->vtable[tt.Field["_namespace"].vtable_offset] = gc.ToIshtarObject(@class.Path);
 
             _types_cache[@class.runtime_token] = (nint)obj;
 
@@ -174,13 +186,14 @@ namespace ishtar
             return obj;
         }
 
-        public static IshtarObject* AllocFieldInfoObject(RuntimeIshtarField field, CallFrame frame)
+        public IshtarObject* AllocFieldInfoObject(RuntimeIshtarField field, CallFrame frame)
         {
             var @class = field.Owner as RuntimeIshtarClass;
             if (!@class.is_inited)
-                @class.init_vtable();
+                @class.init_vtable(_vm);
 
             var name = field.Name;
+            var gc = frame.GetGC();
 
             IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_FIELD_BARRIER);
 
@@ -195,8 +208,8 @@ namespace ishtar
             var field_owner = AllocTypeInfoObject(@class, frame);
 
             obj->vtable[tt.Field["_target"].vtable_offset] = field_owner;
-            obj->vtable[tt.Field["_name"].vtable_offset] = IshtarMarshal.ToIshtarObject(name);
-            obj->vtable[tt.Field["_vtoffset"].vtable_offset] = IshtarMarshal.ToIshtarObject((long)field.vtable_offset);
+            obj->vtable[tt.Field["_name"].vtable_offset] = gc.ToIshtarObject(name);
+            obj->vtable[tt.Field["_vtoffset"].vtable_offset] = gc.ToIshtarObject((long)field.vtable_offset);
 
             if (!_fields_cache.ContainsKey(@class.runtime_token))
                 _fields_cache[@class.runtime_token] = new();
@@ -207,13 +220,14 @@ namespace ishtar
             return obj;
         }
 
-        public static IshtarObject* AllocMethodInfoObject(RuntimeIshtarMethod method, CallFrame frame)
+        public IshtarObject* AllocMethodInfoObject(RuntimeIshtarMethod method, CallFrame frame)
         {
             var @class = method.Owner as RuntimeIshtarClass;
             if (!@class.is_inited)
-                @class.init_vtable();
+                @class.init_vtable(_vm);
 
             var key = method.Name;
+            var gc = frame.GetGC();
 
             IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_METHOD_BARRIER);
 
@@ -228,9 +242,9 @@ namespace ishtar
             var method_owner = AllocTypeInfoObject(@class, frame);
 
             obj->vtable[tt.Field["_target"].vtable_offset] = method_owner;
-            obj->vtable[tt.Field["_name"].vtable_offset] = IshtarMarshal.ToIshtarObject(method.RawName);
-            obj->vtable[tt.Field["_quality_name"].vtable_offset] = IshtarMarshal.ToIshtarObject(method.Name);
-            obj->vtable[tt.Field["_vtoffset"].vtable_offset] = IshtarMarshal.ToIshtarObject((long)method.vtable_offset);
+            obj->vtable[tt.Field["_name"].vtable_offset] = gc.ToIshtarObject(method.RawName);
+            obj->vtable[tt.Field["_quality_name"].vtable_offset] = gc.ToIshtarObject(method.Name);
+            obj->vtable[tt.Field["_vtoffset"].vtable_offset] = gc.ToIshtarObject((long)method.vtable_offset);
 
             if (!_methods_cache.ContainsKey(@class.runtime_token))
                 _methods_cache[@class.runtime_token] = new();
@@ -241,7 +255,7 @@ namespace ishtar
             return obj;
         }
 
-        public static IshtarObject* AllocObject(RuntimeIshtarClass @class, IshtarObject** node = null)
+        public IshtarObject* AllocObject(RuntimeIshtarClass @class, IshtarObject** node = null)
         {
             var p = (IshtarObject*) NativeMemory.Alloc((nuint)sizeof(IshtarObject));
 
@@ -255,14 +269,14 @@ namespace ishtar
             p->clazz = IshtarUnsafe.AsPointer(ref @class);
             p->vtable_size = (uint)@class.computed_size;
 
-            GCStats.total_allocations++;
+            Stats.total_allocations++;
 #if DEBUG
-            p->__gc_id = (long)GCStats.alive_objects++;
+            p->__gc_id = (long)Stats.alive_objects++;
 #else
             GCStats.alive_objects++
 #endif
-            GCStats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*);
-            GCStats.total_bytes_requested += (ulong)sizeof(IshtarObject);
+            Stats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*);
+            Stats.total_bytes_requested += (ulong)sizeof(IshtarObject);
 
             if (node is null || *node is null) fixed (IshtarObject** o = &root)
                     p->owner = o;
@@ -271,7 +285,7 @@ namespace ishtar
 
             return p;
         }
-        public static void FreeObject(IshtarObject** obj, CallFrame frame)
+        public void FreeObject(IshtarObject** obj, CallFrame frame)
         {
             if ((*obj)->flags.HasFlag(GCFlags.IMMORTAL))
             {
@@ -285,7 +299,7 @@ namespace ishtar
             (*obj)->vtable = null;
             (*obj)->clazz = null;
             NativeMemory.Free(*obj);
-            GCStats.alive_objects--;
+            Stats.alive_objects--;
         }
     }
 }

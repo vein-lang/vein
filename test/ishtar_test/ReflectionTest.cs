@@ -8,8 +8,8 @@ public unsafe class ReflectionTest : IshtarTestBase
     {
         var ctx = CreateContext();
         var frame = ctx.Execute((generator, o) => generator.Emit(OpCodes.RET));
-        var obj = IshtarGC.AllocTypeInfoObject(T.STRING, frame);
-        IshtarGC.FreeObject(&obj, frame);
+        var obj = GC.AllocTypeInfoObject(T.STRING, frame);
+        GC.FreeObject(&obj, frame);
     }
 
     [Test]
@@ -17,9 +17,9 @@ public unsafe class ReflectionTest : IshtarTestBase
     {
         var ctx = CreateContext();
         var frame = ctx.Execute((generator, o) => generator.Emit(OpCodes.RET));
-        var obj = IshtarGC.AllocFieldInfoObject(T.STRING.Field["Length"], frame);
+        var obj = GC.AllocFieldInfoObject(T.STRING.Field["Length"], frame);
         new IshtarLayerField(obj, frame);
-        IshtarGC.FreeObject(&obj, frame);
+        GC.FreeObject(&obj, frame);
     }
 
     [Test]
@@ -27,9 +27,9 @@ public unsafe class ReflectionTest : IshtarTestBase
     {
         var ctx = CreateContext();
         var frame = ctx.Execute((generator, o) => generator.Emit(OpCodes.RET));
-        var obj = IshtarGC.AllocMethodInfoObject(T.STRING.Method["op_Equal(String,String)"], frame);
+        var obj = GC.AllocMethodInfoObject(T.STRING.Method["op_Equal(String,String)"], frame);
         var fn = new IshtarLayerFunction(obj, frame);
         Assert.AreEqual("op_Equal", fn.Name);
-        IshtarGC.FreeObject(&obj, frame);
+        GC.FreeObject(&obj, frame);
     }
 }

@@ -51,24 +51,24 @@ namespace ishtar
             set => Set(index, value, frame);
         }
 
-        public IshtarObject* Get(uint index, CallFrame frame = null)
+        public IshtarObject* Get(uint index, CallFrame frame)
         {
             if (!ElementClass.IsPrimitive) return elements[index];
-            var result = IshtarGC.AllocObject(ElementClass);
+            var result = frame.vm.GC.AllocObject(ElementClass);
             var el = elements[index];
             var offset = result->decodeClass().Field["!!value"].vtable_offset;
             result->vtable[offset] = el->vtable[offset];
             return result;
         }
 
-        public void Set(uint index, IshtarObject* value, CallFrame frame = null)
+        public void Set(uint index, IshtarObject* value, CallFrame frame)
         {
-            FFI.StaticValidate(frame, &value);
+            ForeignFunctionInterface.StaticValidate(frame, &value);
             var value_class = value->decodeClass();
             VM.Assert(value_class.TypeCode == ElementClass.TypeCode || value_class.IsInner(ElementClass), WNE.TYPE_MISMATCH, $"", frame);
             if (index > length)
             {
-                VM.FastFail(WNE.OUT_OF_RANGE, $"", frame);
+                frame.vm.FastFail(WNE.OUT_OF_RANGE, $"", frame);
                 return;
             }
 

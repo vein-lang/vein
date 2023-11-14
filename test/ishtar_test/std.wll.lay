@@ -213,141 +213,146 @@
 		.s 000207:'type_ctor'
 		.s 000208:'type_ctor()'
 		.s 000209:'Array'
-		.s 000210:'Null pointer detected'
-		.s 000211:'get_allocated'
-		.s 000212:'get_allocated()'
-		.s 000213:'get_alive_objects'
-		.s 000214:'get_alive_objects()'
-		.s 000215:'get_Epsilon'
-		.s 000216:'get_Epsilon()'
-		.s 000217:'get_PositiveInfinity'
-		.s 000218:'get_PositiveInfinity()'
-		.s 000219:'get_NegativeInfinity'
-		.s 000220:'get_NegativeInfinity()'
-		.s 000221:'get_NaN'
-		.s 000222:'get_NaN()'
-		.s 000223:'<object>'
-		.s 000224:'get_capacity'
-		.s 000225:'get_capacity()'
-		.s 000226:''
-		.s 000227:'get_Ticks'
-		.s 000228:'get_Ticks()'
-		.s 000229:'get_Days'
-		.s 000230:'get_Days()'
-		.s 000231:'get_Hours'
-		.s 000232:'get_Hours()'
-		.s 000233:'get_Milliseconds'
-		.s 000234:'get_Milliseconds()'
-		.s 000235:'get_Minutes'
-		.s 000236:'get_Minutes()'
-		.s 000237:'get_Seconds'
-		.s 000238:'get_Seconds()'
-		.s 000239:'get_TotalSeconds'
-		.s 000240:'get_TotalSeconds()'
-		.s 000241:'get_name'
-		.s 000242:'get_name()'
-		.s 000243:'get_owner'
-		.s 000244:'get_owner()'
-		.s 000245:'get_isPublic'
-		.s 000246:'get_isPublic()'
-		.s 000247:'get_isStatic'
-		.s 000248:'get_isStatic()'
-		.s 000249:'get_isPrivate'
-		.s 000250:'get_isPrivate()'
-		.s 000251:'get_isInterface'
-		.s 000252:'get_isInterface()'
-		.s 000253:'get_namespace'
-		.s 000254:'get_namespace()'
-		.s 000255:'get_flags'
-		.s 000256:'get_flags()'
-		.s 000257:'msg'
-		.s 000258:'exitCode'
-		.s 000259:'key'
-		.s 000260:'value'
-		.s 000261:'<this>'
-		.s 000262:'x'
-		.s 000263:'start'
-		.s 000264:'end'
-		.s 000265:'v1'
-		.s 000266:'v2'
-		.s 000267:'template'
-		.s 000268:'o1'
-		.s 000269:'o2'
-		.s 000270:'o3'
-		.s 000271:'arr'
-		.s 000272:'t'
-		.s 000273:'builder'
-		.s 000274:'s'
-		.s 000275:'buffer'
-		.s 000276:'ticks'
-		.s 000277:'port'
-		.s 000278:'cq'
-		.s 000279:'y'
-		.s 000280:'z'
-		.s 000281:'w'
-		.s 000282:'m'
-		.s 000283:'targetObject'
-		.s 000284:'f'
-		.s 000285:'args'
-		.s 000286:'target'
-		.s 000287:'name'
-		.s 000288:'ignoreCase'
-		.s 000289:'throwWhenFailBind'
-		.s 000290:'0.12.11.0'
+		.s 000210:'StaticArray_INIT_object_0_0'
+		.s 000211:'global::internal'
+		.s 000212:'$init'
+		.s 000213:'$init()'
+		.s 000214:'Null pointer detected'
+		.s 000215:'get_allocated'
+		.s 000216:'get_allocated()'
+		.s 000217:'get_alive_objects'
+		.s 000218:'get_alive_objects()'
+		.s 000219:'get_Epsilon'
+		.s 000220:'get_Epsilon()'
+		.s 000221:'get_PositiveInfinity'
+		.s 000222:'get_PositiveInfinity()'
+		.s 000223:'get_NegativeInfinity'
+		.s 000224:'get_NegativeInfinity()'
+		.s 000225:'get_NaN'
+		.s 000226:'get_NaN()'
+		.s 000227:'<object>'
+		.s 000228:'get_capacity'
+		.s 000229:'get_capacity()'
+		.s 000230:''
+		.s 000231:'get_Ticks'
+		.s 000232:'get_Ticks()'
+		.s 000233:'get_Days'
+		.s 000234:'get_Days()'
+		.s 000235:'get_Hours'
+		.s 000236:'get_Hours()'
+		.s 000237:'get_Milliseconds'
+		.s 000238:'get_Milliseconds()'
+		.s 000239:'get_Minutes'
+		.s 000240:'get_Minutes()'
+		.s 000241:'get_Seconds'
+		.s 000242:'get_Seconds()'
+		.s 000243:'get_TotalSeconds'
+		.s 000244:'get_TotalSeconds()'
+		.s 000245:'get_name'
+		.s 000246:'get_name()'
+		.s 000247:'get_owner'
+		.s 000248:'get_owner()'
+		.s 000249:'get_isPublic'
+		.s 000250:'get_isPublic()'
+		.s 000251:'get_isStatic'
+		.s 000252:'get_isStatic()'
+		.s 000253:'get_isPrivate'
+		.s 000254:'get_isPrivate()'
+		.s 000255:'get_isInterface'
+		.s 000256:'get_isInterface()'
+		.s 000257:'get_namespace'
+		.s 000258:'get_namespace()'
+		.s 000259:'get_flags'
+		.s 000260:'get_flags()'
+		.s 000261:'msg'
+		.s 000262:'exitCode'
+		.s 000263:'key'
+		.s 000264:'value'
+		.s 000265:'<this>'
+		.s 000266:'x'
+		.s 000267:'start'
+		.s 000268:'end'
+		.s 000269:'v1'
+		.s 000270:'v2'
+		.s 000271:'template'
+		.s 000272:'o1'
+		.s 000273:'o2'
+		.s 000274:'o3'
+		.s 000275:'arr'
+		.s 000276:'t'
+		.s 000277:'builder'
+		.s 000278:'s'
+		.s 000279:'buffer'
+		.s 000280:'ticks'
+		.s 000281:'port'
+		.s 000282:'cq'
+		.s 000283:'y'
+		.s 000284:'z'
+		.s 000285:'w'
+		.s 000286:'m'
+		.s 000287:'targetObject'
+		.s 000288:'f'
+		.s 000289:'args'
+		.s 000290:'target'
+		.s 000291:'name'
+		.s 000292:'ignoreCase'
+		.s 000293:'throwWhenFailBind'
+		.s 000294:'0.12.11.0'
 		.t 000000:'std%global::vein/lang/App'
 		.t 000001:'std%global::vein/lang/Object'
-		.t 000002:'std%global::vein/lang/Array'
-		.t 000003:'std%global::vein/lang/ValueType'
-		.t 000004:'std%global::vein/lang/Exception'
-		.t 000005:'std%global::vein/lang/GC'
-		.t 000006:'std%global::vein/lang/Guid'
-		.t 000007:'std%global::vein/lang/IEEEConsts'
-		.t 000008:'std%global::vein/lang/Out'
-		.t 000009:'std%global::vein/lang/Range'
-		.t 000010:'std%global::vein/lang/Sys'
-		.t 000011:'std%global::vein/lang/String'
-		.t 000012:'std%global::vein/lang/StringBuilder'
-		.t 000013:'std%global::vein/lang/TimeSpan'
-		.t 000014:'std%global::vein/lang/Aspect'
-		.t 000015:'std%global::vein/lang/collections/Yieldable'
-		.t 000016:'std%global::vein/lang/network/TcpListener'
-		.t 000017:'std%global::vein/lang/network/TcpSocket'
-		.t 000018:'std%global::vein/lang/numeric/Quaternion'
-		.t 000019:'std%global::vein/lang/Field'
-		.t 000020:'std%global::vein/lang/Function'
-		.t 000021:'std%global::vein/lang/Type'
-		.t 000022:'std%global::vein/lang/Int32'
-		.t 000023:'std%global::vein/lang/Void'
-		.t 000024:'std%global::vein/lang/Boolean'
-		.t 000025:'std%global::vein/lang/Int64'
-		.t 000026:'std%global::vein/lang/BitConvert'
-		.t 000027:'std%global::vein/lang/Byte'
-		.t 000028:'std%global::vein/lang/Char'
-		.t 000029:'std%global::vein/lang/Decimal'
-		.t 000030:'std%global::vein/lang/Double'
-		.t 000031:'std%global::vein/lang/NullPointerException'
-		.t 000032:'std%global::vein/lang/TypeLoadFault'
-		.t 000033:'std%global::vein/lang/IncorrectCastFault'
-		.t 000034:'std%global::vein/lang/FreeImmortalObjectFault'
-		.t 000035:'std%global::vein/lang/PlatformIsNotSupportFault'
-		.t 000036:'std%global::vein/lang/Float'
-		.t 000037:'std%global::vein/lang/UInt64'
-		.t 000038:'std%global::vein/lang/Int16'
-		.t 000039:'std%global::vein/lang/Half'
-		.t 000040:'std%global::vein/lang/Mathf'
-		.t 000041:'std%global::vein/lang/UInt32'
-		.t 000042:'std%global::vein/lang/Raw'
-		.t 000043:'std%global::vein/lang/UInt16'
-		.t 000044:'std%global::vein/lang/aspects/LineAspect'
-		.t 000045:'std%global::vein/lang/collections/IYieldable'
-		.t 000046:'std%global::vein/lang/collections/IYield'
-		.t 000047:'std%global::vein/lang/network/NetworkStream'
-		.t 000048:'std%global::vein/lang/numeric/BigInt'
-		.t 000049:'std%global::vein/lang/TypeNotFoundFault'
-		.t 000050:'std%global::vein/lang/MemberNotFoundFault'
-		.t 000051:'std%global::vein/lang/MultipleTypeFoundFault'
-		.t 000052:'std%global::vein/lang/workspace/DeprecatedAspect'
-		.t 000053:'std%global::vein/lang/workspace/MaybeNullableAspect'
+		.t 000002:'std%global::internal/StaticArray_INIT_object_0_0'
+		.t 000003:'std%global::vein/lang/Array'
+		.t 000004:'std%global::vein/lang/ValueType'
+		.t 000005:'std%global::vein/lang/Exception'
+		.t 000006:'std%global::vein/lang/GC'
+		.t 000007:'std%global::vein/lang/Guid'
+		.t 000008:'std%global::vein/lang/IEEEConsts'
+		.t 000009:'std%global::vein/lang/Out'
+		.t 000010:'std%global::vein/lang/Range'
+		.t 000011:'std%global::vein/lang/Sys'
+		.t 000012:'std%global::vein/lang/String'
+		.t 000013:'std%global::vein/lang/StringBuilder'
+		.t 000014:'std%global::vein/lang/TimeSpan'
+		.t 000015:'std%global::vein/lang/Aspect'
+		.t 000016:'std%global::vein/lang/collections/Yieldable'
+		.t 000017:'std%global::vein/lang/network/TcpListener'
+		.t 000018:'std%global::vein/lang/network/TcpSocket'
+		.t 000019:'std%global::vein/lang/numeric/Quaternion'
+		.t 000020:'std%global::vein/lang/Field'
+		.t 000021:'std%global::vein/lang/Function'
+		.t 000022:'std%global::vein/lang/Type'
+		.t 000023:'std%global::vein/lang/Int32'
+		.t 000024:'std%global::vein/lang/Void'
+		.t 000025:'std%global::vein/lang/Boolean'
+		.t 000026:'std%global::vein/lang/Int64'
+		.t 000027:'std%global::vein/lang/BitConvert'
+		.t 000028:'std%global::vein/lang/Byte'
+		.t 000029:'std%global::vein/lang/Char'
+		.t 000030:'std%global::vein/lang/Decimal'
+		.t 000031:'std%global::vein/lang/Double'
+		.t 000032:'std%global::vein/lang/NullPointerException'
+		.t 000033:'std%global::vein/lang/TypeLoadFault'
+		.t 000034:'std%global::vein/lang/IncorrectCastFault'
+		.t 000035:'std%global::vein/lang/FreeImmortalObjectFault'
+		.t 000036:'std%global::vein/lang/PlatformIsNotSupportFault'
+		.t 000037:'std%global::vein/lang/Float'
+		.t 000038:'std%global::vein/lang/UInt64'
+		.t 000039:'std%global::vein/lang/Int16'
+		.t 000040:'std%global::vein/lang/Half'
+		.t 000041:'std%global::vein/lang/Mathf'
+		.t 000042:'std%global::vein/lang/UInt32'
+		.t 000043:'std%global::vein/lang/Raw'
+		.t 000044:'std%global::vein/lang/UInt16'
+		.t 000045:'std%global::vein/lang/aspects/LineAspect'
+		.t 000046:'std%global::vein/lang/collections/IYieldable'
+		.t 000047:'std%global::vein/lang/collections/IYield'
+		.t 000048:'std%global::vein/lang/network/NetworkStream'
+		.t 000049:'std%global::vein/lang/numeric/BigInt'
+		.t 000050:'std%global::vein/lang/TypeNotFoundFault'
+		.t 000051:'std%global::vein/lang/MemberNotFoundFault'
+		.t 000052:'std%global::vein/lang/MultipleTypeFoundFault'
+		.t 000053:'std%global::vein/lang/workspace/DeprecatedAspect'
+		.t 000054:'std%global::vein/lang/workspace/MaybeNullableAspect'
 		.f 000000:'Array.!!value'
 		.f 000001:'Array.!!block'
 		.f 000002:'Array.!!size'
@@ -462,7 +467,12 @@
 	@'aspect/alias/class/UInt32._0' = 'u32'
 	@'aspect/alias/class/UInt64._0' = 'u64'
 	@'aspect/alias/class/Void._0' = 'void'
-	@'aspect/native/class/App/method/@_get_os_value()._0' = '@_get_os_value'
+	@'aspect/native/class/App/method/@_get_os_value()._0' = '__internal__'
+	@'aspect/native/class/App/method/@_get_os_value()._1' = '@_get_os_value'
+	@'aspect/native/class/App/method/@_exit(String,Int32)._0' = '__internal__'
+	@'aspect/native/class/App/method/@_exit(String,Int32)._1' = '@_exit'
+	@'aspect/native/class/App/method/@_switch_flag(String,Boolean)._0' = '__internal__'
+	@'aspect/native/class/App/method/@_switch_flag(String,Boolean)._1' = '@_switch_flag'
 	@'aspect/native/class/Array/field/_value._0' = '!!value'
 	@'aspect/native/class/Array/field/_block._0' = '!!block'
 	@'aspect/native/class/Array/field/Length._0' = '!!size'
@@ -473,51 +483,86 @@
 	@'aspect/native/class/Decimal/field/_value._0' = '!!value'
 	@'aspect/native/class/Double/field/_value._0' = '!!value'
 	@'aspect/native/class/Float/field/_value._0' = '!!value'
-	@'aspect/native/class/GC/method/_get_allocated()._0' = 'i_call_GC_get_allocated'
-	@'aspect/native/class/GC/method/_get_alive_objects()._0' = 'i_call_GC_get_alive_objects'
+	@'aspect/native/class/GC/method/_get_allocated()._0' = '__internal__'
+	@'aspect/native/class/GC/method/_get_allocated()._1' = 'i_call_GC_get_allocated'
+	@'aspect/native/class/GC/method/_get_alive_objects()._0' = '__internal__'
+	@'aspect/native/class/GC/method/_get_alive_objects()._1' = 'i_call_GC_get_alive_objects'
 	@'aspect/native/class/Half/field/_value._0' = '!!value'
 	@'aspect/native/class/Int16/field/_value._0' = '!!value'
 	@'aspect/native/class/Int32/field/_value._0' = '!!value'
 	@'aspect/native/class/Int64/field/_value._0' = '!!value'
-	@'aspect/native/class/Out/method/@_println(String)._0' = '@_println'
+	@'aspect/native/class/Out/method/@_println(String)._0' = '__internal__'
+	@'aspect/native/class/Out/method/@_println(String)._1' = '@_println'
 	@'aspect/native/class/String/field/__value._0' = '!!value'
-	@'aspect/native/class/String/method/Concat(String,String)._0' = 'i_call_String_Concat'
-	@'aspect/native/class/String/method/Equal(String,String)._0' = 'i_call_String_Equal'
-	@'aspect/native/class/String/method/_fmt(String,Array)._0' = 'i_call_String_fmt'
+	@'aspect/native/class/String/method/Concat(String,String)._0' = '__internal__'
+	@'aspect/native/class/String/method/Concat(String,String)._1' = 'i_call_String_Concat'
+	@'aspect/native/class/String/method/Equal(String,String)._0' = '__internal__'
+	@'aspect/native/class/String/method/Equal(String,String)._1' = 'i_call_String_Equal'
+	@'aspect/native/class/String/method/_fmt(String,Array)._0' = '__internal__'
+	@'aspect/native/class/String/method/_fmt(String,Array)._1' = 'i_call_String_fmt'
 	@'aspect/native/class/StringBuilder/field/__buffer._0' = '!!buffer'
-	@'aspect/native/class/StringBuilder/method/_append(StringBuilder,Object)._0' = 'i_call_StringBuilder_append'
-	@'aspect/native/class/StringBuilder/method/_append(StringBuilder,ValueType)._0' = 'i_call_StringBuilder_append'
-	@'aspect/native/class/StringBuilder/method/_appendLine(StringBuilder,Object)._0' = 'i_call_StringBuilder_appendLine'
-	@'aspect/native/class/StringBuilder/method/_appendLine(StringBuilder,ValueType)._0' = 'i_call_StringBuilder_appendLine'
-	@'aspect/native/class/StringBuilder/method/_init_buffer(StringBuilder)._0' = 'i_call_StringBuilder_init_buffer'
-	@'aspect/native/class/StringBuilder/method/_clear_buffer(StringBuilder)._0' = 'i_call_StringBuilder_clear_buffer'
-	@'aspect/native/class/StringBuilder/method/_to_string(StringBuilder)._0' = 'i_call_StringBuilder_toString'
+	@'aspect/native/class/StringBuilder/method/_append(StringBuilder,Object)._0' = '__internal__'
+	@'aspect/native/class/StringBuilder/method/_append(StringBuilder,Object)._1' = 'i_call_StringBuilder_append'
+	@'aspect/native/class/StringBuilder/method/_append(StringBuilder,ValueType)._0' = '__internal__'
+	@'aspect/native/class/StringBuilder/method/_append(StringBuilder,ValueType)._1' = 'i_call_StringBuilder_append'
+	@'aspect/native/class/StringBuilder/method/_appendLine(StringBuilder,Object)._0' = '__internal__'
+	@'aspect/native/class/StringBuilder/method/_appendLine(StringBuilder,Object)._1' = 'i_call_StringBuilder_appendLine'
+	@'aspect/native/class/StringBuilder/method/_appendLine(StringBuilder,ValueType)._0' = '__internal__'
+	@'aspect/native/class/StringBuilder/method/_appendLine(StringBuilder,ValueType)._1' = 'i_call_StringBuilder_appendLine'
+	@'aspect/native/class/StringBuilder/method/_init_buffer(StringBuilder)._0' = '__internal__'
+	@'aspect/native/class/StringBuilder/method/_init_buffer(StringBuilder)._1' = 'i_call_StringBuilder_init_buffer'
+	@'aspect/native/class/StringBuilder/method/_clear_buffer(StringBuilder)._0' = '__internal__'
+	@'aspect/native/class/StringBuilder/method/_clear_buffer(StringBuilder)._1' = 'i_call_StringBuilder_clear_buffer'
+	@'aspect/native/class/StringBuilder/method/_to_string(StringBuilder)._0' = '__internal__'
+	@'aspect/native/class/StringBuilder/method/_to_string(StringBuilder)._1' = 'i_call_StringBuilder_toString'
 	@'aspect/native/class/UInt16/field/_value._0' = '!!value'
 	@'aspect/native/class/UInt32/field/_value._0' = '!!value'
 	@'aspect/native/class/UInt64/field/_value._0' = '!!value'
 	@'aspect/native/class/ValueType/field/__value._0' = '!!value'
-	@'aspect/native/class/IEEEConsts/method/getHalfNaN()._0' = 'i_call_get_Half_NaN'
-	@'aspect/native/class/IEEEConsts/method/getFloatNaN()._0' = 'i_call_get_Float_NaN'
-	@'aspect/native/class/IEEEConsts/method/getDecimalNaN()._0' = 'i_call_get_Decimal_NaN'
-	@'aspect/native/class/IEEEConsts/method/getDoubleNaN()._0' = 'i_call_get_Double_NaN'
-	@'aspect/native/class/IEEEConsts/method/getHalfInfinity()._0' = 'i_call_get_Half_Infinity'
-	@'aspect/native/class/IEEEConsts/method/getFloatInfinity()._0' = 'i_call_get_Float_Infinity'
-	@'aspect/native/class/IEEEConsts/method/getDecimalInfinity()._0' = 'i_call_get_Decimal_Infinity'
-	@'aspect/native/class/IEEEConsts/method/getDoubleInfinity()._0' = 'i_call_get_Double_Infinity'
-	@'aspect/native/class/IEEEConsts/method/getHalfNegativeInfinity()._0' = 'i_call_get_Half_NegativeInfinity'
-	@'aspect/native/class/IEEEConsts/method/getFloatNegativeInfinity()._0' = 'i_call_get_Float_NegativeInfinity'
-	@'aspect/native/class/IEEEConsts/method/getDecimalNegativeInfinity()._0' = 'i_call_get_Decimal_NegativeInfinity'
-	@'aspect/native/class/IEEEConsts/method/getDoubleNegativeInfinity()._0' = 'i_call_get_Double_NegativeInfinity'
-	@'aspect/native/class/Sys/method/toString(ValueType)._0' = '@value2string'
-	@'aspect/native/class/Sys/method/toString(Object)._0' = '@object2string'
-	@'aspect/native/class/Sys/method/queryPerformanceCounter()._0' = '@queryPerformanceCounter'
-	@'aspect/native/class/Field/method/getValue(Object,Field)._0' = 'i_call_Field_getValue'
-	@'aspect/native/class/Field/method/setValue(Object,Field,Object)._0' = 'i_call_Field_setValue'
-	@'aspect/native/class/Function/method/_call(Function,Array)._0' = 'i_call_Function_call'
-	@'aspect/native/class/Function/method/_createFn(Object,String,Boolean,Boolean)._0' = 'i_call_Function_create'
-	@'aspect/native/class/Type/method/_findByName(String)._0' = 'i_call_Type_findByName'
-	@'aspect/native/class/Type/method/_findField(Type,String)._0' = 'i_call_Type_findField'
-	@'aspect/native/class/Type/method/_findMethod(Type,String)._0' = 'i_call_Type_findMethod'
+	@'aspect/native/class/IEEEConsts/method/getHalfNaN()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getHalfNaN()._1' = 'i_call_get_Half_NaN'
+	@'aspect/native/class/IEEEConsts/method/getFloatNaN()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getFloatNaN()._1' = 'i_call_get_Float_NaN'
+	@'aspect/native/class/IEEEConsts/method/getDecimalNaN()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getDecimalNaN()._1' = 'i_call_get_Decimal_NaN'
+	@'aspect/native/class/IEEEConsts/method/getDoubleNaN()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getDoubleNaN()._1' = 'i_call_get_Double_NaN'
+	@'aspect/native/class/IEEEConsts/method/getHalfInfinity()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getHalfInfinity()._1' = 'i_call_get_Half_Infinity'
+	@'aspect/native/class/IEEEConsts/method/getFloatInfinity()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getFloatInfinity()._1' = 'i_call_get_Float_Infinity'
+	@'aspect/native/class/IEEEConsts/method/getDecimalInfinity()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getDecimalInfinity()._1' = 'i_call_get_Decimal_Infinity'
+	@'aspect/native/class/IEEEConsts/method/getDoubleInfinity()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getDoubleInfinity()._1' = 'i_call_get_Double_Infinity'
+	@'aspect/native/class/IEEEConsts/method/getHalfNegativeInfinity()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getHalfNegativeInfinity()._1' = 'i_call_get_Half_NegativeInfinity'
+	@'aspect/native/class/IEEEConsts/method/getFloatNegativeInfinity()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getFloatNegativeInfinity()._1' = 'i_call_get_Float_NegativeInfinity'
+	@'aspect/native/class/IEEEConsts/method/getDecimalNegativeInfinity()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getDecimalNegativeInfinity()._1' = 'i_call_get_Decimal_NegativeInfinity'
+	@'aspect/native/class/IEEEConsts/method/getDoubleNegativeInfinity()._0' = '__internal__'
+	@'aspect/native/class/IEEEConsts/method/getDoubleNegativeInfinity()._1' = 'i_call_get_Double_NegativeInfinity'
+	@'aspect/native/class/Sys/method/toString(ValueType)._0' = '__internal__'
+	@'aspect/native/class/Sys/method/toString(ValueType)._1' = '@value2string'
+	@'aspect/native/class/Sys/method/toString(Object)._0' = '__internal__'
+	@'aspect/native/class/Sys/method/toString(Object)._1' = '@object2string'
+	@'aspect/native/class/Sys/method/queryPerformanceCounter()._0' = '__internal__'
+	@'aspect/native/class/Sys/method/queryPerformanceCounter()._1' = '@queryPerformanceCounter'
+	@'aspect/native/class/Field/method/getValue(Object,Field)._0' = '__internal__'
+	@'aspect/native/class/Field/method/getValue(Object,Field)._1' = 'i_call_Field_getValue'
+	@'aspect/native/class/Field/method/setValue(Object,Field,Object)._0' = '__internal__'
+	@'aspect/native/class/Field/method/setValue(Object,Field,Object)._1' = 'i_call_Field_setValue'
+	@'aspect/native/class/Function/method/_call(Function,Array)._0' = '__internal__'
+	@'aspect/native/class/Function/method/_call(Function,Array)._1' = 'i_call_Function_call'
+	@'aspect/native/class/Function/method/_createFn(Object,String,Boolean,Boolean)._0' = '__internal__'
+	@'aspect/native/class/Function/method/_createFn(Object,String,Boolean,Boolean)._1' = 'i_call_Function_create'
+	@'aspect/native/class/Type/method/_findByName(String)._0' = '__internal__'
+	@'aspect/native/class/Type/method/_findByName(String)._1' = 'i_call_Type_findByName'
+	@'aspect/native/class/Type/method/_findField(Type,String)._0' = '__internal__'
+	@'aspect/native/class/Type/method/_findField(Type,String)._1' = 'i_call_Type_findField'
+	@'aspect/native/class/Type/method/_findMethod(Type,String)._0' = '__internal__'
+	@'aspect/native/class/Type/method/_findMethod(Type,String)._1' = 'i_call_Type_findMethod'
 	@'Boolean.True' = 'True'
 	@'Boolean.False' = 'False'
 	@'Boolean.TrueString' = 'true'
@@ -653,9 +698,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ld.type [std%global::vein/lang/Object] 
-			/* ::0008 */ .ldc.i4.0
-			/* ::0010 */ .newarr
+			/* ::0010 */ .call StaticArray_INIT_object_0_0::$init()
 			/* ::0020 */ .stsf empty std%global::vein/lang/Array, Public, Special
 			/* ::0022 */ .ret
 			
@@ -904,18 +947,19 @@
 	{
 		.method 'ctor' (<this>: NullPointerException) public -> NullPointerException
 		{
-			.size 34
+			.size 36
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x000000D2
+			/* ::0006 */ .ldc.str .0x000000D6
 			/* ::0008 */ .ldarg.0
-			/* ::0018 */ .stf message std%global::vein/lang/String, Public, Special
-			/* ::0020 */ .ldarg.0
-			/* ::0030 */ .call Exception::ctor(<this>: Exception)
-			/* ::0032 */ .ldarg.0
-			/* ::0034 */ .ret
+			/* ::0010 */ .ldarg.0
+			/* ::0020 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0022 */ .ldarg.0
+			/* ::0032 */ .call Exception::ctor(<this>: Exception)
+			/* ::0034 */ .ldarg.0
+			/* ::0036 */ .ret
 			
 		}
 		
@@ -937,18 +981,19 @@
 	{
 		.method 'ctor' (<this>: TypeLoadFault, msg: String) public -> TypeLoadFault
 		{
-			.size 30
+			.size 32
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf message std%global::vein/lang/String, Public, Special
-			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .call Exception::ctor(<this>: Exception)
-			/* ::0028 */ .ldarg.0
-			/* ::0030 */ .ret
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0018 */ .ldarg.0
+			/* ::0028 */ .call Exception::ctor(<this>: Exception)
+			/* ::0030 */ .ldarg.0
+			/* ::0032 */ .ret
 			
 		}
 		
@@ -984,14 +1029,15 @@
 		
 		.method 'ctor' (<this>: IncorrectCastFault, msg: String) public -> IncorrectCastFault
 		{
-			.size 14
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
 			
 		}
 		
@@ -1027,14 +1073,15 @@
 		
 		.method 'ctor' (<this>: FreeImmortalObjectFault, msg: String) public -> FreeImmortalObjectFault
 		{
-			.size 14
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
 			
 		}
 		
@@ -1070,14 +1117,15 @@
 		
 		.method 'ctor' (<this>: PlatformIsNotSupportFault, msg: String) public -> PlatformIsNotSupportFault
 		{
-			.size 14
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
 			
 		}
 		
@@ -1497,7 +1545,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x000000DF
+			/* ::0006 */ .ldc.str .0x000000E3
 			/* ::0008 */ .ret
 			
 		}
@@ -1579,23 +1627,25 @@
 		.field 'End' as 'UInt32' public
 		.method 'ctor' (<this>: Range, start: UInt32, end: UInt32)  -> Range
 		{
-			.size 56
+			.size 60
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf Start std%global::vein/lang/UInt32, Public, Special
-			/* ::0016 */ .ldarg.2
-			/* ::0018 */ .ldarg.0
-			/* ::0028 */ .stf End std%global::vein/lang/UInt32, Public, Special
-			/* ::0030 */ .ldarg.0
-			/* ::0040 */ .call Object::ctor(<this>: Object)
-			/* ::0042 */ .ldarg.0
-			/* ::0052 */ .call ValueType::ctor(<this>: ValueType)
-			/* ::0054 */ .ldarg.0
-			/* ::0056 */ .ret
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf Start std%global::vein/lang/UInt32, Public, Special
+			/* ::0018 */ .ldarg.2
+			/* ::0020 */ .ldarg.0
+			/* ::0022 */ .ldarg.0
+			/* ::0032 */ .stf End std%global::vein/lang/UInt32, Public, Special
+			/* ::0034 */ .ldarg.0
+			/* ::0044 */ .call Object::ctor(<this>: Object)
+			/* ::0046 */ .ldarg.0
+			/* ::0056 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0058 */ .ldarg.0
+			/* ::0060 */ .ret
 			
 		}
 		
@@ -2063,36 +2113,37 @@
 		.field '_ticks' as 'Int64' internal
 		.method 'ctor' (<this>: TimeSpan, ticks: Int64) public -> TimeSpan
 		{
-			.size 158
+			.size 160
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf _ticks std%global::vein/lang/Int64, Public, Special
-			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .call Object::ctor(<this>: Object)
-			/* ::0036 */ .ldc.i8.s 0xC92A69C000.long
-			/* ::0038 */ .ldarg.0
-			/* ::0048 */ .stf TicksPerDay std%global::vein/lang/Int64, Public, Special
-			/* ::0058 */ .ldc.i8.s 0x861C46800.long
-			/* ::0060 */ .ldarg.0
-			/* ::0070 */ .stf TicksPerHour std%global::vein/lang/Int64, Public, Special
-			/* ::0080 */ .ldc.i8.s 0x23C34600.long
-			/* ::0082 */ .ldarg.0
-			/* ::0092 */ .stf TicksPerMinute std%global::vein/lang/Int64, Public, Special
-			/* ::0102 */ .ldc.i8.s 0x00989680.long
-			/* ::0104 */ .ldarg.0
-			/* ::0114 */ .stf TicksPerSecond std%global::vein/lang/Int64, Public, Special
-			/* ::0124 */ .ldc.i8.s 0x00002710.long
-			/* ::0126 */ .ldarg.0
-			/* ::0136 */ .stf TicksPerMillisecond std%global::vein/lang/Int64, Public, Special
-			/* ::0142 */ .ldc.f4 1E-07.float
-			/* ::0144 */ .ldarg.0
-			/* ::0154 */ .stf SecondsPerTick std%global::vein/lang/Float, Public, Special
-			/* ::0156 */ .ldarg.0
-			/* ::0158 */ .ret
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf _ticks std%global::vein/lang/Int64, Public, Special
+			/* ::0018 */ .ldarg.0
+			/* ::0028 */ .call Object::ctor(<this>: Object)
+			/* ::0038 */ .ldc.i8.s 0xC92A69C000.long
+			/* ::0040 */ .ldarg.0
+			/* ::0050 */ .stf TicksPerDay std%global::vein/lang/Int64, Public, Special
+			/* ::0060 */ .ldc.i8.s 0x861C46800.long
+			/* ::0062 */ .ldarg.0
+			/* ::0072 */ .stf TicksPerHour std%global::vein/lang/Int64, Public, Special
+			/* ::0082 */ .ldc.i8.s 0x23C34600.long
+			/* ::0084 */ .ldarg.0
+			/* ::0094 */ .stf TicksPerMinute std%global::vein/lang/Int64, Public, Special
+			/* ::0104 */ .ldc.i8.s 0x00989680.long
+			/* ::0106 */ .ldarg.0
+			/* ::0116 */ .stf TicksPerSecond std%global::vein/lang/Int64, Public, Special
+			/* ::0126 */ .ldc.i8.s 0x00002710.long
+			/* ::0128 */ .ldarg.0
+			/* ::0138 */ .stf TicksPerMillisecond std%global::vein/lang/Int64, Public, Special
+			/* ::0144 */ .ldc.f4 1E-07.float
+			/* ::0146 */ .ldarg.0
+			/* ::0156 */ .stf SecondsPerTick std%global::vein/lang/Float, Public, Special
+			/* ::0158 */ .ldarg.0
+			/* ::0160 */ .ret
 			
 		}
 		
@@ -2103,7 +2154,7 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .ldc.str .0x000000E2
+			/* ::0006 */ .ldc.str .0x000000E6
 			/* ::0008 */ .ret
 			
 		}
@@ -2561,14 +2612,15 @@
 		.field '_current' as 'Object' 
 		.method 'set_Current' (<this>: Yieldable, value: Object) public -> Object
 		{
-			.size 14
+			.size 16
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf _current std%global::vein/lang/Object, Public, Special
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf _current std%global::vein/lang/Object, Public, Special
 			
 		}
 		
@@ -3016,29 +3068,33 @@
 		
 		.method 'ctor' (<this>: Quaternion, x: Float, y: Float, z: Float, w: Float)  -> Quaternion
 		{
-			.size 84
+			.size 92
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf X std%global::vein/lang/Float, Public, Special
-			/* ::0016 */ .ldarg.2
-			/* ::0018 */ .ldarg.0
-			/* ::0028 */ .stf Y std%global::vein/lang/Float, Public, Special
-			/* ::0030 */ .ldarg.3
-			/* ::0032 */ .ldarg.0
-			/* ::0042 */ .stf Z std%global::vein/lang/Float, Public, Special
-			/* ::0044 */ .ldarg.4
-			/* ::0046 */ .ldarg.0
-			/* ::0056 */ .stf W std%global::vein/lang/Float, Public, Special
-			/* ::0058 */ .ldarg.0
-			/* ::0068 */ .call Object::ctor(<this>: Object)
-			/* ::0070 */ .ldarg.0
-			/* ::0080 */ .call ValueType::ctor(<this>: ValueType)
-			/* ::0082 */ .ldarg.0
-			/* ::0084 */ .ret
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf X std%global::vein/lang/Float, Public, Special
+			/* ::0018 */ .ldarg.2
+			/* ::0020 */ .ldarg.0
+			/* ::0022 */ .ldarg.0
+			/* ::0032 */ .stf Y std%global::vein/lang/Float, Public, Special
+			/* ::0034 */ .ldarg.3
+			/* ::0036 */ .ldarg.0
+			/* ::0038 */ .ldarg.0
+			/* ::0048 */ .stf Z std%global::vein/lang/Float, Public, Special
+			/* ::0050 */ .ldarg.4
+			/* ::0052 */ .ldarg.0
+			/* ::0054 */ .ldarg.0
+			/* ::0064 */ .stf W std%global::vein/lang/Float, Public, Special
+			/* ::0066 */ .ldarg.0
+			/* ::0076 */ .call Object::ctor(<this>: Object)
+			/* ::0078 */ .ldarg.0
+			/* ::0088 */ .call ValueType::ctor(<this>: ValueType)
+			/* ::0090 */ .ldarg.0
+			/* ::0092 */ .ret
 			
 		}
 		
@@ -3060,18 +3116,19 @@
 	{
 		.method 'ctor' (<this>: TypeNotFoundFault, m: String) public -> TypeNotFoundFault
 		{
-			.size 30
+			.size 32
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf message std%global::vein/lang/String, Public, Special
-			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .call Exception::ctor(<this>: Exception)
-			/* ::0028 */ .ldarg.0
-			/* ::0030 */ .ret
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0018 */ .ldarg.0
+			/* ::0028 */ .call Exception::ctor(<this>: Exception)
+			/* ::0030 */ .ldarg.0
+			/* ::0032 */ .ret
 			
 		}
 		
@@ -3093,18 +3150,19 @@
 	{
 		.method 'ctor' (<this>: MemberNotFoundFault, m: String) public -> MemberNotFoundFault
 		{
-			.size 30
+			.size 32
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf message std%global::vein/lang/String, Public, Special
-			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .call Exception::ctor(<this>: Exception)
-			/* ::0028 */ .ldarg.0
-			/* ::0030 */ .ret
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0018 */ .ldarg.0
+			/* ::0028 */ .call Exception::ctor(<this>: Exception)
+			/* ::0030 */ .ldarg.0
+			/* ::0032 */ .ret
 			
 		}
 		
@@ -3126,18 +3184,19 @@
 	{
 		.method 'ctor' (<this>: MultipleTypeFoundFault, m: String) public -> MultipleTypeFoundFault
 		{
-			.size 30
+			.size 32
 			.maxstack 0x00000040
 			.locals 0x00000000
 			
 			.locals { }
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
-			/* ::0014 */ .stf message std%global::vein/lang/String, Public, Special
-			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .call Exception::ctor(<this>: Exception)
-			/* ::0028 */ .ldarg.0
-			/* ::0030 */ .ret
+			/* ::0006 */ .ldarg.0
+			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0018 */ .ldarg.0
+			/* ::0028 */ .call Exception::ctor(<this>: Exception)
+			/* ::0030 */ .ldarg.0
+			/* ::0032 */ .ret
 			
 		}
 		
@@ -3645,6 +3704,26 @@
 			.locals { }
 			/* ::0006 */ .ldc.i4.s 0x00000004.int
 			/* ::0008 */ .ret
+			
+		}
+		
+	}
+	
+	.namespace 'global::internal'
+	.class 'StaticArray_INIT_object_0_0' internal special extends 'Object'
+	{
+		.method '$init' () public static -> Array
+		{
+			.size 22
+			.maxstack 0x00000040
+			.locals 0x00000000
+			
+			.locals { }
+			/* ::0002 */ .nop
+			/* ::0008 */ .ld.type [std%global::vein/lang/Object] 
+			/* ::0018 */ .ldc.i8.s 0x00000000.long
+			/* ::0020 */ .newarr
+			/* ::0022 */ .ret
 			
 		}
 		

@@ -109,7 +109,8 @@ namespace ishtar.emit
     {
         public static ModuleReader Read(byte[] arr, IReadOnlyList<VeinModule> deps, Func<string, Version, VeinModule> resolver)
         {
-            var module = new ModuleReader();
+            var types = new VeinCore();
+            var module = new ModuleReader(types);
             using var mem = new MemoryStream(arr);
             using var reader = new BinaryReader(mem);
             module.Deps.AddRange(deps);
@@ -170,8 +171,8 @@ namespace ishtar.emit
 
                 if (@class.IsSpecial)
                 {
-                    if (VeinCore.All.Any(x => x.FullName == @class.FullName))
-                        TypeForwarder.Indicate(@class);
+                    if (module.Types.All.Any(x => x.FullName == @class.FullName))
+                        TypeForwarder.Indicate(types, @class);
                 }
 
                 module.class_table.Add(@class);
@@ -350,7 +351,7 @@ namespace ishtar.emit
             }
             return args;
         }
-        public ModuleReader() : base(null)
+        public ModuleReader(VeinCore types) : base(null, types)
         {
         }
     }

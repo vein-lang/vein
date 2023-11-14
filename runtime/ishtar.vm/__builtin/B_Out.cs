@@ -20,8 +20,8 @@ namespace ishtar
                 return null;
             }
 
-            FFI.StaticValidate(current, &arg1);
-            FFI.StaticTypeOf(current, &arg1, TYPE_STRING);
+            ForeignFunctionInterface.StaticValidate(current, &arg1);
+            ForeignFunctionInterface.StaticTypeOf(current, &arg1, TYPE_STRING);
             var @class = arg1->decodeClass();
 
             var str = IshtarMarshal.ToDotnetString(arg1, current);
@@ -36,16 +36,18 @@ namespace ishtar
         [IshtarExport(0, "@_readline")]
         [IshtarExportFlags(Public | Static)]
         public static IshtarObject* FReadLine(CallFrame current, IshtarObject** args)
-            => IshtarMarshal.ToIshtarObject(In.ReadLine());
+            => current.GetGC().ToIshtarObject(In.ReadLine());
 
 
-        public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
+        public static void InitTable(ForeignFunctionInterface ffi)
         {
-            new RuntimeIshtarMethod("@_println", Public | Static | Extern, ("val", TYPE_STRING))
+            var table = ffi.method_table;
+
+            ffi.vm.CreateInternalMethod("@_println", Public | Static | Extern, ("val", TYPE_STRING))
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FPrintLn)
                 .AddInto(table, x => x.Name);
 
-            new RuntimeIshtarMethod("@_readline", Public | Static | Extern, TYPE_STRING.AsClass())
+            ffi.vm.CreateInternalMethod("@_readline", Public | Static | Extern, TYPE_STRING.AsRuntimeClass(ffi.vm.Types), Array.Empty<VeinArgumentRef>())
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FReadLine)
                 .AddInto(table, x => x.Name);
         }

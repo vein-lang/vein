@@ -18,8 +18,8 @@ public static unsafe class B_NAPI
             return IshtarObject.NullPointer;
         }
 
-        FFI.StaticValidate(current, &arg1);
-        FFI.StaticTypeOf(current, &arg1, TYPE_STRING);
+        ForeignFunctionInterface.StaticValidate(current, &arg1);
+        ForeignFunctionInterface.StaticTypeOf(current, &arg1, TYPE_STRING);
         var @class = arg1->decodeClass();
 
         var libPath = IshtarMarshal.ToDotnetString(arg1, current);
@@ -41,7 +41,7 @@ public static unsafe class B_NAPI
 
 
         var handleClass = KnowTypes.VeinLang.Native.NativeHandle(current);
-        var handleObj = IshtarGC.AllocObject(handleClass);
+        var handleObj = current.vm.GC.AllocObject(handleClass);
 
         var wrapper = new KnowTypes.WrappedTypes.S_NativeHandle(handleObj, current);
 
@@ -51,9 +51,10 @@ public static unsafe class B_NAPI
     }
 
 
-    public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
+    public static void InitTable(ForeignFunctionInterface ffi)
     {
-        new RuntimeIshtarMethod("i_call_NAPI_LoadNative", Public | Static | Extern)
+        var table = ffi.method_table;
+        ffi.vm.CreateInternalMethod("i_call_NAPI_LoadNative", Public | Static | Extern)
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&LoadNativeLibrary)
             .AddInto(table, x => x.Name);
     }

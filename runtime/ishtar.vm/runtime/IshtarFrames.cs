@@ -2,35 +2,35 @@ namespace ishtar;
 
 using vein.runtime;
 
-public static class IshtarFrames
+public class IshtarFrames(VM vm)
 {
-    public static CallFrame ModuleLoaderFrame = new CallFrame()
+    public CallFrame ModuleLoaderFrame = new CallFrame(vm)
     {
-        method = RuntimeIshtarMethod.DefineEmptySystemMethod(".module")
+        method = vm.DefineEmptySystemMethod(".module")
     };
 
-    public static CallFrame VTableFrame(VeinClass clazz) => new CallFrame()
+    public CallFrame VTableFrame(VeinClass clazz) => new CallFrame(vm)
     {
-        method = RuntimeIshtarMethod.DefineEmptySystemMethod(".type", clazz),
+        method = vm.DefineEmptySystemMethod(".type", clazz),
     };
 
-    public static CallFrame StaticCtor(VeinClass clazz) => new CallFrame()
+    public CallFrame StaticCtor(VeinClass clazz) => new CallFrame(vm)
     {
-        method = RuntimeIshtarMethod.DefineEmptySystemMethod(".static_ctor", clazz),
+        method = vm.DefineEmptySystemMethod(".static_ctor", clazz),
     };
 
-    public static CallFrame EntryPoint = new CallFrame()
+    public CallFrame EntryPoint = new CallFrame(vm)
     {
-        method = RuntimeIshtarMethod.DefineEmptySystemMethod("ishtar_entry")
+        method = vm.DefineEmptySystemMethod("ishtar_entry")
     };
 
-    public static CallFrame Jit() => new CallFrame()
+    public CallFrame Jit() => new CallFrame(vm)
     {
-        method = RuntimeIshtarMethod.DefineEmptySystemMethod(".jit")
+        method = vm.DefineEmptySystemMethod(".jit")
     };
 
-    public static CallFrame NativeLoader() => new CallFrame()
+    public CallFrame NativeLoader() => new CallFrame(vm)
     {
-        method = RuntimeIshtarMethod.DefineEmptySystemMethod(".ffi")
+        method = vm.DefineEmptySystemMethod(".ffi")
     };
 }

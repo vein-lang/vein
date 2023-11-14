@@ -2,6 +2,7 @@ namespace vein.runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using exceptions;
@@ -9,6 +10,7 @@ namespace vein.runtime
     using reflection;
     using static VeinTypeCode;
 
+    [DebuggerDisplay("{fullName}")]
     public record FieldName(string fullName)
     {
         public string Name => fullName.Split('.').Last();

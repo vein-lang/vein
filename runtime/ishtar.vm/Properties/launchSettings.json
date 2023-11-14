@@ -5,7 +5,7 @@
     },
     "run test fast": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\git\\vein-std\\test\\bin\\test.corlib.wll"
+      "commandLineArgs": "C:\\git\\vein.lang\\test\\ishtar_test\\std.wll"
     },
     "run test": {
       "commandName": "Project",

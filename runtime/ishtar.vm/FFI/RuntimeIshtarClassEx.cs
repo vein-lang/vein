@@ -4,7 +4,7 @@ namespace ishtar
 
     public static class RuntimeIshtarClassEx
     {
-        public static RuntimeIshtarClass AsRuntimeClass(this VeinTypeCode code)
-            => (RuntimeIshtarClass)code.AsClass();
+        public static RuntimeIshtarClass AsRuntimeClass(this VeinTypeCode code, IshtarCore types)
+            => (RuntimeIshtarClass)code.AsClass()(types);
     }
 }

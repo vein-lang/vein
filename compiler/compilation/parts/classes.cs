@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using exceptions;
+using ishtar;
 using ishtar.emit;
 using MoreLinq;
 using runtime;
@@ -140,8 +141,8 @@ public partial class CompilationTask
 
     public List<(ClassBuilder clazz, MemberDeclarationSyntax member)>
         LinkClasses((FileInfo, DocumentDeclaration doc) tuple)
-        => LinkClasses(tuple.doc);
-    public List<(ClassBuilder clazz, MemberDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc)
+        => LinkClasses(tuple.doc, Types.Storage);
+    public List<(ClassBuilder clazz, MemberDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc, VeinCore types)
     {
         var classes = new List<(ClassBuilder clazz, MemberDeclarationSyntax member)>();
 
@@ -151,7 +152,7 @@ public partial class CompilationTask
             {
                 Status.VeinStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
                 clazz.OwnerDocument = doc;
-                var result = CompileClass(clazz, doc);
+                var result = CompileClass(clazz, doc, types);
                 Context.Classes.Add(result.FullName, result);
                 classes.Add((result, clazz));
             }
@@ -170,7 +171,7 @@ public partial class CompilationTask
         return classes;
     }
 
-    public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc)
+    public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc, VeinCore types)
     {
         void _defineClass(ClassBuilder clz)
         {
@@ -183,7 +184,7 @@ public partial class CompilationTask
 
         if (member.IsForwardedType)
         {
-            var result = VeinCore.All.
+            var result = types.All.
                 FirstOrDefault(x =>
                     x.FullName.Name.Equals(member.Identifier.ExpressionString));
 
@@ -193,7 +194,7 @@ public partial class CompilationTask
                 module.class_table.Add(clz);
 
                 clz.Includes.AddRange(doc.Includes);
-                TypeForwarder.Indicate(clz);
+                TypeForwarder.Indicate(types, clz);
                 CompileAspectFor(member, doc, clz);
                 _defineClass(clz);
                 return clz;

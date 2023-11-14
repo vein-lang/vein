@@ -10,9 +10,9 @@ namespace ishtar
 
     public class AppVault : AppVaultSync
     {
-        public static AppVault CurrentVault { get; internal set; } = new("app");
-        public DirectoryInfo WorkDirecotry { get; set; } = new DirectoryInfo("./");
+        public DirectoryInfo WorkDirecotry { get; set; } = new("./");
 
+        public VM vm { get; }
         public string Name { get; }
         protected virtual AssemblyResolver Resolver { get; set; }
         public TokenInterlocker TokenGranted { get; }
@@ -20,8 +20,9 @@ namespace ishtar
 
         internal readonly List<RuntimeIshtarModule> Modules = new();
 
-        public AppVault(string name)
+        public AppVault(VM vm, string name)
         {
+            this.vm = vm;
             Name = name;
             TokenGranted = new TokenInterlocker(this, this);
             ThreadID = Thread.CurrentThread.ManagedThreadId;

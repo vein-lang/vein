@@ -21,10 +21,10 @@ namespace ishtar
 
         public static string GetString(StrRef* p, CallFrame frame)
         {
-            FFI.StaticValidate(p, frame);
+            ForeignFunctionInterface.StaticValidate(p, frame);
             if (!storage_l.ContainsKey((ulong)p))
             {
-                VM.FastFail(WNE.ACCESS_VIOLATION, "Pointer incorrect.", frame);
+                frame.vm.FastFail(WNE.ACCESS_VIOLATION, "Pointer incorrect.", frame);
                 return null;
             }
             return storage_l[(ulong)p];

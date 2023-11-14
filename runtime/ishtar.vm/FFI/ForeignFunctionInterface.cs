@@ -5,33 +5,40 @@ using ishtar.runtime.vin;
     using System.Diagnostics;
     using System.Runtime.InteropServices;
     using vein.runtime;
+using vm;
 
-    public static unsafe class FFI
+public unsafe class ForeignFunctionInterface
     {
-        public static Dictionary<string, RuntimeIshtarMethod> method_table { get; } = new();
+        public readonly VM vm;
+        public Dictionary<string, RuntimeIshtarMethod> method_table { get; } = new();
 
-        public static void INIT()
+        public ForeignFunctionInterface(VM vm)
         {
-            B_Out.InitTable(method_table);
-            B_App.InitTable(method_table);
-            B_IEEEConsts.InitTable(method_table);
-            B_Sys.InitTable(method_table);
-            B_String.InitTable(method_table);
-            B_StringBuilder.InitTable(method_table);
-            B_GC.InitTable(method_table);
-            X_Utils.InitTable(method_table);
-            B_Type.InitTable(method_table);
-            B_Field.InitTable(method_table);
-            B_Function.InitTable(method_table);
-            B_NAPI.InitTable(method_table);
+            this.vm = vm;
+            INIT();
         }
 
-
+        private void INIT()
+        {
+            B_Out.InitTable(this);
+            B_App.InitTable(this);
+            B_IEEEConsts.InitTable(this);
+            B_Sys.InitTable(this);
+            B_String.InitTable(this);
+            B_StringBuilder.InitTable(this);
+            B_GC.InitTable(this);
+            X_Utils.InitTable(this);
+            B_Type.InitTable(this);
+            B_Field.InitTable(this);
+            B_Function.InitTable(this);
+            B_NAPI.InitTable(this);
+        }
+        
         [Conditional("STATIC_VALIDATE_IL")]
         public static void StaticValidate(void* p, CallFrame frame)
         {
             if (p != null) return;
-            VM.FastFail(WNE.STATE_CORRUPT, "Null pointer state.", frame);
+            frame.vm.FastFail(WNE.STATE_CORRUPT, "Null pointer state.", frame);
         }
         [Conditional("STATIC_VALIDATE_IL")]
         public static void StaticValidateField(CallFrame current, IshtarObject** arg1, string name)
@@ -70,7 +77,7 @@ using ishtar.runtime.vin;
             VM.Assert(@class.TypeCode == code, WNE.TYPE_MISMATCH, $"@class.{@class.TypeCode} == {code}", current);
         }
 
-        public static RuntimeIshtarMethod GetMethod(string FullName)
+        public RuntimeIshtarMethod GetMethod(string FullName)
             => method_table.GetValueOrDefault(FullName);
 
 
@@ -93,9 +100,9 @@ using ishtar.runtime.vin;
         // TODO, move to outside
         // ==================
 
-        private static readonly Dictionary<string, NativeImportCache> _cache = new ();
+        private readonly Dictionary<string, NativeImportCache> _cache = new ();
 
-        public static void LoadNativeLibrary(NativeImportEntity entity, CallFrame frame)
+        public void LoadNativeLibrary(NativeImportEntity entity, CallFrame frame)
         {
             if (_cache.ContainsKey(entity.entry))
                 return;
@@ -104,14 +111,14 @@ using ishtar.runtime.vin;
 
             if (!result)
             {
-                VM.FastFail(WNE.NATIVE_LIBRARY_COULD_NOT_LOAD, $"{entity.entry}", frame);
+                frame.vm.FastFail(WNE.NATIVE_LIBRARY_COULD_NOT_LOAD, $"{entity.entry}", frame);
                 return;
             }
 
             _cache[entity.entry] = new NativeImportCache(entity.entry, handle);
         }
 
-        public static void LoadNativeSymbol(NativeImportEntity entity, CallFrame frame)
+        public void LoadNativeSymbol(NativeImportEntity entity, CallFrame frame)
         {
             var cached = _cache[entity.entry];
 
@@ -127,8 +134,18 @@ using ishtar.runtime.vin;
             }
             catch
             {
-                VM.FastFail(WNE.NATIVE_LIBRARY_SYMBOL_COULD_NOT_FOUND, $"{entity.entry}::{entity.fn}", frame);
+                frame.vm.FastFail(WNE.NATIVE_LIBRARY_SYMBOL_COULD_NOT_FOUND, $"{entity.entry}::{entity.fn}", frame);
             }
+        }
+
+
+
+        public void DisplayDefinedMapping()
+        {
+            if (!vm.Config.HasFlag(SysFlag.DISPLAY_FFI_MAPPING)) return;
+
+            foreach (var (key, value) in method_table)
+                vm.trace.println($"ffi map '{key}' -> 'sys::FFI/{value.Name}'");
         }
     }
 

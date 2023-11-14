@@ -1,5 +1,6 @@
 <Project>
   <PropertyGroup>
+    <DefineConstants>STATIC_VALIDATE_IL;DEBUG_VTABLE;VALIDATE_RUNTIME_TOKEN;DEBUG</DefineConstants>
     <TargetFramework>net8.0</TargetFramework>
     <InvariantGlobalization>true</InvariantGlobalization>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

@@ -35,7 +35,6 @@ public partial class CompilationTask
     {
         if (block is null)
             return;
-
         Status.VeinStatus($"Emitting [gray]'{method.Owner.FullName}:{method.Name}'[/]");
         foreach (var pr in block.Statements.SelectMany(x => x.ChildNodes.Concat(new[] { x })))
             AnalyzeStatement(pr, doc);

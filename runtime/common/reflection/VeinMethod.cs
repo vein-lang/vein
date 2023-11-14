@@ -10,15 +10,15 @@ namespace vein.runtime
     public class VeinMethod : VeinMethodBase, IAspectable
     {
         public VeinClass ReturnType { get; set; }
-        public VeinClass Owner { get; set; }
+        public VeinClass Owner { get; protected set; }
         public readonly Dictionary<int, VeinArgumentRef> Locals = new();
         public List<Aspect> Aspects { get; } = new();
 
         protected VeinMethod() : base(null, 0) { }
 
-        internal VeinMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
+        internal VeinMethod(string name, MethodFlags flags, VeinCore types, params VeinArgumentRef[] args)
             : base(name, flags, args) =>
-            this.ReturnType = VeinTypeCode.TYPE_VOID.AsClass();
+            this.ReturnType = VeinTypeCode.TYPE_VOID.AsClass()(types);
 
         internal VeinMethod(string name, MethodFlags flags, VeinClass returnType, VeinClass owner,
             params VeinArgumentRef[] args)

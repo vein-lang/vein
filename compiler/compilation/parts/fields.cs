@@ -183,7 +183,7 @@ public partial class CompilationTask
 
                     Log.errors.Enqueue(
                         $"[red bold]Cannot implicitly convert type[/] " +
-                        $"'[purple underline]{numeric.GetTypeCode().AsClass().Name}[/]' to " +
+                        $"'[purple underline]{numeric.GetTypeCode().AsClass()(Types.Storage).Name}[/]' to " +
                         $"'[purple underline]{field.FieldType.Name}[/]'.\n\t" +
                         $"at '[orange bold]{numeric.Transform.pos.Line} line, {numeric.Transform.pos.Column} column[/]' \n\t" +
                         $"in '[orange bold]{doc.FileEntity}[/]'." +
@@ -195,7 +195,7 @@ public partial class CompilationTask
                 var diff_err = literal.Transform.DiffErrorFull(doc);
                 Log.errors.Enqueue(
                     $"[red bold]Cannot implicitly convert type[/] " +
-                    $"'[purple underline]{literal.GetTypeCode().AsClass().Name}[/]' to " +
+                    $"'[purple underline]{literal.GetTypeCode().AsClass()(Types.Storage).Name}[/]' to " +
                     $"'[purple underline]{member.Type.Identifier}[/]'.\n\t" +
                     $"at '[orange bold]{literal.Transform.pos.Line} line, {literal.Transform.pos.Column} column[/]' \n\t" +
                     $"in '[orange bold]{doc.FileEntity}[/]'." +

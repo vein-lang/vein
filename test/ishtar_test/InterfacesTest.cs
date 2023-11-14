@@ -13,7 +13,7 @@ namespace ishtar_test
         [Parallelizable(ParallelScope.None)]
         public void ValidVTableInitialization()
         {
-            var module = new RuntimeIshtarModule(AppVault.CurrentVault, _module.Name);
+            var module = new RuntimeIshtarModule(GetVM().Vault, _module.Name);
 
             var IFoo1 = new RuntimeIshtarClass("tst%global::foo/IFoo1", T.OBJECT, module);
             var IFoo2 = new RuntimeIshtarClass("tst%global::foo/IFoo2", T.OBJECT, module);
@@ -45,7 +45,7 @@ namespace ishtar_test
             method2.PIInfo = (delegate*<void>)&Foo2;
 
 
-            Assert.DoesNotThrow(() => Zoo1.init_vtable());
+            Assert.DoesNotThrow(() => Zoo1.init_vtable(GetVM()));
             Assert.DoesNotThrow(() => ((delegate*<void>)Zoo1.Method["doodoo()"].PIInfo.Addr)());
             Assert.DoesNotThrow(() => ((delegate*<void>)Zoo1.Method["moomoo()"].PIInfo.Addr)());
         }

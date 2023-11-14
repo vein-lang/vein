@@ -34,7 +34,7 @@ namespace ishtar.emit
         {
             this.FullName = name;
             moduleBuilder = module;
-            this.Parents.Add(parent.AsClass());
+            this.Parents.Add(parent.AsClass()(module.Types));
             this.Owner = module;
         }
         internal ClassBuilder(VeinModuleBuilder module, QualityTypeName name, VeinClass parent)
@@ -74,7 +74,6 @@ namespace ishtar.emit
         public MethodBuilder DefineMethod(string name, MethodFlags flags, VeinClass returnType, params VeinArgumentRef[] args)
         {
             var method = this.DefineMethod(name, returnType, args);
-            method.Owner = this;
             method.Flags = flags;
             return method;
         }
@@ -146,7 +145,7 @@ namespace ishtar.emit
                 };
             var setter =
                 DefineMethod(VeinProperty.SetterFnName(name), VeinProperty.ConvertShadowFlags(flags),
-                    VeinTypeCode.TYPE_VOID.AsClass(),
+                    VeinTypeCode.TYPE_VOID.AsClass(propType),
                     args);
             if (!IsAbstract)
             {
@@ -236,7 +235,7 @@ namespace ishtar.emit
             if (isStatic)
                 flags |= MethodFlags.Static;
 
-            var returnType = isStatic ? VeinTypeCode.TYPE_VOID.AsClass() : this;
+            var returnType = isStatic ? VeinTypeCode.TYPE_VOID.AsClass(moduleBuilder) : this;
             var args = isStatic || name == "dtor" ? new VeinArgumentRef[0] :
                 new VeinArgumentRef[1] { new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, this) };
 

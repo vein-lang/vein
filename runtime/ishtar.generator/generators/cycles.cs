@@ -14,7 +14,7 @@ public static class G_Cycles
         var end = gen.DefineLabel();
         var expType = @while.Expression.DetermineType(ctx);
         gen.UseLabel(start);
-        if (expType.FullName == VeinTypeCode.TYPE_BOOLEAN.AsClass().FullName)
+        if (expType.FullName == VeinTypeCode.TYPE_BOOLEAN.AsClass()(Types.Storage).FullName)
         {
             gen.EmitExpression(@while.Expression);
             gen.Emit(OpCodes.JMP_F, end);

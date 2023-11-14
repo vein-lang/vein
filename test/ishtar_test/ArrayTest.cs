@@ -12,7 +12,7 @@ namespace ishtar_test
         public void NewArr()
         {
             using var ctx = CreateContext();
-            var arrType = VeinTypeCode.TYPE_I4.AsClass().FullName;
+            var arrType = VeinTypeCode.TYPE_I4.AsClass()(Types).FullName;
 
             ctx.EnsureType(arrType);
 
@@ -33,7 +33,7 @@ namespace ishtar_test
         public void LoadAndStageElementTest()
         {
             using var ctx = CreateContext();
-            var arrType = VeinTypeCode.TYPE_I4.AsClass().FullName;
+            var arrType = VeinTypeCode.TYPE_I4.AsClass()(Types).FullName;
 
             ctx.EnsureType(arrType);
 
@@ -59,7 +59,7 @@ namespace ishtar_test
         public void GetLenTest()
         {
             using var ctx = CreateContext();
-            var arrType = VeinTypeCode.TYPE_I4.AsClass().FullName;
+            var arrType = VeinTypeCode.TYPE_I4.AsClass()(Types).FullName;
 
             ctx.EnsureType(arrType);
 
@@ -92,11 +92,11 @@ namespace ishtar_test
                 x.Emit(OpCodes.LDC_STR, "{0} and {1}");
                 x.Emit(OpCodes.LDC_STR, "foo");
                 x.Emit(OpCodes.LDC_STR, "bar");
-                x.Emit(OpCodes.CALL, VeinCore.StringClass.FindMethod("format", new []
+                x.Emit(OpCodes.CALL, (Types).StringClass.FindMethod("format", new []
                 {
-                    VeinCore.StringClass, /* template */ 
-                    VeinCore.ObjectClass, /* o1 */
-                    VeinCore.ObjectClass  /* o2 */
+                    (Types).StringClass, /* template */ 
+                    (Types).ObjectClass, /* o1 */
+                    (Types).ObjectClass  /* o2 */
                 }));
                 x.Emit(OpCodes.RET);
             });

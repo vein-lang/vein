@@ -1,18 +1,19 @@
 namespace ishtar;
 
-internal static class Trace
+internal class IshtarTrace
 {
     private static bool useConsole;
     private static bool useFile;
 
-    public static void init()
+    public IshtarTrace()
     {
         useConsole = Environment.GetCommandLineArgs().Contains("--sys::log::use-console=1");
         useFile = Environment.GetCommandLineArgs().Contains("--sys::log::use-file=1"); // TODO
     }
-    public static void println(string s)
+
+    public void println(string s)
     {
-        if (useConsole)
+        //if (useConsole)
         {
             Console.WriteLine(s);
         }

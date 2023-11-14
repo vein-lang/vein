@@ -171,15 +171,12 @@ public partial class CompilationTask
             if (args.Length == 0)
                 return (clazz.GetDefaultCtor() as MethodBuilder, member);
             var ctor = clazz.DefineMethod("ctor", GenerateMethodFlags(member), clazz, args);
-            ctor.Owner = clazz;
             CompileAspectFor(member, doc, ctor);
             return (ctor, member);
         }
 
         var method = clazz.DefineMethod(member.Identifier.ExpressionString, GenerateMethodFlags(member), retType, args);
-
-        method.Owner = clazz;
-
+        
         if (clazz.IsInterface)
         {
             method.Flags |= MethodFlags.Abstract;

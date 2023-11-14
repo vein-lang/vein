@@ -48,14 +48,14 @@ namespace ishtar
         protected stackval* ExecuteMethod(void* method)
         {
             var runtime_method = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(method);
-            var callFrame = new CallFrame()
+            var callFrame = new CallFrame(_frame.vm)
             {
                 parent = _frame,
                 level = _frame.level + 1,
                 method = runtime_method
             };
 
-            VM.exec_method(callFrame);
+            _frame.vm.exec_method(callFrame);
 
             if (callFrame.exception is not null)
                 _frame.exception = callFrame.exception;

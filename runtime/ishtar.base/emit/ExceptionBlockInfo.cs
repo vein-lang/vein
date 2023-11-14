@@ -57,6 +57,7 @@ public class ExceptionBlockInfo
     private void Mark(int addr, VeinClass? catchClass, ExceptionMarkKind type)
     {
         int currentCatch = CurrentCatch;
+        var types = catchClass?.Owner?.Types ?? new VeinCore(); 
 
         if (currentCatch >= CatchAddr.Length)
         {
@@ -78,14 +79,14 @@ public class ExceptionBlockInfo
             Types[currentCatch] = type;
             FilterAddr[currentCatch] = -1;
             CatchAddr[currentCatch] = -1;
-            CatchClass[currentCatch] = VeinCore.VoidClass;
+            CatchClass[currentCatch] = types.VoidClass;
         }
         else if (type == ExceptionMarkKind.CATCH_ANY)
         {
             Types[currentCatch] = type;
             FilterAddr[currentCatch] = -1;
             CatchAddr[currentCatch] = addr;
-            CatchClass[currentCatch] = VeinCore.VoidClass;
+            CatchClass[currentCatch] = types.VoidClass;
         }
         CurrentCatch++;
         if (EndAddr == -1) EndAddr = addr;

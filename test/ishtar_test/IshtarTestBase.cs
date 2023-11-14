@@ -37,8 +37,9 @@ namespace ishtar_test
         private Action<ClassBuilder, dynamic> _classCtor;
         private readonly dynamic _context;
         private ClassBuilder @class;
-        private static readonly object guarder = new ();
         internal string UID { get; }
+
+        public VM vm { get; }
 
         public IshtarTestContext OnClassBuild(Action<ClassBuilder, dynamic> action)
         {
@@ -51,7 +52,7 @@ namespace ishtar_test
             @class = _module.DefineClass($"global::test/testClass_{_testCase}_{UID}");
             _classCtor?.Invoke(@class, _context);
             var _method = @class.DefineMethod($"master_{_testCase}_{UID}", MethodFlags.Public | MethodFlags.Static,
-                VeinTypeCode.TYPE_OBJECT.AsClass());
+                VeinTypeCode.TYPE_OBJECT.AsClass()(vm.Types));
 
             var gen = _method.GetGenerator();
             ctor(gen, _context);
@@ -60,55 +61,51 @@ namespace ishtar_test
 
         public unsafe CallFrame Execute(Action<ILGenerator, dynamic> ctor)
         {
-            if (VM.watcher is DefaultWatchDog)
-                VM.watcher = new TestWatchDog();
-            AppVault.CurrentVault ??= new AppVault("<test-app>");
-            lock (guarder)
-            {
-                var resolver = AppVault.CurrentVault.GetResolver();
+            if (vm.watcher is DefaultWatchDog)
+                vm.watcher = new TestWatchDog();
+            var resolver = vm.Vault.GetResolver();
 
-                OnCodeBuild(ctor);
+            OnCodeBuild(ctor);
 
-                var runtimeModule = resolver.Resolve(new IshtarAssembly(_module));
+            var runtimeModule = resolver.Resolve(new IshtarAssembly(_module));
 
-                var entry_point = runtimeModule.GetEntryPoint($"master_{_testCase}_{UID}");
-                IshtarCore.INIT_ADDITIONAL_MAPPING();
-                foreach (var c in VeinCore.All.OfType<RuntimeIshtarClass>())
-                    c.init_vtable();
-                foreach (var c in runtimeModule.class_table.OfType<RuntimeIshtarClass>())
-                    c.init_vtable();
-                return RunIt(entry_point);
-            }
+            var entry_point = runtimeModule.GetEntryPoint($"master_{_testCase}_{UID}");
+            foreach (var c in vm.Types.All.OfType<RuntimeIshtarClass>())
+                c.init_vtable(vm);
+            foreach (var c in runtimeModule.class_table.OfType<RuntimeIshtarClass>())
+                c.init_vtable(vm);
+            return RunIt(entry_point);
         }
 
-        private static unsafe CallFrame RunIt(RuntimeIshtarMethod entry)
+        private unsafe CallFrame RunIt(RuntimeIshtarMethod entry)
         {
-            if (VM.watcher is DefaultWatchDog)
-                VM.watcher = new TestWatchDog();
+            if (vm.watcher is DefaultWatchDog)
+                vm.watcher = new TestWatchDog();
             var args_ = stackalloc stackval[1];
-            var frame = new CallFrame
+            var frame = new CallFrame(vm)
             {
                 args = args_,
                 method = entry,
                 level = 0
             };
-            VM.exec_method(frame);
+            vm.exec_method(frame);
             return frame;
         }
 
-        public IshtarTestContext(string testCase, VeinModuleBuilder module)
+        public IshtarTestContext(string testCase, VeinModuleBuilder module, VM vm)
         {
             _testCase = testCase;
             _module = module;
             UID = Guid.NewGuid().ToString().Where(char.IsLetter).Join();
+            this.vm = vm;
             _context = new ExpandoObject();
-            VM.watcher = new TestWatchDog();
+            vm.watcher = new TestWatchDog();
         }
         public void Dispose()
         {
             StringStorage.storage_l.Clear();
             StringStorage.storage_r.Clear();
-            VM.CurrentException = null;
+            vm.CurrentException = null;
         }
 
         public void EnsureType(QualityTypeName type) => _module.InternTypeName(type);
@@ -116,63 +113,53 @@ namespace ishtar_test
 
     public abstract class IshtarTestBase : IDisposable
     {
-        public static class T
+        public class PredefinedTypes(VM _vm)
         {
-            public static RuntimeIshtarClass VOID => VeinTypeCode.TYPE_VOID.AsRuntimeClass();
-            public static RuntimeIshtarClass OBJECT => VeinTypeCode.TYPE_OBJECT.AsRuntimeClass();
-            public static RuntimeIshtarClass STRING => VeinTypeCode.TYPE_STRING.AsRuntimeClass();
+            public RuntimeIshtarClass VOID => VeinTypeCode.TYPE_VOID.AsRuntimeClass(_vm.Types);
+            public RuntimeIshtarClass OBJECT => VeinTypeCode.TYPE_OBJECT.AsRuntimeClass(_vm.Types);
+            public RuntimeIshtarClass STRING => VeinTypeCode.TYPE_STRING.AsRuntimeClass(_vm.Types);
         }
 
 
 
-        private static VeinModuleBuilder _module_instance;
-        private static VeinModule _corlib;
-        protected static VeinModuleBuilder _module
+        private VeinModuleBuilder _module_instance;
+        private VeinModule _corlib;
+        protected VeinModuleBuilder _module
         {
             get
             {
                 if (_module_instance is null)
-                    return _module_instance = new VeinModuleBuilder("tst") { Deps = new List<VeinModule> { _corlib } };
+                    return _module_instance = new VeinModuleBuilder("tst", _vm.Types) { Deps = new List<VeinModule> { _corlib } };
                 return _module_instance;
             }
         }
+        private readonly VM _vm;
 
-        private static volatile bool isInited = false;
+        public VM GetVM() => _vm;
+        public IshtarCore Types => _vm.Types;
+        public IshtarGC GC => _vm.GC;
+        public PredefinedTypes T;
 
         protected IshtarTestBase()
         {
-            if (VM.watcher is DefaultWatchDog)
-                VM.watcher = new TestWatchDog();
-            AppVault.CurrentVault ??= new AppVault("<test-app>");
-            lock (guarder)
-            {
-                if (!isInited)
-                {
-                    VeinCore.Init();
-                    IshtarGC.INIT();
-                    FFI.INIT();
-                    _corlib = LoadCorLib();
-                    IshtarCore.INIT_ADDITIONAL_MAPPING();
-                    foreach (var @class in VeinCore.All.OfType<RuntimeIshtarClass>())
-                        @class.init_vtable();
-                    // ReSharper disable once VirtualMemberCallInConstructor
-                    StartUp();
-                    isInited = true;
-                }
-            }
+            _vm = VM.Create("test-app");
+            T = new PredefinedTypes(_vm);
+            if (_vm.watcher is DefaultWatchDog)
+                _vm.watcher = new TestWatchDog();
+            _corlib = LoadCorLib();
+            foreach (var @class in _vm.Types.All.OfType<RuntimeIshtarClass>())
+                @class.init_vtable(_vm);
         }
 
-        private static VeinModule LoadCorLib()
+        private VeinModule LoadCorLib()
         {
-            var resolver = AppVault.CurrentVault.GetResolver();
+            var resolver = _vm.Vault.GetResolver();
             resolver.AddSearchPath(new DirectoryInfo("./"));
             return resolver.ResolveDep("std", new Version(0, 0, 0), new List<VeinModule>());
         }
 
-        private static readonly object guarder = new ();
-
         protected IshtarTestContext CreateContext([CallerMemberName] string caller = "<unnamed>")
-            => new(caller, _module);
+            => new(caller, _module, _vm);
         void IDisposable.Dispose() => Shutdown();
 
         protected void Validate()
