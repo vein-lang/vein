@@ -11,14 +11,15 @@ namespace ishtar
         [IshtarExportFlags(Public | Static)]
         public static IshtarObject* GetOSValue(CallFrame current, IshtarObject** args)
         {
+            var gc = current.GetGC();
             // TODO remove using RuntimeInformation
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return IshtarMarshal.ToIshtarObject(0, current);
+                return gc.ToIshtarObject(0, current);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                return IshtarMarshal.ToIshtarObject(1, current);
+                return gc.ToIshtarObject(1, current);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                return IshtarMarshal.ToIshtarObject(2, current);
-            return IshtarMarshal.ToIshtarObject(-1, current);
+                return gc.ToIshtarObject(2, current);
+            return gc.ToIshtarObject(-1, current);
         }
 
 
@@ -28,11 +29,11 @@ namespace ishtar
         {
             var exitCode = args[0];
 
-            FFI.StaticValidate(current, &exitCode);
-            FFI.StaticTypeOf(current, &exitCode, TYPE_I4);
-            FFI.StaticValidateField(current, &exitCode, "!!value");
+            ForeignFunctionInterface.StaticValidate(current, &exitCode);
+            ForeignFunctionInterface.StaticTypeOf(current, &exitCode, TYPE_I4);
+            ForeignFunctionInterface.StaticValidateField(current, &exitCode, "!!value");
 
-            VM.halt(IshtarMarshal.ToDotnetInt32(exitCode, current));
+            current.vm.halt(IshtarMarshal.ToDotnetInt32(exitCode, current));
 
             return null;
         }
@@ -44,33 +45,35 @@ namespace ishtar
             var key = args[0];
             var value = args[1];
 
-            FFI.StaticValidate(current, &key);
-            FFI.StaticTypeOf(current, &key, TYPE_STRING);
-            FFI.StaticValidate(current, &value);
-            FFI.StaticTypeOf(current, &value, TYPE_BOOLEAN);
+            ForeignFunctionInterface.StaticValidate(current, &key);
+            ForeignFunctionInterface.StaticTypeOf(current, &key, TYPE_STRING);
+            ForeignFunctionInterface.StaticValidate(current, &value);
+            ForeignFunctionInterface.StaticTypeOf(current, &value, TYPE_BOOLEAN);
 
-            FFI.StaticValidateField(current, &key, "!!value");
-            FFI.StaticValidateField(current, &value, "!!value");
+            ForeignFunctionInterface.StaticValidateField(current, &key, "!!value");
+            ForeignFunctionInterface.StaticValidateField(current, &value, "!!value");
 
             var clr_key = IshtarMarshal.ToDotnetString(key, current);
             var clr_value = IshtarMarshal.ToDotnetBoolean(value, current);
 
-            VM.Config.Set(clr_key, clr_value);
+            current.vm.Config.Set(clr_key, clr_value);
 
             return null;
         }
 
-        public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
+        public static void InitTable(ForeignFunctionInterface ffi)
         {
-            new RuntimeIshtarMethod("@_get_os_value", Public | Static | Extern)
+            var table = ffi.method_table;
+
+            ffi.vm.CreateInternalMethod("@_get_os_value", Public | Static | Extern)
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&GetOSValue)
                 .AddInto(table, x => x.Name);
 
-            new RuntimeIshtarMethod("@_exit", Public | Static | Extern, (TYPE_STRING, "msg"), (TYPE_I4, "code"))
+            ffi.vm.CreateInternalMethod("@_exit", Public | Static | Extern, ("msg", TYPE_STRING), ("code", TYPE_I4))
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Exit)
                 .AddInto(table, x => x.Name);
 
-            new RuntimeIshtarMethod("@_switch_flag", Public | Static | Extern, (TYPE_STRING, "key"), (TYPE_BOOLEAN, "value"))
+            ffi.vm.CreateInternalMethod("@_switch_flag", Public | Static | Extern, ("key", TYPE_STRING), ("value", TYPE_BOOLEAN))
                 .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&SwitchFlag)
                 .AddInto(table, x => x.Name);
         }

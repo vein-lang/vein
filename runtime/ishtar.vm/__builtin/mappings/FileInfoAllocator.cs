@@ -9,13 +9,13 @@ public unsafe class FileInfoAllocator : TransitAllocator<FileInfo>
         //IshtarSync.EnterCriticalSection(ref frame.Owner.Interlocker.INIT_TYPE_BARRIER);
 
         var @this = RuntimeType(frame);
-        var obj = IshtarGC.AllocObject(@this);
+        var gc = frame.GetGC();
+        var obj = gc.AllocObject(@this);
 
-
-        obj->vtable[@this.Field["_exist"].vtable_offset] = IshtarMarshal.ToIshtarObject(t.Exists);
-        obj->vtable[@this.Field["_name"].vtable_offset] = IshtarMarshal.ToIshtarObject(t.Name);
-        obj->vtable[@this.Field["_full_name"].vtable_offset] = IshtarMarshal.ToIshtarObject(t.FullName);
-        obj->vtable[@this.Field["_length"].vtable_offset] = IshtarMarshal.ToIshtarObject(t.Length);
+        obj->vtable[@this.Field["_exist"].vtable_offset] = gc.ToIshtarObject(t.Exists);
+        obj->vtable[@this.Field["_name"].vtable_offset] = gc.ToIshtarObject(t.Name);
+        obj->vtable[@this.Field["_full_name"].vtable_offset] = gc.ToIshtarObject(t.FullName);
+        obj->vtable[@this.Field["_length"].vtable_offset] = gc.ToIshtarObject(t.Length);
 
 
         return obj;

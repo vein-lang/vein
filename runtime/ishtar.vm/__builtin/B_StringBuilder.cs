@@ -16,7 +16,7 @@ public unsafe static class B_StringBuilder
         var @class_1 = arg1->decodeClass();
         var @class_2 = arg2->decodeClass();
 
-        FFI.StaticValidate(current, &arg1);
+        ForeignFunctionInterface.StaticValidate(current, &arg1);
 
         var buffer = (ImmortalObject<StringBuilder>*)arg1->vtable[@class_1.Field["!!buffer"].vtable_offset];
 
@@ -35,8 +35,8 @@ public unsafe static class B_StringBuilder
         var @class_1 = arg1->decodeClass();
         var @class_2 = arg2->decodeClass();
 
-        FFI.StaticValidate(current, &arg1);
-        FFI.StaticValidate(current, &arg2);
+        ForeignFunctionInterface.StaticValidate(current, &arg1);
+        ForeignFunctionInterface.StaticValidate(current, &arg2);
 
         var buffer = (ImmortalObject<StringBuilder>*)arg1->vtable[@class_1.Field["!!buffer"].vtable_offset];
 
@@ -51,9 +51,10 @@ public unsafe static class B_StringBuilder
     {
         var arg1 = args[0];
         var @class_1 = arg1->decodeClass();
-        FFI.StaticValidate(current, &arg1);
+        var gc = current.GetGC();
+        ForeignFunctionInterface.StaticValidate(current, &arg1);
         arg1->vtable[@class_1.Field["!!buffer"].vtable_offset] =
-            IshtarGC.AllocImmortal<StringBuilder>();
+            gc.AllocImmortal<StringBuilder>();
         return null;
     }
 
@@ -63,10 +64,11 @@ public unsafe static class B_StringBuilder
     {
         var arg1 = args[0];
         var @class_1 = arg1->decodeClass();
-        FFI.StaticValidate(current, &arg1);
+        ForeignFunctionInterface.StaticValidate(current, &arg1);
         var buffer = (ImmortalObject<StringBuilder>*)arg1->vtable[@class_1.Field["!!buffer"].vtable_offset];
         buffer->Value.Clear();
-        IshtarGC.FreeImmortal(buffer);
+        var gc = current.GetGC();
+        gc.FreeImmortal(buffer);
         return null;
     }
 
@@ -76,44 +78,46 @@ public unsafe static class B_StringBuilder
     {
         var arg1 = args[0];
         var @class_1 = arg1->decodeClass();
-        FFI.StaticValidate(current, &arg1);
+        var gc = current.GetGC();
+        ForeignFunctionInterface.StaticValidate(current, &arg1);
         var buffer = (ImmortalObject<StringBuilder>*)arg1->vtable[@class_1.Field["!!buffer"].vtable_offset];
-        return IshtarMarshal.ToIshtarObject(buffer->Value.ToString(), current);
+        return gc.ToIshtarObject(buffer->Value.ToString(), current);
     }
 
     internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("vein/lang", "StringBuilder");
 
-    public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
+    public static void InitTable(ForeignFunctionInterface ffi)
     {
-        new RuntimeIshtarMethod("i_call_StringBuilder_append", Public | Static | Extern,
-                new VeinArgumentRef("_this_", ThisClass), new VeinArgumentRef("value", VeinCore.ObjectClass))
+        var table = ffi.method_table;
+        ffi.vm.CreateInternalMethod("i_call_StringBuilder_append", Public | Static | Extern,
+                new VeinArgumentRef("_this_", ThisClass), new VeinArgumentRef("value", ffi.vm.Types.ObjectClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Append)
             .AddInto(table, x => x.Name);
-        new RuntimeIshtarMethod("i_call_StringBuilder_append", Public | Static | Extern,
-                new VeinArgumentRef("_this_", ThisClass), new VeinArgumentRef("value", VeinCore.ValueTypeClass))
+        ffi.vm.CreateInternalMethod("i_call_StringBuilder_append", Public | Static | Extern,
+                new VeinArgumentRef("_this_", ThisClass), new VeinArgumentRef("value", ffi.vm.Types.ValueTypeClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Append)
             .AddInto(table, x => x.Name);
 
-        new RuntimeIshtarMethod("i_call_StringBuilder_appendLine", Public | Static | Extern,
-                new VeinArgumentRef("_this_", ThisClass), new VeinArgumentRef("value", VeinCore.ObjectClass))
+        ffi.vm.CreateInternalMethod("i_call_StringBuilder_appendLine", Public | Static | Extern,
+                new VeinArgumentRef("_this_", ThisClass), new VeinArgumentRef("value", ffi.vm.Types.ObjectClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&AppendLine)
             .AddInto(table, x => x.Name);
-        new RuntimeIshtarMethod("i_call_StringBuilder_appendLine", Public | Static | Extern,
-                new VeinArgumentRef("_this_", ThisClass), new VeinArgumentRef("value", VeinCore.ValueTypeClass))
+        ffi.vm.CreateInternalMethod("i_call_StringBuilder_appendLine", Public | Static | Extern,
+                new VeinArgumentRef("_this_", ThisClass), new VeinArgumentRef("value", ffi.vm.Types.ValueTypeClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&AppendLine)
             .AddInto(table, x => x.Name);
 
-        new RuntimeIshtarMethod("i_call_StringBuilder_init_buffer", Public | Static | Extern,
+        ffi.vm.CreateInternalMethod("i_call_StringBuilder_init_buffer", Public | Static | Extern,
                 new VeinArgumentRef("_this_", ThisClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&InitBuffer)
             .AddInto(table, x => x.Name);
 
-        new RuntimeIshtarMethod("i_call_StringBuilder_clear_buffer", Public | Static | Extern,
+        ffi.vm.CreateInternalMethod("i_call_StringBuilder_clear_buffer", Public | Static | Extern,
                 new VeinArgumentRef("_this_", ThisClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ClearBuffer)
             .AddInto(table, x => x.Name);
 
-        new RuntimeIshtarMethod("i_call_StringBuilder_toString", Public | Static | Extern,
+        ffi.vm.CreateInternalMethod("i_call_StringBuilder_toString", Public | Static | Extern,
                 new VeinArgumentRef("_this_", ThisClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ToString)
             .AddInto(table, x => x.Name);

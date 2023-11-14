@@ -34,16 +34,17 @@ public static unsafe class B_Field
     internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("vein/lang", "Field");
 
 
-    public static void InitTable(Dictionary<string, RuntimeIshtarMethod> table)
+    public static void InitTable(ForeignFunctionInterface ffi)
     {
-        new RuntimeIshtarMethod("i_call_Field_setValue", Public | Static | Extern,
-                new VeinArgumentRef("targetObject", VeinCore.ObjectClass),
+        var table = ffi.method_table;
+        ffi.vm.CreateInternalMethod("i_call_Field_setValue", Public | Static | Extern,
+                new VeinArgumentRef("targetObject", ffi.vm.Types.ObjectClass),
                 new VeinArgumentRef("f", ThisClass),
-                new VeinArgumentRef("value", VeinCore.ObjectClass))
+                new VeinArgumentRef("value", ffi.vm.Types.ObjectClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FieldSetValue)
             .AddInto(table, x => x.Name);
-        new RuntimeIshtarMethod("i_call_Field_getValue", Public | Static | Extern,
-                new VeinArgumentRef("targetObject", VeinCore.ObjectClass),
+        ffi.vm.CreateInternalMethod("i_call_Field_getValue", Public | Static | Extern,
+                new VeinArgumentRef("targetObject", ffi.vm.Types.ObjectClass),
                 new VeinArgumentRef("f", ThisClass))
             .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FieldGetValue)
             .AddInto(table, x => x.Name);
