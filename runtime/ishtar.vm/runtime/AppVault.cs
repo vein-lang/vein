@@ -8,7 +8,7 @@ namespace ishtar
     using vein.reflection;
     using vein.runtime;
 
-    public class AppVault : AppVaultSync
+    public class AppVault : AppVaultSync, IDisposable
     {
         public DirectoryInfo WorkDirecotry { get; set; } = new("./");
 
@@ -95,6 +95,8 @@ namespace ishtar
         object AppVaultSync.TokenInterlockerGuard { get; } = new();
         internal ushort LastModuleID;
         internal ushort LastClassID;
+
+        public void Dispose() => Modules.Clear();
     }
 
 

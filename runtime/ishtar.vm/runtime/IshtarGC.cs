@@ -7,11 +7,13 @@ namespace ishtar
     using vein.runtime;
     using static vein.runtime.VeinTypeCode;
 
-    public unsafe class IshtarGC
+    public unsafe class IshtarGC : IDisposable
     {
         private readonly VirtualMachine _vm;
-        private readonly SortedSet<nint> heap = new();
         public readonly GCStats Stats = new();
+        private readonly LinkedList<nint> RefsHeap = new();
+        private readonly LinkedList<nint> ImmortalHeap = new();
+        private readonly LinkedList<nint> TemporaryHeap = new();
         public class GCStats
         {
             public ulong total_allocations;
@@ -22,6 +24,27 @@ namespace ishtar
         public IshtarObject* root;
         public VirtualMachine VM => _vm;
 
+
+        public void Dispose()
+        {
+            foreach (var p in TemporaryHeap)
+            {
+                NativeMemory.Free((void*)p);
+                Stats.total_allocations--;
+                Stats.total_bytes_requested -= (ulong)sizeof(stackval);
+            }
+
+            if (Stats.total_allocations != 0)
+            {
+                _vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_allocations is not zero ({Stats.total_allocations})", VM.Frames.GarbageCollector());
+                return;
+            }
+            if (Stats.total_bytes_requested != 0)
+            {
+                _vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_bytes_requested is not zero ({Stats.total_bytes_requested})", VM.Frames.GarbageCollector());
+                return;
+            }
+        }
 
         /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
         public IshtarGC(VirtualMachine vm)
@@ -34,6 +57,8 @@ namespace ishtar
             Stats.alive_objects++;
             Stats.total_allocations++;
             root = p;
+
+            RefsHeap.AddFirst((nint)p);
         }
 
 
@@ -44,6 +69,9 @@ namespace ishtar
             Stats.total_allocations++;
             Stats.total_bytes_requested += (ulong)sizeof(ImmortalObject<T>);
             p->Create(new T());
+
+            ImmortalHeap.AddLast((nint)p);
+
             return p;
         }
 
@@ -51,6 +79,9 @@ namespace ishtar
         {
             Stats.total_allocations--;
             Stats.total_bytes_requested -= (ulong)sizeof(ImmortalObject<T>);
+
+            ImmortalHeap.Remove((nint)p);
+
             p->Delete();
             NativeMemory.Free(p);
         }
@@ -61,7 +92,28 @@ namespace ishtar
             var p = (stackval*) NativeMemory.AllocZeroed((UIntPtr)sizeof(stackval));
             Stats.total_allocations++;
             Stats.total_bytes_requested += (ulong)sizeof(stackval);
+
+            TemporaryHeap.AddLast((nint)p);
             return p;
+        }
+
+
+        public stackval* AllocateStack(CallFrame frame, int size)
+        {
+            var p = (stackval*)NativeMemory.AllocZeroed((UIntPtr)(sizeof(stackval) * size));
+            _vm.println($"Allocated stack '{size}' for '{frame.method}'");
+
+            Stats.total_allocations++;
+            Stats.total_bytes_requested += (ulong)(sizeof(stackval) * size);
+            return p;
+        }
+
+        public void FreeStack(CallFrame frame, stackval* stack, int size)
+        {
+            NativeMemory.Free(stack);
+
+            Stats.total_allocations--;
+            Stats.total_bytes_requested -= (ulong)(sizeof(stackval) * size);
         }
 
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
@@ -73,6 +125,15 @@ namespace ishtar
             p->type = @class.TypeCode;
             p->data.l = 0;
             return p;
+        }
+
+        public void FreeValue(stackval* value)
+        {
+            NativeMemory.Free(value);
+            Stats.total_allocations--;
+            Stats.total_bytes_requested -= (ulong)sizeof(stackval);
+
+            TemporaryHeap.Remove((nint)value);
         }
 
 
@@ -278,6 +339,8 @@ namespace ishtar
             Stats.total_bytes_requested += @class.computed_size * (ulong)sizeof(void*);
             Stats.total_bytes_requested += (ulong)sizeof(IshtarObject);
 
+            @class.computed_size = @class.computed_size;
+
             if (node is null || *node is null) fixed (IshtarObject** o = &root)
                     p->owner = o;
             else
@@ -299,6 +362,10 @@ namespace ishtar
             (*obj)->vtable = null;
             (*obj)->clazz = null;
             NativeMemory.Free(*obj);
+
+            Stats.total_bytes_requested -= (*obj)->computedSize * (ulong)sizeof(void*);
+            Stats.total_bytes_requested -= (ulong)sizeof(IshtarObject);
+
             Stats.alive_objects--;
         }
     }

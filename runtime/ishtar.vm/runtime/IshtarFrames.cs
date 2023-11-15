@@ -29,6 +29,11 @@ public class IshtarFrames(VirtualMachine vm)
         method = vm.DefineEmptySystemMethod(".jit")
     };
 
+    public CallFrame GarbageCollector() => new CallFrame(vm)
+    {
+        method = vm.DefineEmptySystemMethod(".gc")
+    };
+
     public CallFrame NativeLoader() => new CallFrame(vm)
     {
         method = vm.DefineEmptySystemMethod(".ffi")

@@ -14,7 +14,7 @@ namespace ishtar
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
-    public unsafe partial class VirtualMachine
+    public unsafe partial class VirtualMachine : IDisposable
     {
         VirtualMachine() {}
 
@@ -39,6 +39,12 @@ namespace ishtar
             vm.FFI = new ForeignFunctionInterface(vm);
             
             return vm;
+        }
+
+        public void Dispose()
+        {
+            Vault.Dispose();
+            GC.Dispose();
         }
 
 
@@ -607,6 +613,9 @@ namespace ishtar
                             {
                                 invocation.assert(child_frame.returnValue is not null, STATE_CORRUPT, "Method has return zero memory.");
                                 *sp = *child_frame.returnValue;
+
+                                GC.FreeValue(child_frame.returnValue);
+
                                 sp++;
                             }
 
