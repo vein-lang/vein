@@ -6,7 +6,7 @@
     },
     "compile vein std - test": {
       "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\vein-std\\test\\test.std.vproj"
+      "commandLineArgs": "build C:\\git\\std\\test\\test.std.vproj"
     },
     "compile hello world": {
       "commandName": "Project",
