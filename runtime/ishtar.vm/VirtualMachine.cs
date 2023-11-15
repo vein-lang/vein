@@ -1,15 +1,15 @@
 namespace ishtar
 {
+    using emit;
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using emit;
-    using static OpCodeValue;
-    using static vein.runtime.VeinTypeCode;
     using vein.extensions;
     using vein.reflection;
     using vein.runtime;
+    using static OpCodeValue;
+    using static vein.runtime.VeinTypeCode;
     using static WNE;
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
@@ -148,18 +148,16 @@ namespace ishtar
             var mh = invocation.method.Header;
             var args = invocation.args;
 
-            var locals = default(stackval*);
+            var locals = default(SmartPointer<stackval>);
 
             var ip = mh.code;
-            fixed (stackval* p = System.GC.AllocateArray<stackval>(mh.max_stack, true))
-                invocation.stack = p;
-            fixed (stackval* p = new stackval[0])
-                locals = p;
+            
+            invocation.stack = stackval.Allocate(invocation, mh.max_stack);
             var stack = invocation.stack;
-            var sp = stack;
+            var sp = stack.Ref;
             var start = ip;
             var end = mh.code + mh.code_size;
-            var end_stack = stack + mh.max_stack;
+            var end_stack = sp + mh.max_stack;
             uint* endfinally_ip = null;
             var zone = default(ProtectedZone);
             void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos - 1;
@@ -179,7 +177,7 @@ namespace ishtar
             {
                 vm_cycle_start:
                 invocation.last_ip = (OpCodeValue)(ushort)*ip;
-                println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)stack) - ((nint)sp))}]");
+                println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)stack.Ref) - ((nint)sp))}]");
 
                 if (invocation.exception is not null && invocation.level == 0)
                     return;
@@ -400,8 +398,8 @@ namespace ishtar
                         ++ip;
                         --sp;
                         invocation.returnValue = &*sp;
-                        stack = null;
-                        locals = null;
+                        stack.Dispose();
+                        locals.Dispose();
                         return;
                     case STSF:
                         {
@@ -501,7 +499,7 @@ namespace ishtar
                         break;
                     case SEH_LEAVE:
                     case SEH_LEAVE_S:
-                        while (sp > invocation.stack) --sp;
+                        while (sp > invocation.stack.Ref) --sp;
                         invocation.last_ip = (OpCodeValue)(*ip);
                         if (*ip == (uint)SEH_LEAVE_S)
                         {
@@ -557,7 +555,7 @@ namespace ishtar
                             var method = GetMethod(tokenIdx, owner, _module, invocation);
                             ++ip;
                             println($"@@@ {owner.NameWithNS}::{method.Name}");
-                            var method_args = stackval.Alloc(method.ArgLength);
+                            var method_args = GC.AllocateStack(child_frame, method.ArgLength);
                             for (int i = 0, y = method.ArgLength - 1; i != method.ArgLength; i++, y--)
                             {
                                 var _a = method.Arguments[y]; // TODO, type eq validate
@@ -603,8 +601,7 @@ namespace ishtar
 
                             (child_frame.level, child_frame.parent, child_frame.method)
                                 = (invocation.level + 1, invocation, method);
-                            fixed (stackval* p = method_args)
-                                child_frame.args = p;
+                            child_frame.args = method_args;
 
                             if (method.IsExtern) exec_method_native(child_frame);
                             else exec_method(child_frame);
@@ -623,19 +620,19 @@ namespace ishtar
                             {
                                 sp->type = TYPE_CLASS;
                                 sp->data.p = (nint)child_frame.exception.value;
-                                (method_args, child_frame) = (null, null);
+
+                                GC.FreeStack(child_frame, method_args, method.ArgLength);
                                 goto exception_handle;
                             }
 
-                            (method_args, child_frame) = (null, null);
+                            GC.FreeStack(child_frame, method_args, method.ArgLength);
                         }
                         break;
                     case LOC_INIT:
                         {
                             ++ip;
                             var locals_size = *ip;
-                            fixed (stackval* p = stackval.Alloc((int)locals_size))
-                                locals = p;
+                            locals = stackval.Allocate(invocation, (ushort)locals_size);
                             ++ip;
                             for (var i = 0u; i != locals_size; i++)
                             {

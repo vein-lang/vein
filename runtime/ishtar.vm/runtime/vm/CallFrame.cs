@@ -14,7 +14,7 @@ namespace ishtar
         public RuntimeIshtarMethod method;
         public stackval* returnValue;
         public stackval* args;
-        public stackval* stack;
+        public SmartPointer<stackval> stack;
         public OpCodeValue last_ip;
         public int level;
         public VirtualMachine vm = vm;

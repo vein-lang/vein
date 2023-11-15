@@ -112,6 +112,8 @@ namespace vein.runtime
             watcher.Stop();
             Console.WriteLine($"Elapsed: {watcher.Elapsed}");
 
+            vm.Dispose();
+
             return 0;
         }
 
