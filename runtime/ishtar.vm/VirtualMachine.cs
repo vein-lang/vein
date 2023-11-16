@@ -43,8 +43,8 @@ namespace ishtar
 
         public void Dispose()
         {
-            Vault.Dispose();
             GC.Dispose();
+            Vault.Dispose();
         }
 
 

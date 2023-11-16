@@ -11,4 +11,7 @@ public readonly unsafe struct SmartPointer<T>(ushort size, CallFrame frame,
 
     public ref T this[int index] => ref Ref[index];
     public ref T this[uint index] => ref Ref[index];
+
+
+    public bool IsNull() => Ref is null;
 }

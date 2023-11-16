@@ -65,6 +65,7 @@ namespace ishtar
         public bool is_inited = false;
         public void** vtable = null;
         public ulong vtable_size = 0;
+        public IshtarGC.ConstantTypeMemory ConstantMemory;
 
         public readonly List<NativeImportEntity> nativeImports = new List<NativeImportEntity>();
 
@@ -83,6 +84,8 @@ namespace ishtar
         {
             if (is_inited)
                 return;
+            ConstantMemory = IshtarGC.ConstantTypeMemory.Create(this, vm.GC);
+
             if (TypeCode is VeinTypeCode.TYPE_RAW)
             {
                 computed_size = (ulong)sizeof(void*);
@@ -133,7 +136,7 @@ namespace ishtar
                 return;
             }
 
-            vtable = (void**)Marshal.AllocHGlobal(new IntPtr(sizeof(void*) * (long)computed_size));
+            vtable = (void**)NativeMemory.AllocZeroed((nuint)(sizeof(void*) * (long)computed_size));
 
             if (vtable == null)
             {
@@ -282,13 +285,22 @@ namespace ishtar
         }
 
 
-        public void* get_field_default_value(RuntimeIshtarField field, VirtualMachine vm)
+        public IshtarObject* get_field_default_value(RuntimeIshtarField field, VirtualMachine vm)
         {
-            if (field.default_value is not null)
+            if (field.default_value != null)
                 return field.default_value;
+            var frame = _sys_frame ??= vm.Frames.VTableFrame(this);
+
             if (field.FieldType.IsPrimitive)
-                return field.default_value = IshtarMarshal.Boxing(_sys_frame ??= vm.Frames.VTableFrame(this),
-                    vm.GC.AllocValue(field.FieldType));
+            {
+                var defaultValue = stackval.Allocate(frame, 1);
+
+                ConstantMemory.RefsPool.AddLast(defaultValue);
+
+                vm.GC.UnsafeAllocValueInto(field.FieldType, defaultValue.Ref);
+
+                return IshtarMarshal.Boxing(frame, defaultValue.Ref);
+            }
             return field.default_value = vm.GC.AllocObject(field.FieldType as RuntimeIshtarClass);
         }
         public new RuntimeIshtarField FindField(string name)
@@ -348,7 +360,7 @@ namespace ishtar
         #region IDisposable
 
         private void ReleaseUnmanagedResources()
-            => Marshal.FreeHGlobal((nint)vtable);
+            => NativeMemory.Free(vtable);
 
         public void Dispose()
         {

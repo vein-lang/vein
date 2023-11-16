@@ -18,6 +18,7 @@ namespace ishtar
         public long __gc_id = -1;
 #endif
 
+        public ulong computedSize;
         
         public RuntimeIshtarClass decodeClass()
         {
