@@ -54,7 +54,7 @@ public unsafe static class B_StringBuilder
         var gc = current.GetGC();
         ForeignFunctionInterface.StaticValidate(current, &arg1);
         arg1->vtable[@class_1.Field["!!buffer"].vtable_offset] =
-            gc.AllocImmortal<StringBuilder>();
+            gc.AllocStatic<StringBuilder>();
         return null;
     }
 
@@ -68,7 +68,7 @@ public unsafe static class B_StringBuilder
         var buffer = (ImmortalObject<StringBuilder>*)arg1->vtable[@class_1.Field["!!buffer"].vtable_offset];
         buffer->Value.Clear();
         var gc = current.GetGC();
-        gc.FreeImmortal(buffer);
+        gc.FreeStatic(buffer);
         return null;
     }
 

@@ -114,7 +114,7 @@ namespace ishtar
         }
 
 
-        public ImmortalObject<T>* AllocImmortal<T>() where T : class, new()
+        public ImmortalObject<T>* AllocStatic<T>() where T : class, new()
         {
             throw null;
             //var allocator = allocatorPool.Rent<ImmortalObject<T>>(out var p);
@@ -143,7 +143,7 @@ namespace ishtar
         private void DeleteDebugData(nint pointer)
             => allocationTreeDebugInfos.Remove(allocationDebugInfos[pointer]);
 
-        public void FreeImmortal<T>(ImmortalObject<T>* p) where T : class, new()
+        public void FreeStatic<T>(ImmortalObject<T>* p) where T : class, new()
         {
             throw null;
             //DeleteDebugData((nint)p);
@@ -453,9 +453,9 @@ namespace ishtar
                 return;
             }
 
-            if (obj->flags.HasFlag(GCFlags.IMMORTAL))
+            if (obj->flags.HasFlag(GCFlags.NATIVE_REF))
             {
-                VM.FastFail(WNE.ACCESS_VIOLATION, "trying free memory of immortal object", frame);
+                VM.FastFail(WNE.ACCESS_VIOLATION, "trying free memory of static native object", frame);
                 return;
             }
             DeleteDebugData((nint)obj);
