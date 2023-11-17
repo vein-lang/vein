@@ -60,7 +60,7 @@ namespace ishtar
             if (callFrame.exception is not null)
                 _frame.exception = callFrame.exception;
 
-            return callFrame.returnValue;
+            return callFrame.returnValue.Ref;
         }
     }
 }

@@ -121,9 +121,9 @@ namespace ishtar
 
             if (frame.method.ReturnType.TypeCode == TYPE_VOID)
                 return;
-            frame.returnValue = GC.AllocValue();
-            frame.returnValue->type = frame.method.ReturnType.TypeCode;
-            frame.returnValue->data.p = (nint)result;
+            frame.returnValue = stackval.Allocate(frame, 1);
+            frame.returnValue.Ref->type = frame.method.ReturnType.TypeCode;
+            frame.returnValue.Ref->data.p = (nint)result;
         }
 
         public void exec_method_native(CallFrame frame)
@@ -608,10 +608,10 @@ namespace ishtar
 
                             if (method.ReturnType.TypeCode != TYPE_VOID)
                             {
-                                invocation.assert(child_frame.returnValue is not null, STATE_CORRUPT, "Method has return zero memory.");
-                                *sp = *child_frame.returnValue;
+                                invocation.assert(!child_frame.returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
+                                *sp = child_frame.returnValue[0];
 
-                                GC.FreeValue(child_frame.returnValue);
+                                child_frame.returnValue.Dispose();
 
                                 sp++;
                             }

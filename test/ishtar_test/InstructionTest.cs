@@ -24,8 +24,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate(result);
-            Assert.AreEqual(code, (*result.returnValue).type);
-            Assert.AreEqual(10, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (result.returnValue[0]).type);
+            Assert.AreEqual(10, (result.returnValue[0]).data.l);
         }
 
         [Test]
@@ -46,8 +46,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate(result);
-            Assert.AreEqual(code, (*result.returnValue).type);
-            Assert.AreEqual(5, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (result.returnValue[0]).type);
+            Assert.AreEqual(5, (result.returnValue[0]).data.l);
         }
 
         [Test]
@@ -66,8 +66,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate(result);
-            Assert.AreEqual(code, (*result.returnValue).type);
-            Assert.AreEqual(5 * 5, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (result.returnValue[0]).type);
+            Assert.AreEqual(5 * 5, (result.returnValue[0]).data.l);
         }
 
         [Test]
@@ -86,8 +86,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate(result);
-            Assert.AreEqual(code, (*result.returnValue).type);
-            Assert.AreEqual(5 / 5, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (result.returnValue[0]).type);
+            Assert.AreEqual(5 / 5, (result.returnValue[0]).data.l);
         }
 
         [Test]
@@ -106,8 +106,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate(result);
-            Assert.AreEqual(code, (*result.returnValue).type);
-            Assert.AreEqual(5 % 5, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (result.returnValue[0]).type);
+            Assert.AreEqual(5 % 5, (result.returnValue[0]).data.l);
         }
 
         [Test]
@@ -127,8 +127,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate(result);
-            Assert.AreEqual(VeinTypeCode.TYPE_R4, (*result.returnValue).type);
-            Assert.AreEqual(expected, (*result.returnValue).data.f_r4);
+            Assert.AreEqual(VeinTypeCode.TYPE_R4, (result.returnValue[0]).type);
+            Assert.AreEqual(expected, (result.returnValue[0]).data.f_r4);
         }
 
         [Test, Ignore("Emit 'ldc.i2.s' resulted in an invalid buffer size value. amount: 4, excepted: 2")]
@@ -148,8 +148,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate(result);
-            Assert.AreEqual(VeinTypeCode.TYPE_R4, (*result.returnValue).type);
-            Assert.AreEqual(expected, (*result.returnValue).data.f_r4);
+            Assert.AreEqual(VeinTypeCode.TYPE_R4, (result.returnValue[0]).type);
+            Assert.AreEqual(expected, (result.returnValue[0]).data.f_r4);
         }
 
         [Test]
@@ -169,8 +169,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate(result);
-            Assert.AreEqual(VeinTypeCode.TYPE_R16, (*result.returnValue).type);
-            Assert.AreEqual((decimal)expected, (*result.returnValue).data.d);
+            Assert.AreEqual(VeinTypeCode.TYPE_R16, (result.returnValue[0]).type);
+            Assert.AreEqual((decimal)expected, (result.returnValue[0]).data.d);
         }
 
         [Test]
@@ -190,8 +190,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate(result);
-            Assert.AreEqual(VeinTypeCode.TYPE_R8, (*result.returnValue).type);
-            Assert.AreEqual((double)expected, (*result.returnValue).data.f);
+            Assert.AreEqual(VeinTypeCode.TYPE_R8, (result.returnValue[0]).type);
+            Assert.AreEqual((double)expected, (result.returnValue[0]).data.f);
         }
 
         [Test]
@@ -210,8 +210,8 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate(result);
-            Assert.AreEqual(code, (*result.returnValue).type);
-            Assert.AreEqual(5 * 5, (*result.returnValue).data.l);
+            Assert.AreEqual(code, (result.returnValue[0]).type);
+            Assert.AreEqual(5 * 5, (result.returnValue[0]).data.l);
         }
 
         [Test]
@@ -226,9 +226,9 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
             Validate();
-            Assert.AreEqual(VeinTypeCode.TYPE_STRING, (*result.returnValue).type);
+            Assert.AreEqual(VeinTypeCode.TYPE_STRING, (result.returnValue[0]).type);
 
-            var obj = (IshtarObject*) result.returnValue->data.p;
+            var obj = (IshtarObject*) result.returnValue[0].data.p;
             Assert.AreEqual(targetStr, IshtarMarshal.ToDotnetString(obj, null));
         }
 
@@ -250,7 +250,7 @@ namespace ishtar_test
                 gen.Emit(OpCodes.RET);
             });
 
-            Assert.AreEqual(142, result.returnValue->data.l);
+            Assert.AreEqual(142, result.returnValue[0].data.l);
         }
 
 

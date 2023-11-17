@@ -40,7 +40,7 @@ public static unsafe class NativeExports
 
         vm.exec_method(callframe);
 
-        return callframe.returnValue;
+        return callframe.returnValue.Ref;
     }
 
     public static class Types

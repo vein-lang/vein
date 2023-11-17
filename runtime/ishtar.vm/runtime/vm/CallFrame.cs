@@ -12,7 +12,7 @@ namespace ishtar
     {
         public CallFrame parent;
         public RuntimeIshtarMethod method;
-        public stackval* returnValue;
+        public SmartPointer<stackval> returnValue;
         public stackval* args;
         public SmartPointer<stackval> stack;
         public OpCodeValue last_ip;
