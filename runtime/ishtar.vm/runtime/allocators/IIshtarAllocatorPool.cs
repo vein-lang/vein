@@ -15,7 +15,7 @@ public unsafe interface IIshtarAllocatorDisposer
 public unsafe interface IIshtarAllocator : IIshtarAllocatorIdentifier, IIshtarAllocatorDisposer
 {
     List<nint> Memory { get; }
-    ulong TotalSize { get; }
+    long TotalSize { get; }
     nint Id { get; }
 
     void* AllocZeroed(ulong size);
@@ -29,13 +29,13 @@ public unsafe interface IIshtarAllocator : IIshtarAllocatorIdentifier, IIshtarAl
 public sealed unsafe class WindowsAllocator : IIshtarAllocator
 {
     public List<nint> Memory { get; } = new();
-    public ulong TotalSize { get; private set; }
+    public long TotalSize { get; private set; }
     public nint Id { get; private set; }
 
 
     public void* AllocZeroed(ulong size)
     {
-        TotalSize += (ulong)size;
+        TotalSize += (long)size;
         var p = NativeMemory.AllocZeroed((nuint)(size));
         Memory.Add((nint)p);
         return p;
@@ -43,7 +43,7 @@ public sealed unsafe class WindowsAllocator : IIshtarAllocator
 
     public void* AllocZeroed(long size)
     {
-        TotalSize += (ulong)size;
+        TotalSize += (long)size;
         var p = NativeMemory.AllocZeroed((nuint)(size));
         Memory.Add((nint)p);
         return p;
@@ -51,7 +51,7 @@ public sealed unsafe class WindowsAllocator : IIshtarAllocator
 
     public void* AllocZeroed(UIntPtr size)
     {
-        TotalSize += (ulong)size;
+        TotalSize += (long)size;
         var p = NativeMemory.AllocZeroed((nuint)(size));
         Memory.Add((nint)p);
         return p;
@@ -59,7 +59,7 @@ public sealed unsafe class WindowsAllocator : IIshtarAllocator
 
     public void* AllocZeroed(IntPtr size)
     {
-        TotalSize += (ulong)size;
+        TotalSize += (long)size;
         var p = NativeMemory.AllocZeroed((nuint)(size));
         Memory.Add((nint)p);
         return p;
@@ -67,7 +67,7 @@ public sealed unsafe class WindowsAllocator : IIshtarAllocator
 
     public void* AllocZeroed(int size)
     {
-        TotalSize += (ulong)size;
+        TotalSize += (long)size;
         var p = NativeMemory.AllocZeroed((nuint)(size));
         Memory.Add((nint)p);
         return p;
@@ -85,7 +85,7 @@ public sealed unsafe class WindowsAllocator : IIshtarAllocator
 public sealed unsafe class NullAllocator : IIshtarAllocator
 {
     public List<IntPtr> Memory { get; }
-    public ulong TotalSize { get; }
+    public long TotalSize { get; }
     public IntPtr Id { get; }
 
     public void* AllocZeroed(ulong size) => throw new NotImplementedException();
@@ -108,8 +108,8 @@ public unsafe interface IIshtarAllocatorPool
 {
     IIshtarAllocator Rent<T>(out T* output) where T : unmanaged;
     IIshtarAllocator RentArray<T>(out T* output, int size) where T : unmanaged;
-    ulong Return(nint p);
-    ulong Return(void* p);
+    long Return(nint p);
+    long Return(void* p);
 }
 
 public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
@@ -160,7 +160,7 @@ public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
         return allocator;
     }
 
-    public ulong Return(nint p)
+    public long Return(nint p)
     {
         var allocator = _allocators[p];
 
@@ -169,5 +169,5 @@ public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
         return allocator.TotalSize;
     }
 
-    public ulong Return(void* p) => Return((nint)p);
+    public long Return(void* p) => Return((nint)p);
 }

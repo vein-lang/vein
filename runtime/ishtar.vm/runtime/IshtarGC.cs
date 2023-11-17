@@ -27,8 +27,20 @@ namespace ishtar
 
         public class GCStats
         {
-            public ulong total_allocations;
-            public ulong total_bytes_requested;
+            private ulong TotalAllocation;
+            private ulong TotalBytesAllocated;
+
+            public long total_allocations
+            {
+                get => (long)TotalAllocation;
+                set => TotalAllocation = checked((ulong)value);
+            }
+
+            public long total_bytes_requested
+            {
+                set => TotalBytesAllocated = checked((ulong)value);
+                get => (long)TotalBytesAllocated;
+            }
             public ulong alive_objects;
         }
 
@@ -36,7 +48,7 @@ namespace ishtar
         {
             public string Trace;
 
-            public void Bump() => Trace = new System.Diagnostics.StackTrace().ToString();
+            public void Bump() => Trace = new System.Diagnostics.StackTrace(true).ToString();
         }
 
         public class ConstantTypeMemory(RuntimeIshtarClass @class) : IDisposable
@@ -160,9 +172,10 @@ namespace ishtar
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
         public stackval* AllocValue()
         {
-            allocatorPool.Rent<stackval>(out var p);
+            var allocator = allocatorPool.Rent<stackval>(out var p);
 
             Stats.total_allocations++;
+            Stats.total_bytes_requested += allocator.TotalSize;
 
             TemporaryHeap.AddLast((nint)p);
             InsertDebugData(new((ulong)sizeof(stackval),
@@ -178,7 +191,7 @@ namespace ishtar
             _vm.println($"Allocated stack '{size}' for '{frame.method}'");
 
             Stats.total_allocations++;
-            Stats.total_bytes_requested += (ulong)(sizeof(stackval) * size);
+            Stats.total_bytes_requested += (sizeof(stackval) * size);
 
             InsertDebugData(new((ulong)(sizeof(stackval) * size),
                 nameof(AllocateStack), (nint)p));
@@ -303,7 +316,7 @@ namespace ishtar
             IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
 
 
-            InsertDebugData(new(allocator.TotalSize,
+            InsertDebugData(new(checked((ulong)allocator.TotalSize),
                 nameof(AllocArray), (nint)arr_obj));
 
             ArrayRefsHeap.AddLast((nint)arr_obj);
@@ -427,11 +440,11 @@ namespace ishtar
             p->__gc_id = (long)Stats.alive_objects++;
             p->m1 = IshtarObject.magic1;
             p->m2 = IshtarObject.magic2;
-            IshtarObject.CreationTrace[p->__gc_id] = new StackTrace().ToString();
+            IshtarObject.CreationTrace[p->__gc_id] = Environment.StackTrace;
+            var st = new StackTrace(true);
 #else
             Stats.alive_objects++;
 #endif
-
             @class.computed_size = @class.computed_size;
 
             if (node is null || *node is null) fixed (IshtarObject** o = &root)
@@ -439,7 +452,10 @@ namespace ishtar
             else
                 p->owner = node;
 
-            InsertDebugData(new(allocator.TotalSize, nameof(AllocObject), (nint)p));
+            Stats.total_allocations++;
+            Stats.total_bytes_requested += allocator.TotalSize;
+
+            InsertDebugData(new(checked((ulong)allocator.TotalSize), nameof(AllocObject), (nint)p));
             RefsHeap.AddLast((nint)p);
 
             return p;
@@ -464,8 +480,7 @@ namespace ishtar
             if (obj->clazz != null)
                 GCHandle.FromIntPtr((nint)obj->clazz).Free();
 
-            allocatorPool.Return(obj);
-
+            Stats.total_bytes_requested -= allocatorPool.Return(obj);
             Stats.total_allocations--;
             Stats.alive_objects--;
         }
