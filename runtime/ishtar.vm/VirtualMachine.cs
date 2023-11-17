@@ -397,7 +397,8 @@ namespace ishtar
                     case RET:
                         ++ip;
                         --sp;
-                        invocation.returnValue = &*sp;
+                        invocation.returnValue = stackval.Allocate(invocation, 1);
+                        invocation.returnValue[0] = *sp;
                         stack.Dispose();
                         locals.Dispose();
                         return;
