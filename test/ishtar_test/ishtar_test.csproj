@@ -4,6 +4,11 @@
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DebugSymbols>True</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\runtime\ishtar.vm\ishtar.vm.csproj" />
     <ProjectReference Include="..\..\compiler\veinc.csproj" />

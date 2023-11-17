@@ -38,6 +38,7 @@ namespace ishtar_test
         private readonly dynamic _context;
         private ClassBuilder @class;
         internal string UID { get; }
+        internal CallFrame entryPointFrame;
 
         public VirtualMachine vm { get; }
 
@@ -74,7 +75,7 @@ namespace ishtar_test
                 c.init_vtable(vm);
             foreach (var c in runtimeModule.class_table.OfType<RuntimeIshtarClass>())
                 c.init_vtable(vm);
-            return RunIt(entry_point);
+            return entryPointFrame = RunIt(entry_point);
         }
 
         private unsafe CallFrame RunIt(RuntimeIshtarMethod entry)
@@ -89,7 +90,7 @@ namespace ishtar_test
                 level = 0
             };
             vm.exec_method(frame);
-            return frame;
+            return entryPointFrame = frame;
         }
 
         public IshtarTestContext(string testCase, VeinModuleBuilder module, VirtualMachine vm)
@@ -101,11 +102,19 @@ namespace ishtar_test
             _context = new ExpandoObject();
             vm.watcher = new TestWatchDog();
         }
+
+        private bool isDisposed;
+
         public void Dispose()
         {
+            if (isDisposed) return;
+
+            entryPointFrame.returnValue.Dispose();
             StringStorage.storage_l.Clear();
             StringStorage.storage_r.Clear();
             vm.CurrentException = null;
+
+            isDisposed = true;
         }
 
         public void EnsureType(QualityTypeName type) => _module.InternTypeName(type);
@@ -159,7 +168,12 @@ namespace ishtar_test
         }
 
         protected IshtarTestContext CreateContext([CallerMemberName] string caller = "<unnamed>")
-            => new(caller, _module, _vm);
+        {
+            var ctx = new IshtarTestContext(caller, _module, _vm);
+            toDisposables.Add(ctx);
+            return ctx;
+        }
+
         void IDisposable.Dispose() => Shutdown();
 
         protected void Validate()
@@ -176,8 +190,14 @@ namespace ishtar_test
             }
         }
 
+        private List<IDisposable> toDisposables = new List<IDisposable>();
+
         protected virtual void StartUp() { }
 
-        protected virtual void Shutdown() => _vm.Dispose();
+        protected virtual void Shutdown()
+        {
+            foreach (var disposable in toDisposables) disposable.Dispose();
+            _vm.Dispose();
+        }
     }
 }
