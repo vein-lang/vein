@@ -109,7 +109,7 @@ namespace ishtar_test
         {
             if (isDisposed) return;
 
-            entryPointFrame.returnValue.Dispose();
+            entryPointFrame?.returnValue.Dispose();
             StringStorage.storage_l.Clear();
             StringStorage.storage_r.Clear();
             vm.CurrentException = null;
