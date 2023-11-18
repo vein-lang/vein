@@ -240,8 +240,9 @@ namespace ishtar
         {
             DeleteDebugData((nint)array);
             ArrayRefsHeap.Remove((nint)array);
-            Stats.total_allocations--;
             Stats.total_bytes_requested -= allocatorPool.Return(array);
+            Stats.total_allocations--;
+            Stats.alive_objects--;
         }
 
         public IshtarArray* AllocArray(RuntimeIshtarClass @class, ulong size, byte rank, IshtarObject** node = null, CallFrame frame = null)
@@ -318,6 +319,11 @@ namespace ishtar
 
             InsertDebugData(new(checked((ulong)allocator.TotalSize),
                 nameof(AllocArray), (nint)arr_obj));
+
+
+            Stats.total_bytes_requested += allocator.TotalSize;
+            Stats.total_allocations++;
+            Stats.alive_objects++;
 
             ArrayRefsHeap.AddLast((nint)arr_obj);
 
