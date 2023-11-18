@@ -393,7 +393,6 @@ namespace ishtar
                             var size = sp->data.ul;
                             --sp;
                             var typeID = GetClass(sp->data.ui, _module, invocation);
-                            --sp;
                             sp->type = TYPE_ARRAY;
                             if (invocation.method.IsStatic)
                                 sp->data.p = (nint)GC.AllocArray(typeID, size, 1, null, invocation);
