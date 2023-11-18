@@ -1,5 +1,6 @@
 namespace ishtar.allocators;
 
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 public interface IIshtarAllocatorIdentifier
@@ -14,7 +15,6 @@ public unsafe interface IIshtarAllocatorDisposer
 
 public unsafe interface IIshtarAllocator : IIshtarAllocatorIdentifier, IIshtarAllocatorDisposer
 {
-    List<nint> Memory { get; }
     long TotalSize { get; }
     nint Id { get; }
 
@@ -25,8 +25,182 @@ public unsafe interface IIshtarAllocator : IIshtarAllocatorIdentifier, IIshtarAl
     void* AllocZeroed(int size);
 }
 
+public sealed unsafe class DebugManagedAllocator : IIshtarAllocator
+{
+    private List<ManagedMemHandle> handles = new List<ManagedMemHandle>();
+
+    public long TotalSize { get; private set; }
+    public nint Id { get; private set; }
+
+
+
+    private void* Alloc(nint size)
+    {
+        var handle = System.GC.AllocateArray<byte>((int)size, true);
+
+        fixed (byte* p = handle)
+        {
+            handles.Add(new(size, handle, (nint)p));
+
+            return p;
+        }
+    }
+
+
+    internal record struct ManagedMemHandle(nint size, byte[] handle, nint originalAddr);
+
+    public void* AllocZeroed(ulong size)
+    {
+        TotalSize += (long)size;
+        return Alloc((nint)size);
+    }
+
+    public void* AllocZeroed(long size)
+    {
+        TotalSize += (long)size;
+        return Alloc((nint)size);
+    }
+
+    public void* AllocZeroed(UIntPtr size)
+    {
+        TotalSize += (long)size;
+        return Alloc((nint)size);
+    }
+
+    public void* AllocZeroed(IntPtr size)
+    {
+        TotalSize += (long)size;
+        return Alloc((nint)size);
+    }
+
+    public void* AllocZeroed(int size)
+    {
+        TotalSize += (long)size;
+        return Alloc((nint)size);
+    }
+
+    void IIshtarAllocatorIdentifier.SetId(nint id) => Id = id;
+
+    public static void AssertStackStillSizeEqual(stackval* pointer, int size = 64)
+    {
+        //var p = (nint)(pointer);
+        //var handler = GCHandle.FromIntPtr(p);
+        //var bytes = (byte[])handler.Target;
+
+
+        //var original = IshtarAllocatorPool.pool._allocators[(nint)pointer];
+
+        //var o = (original as DebugManagedAllocator).handles;
+
+        //var b = o[0];
+
+
+        //Console.WriteLine("");
+    }
+
+    void IIshtarAllocatorDisposer.FreeAll()
+    {
+        foreach (var p in handles)
+        {
+            //if (!p.handle.IsAllocated)
+            //    throw new AccessViolationException("Trying free already disposed memory");
+            //var targetBytes = (byte[])p.handle.Target;
+
+            //var otherHandler = GCHandle.FromIntPtr(p.originalAddr);
+            //var otherBytes = (byte[])otherHandler.Target;
+            Console.WriteLine(p.size);
+            byte* a = (byte*)p.originalAddr;
+            
+            //if (targetBytes.Length != p.size)
+            //    throw new AccessViolationException("Unequal size of memory trying dispose");
+
+            //p.handle.Free();
+        }
+        handles.Clear();
+    }
+}
+
 
 public sealed unsafe class WindowsAllocator : IIshtarAllocator
+{
+    public long TotalSize { get; private set; }
+    public nint Id { get; private set; }
+
+    private List<HeapMemRef> Heaps = new List<HeapMemRef>();
+
+
+    internal static class Native
+    {
+        [DllImport("Kernel32")]
+        public static extern nint GetProcessHeap();
+
+        [DllImport("Kernel32")]
+        public static extern nint HeapAlloc([In] nint handle, [In] uint dwFlags, [In] nint dwBytes);
+
+        [DllImport("Kernel32")]
+        public static extern nint HeapFree([In] nint handle, [In] uint dwFlags, [In] nint target);
+    }
+
+    internal record struct HeapMemRef(nint heapHandle, nint memPtr, nint size);
+
+    private nint AllocFromHeap(nint size)
+    {
+        var heapHandle = Native.GetProcessHeap();
+        
+        var mem = Native.HeapAlloc(heapHandle, 0x00000008 | 0x00000004 | 0x00000001, size);
+
+        Heaps.Add(new(heapHandle, mem, size));
+
+        return mem;
+    }
+
+
+    public void* AllocZeroed(ulong size)
+    {
+        TotalSize += (long)size;
+        return (void*)AllocFromHeap((nint)size);
+    }
+
+    public void* AllocZeroed(long size)
+    {
+        TotalSize += (long)size;
+        return (void*)AllocFromHeap((nint)size);
+    }
+
+    public void* AllocZeroed(UIntPtr size)
+    {
+        TotalSize += (long)size;
+        return (void*)AllocFromHeap((nint)size);
+    }
+
+    public void* AllocZeroed(IntPtr size)
+    {
+        TotalSize += (long)size;
+        return (void*)AllocFromHeap((nint)size);
+    }
+
+    public void* AllocZeroed(int size)
+    {
+        TotalSize += (long)size;
+        return (void*)AllocFromHeap((nint)size);
+    }
+
+    void IIshtarAllocatorIdentifier.SetId(nint id) => Id = id;
+
+    void IIshtarAllocatorDisposer.FreeAll()
+    {
+        foreach (var p in Heaps)
+        {
+            var result = Native.HeapFree(p.heapHandle, 0x00000001, p.memPtr);
+            var lastError = Marshal.GetLastWin32Error();
+            if (result != 0 && lastError != 0)
+                throw new InsufficientMemoryException($"Failed dispose heap memory, error: {lastError} {Marshal.GetLastPInvokeErrorMessage()}");
+        }
+        Heaps.Clear();
+    }
+}
+
+public sealed unsafe class NativeMemory_WindowsAllocator : IIshtarAllocator
 {
     public List<nint> Memory { get; } = new();
     public long TotalSize { get; private set; }
@@ -77,7 +251,8 @@ public sealed unsafe class WindowsAllocator : IIshtarAllocator
 
     void IIshtarAllocatorDisposer.FreeAll()
     {
-        foreach (var p in Memory) NativeMemory.Free((void*)p);
+        foreach (var p in Memory)
+            NativeMemory.Free((void*)p);
         Memory.Clear();
     }
 }
@@ -114,13 +289,17 @@ public unsafe interface IIshtarAllocatorPool
 
 public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
 {
-    private readonly Dictionary<nint, IIshtarAllocator> _allocators = new();
+    internal readonly Dictionary<nint, IIshtarAllocator> _allocators = new();
+
+    public static IshtarAllocatorPool pool;
+
+    public IshtarAllocatorPool() => pool = this;
 
     public IIshtarAllocator Rent<T>(out T* output) where T : unmanaged
     {
         var allocator = 
 #if WINDOWS
-        new WindowsAllocator();
+        new NativeMemory_WindowsAllocator();
 #elif LINUX
         new NullAllocator();
 #elif OSX
@@ -142,7 +321,7 @@ public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
     {
         var allocator = 
 #if WINDOWS
-            new WindowsAllocator();
+            new DebugManagedAllocator();
 #elif LINUX
         new NullAllocator();
 #elif OSX
