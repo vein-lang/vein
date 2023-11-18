@@ -187,13 +187,13 @@ namespace ishtar
 
         public stackval* AllocateStack(CallFrame frame, int size)
         {
-            allocatorPool.RentArray<stackval>(out var p, size);
+            var allocator = allocatorPool.RentArray<stackval>(out var p, size);
             _vm.println($"Allocated stack '{size}' for '{frame.method}'");
 
             Stats.total_allocations++;
-            Stats.total_bytes_requested += (sizeof(stackval) * size);
+            Stats.total_bytes_requested += allocator.TotalSize;
 
-            InsertDebugData(new((ulong)(sizeof(stackval) * size),
+            InsertDebugData(new((ulong)allocator.TotalSize,
                 nameof(AllocateStack), (nint)p));
 
             ImmortalHeap.AddLast((nint)p);
