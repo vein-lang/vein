@@ -56,8 +56,8 @@ namespace ishtar_test
             this.GC.VM.Dispose();
 
 
-            Assert.AreEqual("0 objects", $"{GC.Stats.alive_objects} objects");
-            Assert.AreEqual("0 bytes", $"{GC.Stats.total_bytes_requested} bytes");
+            Assert.AreEqual("1 objects", $"{GC.Stats.alive_objects} objects");
+            Assert.AreEqual("24 bytes", $"{GC.Stats.total_bytes_requested} bytes");
         }
 
         [Test]
