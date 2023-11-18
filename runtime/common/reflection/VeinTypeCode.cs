@@ -4,7 +4,7 @@ namespace vein.runtime;
 using System;
 using static VeinTypeCode;
 
-public enum VeinTypeCode
+public enum VeinTypeCode : int
 {
     TYPE_NONE = 0x0,
     TYPE_VOID,

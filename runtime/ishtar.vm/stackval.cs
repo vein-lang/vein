@@ -17,12 +17,27 @@ namespace ishtar
 
         public static unsafe SmartPointer<stackval> Allocate(CallFrame frame, ushort size)
         {
-            static stackval* alloc(CallFrame frame, int size)
+            if (size == 0)
+                throw new ArgumentException($"size is not allowed zero");
+
+            static stackval* allocArray(CallFrame frame, int size)
                 => frame.vm.GC.AllocateStack(frame, size);
-            static void free(CallFrame frame, stackval* stack, int size)
+            static void freeArray(CallFrame frame, stackval* stack, int size)
                 => frame.vm.GC.FreeStack(frame, stack, size);
 
-            return new SmartPointer<stackval>(size, frame, &alloc, &free);
+            static stackval* alloc(CallFrame frame, int size)
+                => frame.vm.GC.AllocValue();
+            static void free(CallFrame frame, stackval* stack, int size)
+                => frame.vm.GC.FreeValue(stack);
+
+
+            var p = new SmartPointer<stackval>(size, frame,
+                size == 1 ? &alloc : &allocArray,
+                size == 1 ? &free : &freeArray);
+#if DEBUG
+            p.CaptureAddress();
+#endif
+            return p;
         }
     }
 }

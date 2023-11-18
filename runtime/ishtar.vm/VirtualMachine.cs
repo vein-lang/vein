@@ -5,6 +5,7 @@ namespace ishtar
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
+    using allocators;
     using vein.extensions;
     using vein.reflection;
     using vein.runtime;
@@ -140,6 +141,28 @@ namespace ishtar
                 exec_method_internal_native(frame);
         }
 
+        private void create_violation_zone_for_stack(SmartPointer<stackval> stack, int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                stack[i].type = (VeinTypeCode)int.MaxValue;
+                stack[i].data.l = long.MaxValue;
+            }
+        }
+        private bool assert_violation_zone_writes(CallFrame frame, SmartPointer<stackval> stack, int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                if (stack[i].type != (VeinTypeCode)int.MaxValue || stack[i].data.l != long.MaxValue)
+                {
+                    FastFail(STATE_CORRUPT, "stack write to an violation zone has been detected, ", frame);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
         public void exec_method(CallFrame invocation)
         {
             println($"@.frame> {invocation.method.Owner.Name}::{invocation.method.Name}");
@@ -151,10 +174,14 @@ namespace ishtar
             var locals = default(SmartPointer<stackval>);
 
             var ip = mh.code;
-            
-            invocation.stack = stackval.Allocate(invocation, mh.max_stack);
-            var stack = invocation.stack;
-            var sp = stack.Ref;
+            var stack = stackval.Allocate(invocation, mh.max_stack);
+
+            const int STACK_VIOLATION_LEVEL_SIZE = 32;
+
+            create_violation_zone_for_stack(stack, STACK_VIOLATION_LEVEL_SIZE);
+
+            var sp = stack.Ref + STACK_VIOLATION_LEVEL_SIZE;
+            var sp_start = sp;
             var start = ip;
             var end = mh.code + mh.code_size;
             var end_stack = sp + mh.max_stack;
@@ -177,7 +204,7 @@ namespace ishtar
             {
                 vm_cycle_start:
                 invocation.last_ip = (OpCodeValue)(ushort)*ip;
-                println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)stack.Ref) - ((nint)sp))}]");
+                println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)sp) - ((nint)sp))}]");
 
                 if (invocation.exception is not null && invocation.level == 0)
                     return;
@@ -190,9 +217,19 @@ namespace ishtar
 
                 if (sp >= end_stack)
                 {
-                    FastFail(OVERFLOW, "stack overflow error.", invocation);
+                    FastFail(OVERFLOW, "stack overflow dectected.", invocation);
                     continue;
                 }
+
+                if (sp < sp_start)
+                {
+                    FastFail(OVERFLOW, "incorrect sp address beyond sp_start was detected", invocation);
+                    continue;
+                }
+
+                if (!assert_violation_zone_writes(invocation, stack, STACK_VIOLATION_LEVEL_SIZE))
+                    continue;
+
 
                 switch (invocation.last_ip)
                 {
@@ -500,7 +537,7 @@ namespace ishtar
                         break;
                     case SEH_LEAVE:
                     case SEH_LEAVE_S:
-                        while (sp > invocation.stack.Ref) --sp;
+                        while (sp > sp_start) --sp;
                         invocation.last_ip = (OpCodeValue)(*ip);
                         if (*ip == (uint)SEH_LEAVE_S)
                         {
