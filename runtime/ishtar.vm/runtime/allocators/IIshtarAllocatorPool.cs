@@ -290,16 +290,12 @@ public unsafe interface IIshtarAllocatorPool
 public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
 {
     internal readonly Dictionary<nint, IIshtarAllocator> _allocators = new();
-
-    public static IshtarAllocatorPool pool;
-
-    public IshtarAllocatorPool() => pool = this;
-
+    
     public IIshtarAllocator Rent<T>(out T* output) where T : unmanaged
     {
         var allocator = 
 #if WINDOWS
-        new NativeMemory_WindowsAllocator();
+            new NativeMemory_WindowsAllocator();
 #elif LINUX
         new NullAllocator();
 #elif OSX
@@ -321,7 +317,7 @@ public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
     {
         var allocator = 
 #if WINDOWS
-            new DebugManagedAllocator();
+            new NativeMemory_WindowsAllocator();
 #elif LINUX
         new NullAllocator();
 #elif OSX
