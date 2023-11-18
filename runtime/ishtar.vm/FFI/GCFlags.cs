@@ -6,6 +6,7 @@ namespace ishtar
     public enum GCFlags
     {
         NONE = 0,
-        IMMORTAL = 1 << 1,
+        NATIVE_REF = 1 << 1,
+        IMMORTAL = 1 << 2,
     }
 }

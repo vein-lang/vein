@@ -10,10 +10,10 @@ public static unsafe class NativeExports
 {
     public static void VM_INIT()
     {
-        var vm = VM.Create("app");
+        var vm = VirtualMachine.Create("app");
     }
 
-    public static stackval* VM_EXECUTE_METHOD(VM vm, Types.FrameRef* frame)
+    public static stackval* VM_EXECUTE_METHOD(VirtualMachine vm, Types.FrameRef* frame)
     {
         var vault = vm.Vault;
         var type = vault.GlobalFindType(*frame->runtime_token);
@@ -40,7 +40,7 @@ public static unsafe class NativeExports
 
         vm.exec_method(callframe);
 
-        return callframe.returnValue;
+        return callframe.returnValue.Ref;
     }
 
     public static class Types

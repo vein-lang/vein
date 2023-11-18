@@ -5,9 +5,9 @@ namespace vein.runtime
 
     public class IshtarCore : VeinCore
     {
-        private readonly VM _vm;
+        private readonly VirtualMachine _vm;
 
-        public IshtarCore(VM vm)
+        public IshtarCore(VirtualMachine vm)
         {
             _vm = vm;
             Init();

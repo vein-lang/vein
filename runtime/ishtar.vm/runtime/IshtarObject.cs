@@ -1,5 +1,7 @@
 namespace ishtar
 {
+    using System.Diagnostics;
+
     public unsafe struct IshtarObject
     {
         public IshtarObject() {}
@@ -16,8 +18,27 @@ namespace ishtar
         public IshtarObject** owner;
 #if DEBUG
         public long __gc_id = -1;
+
+        public const long magic1 = 753;
+        public const long magic2 = 472;
+
+        public long m1 = magic1;
+        public long m2 = magic2;
+        public static Dictionary<long, string> CreationTrace = new();
+
+        public string CreationTraceData => CreationTrace[__gc_id];
 #endif
 
+
+        public bool IsValidObject()
+        {
+#if DEBUG
+            return m1 == magic1 && m2 == magic2;
+#endif
+            return true;
+        }
+
+        public ulong computedSize;
         
         public RuntimeIshtarClass decodeClass()
         {

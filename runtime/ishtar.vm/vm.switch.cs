@@ -3,7 +3,7 @@ namespace ishtar
     using System.Collections.Generic;
     using vm;
 
-    public partial class VM
+    public partial class VirtualMachine
     {
         public class VMConfig
         {

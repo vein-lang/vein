@@ -2,7 +2,7 @@ namespace ishtar;
 
 using vein.runtime;
 
-public class IshtarFrames(VM vm)
+public class IshtarFrames(VirtualMachine vm)
 {
     public CallFrame ModuleLoaderFrame = new CallFrame(vm)
     {
@@ -27,6 +27,11 @@ public class IshtarFrames(VM vm)
     public CallFrame Jit() => new CallFrame(vm)
     {
         method = vm.DefineEmptySystemMethod(".jit")
+    };
+
+    public CallFrame GarbageCollector() => new CallFrame(vm)
+    {
+        method = vm.DefineEmptySystemMethod(".gc")
     };
 
     public CallFrame NativeLoader() => new CallFrame(vm)

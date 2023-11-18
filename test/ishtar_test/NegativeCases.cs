@@ -5,13 +5,17 @@ namespace ishtar_test
 
     public class NegativeCases : IshtarTestBase
     {
-        [Test, Ignore("So, fucking CI has randomly crash other test")]
+        [Test]
         [Parallelizable(ParallelScope.None)]
-        public unsafe void IncorrectPointerCrashTest() =>
+        public unsafe void IncorrectPointerCrashTest()
+        {
+            using var ctx = CreateContext();
+
             Assert.Throws<WatchDogEffluentException>(() =>
             {
                 var invalid = (StrRef*)ulong.MaxValue;
-                StringStorage.GetString(invalid, null);
+                StringStorage.GetString(invalid, ctx.vm.Frames.EntryPoint);
             });
+        }
     }
 }

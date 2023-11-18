@@ -10,7 +10,7 @@ namespace ishtar
         { }
 
         public uint vtable_offset;
-        public void* default_value;
+        public IshtarObject* default_value;
 
 
         public bool init_mapping(CallFrame frame)

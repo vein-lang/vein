@@ -29,7 +29,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
             x.Emit(OpCodes.RET);
         });
 
-        Assert.AreEqual(result.returnValue->data.i, 225 * 2);
+        Assert.AreEqual(result.returnValue[0].data.i, 225 * 2);
     }
 
     [Test]
@@ -60,7 +60,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
             x.Emit(OpCodes.RET);
         });
 
-        Assert.AreEqual(result.returnValue->data.i, 2 * 2 * 2);
+        Assert.AreEqual(result.returnValue[0].data.i, 2 * 2 * 2);
     }
 
     [Test, Ignore("LDNULL cause crash ishtar.")]

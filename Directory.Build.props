@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <DefineConstants>STATIC_VALIDATE_IL;DEBUG_VTABLE;VALIDATE_RUNTIME_TOKEN;DEBUG</DefineConstants>
+    <DefineConstants>$(DefineConstants);STATIC_VALIDATE_IL;DEBUG_VTABLE;VALIDATE_RUNTIME_TOKEN;DEBUG</DefineConstants>
     <TargetFramework>net8.0</TargetFramework>
     <InvariantGlobalization>true</InvariantGlobalization>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -31,4 +31,15 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
   </ItemGroup>
+
+
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+    <DefineConstants>$(DefineConstants);OSX</DefineConstants>
+  </PropertyGroup>
 </Project>

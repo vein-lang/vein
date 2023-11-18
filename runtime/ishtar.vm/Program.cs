@@ -43,7 +43,7 @@ namespace vein.runtime
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Console.OutputEncoding = Encoding.Unicode;
-            var vm = VM.Create("app");
+            var vm = VirtualMachine.Create("app");
             var vault = vm.Vault;
 
             var masterModule = default(IshtarAssembly);
@@ -111,6 +111,8 @@ namespace vein.runtime
 
             watcher.Stop();
             Console.WriteLine($"Elapsed: {watcher.Elapsed}");
+
+            vm.Dispose();
 
             return 0;
         }

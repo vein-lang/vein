@@ -1,27 +1,28 @@
 namespace ishtar
 {
+    using emit;
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using emit;
-    using static OpCodeValue;
-    using static vein.runtime.VeinTypeCode;
+    using allocators;
     using vein.extensions;
     using vein.reflection;
     using vein.runtime;
+    using static OpCodeValue;
+    using static vein.runtime.VeinTypeCode;
     using static WNE;
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
-    public unsafe partial class VM
+    public unsafe partial class VirtualMachine : IDisposable
     {
-        VM() {}
+        VirtualMachine() {}
 
         /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
-        public static VM Create(string name)
+        public static VirtualMachine Create(string name)
         {
-            var vm = new VM();
+            var vm = new VirtualMachine();
             vm.Vault = new AppVault(vm, name);
             vm.trace = new IshtarTrace();
             vm.Types = new IshtarCore(vm);
@@ -39,6 +40,12 @@ namespace ishtar
             vm.FFI = new ForeignFunctionInterface(vm);
             
             return vm;
+        }
+
+        public void Dispose()
+        {
+            GC.Dispose();
+            Vault.Dispose();
         }
 
 
@@ -115,9 +122,9 @@ namespace ishtar
 
             if (frame.method.ReturnType.TypeCode == TYPE_VOID)
                 return;
-            frame.returnValue = GC.AllocValue();
-            frame.returnValue->type = frame.method.ReturnType.TypeCode;
-            frame.returnValue->data.p = (nint)result;
+            frame.returnValue = stackval.Allocate(frame, 1);
+            frame.returnValue.Ref->type = frame.method.ReturnType.TypeCode;
+            frame.returnValue.Ref->data.p = (nint)result;
         }
 
         public void exec_method_native(CallFrame frame)
@@ -134,6 +141,28 @@ namespace ishtar
                 exec_method_internal_native(frame);
         }
 
+        private void create_violation_zone_for_stack(SmartPointer<stackval> stack, int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                stack[i].type = (VeinTypeCode)int.MaxValue;
+                stack[i].data.l = long.MaxValue;
+            }
+        }
+        private bool assert_violation_zone_writes(CallFrame frame, SmartPointer<stackval> stack, int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                if (stack[i].type != (VeinTypeCode)int.MaxValue || stack[i].data.l != long.MaxValue)
+                {
+                    FastFail(STATE_CORRUPT, "stack write to an violation zone has been detected, ", frame);
+                    return false;
+                }
+            }
+            return true;
+        }
+
+
         public void exec_method(CallFrame invocation)
         {
             println($"@.frame> {invocation.method.Owner.Name}::{invocation.method.Name}");
@@ -142,18 +171,20 @@ namespace ishtar
             var mh = invocation.method.Header;
             var args = invocation.args;
 
-            var locals = default(stackval*);
+            var locals = default(SmartPointer<stackval>);
 
             var ip = mh.code;
-            fixed (stackval* p = System.GC.AllocateArray<stackval>(mh.max_stack, true))
-                invocation.stack = p;
-            fixed (stackval* p = new stackval[0])
-                locals = p;
-            var stack = invocation.stack;
-            var sp = stack;
+            var stack = stackval.Allocate(invocation, mh.max_stack);
+
+            const int STACK_VIOLATION_LEVEL_SIZE = 32;
+
+            create_violation_zone_for_stack(stack, STACK_VIOLATION_LEVEL_SIZE);
+
+            var sp = stack.Ref + STACK_VIOLATION_LEVEL_SIZE;
+            var sp_start = sp;
             var start = ip;
             var end = mh.code + mh.code_size;
-            var end_stack = stack + mh.max_stack;
+            var end_stack = sp + mh.max_stack;
             uint* endfinally_ip = null;
             var zone = default(ProtectedZone);
             void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos - 1;
@@ -173,7 +204,7 @@ namespace ishtar
             {
                 vm_cycle_start:
                 invocation.last_ip = (OpCodeValue)(ushort)*ip;
-                println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)stack) - ((nint)sp))}]");
+                println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)sp) - ((nint)sp))}]");
 
                 if (invocation.exception is not null && invocation.level == 0)
                     return;
@@ -186,9 +217,19 @@ namespace ishtar
 
                 if (sp >= end_stack)
                 {
-                    FastFail(OVERFLOW, "stack overflow error.", invocation);
+                    FastFail(OVERFLOW, "stack overflow dectected.", invocation);
                     continue;
                 }
+
+                if (sp < sp_start)
+                {
+                    FastFail(OVERFLOW, "incorrect sp address beyond sp_start was detected", invocation);
+                    continue;
+                }
+
+                if (!assert_violation_zone_writes(invocation, stack, STACK_VIOLATION_LEVEL_SIZE))
+                    continue;
+
 
                 switch (invocation.last_ip)
                 {
@@ -352,7 +393,6 @@ namespace ishtar
                             var size = sp->data.ul;
                             --sp;
                             var typeID = GetClass(sp->data.ui, _module, invocation);
-                            --sp;
                             sp->type = TYPE_ARRAY;
                             if (invocation.method.IsStatic)
                                 sp->data.p = (nint)GC.AllocArray(typeID, size, 1, null, invocation);
@@ -393,9 +433,10 @@ namespace ishtar
                     case RET:
                         ++ip;
                         --sp;
-                        invocation.returnValue = &*sp;
-                        stack = null;
-                        locals = null;
+                        invocation.returnValue = stackval.Allocate(invocation, 1);
+                        invocation.returnValue[0] = *sp;
+                        stack.Dispose();
+                        locals.Dispose();
                         return;
                     case STSF:
                         {
@@ -495,7 +536,7 @@ namespace ishtar
                         break;
                     case SEH_LEAVE:
                     case SEH_LEAVE_S:
-                        while (sp > invocation.stack) --sp;
+                        while (sp > sp_start) --sp;
                         invocation.last_ip = (OpCodeValue)(*ip);
                         if (*ip == (uint)SEH_LEAVE_S)
                         {
@@ -551,7 +592,7 @@ namespace ishtar
                             var method = GetMethod(tokenIdx, owner, _module, invocation);
                             ++ip;
                             println($"@@@ {owner.NameWithNS}::{method.Name}");
-                            var method_args = stackval.Alloc(method.ArgLength);
+                            var method_args = GC.AllocateStack(child_frame, method.ArgLength);
                             for (int i = 0, y = method.ArgLength - 1; i != method.ArgLength; i++, y--)
                             {
                                 var _a = method.Arguments[y]; // TODO, type eq validate
@@ -597,16 +638,18 @@ namespace ishtar
 
                             (child_frame.level, child_frame.parent, child_frame.method)
                                 = (invocation.level + 1, invocation, method);
-                            fixed (stackval* p = method_args)
-                                child_frame.args = p;
+                            child_frame.args = method_args;
 
                             if (method.IsExtern) exec_method_native(child_frame);
                             else exec_method(child_frame);
 
                             if (method.ReturnType.TypeCode != TYPE_VOID)
                             {
-                                invocation.assert(child_frame.returnValue is not null, STATE_CORRUPT, "Method has return zero memory.");
-                                *sp = *child_frame.returnValue;
+                                invocation.assert(!child_frame.returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
+                                *sp = child_frame.returnValue[0];
+
+                                child_frame.returnValue.Dispose();
+
                                 sp++;
                             }
 
@@ -614,19 +657,19 @@ namespace ishtar
                             {
                                 sp->type = TYPE_CLASS;
                                 sp->data.p = (nint)child_frame.exception.value;
-                                (method_args, child_frame) = (null, null);
+
+                                GC.FreeStack(child_frame, method_args, method.ArgLength);
                                 goto exception_handle;
                             }
 
-                            (method_args, child_frame) = (null, null);
+                            GC.FreeStack(child_frame, method_args, method.ArgLength);
                         }
                         break;
                     case LOC_INIT:
                         {
                             ++ip;
                             var locals_size = *ip;
-                            fixed (stackval* p = stackval.Alloc((int)locals_size))
-                                locals = p;
+                            locals = stackval.Allocate(invocation, (ushort)locals_size);
                             ++ip;
                             for (var i = 0u; i != locals_size; i++)
                             {
