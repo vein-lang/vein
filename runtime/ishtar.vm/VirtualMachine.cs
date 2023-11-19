@@ -195,7 +195,7 @@ namespace ishtar
             void ForceFail(RuntimeIshtarClass clazz)
             {
                 *ip = (uint)THROW;
-                sp->data.p = (nint)GC.AllocObject(clazz);
+                sp->data.p = (nint)GC.AllocObject(clazz, invocation);
                 sp->type = TYPE_CLASS;
                 sp++;
             }
@@ -567,7 +567,7 @@ namespace ishtar
                         --sp;
                         if (sp->data.p == IntPtr.Zero)
                         {
-                            sp->data.p = (nint)GC.AllocObject(KnowTypes.NullPointerException(invocation));
+                            sp->data.p = (nint)GC.AllocObject(KnowTypes.NullPointerException(invocation), invocation);
                             sp->type = TYPE_CLASS;
                         }
                         goto exception_handle;
@@ -578,7 +578,7 @@ namespace ishtar
                             sp->data.p = (nint)
                             GC.AllocObject(
                                 (RuntimeIshtarClass) // TODO optimize search
-                                _module.FindType(_module.GetTypeNameByIndex((int)*ip), true));
+                                _module.FindType(_module.GetTypeNameByIndex((int)*ip), true), invocation);
                             ++ip;
                             ++sp;
                         }

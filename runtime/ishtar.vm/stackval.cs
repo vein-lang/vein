@@ -26,7 +26,7 @@ namespace ishtar
                 => frame.vm.GC.FreeStack(frame, stack, size);
 
             static stackval* alloc(CallFrame frame, int size)
-                => frame.vm.GC.AllocValue();
+                => frame.vm.GC.AllocValue(frame);
             static void free(CallFrame frame, stackval* stack, int size)
                 => frame.vm.GC.FreeValue(stack);
 

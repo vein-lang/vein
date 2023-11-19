@@ -38,21 +38,21 @@ namespace ishtar
         public void ThrowException(RuntimeIshtarClass @class) =>
             this.exception = new CallFrameException()
             {
-                value = vm.GC.AllocObject(@class)
+                value = vm.GC.AllocObject(@class, this)
             };
 
         public void ThrowException(RuntimeIshtarClass @class, string message)
         {
             this.exception = new CallFrameException()
             {
-                value = vm.GC.AllocObject(@class)
+                value = vm.GC.AllocObject(@class, this)
             };
 
             if (@class.FindField("message") is null)
                 throw new InvalidOperationException($"Class '{@class.FullName}' is not contained 'message' field.");
 
             this.exception.value->vtable[@class.Field["message"].vtable_offset]
-                = vm.GC.ToIshtarObject(message);
+                = vm.GC.ToIshtarObject(message, this);
         }
 
 

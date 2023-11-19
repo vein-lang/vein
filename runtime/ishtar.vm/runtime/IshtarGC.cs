@@ -122,7 +122,7 @@ namespace ishtar
             _vm = vm;
             if (root is not null)
                 return;
-            root = AllocObject(TYPE_OBJECT.AsRuntimeClass(VM.Types));
+            root = AllocObject(TYPE_OBJECT.AsRuntimeClass(VM.Types), vm.Frames.GarbageCollector());
         }
 
 
@@ -170,9 +170,9 @@ namespace ishtar
         }
 
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
-        public stackval* AllocValue()
+        public stackval* AllocValue(CallFrame frame)
         {
-            var allocator = allocatorPool.Rent<stackval>(out var p);
+            var allocator = allocatorPool.Rent<stackval>(out var p, frame);
 
             Stats.total_allocations++;
             Stats.total_bytes_requested += allocator.TotalSize;
@@ -187,7 +187,7 @@ namespace ishtar
 
         public stackval* AllocateStack(CallFrame frame, int size)
         {
-            var allocator = allocatorPool.RentArray<stackval>(out var p, size);
+            var allocator = allocatorPool.RentArray<stackval>(out var p, size, frame);
             _vm.println($"Allocated stack '{size}' for '{frame.method}'");
 
             Stats.total_allocations++;
@@ -218,11 +218,11 @@ namespace ishtar
         }
 
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
-        public stackval* AllocValue(VeinClass @class)
+        public stackval* AllocValue(VeinClass @class, CallFrame frame)
         {
             if (!@class.IsPrimitive)
                 return null;
-            var p = AllocValue();
+            var p = AllocValue(frame);
             p->type = @class.TypeCode;
             p->data.l = 0;
             return p;
@@ -271,9 +271,9 @@ namespace ishtar
 
             if (!arr.is_inited) arr.init_vtable(_vm);
 
-            var obj = AllocObject(arr, node);
+            var obj = AllocObject(arr, frame, node);
 
-            var allocator = allocatorPool.Rent<IshtarArray>(out var arr_obj);
+            var allocator = allocatorPool.Rent<IshtarArray>(out var arr_obj, frame);
             
             if (arr_obj is null)
             {
@@ -304,14 +304,14 @@ namespace ishtar
 
             
             // fill live table memory
-            obj->vtable[arr_obj->_block.offset_value] = (void**)allocator.AllocZeroed(bytes_len);
+            obj->vtable[arr_obj->_block.offset_value] = (void**)allocator.AllocZeroed(bytes_len, frame);
             obj->vtable[arr_obj->_block.offset_block] = (long*)@class.computed_size;
             obj->vtable[arr_obj->_block.offset_size] = (long*)size;
             obj->vtable[arr_obj->_block.offset_rank] = (long*)rank;
 
             // fill array block memory
             for (var i = 0UL; i != size; i++)
-                ((void**)obj->vtable[arr.Field["!!value"].vtable_offset])[i] = AllocObject(@class, &obj);
+                ((void**)obj->vtable[arr.Field["!!value"].vtable_offset])[i] = AllocObject(@class, frame, &obj);
 
             // exit from critical zone
             IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
@@ -342,20 +342,20 @@ namespace ishtar
 
             IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_TYPE_BARRIER);
 
-            if (_types_cache.ContainsKey(@class.runtime_token))
-                return (IshtarObject*)_types_cache[@class.runtime_token];
+            if (_types_cache.TryGetValue(@class.runtime_token, out nint value))
+                return (IshtarObject*)value;
 
             var tt = KnowTypes.Type(frame);
-            var obj = AllocObject(tt);
+            var obj = AllocObject(tt, frame);
             var gc = frame.GetGC();
 
             obj->flags |= GCFlags.IMMORTAL;
 
-            obj->vtable[tt.Field["_unique_id"].vtable_offset] = gc.ToIshtarObject(@class.runtime_token.ClassID);
-            obj->vtable[tt.Field["_module_id"].vtable_offset] = gc.ToIshtarObject(@class.runtime_token.ModuleID);
-            obj->vtable[tt.Field["_flags"].vtable_offset] = gc.ToIshtarObject((int)@class.Flags);
-            obj->vtable[tt.Field["_name"].vtable_offset] = gc.ToIshtarObject(@class.Name);
-            obj->vtable[tt.Field["_namespace"].vtable_offset] = gc.ToIshtarObject(@class.Path);
+            obj->vtable[tt.Field["_unique_id"].vtable_offset] = gc.ToIshtarObject(@class.runtime_token.ClassID, frame);
+            obj->vtable[tt.Field["_module_id"].vtable_offset] = gc.ToIshtarObject(@class.runtime_token.ModuleID, frame);
+            obj->vtable[tt.Field["_flags"].vtable_offset] = gc.ToIshtarObject((int)@class.Flags, frame);
+            obj->vtable[tt.Field["_name"].vtable_offset] = gc.ToIshtarObject(@class.Name, frame);
+            obj->vtable[tt.Field["_namespace"].vtable_offset] = gc.ToIshtarObject(@class.Path, frame);
 
             _types_cache[@class.runtime_token] = (nint)obj;
 
@@ -379,15 +379,15 @@ namespace ishtar
                 return (IshtarObject*)_fields_cache[@class.runtime_token][name];
 
             var tt = KnowTypes.Field(frame);
-            var obj = AllocObject(tt);
+            var obj = AllocObject(tt, frame);
 
             obj->flags |= GCFlags.IMMORTAL;
 
             var field_owner = AllocTypeInfoObject(@class, frame);
 
             obj->vtable[tt.Field["_target"].vtable_offset] = field_owner;
-            obj->vtable[tt.Field["_name"].vtable_offset] = gc.ToIshtarObject(name);
-            obj->vtable[tt.Field["_vtoffset"].vtable_offset] = gc.ToIshtarObject((long)field.vtable_offset);
+            obj->vtable[tt.Field["_name"].vtable_offset] = gc.ToIshtarObject(name, frame);
+            obj->vtable[tt.Field["_vtoffset"].vtable_offset] = gc.ToIshtarObject((long)field.vtable_offset, frame);
 
             if (!_fields_cache.ContainsKey(@class.runtime_token))
                 _fields_cache[@class.runtime_token] = new();
@@ -413,16 +413,16 @@ namespace ishtar
                 return (IshtarObject*)_fields_cache[@class.runtime_token][key];
 
             var tt = KnowTypes.Function(frame);
-            var obj = AllocObject(tt);
+            var obj = AllocObject(tt, frame);
 
             obj->flags |= GCFlags.IMMORTAL;
 
             var method_owner = AllocTypeInfoObject(@class, frame);
 
             obj->vtable[tt.Field["_target"].vtable_offset] = method_owner;
-            obj->vtable[tt.Field["_name"].vtable_offset] = gc.ToIshtarObject(method.RawName);
-            obj->vtable[tt.Field["_quality_name"].vtable_offset] = gc.ToIshtarObject(method.Name);
-            obj->vtable[tt.Field["_vtoffset"].vtable_offset] = gc.ToIshtarObject((long)method.vtable_offset);
+            obj->vtable[tt.Field["_name"].vtable_offset] = gc.ToIshtarObject(method.RawName, frame);
+            obj->vtable[tt.Field["_quality_name"].vtable_offset] = gc.ToIshtarObject(method.Name, frame);
+            obj->vtable[tt.Field["_vtoffset"].vtable_offset] = gc.ToIshtarObject((long)method.vtable_offset, frame);
 
             if (!_methods_cache.ContainsKey(@class.runtime_token))
                 _methods_cache[@class.runtime_token] = new();
@@ -433,11 +433,11 @@ namespace ishtar
             return obj;
         }
 
-        public IshtarObject* AllocObject(RuntimeIshtarClass @class, IshtarObject** node = null)
+        public IshtarObject* AllocObject(RuntimeIshtarClass @class, CallFrame frame, IshtarObject** node = null)
         {
-            var allocator = allocatorPool.Rent<IshtarObject>(out var p);
+            var allocator = allocatorPool.Rent<IshtarObject>(out var p, frame);
             
-            p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class.computed_size));
+            p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class.computed_size), frame);
 
             Unsafe.CopyBlock(p->vtable, @class.vtable, (uint)@class.computed_size * (uint)sizeof(void*));
             p->clazz = IshtarUnsafe.AsPointer(ref @class);

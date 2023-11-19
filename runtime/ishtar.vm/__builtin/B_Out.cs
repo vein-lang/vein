@@ -36,7 +36,7 @@ namespace ishtar
         [IshtarExport(0, "@_readline")]
         [IshtarExportFlags(Public | Static)]
         public static IshtarObject* FReadLine(CallFrame current, IshtarObject** args)
-            => current.GetGC().ToIshtarObject(In.ReadLine());
+            => current.GetGC().ToIshtarObject(In.ReadLine(), current);
 
 
         public static void InitTable(ForeignFunctionInterface ffi)

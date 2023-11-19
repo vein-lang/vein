@@ -301,7 +301,7 @@ namespace ishtar
 
                 return IshtarMarshal.Boxing(frame, defaultValue.Ref);
             }
-            return field.default_value = vm.GC.AllocObject(field.FieldType as RuntimeIshtarClass);
+            return field.default_value = vm.GC.AllocObject(field.FieldType as RuntimeIshtarClass, frame);
         }
         public new RuntimeIshtarField FindField(string name)
             => base.FindField(name) as RuntimeIshtarField;

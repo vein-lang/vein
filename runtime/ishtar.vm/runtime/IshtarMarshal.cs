@@ -4,67 +4,67 @@ namespace ishtar
     using static vein.runtime.VeinTypeCode;
     public static unsafe class IshtarMarshal
     {
-        public static IshtarObject* ToIshtarObject(this IshtarGC gc, string str, CallFrame frame = null, IshtarObject** node = null)
+        public static IshtarObject* ToIshtarObject(this IshtarGC gc, string str, CallFrame frame, IshtarObject** node = null)
         {
-            var arg = gc.AllocObject(TYPE_STRING.AsRuntimeClass(gc.VM.Types), node);
+            var arg = gc.AllocObject(TYPE_STRING.AsRuntimeClass(gc.VM.Types), frame, node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(arg->clazz);
             arg->vtable[clazz.Field["!!value"].vtable_offset] = StringStorage.Intern(str);
             return arg;
         }
-        public static IshtarObject* ToIshtarObject(this IshtarGC gc, int dotnet_value, CallFrame frame = null, IshtarObject** node = null)
+        public static IshtarObject* ToIshtarObject(this IshtarGC gc, int dotnet_value, CallFrame frame, IshtarObject** node = null)
         {
-            var obj = gc.AllocObject(TYPE_I4.AsRuntimeClass(gc.VM.Types), node);
+            var obj = gc.AllocObject(TYPE_I4.AsRuntimeClass(gc.VM.Types), frame, node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
             obj->vtable[clazz.Field["!!value"].vtable_offset] = (int*)dotnet_value;
 
             return obj;
         }
 
-        public static IshtarObject* ToIshtarObject(this IshtarGC gc, bool dotnet_value, CallFrame frame = null, IshtarObject** node = null)
+        public static IshtarObject* ToIshtarObject(this IshtarGC gc, bool dotnet_value, CallFrame frame, IshtarObject** node = null)
         {
-            var obj = gc.AllocObject(TYPE_BOOLEAN.AsRuntimeClass(gc.VM.Types), node);
+            var obj = gc.AllocObject(TYPE_BOOLEAN.AsRuntimeClass(gc.VM.Types), frame, node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
             obj->vtable[clazz.Field["!!value"].vtable_offset] = (int*)(dotnet_value ? 1 : 0);
 
             return obj;
         }
-        public static IshtarObject* ToIshtarObject(this IshtarGC gc, short dotnet_value, CallFrame frame = null, IshtarObject** node = null)
+        public static IshtarObject* ToIshtarObject(this IshtarGC gc, short dotnet_value, CallFrame frame, IshtarObject** node = null)
         {
-            var obj = gc.AllocObject(TYPE_I2.AsRuntimeClass(gc.VM.Types), node);
+            var obj = gc.AllocObject(TYPE_I2.AsRuntimeClass(gc.VM.Types), frame, node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
             obj->vtable[clazz.Field["!!value"].vtable_offset] = (short*)dotnet_value;
 
             return obj;
         }
-        public static IshtarObject* ToIshtarObject(this IshtarGC gc, byte dotnet_value, CallFrame frame = null, IshtarObject** node = null)
+        public static IshtarObject* ToIshtarObject(this IshtarGC gc, byte dotnet_value, CallFrame frame, IshtarObject** node = null)
         {
-            var obj = gc.AllocObject(TYPE_I1.AsRuntimeClass(gc.VM.Types), node);
+            var obj = gc.AllocObject(TYPE_I1.AsRuntimeClass(gc.VM.Types), frame, node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
             obj->vtable[clazz.Field["!!value"].vtable_offset] = (int*)dotnet_value;
 
             return obj;
         }
-        public static IshtarObject* ToIshtarObject(this IshtarGC gc, long dotnet_value, CallFrame frame = null, IshtarObject** node = null)
+        public static IshtarObject* ToIshtarObject(this IshtarGC gc, long dotnet_value, CallFrame frame, IshtarObject** node = null)
         {
-            var obj = gc.AllocObject(TYPE_I8.AsRuntimeClass(gc.VM.Types), node);
+            var obj = gc.AllocObject(TYPE_I8.AsRuntimeClass(gc.VM.Types), frame, node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
             obj->vtable[clazz.Field["!!value"].vtable_offset] = (long*)dotnet_value;
 
             return obj;
         }
 
-        public static IshtarObject* ToIshtarObject(this IshtarGC gc, float dotnet_value, CallFrame frame = null, IshtarObject** node = null)
+        public static IshtarObject* ToIshtarObject(this IshtarGC gc, float dotnet_value, CallFrame frame, IshtarObject** node = null)
         {
-            var obj = gc.AllocObject(TYPE_I8.AsRuntimeClass(gc.VM.Types), node);
+            var obj = gc.AllocObject(TYPE_I8.AsRuntimeClass(gc.VM.Types), frame, node);
             var clazz = IshtarUnsafe.AsRef<RuntimeIshtarClass>(obj->clazz);
             obj->vtable[clazz.Field["!!value"].vtable_offset] = (int*)BitConverter.SingleToInt32Bits(dotnet_value);
 
             return obj;
         }
 
-        public static IshtarObject* ToIshtarObject(this IshtarGC gc, nint dotnet_value, CallFrame frame = null, IshtarObject** node = null)
+        public static IshtarObject* ToIshtarObject(this IshtarGC gc, nint dotnet_value, CallFrame frame, IshtarObject** node = null)
         {
-            var obj = gc.AllocObject(TYPE_RAW.AsRuntimeClass(gc.VM.Types), node);
+            var obj = gc.AllocObject(TYPE_RAW.AsRuntimeClass(gc.VM.Types), frame, node);
             obj->vtable = (void**)dotnet_value;
             return obj;
         }
@@ -224,20 +224,20 @@ namespace ishtar
 
         public static IshtarObject* ToIshtarString(IshtarObject* obj, CallFrame frame) => obj->decodeClass().TypeCode switch
         {
-            TYPE_U1 => frame.GetGC().ToIshtarObject($"{ToDotnetUInt8(obj, frame)}"),
-            TYPE_I1 => frame.GetGC().ToIshtarObject($"{ToDotnetInt8(obj, frame)}"),
-            TYPE_U2 => frame.GetGC().ToIshtarObject($"{ToDotnetUInt16(obj, frame)}"),
-            TYPE_I2 => frame.GetGC().ToIshtarObject($"{ToDotnetInt16(obj, frame)}"),
-            TYPE_U4 => frame.GetGC().ToIshtarObject($"{ToDotnetUInt32(obj, frame)}"),
-            TYPE_I4 => frame.GetGC().ToIshtarObject($"{ToDotnetInt32(obj, frame)}"),
-            TYPE_U8 => frame.GetGC().ToIshtarObject($"{ToDotnetUInt64(obj, frame)}"),
-            TYPE_I8 => frame.GetGC().ToIshtarObject($"{ToDotnetInt64(obj, frame)}"),
-            TYPE_R4 => frame.GetGC().ToIshtarObject($"{ToDotnetFloat(obj, frame)}"),
-            TYPE_BOOLEAN => frame.GetGC().ToIshtarObject($"{ToDotnetBoolean(obj, frame)}"),
-            TYPE_CHAR => frame.GetGC().ToIshtarObject($"{ToDotnetChar(obj, frame)}"),
-            TYPE_RAW => frame.GetGC().ToIshtarObject($"0x{ToDotnetPointer(obj, frame):X8}"),
+            TYPE_U1 => frame.GetGC().ToIshtarObject($"{ToDotnetUInt8(obj, frame)}", frame),
+            TYPE_I1 => frame.GetGC().ToIshtarObject($"{ToDotnetInt8(obj, frame)}", frame),
+            TYPE_U2 => frame.GetGC().ToIshtarObject($"{ToDotnetUInt16(obj, frame)}", frame),
+            TYPE_I2 => frame.GetGC().ToIshtarObject($"{ToDotnetInt16(obj, frame)}", frame),
+            TYPE_U4 => frame.GetGC().ToIshtarObject($"{ToDotnetUInt32(obj, frame)}", frame),
+            TYPE_I4 => frame.GetGC().ToIshtarObject($"{ToDotnetInt32(obj, frame)}", frame),
+            TYPE_U8 => frame.GetGC().ToIshtarObject($"{ToDotnetUInt64(obj, frame)}", frame),
+            TYPE_I8 => frame.GetGC().ToIshtarObject($"{ToDotnetInt64(obj, frame)}", frame),
+            TYPE_R4 => frame.GetGC().ToIshtarObject($"{ToDotnetFloat(obj, frame)}", frame),
+            TYPE_BOOLEAN => frame.GetGC().ToIshtarObject($"{ToDotnetBoolean(obj, frame)}", frame),
+            TYPE_CHAR => frame.GetGC().ToIshtarObject($"{ToDotnetChar(obj, frame)}", frame),
+            TYPE_RAW => frame.GetGC().ToIshtarObject($"0x{ToDotnetPointer(obj, frame):X8}", frame),
             TYPE_STRING => obj,
-            TYPE_FUNCTION => frame.GetGC().ToIshtarObject(new IshtarLayerFunction(obj, frame).Name),
+            TYPE_FUNCTION => frame.GetGC().ToIshtarObject(new IshtarLayerFunction(obj, frame).Name, frame),
             _ => ReturnDefault(nameof(ToIshtarString), $"Convert to '{obj->decodeClass().TypeCode}' not supported.", frame),
         };
 
@@ -339,7 +339,7 @@ namespace ishtar
 
             var gc = frame.GetGC();
             var clazz = p->type.AsRuntimeClass(gc.VM.Types);
-            var obj = gc.AllocObject(clazz, node);
+            var obj = gc.AllocObject(clazz, frame, node);
 
             ForeignFunctionInterface.StaticValidateField(frame, &obj, "!!value");
 

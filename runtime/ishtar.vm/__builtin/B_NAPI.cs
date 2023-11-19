@@ -41,7 +41,7 @@ public static unsafe class B_NAPI
 
 
         var handleClass = KnowTypes.VeinLang.Native.NativeHandle(current);
-        var handleObj = current.vm.GC.AllocObject(handleClass);
+        var handleObj = current.vm.GC.AllocObject(handleClass, current);
 
         var wrapper = new KnowTypes.WrappedTypes.S_NativeHandle(handleObj, current);
 

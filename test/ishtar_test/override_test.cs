@@ -32,7 +32,7 @@ namespace ishtar_test
 
 
 
-            var result = GC.AllocObject(b2);
+            var result = GC.AllocObject(b2, GetVM().Frames.EntryPoint);
 
             var pointer = result->vtable[m2.vtable_offset];
 

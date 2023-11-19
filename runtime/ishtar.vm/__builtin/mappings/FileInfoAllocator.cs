@@ -10,12 +10,12 @@ public unsafe class FileInfoAllocator : TransitAllocator<FileInfo>
 
         var @this = RuntimeType(frame);
         var gc = frame.GetGC();
-        var obj = gc.AllocObject(@this);
+        var obj = gc.AllocObject(@this, frame);
 
-        obj->vtable[@this.Field["_exist"].vtable_offset] = gc.ToIshtarObject(t.Exists);
-        obj->vtable[@this.Field["_name"].vtable_offset] = gc.ToIshtarObject(t.Name);
-        obj->vtable[@this.Field["_full_name"].vtable_offset] = gc.ToIshtarObject(t.FullName);
-        obj->vtable[@this.Field["_length"].vtable_offset] = gc.ToIshtarObject(t.Length);
+        obj->vtable[@this.Field["_exist"].vtable_offset] = gc.ToIshtarObject(t.Exists, frame);
+        obj->vtable[@this.Field["_name"].vtable_offset] = gc.ToIshtarObject(t.Name, frame);
+        obj->vtable[@this.Field["_full_name"].vtable_offset] = gc.ToIshtarObject(t.FullName, frame);
+        obj->vtable[@this.Field["_length"].vtable_offset] = gc.ToIshtarObject(t.Length, frame);
 
 
         return obj;

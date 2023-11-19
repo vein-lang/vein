@@ -54,7 +54,7 @@ namespace ishtar
         public IshtarObject* Get(uint index, CallFrame frame)
         {
             if (!ElementClass.IsPrimitive) return elements[index];
-            var result = frame.vm.GC.AllocObject(ElementClass);
+            var result = frame.vm.GC.AllocObject(ElementClass, frame);
             var el = elements[index];
             var offset = result->decodeClass().Field["!!value"].vtable_offset;
             result->vtable[offset] = el->vtable[offset];

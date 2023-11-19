@@ -35,7 +35,15 @@ namespace ishtar
                 return Has(key);
             }
 
-            private static Dictionary<SysFlag, string> _cache = new Dictionary<SysFlag, string>(64);
+            private static readonly Dictionary<SysFlag, string> _cache = new(64);
+
+
+            #region Defined Configs
+
+            public bool UseDebugAllocator => Has("has_debug_allocator");
+
+            #endregion
+
         }
 
 

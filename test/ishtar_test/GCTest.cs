@@ -14,7 +14,7 @@ namespace ishtar_test
         [Parallelizable(ParallelScope.None)]
         public unsafe void CorrectAllocateInt()
         {
-            var result = GC.ToIshtarObject(1);
+            var result = GC.ToIshtarObject(1, GetVM().Frames.EntryPoint);
             GC.FreeObject(&result, GetVM().Frames.EntryPoint);
         }
 
@@ -22,7 +22,7 @@ namespace ishtar_test
         [Parallelizable(ParallelScope.None)]
         public unsafe void CorrectAllocateObject()
         {
-            var result = GC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass(Types));
+            var result = GC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass(Types), GetVM().Frames.EntryPoint);
             GC.FreeObject(&result, GetVM().Frames.EntryPoint);
         }
 
@@ -30,7 +30,7 @@ namespace ishtar_test
         [Parallelizable(ParallelScope.None)]
         public unsafe void CorrectAllocateString()
         {
-            var result = GC.ToIshtarObject("foo");
+            var result = GC.ToIshtarObject("foo", GetVM().Frames.EntryPoint);
             GC.FreeObject(&result, GetVM().Frames.EntryPoint);
         }
 
@@ -38,7 +38,7 @@ namespace ishtar_test
         [Parallelizable(ParallelScope.None)]
         public unsafe void CorrectAllocateValue()
         {
-            var result = GC.AllocValue();
+            var result = GC.AllocValue(GetVM().Frames.EntryPoint);
             result = null;
         }
 
@@ -50,7 +50,7 @@ namespace ishtar_test
 
             foreach (int i in Enumerable.Range(0, 5))
             {
-                GC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass(Types));
+                GC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass(Types), GetVM().Frames.EntryPoint);
             }
 
             this.GC.VM.Dispose();
@@ -64,7 +64,7 @@ namespace ishtar_test
         [Parallelizable(ParallelScope.None)]
         public unsafe void AllocateAndFreeObject()
         {
-            var obj = GC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass(Types));
+            var obj = GC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass(Types), GetVM().Frames.EntryPoint);
             GC.FreeObject(obj, this.GetVM().Frames.EntryPoint);
         }
 
@@ -78,7 +78,7 @@ namespace ishtar_test
             Assert.AreEqual(1UL, array->rank);
 
             foreach (var i in ..10)
-                array->Set((uint)i, GC.ToIshtarObject(88 * i), GetVM().Frames.EntryPoint);
+                array->Set((uint)i, GC.ToIshtarObject(88 * i, GetVM().Frames.EntryPoint), GetVM().Frames.EntryPoint);
 
             foreach (var i in ..10)
             {
