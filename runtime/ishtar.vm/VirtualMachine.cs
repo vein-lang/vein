@@ -23,12 +23,12 @@ namespace ishtar
         public static VirtualMachine Create(string name)
         {
             var vm = new VirtualMachine();
+            vm.Config = new VMConfig();
             vm.Vault = new AppVault(vm, name);
             vm.trace = new IshtarTrace();
             vm.Types = new IshtarCore(vm);
             vm.GC = new IshtarGC(vm);
             vm.watcher = new DefaultWatchDog(vm);
-            vm.Config = new VMConfig();
             vm.Frames = new IshtarFrames(vm);
 
             vm.Types.InitVtables();

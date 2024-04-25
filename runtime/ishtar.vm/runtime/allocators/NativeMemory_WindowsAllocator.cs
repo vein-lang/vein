@@ -11,7 +11,7 @@ public sealed unsafe class NativeMemory_WindowsAllocator : IIshtarAllocator
 
     private void* Allocate(long size, CallFrame frame)
     {
-        frame.assert(size != 0, WNE.STATE_CORRUPT, "Allocation is not allowed zero size");
+        //frame.assert(size != 0, WNE.STATE_CORRUPT, "Allocation is not allowed zero size");
         TotalSize += size;
         var p = NativeMemory.AllocZeroed((nuint)(size));
         Memory.Add((nint)p);

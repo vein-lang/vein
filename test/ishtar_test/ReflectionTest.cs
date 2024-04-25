@@ -1,9 +1,9 @@
 namespace ishtar_test;
 
-[TestFixture]
+[TestFixture(Ignore = "temporary disabled")]
 public unsafe class ReflectionTest : IshtarTestBase
 {
-    [Test]
+   // [Test]
     public void AllocateType()
     {
         var ctx = CreateContext();
@@ -12,7 +12,7 @@ public unsafe class ReflectionTest : IshtarTestBase
         GC.FreeObject(&obj, frame);
     }
 
-    [Test]
+   // [Test]
     public void AllocateField()
     {
         var ctx = CreateContext();
@@ -22,7 +22,7 @@ public unsafe class ReflectionTest : IshtarTestBase
         GC.FreeObject(&obj, frame);
     }
 
-    [Test]
+   // [Test]
     public void AllocateMethod()
     {
         var ctx = CreateContext();

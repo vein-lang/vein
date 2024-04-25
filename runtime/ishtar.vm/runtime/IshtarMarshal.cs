@@ -343,6 +343,17 @@ namespace ishtar
 
             ForeignFunctionInterface.StaticValidateField(frame, &obj, "!!value");
 
+            if (obj->vtable is null)
+            {
+                frame.vm.FastFail(WNE.ACCESS_VIOLATION,
+                    "Boxing operation error.\n" +
+                    $"vtable is null [{p->type}]\n" +
+                    "Invalid allocation or incorrect type setup possible.\n" +
+                    "Please report the problem into https://github.com/vein-lang/vein/issues",
+                    frame);
+                return null;
+            }
+
             obj->vtable[clazz.Field["!!value"].vtable_offset] = p->type switch
             {
                 TYPE_I1 => (sbyte*)p->data.b,

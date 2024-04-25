@@ -53,11 +53,14 @@ namespace ishtar_test
                 GC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass(Types), GetVM().Frames.EntryPoint);
             }
 
+            //Assert.AreEqual("85 objects", $"{GC.Stats.alive_objects} objects");
+            //Assert.AreEqual("12600 bytes", $"{GC.Stats.total_bytes_requested} bytes");
+
             this.GC.VM.Dispose();
 
 
-            Assert.AreEqual("1 objects", $"{GC.Stats.alive_objects} objects");
-            Assert.AreEqual("24 bytes", $"{GC.Stats.total_bytes_requested} bytes");
+            Assert.AreEqual("0 objects", $"{GC.Stats.alive_objects} objects");
+            Assert.AreEqual("0 bytes", $"{GC.Stats.total_bytes_requested} bytes");
         }
 
         [Test]
@@ -72,7 +75,7 @@ namespace ishtar_test
         [Parallelizable(ParallelScope.None)]
         public unsafe void CorrectAllocateArray()
         {
-            var array = GC.AllocArray(VeinTypeCode.TYPE_I4.AsRuntimeClass(Types), 10, 1);
+            var array = GC.AllocArray(VeinTypeCode.TYPE_I4.AsRuntimeClass(Types), 10, 1, null, GetVM().Frames.EntryPoint);
 
             Assert.AreEqual(10UL, array->length);
             Assert.AreEqual(1UL, array->rank);

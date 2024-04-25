@@ -243,7 +243,7 @@ namespace ishtar
             Stats.alive_objects--;
         }
 
-        public IshtarArray* AllocArray(RuntimeIshtarClass @class, ulong size, byte rank, IshtarObject** node = null, CallFrame frame = null)
+        public IshtarArray* AllocArray(RuntimeIshtarClass @class, ulong size, byte rank, IshtarObject** node, CallFrame frame)
         {
             if (!@class.is_inited)
                 @class.init_vtable(vm);
@@ -435,8 +435,7 @@ namespace ishtar
         {
             var allocator = allocatorPool.Rent<IshtarObject>(out var p, frame);
 
-            if (@class.computed_size != 0)
-                p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class.computed_size), frame);
+            p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class.computed_size), frame);
 
             Unsafe.CopyBlock(p->vtable, @class.vtable, (uint)@class.computed_size * (uint)sizeof(void*));
             p->clazz = IshtarUnsafe.AsPointer(ref @class);
