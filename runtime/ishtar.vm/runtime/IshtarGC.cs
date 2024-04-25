@@ -10,9 +10,8 @@ namespace ishtar
     using vein.runtime;
     using static vein.runtime.VeinTypeCode;
 
-    public unsafe class IshtarGC : IDisposable
+    public unsafe class IshtarGC(VirtualMachine vm) : IDisposable
     {
-        private readonly VirtualMachine _vm;
         public readonly GCStats Stats = new();
         private readonly LinkedList<nint> RefsHeap = new();
         private readonly LinkedList<nint> ArrayRefsHeap = new();
@@ -74,7 +73,7 @@ namespace ishtar
         }
 
         public IshtarObject* root;
-        public VirtualMachine VM => _vm;
+        public VirtualMachine VM => vm;
         public bool check_memory_leak = true;
 
         public void Dispose()
@@ -107,24 +106,23 @@ namespace ishtar
 
             if (Stats.total_allocations != 0)
             {
-                _vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_allocations is not zero ({Stats.total_allocations})", VM.Frames.GarbageCollector());
+                vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_allocations is not zero ({Stats.total_allocations})", VM.Frames.GarbageCollector());
                 return;
             }
             if (Stats.total_bytes_requested != 0)
             {
-                _vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_bytes_requested is not zero ({Stats.total_bytes_requested})", VM.Frames.GarbageCollector());
+                vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_bytes_requested is not zero ({Stats.total_bytes_requested})", VM.Frames.GarbageCollector());
                 return;
             }
         }
 
-        public IshtarGC(VirtualMachine vm)
+
+        public void init()
         {
-            _vm = vm;
             if (root is not null)
                 return;
             root = AllocObject(TYPE_OBJECT.AsRuntimeClass(VM.Types), vm.Frames.GarbageCollector());
         }
-
 
         public ImmortalObject<T>* AllocStatic<T>() where T : class, new()
         {
@@ -188,7 +186,7 @@ namespace ishtar
         public stackval* AllocateStack(CallFrame frame, int size)
         {
             var allocator = allocatorPool.RentArray<stackval>(out var p, size, frame);
-            _vm.println($"Allocated stack '{size}' for '{frame.method}'");
+            vm.println($"Allocated stack '{size}' for '{frame.method}'");
 
             Stats.total_allocations++;
             Stats.total_bytes_requested += allocator.TotalSize;
@@ -248,28 +246,28 @@ namespace ishtar
         public IshtarArray* AllocArray(RuntimeIshtarClass @class, ulong size, byte rank, IshtarObject** node = null, CallFrame frame = null)
         {
             if (!@class.is_inited)
-                @class.init_vtable(_vm);
+                @class.init_vtable(vm);
 
             if (size >= IshtarArray.MAX_SIZE)
             {
-                _vm.FastFail(WNE.OVERFLOW, "", frame);
+                vm.FastFail(WNE.OVERFLOW, "", frame);
                 return null;
             }
 
             if (rank != 1)
             {
-                _vm.FastFail(WNE.TYPE_LOAD, "Currently array rank greater 1 not supported.", frame);
+                vm.FastFail(WNE.TYPE_LOAD, "Currently array rank greater 1 not supported.", frame);
                 return null;
             }
 
 
-            var arr = TYPE_ARRAY.AsRuntimeClass(_vm.Types);
+            var arr = TYPE_ARRAY.AsRuntimeClass(vm.Types);
             var bytes_len = @class.computed_size * size * rank;
 
             // enter critical zone
             IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
 
-            if (!arr.is_inited) arr.init_vtable(_vm);
+            if (!arr.is_inited) arr.init_vtable(vm);
 
             var obj = AllocObject(arr, frame, node);
 
@@ -277,7 +275,7 @@ namespace ishtar
             
             if (arr_obj is null)
             {
-                _vm.FastFail(WNE.OUT_OF_MEMORY, "", frame);
+                vm.FastFail(WNE.OUT_OF_MEMORY, "", frame);
                 return null;
             }
 
@@ -368,7 +366,7 @@ namespace ishtar
         {
             var @class = field.Owner as RuntimeIshtarClass;
             if (!@class.is_inited)
-                @class.init_vtable(_vm);
+                @class.init_vtable(vm);
 
             var name = field.Name;
             var gc = frame.GetGC();
@@ -402,7 +400,7 @@ namespace ishtar
         {
             var @class = method.Owner as RuntimeIshtarClass;
             if (!@class.is_inited)
-                @class.init_vtable(_vm);
+                @class.init_vtable(vm);
 
             var key = method.Name;
             var gc = frame.GetGC();
@@ -436,8 +434,9 @@ namespace ishtar
         public IshtarObject* AllocObject(RuntimeIshtarClass @class, CallFrame frame, IshtarObject** node = null)
         {
             var allocator = allocatorPool.Rent<IshtarObject>(out var p, frame);
-            
-            p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class.computed_size), frame);
+
+            if (@class.computed_size != 0)
+                p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class.computed_size), frame);
 
             Unsafe.CopyBlock(p->vtable, @class.vtable, (uint)@class.computed_size * (uint)sizeof(void*));
             p->clazz = IshtarUnsafe.AsPointer(ref @class);

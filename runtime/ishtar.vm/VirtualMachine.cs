@@ -33,6 +33,8 @@ namespace ishtar
 
             vm.Types.InitVtables();
 
+            vm.GC.init();
+
             vm.InternalModule = new RuntimeIshtarModule(vm.Vault, "internal");
             vm.InternalClass = new RuntimeIshtarClass(new QualityTypeName("sys", "__Internal__", "global"),
                 vm.Types.ObjectClass, vm.InternalModule);
