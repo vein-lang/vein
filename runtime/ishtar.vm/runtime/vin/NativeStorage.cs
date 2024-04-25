@@ -8,7 +8,7 @@ public static class NativeStorage
     private static Dictionary<string, nint> _cache = new();
 
     #if LINUX
-    private static INativeLoader _loader = new LinuxLoader();
+    private static INativeLoader _loader = new WindowsLoader();
     #elif MACOS
     private static INativeLoader _loader = new MacOSLoader();
     #else

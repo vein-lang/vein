@@ -7,8 +7,8 @@ internal unsafe static class NativeApi
     #if LINUX
     // <asm/cachectl.h>
     //int cacheflush(char *addr, int nbytes, int cache);
-    mmap(PROT_READ | PROT_WRITE, MAP_PRIVATE)
-    mprotect
+    //mmap(PROT_READ | PROT_WRITE, MAP_PRIVATE)
+    //mprotect
     #endif
 
     [DllImport("kernel32.dll")]
