@@ -1,7 +1,6 @@
 namespace ishtar
 {
     using System;
-    using System.Buffers;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
@@ -18,11 +17,20 @@ namespace ishtar
         private readonly LinkedList<nint> ImmortalHeap = new();
         private readonly LinkedList<nint> TemporaryHeap = new();
         private readonly LinkedList<ConstantTypeMemory> ConstantTypeHeap = new();
+        private readonly Dictionary<nint, IshtarObjectMetadata> AllocationMetadata = new();
 
         private readonly LinkedList<AllocationDebugInfo> allocationTreeDebugInfos = new();
         private readonly Dictionary<nint, AllocationDebugInfo> allocationDebugInfos = new();
 
         private readonly IIshtarAllocatorPool allocatorPool = new IshtarAllocatorPool();
+
+        public string DebugGet() =>
+            $"RefsHeap: {RefsHeap.Count}\n" +
+            $"ArrayRefsHeap: {ArrayRefsHeap.Count}\n" +
+            $"ImmortalHeap: {ImmortalHeap.Count}\n" +
+            $"TemporaryHeap: {TemporaryHeap.Count}\n" +
+            $"ConstantTypeHeap: {ConstantTypeHeap.Count}\n" +
+            $"AllocationMetadata: {AllocationMetadata.Count}\n";
 
         public class GCStats
         {
@@ -72,6 +80,49 @@ namespace ishtar
             }
         }
 
+
+        public enum GcColor
+        {
+            RED,
+            GREEN,
+            YELLOW
+        }
+
+        public record IshtarObjectMetadata(nint obj_ref)
+        {
+            public ulong ReferenceCount => (ulong)_references.Count;
+            private readonly LinkedList<IshtarObjectMetadata> _references = new();
+
+            // TODO, if ref count is zero, 1 / 0 just open black hole
+            public double Priority => 1d / ReferenceCount;
+            public GcColor Color { get; private set; } = GcColor.RED;
+
+            public IshtarObject* Target => (IshtarObject*)obj_ref;
+
+
+
+            public void AddRef(IshtarObjectMetadata metadata)
+            {
+                _references.AddLast(metadata);
+                if (Color == GcColor.GREEN)
+                    Color = GcColor.YELLOW;
+            }
+
+            public void RemoveRef(IshtarObjectMetadata metadata)
+            {
+                _references.Remove(metadata);
+                if (Color == GcColor.GREEN)
+                    Color = GcColor.YELLOW;
+            }
+        }
+
+        public void init()
+        {
+            if (root is not null)
+                return;
+            root = AllocObject(TYPE_OBJECT.AsRuntimeClass(VM.Types), vm.Frames.GarbageCollector());
+        }
+
         public IshtarObject* root;
         public VirtualMachine VM => vm;
         public bool check_memory_leak = true;
@@ -114,14 +165,6 @@ namespace ishtar
                 vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_bytes_requested is not zero ({Stats.total_bytes_requested})", VM.Frames.GarbageCollector());
                 return;
             }
-        }
-
-
-        public void init()
-        {
-            if (root is not null)
-                return;
-            root = AllocObject(TYPE_OBJECT.AsRuntimeClass(VM.Types), vm.Frames.GarbageCollector());
         }
 
         public ImmortalObject<T>* AllocStatic<T>() where T : class, new()
@@ -293,14 +336,6 @@ namespace ishtar
             arr_obj->_block.offset_size = arr.Field["!!size"].vtable_offset;
             arr_obj->_block.offset_rank = arr.Field["!!rank"].vtable_offset;
 
-
-#if DEBUG
-            arr_obj->__gc_id = (long)Stats.alive_objects++;
-#else
-            GCStats.alive_objects++;
-#endif
-
-            
             // fill live table memory
             obj->vtable[arr_obj->_block.offset_value] = (void**)allocator.AllocZeroed(bytes_len, frame);
             obj->vtable[arr_obj->_block.offset_block] = (long*)@class.computed_size;
@@ -318,10 +353,15 @@ namespace ishtar
             InsertDebugData(new(checked((ulong)allocator.TotalSize),
                 nameof(AllocArray), (nint)arr_obj));
 
+#if DEBUG
+            arr_obj->__gc_id = (long)Stats.alive_objects++;
+#else
+            GCStats.alive_objects++;
+#endif
+
 
             Stats.total_bytes_requested += allocator.TotalSize;
             Stats.total_allocations++;
-            Stats.alive_objects++;
 
             ArrayRefsHeap.AddLast((nint)arr_obj);
 
