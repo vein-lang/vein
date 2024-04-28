@@ -11,10 +11,10 @@ using System.Text;
 using Iced.Intel;
 using vein.runtime;
 using static Iced.Intel.AssemblerRegisters;
+using static ishtar.IshtarJIT.ArgumentConverter;
 
-public static unsafe class IshtarJIT
+public unsafe class IshtarJIT(CallFrame jitFrame)
 {
-    private static readonly CallFrame JITFrame = IshtarFrames.Jit();
     public static Architecture Architecture => RuntimeInformation.ProcessArchitecture;
     private static bool IsWindow => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     private static void* _processHandle;
@@ -94,6 +94,535 @@ public static unsafe class IshtarJIT
         return new IntPtr(RecollectExecutableMemory(c));
     }
 
+    public struct NativeCallData
+    {
+        public nint procedure;
+        public long argCount;
+        public nint returnMemoryPointer;
+        public nint argsPointer;
+    }
+
+    
+
+    public struct x64_AssemblerStep
+    {
+        public InstructionTarget Instruction;
+        public Register Register;
+        public int StackOffset;
+
+        public enum InstructionTarget
+        {
+            push,
+            mov
+        }
+    }
+
+    public class ArgumentConverter
+    {
+        public static void GenerateAssemblerCode(List<x64_AssemblerStep> argumentInfos,
+            List<object> argumentValues, nint nativeFunctionPtr, Assembler asm)
+        {
+            int numRegistersUsed = argumentInfos.Count(argInfo => argInfo.Instruction != x64_AssemblerStep.InstructionTarget.push);
+
+            int stackSpaceNeeded = numRegistersUsed * 8; 
+
+
+            asm.push(rbp);
+            asm.mov(rbp, rsp);
+            asm.sub(rsp, stackSpaceNeeded);
+            
+            int valueIndex = 0;
+
+            foreach (var argInfo in argumentInfos)
+            {
+                if (argInfo.Instruction == x64_AssemblerStep.InstructionTarget.push)
+                    asm.push(__[argInfo.StackOffset]);
+                else
+                {
+                    if (argumentValues[valueIndex] is IntPtr ptr)
+                    {
+                        
+                        asm.mov(new AssemblerRegister64(argInfo.Register), __[ptr]);
+                        valueIndex++;
+                    }
+                    else
+                    {
+                        var val = argumentValues[valueIndex++];
+                        if (val is byte b)
+                            asm.mov(new AssemblerRegister64(argInfo.Register), b);
+                        if (val is short s)
+                            asm.mov(new AssemblerRegister64(argInfo.Register), s);
+                        if (val is int i)
+                            asm.mov(new AssemblerRegister64(argInfo.Register), i);
+                        if (val is long l)
+                            asm.mov(new AssemblerRegister64(argInfo.Register), l);
+                        //if (val is float f)
+                        //    asm.mov(xmm0, 12f);
+                        if (val is char c)
+                            asm.mov(new AssemblerRegister64(argInfo.Register), c);
+                        if (val is bool bb)
+                            asm.mov(new AssemblerRegister64(argInfo.Register), (byte)(bb ? 1 : 0));
+                        if (val is float or double)
+                            throw new NotSupportedException();
+                    }
+
+                    asm.call(__[nativeFunctionPtr]);
+                    asm.add(rsp, stackSpaceNeeded);
+                    asm.pop(rbp);
+                    asm.ret();
+                }
+            }
+           
+
+        }
+
+        public static List<x64_AssemblerStep> ConvertArguments(List<Type> argumentTypes, List<object> argumentValues)
+        {
+            Dictionary<Type, Register[]> availableRegisters = new()
+            {
+                { typeof(byte), [dl, cl, r8, r9, r12, r13] },
+                { typeof(short), [dx, cx, r8, r9, r12, r13] },
+                { typeof(int), [r9, r8, ecx, edx, r12, r13] },
+                { typeof(long), [r8, rcx, rdx, r9, r12, r13] },
+                { typeof(IntPtr), [rcx, rdx, r8, r9, r10, r11, r12, r13] },
+                { typeof(float), [xmm0, xmm1, xmm2, xmm3, xmm4, xmm5] },
+                { typeof(double), [xmm0, xmm1, xmm2, xmm3, xmm4, xmm5] },
+                { typeof(char), [dl, cl, r8, r9, r12, r13] },
+                { typeof(bool), [al, dl, cl, r8, r9, r12, r13] }
+            };
+
+            List<x64_AssemblerStep> argumentInfos = [];
+            int stackOffset = 16;
+
+            for (int i = 0; i < argumentTypes.Count; i++)
+            {
+                Type type = argumentTypes[i];
+                object value = argumentValues[i];
+
+                if (!availableRegisters.ContainsKey(type))
+                {
+                    argumentInfos.Add(new x64_AssemblerStep { Instruction = x64_AssemblerStep.InstructionTarget.push, StackOffset = stackOffset });
+                    stackOffset += 8;
+                }
+                else if (type == typeof(float))
+                {
+                    var registers = availableRegisters[type];
+                    foreach (var reg in registers)
+                    {
+                        if (!argumentInfos.Exists(info => info.Register == reg))
+                        {
+                            argumentInfos.Add(new x64_AssemblerStep
+                            {
+                                Instruction = x64_AssemblerStep.InstructionTarget.mov,
+                                Register = reg,
+                                StackOffset = -1
+                            });
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    var registers = availableRegisters[type];
+                    foreach (var reg in registers)
+                    {
+                        if (!argumentInfos.Exists(info => info.Register == reg))
+                        {
+                            argumentInfos.Add(new x64_AssemblerStep { Instruction = x64_AssemblerStep.InstructionTarget.mov, Register = reg });
+                            break;
+                        }
+                    }
+
+                    if (!argumentInfos.Exists(info => info.Instruction == x64_AssemblerStep.InstructionTarget.mov))
+                    {
+                        argumentInfos.Add(new x64_AssemblerStep { Instruction = x64_AssemblerStep.InstructionTarget.push, StackOffset = stackOffset });
+                        stackOffset += 8;
+                    }
+                }
+            }
+
+            return argumentInfos;
+        }
+    }
+
+
+    public static List<x64_AssemblerStep> ConvertArgumentToDesc(IReadOnlyList<VeinArgumentRef> args)
+    {
+        Dictionary<VeinTypeCode, Register[]> availableRegisters = new()
+        {
+            { VeinTypeCode.TYPE_I1, [dl, cl, r8, r9, r12, r13] },
+            { VeinTypeCode.TYPE_I2, [dx, cx, r8, r9, r12, r13] },
+            { VeinTypeCode.TYPE_I4, [ecx, edx, r8d, r9d] },
+            { VeinTypeCode.TYPE_I8, [r8, rcx, rdx, r9, r12, r13] },
+            { VeinTypeCode.TYPE_RAW, [rcx, rdx, r8, r9, r10, r11, r12, r13] },
+            { VeinTypeCode.TYPE_R4, [xmm0, xmm1, xmm2, xmm3, xmm4, xmm5] },
+            { VeinTypeCode.TYPE_R8, [xmm0, xmm1, xmm2, xmm3, xmm4, xmm5] },
+            //{ typeof(char), [dl, cl, r8b, r9b, r12b, r13b] },
+            //{ typeof(bool), [al, dl, cl, r8b, r9b, r12b, r13b] }
+        };
+
+        List<x64_AssemblerStep> argumentInfos = [];
+        int stackOffset = 16;
+
+        for (int i = 0; i < args.Count; i++)
+        {
+            VeinClass type = args[i].Type;
+
+            if (!availableRegisters.ContainsKey(type.TypeCode))
+            {
+                argumentInfos.Add(new x64_AssemblerStep { Instruction = x64_AssemblerStep.InstructionTarget.push, StackOffset = stackOffset });
+                stackOffset += 8;
+            }
+            else if (type is { TypeCode: VeinTypeCode.TYPE_R2 or VeinTypeCode.TYPE_R4 or VeinTypeCode.TYPE_R8 or VeinTypeCode.TYPE_R16 })
+            {
+                var registers = availableRegisters[type.TypeCode];
+                foreach (var reg in registers)
+                {
+                    if (!argumentInfos.Exists(info => info.Register == reg))
+                    {
+                        argumentInfos.Add(new x64_AssemblerStep
+                        {
+                            Instruction = x64_AssemblerStep.InstructionTarget.mov,
+                            Register = reg,
+                            StackOffset = -1
+                        });
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                var availableRegisterByType = availableRegisters[type.TypeCode].Where(x => argumentInfos.All(z => z.Register != x)).ToList();
+
+                foreach (var reg in availableRegisterByType.Where(reg => !argumentInfos.Exists(info => info.Register == reg)))
+                {
+                    argumentInfos.Add(new x64_AssemblerStep { Instruction = x64_AssemblerStep.InstructionTarget.mov, Register = reg });
+                    break;
+                }
+
+                if (availableRegisterByType.Any())
+                    continue;
+
+                argumentInfos.Add(new x64_AssemblerStep { Instruction = x64_AssemblerStep.InstructionTarget.push, StackOffset = stackOffset });
+                stackOffset += 8;
+            }
+        }
+
+        return argumentInfos;
+    }
+
+    public static void GenerateHeader(Assembler asm, int stackSize, nint procedure)
+    {
+        asm.push(rbp);
+        asm.mov(rbp, rsp);
+        asm.sub(rsp, stackSize);
+        asm.mov(rax, procedure.ToInt64());
+    }
+
+    public static void* WrapNativeCallStaticRet(
+        VirtualMachine vm,
+        nint procedure,
+        List<VeinArgumentRef> argument,
+        stackval* argumentValues,
+        VeinClass returnType,
+        stackval* returnValue)
+    {
+        var asm = AllocEmitter();
+        var stackOffset = 16;
+        var desc = ConvertArgumentToDesc(argument);
+        return null;
+    }
+
+    public static void* SimpleFunc()
+    {
+        var asm = AllocEmitter();
+
+        asm.mov(eax, 45);
+        asm.ret();
+
+        return RecollectExecutableMemory(asm);
+    }
+    
+    public static void* WrapNativeCall(VirtualMachine vm, IntPtr procedure, List<VeinArgumentRef> Arguments,
+        void* returnValue, VeinTypeCode returnType)
+    {
+        var asm = AllocEmitter();
+        var stackOffset = 0;
+        var desc = ConvertArgumentToDesc(Arguments);
+
+        var registersUsed = desc.Count(step => step.Instruction != x64_AssemblerStep.InstructionTarget.push);
+        var stackSpaceNeeded = desc.Count * 16;
+
+        if (stackSpaceNeeded != 0)
+        {
+            asm.push(rbp);
+            asm.mov(rbp, rsp);
+            asm.sub(rsp, stackSpaceNeeded);
+        }
+
+        if (returnValue is not null)
+        {
+            asm.mov(rax, (nint)returnValue);
+            asm.mov(__qword_ptr[rsp], rax);
+        }
+        var index = 0;
+        var sbpOffset = 0;
+
+        for (var i = 0; i < desc.Count; i++)
+        {
+            var argInfo = desc[i];
+            var atype = Arguments[i].Type.TypeCode;
+
+            if (argInfo.Instruction is x64_AssemblerStep.InstructionTarget.push)
+            {
+                vm.FastFail(WNE.JIT_ASM_GENERATOR_INCORRECT_CAST,
+                    $"Direct call is not supported push operations",
+                    vm.Frames.Jit());
+            }
+            else
+            {
+                if (atype is VeinTypeCode.TYPE_I1 or VeinTypeCode.TYPE_I2)
+                    asm.mov(__dword_ptr[rdi - (sbpOffset += argInfo.Register.GetSize())], new AssemblerRegister16(argInfo.Register));
+                else if (atype is VeinTypeCode.TYPE_I4)
+                {
+                    if (argInfo.Register.IsGPR64())
+                        asm.mov(__dword_ptr[rdi - (sbpOffset += argInfo.Register.GetSize())],
+                            new AssemblerRegister64(argInfo.Register));
+                    else if (argInfo.Register.IsGPR32())
+                        asm.mov(__dword_ptr[rdi - (sbpOffset += argInfo.Register.GetSize())],
+                            new AssemblerRegister32(argInfo.Register));
+                    else
+                        vm.FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
+                            $"cannot move int32 into 16/8 bit register.",
+                            vm.Frames.Jit());
+                }
+                else if (atype is VeinTypeCode.TYPE_I8)
+                    asm.mov(__dword_ptr[rdi - (sbpOffset += argInfo.Register.GetSize())], new AssemblerRegister64(argInfo.Register));
+                else if (atype is VeinTypeCode.TYPE_RAW)
+                    asm.mov(__dword_ptr[rdi - (sbpOffset += argInfo.Register.GetSize())], new AssemblerRegister64(argInfo.Register));
+                else if (atype is VeinTypeCode.TYPE_R4 or VeinTypeCode.TYPE_R8)
+                    asm.movss(__dword_ptr[rdi - (sbpOffset += VeinTypeCode.TYPE_R4.GetNativeSize())], new AssemblerRegisterXMM(argInfo.Register));
+                else
+                    vm.FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
+                        $"type code '{atype}' is not supported.",
+                        vm.Frames.Jit());
+            }
+        }
+
+
+        asm.call((ulong)procedure);
+
+        if (returnValue is not null && returnType is VeinTypeCode.TYPE_R4 or VeinTypeCode.TYPE_R8)
+        {
+            asm.mov(eax, 4);
+            asm.imul(rax, rax, 0);
+            asm.mov(rdx, __qword_ptr[rsp]);
+
+            asm.movss(__dword_ptr[rax], xmm0);
+        }
+        else if (returnValue is not null)
+        {
+            asm.mov(ecx, 4);
+            asm.imul(rcx, rcx, 0);
+            asm.mov(rdx, __qword_ptr[rsp]);
+            if (returnType is VeinTypeCode.TYPE_I8 or VeinTypeCode.TYPE_U8 or VeinTypeCode.TYPE_RAW)
+                asm.mov(__dword_ptr[rdx + rcx], rax);
+            else
+                asm.mov(__dword_ptr[rdx + rcx], eax);
+        }
+
+        if (stackSpaceNeeded != 0)
+        {
+            asm.add(rsp, stackSpaceNeeded);
+            asm.pop(rbp);
+        }
+        asm.ret();
+        if (vm.HasFaulted())
+            return null;
+        return RecollectExecutableMemory(asm);
+    }
+
+    public static void* WrapNativeCallStaticVoid(
+        VirtualMachine vm,
+        IntPtr procedure,
+        List<VeinArgumentRef> Arguments,
+        stackval* argumentValues,
+        void* returnValue, VeinTypeCode returnType)
+    {
+        var asm = AllocEmitter();
+        var stackOffset = 0;
+        var desc = ConvertArgumentToDesc(Arguments);
+
+        var registersUsed = desc.Count(step => step.Instruction != x64_AssemblerStep.InstructionTarget.push);
+
+        stackOffset += registersUsed * 8;
+
+
+        var stackSpaceNeeded = desc.Count * 16;
+
+        if (stackSpaceNeeded != 0)
+        {
+            asm.push(rbp);
+            asm.mov(rbp, rsp);
+            asm.sub(rsp, stackSpaceNeeded);
+        }
+
+        if (returnValue is not null)
+        {
+            asm.mov(rax, (nint)returnValue);
+            asm.mov(__qword_ptr[rsp], rax);
+        }
+        
+
+        var index = 0;
+
+        foreach (var argInfo in desc)
+        {
+            var val = argumentValues[index++];
+            if (argInfo.Instruction is x64_AssemblerStep.InstructionTarget.push && val.type == VeinTypeCode.TYPE_RAW)
+                asm.push(__[argInfo.StackOffset]);
+            else if (argInfo.Instruction is x64_AssemblerStep.InstructionTarget.push)
+            {
+                if (val.type is VeinTypeCode.TYPE_I1)
+                    asm.push(val.data.ub);
+                else if (val.type is VeinTypeCode.TYPE_I2)
+                    asm.push(val.data.s);
+                else if (val.type is VeinTypeCode.TYPE_I4)
+                {
+                    asm.mov(__dword_ptr[rsp + stackOffset], val.data.i);
+                    stackOffset += 8;
+                }
+                else vm.FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
+                        $"type code '{val.type}' is not supported.",
+                        vm.Frames.Jit());
+            }
+            else
+            {
+                
+                if (val.type is VeinTypeCode.TYPE_I1)
+                    asm.mov(new AssemblerRegister64(argInfo.Register), val.data.ub);
+                else if (val.type is VeinTypeCode.TYPE_I2)
+                    asm.mov(new AssemblerRegister64(argInfo.Register), val.data.s);
+                else if (val.type is VeinTypeCode.TYPE_I4)
+                {
+                    if (argInfo.Register.IsGPR64())
+                        asm.mov(new AssemblerRegister64(argInfo.Register), val.data.i);
+                    else if (argInfo.Register.IsGPR32())
+                        asm.mov(new AssemblerRegister32(argInfo.Register), val.data.i);
+                    else
+                        vm.FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
+                            $"cannot move int32 into 16/8 bit register.",
+                            vm.Frames.Jit());
+                }
+                else if (val.type is VeinTypeCode.TYPE_I8)
+                    asm.mov(new AssemblerRegister64(argInfo.Register), val.data.l);
+                else if (val.type is VeinTypeCode.TYPE_RAW)
+                    asm.mov(new AssemblerRegister64(argInfo.Register), __[argumentValues[index++].data.p]);
+                else
+                    vm.FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
+                        $"type code '{val.type}' is not supported.",
+                        vm.Frames.Jit());
+            }
+        }
+        
+
+        asm.call((ulong)procedure);
+        //asm.nop(1);
+
+        if (returnValue is not null)
+        {
+            asm.mov(ecx, 4);
+            asm.imul(rcx, rcx, 0);
+            asm.mov(rdx, __qword_ptr[rsp]);
+            if (returnType is VeinTypeCode.TYPE_I8 or VeinTypeCode.TYPE_U8 or VeinTypeCode.TYPE_RAW)
+                asm.mov(__dword_ptr[rdx + rcx], rax);
+            else
+                asm.mov(__dword_ptr[rdx + rcx], eax);
+        }
+
+        if (stackSpaceNeeded != 0)
+        {
+            asm.add(rsp, stackSpaceNeeded);
+            asm.pop(rbp);
+        }
+        asm.ret();
+        if (vm.HasFaulted())
+            return null;
+        return RecollectExecutableMemory(asm);
+    }
+
+    public static void* WrapNativeCallDetailed(
+        IntPtr procedure,
+        IntPtr retMemory,
+        int argCount,
+        IntPtr argsPointer)
+    {
+        var c = AllocEmitter();
+
+        var copy_args_loop = c.CreateLabel("copy_args_loop");
+
+
+        var @ref = (NativeCallData*)NativeMemory.AllocZeroed(
+            (nuint)sizeof(NativeCallData));
+
+        @ref->argCount = argCount;
+        @ref->argsPointer = argsPointer;
+        @ref->procedure = procedure;
+        @ref->returnMemoryPointer = retMemory;
+
+        // define struct call info
+        // c.mov(rdi, (nint)@ref);
+        //c.mov(rdi, __[rsp + 0]);
+        //c.mov(r11, __[rdi + 8]); // procedure
+        //c.mov(rcx, __[rdi + 4 + 8]);
+        //c.mov(rdx, __[rdi + 4 + 8 + 8]);
+        //c.mov(r8, __[rdi + 8 + 4 + 8 + 8]);
+        //c.push(rdi);
+        c.push(rsp);
+        c.mov(rdi, __[rsp + 0]);
+        c.mov(r11, __[rdi + 8]); // procedure
+        c.mov(rcx, __[rdi + 16]); // argCount
+        c.mov(rdx, __[rdi + 24]); // retMemory
+        c.mov(r8, __[rdi + 32]); // argsPointer
+
+        // create stack
+        c.push(rbp);
+        c.sub(rsp, 0x20);
+        c.lea(rbp, __[rsp + 0x20]);
+
+        // copy args
+        c.mov(rsi, rcx);
+        c.mov(rdi, r8);
+        c.mov(rax, 0);
+        c.Label(ref copy_args_loop);
+        {
+            c.mov(r9, __[rdi + rax * 8]);
+            c.mov(__[rsp + rax * 8], r9);
+            c.inc(rax);
+            c.cmp(rax, rsi);
+            c.jl(copy_args_loop);
+        }
+
+        // call procedure
+        c.call(r11);
+
+        // save result
+        c.mov(rax, __[rsp]);
+        c.mov(__[rdx], rax);
+
+        // restore stack and return
+        c.add(rsp, 0x20);
+        c.pop(rbp);
+        //c.ret();
+
+        var calle = RecollectExecutableMemory(c);
+
+
+        ((delegate*<NativeCallData*, void>)calle)(@ref);
+
+        return null;
+    }
+
 
 
 
@@ -101,60 +630,7 @@ public static unsafe class IshtarJIT
     {
         //r.Arguments[0].Type.
     }
-
-    private struct ArgConventions
-    {
-        private static readonly List<IArgumentStageOperation> decl = new ()
-        {
-            new SingleValueStage(rcx),
-            new SingleValueStage(rdx),
-            new SingleValueStage(r8),
-            new RspStackValueStage(),
-            new RspStackValueStage(),
-            new RspStackValueStage(),
-            new RspStackValueStage(),
-            new RspStackValueStage(),
-            new RspStackValueStage(),
-        };
-
-        public static IArgumentStageOperation GetInstruction(int index)
-        {
-            if (index > decl.Count)
-                throw new IndexOutOfRangeException();
-            return decl[index];
-        }
-
-        public interface IArgumentStageOperation
-        {
-            
-        }
-
-        public struct SingleValueStage : IArgumentStageOperation
-        {
-            public AssemblerRegister64 Slot { get; }
-
-            public SingleValueStage(AssemblerRegister64 reg) => Slot = reg;
-        }
-
-        public struct RspStackValueStage : IArgumentStageOperation
-        {
-            public AssemblerRegister64 Slot => rsp;
-            public uint StartIndex => 0x20;
-        }
-
-
-        public static void PassArguments(Assembler asm, RuntimeIshtarClass[] types)
-        {
-            foreach (var @class in types)
-            {
-                
-            }
-        }
-
-
-    }
-
-
+    
     public static void GenerateBy(RuntimeIshtarMethod method)
     {
         var procedure = method.PIInfo.Addr;
@@ -272,12 +748,100 @@ public static unsafe class IshtarJIT
 
         return RecollectExecutableMemory(c);
     }
-    
+
+    sealed class FormatterOutputImpl : FormatterOutput
+    {
+        public readonly List<(string text, FormatterTextKind kind)> List =
+            new List<(string text, FormatterTextKind kind)>();
+        public override void Write(string text, FormatterTextKind kind) => List.Add((text, kind));
+    }
+
+    static ConsoleColor GetColor(FormatterTextKind kind)
+    {
+        switch (kind)
+        {
+            case FormatterTextKind.Directive:
+            case FormatterTextKind.Keyword:
+                return ConsoleColor.Yellow;
+
+            case FormatterTextKind.Prefix:
+            case FormatterTextKind.Mnemonic:
+                return ConsoleColor.Red;
+
+            case FormatterTextKind.Register:
+                return ConsoleColor.Magenta;
+
+            case FormatterTextKind.Number:
+                return ConsoleColor.Green;
+
+            default:
+                return ConsoleColor.White;
+        }
+    }
+
+    const int exampleCodeBitness = 64;
+    const ulong exampleCodeRIP = 0x00007FFAC46ACDA4;
+    static readonly byte[] exampleCode = new byte[] {
+        0x48, 0x89, 0x5C, 0x24, 0x10, 0x48, 0x89, 0x74, 0x24, 0x18, 0x55, 0x57, 0x41, 0x56, 0x48, 0x8D,
+        0xAC, 0x24, 0x00, 0xFF, 0xFF, 0xFF, 0x48, 0x81, 0xEC, 0x00, 0x02, 0x00, 0x00, 0x48, 0x8B, 0x05,
+        0x18, 0x57, 0x0A, 0x00, 0x48, 0x33, 0xC4, 0x48, 0x89, 0x85, 0xF0, 0x00, 0x00, 0x00, 0x4C, 0x8B,
+        0x05, 0x2F, 0x24, 0x0A, 0x00, 0x48, 0x8D, 0x05, 0x78, 0x7C, 0x04, 0x00, 0x33, 0xFF
+    };
+
+    public static void DumpExecutableProcedure(byte[] body)
+    {
+        var codeReader = new ByteArrayCodeReader(body);
+        var decoder = Iced.Intel.Decoder.Create(64, codeReader);
+
+        decoder.IP = 0xDEAD;
+
+        var formatter = new MasmFormatter();
+        var output = new FormatterOutputImpl();
+
+        foreach (var instr in decoder)
+        {
+            output.List.Clear();
+            formatter.Format(instr, output);
+            foreach (var (text, kind) in output.List)
+            {
+                Console.ForegroundColor = GetColor(kind);
+                Console.Write(text);
+            }
+            Console.WriteLine();
+        }
+        Console.ResetColor();
+    }
+
     private static void* RecollectExecutableMemory(Assembler asm)
     {
         using var stream = new MemoryStream();
         var r = asm.Assemble(new StreamCodeWriter(stream), 0);
         var asm_code = stream.ToArray();
+
+
+
+        var codeReader = new ByteArrayCodeReader(asm_code);
+        var decoder = Iced.Intel.Decoder.Create(64, codeReader);
+
+        decoder.IP = 0xDEAD;
+
+        var formatter = new MasmFormatter();
+        var output = new FormatterOutputImpl();
+
+        foreach (var instr in decoder)
+        {
+            output.List.Clear();
+            formatter.Format(instr, output);
+            foreach (var (text, kind) in output.List)
+            {
+                Console.ForegroundColor = GetColor(kind);
+                Console.Write(text);
+            }
+            Console.WriteLine();
+        }
+        Console.ResetColor();
+
+
         var asm_size = (uint)asm_code.Length;
         void* asm_mem = NativeApi.VirtualAlloc(null, asm_size,  NativeApi.AllocationType.Commit,  NativeApi.MemoryProtection.ReadWrite);
         Marshal.Copy(asm_code, 0, new IntPtr(asm_mem), asm_code.Length);
@@ -292,7 +856,7 @@ public static unsafe class IshtarJIT
             !isProtected &&
             !isProtected )
         {
-            VM.FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", JITFrame);
+            //jitFrame.vm.FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", JITFrame);
             return null;
         }
         return asm_mem; //(delegate*<void>)asm_mem;
@@ -307,7 +871,7 @@ public static unsafe class IshtarJIT
         var isProtected = NativeApi.VirtualProtect(asm_mem, asm_size, NativeApi.Protection.PAGE_EXECUTE_READ, out _);
         if (!isProtected)
         {
-            VM.FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", JITFrame);
+            //VM.FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", JITFrame);
             return null;
         }
         return asm_mem; //(delegate*<void>)asm_mem;
@@ -388,3 +952,22 @@ C.ret(Int32)
     L002d: ret
 */
 #endif
+public enum RegisterKind
+{
+    GPR64,
+    GPR32,
+    GPR16,
+    GPR8
+}
+
+public static class RegisterEx
+{
+    public static RegisterKind GetKind(this Register reg)
+    {
+        if (reg.IsGPR64())
+            return RegisterKind.GPR64;
+        if (reg.IsGPR32())
+            return RegisterKind.GPR32;
+        return RegisterKind.GPR8;
+    }
+}
