@@ -5,7 +5,6 @@ namespace ishtar
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using allocators;
     using vein.extensions;
     using vein.reflection;
     using vein.runtime;
@@ -28,8 +27,10 @@ namespace ishtar
             vm.trace = new IshtarTrace();
             vm.Types = new IshtarCore(vm);
             vm.GC = new IshtarGC(vm);
-            vm.watcher = new DefaultWatchDog(vm);
             vm.Frames = new IshtarFrames(vm);
+            vm.watcher = new DefaultWatchDog(vm);
+            vm.Config = new VMConfig();
+            vm.GC.init();
 
             vm.Types.InitVtables();
 
@@ -82,6 +83,8 @@ namespace ishtar
         internal volatile IshtarTrace trace;
         public IshtarCore Types;
 
+
+        public bool HasFaulted() => CurrentException is not null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastFail(WNE type, string msg, CallFrame frame)

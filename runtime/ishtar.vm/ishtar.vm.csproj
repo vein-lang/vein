@@ -19,6 +19,9 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Iced" Version="1.20.0" />
     <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="8.0.0-rc.2.23479.6" />
@@ -33,5 +36,10 @@
   <ItemGroup>
     <ProjectReference Include="..\common\vein.common.csproj" />
     <ProjectReference Include="..\ishtar.base\ishtar.base.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="sample_native_library.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
