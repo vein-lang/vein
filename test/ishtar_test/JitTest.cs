@@ -7,6 +7,7 @@ using System.IO;
 public class JitTest : IshtarTestBase
 {
     public CallFrame Frame => GetVM().Frames.Jit();
+    public IshtarJIT Jit => GetVM().Jit;
 
     [Test]
     [Parallelizable(ParallelScope.None)]
@@ -19,7 +20,7 @@ public class JitTest : IshtarTestBase
         }
         var proc = LoadNativeLibrary("_sample_1");
 
-        var qwe = IshtarJIT.WrapNativeCallStaticVoid(GetVM(), proc, [], null, null, VeinTypeCode.TYPE_I4);
+        var qwe = Jit.WrapNativeCallStaticVoid(proc, [], null, null, VeinTypeCode.TYPE_I4);
 
         ((delegate*<void>)qwe)();
     }
@@ -35,7 +36,7 @@ public class JitTest : IshtarTestBase
         }
         var proc = LoadNativeLibrary("_sample_1");
 
-        var qwe = IshtarJIT.WrapNativeCall(GetVM(), proc, [], null, VeinTypeCode.TYPE_I4);
+        var qwe = Jit.WrapNativeCall(proc, [], null, VeinTypeCode.TYPE_I4);
 
         ((delegate*<void>)qwe)();
     }
@@ -59,7 +60,7 @@ public class JitTest : IshtarTestBase
         data[0].type = VeinTypeCode.TYPE_I4;
         data[0].data.i = 228;
 
-        var qwe = IshtarJIT.WrapNativeCallStaticVoid(GetVM(), proc, [new VeinArgumentRef("i1", GetVM().Types.Int32Class)], data, null, VeinTypeCode.TYPE_I4);
+        var qwe = Jit.WrapNativeCallStaticVoid(proc, [new VeinArgumentRef("i1", GetVM().Types.Int32Class)], data, null, VeinTypeCode.TYPE_I4);
 
         ((delegate*<void>)qwe)();
 
@@ -77,7 +78,7 @@ public class JitTest : IshtarTestBase
         }
         var proc = LoadNativeLibrary("_sample_2");
 
-        var qwe = IshtarJIT.WrapNativeCall(GetVM(), proc, [new VeinArgumentRef("i1", GetVM().Types.Int32Class)], null, VeinTypeCode.TYPE_I4);
+        var qwe = Jit.WrapNativeCall(proc, [new VeinArgumentRef("i1", GetVM().Types.Int32Class)], null, VeinTypeCode.TYPE_I4);
 
         ((delegate*<int, void>)qwe)(228);
     }
@@ -106,7 +107,7 @@ public class JitTest : IshtarTestBase
             args.Add(new VeinArgumentRef($"i{i}", vm.Types.Int32Class));
         }
 
-        ((delegate*<void>)IshtarJIT.WrapNativeCallStaticVoid(vm, proc, args, data, null, VeinTypeCode.TYPE_I4))();
+        ((delegate*<void>)Jit.WrapNativeCallStaticVoid(proc, args, data, null, VeinTypeCode.TYPE_I4))();
 
         vm.GC.FreeStack(Frame, data, argsLen);
     }
@@ -123,7 +124,7 @@ public class JitTest : IshtarTestBase
         var proc = LoadNativeLibrary("_sample_2_1");
         var args = new List<VeinArgumentRef>();
         var vm = GetVM();
-        ((delegate*<int,int,int,int,void>)IshtarJIT.WrapNativeCall(vm, proc, args, null, VeinTypeCode.TYPE_I4))(1,2,3,4);
+        ((delegate*<int,int,int,int,void>)Jit.WrapNativeCall(proc, args, null, VeinTypeCode.TYPE_I4))(1,2,3,4);
     }
 
     [Test]
@@ -149,7 +150,7 @@ public class JitTest : IshtarTestBase
             args.Add(new VeinArgumentRef($"i{i}", vm.Types.Int32Class));
         }
 
-        ((delegate*<void>)IshtarJIT.WrapNativeCallStaticVoid(vm, proc, args, data, null, VeinTypeCode.TYPE_I4))();
+        ((delegate*<void>)Jit.WrapNativeCallStaticVoid(proc, args, data, null, VeinTypeCode.TYPE_I4))();
 
         vm.GC.FreeStack(Frame, data, argsLen);
     }
@@ -173,7 +174,7 @@ public class JitTest : IshtarTestBase
         data[0].type = VeinTypeCode.TYPE_I4;
         data[0].data.i = 228;
 
-        var qwe = IshtarJIT.WrapNativeCallStaticVoid(vm, proc, [new VeinArgumentRef("i1", vm.Types.Int32Class)], data, null, VeinTypeCode.TYPE_I4);
+        var qwe = Jit.WrapNativeCallStaticVoid(proc, [new VeinArgumentRef("i1", vm.Types.Int32Class)], data, null, VeinTypeCode.TYPE_I4);
 
         vm.GC.FreeStack(Frame, data, argLen);
 
@@ -193,7 +194,7 @@ public class JitTest : IshtarTestBase
         var proc = LoadNativeLibrary("_sample_3");
         var vm = GetVM();
 
-        var qwe = IshtarJIT.WrapNativeCall(vm, proc, [new VeinArgumentRef("i1", vm.Types.Int32Class)], null, VeinTypeCode.TYPE_I4);
+        var qwe = Jit.WrapNativeCall(proc, [new VeinArgumentRef("i1", vm.Types.Int32Class)], null, VeinTypeCode.TYPE_I4);
 
         Assert.AreEqual(228, ((delegate*<int, int>)qwe)(228));
     }
@@ -219,7 +220,7 @@ public class JitTest : IshtarTestBase
 
         var retMem = NativeMemory.AllocZeroed(100);
 
-        var qwe = IshtarJIT.WrapNativeCallStaticVoid(GetVM(), proc, [new VeinArgumentRef("i1", GetVM().Types.Int32Class)], data, retMem, VeinTypeCode.TYPE_I4);
+        var qwe = Jit.WrapNativeCallStaticVoid(proc, [new VeinArgumentRef("i1", GetVM().Types.Int32Class)], data, retMem, VeinTypeCode.TYPE_I4);
 
         ((delegate*<void>)qwe)();
 
@@ -244,7 +245,7 @@ public class JitTest : IshtarTestBase
 
         var retMem = NativeMemory.AllocZeroed(100);
 
-        var qwe = IshtarJIT.WrapNativeCall(GetVM(), proc, [new VeinArgumentRef("i1", GetVM().Types.Int32Class)], retMem, VeinTypeCode.TYPE_I4);
+        var qwe = Jit.WrapNativeCall(proc, [new VeinArgumentRef("i1", GetVM().Types.Int32Class)], retMem, VeinTypeCode.TYPE_I4);
 
         ((delegate*<int,void>)qwe)(228);
 
@@ -266,7 +267,7 @@ public class JitTest : IshtarTestBase
         
         var retMem = NativeMemory.AllocZeroed(100);
 
-        var qwe = IshtarJIT.WrapNativeCall(GetVM(), proc, [new VeinArgumentRef("l1", GetVM().Types.Int64Class)], retMem, VeinTypeCode.TYPE_I8);
+        var qwe = Jit.WrapNativeCall(proc, [new VeinArgumentRef("l1", GetVM().Types.Int64Class)], retMem, VeinTypeCode.TYPE_I8);
 
         ((delegate*<long, void>)qwe)(666_666_666_666);
 

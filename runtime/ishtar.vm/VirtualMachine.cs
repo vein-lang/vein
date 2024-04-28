@@ -29,6 +29,7 @@ namespace ishtar
             vm.GC = new IshtarGC(vm);
             vm.Frames = new IshtarFrames(vm);
             vm.watcher = new DefaultWatchDog(vm);
+            vm.Jit = new IshtarJIT(vm);
             vm.Config = new VMConfig();
             vm.GC.init();
 
@@ -37,7 +38,7 @@ namespace ishtar
             vm.GC.init();
 
             vm.InternalModule = new RuntimeIshtarModule(vm.Vault, "internal");
-            vm.InternalClass = new RuntimeIshtarClass(new QualityTypeName("sys", "__Internal__", "global"),
+            vm.InternalClass = new RuntimeIshtarClass(new QualityTypeName("sys", "__internal__", "global"),
                 vm.Types.ObjectClass, vm.InternalModule);
 
             vm.FFI = new ForeignFunctionInterface(vm);
@@ -80,6 +81,7 @@ namespace ishtar
         public volatile ForeignFunctionInterface FFI;
         public volatile VMConfig Config;
         public volatile IshtarFrames Frames;
+        public volatile IshtarJIT Jit;
         internal volatile IshtarTrace trace;
         public IshtarCore Types;
 

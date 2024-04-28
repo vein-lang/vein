@@ -41,7 +41,7 @@ namespace vein.runtime
             var vm = VirtualMachine.Create("app");
 
 
-            var qwe = IshtarJIT.WrapNativeCall(vm, proc, [], null, VeinTypeCode.TYPE_R4);
+            var qwe = vm.Jit.WrapNativeCall(proc, [], null, VeinTypeCode.TYPE_R4);
 
             var f1 =  ((delegate*<float>)qwe)();
 
@@ -110,26 +110,26 @@ namespace vein.runtime
         //    var c = *((int*)mem2);
         //}
 
-        public static unsafe void TestJit2()
-        {
-            var lib = NativeLibrary.Load("kernel32.dll");
-            var procedure = NativeLibrary.GetExport(lib, "SetConsoleTitleW");
+        //public static unsafe void TestJit2()
+        //{
+        //    var lib = NativeLibrary.Load("kernel32.dll");
+        //    var procedure = NativeLibrary.GetExport(lib, "SetConsoleTitleW");
 
-            var nRet = (nint)NativeMemory.AllocZeroed(sizeof(int));
-            var nArgs = (nint**)NativeMemory.AllocZeroed((nuint)sizeof(nint), 1);
+        //    var nRet = (nint)NativeMemory.AllocZeroed(sizeof(int));
+        //    var nArgs = (nint**)NativeMemory.AllocZeroed((nuint)sizeof(nint), 1);
 
-            var text = Marshal.StringToBSTR("HUI");
-
-
-            nArgs[0] = (nint*)text;
+        //    var text = Marshal.StringToBSTR("HUI");
 
 
-            var calle = IshtarJIT.WrapNativeCallDetailed(procedure, nRet, 1, (nint)nArgs);
+        //    nArgs[0] = (nint*)text;
 
-            ((delegate*<void>)calle)();
 
-            var result = ((delegate*<nint, int>)(procedure))(text);
-        }
+        //    var calle = IshtarJIT.WrapNativeCallDetailed(procedure, nRet, 1, (nint)nArgs);
+
+        //    ((delegate*<void>)calle)();
+
+        //    var result = ((delegate*<nint, int>)(procedure))(text);
+        //}
 #endif
 
         public static unsafe int Main(string[] args)

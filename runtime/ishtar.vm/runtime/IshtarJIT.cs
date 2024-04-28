@@ -1,30 +1,16 @@
-#if EXPERIMENTAL_JIT
 namespace ishtar;
-using System.Collections;
 using System.Diagnostics;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics.Arm;
-using System.Runtime.Intrinsics.X86;
-using System.Text;
 using Iced.Intel;
 using vein.runtime;
 using static Iced.Intel.AssemblerRegisters;
-using static ishtar.IshtarJIT.ArgumentConverter;
 
-public unsafe class IshtarJIT(CallFrame jitFrame)
+public unsafe class IshtarJIT(VirtualMachine vm)
 {
     public static Architecture Architecture => RuntimeInformation.ProcessArchitecture;
-    private static bool IsWindow => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-    private static void* _processHandle;
-    public static void* ProcessHandle
-        => _processHandle == null ?
-           _processHandle = Process.GetCurrentProcess().Handle.ToPointer() :
-           _processHandle;
 
     // x86 is not support, but need safe apply arm32
-    public static Assembler AllocEmitter()
+    public Assembler AllocEmitter()
         => new Assembler(64);
 
     /// <summary>
@@ -33,7 +19,7 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
     /// <param name="procedureHandle"></param>
     /// <returns></returns>
     /// <exception cref="NotSupportedException"></exception>
-    public static void* WrapNativeCall(void* procedureHandle)
+    public void* WrapNativeCall(void* procedureHandle)
         => WrapNativeCall(new IntPtr(procedureHandle)).ToPointer();
 
     /// <summary>
@@ -42,7 +28,7 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
     /// <param name="procedureHandle"></param>
     /// <returns></returns>
     /// <exception cref="NotSupportedException"></exception>
-    public static IntPtr WrapNativeCall(IntPtr procedureHandle)
+    public IntPtr WrapNativeCall(IntPtr procedureHandle)
     {
         if (Architecture is Architecture.Arm64 or Architecture.Arm)
             throw new NotSupportedException("Arm32/64 not support");
@@ -67,11 +53,11 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
         return new IntPtr(RecollectExecutableMemory(c));
     }
     /// <exception cref="NotSupportedException"></exception>
-    public static void* WrapNativeCall(void* procedureHandle, void** retMemory)
+    public void* WrapNativeCall(void* procedureHandle, void** retMemory)
         => WrapNativeCall(new IntPtr(procedureHandle), new IntPtr(retMemory)).ToPointer();
 
     /// <exception cref="NotSupportedException"></exception>
-    public static IntPtr WrapNativeCall(IntPtr procedureHandle, IntPtr retMemory)
+    public IntPtr WrapNativeCall(IntPtr procedureHandle, IntPtr retMemory)
     {
         if (Architecture is Architecture.Arm64 or Architecture.Arm)
             throw new NotSupportedException("Arm32/64 not support");
@@ -246,7 +232,7 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
     }
 
 
-    public static List<x64_AssemblerStep> ConvertArgumentToDesc(IReadOnlyList<VeinArgumentRef> args)
+    public List<x64_AssemblerStep> ConvertArgumentToDesc(IReadOnlyList<VeinArgumentRef> args)
     {
         Dictionary<VeinTypeCode, Register[]> availableRegisters = new()
         {
@@ -311,29 +297,15 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
         return argumentInfos;
     }
 
-    public static void GenerateHeader(Assembler asm, int stackSize, nint procedure)
+    public void GenerateHeader(Assembler asm, int stackSize, nint procedure)
     {
         asm.push(rbp);
         asm.mov(rbp, rsp);
         asm.sub(rsp, stackSize);
         asm.mov(rax, procedure.ToInt64());
     }
-
-    public static void* WrapNativeCallStaticRet(
-        VirtualMachine vm,
-        nint procedure,
-        List<VeinArgumentRef> argument,
-        stackval* argumentValues,
-        VeinClass returnType,
-        stackval* returnValue)
-    {
-        var asm = AllocEmitter();
-        var stackOffset = 16;
-        var desc = ConvertArgumentToDesc(argument);
-        return null;
-    }
-
-    public static void* SimpleFunc()
+    
+    public void* SimpleFunc()
     {
         var asm = AllocEmitter();
 
@@ -343,7 +315,7 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
         return RecollectExecutableMemory(asm);
     }
     
-    public static void* WrapNativeCall(VirtualMachine vm, IntPtr procedure, List<VeinArgumentRef> Arguments,
+    public void* WrapNativeCall(IntPtr procedure, List<VeinArgumentRef> Arguments,
         void* returnValue, VeinTypeCode returnType)
     {
         var asm = AllocEmitter();
@@ -442,8 +414,7 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
         return RecollectExecutableMemory(asm);
     }
 
-    public static void* WrapNativeCallStaticVoid(
-        VirtualMachine vm,
+    public void* WrapNativeCallStaticVoid(
         IntPtr procedure,
         List<VeinArgumentRef> Arguments,
         stackval* argumentValues,
@@ -551,7 +522,7 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
         return RecollectExecutableMemory(asm);
     }
 
-    public static void* WrapNativeCallDetailed(
+    public void* WrapNativeCallDetailed(
         IntPtr procedure,
         IntPtr retMemory,
         int argCount,
@@ -623,39 +594,8 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
         return null;
     }
 
-
-
-
-    public static void C(RuntimeIshtarMethod r)
-    {
-        //r.Arguments[0].Type.
-    }
     
-    public static void GenerateBy(RuntimeIshtarMethod method)
-    {
-        var procedure = method.PIInfo.Addr;
-        var retIsPointer = method.ReturnType.TypeCode == VeinTypeCode.TYPE_RAW;
-        var args = method.Arguments.Select(RemapToNative).ToArray();
-        var c = AllocEmitter();
-
-
-        c.test(r11, r11);
-        c.mov(r11, new IntPtr(procedure).ToInt64());
-        c.push(rbp);
-        c.mov(rbp, rsp);
-        c.sub(rsp, 16);
-
-
-
-        //if (retIsPointer)
-        //{
-        //    c.mov(__[rbp - 4], eax);
-        //    c.lea(rax, __[rbp - 4]);
-        //    c.mov(__[new IntPtr(returnMemory).ToInt64()], rax);
-        //}
-    }
-
-    private static TypeMarshalBox RemapToNative(VeinArgumentRef arg)
+    private TypeMarshalBox RemapToNative(VeinArgumentRef arg)
     {
         if (arg.Type.IsValueType)
             return RemapValueTypeToNative(arg);
@@ -664,7 +604,7 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
 
     public record TypeMarshalBox(byte size, VeinClass clazz);
 
-    private static TypeMarshalBox RemapValueTypeToNative(VeinArgumentRef arg)
+    private TypeMarshalBox RemapValueTypeToNative(VeinArgumentRef arg)
     {
         var type = arg.Type;
         var size = type.TypeCode.GetNativeSize();
@@ -677,7 +617,7 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
         public bool retIsPointer { get; set; }
     }
 
-    public static void* WrapNativeCall_WithArg_Int32(void* procedure, long value)
+    public void* WrapNativeCall_WithArg_Int32(void* procedure, long value)
     {
         var c = AllocEmitter();
         var handle = new IntPtr(procedure).ToInt64();
@@ -696,7 +636,7 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
     }
 
 
-    public static void* WrapNativeCall(void* procedure, void* returnMemory, void* argsMemory)
+    public void* WrapNativeCall(void* procedure, void* returnMemory, void* argsMemory)
     {
         var c = AllocEmitter();
         var handle = new IntPtr(procedure).ToInt64();
@@ -779,15 +719,6 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
         }
     }
 
-    const int exampleCodeBitness = 64;
-    const ulong exampleCodeRIP = 0x00007FFAC46ACDA4;
-    static readonly byte[] exampleCode = new byte[] {
-        0x48, 0x89, 0x5C, 0x24, 0x10, 0x48, 0x89, 0x74, 0x24, 0x18, 0x55, 0x57, 0x41, 0x56, 0x48, 0x8D,
-        0xAC, 0x24, 0x00, 0xFF, 0xFF, 0xFF, 0x48, 0x81, 0xEC, 0x00, 0x02, 0x00, 0x00, 0x48, 0x8B, 0x05,
-        0x18, 0x57, 0x0A, 0x00, 0x48, 0x33, 0xC4, 0x48, 0x89, 0x85, 0xF0, 0x00, 0x00, 0x00, 0x4C, 0x8B,
-        0x05, 0x2F, 0x24, 0x0A, 0x00, 0x48, 0x8D, 0x05, 0x78, 0x7C, 0x04, 0x00, 0x33, 0xFF
-    };
-
     public static void DumpExecutableProcedure(byte[] body)
     {
         var codeReader = new ByteArrayCodeReader(body);
@@ -812,16 +743,14 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
         Console.ResetColor();
     }
 
-    private static void* RecollectExecutableMemory(Assembler asm)
+    private void* RecollectExecutableMemory(Assembler asm)
     {
         using var stream = new MemoryStream();
         var r = asm.Assemble(new StreamCodeWriter(stream), 0);
         var asm_code = stream.ToArray();
 
-
-
         var codeReader = new ByteArrayCodeReader(asm_code);
-        var decoder = Iced.Intel.Decoder.Create(64, codeReader);
+        var decoder = Decoder.Create(64, codeReader);
 
         decoder.IP = 0xDEAD;
 
@@ -846,39 +775,15 @@ public unsafe class IshtarJIT(CallFrame jitFrame)
         void* asm_mem = NativeApi.VirtualAlloc(null, asm_size,  NativeApi.AllocationType.Commit,  NativeApi.MemoryProtection.ReadWrite);
         Marshal.Copy(asm_code, 0, new IntPtr(asm_mem), asm_code.Length);
         FlushInstructions(asm_mem, asm_size);
-        var isProtected = NativeApi.VirtualProtect(asm_mem, asm_size, NativeApi.Protection.PAGE_EXECUTE_READ, out _);
-        if (!isProtected &&
-            !isProtected &&
-            !isProtected &&
-            !isProtected &&
-            !isProtected &&
-            !isProtected &&
-            !isProtected &&
-            !isProtected )
+        if (!NativeApi.VirtualProtect(asm_mem, asm_size, NativeApi.Protection.PAGE_EXECUTE_READ, out _))
         {
-            //jitFrame.vm.FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", JITFrame);
+            vm.FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", vm.Frames.Jit());
             return null;
         }
-        return asm_mem; //(delegate*<void>)asm_mem;
+        return asm_mem; 
     }
-
-    private static void* RecollectExecutableMemory(byte[] asm_code)
-    {
-        var asm_size = (uint)asm_code.Length;
-        void* asm_mem = NativeApi.VirtualAlloc(null, asm_size,  NativeApi.AllocationType.Commit,  NativeApi.MemoryProtection.ReadWrite);
-        Marshal.Copy(asm_code, 0, new IntPtr(asm_mem), asm_code.Length);
-        FlushInstructions(asm_mem, asm_size);
-        var isProtected = NativeApi.VirtualProtect(asm_mem, asm_size, NativeApi.Protection.PAGE_EXECUTE_READ, out _);
-        if (!isProtected)
-        {
-            //VM.FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", JITFrame);
-            return null;
-        }
-        return asm_mem; //(delegate*<void>)asm_mem;
-    }
-
     public static void FlushInstructions(void* ipBaseAddr, uint size)
-        => NativeApi.FlushInstructionCache(ProcessHandle, ipBaseAddr, size);
+        => NativeApi.FlushInstructionCache((void*)Process.GetCurrentProcess().Handle, ipBaseAddr, size);
 }
 
 
@@ -951,7 +856,6 @@ C.ret(Int32)
     L002c: pop rbp
     L002d: ret
 */
-#endif
 public enum RegisterKind
 {
     GPR64,
