@@ -1,6 +1,7 @@
 namespace ishtar_test
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using ishtar;
     using vein.extensions;
@@ -39,7 +40,7 @@ namespace ishtar_test
         public unsafe void CorrectAllocateValue()
         {
             var result = GC.AllocValue(GetVM().Frames.EntryPoint);
-            result = null;
+            GC.FreeValue(result);
         }
 
         [Test]
@@ -47,10 +48,17 @@ namespace ishtar_test
         public unsafe void PopulateObjectsAndShutdownVM()
         {
             GC.check_memory_leak = false;
+            var list = new List<nint>();
 
             foreach (int i in Enumerable.Range(0, 5))
             {
-                GC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass(Types), GetVM().Frames.EntryPoint);
+                list.Add((nint)GC.AllocObject(VeinTypeCode.TYPE_I8.AsRuntimeClass(Types), GetVM().Frames.EntryPoint));
+            }
+
+            foreach (IntPtr nint in list)
+            {
+                var o = (IshtarObject*)nint;
+                GC.FreeObject(o, GC.VM.Frames.GarbageCollector());
             }
 
             //Assert.AreEqual("85 objects", $"{GC.Stats.alive_objects} objects");
@@ -58,8 +66,10 @@ namespace ishtar_test
 
             this.GC.VM.Dispose();
 
-
-            Assert.AreEqual("0 objects", $"{GC.Stats.alive_objects} objects");
+            if (GC.Stats.alive_objects != 0)
+            {
+                Assert.Fail($"detected memory leak, alive_objects is not empty, stillExist:\n {GC.DebugGet()}");
+            }
             Assert.AreEqual("0 bytes", $"{GC.Stats.total_bytes_requested} bytes");
         }
 
