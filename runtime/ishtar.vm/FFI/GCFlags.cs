@@ -9,4 +9,11 @@ namespace ishtar
         NATIVE_REF = 1 << 1,
         IMMORTAL = 1 << 2,
     }
+
+    public enum GCColor
+    {
+        RED,
+        YELLOW,
+        GREEN,
+    }
 }

@@ -1,7 +1,5 @@
 namespace ishtar
 {
-    using System.Diagnostics;
-
     public unsafe struct IshtarObject
     {
         public IshtarObject() {}
@@ -12,6 +10,9 @@ namespace ishtar
         public void* clazz;
         public void** vtable;
         public GCFlags flags;
+        public GCColor color;
+        public ulong refs_size;
+        public double priority => 1d / Math.Max(1, refs_size);
 
         public uint vtable_size;
 
@@ -32,13 +33,12 @@ namespace ishtar
 
         public bool IsValidObject()
         {
+            
 #if DEBUG
             return m1 == magic1 && m2 == magic2;
 #endif
             return true;
         }
-
-        public ulong computedSize;
         
         public RuntimeIshtarClass decodeClass()
         {

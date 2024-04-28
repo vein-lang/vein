@@ -2,7 +2,6 @@ namespace vein.runtime
 {
     using System.Linq;
     using global::ishtar;
-    using vein.runtime;
 
     public static class ModuleEx
     {

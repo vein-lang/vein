@@ -1,12 +1,8 @@
 namespace ishtar
 {
-    using System;
     using System.Collections.Generic;
-    using System.Runtime.InteropServices;
     using vein.reflection;
-    using Microsoft.CodeAnalysis;
     using vein.runtime;
-    using static OpCodeValue;
     using static vein.runtime.VeinTypeCode;
 
     public unsafe partial class VirtualMachine

@@ -1,8 +1,5 @@
 namespace ishtar
 {
-    using System.Net.Sockets;
-    using static vein.runtime.MethodFlags;
-    using static vein.runtime.VeinTypeCode;
     public unsafe class B_Socket
     {
         //[IshtarExport(0, "@_sock_is_support_ipv6")]

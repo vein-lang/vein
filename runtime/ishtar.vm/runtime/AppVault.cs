@@ -4,7 +4,6 @@ namespace ishtar
     using System.Linq;
     using System.Threading;
     using vein;
-    using vein.fs;
     using vein.reflection;
     using vein.runtime;
 

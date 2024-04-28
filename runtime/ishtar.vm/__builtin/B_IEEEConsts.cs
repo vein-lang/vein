@@ -1,9 +1,7 @@
 namespace ishtar
 {
-    using System.Collections.Generic;
-    using vein.runtime;
     using static vein.runtime.MethodFlags;
-    using static vein.runtime.VeinTypeCode;
+
     public static unsafe class B_IEEEConsts
     {
         [IshtarExport(0, "getHalfNaN")]

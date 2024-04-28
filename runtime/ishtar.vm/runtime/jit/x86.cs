@@ -1,7 +1,5 @@
 namespace ishtar
 {
-    using System;
-
     [ExcludeFromCodeCoverage]
     public class jit_x86
     {
