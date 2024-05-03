@@ -14,6 +14,9 @@
     <ProjectReference Include="..\..\compiler\veinc.csproj" />
   </ItemGroup>
   <ItemGroup>
+	  <None Update="sample_native_library.dll">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="std.wll">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>

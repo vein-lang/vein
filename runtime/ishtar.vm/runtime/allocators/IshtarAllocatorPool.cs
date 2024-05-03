@@ -16,8 +16,10 @@ public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
 #elif LINUX
             new NullAllocator();
 #elif OSX
+#warning THIS OS CUSTOM ALLOCATOR IS NOT IMPLEMENTED
             new NullAllocator();
 #else
+#warning THIS OS CUSTOM ALLOCATOR IS NOT IMPLEMENTED
             new NullAllocator();
 #endif
 

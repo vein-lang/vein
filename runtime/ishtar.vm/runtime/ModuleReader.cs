@@ -14,7 +14,6 @@ namespace ishtar
     using MoreLinq;
     using vein.reflection;
     using vein.runtime;
-    using vm;
 
     public class RuntimeIshtarModule : VeinModule
     {

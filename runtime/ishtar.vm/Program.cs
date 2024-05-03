@@ -11,33 +11,8 @@ namespace vein.runtime
     using ishtar;
     internal class Program
     {
-        #if EXPERIMENTAL_JIT
-        public unsafe static void TestJitFunctional()
-        {
-            var unused = default(NativeApi.Protection);
-            var ptr = NativeLibrary.Load("sample_native_library.dll");
-            var fnPtr2 = NativeLibrary.GetExport(ptr, "_sample_2");
-            var result1 = 0;
-            var result2 = 15;
-            int* mem1 = &result1;
-            void* mem2 = &result2;
-
-            var bw = mem1[0];
-
-
-            var qwe = IshtarJIT.WrapNativeCall((IntPtr)0);
-
-            ((delegate*<void>)IshtarJIT.WrapNativeCall_WithArg_Int32(fnPtr2.ToPointer(), 127))();
-
-            ((delegate*<int, void>)IshtarJIT.WrapNativeCall(fnPtr5.ToPointer(), &mem))(55);
-            var b = *((int*)mem1);
-            var c = *((int*)mem2);
-        }
-        #endif
-
         public static unsafe int Main(string[] args)
         {
-            //TestJitFunctional();
             //while (!Debugger.IsAttached)
             //    Thread.Sleep(200);
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -45,6 +20,9 @@ namespace vein.runtime
                 Console.OutputEncoding = Encoding.Unicode;
             var vm = VirtualMachine.Create("app");
             var vault = vm.Vault;
+
+
+            vm.halt();
 
             var masterModule = default(IshtarAssembly);
             var resolver = default(AssemblyResolver);
@@ -68,7 +46,7 @@ namespace vein.runtime
                     vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, "0x2", vm.Frames.EntryPoint);
                     return -2;
                 }
-                vault.WorkDirecotry = entry.Directory;
+                vault.WorkDirectory = entry.Directory;
                 resolver = vault.GetResolver();
                 masterModule = IshtarAssembly.LoadFromFile(entry);
                 resolver.AddSearchPath(entry.Directory);

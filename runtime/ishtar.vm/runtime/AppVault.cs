@@ -4,13 +4,12 @@ namespace ishtar
     using System.Linq;
     using System.Threading;
     using vein;
-    using vein.fs;
     using vein.reflection;
     using vein.runtime;
 
     public class AppVault : AppVaultSync, IDisposable
     {
-        public DirectoryInfo WorkDirecotry { get; set; } = new("./");
+        public DirectoryInfo WorkDirectory { get; set; } = new("./");
 
         public VirtualMachine vm { get; }
         public string Name { get; }
@@ -77,10 +76,10 @@ namespace ishtar
 
         private void ReadDependencyMetadata()
         {
-            if (!WorkDirecotry.File("dependency.links").Exists)
+            if (!WorkDirectory.File("dependency.links").Exists)
                 return;
 
-            foreach (var line in File.ReadAllLines(WorkDirecotry.File("dependency.links").FullName)
+            foreach (var line in File.ReadAllLines(WorkDirectory.File("dependency.links").FullName)
                          .Select(x => new DirectoryInfo(x))
                          .Where(x => x.Exists))
                 Resolver.AddSearchPath(line);

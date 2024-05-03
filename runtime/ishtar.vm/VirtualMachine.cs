@@ -1,11 +1,11 @@
 namespace ishtar
 {
     using emit;
+    using ishtar.runtime.vin;
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using allocators;
     using vein.extensions;
     using vein.reflection;
     using vein.runtime;
@@ -17,29 +17,37 @@ namespace ishtar
 
     public unsafe partial class VirtualMachine : IDisposable
     {
+
+
         VirtualMachine() {}
 
         /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
         public static VirtualMachine Create(string name)
         {
             var vm = new VirtualMachine();
+            vm.Jit = new IshtarJIT(vm);
             vm.Config = new VMConfig();
             vm.Vault = new AppVault(vm, name);
             vm.trace = new IshtarTrace();
             vm.Types = new IshtarCore(vm);
             vm.GC = new IshtarGC(vm);
-            vm.watcher = new DefaultWatchDog(vm);
             vm.Frames = new IshtarFrames(vm);
+            vm.watcher = new DefaultWatchDog(vm);
+            
+            vm.Config = new VMConfig();
+            vm.NativeStorage = new NativeStorage(vm);
+            vm.GC.init();
 
             vm.Types.InitVtables();
 
             vm.GC.init();
 
             vm.InternalModule = new RuntimeIshtarModule(vm.Vault, "internal");
-            vm.InternalClass = new RuntimeIshtarClass(new QualityTypeName("sys", "__Internal__", "global"),
+            vm.InternalClass = new RuntimeIshtarClass(new QualityTypeName("sys", "__internal__", "global"),
                 vm.Types.ObjectClass, vm.InternalModule);
 
             vm.FFI = new ForeignFunctionInterface(vm);
+
             
             return vm;
         }
@@ -79,9 +87,13 @@ namespace ishtar
         public volatile ForeignFunctionInterface FFI;
         public volatile VMConfig Config;
         public volatile IshtarFrames Frames;
+        public volatile IshtarJIT Jit;
+        public volatile NativeStorage NativeStorage;
         internal volatile IshtarTrace trace;
         public IshtarCore Types;
 
+        
+        public bool HasFaulted() => CurrentException is not null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FastFail(WNE type, string msg, CallFrame frame)
@@ -93,8 +105,7 @@ namespace ishtar
         [Conditional("DEBUG")]
         public void println(string str) => trace.println(str);
 
-        public void halt(int exitCode = -1)
-            => Environment.Exit(exitCode);
+        public void halt(int exitCode = -1) => Environment.Exit(exitCode);
 
         public void exec_method_external_native(CallFrame frame)
         {

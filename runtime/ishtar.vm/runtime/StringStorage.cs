@@ -1,8 +1,6 @@
 namespace ishtar
 {
     using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
-    using System.Runtime.InteropServices;
 
     public static unsafe class StringStorage
     {

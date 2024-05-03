@@ -1,8 +1,5 @@
 namespace ishtar;
 
-using vein.runtime;
-
-
 public unsafe class IshtarLayerField : RuntimeLayerObject<IshtarLayerField>
 {
     protected override RuntimeIshtarClass Class => KnowTypes.Field(_frame);
