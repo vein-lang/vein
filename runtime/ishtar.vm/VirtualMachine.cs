@@ -26,7 +26,6 @@ namespace ishtar
         {
             var vm = new VirtualMachine();
             vm.Jit = new IshtarJIT(vm);
-            vm._halt = vm.Jit.GenerateHalt();
             vm.Config = new VMConfig();
             vm.Vault = new AppVault(vm, name);
             vm.trace = new IshtarTrace();
@@ -93,10 +92,7 @@ namespace ishtar
         internal volatile IshtarTrace trace;
         public IshtarCore Types;
 
-
-        private delegate*<void> _halt;
-
-
+        
         public bool HasFaulted() => CurrentException is not null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -109,7 +105,7 @@ namespace ishtar
         [Conditional("DEBUG")]
         public void println(string str) => trace.println(str);
 
-        public void halt(int exitCode = -1) => _halt();
+        public void halt(int exitCode = -1) => Environment.Exit(exitCode);
 
         public void exec_method_external_native(CallFrame frame)
         {
