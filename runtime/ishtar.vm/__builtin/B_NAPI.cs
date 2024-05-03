@@ -31,7 +31,7 @@ public static unsafe class B_NAPI
             return IshtarObject.NullPointer;
         }
 
-        var result = NativeStorage.TryLoad(libFile, out var h);
+        var result = current.vm.NativeStorage.TryLoad(libFile, out var h);
 
         if (!result)
         {

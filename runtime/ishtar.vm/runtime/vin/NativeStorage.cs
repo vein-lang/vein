@@ -2,32 +2,30 @@ namespace ishtar.runtime.vin;
 
 using ishtar.vin.loaders;
 
-public static class NativeStorage
+public class NativeStorage(VirtualMachine vm)
 {
-    private static readonly object guarder = new();
-    private static Dictionary<string, nint> _cache = new();
+    private readonly object guarder = new();
+    private readonly Dictionary<string, nint> _cache = new();
 
-    #if LINUX
-    private static INativeLoader _loader = new WindowsLoader();
-    #elif MACOS
-    private static INativeLoader _loader = new MacOSLoader();
-    #else
-    private static INativeLoader _loader = new WindowsLoader();
-    #endif
+#if LINUX
+    private readonly INativeLoader _loader = new UnixLoader();
+#elif MACOS
+#error MacOS is not supported currently
+    private readonly INativeLoader _loader = new NullLoader();
+#else
+    private readonly INativeLoader _loader = new WindowsLoader();
+#endif
 
-    public static nint GetSymbol(nint handle, string symbol)
+    public nint GetSymbol(nint handle, string symbol)
         => _loader.GetSymbol(handle, symbol);
 
-    public static bool TryLoad(FileInfo file, out nint result)
+    public bool TryLoad(FileInfo file, out nint result)
     {
         lock (guarder)
         {
             result = IntPtr.Zero;
-            if (_cache.ContainsKey(file.Name))
-            {
-                result = _cache[file.Name];
+            if (_cache.TryGetValue(file.Name, out result))
                 return true;
-            }
 
             if (!file.Exists)
                 return false;
@@ -37,12 +35,12 @@ public static class NativeStorage
         }
     }
 
-    public static nint LoadLibrary(FileInfo file)
+    public nint LoadLibrary(FileInfo file)
     {
         lock (guarder)
         {
-            if (_cache.ContainsKey(file.Name))
-                return _cache[file.Name];
+            if (_cache.TryGetValue(file.Name, out IntPtr library))
+                return library;
             return _cache[file.Name] = _loader.LoadLibrary(file);
         }
     }

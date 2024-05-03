@@ -1,6 +1,7 @@
 namespace ishtar
 {
     using emit;
+    using ishtar.runtime.vin;
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
@@ -16,12 +17,16 @@ namespace ishtar
 
     public unsafe partial class VirtualMachine : IDisposable
     {
+
+
         VirtualMachine() {}
 
         /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
         public static VirtualMachine Create(string name)
         {
             var vm = new VirtualMachine();
+            vm.Jit = new IshtarJIT(vm);
+            vm._halt = vm.Jit.GenerateHalt();
             vm.Config = new VMConfig();
             vm.Vault = new AppVault(vm, name);
             vm.trace = new IshtarTrace();
@@ -29,8 +34,9 @@ namespace ishtar
             vm.GC = new IshtarGC(vm);
             vm.Frames = new IshtarFrames(vm);
             vm.watcher = new DefaultWatchDog(vm);
-            vm.Jit = new IshtarJIT(vm);
+            
             vm.Config = new VMConfig();
+            vm.NativeStorage = new NativeStorage(vm);
             vm.GC.init();
 
             vm.Types.InitVtables();
@@ -42,6 +48,7 @@ namespace ishtar
                 vm.Types.ObjectClass, vm.InternalModule);
 
             vm.FFI = new ForeignFunctionInterface(vm);
+
             
             return vm;
         }
@@ -82,8 +89,12 @@ namespace ishtar
         public volatile VMConfig Config;
         public volatile IshtarFrames Frames;
         public volatile IshtarJIT Jit;
+        public volatile NativeStorage NativeStorage;
         internal volatile IshtarTrace trace;
         public IshtarCore Types;
+
+
+        private delegate*<void> _halt;
 
 
         public bool HasFaulted() => CurrentException is not null;
@@ -98,8 +109,7 @@ namespace ishtar
         [Conditional("DEBUG")]
         public void println(string str) => trace.println(str);
 
-        public void halt(int exitCode = -1)
-            => Environment.Exit(exitCode);
+        public void halt(int exitCode = -1) => _halt();
 
         public void exec_method_external_native(CallFrame frame)
         {
