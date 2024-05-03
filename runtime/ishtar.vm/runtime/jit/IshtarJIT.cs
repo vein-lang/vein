@@ -13,6 +13,17 @@ public unsafe class IshtarJIT(VirtualMachine vm)
     public Assembler AllocEmitter()
         => new Assembler(64);
 
+    public delegate*<void> GenerateHalt()
+    {
+        var asm = AllocEmitter();
+
+        asm.mov(rax, 60);
+        asm.xor(rdi, rdi);
+        asm.syscall();
+
+        return (delegate*<void>)RecollectExecutableMemory(asm);
+    }
+
     /// <summary>
     /// 
     /// </summary>
@@ -79,158 +90,6 @@ public unsafe class IshtarJIT(VirtualMachine vm)
 
         return new IntPtr(RecollectExecutableMemory(c));
     }
-
-    public struct NativeCallData
-    {
-        public nint procedure;
-        public long argCount;
-        public nint returnMemoryPointer;
-        public nint argsPointer;
-    }
-
-    
-
-    public struct x64_AssemblerStep
-    {
-        public InstructionTarget Instruction;
-        public Register Register;
-        public int StackOffset;
-
-        public enum InstructionTarget
-        {
-            push,
-            mov
-        }
-    }
-
-    public class ArgumentConverter
-    {
-        public static void GenerateAssemblerCode(List<x64_AssemblerStep> argumentInfos,
-            List<object> argumentValues, nint nativeFunctionPtr, Assembler asm)
-        {
-            int numRegistersUsed = argumentInfos.Count(argInfo => argInfo.Instruction != x64_AssemblerStep.InstructionTarget.push);
-
-            int stackSpaceNeeded = numRegistersUsed * 8; 
-
-
-            asm.push(rbp);
-            asm.mov(rbp, rsp);
-            asm.sub(rsp, stackSpaceNeeded);
-            
-            int valueIndex = 0;
-
-            foreach (var argInfo in argumentInfos)
-            {
-                if (argInfo.Instruction == x64_AssemblerStep.InstructionTarget.push)
-                    asm.push(__[argInfo.StackOffset]);
-                else
-                {
-                    if (argumentValues[valueIndex] is IntPtr ptr)
-                    {
-                        
-                        asm.mov(new AssemblerRegister64(argInfo.Register), __[ptr]);
-                        valueIndex++;
-                    }
-                    else
-                    {
-                        var val = argumentValues[valueIndex++];
-                        if (val is byte b)
-                            asm.mov(new AssemblerRegister64(argInfo.Register), b);
-                        if (val is short s)
-                            asm.mov(new AssemblerRegister64(argInfo.Register), s);
-                        if (val is int i)
-                            asm.mov(new AssemblerRegister64(argInfo.Register), i);
-                        if (val is long l)
-                            asm.mov(new AssemblerRegister64(argInfo.Register), l);
-                        //if (val is float f)
-                        //    asm.mov(xmm0, 12f);
-                        if (val is char c)
-                            asm.mov(new AssemblerRegister64(argInfo.Register), c);
-                        if (val is bool bb)
-                            asm.mov(new AssemblerRegister64(argInfo.Register), (byte)(bb ? 1 : 0));
-                        if (val is float or double)
-                            throw new NotSupportedException();
-                    }
-
-                    asm.call(__[nativeFunctionPtr]);
-                    asm.add(rsp, stackSpaceNeeded);
-                    asm.pop(rbp);
-                    asm.ret();
-                }
-            }
-           
-
-        }
-
-        public static List<x64_AssemblerStep> ConvertArguments(List<Type> argumentTypes, List<object> argumentValues)
-        {
-            Dictionary<Type, Register[]> availableRegisters = new()
-            {
-                { typeof(byte), [dl, cl, r8, r9, r12, r13] },
-                { typeof(short), [dx, cx, r8, r9, r12, r13] },
-                { typeof(int), [r9, r8, ecx, edx, r12, r13] },
-                { typeof(long), [r8, rcx, rdx, r9, r12, r13] },
-                { typeof(IntPtr), [rcx, rdx, r8, r9, r10, r11, r12, r13] },
-                { typeof(float), [xmm0, xmm1, xmm2, xmm3, xmm4, xmm5] },
-                { typeof(double), [xmm0, xmm1, xmm2, xmm3, xmm4, xmm5] },
-                { typeof(char), [dl, cl, r8, r9, r12, r13] },
-                { typeof(bool), [al, dl, cl, r8, r9, r12, r13] }
-            };
-
-            List<x64_AssemblerStep> argumentInfos = [];
-            int stackOffset = 16;
-
-            for (int i = 0; i < argumentTypes.Count; i++)
-            {
-                Type type = argumentTypes[i];
-                object value = argumentValues[i];
-
-                if (!availableRegisters.ContainsKey(type))
-                {
-                    argumentInfos.Add(new x64_AssemblerStep { Instruction = x64_AssemblerStep.InstructionTarget.push, StackOffset = stackOffset });
-                    stackOffset += 8;
-                }
-                else if (type == typeof(float))
-                {
-                    var registers = availableRegisters[type];
-                    foreach (var reg in registers)
-                    {
-                        if (!argumentInfos.Exists(info => info.Register == reg))
-                        {
-                            argumentInfos.Add(new x64_AssemblerStep
-                            {
-                                Instruction = x64_AssemblerStep.InstructionTarget.mov,
-                                Register = reg,
-                                StackOffset = -1
-                            });
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    var registers = availableRegisters[type];
-                    foreach (var reg in registers)
-                    {
-                        if (!argumentInfos.Exists(info => info.Register == reg))
-                        {
-                            argumentInfos.Add(new x64_AssemblerStep { Instruction = x64_AssemblerStep.InstructionTarget.mov, Register = reg });
-                            break;
-                        }
-                    }
-
-                    if (!argumentInfos.Exists(info => info.Instruction == x64_AssemblerStep.InstructionTarget.mov))
-                    {
-                        argumentInfos.Add(new x64_AssemblerStep { Instruction = x64_AssemblerStep.InstructionTarget.push, StackOffset = stackOffset });
-                        stackOffset += 8;
-                    }
-                }
-            }
-
-            return argumentInfos;
-        }
-    }
-
 
     public List<x64_AssemblerStep> ConvertArgumentToDesc(IReadOnlyList<VeinArgumentRef> args)
     {
@@ -337,7 +196,6 @@ public unsafe class IshtarJIT(VirtualMachine vm)
             asm.mov(rax, (nint)returnValue);
             asm.mov(__qword_ptr[rsp], rax);
         }
-        var index = 0;
         var sbpOffset = 0;
 
         for (var i = 0; i < desc.Count; i++)
@@ -602,7 +460,6 @@ public unsafe class IshtarJIT(VirtualMachine vm)
         return new TypeMarshalBox((byte)sizeof(nint), arg.Type);
     }
 
-    public record TypeMarshalBox(byte size, VeinClass clazz);
 
     private TypeMarshalBox RemapValueTypeToNative(VeinArgumentRef arg)
     {
@@ -611,12 +468,7 @@ public unsafe class IshtarJIT(VirtualMachine vm)
 
         return new TypeMarshalBox(size, type);
     }
-
-    public class NativeCallInfo
-    {
-        public bool retIsPointer { get; set; }
-    }
-
+    
     public void* WrapNativeCall_WithArg_Int32(void* procedure, long value)
     {
         var c = AllocEmitter();
@@ -688,14 +540,7 @@ public unsafe class IshtarJIT(VirtualMachine vm)
 
         return RecollectExecutableMemory(c);
     }
-
-    sealed class FormatterOutputImpl : FormatterOutput
-    {
-        public readonly List<(string text, FormatterTextKind kind)> List =
-            new List<(string text, FormatterTextKind kind)>();
-        public override void Write(string text, FormatterTextKind kind) => List.Add((text, kind));
-    }
-
+    
     static ConsoleColor GetColor(FormatterTextKind kind)
     {
         switch (kind)
@@ -727,7 +572,7 @@ public unsafe class IshtarJIT(VirtualMachine vm)
         decoder.IP = 0xDEAD;
 
         var formatter = new MasmFormatter();
-        var output = new FormatterOutputImpl();
+        var output = new AssemblerFormatterOutputImpl();
 
         foreach (var instr in decoder)
         {
@@ -755,7 +600,7 @@ public unsafe class IshtarJIT(VirtualMachine vm)
         decoder.IP = 0xDEAD;
 
         var formatter = new MasmFormatter();
-        var output = new FormatterOutputImpl();
+        var output = new AssemblerFormatterOutputImpl();
 
         foreach (var instr in decoder)
         {
@@ -784,94 +629,4 @@ public unsafe class IshtarJIT(VirtualMachine vm)
     }
     public static void FlushInstructions(void* ipBaseAddr, uint size)
         => NativeApi.FlushInstructionCache((void*)Process.GetCurrentProcess().Handle, ipBaseAddr, size);
-}
-
-
-/*
-     *    0x0000000000400526: push   rbp
-       0x0000000000400527: mov    rbp,rsp         # stack-frame boilerplate
-       0x000000000040052a: mov    edi,0x4005c4    # first arg
-       0x000000000040052f: mov    eax,0x0         # 0 FP args in vector registers
-     */
-/* void* 
-             *
-    L000a: xor eax, eax
-    L000c: mov [rbp-8], rax
-    L0010: mov [rbp+0x10], rcx
-    L0014: mov [rbp+0x18], rdx
-    L0018: mov rcx, 0x7ffca892cb00
-    L0022: xor edx, edx
-             */
-/* void* 
- *
-L000a: xor eax, eax
-L000c: mov [rbp-8], rax
-L0010: mov [rbp+0x10], rcx
-L0014: mov [rbp+0x18], rdx
-L0018: mov [rbp+0x20], r8
-L001c: mov rcx, 0x7ffca89dcb00
-L0026: xor edx, edx
- */
-
-//c.push(rbp);
-//c.sub(rsp, 0x20);
-//c.lea(rbp, __[rsp+0x20]);
-//c.mov(r11, procedureHandle.ToInt64());
-//c.jmp(r11);
-
-//c.nop();
-//c.mov(__[retMemory.ToInt64()], rax);
-//c.pop(rbp);
-
-/*C.ret()
-    L000a: call 0x00007ffca8030460
-    L000f: mov rdx, 0x432322245
-    L0019: mov [rdx], rax
-    L001c: add rsp, 0x20
-    L0020: pop rbp
-    L0021: ret
-*/
-
-/*
-C.ret(Int32)
-    L000a: mov [rbp+0x10], ecx
-    L000d: mov ecx, [rbp+0x10]
-
-    L0010: call 0x00007ffca8040460
-    L0015: mov rdx, 0x432322245
-    L001f: mov [rdx], rax
-    L0022: add rsp, 0x20
-    L0026: pop rbp
-    L0027: ret*/
-
-/*C.ret(Int32, Int32)
-    L000a: mov [rbp+0x10], ecx
-    L000d: mov [rbp+0x18], edx
-    L0010: mov ecx, [rbp+0x10]
-    L0013: mov edx, [rbp+0x18]
-    L0016: call 0x00007ffca8060460
-    L001b: mov rdx, 0x432322245
-    L0025: mov [rdx], rax
-    L0028: add rsp, 0x20
-    L002c: pop rbp
-    L002d: ret
-*/
-public enum RegisterKind
-{
-    GPR64,
-    GPR32,
-    GPR16,
-    GPR8
-}
-
-public static class RegisterEx
-{
-    public static RegisterKind GetKind(this Register reg)
-    {
-        if (reg.IsGPR64())
-            return RegisterKind.GPR64;
-        if (reg.IsGPR32())
-            return RegisterKind.GPR32;
-        return RegisterKind.GPR8;
-    }
 }
