@@ -1,13 +1,248 @@
-namespace ishtar
+namespace ishtar.vm.runtime
 {
+    using allocators;
+    using ishtar;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using allocators;
     using vein.runtime;
     using static vein.runtime.VeinTypeCode;
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void IshtarFinalizationProc(nint p, nint i);
+
+
+
+    public unsafe interface GCLayout
+    {
+        public void init();
+        public void destroy();
+        public void* alloc(uint size);
+        public void free(void* ptr);
+        public void link(void** child, void* parent, bool trackable);
+        public void unlink(void** link_addr, bool trackable);
+        public void* alloc_atomic(uint size);
+        public void* alloc_immortal(uint size);
+        public void add_roots(void* ptr);
+        public long get_heap_size();
+        public long get_free_bytes();
+        public long get_heap_usage();
+        public bool try_collect();
+        public void finalize_all();
+        public void finalize_on_demand();
+
+        public void register_finalizer_no_order(IshtarObject* obj, IshtarFinalizationProc proc, CallFrame frame);
+        public void collect();
+        bool is_marked(void* obj);
+    }
+
+    public unsafe interface GCLayout_Debug
+    {
+        public void find_leak();
+        public void dump(string file);
+    }
+
+
+    public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
+    {
+        public class Native
+        {
+#if WINDOWS
+            public const string LIBNAME = "gc.dll";
+#elif LINUX
+            public const string LIBNAME = "libgc";
+#elif MACOS
+            public const string LIBNAME = "libgc";
+#else
+#error No OS Selected, Boehm not support this os or not implemented 
+#endif
+
+
+            [DllImport(LIBNAME)]
+            public static extern void GC_init();
+            // GC_API void GC_CALL GC_deinit(void);
+            [DllImport(LIBNAME)]
+            public static extern void GC_deinit();
+
+            [DllImport(LIBNAME, CharSet = CharSet.Ansi)]
+            public static extern void GC_debug_free(void* ptr, string file, int line);
+            [DllImport(LIBNAME, CharSet = CharSet.Ansi)]
+            public static extern void* GC_debug_malloc(uint size, string file, int line);
+
+            [DllImport(LIBNAME)]
+            public static extern void GC_register_finalizer_for_ptr(void* ptr, delegate*<void> finalizer);
+            [DllImport(LIBNAME, CharSet = CharSet.Ansi)]
+            public static extern void* GC_debug_malloc_atomic(uint size, string file, int line);
+            [DllImport(LIBNAME)]
+            public static extern void GC_collect();
+            [DllImport(LIBNAME)]
+            public static extern void GC_dump(void* file);
+            [DllImport(LIBNAME)]
+            public static extern int GC_try_to_collect(int zero);
+            [DllImport(LIBNAME)]
+            public static extern void GC_general_register_disappearing_link(void** location, void* obj);
+
+            // GC_API int GC_CALL GC_unregister_long_link(void * * link)
+            [DllImport(LIBNAME)]
+            public static extern void GC_unregister_long_link(void** location);
+
+            // GC_API int GC_CALL GC_unregister_disappearing_link(void * * link)
+            [DllImport(LIBNAME)]
+            public static extern void GC_unregister_disappearing_link(void** location);
+
+            /* Another versions of the above follow.  It ignores            */
+            /* self-cycles, i.e. pointers from a finalizable object to      */
+            /* itself.  There is a stylistic argument that this is wrong,   */
+            /* but it's unavoidable for C++, since the compiler may         */
+            /* silently introduce these.  It's also benign in that specific */
+            /* case.  And it helps if finalizable objects are split to      */
+            /* avoid cycles.                                                */
+            /* Note that cd will still be viewed as accessible, even if it  */
+            /* refers to the object itself.                                 */
+            // GC_API void GC_CALL GC_register_finalizer_ignore_self(void* /* obj */, GC_finalization_proc /* fn */, void* /* cd */, GC_finalization_proc* /* ofn */, void** /* ocd */) GC_ATTR_NONNULL(1);
+            [DllImport(LIBNAME)]
+            public static extern void GC_register_finalizer_ignore_self(void* obj, IshtarFinalizationProc fn, void* cd, IshtarFinalizationProc ofn, void** ocd);
+
+
+
+            [DllImport(LIBNAME, CharSet = CharSet.Ansi)]
+            public static extern void GC_debug_register_finalizer_no_order(void* obj, IshtarFinalizationProc fn, void* cd, IshtarFinalizationProc ofn, void** ocd, string file, int line);
+
+
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            public delegate void GC_finalization_proc(void* p, void* i);
+
+            // GC_API int GC_CALL GC_register_long_link(void** /* link */, const void * /* obj */) GC_ATTR_NONNULL(1) GC_ATTR_NONNULL(2);
+            [DllImport(LIBNAME)]
+            public static extern void GC_register_long_link(void** link, void* obj);
+
+
+            /* Given a pointer to the base of an object, return its size in bytes.  */
+            /* The returned size may be slightly larger than what was originally    */
+            /* requested.                                                           */
+            //GC_API size_t GC_CALL GC_size(const void * /* obj_addr */) GC_ATTR_NONNULL(1);
+            [DllImport(LIBNAME)]
+            public static extern uint GC_collect(void* ptr);
+
+            [DllImport(LIBNAME)]
+            public static extern void GC_gcollect();
+
+            /* Set and get the default stop_func.  The default stop_func is used by */
+            /* GC_gcollect() and by implicitly triggered collections (except for    */
+            /* the case when handling out of memory).  Must not be 0.  Both the     */
+            /* setter and the getter acquire the allocator lock (in the reader mode */
+            /* in case of the getter) to avoid data race.                           */
+            // GC_API void GC_CALL GC_set_stop_func(GC_stop_func /* stop_func */) GC_ATTR_NONNULL(1);
+            [DllImport(LIBNAME)]
+            public static extern uint GC_set_stop_func(GC_stop_func ptr);
+
+
+            // GC_finalize_all
+
+            [DllImport(LIBNAME)]
+            public static extern void GC_finalize_all();
+
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            public delegate void GC_stop_func();
+
+
+            // GC_API void GC_CALL GC_set_find_leak(int);
+            [DllImport(LIBNAME)]
+            public static extern void GC_set_find_leak(bool zero);
+
+            [DllImport(LIBNAME)]
+            public static extern long get_heap_size();
+
+            [DllImport(LIBNAME)]
+            public static extern long get_free_bytes();
+
+            [DllImport(LIBNAME)]
+            public static extern long GC_get_heap_usage();
+
+            [DllImport(LIBNAME)]
+            public static extern bool GC_is_marked(void* ptr);
+        }
+
+
+        public void init()
+        {
+            Native.GC_init();
+            Native.GC_set_find_leak(true);
+        }
+
+        public void destroy() => Native.GC_deinit();
+
+        public void* alloc(uint size) => Native.GC_debug_malloc(size, "empty.vein", 0);
+
+        /* Explicitly deallocate an object.  Dangerous if used incorrectly.     */
+        /* Requires a pointer to the base of an object.                         */
+        /* An object should not be enabled for finalization (and it should not  */
+        /* contain registered disappearing links of any kind) when it is        */
+        /* explicitly deallocated.                                              */
+        /* GC_free(0) is a no-op, as required by ANSI C for free.               */
+        public void free(void* ptr) => Native.GC_debug_free(ptr, "empty.vein", 0);
+
+        private static nuint hide_pointer(void* p) => ~(nuint)p;
+
+        public void link(void** link_addr, void* obj, bool trackable)
+        {
+            *link_addr = (void*)hide_pointer(obj);
+            if (trackable)
+                Native.GC_register_long_link(link_addr, obj);
+            else
+                Native.GC_general_register_disappearing_link(link_addr, obj);
+        }
+
+        public void unlink(void** link_addr, bool trackable)
+        {
+            if (trackable)
+                Native.GC_unregister_long_link(link_addr);
+            else
+                Native.GC_unregister_disappearing_link(link_addr);
+            *link_addr = null;
+        }
+
+        public void link(void** child, void* parent) => Native.GC_general_register_disappearing_link(child, parent);
+        public void register_finalizer_ignore_self(void* obj, IshtarFinalizationProc proc) => Native.GC_register_finalizer_ignore_self(obj, proc, null, null, null);
+
+        public void* alloc_atomic(uint size) => throw new NotImplementedException();
+
+        public void* alloc_immortal(uint size) => throw new NotImplementedException();
+
+        public void add_roots(void* ptr) => throw new NotImplementedException();
+
+        public long get_free_bytes() => Native.get_free_bytes();
+
+        public long get_heap_size() => Native.get_heap_size();
+
+        public long get_heap_usage() => Native.GC_get_heap_usage();
+
+        public bool try_collect() => Native.GC_try_to_collect(0) == 1;
+
+        public void collect() => Native.GC_gcollect();
+        public bool is_marked(void* obj) => Native.GC_is_marked(obj);
+
+        public void finalize_all() => Native.GC_finalize_all();
+
+        public void finalize_on_demand() => throw new NotImplementedException();
+
+        public void find_leak() => throw new NotImplementedException();
+
+
+        public void register_finalizer_no_order(IshtarObject* obj, IshtarFinalizationProc proc, CallFrame frame)
+            => Native.GC_debug_register_finalizer_no_order(obj, proc, null, null, null, frame.Debug_GetFile(), frame.Debug_GetLine());
+
+
+        public void dump(string file)
+        {
+            //var ptr = Marshal.StringToHGlobalAnsi(file);
+            //Native.GC_dump((void*)ptr);
+            //Marshal.ZeroFreeGlobalAllocAnsi(ptr);
+        }
+    }
+
 
     public unsafe class IshtarGC(VirtualMachine vm) : IDisposable
     {
