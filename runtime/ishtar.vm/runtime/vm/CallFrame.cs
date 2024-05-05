@@ -2,10 +2,11 @@ namespace ishtar
 {
     using System.Runtime.CompilerServices;
     using System.Text;
+    using ishtar.vm.runtime;
 
     public static class CallFrameEx
     {
-        public static vm.runtime.gc.IshtarGC GetGC(this CallFrame frame) => frame.vm.GC;
+        public static IshtarGC GetGC(this CallFrame frame) => frame.vm.GC;
     }
 
     public unsafe class CallFrame(VirtualMachine vm)

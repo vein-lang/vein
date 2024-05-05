@@ -2,6 +2,7 @@ namespace ishtar
 {
     using emit;
     using ishtar.runtime.vin;
+    using ishtar.vm.runtime;
     using System;
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
