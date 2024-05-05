@@ -257,7 +257,14 @@ namespace ishtar.vm.runtime
         private readonly LinkedList<AllocationDebugInfo> allocationTreeDebugInfos = new();
         private readonly Dictionary<nint, AllocationDebugInfo> allocationDebugInfos = new();
 
-        private readonly IIshtarAllocatorPool allocatorPool = new IshtarAllocatorPool();
+        private IIshtarAllocatorPool allocatorPool;
+
+#if BOEHM_GC
+        private GCLayout gcLayout = new BoehmGCLayout();
+#else
+        private GCLayout gcLayout = null;
+#error No defined GC layout
+#endif
 
         public string DebugGet() =>
             $"RefsHeap: {RefsHeap.Count}\n" +
@@ -290,7 +297,7 @@ namespace ishtar.vm.runtime
         {
             public string Trace;
 
-            public void Bump() => Trace = new System.Diagnostics.StackTrace(true).ToString();
+            public void Bump() => Trace = new StackTrace(true).ToString();
         }
 
         public class ConstantTypeMemory(RuntimeIshtarClass @class) : IDisposable
@@ -355,6 +362,7 @@ namespace ishtar.vm.runtime
         {
             if (root is not null)
                 return;
+            allocatorPool = new IshtarAllocatorPool(gcLayout);
             root = AllocObject(TYPE_OBJECT.AsRuntimeClass(VM.Types), vm.Frames.GarbageCollector());
         }
 
@@ -448,7 +456,7 @@ namespace ishtar.vm.runtime
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
         public stackval* AllocValue(CallFrame frame)
         {
-            var allocator = allocatorPool.Rent<stackval>(out var p, frame);
+            var allocator = allocatorPool.Rent<stackval>(out var p, AllocationKind.no_reference, frame);
 
             Stats.total_allocations++;
             Stats.total_bytes_requested += allocator.TotalSize;
@@ -549,8 +557,8 @@ namespace ishtar.vm.runtime
 
             var obj = AllocObject(arr, frame, node);
 
-            var allocator = allocatorPool.Rent<IshtarArray>(out var arr_obj, frame);
-            
+            var allocator = allocatorPool.Rent<IshtarArray>(out var arr_obj, AllocationKind.reference, frame);
+
             if (arr_obj is null)
             {
                 vm.FastFail(WNE.OUT_OF_MEMORY, "", frame);
@@ -572,7 +580,7 @@ namespace ishtar.vm.runtime
             arr_obj->_block.offset_rank = arr.Field["!!rank"].vtable_offset;
 
             // fill live table memory
-            obj->vtable[arr_obj->_block.offset_value] = (void**)allocator.AllocZeroed(bytes_len, frame);
+            obj->vtable[arr_obj->_block.offset_value] = (void**)allocator.AllocZeroed(bytes_len, AllocationKind.no_reference, frame);
             obj->vtable[arr_obj->_block.offset_block] = (long*)@class.computed_size;
             obj->vtable[arr_obj->_block.offset_size] = (long*)size;
             obj->vtable[arr_obj->_block.offset_rank] = (long*)rank;
@@ -671,6 +679,7 @@ namespace ishtar.vm.runtime
             return obj;
         }
 
+
         public IshtarObject* AllocMethodInfoObject(RuntimeIshtarMethod method, CallFrame frame)
         {
             var @class = method.Owner as RuntimeIshtarClass;
@@ -708,9 +717,9 @@ namespace ishtar.vm.runtime
 
         public IshtarObject* AllocObject(RuntimeIshtarClass @class, CallFrame frame, IshtarObject** node = null)
         {
-            var allocator = allocatorPool.Rent<IshtarObject>(out var p, frame);
+            var allocator = allocatorPool.Rent<IshtarObject>(out var p, AllocationKind.reference, frame);
 
-            p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class.computed_size), frame);
+            p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class.computed_size), AllocationKind.reference, frame);
 
             Unsafe.CopyBlock(p->vtable, @class.vtable, (uint)@class.computed_size * (uint)sizeof(void*));
             p->clazz = IshtarUnsafe.AsPointer(ref @class);
