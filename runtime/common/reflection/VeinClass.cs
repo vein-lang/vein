@@ -70,7 +70,7 @@ namespace vein.runtime
 
 
         protected virtual VeinMethod GetOrCreateTor(string name, bool isStatic = false)
-            => Methods.FirstOrDefault(x => x.IsStatic == isStatic && x.RawName.Equals(name));
+            => Methods.FirstOrDefault(x => x.IsStatic == isStatic && x.RawName.Equals(name) && (x.IsDeconstructor || x.IsConstructor));
 
         public override string ToString()
             => $"{FullName}, {Flags}";
