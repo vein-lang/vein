@@ -5,7 +5,7 @@ namespace ishtar
 
     public static class CallFrameEx
     {
-        public static IshtarGC GetGC(this CallFrame frame) => frame.vm.GC;
+        public static vm.runtime.gc.IshtarGC GetGC(this CallFrame frame) => frame.vm.GC;
     }
 
     public unsafe class CallFrame(VirtualMachine vm)
@@ -55,6 +55,29 @@ namespace ishtar
                 = vm.GC.ToIshtarObject(message, this);
         }
 
+        public string Debug_GetFile()
+        {
+            // TODO fetch from dbg symbols
+
+            var str = new StringBuilder();
+
+            if (this.method.Owner is not null)
+                str.AppendLine($"\tat {this.method.Owner.FullName.NameWithNS}.{this.method.Name}");
+            else
+                str.AppendLine($"\tat <sys>.{this.method.Name}");
+
+            var r = this.parent;
+
+            while (r != null)
+            {
+                str.AppendLine($"\tat {r.method.Owner.FullName.NameWithNS}.{r.method.Name}");
+                r = r.parent;
+            }
+
+            return str.ToString();
+        }
+
+        public int Debug_GetLine() => 0;// TODO fetch from dbg symbols
 
         public static void FillStackTrace(CallFrame frame)
         {
