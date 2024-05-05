@@ -27,11 +27,11 @@ public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
     }
 
 
-    public IIshtarAllocator Rent<T>(out T* output, CallFrame frame) where T : unmanaged
+    public IIshtarAllocator Rent<T>(out T* output, AllocationKind kind, CallFrame frame) where T : unmanaged
     {
         var allocator = GetAllocator(frame);
 
-        output = (T*)allocator.AllocZeroed(sizeof(T), frame);
+        output = (T*)allocator.AllocZeroed(sizeof(T), kind, frame);
 
         if (allocator is IIshtarAllocatorIdentifier identifier)
             identifier.SetId((nint)output);
@@ -44,7 +44,7 @@ public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
     {
         var allocator = GetAllocator(frame);
 
-        output = (T*)allocator.AllocZeroed(sizeof(T) * size, frame);
+        output = (T*)allocator.AllocZeroed(sizeof(T) * size, AllocationKind.reference, frame);
 
         if (allocator is IIshtarAllocatorIdentifier identifier)
             identifier.SetId((nint)output);
