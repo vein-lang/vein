@@ -746,8 +746,42 @@ namespace ishtar.vm.runtime
             InsertDebugData(new(checked((ulong)allocator.TotalSize), nameof(AllocObject), (nint)p));
             RefsHeap.AddLast((nint)p);
 
+            ObjectRegisterFinalizer(p, _direct_finalizer, frame);
+
             return p;
         }
+
+
+        private void _direct_finalizer(nint obj, nint _)
+        {
+            var o = (IshtarObject*)obj;
+
+            if (!IsAlive(o))
+                return;
+            var frame = vm.Frames.GarbageCollector();
+
+            ObjectRegisterFinalizer(o, null, frame);
+
+            if (vm.Config.DisabledFinalization)
+                return;
+
+            var clazz = o->decodeClass();
+
+            var finalizer = clazz.GetDefaultDtor();
+
+            if (finalizer is null)
+                return;
+
+            vm.exec_method(new CallFrame(vm)
+            {
+                args = null,
+                method = finalizer,
+                level = 1,
+                parent = frame
+            });
+            vm.watcher.ValidateLastError();
+        }
+
 
         public void FreeObject(IshtarObject* obj, CallFrame frame)
         {
@@ -773,6 +807,29 @@ namespace ishtar.vm.runtime
             Stats.alive_objects--;
         }
 
+        public bool IsAlive(IshtarObject* obj)
+            => obj->IsValidObject() && gcLayout.is_marked(obj);
+
+        public void ObjectRegisterFinalizer(IshtarObject* obj, IshtarFinalizationProc proc, CallFrame frame)
+        {
+            var clazz = obj->decodeClass();
+
+            IshtarSync.EnterCriticalSection(ref clazz.Owner.Interlocker.GC_FINALIZER_BARRIER);
+
+            gcLayout.register_finalizer_no_order(obj, proc, frame);
+
+            IshtarSync.LeaveCriticalSection(ref clazz.Owner.Interlocker.GC_FINALIZER_BARRIER);
+        }
+
+        public void RegisterWeakLink(IshtarObject* obj, void** link, bool longLive)
+            => gcLayout.link(link, obj, longLive);
+        public void UnRegisterWeakLink(void** link, bool longLive)
+            => gcLayout.unlink(link, longLive);
+
         public void FreeObject(IshtarObject** obj, CallFrame frame) => FreeObject(*obj, frame);
+
+        public long GetUsedMemorySize() => gcLayout.get_heap_size() - gcLayout.get_free_bytes();
+
+        public void Collect() => gcLayout.collect();
     }
 }
