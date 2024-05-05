@@ -1,6 +1,7 @@
 namespace ishtar
 {
     using System;
+    using ishtar.vm.runtime;
     using static vein.runtime.VeinTypeCode;
     public static unsafe class IshtarMarshal
     {

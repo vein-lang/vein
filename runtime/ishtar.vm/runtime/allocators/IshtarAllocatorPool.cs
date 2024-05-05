@@ -1,12 +1,17 @@
 namespace ishtar.allocators;
 
-public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
+using ishtar.vm.runtime;
+
+public sealed unsafe class IshtarAllocatorPool(GCLayout? layout) : IIshtarAllocatorPool
 {
     internal readonly Dictionary<nint, IIshtarAllocator> _allocators = new();
 
 
     private IIshtarAllocator GetAllocator(CallFrame frame)
     {
+        if (layout is not null)
+            return new GCLayoutAllocator(layout);
+
         if (frame.vm.Config.UseDebugAllocator)
             return new DebugManagedAllocator();
 
