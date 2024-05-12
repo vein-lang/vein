@@ -9,12 +9,12 @@ namespace ishtar
     using static vein.runtime.VeinTypeCode;
     using static WNE;
 
-    public interface ITransitionAlignment<in TKey, out TValue>
+    public interface ITransitionAlignment<TKey, TValue>
     {
         TValue this[TKey key] { get; }
     }
 
-    public unsafe interface IUnsafeTransitionAlignment<in TKey, out TValue> where TValue : unmanaged
+    public unsafe interface IUnsafeTransitionAlignment<TKey, TValue> where TValue : unmanaged
     {
         TValue* this[TKey key] { get; }
     }
@@ -65,17 +65,19 @@ namespace ishtar
 
         #endregion
 
-        internal RuntimeIshtarClass(RuntimeQualityTypeName* name, RuntimeIshtarClass* parent, RuntimeIshtarModule* module)
+        internal RuntimeIshtarClass(RuntimeQualityTypeName* name, RuntimeIshtarClass* parent, RuntimeIshtarModule* module, RuntimeIshtarClass* self)
         {
+            _selfReference = self;
             if (module is null) return;
             ID = module->Vault->Value.TokenGranted.GrantClassID();
             runtime_token = new RuntimeToken(module->ID, ID);
-            Original = new VeinClass((*name).T(), parent->Original, module->Original->Value);
+            if (parent is null)
+                Original = new VeinClass((*name).T(), (VeinClass)null, module->Original->Value);
+            else
+                Original = new VeinClass((*name).T(), parent->Original, module->Original->Value);
             Owner = module;
             Parent = parent;
             FullName = name;
-            fixed (RuntimeIshtarClass* p = &this)
-                _selfReference = p;
         }
 
         internal void ReplaceParent(RuntimeIshtarClass* parent)
@@ -118,7 +120,7 @@ namespace ishtar
         internal RuntimeIshtarMethod* DefineMethod(string name, RuntimeIshtarClass* returnType, MethodFlags flags, DirectNativeList<RuntimeMethodArgument>* args)
         {
             var method = IshtarGC.AllocateImmortal<RuntimeIshtarMethod>();
-
+            
             *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, args);
 
             Original.Methods.Add(method->Original);

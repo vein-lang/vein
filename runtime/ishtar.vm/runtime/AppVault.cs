@@ -115,7 +115,11 @@ namespace ishtar
 
         public RuntimeIshtarModule* DefineModule(string @internal)
         {
-            throw new NotImplementedException();
+            var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>();
+
+            *module = new RuntimeIshtarModule(vm.Vault, @internal, module);
+
+            return module;
         }
     }
 

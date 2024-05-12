@@ -57,6 +57,9 @@ namespace ishtar
 
         public static DirectNativeList<RuntimeMethodArgument>* Create(VirtualMachine vm, VeinArgumentRef[] data)
         {
+            if (data.Length == 0)
+                return DirectNativeList<RuntimeMethodArgument>.New(1);
+            
             var lst = DirectNativeList<RuntimeMethodArgument>.New(data.Length);
 
             foreach (var tuple in data)

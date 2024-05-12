@@ -27,14 +27,15 @@ public unsafe struct RuntimeIshtarModule
     private RuntimeIshtarModule* _selfRef;
 
 
-    private RuntimeIshtarModule(AppVault vault, string name, RuntimeIshtarModule* self)
+    public RuntimeIshtarModule(AppVault vault, string name, RuntimeIshtarModule* self)
     {
+        Original = WeakRef<VeinModule>.Create(new VeinModule(name, new Version(1, 0), new VeinCore()));
         Vault = WeakRef<AppVault>.Create(vault);
         _name = StringStorage.Intern(name);
         _selfRef = self;
     }
 
-
+    
 
     public DirectNativeList<RuntimeIshtarClass>* class_table { get; }
         = DirectNativeList<RuntimeIshtarClass>.New(64);
@@ -193,7 +194,7 @@ public unsafe struct RuntimeIshtarModule
     {
         var clazz = IshtarGC.AllocateImmortal<RuntimeIshtarClass>();
 
-        *clazz = new RuntimeIshtarClass(fullName, parent, _selfRef);
+        *clazz = new RuntimeIshtarClass(fullName, parent, _selfRef, clazz);
 
         class_table->Add(clazz);
 
@@ -204,7 +205,7 @@ public unsafe struct RuntimeIshtarModule
     {
         var clazz = IshtarGC.AllocateImmortal<RuntimeIshtarClass>();
 
-        *clazz = new RuntimeIshtarClass(fullName, null, _selfRef);
+        *clazz = new RuntimeIshtarClass(fullName, null, _selfRef, clazz);
 
         clazz->Original.Flags |= ClassFlags.Unresolved;
 

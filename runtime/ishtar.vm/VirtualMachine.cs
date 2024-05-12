@@ -32,21 +32,21 @@ namespace ishtar
             vm.Config = new VMConfig();
             vm.Vault = new AppVault(vm, name);
             vm.trace = new IshtarTrace();
-            vm.Types = IshtarTypes.Create();
+            vm.Types = IshtarTypes.Create(vm.Vault);
             vm.GC = new IshtarGC(vm);
+
+            vm.InternalModule = vm.Vault.DefineModule("internal");
+
+            vm.InternalClass = vm.InternalModule->DefineClass("sys%global::__internal__/global".L(),
+                vm.Types->ObjectClass);
+
             vm.Frames = new IshtarFrames(vm);
             vm.watcher = new DefaultWatchDog(vm);
             
             vm.Config = new VMConfig();
             vm.NativeStorage = new NativeStorage(vm);
             vm.GC.init();
-
-
-            vm.InternalModule = vm.Vault.DefineModule("internal");
-
-            vm.InternalModule->DefineClass("sys%global::__internal__/global".L(),
-                vm.Types->ObjectClass);
-
+            
             vm.FFI = new ForeignFunctionInterface(vm);
 
             

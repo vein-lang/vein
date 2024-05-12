@@ -150,6 +150,8 @@ namespace ishtar.runtime
             [DllImport(LIBNAME)]
             public static extern nint GC_debug_malloc_atomic_uncollectable(uint size, string file, int line);
 
+            [DllImport(LIBNAME)]
+            public static extern nint GC_debug_malloc_uncollectable(uint size, string file, int line);
 
             // GC_finalize_all
 
@@ -221,7 +223,7 @@ namespace ishtar.runtime
 
         public void* alloc_atomic(uint size) => (void*)Native.GC_debug_malloc_atomic_uncollectable(size, "empty.vein", 0);
 
-        public void* alloc_immortal(uint size) => throw new NotImplementedException();
+        public void* alloc_immortal(uint size) => (void*)Native.GC_debug_malloc_uncollectable(size, "empty.vein", 0);
 
         public void add_roots(void* ptr) => throw new NotImplementedException();
 
