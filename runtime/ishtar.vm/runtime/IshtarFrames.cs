@@ -1,40 +1,39 @@
+// ReSharper disable MethodNameNotMeaningful
 namespace ishtar;
 
-using vein.runtime;
-
-public class IshtarFrames(VirtualMachine vm)
+public unsafe class IshtarFrames(VirtualMachine vm)
 {
-    public CallFrame ModuleLoaderFrame = new CallFrame(vm)
+    public CallFrame ModuleLoaderFrame = new(vm)
     {
         method = vm.DefineEmptySystemMethod(".module")
     };
 
-    public CallFrame VTableFrame(VeinClass clazz) => new CallFrame(vm)
+    public CallFrame VTableFrame(RuntimeIshtarClass* clazz) => new(vm)
     {
         method = vm.DefineEmptySystemMethod(".type", clazz),
     };
 
-    public CallFrame StaticCtor(VeinClass clazz) => new CallFrame(vm)
+    public CallFrame StaticCtor(RuntimeIshtarClass* clazz) => new(vm)
     {
         method = vm.DefineEmptySystemMethod(".static_ctor", clazz),
     };
 
-    public CallFrame EntryPoint = new CallFrame(vm)
+    public CallFrame EntryPoint = new(vm)
     {
         method = vm.DefineEmptySystemMethod("ishtar_entry")
     };
 
-    public CallFrame Jit() => new CallFrame(vm)
+    public CallFrame Jit() => new(vm)
     {
         method = vm.DefineEmptySystemMethod(".jit")
     };
 
-    public CallFrame GarbageCollector() => new CallFrame(vm)
+    public CallFrame GarbageCollector() => new(vm)
     {
         method = vm.DefineEmptySystemMethod(".gc")
     };
 
-    public CallFrame NativeLoader() => new CallFrame(vm)
+    public CallFrame NativeLoader() => new(vm)
     {
         method = vm.DefineEmptySystemMethod(".ffi")
     };

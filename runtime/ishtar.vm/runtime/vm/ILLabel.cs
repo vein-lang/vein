@@ -1,8 +1,8 @@
 namespace ishtar
 {
-    public struct ILLabel
+    public readonly struct ILLabel(int pos, OpCodeValue opcode)
     {
-        public OpCodeValue opcode;
-        public int pos;
-    };
+        public int pos { get; } = pos;
+        public OpCodeValue opcode { get; } = opcode;
+    }
 }

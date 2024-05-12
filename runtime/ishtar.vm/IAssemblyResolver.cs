@@ -32,7 +32,7 @@ namespace vein.runtime
             throw new NotImplementedException();
         }
 
-        public RuntimeIshtarModule* ResolveDep(string name, Version version, UnsafeNativeList<RuntimeIshtarModule>* deps)
+        public RuntimeIshtarModule* ResolveDep(string name, Version version, DirectNativeList<RuntimeIshtarModule>* deps)
         {
             var asm = Find(name, version);
 
@@ -45,8 +45,8 @@ namespace vein.runtime
         public RuntimeIshtarModule* Resolve(IshtarAssembly assembly)
         {
             var (_, code) = assembly.Sections.First();
-            var module = RuntimeIshtarModule.Read(Vault, code, UnsafeNativeList<RuntimeIshtarModule>.New(1), (s, version) =>
-                this.ResolveDep(s, version, UnsafeNativeList<RuntimeIshtarModule>.New(1)));
+            var module = RuntimeIshtarModule.Read(Vault, code, DirectNativeList<RuntimeIshtarModule>.New(1), (s, version) =>
+                this.ResolveDep(s, version, DirectNativeList<RuntimeIshtarModule>.New(1)));
 
             Resolved?.Invoke(module);
 

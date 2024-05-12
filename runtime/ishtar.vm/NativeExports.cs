@@ -16,12 +16,12 @@ public static unsafe class NativeExports
         if (type is null)
             return null;
 
-        if (type.Methods.Count >= frame->index)
+        if (type->Methods->Length >= frame->index)
             return null;
 
-        var method = type.Methods[frame->index] as RuntimeIshtarMethod;
+        var method = type->Methods->Get(frame->index);
 
-        if (method is not { } or { IsExtern: true } or { IsStatic: false })
+        if (*method is not { } or { IsExtern: true } or { IsStatic: false })
             return null;
 
         

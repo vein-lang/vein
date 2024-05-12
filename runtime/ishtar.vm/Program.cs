@@ -9,10 +9,13 @@ namespace vein.runtime
     using System.Text;
     using fs;
     using ishtar;
+    using ishtar.runtime;
+
     internal class Program
     {
         public static unsafe int Main(string[] args)
         {
+            Environment.SetEnvironmentVariable("GC_PRINT_STATS", "1");
             //while (!Debugger.IsAttached)
             //    Thread.Sleep(200);
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -21,8 +24,6 @@ namespace vein.runtime
             var vm = VirtualMachine.Create("app");
             var vault = vm.Vault;
 
-
-            vm.halt();
 
             var masterModule = default(IshtarAssembly);
             var resolver = default(AssemblyResolver);
@@ -55,14 +56,22 @@ namespace vein.runtime
 
             var module = resolver.Resolve(masterModule);
 
-            foreach (var @class in module.class_table.OfType<RuntimeIshtarClass>())
-                @class.init_vtable(vm);
+            module->class_table->ForEach(x => x->init_vtable(vm));
 
-            var entry_point = module.GetEntryPoint();
+            //using var enumerator = module->class_table->_nativeData->GetEnumerator();
+
+            //while (enumerator.MoveNext())
+            //{
+            //    var _clazz = (RuntimeIshtarClass*)enumerator.Current;
+            //    _clazz->init_vtable(vm);
+            //}
+
+
+            var entry_point = module->GetEntryPoint();
 
             if (entry_point is null)
             {
-                vm.FastFail(WNE.MISSING_METHOD, $"Entry point in '{module.Name}' module is not defined.", vm.Frames.EntryPoint);
+                vm.FastFail(WNE.MISSING_METHOD, $"Entry point in '{module->Name}' module is not defined.", vm.Frames.EntryPoint);
                 return -280;
             }
 
@@ -82,7 +91,7 @@ namespace vein.runtime
             if (frame.exception is not null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"unhandled exception '{frame.exception.value->decodeClass().Name}' was thrown. \n" +
+                Console.WriteLine($"unhandled exception '{frame.exception.value->clazz->Name}' was thrown. \n" +
                                   $"{frame.exception.stack_trace}");
                 Console.ForegroundColor = ConsoleColor.White;
             }

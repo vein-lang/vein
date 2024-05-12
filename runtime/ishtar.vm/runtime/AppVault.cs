@@ -3,11 +3,13 @@ namespace ishtar
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using runtime;
     using vein;
     using vein.reflection;
     using vein.runtime;
+    using collections;
 
-    public class AppVault : AppVaultSync, IDisposable
+    public unsafe class AppVault : AppVaultSync, IDisposable
     {
         public DirectoryInfo WorkDirectory { get; set; } = new("./");
 
@@ -17,7 +19,7 @@ namespace ishtar
         public TokenInterlocker TokenGranted { get; }
         public int ThreadID { get; }
 
-        internal readonly List<RuntimeIshtarModule> Modules = new();
+        internal readonly DirectNativeList<RuntimeIshtarModule> Modules = new();
 
         public AppVault(VirtualMachine vm, string name)
         {
@@ -27,40 +29,54 @@ namespace ishtar
             ThreadID = Thread.CurrentThread.ManagedThreadId;
         }
 
-        public RuntimeIshtarClass GlobalFindType(QualityTypeName typeName)
+        public RuntimeIshtarClass* GlobalFindType(RuntimeQualityTypeName* typeName)
         {
-            foreach (var module in Modules)
-            {
-                var r = module.FindType(typeName, false, false);
-                if (r is UnresolvedVeinClass)
-                    continue;
-                return r as RuntimeIshtarClass;
-            }
-            return null;
-        }
+            using var enumerator = Modules._ref->GetEnumerator();
 
-        public RuntimeIshtarClass[] GlobalFindType(string name)
-        {
-            var list = new List<RuntimeIshtarClass>();
-            foreach (var module in Modules)
+            while (enumerator.MoveNext())
             {
-                var r = module.class_table.Where(x => x.Name.Equals(name)).OfType<RuntimeIshtarClass>().ToArray();
-                if (r.Length == 0)
-                    continue;
-                list.AddRange(r);
-            }
-            return list.ToArray();
-        }
-
-        public RuntimeIshtarClass GlobalFindType(RuntimeToken token)
-        {
-            foreach (var module in Modules)
-            {
-                var r = module.FindType(token);
-                if (r is null)
+                var module = (RuntimeIshtarModule*)enumerator.Current;
+                var r = module->FindType(typeName, false, false);
+                if (r->IsUnresolved)
                     continue;
                 return r;
             }
+
+            return null;
+        }
+
+        public RuntimeIshtarClass* GlobalFindType(QualityTypeName typeName)
+        {
+            using var enumerator = Modules._ref->GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                var module = (RuntimeIshtarModule*)enumerator.Current;
+                var r = module->FindType(typeName, false, false);
+                if (r->IsUnresolved)
+                    continue;
+                return r;
+            }
+
+            return null;
+        }
+
+        public RuntimeIshtarClass*[] GlobalFindType(string name)
+            => throw new NotImplementedException();
+
+        public RuntimeIshtarClass* GlobalFindType(RuntimeToken token)
+        {
+            using var enumerator = Modules._ref->GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                var module = (RuntimeIshtarModule*)enumerator.Current;
+                var r = module->FindType(token);
+                if (r->IsUnresolved)
+                    continue;
+                return r;
+            }
+
             return null;
         }
 
@@ -85,10 +101,10 @@ namespace ishtar
                 Resolver.AddSearchPath(line);
         }
 
-        private void ResolverOnResolved(RuntimeIshtarModule module)
+        private void ResolverOnResolved(in RuntimeIshtarModule* module)
         {
-            module.ID = TokenGranted.GrantModuleID();
-            Modules.Add(module);
+            module->ID = TokenGranted.GrantModuleID();
+            fixed (DirectNativeList<RuntimeIshtarModule>* q = &Modules) q->Add(module);
         }
 
         object AppVaultSync.TokenInterlockerGuard { get; } = new();
@@ -96,6 +112,11 @@ namespace ishtar
         internal ushort LastClassID;
 
         public void Dispose() => Modules.Clear();
+
+        public RuntimeIshtarModule* DefineModule(string @internal)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 

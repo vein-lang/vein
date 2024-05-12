@@ -1,17 +1,15 @@
 namespace ishtar
 {
-    using System.Collections.Generic;
-    using emit;
+    using collections;
+    using runtime;
 
     public unsafe struct MetaMethodHeader
     {
-        public uint                         code_size;
-        public uint*                        code;
-        public short                        max_stack;
-        public uint                         local_var_sig_tok;
-        public uint                         init_locals;
-        public List<ProtectedZone>          exception_handler_list;
-        public Dictionary<int, ILLabel>     labels_map;
-        public List<int>                    labels;
+        public uint code_size { get; set; }
+        public uint* code { get; set; }
+        public short max_stack { get; set; }
+        public DirectNativeList<ProtectedZone>* exception_handler_list { get; set; }
+        public UnsafeDictionary<int, ILLabel>* labels_map { get; set; }
+        public NativeList<int> labels { get; set; }
     }
 }

@@ -6,7 +6,7 @@ namespace ishtar
     {
         public IshtarArray() {  }
         // <layout of IshtarObject>
-        public void* clazz;
+        public RuntimeIshtarClass* clazz;
         public IshtarObject* memory;
         public GCFlags flags;
         public uint vtable_size;
@@ -16,7 +16,7 @@ namespace ishtar
         public long __gc_id = -1;
 #endif
 
-        public void* element_clazz;
+        public RuntimeIshtarClass* element_clazz;
 
         public const uint MAX_SIZE = 0xFFFFFFFFU;
 
@@ -28,10 +28,10 @@ namespace ishtar
             => (ulong)(long*)memory->vtable[_block.offset_block];
         public IshtarObject** elements
             => (IshtarObject**)memory->vtable[_block.offset_value];
-        public RuntimeIshtarClass Class
-            => clazz is null ? null : IshtarUnsafe.AsRef<RuntimeIshtarClass>(clazz);
-        public RuntimeIshtarClass ElementClass
-            => element_clazz is null ? null : IshtarUnsafe.AsRef<RuntimeIshtarClass>(element_clazz);
+        public RuntimeIshtarClass* Class
+            => clazz;
+        public RuntimeIshtarClass* ElementClass
+            => element_clazz;
 
         public void SetMemory(IshtarObject* obj)
         {
@@ -39,7 +39,6 @@ namespace ishtar
             clazz = obj->clazz;
             flags = obj->flags;
             vtable_size = obj->vtable_size;
-            owner = obj->owner;
         }
 
         public Block _block;
@@ -52,10 +51,10 @@ namespace ishtar
 
         public IshtarObject* Get(uint index, CallFrame frame)
         {
-            if (!ElementClass.IsPrimitive) return elements[index];
+            if (!ElementClass->IsPrimitive) return elements[index];
             var result = frame.vm.GC.AllocObject(ElementClass, frame);
             var el = elements[index];
-            var offset = result->decodeClass().Field["!!value"].vtable_offset;
+            var offset = result->clazz->Field["!!value"]->vtable_offset;
             result->vtable[offset] = el->vtable[offset];
             return result;
         }
@@ -63,17 +62,17 @@ namespace ishtar
         public void Set(uint index, IshtarObject* value, CallFrame frame)
         {
             ForeignFunctionInterface.StaticValidate(frame, &value);
-            var value_class = value->decodeClass();
-            VirtualMachine.Assert(value_class.TypeCode == ElementClass.TypeCode || value_class.IsInner(ElementClass), WNE.TYPE_MISMATCH, "Element type mismatch.", frame);
+            var value_class = value->clazz;
+            VirtualMachine.Assert(value_class->TypeCode == ElementClass->TypeCode || value_class->IsInner(ElementClass), WNE.TYPE_MISMATCH, "Element type mismatch.", frame);
             if (index >= length)
             {
                 frame.vm.FastFail(WNE.OUT_OF_RANGE, $"", frame);
                 return;
             }
 
-            if (Class.IsPrimitive)
+            if (Class->IsPrimitive)
             {
-                var offset = value_class.Field["!!value"].vtable_offset;
+                var offset = value_class->Field["!!value"]->vtable_offset;
                 elements[index]->vtable[offset] = value->vtable[offset];
             }
             else
@@ -83,10 +82,10 @@ namespace ishtar
 
         public struct Block : IEquatable<Block>
         {
-            public uint offset_value;
-            public uint offset_block;
-            public uint offset_rank;
-            public uint offset_size;
+            public ulong offset_value;
+            public ulong offset_block;
+            public ulong offset_rank;
+            public ulong offset_size;
 
             #region IEquatable<Block>
 

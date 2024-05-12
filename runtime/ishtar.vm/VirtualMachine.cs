@@ -2,11 +2,13 @@ namespace ishtar
 {
     using emit;
     using ishtar.runtime.vin;
-    using ishtar.vm.runtime;
+    using runtime;
     using System;
     using System.Diagnostics;
+    using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
+    using collections;
     using vein.extensions;
     using vein.reflection;
     using vein.runtime;
@@ -30,7 +32,7 @@ namespace ishtar
             vm.Config = new VMConfig();
             vm.Vault = new AppVault(vm, name);
             vm.trace = new IshtarTrace();
-            vm.Types = new IshtarCore(vm);
+            vm.Types = IshtarTypes.Create();
             vm.GC = new IshtarGC(vm);
             vm.Frames = new IshtarFrames(vm);
             vm.watcher = new DefaultWatchDog(vm);
@@ -39,13 +41,11 @@ namespace ishtar
             vm.NativeStorage = new NativeStorage(vm);
             vm.GC.init();
 
-            vm.Types.InitVtables();
 
-            vm.GC.init();
+            vm.InternalModule = vm.Vault.DefineModule("internal");
 
-            vm.InternalModule = new RuntimeIshtarModule(vm.Vault, "internal");
-            vm.InternalClass = new RuntimeIshtarClass(new QualityTypeName("sys", "__internal__", "global"),
-                vm.Types.ObjectClass, vm.InternalModule);
+            vm.InternalModule->DefineClass("sys%global::__internal__/global".L(),
+                vm.Types->ObjectClass);
 
             vm.FFI = new ForeignFunctionInterface(vm);
 
@@ -60,25 +60,33 @@ namespace ishtar
         }
 
 
-        private RuntimeIshtarModule InternalModule;
-        private RuntimeIshtarClass InternalClass;
+        private RuntimeIshtarModule* InternalModule;
+        private RuntimeIshtarClass* InternalClass;
 
-        public RuntimeIshtarMethod CreateInternalMethod(string name, MethodFlags flags, params (string name, VeinTypeCode code)[] args)
-            => InternalClass.DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, args.Select(x => VeinArgumentRef.Create(this.Types, x)).ToArray());
+        public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, params (string name, VeinTypeCode code)[] args)
+        {
+            var converter_args = RuntimeMethodArgument.Create(Types, args);
+            return InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, converter_args);
+        }
 
-        public RuntimeIshtarMethod CreateInternalMethod(string name, MethodFlags flags)
-            => InternalClass.DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, Array.Empty<VeinArgumentRef>());
+        public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags)
+            => InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags);
 
-        public RuntimeIshtarMethod CreateInternalMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
-            => InternalClass.DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, args);
+        public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
+            => InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, RuntimeMethodArgument.Create(this, args));
 
-        public RuntimeIshtarMethod CreateInternalMethod(string name, MethodFlags flags, VeinClass returnType, params VeinArgumentRef[] args)
-            => InternalClass.DefineMethod(name, returnType, flags, args);
+        public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, params VeinArgumentRef[] args)
+            => InternalClass->DefineMethod(name, returnType, flags, RuntimeMethodArgument.Create(this, args));
 
-        public RuntimeIshtarMethod DefineEmptySystemMethod(string name)
-            => new(name, MethodFlags.Extern, this.Types, TYPE_VOID.AsClass()(this.Types), InternalClass, Array.Empty<VeinArgumentRef>());
-        public RuntimeIshtarMethod DefineEmptySystemMethod(string name, VeinClass clazz)
-            => new(name, MethodFlags.Extern, this.Types, clazz, new UnresolvedVeinClass(new QualityTypeName("sys", "sys", "global")), new VeinArgumentRef("i", clazz));
+        public RuntimeIshtarMethod* DefineEmptySystemMethod(string name)
+            => CreateInternalMethod(name, MethodFlags.Extern, TYPE_VOID.AsRuntimeClass(Types));
+        public RuntimeIshtarMethod* DefineEmptySystemMethod(string name, RuntimeIshtarClass* clazz)
+        {
+            var args = DirectNativeList<RuntimeMethodArgument>.New(1);
+            args->Add(RuntimeMethodArgument.Create(Types, "i1", clazz));
+            return InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types),
+                MethodFlags.Extern | MethodFlags.Private | MethodFlags.Special, args);
+        }
 
 
         public volatile NativeException CurrentException;
@@ -91,7 +99,7 @@ namespace ishtar
         public volatile IshtarJIT Jit;
         public volatile NativeStorage NativeStorage;
         internal volatile IshtarTrace trace;
-        public IshtarCore Types;
+        public IshtarTypes* Types;
 
         
         public bool HasFaulted() => CurrentException is not null;
@@ -117,8 +125,8 @@ namespace ishtar
         public void exec_method_internal_native(CallFrame frame)
         {
             var caller = (delegate*<CallFrame, IshtarObject**, IshtarObject*>)
-                frame.method.PIInfo.Addr;
-            var args_len = frame.method.ArgLength;
+                frame.method->PIInfo.Addr;
+            var args_len = frame.method->ArgLength;
             var args = (IshtarObject**)Marshal.AllocHGlobal(sizeof(IshtarObject*) * args_len);
 
             if (args == null)
@@ -134,22 +142,22 @@ namespace ishtar
 
             Marshal.FreeHGlobal((nint)args);
 
-            if (frame.method.ReturnType.TypeCode == TYPE_VOID)
+            if (frame.method->ReturnType->TypeCode == TYPE_VOID)
                 return;
             frame.returnValue = stackval.Allocate(frame, 1);
-            frame.returnValue.Ref->type = frame.method.ReturnType.TypeCode;
+            frame.returnValue.Ref->type = frame.method->ReturnType->TypeCode;
             frame.returnValue.Ref->data.p = (nint)result;
         }
 
         public void exec_method_native(CallFrame frame)
         {
-            if (frame.method.PIInfo.Addr == null)
+            if (frame.method->PIInfo.Addr == null)
             {
                 FastFail(MISSING_METHOD, "Native method not linked.", frame);
                 return;
             }
 
-            if (frame.method.PIInfo.IsExternal())
+            if (frame.method->PIInfo.IsExternal())
                 exec_method_external_native(frame);
             else
                 exec_method_internal_native(frame);
@@ -179,16 +187,16 @@ namespace ishtar
 
         public void exec_method(CallFrame invocation)
         {
-            println($"@.frame> {invocation.method.Owner.Name}::{invocation.method.Name}");
+            println($"@.frame> {invocation.method->Owner->Name}::{invocation.method->Name}");
 
-            var _module = invocation.method.Owner.Owner;
-            var mh = invocation.method.Header;
+            var _module = invocation.method->Owner->Owner;
+            var mh = invocation.method->Header;
             var args = invocation.args;
 
             var locals = default(SmartPointer<stackval>);
 
-            var ip = mh.code;
-            var stack = stackval.Allocate(invocation, mh.max_stack);
+            var ip = mh->code;
+            var stack = stackval.Allocate(invocation, mh->max_stack);
 
             const int STACK_VIOLATION_LEVEL_SIZE = 32;
 
@@ -197,22 +205,42 @@ namespace ishtar
             var sp = stack.Ref + STACK_VIOLATION_LEVEL_SIZE;
             var sp_start = sp;
             var start = ip;
-            var end = mh.code + mh.code_size;
-            var end_stack = sp + mh.max_stack;
+            var end = mh->code + mh->code_size;
+            var end_stack = sp + mh->max_stack;
             uint* endfinally_ip = null;
-            var zone = default(ProtectedZone);
-            void jump_now() => ip = start + mh.labels_map[mh.labels[(int)*ip]].pos - 1;
-            void jump_to(int index) => ip = start + mh.labels_map[mh.labels[index]].pos - 1;
-            uint* get_jumper(int index) => start + mh.labels_map[mh.labels[index]].pos - 1;
+            var zone = default(ProtectedZone*);
+            void jump_now()
+            {
+                if (mh->labels_map->TryGetValue(mh->labels[(int)*ip], out var label))
+                    ip = start + label.pos - 1;
+                else FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[jump_now] cannot find protected zone label", invocation);
+            }
+
+            void jump_to(int index)
+            {
+                if (mh->labels_map->TryGetValue(mh->labels[index], out var label))
+                    ip = start + label.pos - 1;
+                else FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[jump_to] cannot find protected zone label", invocation);
+            }
+
+            uint* get_jumper(int index)
+            {
+                if (mh->labels_map->TryGetValue(mh->labels[index], out var label))
+                    return start + label.pos - 1;
+                FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[get_jumper] cannot find protected zone label", invocation);
+                return null;
+            }
 
             // maybe mutable il code is bad, need research
-            void ForceFail(RuntimeIshtarClass clazz)
+            void ForceFail(RuntimeIshtarClass* clazz)
             {
                 *ip = (uint)THROW;
                 sp->data.p = (nint)GC.AllocObject(clazz, invocation);
                 sp->type = TYPE_CLASS;
                 sp++;
             }
+
+            GC.Collect();
 
             while (true)
             {
@@ -408,8 +436,8 @@ namespace ishtar
                             --sp;
                             var typeID = GetClass(sp->data.ui, _module, invocation);
                             sp->type = TYPE_ARRAY;
-                            if (invocation.method.IsStatic)
-                                sp->data.p = (nint)GC.AllocArray(typeID, size, 1, null, invocation);
+                            if (invocation.method->IsStatic)
+                                sp->data.p = (nint)GC.AllocArray(typeID, size, 1, invocation);
                             //else fixed (IshtarObject** node = &invocation._this_)
                             //       sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
                             ++sp;
@@ -459,7 +487,7 @@ namespace ishtar
                             var @class = GetClass(*++ip, _module, invocation);
                             var field = GetField(fieldIdx, @class, _module, invocation);
 
-                            @class.vtable[field.vtable_offset] = IshtarMarshal.Boxing(invocation, sp);
+                            @class->vtable[field->vtable_offset] = IshtarMarshal.Boxing(invocation, sp);
                             ++ip;
                         }
                         break;
@@ -468,7 +496,7 @@ namespace ishtar
                             var fieldIdx = *++ip;
                             var @class = GetClass(*++ip, _module, invocation);
                             var field = GetField(fieldIdx, @class, _module, invocation);
-                            var obj = (IshtarObject*)@class.vtable[field.vtable_offset];
+                            var obj = (IshtarObject*)@class->vtable[field->vtable_offset];
 
                             *sp = IshtarMarshal.UnBoxing(invocation, obj);
                             ++sp;
@@ -491,8 +519,8 @@ namespace ishtar
                             //FFI.StaticValidate(invocation, @this, field.Owner);
                             var value = sp;
                             var this_obj = (IshtarObject*)@this->data.p;
-                            var target_class = this_obj->decodeClass();
-                            this_obj->vtable[field.vtable_offset] = IshtarMarshal.Boxing(invocation, value);
+                            var target_class = this_obj->clazz;
+                            this_obj->vtable[field->vtable_offset] = IshtarMarshal.Boxing(invocation, value);
                             ++ip;
                         }
                         break;
@@ -511,9 +539,9 @@ namespace ishtar
                             }
                             //FFI.StaticValidate(invocation, @this, field.Owner);
                             var this_obj = (IshtarObject*)@this->data.p;
-                            var target_class = this_obj->decodeClass();
-                            var pt = target_class.Parents.First();
-                            var obj = (IshtarObject*)this_obj->vtable[field.vtable_offset];
+                            var target_class = this_obj->clazz;
+                            var pt = target_class->Parent;
+                            var obj = (IshtarObject*)this_obj->vtable[field->vtable_offset];
                             var value = IshtarMarshal.UnBoxing(invocation, obj);
                             *sp = value;
                             ++ip;
@@ -546,7 +574,7 @@ namespace ishtar
                         break;
                     case SEH_ENTER:
                         ip++;
-                        zone = mh.exception_handler_list[(int)(*ip)];
+                        zone = mh->exception_handler_list->Get((int)(*ip));
                         break;
                     case SEH_LEAVE:
                     case SEH_LEAVE_S:
@@ -591,8 +619,7 @@ namespace ishtar
                             sp->type = TYPE_CLASS;
                             sp->data.p = (nint)
                             GC.AllocObject(
-                                (RuntimeIshtarClass) // TODO optimize search
-                                _module.FindType(_module.GetTypeNameByIndex((int)*ip), true), invocation);
+                                _module->FindType(_module->GetTypeNameByIndex((int)*ip, invocation), true), invocation);
                             ++ip;
                             ++sp;
                         }
@@ -602,43 +629,43 @@ namespace ishtar
                             var child_frame = new CallFrame(this);
                             ++ip;
                             var tokenIdx = *ip;
-                            var owner = readTypeName(*++ip, _module);
+                            var owner = readTypeName(*++ip, _module, invocation);
                             var method = GetMethod(tokenIdx, owner, _module, invocation);
                             ++ip;
-                            println($"@@@ {owner.NameWithNS}::{method.Name}");
-                            var method_args = GC.AllocateStack(child_frame, method.ArgLength);
-                            for (int i = 0, y = method.ArgLength - 1; i != method.ArgLength; i++, y--)
+                            println($"@@@ {owner->NameWithNS}::{method->Name}");
+                            var method_args = GC.AllocateStack(child_frame, method->ArgLength);
+                            for (int i = 0, y = method->ArgLength - 1; i != method->ArgLength; i++, y--)
                             {
-                                var _a = method.Arguments[y]; // TODO, type eq validate
+                                var _a = method->Arguments->Get(i); // TODO, type eq validate
                                 --sp;
 
 #if DEBUG
-                                println($"@@@@<< {_a.Name}: {_a.Type.FullName.NameWithNS}");
+                                println($"@@@@<< {StringStorage.GetString(_a->Name, invocation)}: {_a->Type->FullName->NameWithNS}");
                                 if (Environment.GetCommandLineArgs().Contains("--sys::ishtar::skip-validate-args=1"))
                                 {
                                     method_args[y] = *sp;
                                     continue;
                                 }
-                                var arg_class = _a.Type as RuntimeIshtarClass;
-                                if (arg_class.Name is not "Object" and not "ValueType")
+                                var arg_class = _a->Type;
+                                if (arg_class->Name is not "Object" and not "ValueType")
                                 {
                                     var sp_obj = IshtarMarshal.Boxing(invocation, sp);
 
                                     if (sp_obj == null)
                                         continue;
 
-                                    var sp_class = sp_obj->decodeClass();
+                                    var sp_class = sp_obj->clazz;
 
                                     if (sp_class == null)
                                         continue;
 
-                                    if (sp_class.ID != arg_class.ID)
+                                    if (sp_class->ID != arg_class->ID)
                                     {
-                                        if (!sp_class.IsInner(arg_class))
+                                        if (!sp_class->IsInner(arg_class))
                                         {
                                             FastFail(TYPE_MISMATCH,
-                                                $"Argument '{_a.Name}: {_a.Type.Name}'" +
-                                                $" is not matched for '{method.Name}' function.",
+                                                $"Argument '{StringStorage.GetString(_a->Name, invocation)}: {_a->Type->Name}'" +
+                                                $" is not matched for '{method->Name}' function.",
                                                 invocation);
                                             break;
                                         }
@@ -649,15 +676,15 @@ namespace ishtar
                                 method_args[y] = *sp;
                             }
 
-
-                            (child_frame.level, child_frame.parent, child_frame.method)
-                                = (invocation.level + 1, invocation, method);
+                            child_frame.level++;
+                            child_frame.parent = invocation;
+                            child_frame.method = method;
                             child_frame.args = method_args;
 
-                            if (method.IsExtern) exec_method_native(child_frame);
+                            if (method->IsExtern) exec_method_native(child_frame);
                             else exec_method(child_frame);
 
-                            if (method.ReturnType.TypeCode != TYPE_VOID)
+                            if (method->ReturnType->TypeCode != TYPE_VOID)
                             {
                                 invocation.assert(!child_frame.returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
                                 *sp = child_frame.returnValue[0];
@@ -672,11 +699,11 @@ namespace ishtar
                                 sp->type = TYPE_CLASS;
                                 sp->data.p = (nint)child_frame.exception.value;
 
-                                GC.FreeStack(child_frame, method_args, method.ArgLength);
+                                GC.FreeStack(child_frame, method_args, method->ArgLength);
                                 goto exception_handle;
                             }
 
-                            GC.FreeStack(child_frame, method_args, method.ArgLength);
+                            GC.FreeStack(child_frame, method_args, method->ArgLength);
                         }
                         break;
                     case LOC_INIT:
@@ -687,10 +714,10 @@ namespace ishtar
                             ++ip;
                             for (var i = 0u; i != locals_size; i++)
                             {
-                                var type_name = readTypeName(*++ip, _module);
-                                var type = _module.FindType(type_name, true);
-                                if (type.IsPrimitive)
-                                    locals[i].type = type.TypeCode;
+                                var type_name = readTypeName(*++ip, _module, invocation);
+                                var type = _module->FindType(type_name, true);
+                                if (type->IsPrimitive)
+                                    locals[i].type = type->TypeCode;
                                 else
                                 {
                                     locals[i].type = TYPE_OBJECT;
@@ -1422,7 +1449,7 @@ namespace ishtar
                         {
                             ++ip;
                             sp->type = TYPE_STRING;
-                            var str = _module.GetConstStringByIndex((int) *ip);
+                            var str = _module->GetConstStringByIndex((int) *ip);
                             sp->data.p = (nint)GC.ToIshtarObject(str, invocation);
                             ++sp;
                             ++ip;
@@ -1456,52 +1483,52 @@ namespace ishtar
                     ip++;
                 }
 
-                var tryEndAddr = zone != default ? get_jumper(zone.tryEndLabel) : null;
+                var tryEndAddr = zone != default ? get_jumper(zone->TryEndLabel) : null;
 
                 if (zone != default && tryEndAddr > ip)
                 {
                     var label_addr = -1;
                     var exception = (IshtarObject*)sp->data.p;
-                    for (int i = 0; i < zone.catchClass.Length; i++)
+                    for (int i = 0; i < zone->CatchClass->Length; i++)
                     {
-                        var t = zone.catchClass[i];
+                        var t = zone->CatchClass->Get(i);
 
                         if (t is null)
                             continue;
-                        if (zone.types[i] == ExceptionMarkKind.FILTER)
+                        if (zone->Types[i] == ExceptionMarkKind.FILTER)
                         {
-                            if (t == exception->decodeClass().FullName)
+                            if (t == exception->clazz->FullName)
                             {
-                                label_addr = zone.filterAddr[i];
+                                label_addr = zone->FilterAddr[i];
                                 break;
                             }
                         }
-                        else if (zone.types[i] == ExceptionMarkKind.CATCH_ANY)
+                        else if (zone->Types[i] == ExceptionMarkKind.CATCH_ANY)
                         {
-                            label_addr = zone.catchAddr[i];
+                            label_addr = zone->CatchAddr[i];
                             break;
                         }
                     }
 
                     if (label_addr == -1)
                     {
-                        for (int i = 0; i < zone.catchClass.Length; i++)
+                        for (int i = 0; i < zone->CatchClass->Length; i++)
                         {
                             // TODO, need remove using QualityTypeName and replace to RuntimeClass ref
-                            var t = zone.catchClass[i];
+                            var t = zone->CatchClass->Get(i);
                             if (t is null)
                                 continue;
-                            if (zone.types[i] != ExceptionMarkKind.FILTER)
+                            if (zone->Types[i] != ExceptionMarkKind.FILTER)
                                 continue;
-                            if (t.Name.Equals("Void")) // skip empty type
+                            if (t->Name.Equals("Void")) // skip empty type
                                 continue;
 
                             var filter_type = KnowTypes.FromCache(t, invocation);
-                            var fail_type = exception->decodeClass();
+                            var fail_type = exception->clazz;
 
-                            if (fail_type.IsInner(filter_type))
+                            if (fail_type->IsInner(filter_type))
                             {
-                                label_addr = zone.filterAddr[i];
+                                label_addr = zone->FilterAddr[i];
                                 break;
                             }
                         }
