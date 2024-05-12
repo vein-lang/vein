@@ -13,7 +13,7 @@ namespace ishtar_test
     using vein.runtime;
     using Xunit;
     using Assert = NUnit.Framework.Assert;
-    using ishtar.vm.runtime;
+    using ishtar.runtime;
 
     public static class IshtarRuntimeModuleEx
     {
