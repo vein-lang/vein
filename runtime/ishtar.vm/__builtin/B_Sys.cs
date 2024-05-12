@@ -12,7 +12,7 @@ public static unsafe class B_Sys
         var arg1 = args[0];
 
         ForeignFunctionInterface.StaticValidate(current, &arg1);
-        var @class = arg1->decodeClass();
+        var @class = arg1->clazz;
 
         return IshtarMarshal.ToIshtarString(arg1, current);
     }
@@ -24,7 +24,7 @@ public static unsafe class B_Sys
         var arg1 = args[0];
 
         ForeignFunctionInterface.StaticValidate(current, &arg1);
-        var @class = arg1->decodeClass();
+        var @class = arg1->clazz;
 
         return IshtarMarshal.ToIshtarString(arg1, current);
     }
@@ -36,17 +36,17 @@ public static unsafe class B_Sys
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
-        var table = ffi.method_table;
-        ffi.vm.CreateInternalMethod("@value2string", Public | Static | Extern,
-                new VeinArgumentRef("value", ffi.vm.Types.ValueTypeClass))
-            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ValueToString)
-            .AddInto(table, x => x.Name);
-        ffi.vm.CreateInternalMethod("@object2string", Public | Static | Extern,
-                new VeinArgumentRef("value", ffi.vm.Types.ObjectClass))
-            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ObjectToString)
-            .AddInto(table, x => x.Name);
-        ffi.vm.CreateInternalMethod("@queryPerformanceCounter", Public | Static | Extern)
-            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&QueryPerformanceCounter)
-            .AddInto(table, x => x.Name);
+        //var table = ffi.method_table;
+        //ffi.vm.CreateInternalMethod("@value2string", Public | Static | Extern,
+        //        new VeinArgumentRef("value", ffi.vm.Types.ValueTypeClass))
+        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ValueToString)
+        //    .AddInto(table, x => x.Name);
+        //ffi.vm.CreateInternalMethod("@object2string", Public | Static | Extern,
+        //        new VeinArgumentRef("value", ffi.vm.Types.ObjectClass))
+        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ObjectToString)
+        //    .AddInto(table, x => x.Name);
+        //ffi.vm.CreateInternalMethod("@queryPerformanceCounter", Public | Static | Extern)
+        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&QueryPerformanceCounter)
+        //    .AddInto(table, x => x.Name);
     }
 }

@@ -8,36 +8,36 @@ namespace ishtar
     {
         public static void InitTable(ForeignFunctionInterface ffi)
         {
-            var table = ffi.method_table;
-            ffi.vm.CreateInternalMethod("i_call_String_Concat", Private | Static | Extern,
-                    ("v1", TYPE_STRING), ("v2", TYPE_STRING))
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Concat)
-                .AddInto(table, x => x.Name);
+            //var table = ffi.method_table;
+            //ffi.vm.CreateInternalMethod("i_call_String_Concat", Private | Static | Extern,
+            //        ("v1", TYPE_STRING), ("v2", TYPE_STRING))
+            //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Concat)
+            //    .AddInto(table, x => x.Name);
 
-            ffi.vm.CreateInternalMethod("i_call_String_Equal", Private | Static | Extern,
-                    ("v1", TYPE_STRING), ("v2", TYPE_STRING))
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&StrEqual)
-                .AddInto(table, x => x.Name);
+            //ffi.vm.CreateInternalMethod("i_call_String_Equal", Private | Static | Extern,
+            //        ("v1", TYPE_STRING), ("v2", TYPE_STRING))
+            //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&StrEqual)
+            //    .AddInto(table, x => x.Name);
 
-            ffi.vm.CreateInternalMethod("i_call_String_Trim_Start", Private | Static | Extern,
-                    ("v1", TYPE_STRING))
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&TrimStart)
-                .AddInto(table, x => x.Name);
+            //ffi.vm.CreateInternalMethod("i_call_String_Trim_Start", Private | Static | Extern,
+            //        ("v1", TYPE_STRING))
+            //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&TrimStart)
+            //    .AddInto(table, x => x.Name);
 
-            ffi.vm.CreateInternalMethod("i_call_String_Trim_End", Private | Static | Extern,
-                    ("v1", TYPE_STRING))
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&TrimEnd)
-                .AddInto(table, x => x.Name);
+            //ffi.vm.CreateInternalMethod("i_call_String_Trim_End", Private | Static | Extern,
+            //        ("v1", TYPE_STRING))
+            //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&TrimEnd)
+            //    .AddInto(table, x => x.Name);
 
-            ffi.vm.CreateInternalMethod("i_call_String_fmt", Private | Static | Extern,
-                    ("template", TYPE_STRING), ("array", TYPE_ARRAY))
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Fmt)
-                .AddInto(table, x => x.Name);
+            //ffi.vm.CreateInternalMethod("i_call_String_fmt", Private | Static | Extern,
+            //        ("template", TYPE_STRING), ("array", TYPE_ARRAY))
+            //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Fmt)
+            //    .AddInto(table, x => x.Name);
 
-            ffi.vm.CreateInternalMethod("i_call_String_Contains", Private | Static | Extern,
-                    ("v1", TYPE_STRING), ("v2", TYPE_STRING))
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Contains)
-                .AddInto(table, x => x.Name);
+            //ffi.vm.CreateInternalMethod("i_call_String_Contains", Private | Static | Extern,
+            //        ("v1", TYPE_STRING), ("v2", TYPE_STRING))
+            //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Contains)
+            //    .AddInto(table, x => x.Name);
         }
 
         [IshtarExportFlags(Private | Static)]

@@ -16,12 +16,12 @@ public static unsafe class B_GC
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
-        var table = ffi.method_table;
-        ffi.vm.CreateInternalMethod("i_call_GC_get_allocated", Public | Static | Extern)
-            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&GetAllocatedBytes)
-            .AddInto(table, x => x.Name);
-        ffi.vm.CreateInternalMethod("i_call_GC_get_alive_objects", Public | Static | Extern)
-            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&GetAliveObjects)
-            .AddInto(table, x => x.Name);
+        //var table = ffi.method_table;
+        //ffi.vm.CreateInternalMethod("i_call_GC_get_allocated", Public | Static | Extern)
+        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&GetAllocatedBytes)
+        //    .AddInto(table, x => x.Name);
+        //ffi.vm.CreateInternalMethod("i_call_GC_get_alive_objects", Public | Static | Extern)
+        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&GetAliveObjects)
+        //    .AddInto(table, x => x.Name);
     }
 }
