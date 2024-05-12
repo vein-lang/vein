@@ -7,10 +7,14 @@ namespace vein.runtime
     using extensions;
     using fs;
     using ishtar;
+    using ishtar.collections;
+    using ishtar.runtime;
 
-    public delegate void ModuleResolvedEvent(RuntimeIshtarModule module);
+    public unsafe delegate void ModuleResolvedEvent(in RuntimeIshtarModule* module);
 
-    public class AssemblyResolver : ModuleResolverBase
+    public unsafe delegate RuntimeIshtarModule* ModuleResolverCallback(string name, Version version);
+
+    public unsafe class AssemblyResolver : ModuleResolverBase
     {
         public AppVault Vault { get; }
         private AssemblyBundle assemblyBundle;
@@ -23,9 +27,14 @@ namespace vein.runtime
             return this;
         }
 
-        public override RuntimeIshtarModule ResolveDep(string name, Version version, IReadOnlyList<VeinModule> deps)
+        public override VeinModule ResolveDep(string name, Version version, IReadOnlyList<VeinModule> deps)
         {
-            var asm = Find(name, version, deps);
+            throw new NotImplementedException();
+        }
+
+        public RuntimeIshtarModule* ResolveDep(string name, Version version, UnsafeNativeList<RuntimeIshtarModule>* deps)
+        {
+            var asm = Find(name, version);
 
             var module = RuntimeIshtarModule.Read(Vault, asm.Sections.First().data, deps, (s, v) =>
                 ResolveDep(s, v, deps));
@@ -33,18 +42,19 @@ namespace vein.runtime
             return module;
         }
 
-        public RuntimeIshtarModule Resolve(IshtarAssembly assembly)
+        public RuntimeIshtarModule* Resolve(IshtarAssembly assembly)
         {
             var (_, code) = assembly.Sections.First();
-            var module = RuntimeIshtarModule.Read(Vault, code, new List<VeinModule>(), (s, version) =>
-                this.ResolveDep(s, version, new List<VeinModule>()));
+            var module = RuntimeIshtarModule.Read(Vault, code, UnsafeNativeList<RuntimeIshtarModule>.New(1), (s, version) =>
+                this.ResolveDep(s, version, UnsafeNativeList<RuntimeIshtarModule>.New(1)));
 
             Resolved?.Invoke(module);
 
             return module;
         }
+        
 
-        public IshtarAssembly Find(string name, Version version, IReadOnlyList<VeinModule> deps)
+        public IshtarAssembly Find(string name, Version version)
         {
             var file = FindInPaths(name);
 
