@@ -1,7 +1,7 @@
 namespace ishtar;
 
 
-public static class Marshals
+public static unsafe class Marshals
 {
     private static Dictionary<Type, ITransitAllocator> _list = new();
 

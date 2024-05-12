@@ -8,6 +8,6 @@ public unsafe abstract class TransitAllocator<T> : ITransitAllocator where T : c
 
     public abstract VeinClass Type { get; }
 
-    public RuntimeIshtarClass RuntimeType(CallFrame frame)
+    public RuntimeIshtarClass* RuntimeType(CallFrame frame)
         => KnowTypes.FromCache(Type.FullName, frame);
 }

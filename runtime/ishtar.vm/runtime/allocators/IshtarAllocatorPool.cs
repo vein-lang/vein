@@ -1,6 +1,6 @@
 namespace ishtar.allocators;
 
-using ishtar.vm.runtime;
+using runtime;
 
 public sealed unsafe class IshtarAllocatorPool(GCLayout? layout) : IIshtarAllocatorPool
 {
