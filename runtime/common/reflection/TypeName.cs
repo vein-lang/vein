@@ -55,6 +55,8 @@ namespace vein.runtime
             }
         }
 
+        public string FullName => _fullName;
+
         public QualityTypeName(string fullName) => this._fullName = fullName;
 
         public QualityTypeName(string asmName, string name, string ns) : this($"{asmName}%{ns}/{name}")
