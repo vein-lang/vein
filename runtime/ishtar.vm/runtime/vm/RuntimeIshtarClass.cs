@@ -125,11 +125,6 @@ namespace ishtar
 
             Original.Methods.Add(method->Original);
 
-//#if DEBUG
-//            if (Methods.Any(x => x->Name.Equals(method->Name)))
-//                throw new DuplicateItemException($"Method '{method->Name}' already exist in '{this.Original.Name}' class");
-//#endif
-
             Methods->Add(method);
             return method;
         }
@@ -436,9 +431,14 @@ namespace ishtar
             return Parent->FindMethod(fullyName, predicate);
         }
 
-        public RuntimeIshtarMethod* GetDefaultDtor() => GetDefaultDtor();
-        public RuntimeIshtarMethod* GetDefaultCtor() => GetDefaultCtor();
-        
+        public RuntimeIshtarMethod* GetDefaultDtor() => _get_tor("dtor");
+
+        public RuntimeIshtarMethod* GetDefaultCtor() => _get_tor("ctor");
+
+
+        private RuntimeIshtarMethod* _get_tor(string name, bool isStatic = false)
+            => Methods->FirstOrNull(x => x->IsStatic == isStatic && x->RawName.Equals(name) && (x->IsDeconstructor || x->IsConstructor));
+
         public IUnsafeTransitionAlignment<string, RuntimeIshtarField> Field => this;
         public IUnsafeTransitionAlignment<string, RuntimeIshtarMethod> Method => this;
 
