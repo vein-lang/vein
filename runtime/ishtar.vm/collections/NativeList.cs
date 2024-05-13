@@ -1,7 +1,9 @@
 namespace ishtar.collections;
 
 using System.Collections;
+using System.Runtime.InteropServices;
 
+[StructLayout(LayoutKind.Sequential)]
 public unsafe struct NativeList<T>
     : IDisposable
         , INativeList<T>

@@ -1,9 +1,10 @@
 namespace ishtar.collections;
 
 using System;
+using System.Runtime.InteropServices;
 using runtime;
-using static ishtar.PInvokeInfo;
 
+[StructLayout(LayoutKind.Sequential)]
 public unsafe struct DirectNativeList<T> : IDisposable, IUnsafeNativeList<T>
     where T : unmanaged
 {

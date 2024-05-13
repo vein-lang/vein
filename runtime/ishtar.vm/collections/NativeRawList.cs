@@ -2,9 +2,11 @@ namespace ishtar.collections;
 
 using System.Collections;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using runtime;
 using vm;
 
+[StructLayout(LayoutKind.Sequential)]
 public unsafe struct NativeRawList<T> : IDisposable, INativeList<T>, IEnumerable<T>
     where T : unmanaged
 {

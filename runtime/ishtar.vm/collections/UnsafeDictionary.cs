@@ -3,8 +3,10 @@ namespace ishtar.collections;
 using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using runtime;
 
+[StructLayout(LayoutKind.Sequential)]
 public unsafe struct UnsafeDictionary<K, V>
     : IDisposable , IEnumerable<NativeKeyValuePair<K, V>>
     where K : unmanaged, IEquatable<K>

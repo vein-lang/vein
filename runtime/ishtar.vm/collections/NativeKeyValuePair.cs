@@ -2,7 +2,9 @@ namespace ishtar.collections;
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
+[StructLayout(LayoutKind.Sequential)]
 public unsafe struct NativeKeyValuePair<K, V> where K : unmanaged, IEquatable<K>  where V : unmanaged
 {
     internal RawKVPair<K>* m_Data;

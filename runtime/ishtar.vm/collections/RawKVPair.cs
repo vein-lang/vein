@@ -22,7 +22,7 @@ internal unsafe struct RawKVPair<TKey>
     internal int FFIdx;
     internal int tSize;
 
-    internal const int minCap = 256;
+    internal const int minCap = 1024;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal int CalcCapacityCeilPow2(int cap)
