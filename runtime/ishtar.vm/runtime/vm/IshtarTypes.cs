@@ -28,7 +28,8 @@ public readonly unsafe struct IshtarTypes(
     RuntimeIshtarClass* exceptionClass,
     RuntimeIshtarClass* rawClass,
     RuntimeIshtarClass* aspectClass,
-    RuntimeIshtarClass* functionClass)
+    RuntimeIshtarClass* functionClass,
+    RuntimeIshtarClass* rangeClass)
 {
     public readonly RuntimeIshtarClass* ObjectClass = objectClass;
     public readonly RuntimeIshtarClass* ValueTypeClass = valueTypeClass;
@@ -53,6 +54,7 @@ public readonly unsafe struct IshtarTypes(
     public readonly RuntimeIshtarClass* RawClass = rawClass;
     public readonly RuntimeIshtarClass* AspectClass = aspectClass;
     public readonly RuntimeIshtarClass* FunctionClass = functionClass;
+    public readonly RuntimeIshtarClass* RangeClass = rangeClass;
 
     public readonly DirectNativeList<RuntimeIshtarClass>* All = DirectNativeList<RuntimeIshtarClass>.New(32);
 
@@ -68,7 +70,14 @@ public readonly unsafe struct IshtarTypes(
     }
 
     public RuntimeIshtarClass* ByQualityName(RuntimeQualityTypeName* name)
-        => All->FirstOrNull(x => x->FullName->Equal(name));
+    {
+        var result = All->FirstOrNull(x => x->FullName->Equal(name));
+
+        if (result is null)
+            throw new KeyNotFoundException($"No found registered '{name->NameWithNS}' type");
+
+        return result;
+    }
 
 
     public static IshtarTypes* Create(AppVault vault)
@@ -106,7 +115,8 @@ public readonly unsafe struct IshtarTypes(
             r->create($"std%global::vein/lang/Exception".L(), objectClass, module, TYPE_CLASS),
             r->create($"std%global::vein/lang/Raw".L(), valueTypeClass, module, TYPE_RAW),
             r->create($"std%global::vein/lang/Aspect".L(), objectClass, module, TYPE_CLASS),
-            r->create($"std%global::vein/lang/Function".L(), objectClass, module, TYPE_FUNCTION)
+            r->create($"std%global::vein/lang/Function".L(), objectClass, module, TYPE_FUNCTION),
+            r->create($"std%global::vein/lang/Range".L(), objectClass, module, TYPE_CLASS)
         );
         r->Add(objectClass);
         r->Add(r->VoidClass);
@@ -127,6 +137,13 @@ public readonly unsafe struct IshtarTypes(
         r->Add(r->ArrayClass);
         r->Add(r->RawClass);
         r->Add(r->FunctionClass);
+        r->Add(r->StringClass);
+
+
+        r->All->Add(r->ExceptionClass);
+        r->All->Add(r->AspectClass);
+        r->All->Add(r->ValueTypeClass);
+        r->All->Add(r->RangeClass);
 
         /*if (clazz->TypeCode is not TYPE_OBJECT and not TYPE_CLASS)
             Mapping->Add((int)clazz->TypeCode, clazz);
