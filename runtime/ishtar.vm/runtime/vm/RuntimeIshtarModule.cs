@@ -323,6 +323,8 @@ public unsafe struct RuntimeIshtarModule
         module->class_table->ForEach(@class =>
         {
             var parent = @class->Parent;
+            if (parent is null)
+                return;
             if (!parent->IsUnresolved)
                 return;
 
@@ -466,23 +468,14 @@ public unsafe struct RuntimeIshtarModule
 
         var @class = default(RuntimeIshtarClass*);
 
+
         if (flags.HasFlag(ClassFlags.Special))
         {
             @class = ishtarModule->vm.Types->ByQualityName(className);
+
+            if (@class is null)
+                vm.println($"No found registered special '{className->NameWithNS}' type for forwarding");
         }
-
-
-        /*if (!@class->IsSpecial) continue;
-           if (vault.vm.Types->All->Any(x => x->FullName == @class->FullName))
-               RuntimeTypeForwarder.Indicate(vault.vm.Types, @class);
-else
-    vault.vm.FastFail(WNE.TYPE_LOAD, "Special type defined but forward director not found.",
-        vault.vm.Frames.ModuleLoaderFrame);*/
-
-
-
-        //if (parentLen > 1)
-        //    throw new NotImplementedException();
 
         if (parentLen != 0)
         {
@@ -503,6 +496,8 @@ else
                 }
             }
         }
+        else if (@class is null)
+            @class = ishtarModule->DefineClass(className, null);
         
 
         var len = binary.ReadInt32();
@@ -804,11 +799,17 @@ public unsafe struct RuntimeAspectArgument
     public uint Index { get; }
     public stackval* Value { get; }
 
-    public static RuntimeAspectArgument* Create(AspectArgument arg) => throw new NotImplementedException();
+    public static RuntimeAspectArgument* Create(AspectArgument arg, RuntimeAspect* self)
+    {
+        var t = IshtarGC.AllocateImmortal<RuntimeAspectArgument>();
+
+        *t = new RuntimeAspectArgument();
+    }
 }
 
 public unsafe struct RuntimeAspect
 {
+    private readonly RuntimeAspect* _self;
     private void* _vein_aspect_ref;
     private InternedString* _name;
 
@@ -825,13 +826,14 @@ public unsafe struct RuntimeAspect
     }
 
 
-    public RuntimeAspect(string name, List<AspectArgument> args, AspectTarget target, IshtarTypes* types)
+    public RuntimeAspect(string name, List<AspectArgument> args, AspectTarget target, RuntimeAspect* self)
     {
+        _self = self;
         Target = target;
         Name = name;
 
         foreach (var @ref in args)
-            Arguments->Add(RuntimeAspectArgument.Create(@ref));
+            Arguments->Add(RuntimeAspectArgument.Create(@ref, self));
     }
 
     public static DirectNativeList<RuntimeAspect>* Deconstruct(Dictionary<FieldName, object> data, IshtarTypes* types)
@@ -843,7 +845,7 @@ public unsafe struct RuntimeAspect
         {
             var asp = IshtarGC.AllocateImmortal<RuntimeAspect>();
 
-            *asp = new RuntimeAspect(aspect.Name, aspect.Arguments, aspect.Target, types);
+            *asp = new RuntimeAspect(aspect.Name, aspect.Arguments, aspect.Target, asp);
 
             lst->Add(asp);
         }

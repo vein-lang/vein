@@ -72,10 +72,6 @@ public readonly unsafe struct IshtarTypes(
     public RuntimeIshtarClass* ByQualityName(RuntimeQualityTypeName* name)
     {
         var result = All->FirstOrNull(x => x->FullName->Equal(name));
-
-        if (result is null)
-            throw new KeyNotFoundException($"No found registered '{name->NameWithNS}' type");
-
         return result;
     }
 
