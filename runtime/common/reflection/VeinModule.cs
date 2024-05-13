@@ -128,6 +128,7 @@ namespace vein.runtime
             public object INIT_TYPE_BARRIER = new ();
             public object INIT_FIELD_BARRIER = new ();
             public object INIT_METHOD_BARRIER = new ();
+            public object GC_FINALIZER_BARRIER = new ();
         }
     }
 }
