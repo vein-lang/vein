@@ -18,19 +18,19 @@ public sealed unsafe class NativeMemory_WindowsAllocator : IIshtarAllocator
         return p;
     }
 
-    public void* AllocZeroed(ulong size, CallFrame frame)
+    public void* AllocZeroed(ulong size, AllocationKind kind, CallFrame frame)
         => Allocate((long)size, frame);
 
-    public void* AllocZeroed(long size, CallFrame frame)
+    public void* AllocZeroed(long size, AllocationKind kind, CallFrame frame)
         => Allocate(size, frame);
 
-    public void* AllocZeroed(UIntPtr size, CallFrame frame)
+    public void* AllocZeroed(UIntPtr size, AllocationKind kind, CallFrame frame)
         => Allocate((long)size, frame);
 
-    public void* AllocZeroed(IntPtr size, CallFrame frame)
+    public void* AllocZeroed(IntPtr size, AllocationKind kind, CallFrame frame)
         => Allocate(size, frame);
 
-    public void* AllocZeroed(int size, CallFrame frame)
+    public void* AllocZeroed(int size, AllocationKind kind, CallFrame frame)
         => Allocate(size, frame);
 
     void IIshtarAllocatorIdentifier.SetId(nint id) => Id = id;

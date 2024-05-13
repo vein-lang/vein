@@ -1,5 +1,6 @@
 namespace ishtar.allocators;
 
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 
 public sealed unsafe class DebugManagedAllocator : IIshtarAllocator
@@ -29,31 +30,31 @@ public sealed unsafe class DebugManagedAllocator : IIshtarAllocator
 
     internal record struct ManagedMemHandle(nint size, GCHandle handler, nint originalAddr);
 
-    public void* AllocZeroed(ulong size, CallFrame frame)
+    public void* AllocZeroed(ulong size, AllocationKind kind, CallFrame frame)
     {
         TotalSize += (long)size;
         return Alloc((nint)size, frame);
     }
 
-    public void* AllocZeroed(long size, CallFrame frame)
+    public void* AllocZeroed(long size, AllocationKind kind, CallFrame frame)
     {
         TotalSize += size;
         return Alloc((nint)size, frame);
     }
 
-    public void* AllocZeroed(UIntPtr size, CallFrame frame)
+    public void* AllocZeroed(UIntPtr size, AllocationKind kind, CallFrame frame)
     {
         TotalSize += (long)size;
         return Alloc((nint)size, frame);
     }
 
-    public void* AllocZeroed(IntPtr size, CallFrame frame)
+    public void* AllocZeroed(IntPtr size, AllocationKind kind, CallFrame frame)
     {
         TotalSize += size;
         return Alloc(size, frame);
     }
 
-    public void* AllocZeroed(int size, CallFrame frame)
+    public void* AllocZeroed(int size, AllocationKind kind, CallFrame frame)
     {
         TotalSize += size;
         return Alloc(size, frame);

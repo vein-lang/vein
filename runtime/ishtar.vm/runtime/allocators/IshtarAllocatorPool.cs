@@ -1,12 +1,17 @@
 namespace ishtar.allocators;
 
-public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
+using ishtar.vm.runtime;
+
+public sealed unsafe class IshtarAllocatorPool(GCLayout? layout) : IIshtarAllocatorPool
 {
     internal readonly Dictionary<nint, IIshtarAllocator> _allocators = new();
 
 
     private IIshtarAllocator GetAllocator(CallFrame frame)
     {
+        if (layout is not null)
+            return new GCLayoutAllocator(layout);
+
         if (frame.vm.Config.UseDebugAllocator)
             return new DebugManagedAllocator();
 
@@ -27,11 +32,11 @@ public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
     }
 
 
-    public IIshtarAllocator Rent<T>(out T* output, CallFrame frame) where T : unmanaged
+    public IIshtarAllocator Rent<T>(out T* output, AllocationKind kind, CallFrame frame) where T : unmanaged
     {
         var allocator = GetAllocator(frame);
 
-        output = (T*)allocator.AllocZeroed(sizeof(T), frame);
+        output = (T*)allocator.AllocZeroed(sizeof(T), kind, frame);
 
         if (allocator is IIshtarAllocatorIdentifier identifier)
             identifier.SetId((nint)output);
@@ -44,7 +49,7 @@ public sealed unsafe class IshtarAllocatorPool : IIshtarAllocatorPool
     {
         var allocator = GetAllocator(frame);
 
-        output = (T*)allocator.AllocZeroed(sizeof(T) * size, frame);
+        output = (T*)allocator.AllocZeroed(sizeof(T) * size, AllocationKind.reference, frame);
 
         if (allocator is IIshtarAllocatorIdentifier identifier)
             identifier.SetId((nint)output);
