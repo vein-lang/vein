@@ -41,6 +41,7 @@ namespace ishtar
             #region Defined Configs
 
             public bool UseDebugAllocator => Has("has_debug_allocator");
+            public bool DisabledFinalization => Has("has_disabled_finalization");
 
             #endregion
 
