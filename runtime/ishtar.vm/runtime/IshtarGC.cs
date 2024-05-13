@@ -782,10 +782,7 @@ namespace ishtar.runtime
 
             RefsHeap.Remove((nint)o);
             DeleteDebugData((nint)obj);
-
-            if (o->clazz != null)
-                GCHandle.FromIntPtr((nint)o->clazz).Free();
-
+            
             Stats.total_allocations--;
             Stats.alive_objects--;
 
