@@ -7,6 +7,7 @@ namespace ishtar
     using vein.runtime;
     using vein.extensions;
     using System.Diagnostics;
+    using ishtar.vm.runtime;
 
     public interface ITransitionAlignment<in TKey, out TValue>
     {
@@ -305,6 +306,9 @@ namespace ishtar
             => base.FindField(name) as RuntimeIshtarField;
         public RuntimeIshtarMethod FindMethod(string fullyName)
             => Methods.FirstOrDefault(method => method.Name.Equals(fullyName)) as RuntimeIshtarMethod;
+
+        public override RuntimeIshtarMethod GetDefaultDtor() => (RuntimeIshtarMethod)base.GetDefaultDtor();
+        public override RuntimeIshtarMethod GetDefaultCtor() => (RuntimeIshtarMethod)base.GetDefaultCtor();
 
         private CallFrame _sys_frame;
 
