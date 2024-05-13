@@ -484,23 +484,30 @@ else
         //if (parentLen > 1)
         //    throw new NotImplementedException();
 
-        var parentIdx = binary.ReadTypeName(ishtarModule);
-        var parent = ishtarModule->FindType(parentIdx, true, false);
-
-        if (parentLen > 1)
+        if (parentLen != 0)
         {
-            foreach (var _ in ..(parentLen - 1))
+            var parentIdx = binary.ReadTypeName(ishtarModule);
+            var parent = ishtarModule->FindType(parentIdx, true, false);
+
+            if (@class is null)
+                @class = ishtarModule->DefineClass(className, parent);
+
+            
+
+            if (parentLen > 1)
             {
-                var _1 = binary.ReadTypeName(ishtarModule);
-                var _2 = ishtarModule->FindType(parentIdx, true, false);
+                foreach (var _ in ..(parentLen - 1))
+                {
+                    var _1 = binary.ReadTypeName(ishtarModule);
+                    var _2 = ishtarModule->FindType(parentIdx, true, false);
+                }
             }
         }
-
+        
 
         var len = binary.ReadInt32();
         
-        if (@class is null)
-            @class = ishtarModule->DefineClass(className, parent);
+        
 
 
         @class->Original.Flags = flags;
