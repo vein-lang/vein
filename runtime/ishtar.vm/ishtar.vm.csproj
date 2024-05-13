@@ -20,7 +20,7 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT</DefineConstants>
+    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Iced" Version="1.20.0" />
