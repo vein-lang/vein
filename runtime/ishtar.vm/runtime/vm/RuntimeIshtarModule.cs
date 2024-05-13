@@ -10,7 +10,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Text;
+using System.Xml.Linq;
 using vein.exceptions;
 using vein.extensions;
 using vein.reflection;
@@ -168,7 +170,7 @@ public unsafe struct RuntimeIshtarModule
 
         RuntimeIshtarClass* createResult(RuntimeIshtarModule* @this)
         {
-            if (dropUnresolvedException || findExternally)
+            if (dropUnresolvedException /*|| findExternally*/)
                 throw new TypeNotFoundException($"'{type->NameWithNS}' not found in modules and dependency assemblies.");
             return @this->DefineUnresolvedClass(type);
         }
@@ -230,6 +232,7 @@ public unsafe struct RuntimeIshtarModule
 
         *module = new RuntimeIshtarModule(vault, "unnamed", module);
 
+
         using var mem = new MemoryStream(arr);
         using var reader = new BinaryReader(mem);
 
@@ -253,7 +256,11 @@ public unsafe struct RuntimeIshtarModule
         {
             var key = reader.ReadInt32();
             var value = reader.ReadIshtarString();
+
+            vault.vm.println($"read string: [{key}] '{value}'");
+
             module->Original->Value.strings_table.Add(key, value);
+            module->string_table->Add(key, StringStorage.Intern(value));
         }
         // read types table
         foreach (var _ in ..reader.ReadInt32())
@@ -262,7 +269,12 @@ public unsafe struct RuntimeIshtarModule
             var asmName = reader.ReadIshtarString();
             var ns = reader.ReadIshtarString();
             var name = reader.ReadIshtarString();
-            module->Original->Value.types_table.Add(key, new QualityTypeName(asmName, name, ns));
+            var t = new QualityTypeName(asmName, name, ns);
+
+            vault.vm.println($"read typename: [{key}] '{t}'");
+
+            module->Original->Value.types_table.Add(key, t);
+            module->types_table->Add(key, t.T());
         }
         // read fields table
         foreach (var _ in ..reader.ReadInt32())
@@ -270,7 +282,14 @@ public unsafe struct RuntimeIshtarModule
             var key = reader.ReadInt32();
             var name = reader.ReadIshtarString();
             var clazz = reader.ReadIshtarString();
-            module->Original->Value.fields_table.Add(key, new FieldName(name, clazz));
+            var f = new FieldName(name, clazz);
+            module->Original->Value.fields_table.Add(key, f);
+
+            vault.vm.println($"read fieldname: [{key}] '{f}'");
+
+            var field = IshtarGC.AllocateImmortal<RuntimeFieldName>();
+            *field = new RuntimeFieldName(name, clazz);
+            module->fields_table->Add(key, field);
         }
 
         // read deps refs
@@ -278,6 +297,9 @@ public unsafe struct RuntimeIshtarModule
         {
             var name = reader.ReadIshtarString();
             var ver = Version.Parse(reader.ReadIshtarString());
+
+            vault.vm.println($"read dep: [{name}@{ver}] ");
+
             if (module->Original->Value.Deps.Any(x => x.Version.Equals(ver) && x.Name.Equals(name)))
                 continue;
             var dep = resolver(name, ver);
@@ -290,7 +312,11 @@ public unsafe struct RuntimeIshtarModule
         {
             var body = reader.ReadBytes(reader.ReadInt32());
             var @class = module->DecodeClass(body, module);
+
+            vault.vm.println($"read class: [{@class->FullName->NameWithNS}] ");
+
             module->class_table->Add(@class);
+            module->Original->Value.class_table.Add(@class->Original);
         }
 
         // restore unresolved types
@@ -299,6 +325,9 @@ public unsafe struct RuntimeIshtarModule
             var parent = @class->Parent;
             if (!parent->IsUnresolved)
                 return;
+
+            vault.vm.println($"resolve class: [{parent->FullName->NameWithNS}] ");
+
             @class->ReplaceParent(parent->FullName != @class->FullName
                 ? module->FindType(parent->FullName, true)
                 : null);
@@ -310,6 +339,8 @@ public unsafe struct RuntimeIshtarModule
             {
                 if (!method->ReturnType->IsUnresolved)
                     return;
+                vault.vm.println($"resolve method.retType: [{method->ReturnType->FullName->NameWithNS}] ");
+
                 method->ReplaceReturnType(module->FindType(method->ReturnType->FullName, true));
             });
 
@@ -321,6 +352,7 @@ public unsafe struct RuntimeIshtarModule
                 {
                     if (!arg->Type->IsUnresolved)
                         return;
+                    vault.vm.println($"resolve method.arg[]: [{arg->Type->FullName->NameWithNS}] ");
                     arg->ReplaceType(module->FindType(arg->Type->FullName, true));
                 });
             });
@@ -328,6 +360,8 @@ public unsafe struct RuntimeIshtarModule
             @class->Fields->ForEach(field => {
                 if (!field->FieldType->IsUnresolved)
                     return;
+                vault.vm.println($"resolve field.type[]: [{field->FieldType->FullName->NameWithNS}] ");
+
                 field->ReplaceType(module->FindType(field->FieldType->FullName, true));
             });
         });
@@ -337,8 +371,12 @@ public unsafe struct RuntimeIshtarModule
 
         module->Original->Value.const_table = const_body.ToConstStorage();
 
-        //module->Name = module->GetConstStringByIndex(idx);
-        //module->Version = Version.Parse(module.GetConstStringByIndex(vdx));
+        module->Name = module->GetConstStringByIndex(idx);
+
+        vault.vm.println($"Read {module->Name} module success");
+
+
+        module->Original->Value.Version = Version.Parse(module->GetConstStringByIndex(vdx));
         module->aspects_table->AddRange(RuntimeAspect.Deconstruct(module->Original->Value.const_table.storage, vault.vm.Types));
 
         module->DefineBootstrapper();
@@ -443,11 +481,20 @@ else
 
 
 
-        if (parentLen > 1)
-            throw new NotImplementedException();
+        //if (parentLen > 1)
+        //    throw new NotImplementedException();
 
         var parentIdx = binary.ReadTypeName(ishtarModule);
         var parent = ishtarModule->FindType(parentIdx, true, false);
+
+        if (parentLen > 1)
+        {
+            foreach (var _ in ..(parentLen - 1))
+            {
+                var _1 = binary.ReadTypeName(ishtarModule);
+                var _2 = ishtarModule->FindType(parentIdx, true, false);
+            }
+        }
 
 
         var len = binary.ReadInt32();
