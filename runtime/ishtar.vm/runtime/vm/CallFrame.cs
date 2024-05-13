@@ -2,6 +2,7 @@ namespace ishtar
 {
     using System.Runtime.CompilerServices;
     using System.Text;
+    using ishtar.vm.runtime;
 
     public static class CallFrameEx
     {
@@ -55,6 +56,29 @@ namespace ishtar
                 = vm.GC.ToIshtarObject(message, this);
         }
 
+        public string Debug_GetFile()
+        {
+            // TODO fetch from dbg symbols
+
+            var str = new StringBuilder();
+
+            if (this.method.Owner is not null)
+                str.AppendLine($"\tat {this.method.Owner.FullName.NameWithNS}.{this.method.Name}");
+            else
+                str.AppendLine($"\tat <sys>.{this.method.Name}");
+
+            var r = this.parent;
+
+            while (r != null)
+            {
+                str.AppendLine($"\tat {r.method.Owner.FullName.NameWithNS}.{r.method.Name}");
+                r = r.parent;
+            }
+
+            return str.ToString();
+        }
+
+        public int Debug_GetLine() => 0;// TODO fetch from dbg symbols
 
         public static void FillStackTrace(CallFrame frame)
         {
