@@ -21,6 +21,8 @@ namespace vein.runtime
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 Console.OutputEncoding = Encoding.Unicode;
+
+            BoehmGCLayout.Native.GC_init();
             var vm = VirtualMachine.Create("app");
             var vault = vm.Vault;
 

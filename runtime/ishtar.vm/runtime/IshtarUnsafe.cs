@@ -17,6 +17,9 @@ namespace ishtar
 
         public static T AsRef<T>(void* raw) where T : class
         {
+#if DEBUG
+            if (raw == null) return null;
+#endif
             if (raw == null) throw new ArgumentNullException(nameof(raw));
             var p = GCHandle.FromIntPtr((nint) raw);
             var r = p.Target as T;
