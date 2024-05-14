@@ -36,11 +36,9 @@ public static unsafe class B_Sys
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
-        //var table = ffi.method_table;
-        //ffi.vm.CreateInternalMethod("@value2string", Public | Static | Extern,
-        //        new VeinArgumentRef("value", ffi.vm.Types.ValueTypeClass))
-        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ValueToString)
-        //    .AddInto(table, x => x.Name);
+        //ffi.Add(ffi.vm.CreateInternalMethod("@value2string", Public | Static | Extern,
+        //        new VeinArgumentRef("value", ffi.vm.Types->ValueTypeClass))
+        //    ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ValueToString));
         //ffi.vm.CreateInternalMethod("@object2string", Public | Static | Extern,
         //        new VeinArgumentRef("value", ffi.vm.Types.ObjectClass))
         //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&ObjectToString)

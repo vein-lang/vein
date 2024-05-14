@@ -62,19 +62,15 @@ namespace ishtar
 
         public static void InitTable(ForeignFunctionInterface ffi)
         {
-            //var table = ffi.method_table;
+            ffi.Add(ffi.vm.CreateInternalMethod("@_get_os_value", Public | Static | Extern)->
+                AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&GetOSValue));
 
-            //ffi.vm.CreateInternalMethod("@_get_os_value", Public | Static | Extern)
-            //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&GetOSValue)
-            //    .AddInto(table, x => x.Name);
+            ffi.Add(ffi.vm
+                .CreateInternalMethod("@_exit", Public | Static | Extern, ("msg", TYPE_STRING), ("code", TYPE_I4))->
+                AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Exit));
 
-            //ffi.vm.CreateInternalMethod("@_exit", Public | Static | Extern, ("msg", TYPE_STRING), ("code", TYPE_I4))
-            //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Exit)
-            //    .AddInto(table, x => x.Name);
-
-            //ffi.vm.CreateInternalMethod("@_switch_flag", Public | Static | Extern, ("key", TYPE_STRING), ("value", TYPE_BOOLEAN))
-            //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&SwitchFlag)
-            //    .AddInto(table, x => x.Name);
+            ffi.Add(ffi.vm.CreateInternalMethod("@_switch_flag", Public | Static | Extern, ("key", TYPE_STRING), ("value", TYPE_BOOLEAN))
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&SwitchFlag)); ;
         }
     }
 }

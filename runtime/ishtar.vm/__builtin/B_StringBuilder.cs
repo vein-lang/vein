@@ -89,9 +89,8 @@ public unsafe static class B_StringBuilder
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
-        //var table = ffi.method_table;
         //ffi.vm.CreateInternalMethod("i_call_StringBuilder_append", Public | Static | Extern,
-        //        new VeinArgumentRef("_this_", ThisClass), new VeinArgumentRef("value", ffi.vm.Types.ObjectClass))
+        //        new VeinArgumentRef("_this_", ThisClass), new VeinArgumentRef("value", ffi.vm.Types->ObjectClass))
         //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Append)
         //    .AddInto(table, x => x.Name);
         //ffi.vm.CreateInternalMethod("i_call_StringBuilder_append", Public | Static | Extern,
