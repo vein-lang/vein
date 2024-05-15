@@ -9,7 +9,7 @@
     },
     "run test": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\git\\vein-std\\test\\bin\\test.std.wll --sys::log::use-console=1 --sys::display-ffi-mapping --sys::ishtar::skip-validate-args=1"
+      "commandLineArgs": "C:\\git\\std\\test\\bin\\test.std.wll --sys::log::use-console=1 --sys::display-ffi-mapping --sys::ishtar::skip-validate-args=1"
     },
     "run test_case 00": {
       "commandName": "Project",
