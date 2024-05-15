@@ -12,9 +12,8 @@ public unsafe struct RuntimeQualityTypeName(InternedString* fullName)
     private InternedString* _namespace;
     private InternedString* _asmName;
     private InternedString* _nameWithNS;
-
-
-    public bool Equal(RuntimeQualityTypeName* r) => _fullname == r->_fullname;
+    
+    public bool Equals(RuntimeQualityTypeName* r) => _fullname == r->_fullname;
 
     public string Name
     {

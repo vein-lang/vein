@@ -23,7 +23,9 @@ namespace ishtar
             if (raw == null) throw new ArgumentNullException(nameof(raw));
             var p = GCHandle.FromIntPtr((nint) raw);
             var r = p.Target as T;
-            GC.ReRegisterForFinalize(r ?? throw new InvalidOperationException());
+
+            if (r is null) return r;
+            GC.ReRegisterForFinalize(r);
             return r;
         }
 

@@ -8,6 +8,7 @@ namespace ishtar
     using vein.reflection;
     using vein.runtime;
     using collections;
+    using vm;
 
     public unsafe class AppVault : AppVaultSync, IDisposable
     {
@@ -19,7 +20,7 @@ namespace ishtar
         public TokenInterlocker TokenGranted { get; }
         public int ThreadID { get; }
 
-        internal readonly DirectNativeList<RuntimeIshtarModule> Modules = new();
+        internal readonly DirectNativeList<RuntimeIshtarModule>* Modules = DirectNativeList<RuntimeIshtarModule>.New(8);
 
         public AppVault(VirtualMachine vm, string name)
         {
@@ -31,7 +32,7 @@ namespace ishtar
 
         public RuntimeIshtarClass* GlobalFindType(RuntimeQualityTypeName* typeName)
         {
-            using var enumerator = Modules._ref->GetEnumerator();
+            using var enumerator = Modules->GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -47,7 +48,7 @@ namespace ishtar
 
         public RuntimeIshtarClass* GlobalFindType(QualityTypeName typeName)
         {
-            using var enumerator = Modules._ref->GetEnumerator();
+            using var enumerator = Modules->GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -66,7 +67,7 @@ namespace ishtar
 
         public RuntimeIshtarClass* GlobalFindType(RuntimeToken token)
         {
-            using var enumerator = Modules._ref->GetEnumerator();
+            using var enumerator = Modules->GetEnumerator();
 
             while (enumerator.MoveNext())
             {
@@ -104,20 +105,20 @@ namespace ishtar
         private void ResolverOnResolved(in RuntimeIshtarModule* module)
         {
             module->ID = TokenGranted.GrantModuleID();
-            fixed (DirectNativeList<RuntimeIshtarModule>* q = &Modules) q->Add(module);
+            Modules->Add(module);
         }
 
         object AppVaultSync.TokenInterlockerGuard { get; } = new();
         internal ushort LastModuleID;
         internal ushort LastClassID;
 
-        public void Dispose() => Modules.Clear();
+        public void Dispose() => Modules->Clear();
 
         public RuntimeIshtarModule* DefineModule(string @internal)
         {
-            var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>();
+            var module = IshtarGC.AllocateImmortalRoot<RuntimeIshtarModule>();
 
-            *module = new RuntimeIshtarModule(vm.Vault, @internal, module);
+            *module = new RuntimeIshtarModule(vm.Vault, @internal, module, new IshtarVersion());
 
             return module;
         }
