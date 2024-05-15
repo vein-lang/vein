@@ -6,36 +6,30 @@ using vein.extensions;
 [DebuggerDisplay("{Class}.{Name}")]
 public unsafe struct RuntimeFieldName(InternedString* fullName)
 {
-    private InternedString* _name;
-    private InternedString* _className;
+    private InternedString* _fullName = fullName;
+    private InternedString* _name = CreateName(fullName);
+    private InternedString* _className = CreateClassName(fullName);
+
+    public bool Equals(RuntimeFieldName* name) => fullName->Equals(name->_fullName);
 
 
-    public string Name
+    private static InternedString* CreateName(InternedString* full)
     {
-        get
-        {
-            var fn = StringStorage.GetStringUnsafe(fullName);
-
-            if (_name is not null)
-                return StringStorage.GetStringUnsafe(_name);
-            _name = StringStorage.Intern(fn.Split('.').Last());
-            return StringStorage.GetStringUnsafe(_name);
-        }
+        var fn = StringStorage.GetStringUnsafe(full);
+        return StringStorage.Intern(fn.Split('.').Last());
     }
 
-    public string Class
+    private static InternedString* CreateClassName(InternedString* full)
     {
-        get
-        {
-            var fn = StringStorage.GetStringUnsafe(fullName);
-
-            if (_name is not null)
-                return StringStorage.GetStringUnsafe(_name);
-            _name = StringStorage.Intern(fn.Split('.').SkipLast(1).Join());
-            return StringStorage.GetStringUnsafe(_name);
-        }
+        var fn = StringStorage.GetStringUnsafe(full);
+        return StringStorage.Intern(fn.Split('.').SkipLast(1).Join());
     }
-        
+
+    public string Name => StringStorage.GetStringUnsafe(_name);
+
+    public string Class => StringStorage.GetStringUnsafe(_className);
+    public string Fullname => StringStorage.GetStringUnsafe(_fullName);
+
     public RuntimeFieldName(string name, string className) : this(StringStorage.Intern($"{className}.{name}")) { }
         
     public static RuntimeFieldName* Resolve(int index, RuntimeIshtarModule* module)
