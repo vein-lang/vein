@@ -478,13 +478,13 @@ namespace ishtar.runtime
 
             foreach (var p in RefsHeap.ToArray())
             {
-                FreeObject((IshtarObject*)p, VM.Frames.GarbageCollector());
+                FreeObject((IshtarObject*)p, VM.Frames.GarbageCollector);
             }
             RefsHeap.Clear();
 
             foreach (var p in ArrayRefsHeap.ToArray())
             {
-                FreeArray((IshtarArray*)p, VM.Frames.GarbageCollector());
+                FreeArray((IshtarArray*)p, VM.Frames.GarbageCollector);
             }
             ArrayRefsHeap.Clear();
 
@@ -499,7 +499,7 @@ namespace ishtar.runtime
 
             if (gcHeapUsage.pbytes_since_gc != 0)
             {
-                vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_bytes_requested is not zero ({Stats.total_bytes_requested})", VM.Frames.GarbageCollector());
+                vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_bytes_requested is not zero ({Stats.total_bytes_requested})", VM.Frames.GarbageCollector);
                 return;
             }
         }
@@ -557,7 +557,7 @@ namespace ishtar.runtime
         public stackval* AllocateStack(CallFrame frame, int size)
         {
             var allocator = allocatorPool.RentArray<stackval>(out var p, size, frame);
-            vm.println($"Allocated stack '{size}' for '{frame.method->ToString()}'");
+            vm.println($"Allocated stack '{size}' for '{frame.method->Name}'");
 
             Stats.total_allocations++;
             Stats.total_bytes_requested += allocator.TotalSize;
@@ -708,7 +708,7 @@ namespace ishtar.runtime
             var p = (void**)gcLayout.alloc((uint)(size * sizeof(void*)));
 
             if (p is null)
-                vm.FastFail(WNE.TYPE_LOAD, "Out of memory.", vm.Frames.GarbageCollector());
+                vm.FastFail(WNE.TYPE_LOAD, "Out of memory.", vm.Frames.GarbageCollector);
             return p;
         }
 
@@ -728,11 +728,11 @@ namespace ishtar.runtime
 
             obj->flags |= GCFlags.IMMORTAL;
 
-            obj->vtable[tt->Field["_unique_id"]->vtable_offset] = gc.ToIshtarObject(@class->runtime_token.ClassID, frame);
-            obj->vtable[tt->Field["_module_id"]->vtable_offset] = gc.ToIshtarObject(@class->runtime_token.ModuleID, frame);
+            obj->vtable[tt->Field["_unique_id"]->vtable_offset] = gc.ToIshtarObjectT(@class->runtime_token.ClassID, frame);
+            obj->vtable[tt->Field["_module_id"]->vtable_offset] = gc.ToIshtarObjectT(@class->runtime_token.ModuleID, frame);
             obj->vtable[tt->Field["_flags"]->vtable_offset] = gc.ToIshtarObject((int)@class->Flags, frame);
             obj->vtable[tt->Field["_name"]->vtable_offset] = gc.ToIshtarObject(@class->Name, frame);
-            obj->vtable[tt->Field["_namespace"]->vtable_offset] = gc.ToIshtarObject(@class->Original.Path, frame);
+            obj->vtable[tt->Field["_namespace"]->vtable_offset] = gc.ToIshtarObject(@class->FullName->Namespace, frame);
 
             _types_cache[@class->runtime_token] = (nint)obj;
 
@@ -852,7 +852,7 @@ namespace ishtar.runtime
             //    vm.println("@@[dtor] failed finalize object, not alived");
             //    return;
             //}
-            var frame = vm.Frames.GarbageCollector();
+            var frame = vm.Frames.GarbageCollector;
 
             ObjectRegisterFinalizer(o, null, frame);
 
@@ -864,11 +864,8 @@ namespace ishtar.runtime
             var finalizer = clazz->GetDefaultDtor();
 
             vm.println($"@@[dtor] called! for instance of {clazz->FullName->NameWithNS}");
-
             if (finalizer is not null)
             {
-                vm.println("@@[dtor] failed finalize object, not alived");
-
                 vm.exec_method(new CallFrame(vm)
                 {
                     args = null,
@@ -878,7 +875,6 @@ namespace ishtar.runtime
                 });
                 vm.watcher.ValidateLastError();
             }
-
 
             RefsHeap.Remove((nint)o);
             DeleteDebugData((nint)obj);
