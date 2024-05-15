@@ -7,28 +7,41 @@
     <GenerateRequiresPreviewFeaturesAttribute>True</GenerateRequiresPreviewFeaturesAttribute>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PublishAot>true</PublishAot>
+    <IlcGenerateDgmlFile>true</IlcGenerateDgmlFile>
+    <IlcGenerateMapFile>true</IlcGenerateMapFile>
+    <IlcSingleThreaded>true</IlcSingleThreaded>
+    <IlcDumpGeneratedIL>true</IlcDumpGeneratedIL>
+    <Optimize>false</Optimize>
+    <IlcGenerateStackTraceData>true</IlcGenerateStackTraceData>
+    <IlcTrimMetadata>false</IlcTrimMetadata>
+    <IlcDisableReflection>false</IlcDisableReflection>
+    <DebugType>embedded</DebugType>
+    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS</DefineConstants>
+  </PropertyGroup>
+
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='LegacyRelease|AnyCPU'">
+    <PublishAot>true</PublishAot>
     <Optimize>True</Optimize>
     <TrimMode>link</TrimMode>
     <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
     <IlcDisableUnhandledExceptionExperience>true</IlcDisableUnhandledExceptionExperience>
     <DebugType>embedded</DebugType>
+    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS</DefineConstants>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN</DefineConstants>
+    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Iced" Version="1.20.0" />
-    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="8.0.0-rc.2.23479.6" />
-    <PackageReference Include="runtime.linux-x64.Microsoft.DotNet.ILCompiler" Version="8.0.0-rc.2.23479.6" />
-    <PackageReference Include="runtime.linux-arm64.Microsoft.DotNet.ILCompiler" Version="8.0.0-rc.2.23479.6" />
-    <PackageReference Include="runtime.osx-x64.Microsoft.DotNet.ILCompiler" Version="8.0.0-rc.2.23479.6" />
-    <PackageReference Include="runtime.win-x64.Microsoft.DotNet.ILCompiler" Version="8.0.0-rc.2.23479.6" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics.CodeAnalysis" />
@@ -41,8 +54,5 @@
     <None Update="sample_native_library.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="runtime\gc\" />
   </ItemGroup>
 </Project>
