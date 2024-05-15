@@ -17,68 +17,68 @@ namespace ishtar
         }
     }
     
-    public unsafe struct RuntimeIshtarField
+    public unsafe struct RuntimeIshtarField(
+        RuntimeIshtarClass* owner,
+        RuntimeFieldName* fullName,
+        FieldFlags flags,
+        RuntimeIshtarClass* fieldType,
+        RuntimeIshtarField* selfRef)
     {
-        private readonly WeakRef<VeinField>* _field;
-        public RuntimeIshtarClass* Owner { get; }
-        public RuntimeIshtarClass* FieldType { get; }
-        public string Name => _field->Value.Name;
-        public FieldFlags Flags => _field->Value.Flags;
+        public RuntimeIshtarClass* Owner { get; } = owner;
+        public RuntimeIshtarClass* FieldType { get; private set; } = fieldType;
+        public string Name => FullName->Name;
         public ulong vtable_offset;
 
-        public FieldName FullName => _field->Value.FullName;
+        public FieldFlags Flags { get; set; } = flags;
+
+        public RuntimeFieldName* FullName { get; set; } = fullName;
 
         public DirectNativeList<RuntimeAspect>* Aspects { get; } = DirectNativeList<RuntimeAspect>.New(4);
 
-
-        public RuntimeIshtarField(RuntimeIshtarClass* owner, RuntimeFieldName* fullName, FieldFlags flags, RuntimeIshtarClass* fieldType)
-        {
-            var @base = new VeinField(owner->Original, new FieldName(fullName->Name, fullName->Class), flags, fieldType->Original);
-            Owner = owner;
-            FieldType = fieldType;
-            _field = WeakRef<VeinField>.Create(@base);
-        }
 
         public IshtarObject* default_value;
 
         internal void ReplaceType(RuntimeIshtarClass* type)
         {
-
+            VirtualMachine.Assert(type is not null, WNE.TYPE_LOAD, "[field] Replacing type is nullptr");
+            FieldType = type;
         }
 
 
         public bool init_mapping(CallFrame frame)
         {
-            bool failMapping(int code, WeakRef<VeinField>* val)
+            bool failMapping(int code, RuntimeIshtarField* field)
             {
                 frame.vm.FastFail(WNE.TYPE_LOAD,
-                    $"Native aspect has incorrect mapping for '{val->Value.FullName}' field. [0x{code:X}]", frame);
+                    $"Native aspect has incorrect mapping for '{field->FullName->Name}' field. [0x{code:X}]", frame);
                 return false;
             }
 
-            var nativeAspect = _field->Value.Aspects.FirstOrDefault(x => x.Name == "Native");
+            var nativeAspect = Aspects->FirstOrNull(x => x->IsNative());
             if (nativeAspect is null)
                 return false;
-            if (nativeAspect.Arguments.Count != 1)
-                return failMapping(0, _field);
-            var arg = nativeAspect.Arguments.First().Value;
+            if (nativeAspect->Arguments->Length != 1)
+                return failMapping(0, selfRef);
+            var arg = nativeAspect->Arguments->Get(0);
 
-            if (arg is not string existName)
-                return failMapping(1, _field);
+            if (arg->Value->clazz->TypeCode is not VeinTypeCode.TYPE_STRING)
+                return failMapping(1, selfRef);
+
+            var existName = IshtarMarshal.ToDotnetString(arg->Value, frame);
 
             var existField = Owner->FindField(existName);
 
             if (existField is null)
-                return failMapping(2, _field);
+                return failMapping(2, selfRef);
 
-            if (existField->FieldType->Original.FullName != _field->Value.FieldType.FullName)
-                return failMapping(3, _field);
+            if (!FieldType->FullName->Equals(existField->FieldType->FullName))
+                return failMapping(3, selfRef);
 
             vtable_offset = existField->vtable_offset;
 
             return true;
         }
 
-        public override string ToString() => $"Field '{FullName}': '{FieldType->FullName->NameWithNS}'";
+        public override string ToString() => $"Field '{FullName->Name}': '{FieldType->FullName->NameWithNS}'";
     }
 }
