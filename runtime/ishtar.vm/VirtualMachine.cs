@@ -197,6 +197,13 @@ namespace ishtar
 
             var _module = invocation.method->Owner->Owner;
             var mh = invocation.method->Header;
+
+            if (mh is null)
+            {
+                FastFail(WNE.MISSING_METHOD, "method code is zero", invocation);
+                return;
+            }
+
             var args = invocation.args;
 
             var locals = default(SmartPointer<stackval>);
@@ -637,6 +644,9 @@ namespace ishtar
                             var tokenIdx = *ip;
                             var owner = readTypeName(*++ip, _module, invocation);
                             var method = GetMethod(tokenIdx, owner, _module, invocation);
+                            child_frame.level++;
+                            child_frame.parent = invocation;
+                            child_frame.method = method;
                             ++ip;
                             println($"@@@ {owner->NameWithNS}::{method->Name}");
                             var method_args = GC.AllocateStack(child_frame, method->ArgLength);
@@ -682,10 +692,8 @@ namespace ishtar
                                 method_args[y] = *sp;
                             }
 
-                            child_frame.level++;
-                            child_frame.parent = invocation;
-                            child_frame.method = method;
                             child_frame.args = method_args;
+
 
                             if (method->IsExtern) exec_method_native(child_frame);
                             else exec_method(child_frame);
