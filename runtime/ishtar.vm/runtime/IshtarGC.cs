@@ -29,11 +29,11 @@ namespace ishtar.runtime
         public void destroy();
         public void* alloc(uint size);
         public void free(void* ptr);
-        public void link(void** child, void* parent, bool trackable);
+        public void create_weak_link(void** child, void* parent, bool trackable);
         public void unlink(void** link_addr, bool trackable);
         public void* alloc_atomic(uint size);
         public void* alloc_immortal(uint size);
-        public void add_roots(void* ptr);
+        public void add_roots(void* ptr, int size);
         public long get_heap_size();
         public long get_free_bytes();
         public GcHeapUsageStat get_heap_usage();
@@ -114,6 +114,24 @@ namespace ishtar.runtime
             public static extern void GC_register_finalizer_ignore_self(void* obj, IshtarFinalizationProc fn, void* cd, IshtarFinalizationProc ofn, void** ocd);
 
 
+            /* Register a given object for toggle-ref processing.  It will  */
+            /* be stored internally and the toggle-ref callback will be     */
+            /* invoked on the object until the callback returns             */
+            /* GC_TOGGLE_REF_DROP or the object is collected.  If is_strong */
+            /* is true, then the object is registered with a strong ref,    */
+            /* a weak one otherwise.  Obj should be the starting address    */
+            /* of an object allocated by GC_malloc (GC_debug_malloc) or     */
+            /* friends.  Returns GC_SUCCESS if registration succeeded (or   */
+            /* no callback is registered yet), GC_NO_MEMORY if it failed    */
+            /* for a lack of memory reason.                                 */
+            //GC_API int GC_CALL GC_toggleref_add(void* /* obj */, int /* is_strong */)
+            //GC_ATTR_NONNULL(1);
+            //GC_API int GC_CALL GC_debug_toggleref_add(void* /* obj */,
+            //    int /* is_strong */) GC_ATTR_NONNULL(1);
+
+            [DllImport(LIBNAME)]
+            public static extern int GC_toggleref_add(void* obj, int is_stronks);
+
 
             [DllImport(LIBNAME, CharSet = CharSet.Ansi)]
             public static extern void GC_debug_register_finalizer_no_order(void* obj, IshtarFinalizationProc fn, void* cd, IshtarFinalizationProc ofn, void** ocd, string file, int line);
@@ -132,7 +150,7 @@ namespace ishtar.runtime
             /* requested.                                                           */
             //GC_API size_t GC_CALL GC_size(const void * /* obj_addr */) GC_ATTR_NONNULL(1);
             [DllImport(LIBNAME)]
-            public static extern uint GC_collect(void* ptr);
+            public static extern uint GC_size(void* ptr);
 
             [DllImport(LIBNAME)]
             public static extern void GC_gcollect();
@@ -152,6 +170,9 @@ namespace ishtar.runtime
 
             [DllImport(LIBNAME)]
             public static extern nint GC_debug_malloc_uncollectable(uint size, string file, int line);
+
+            [DllImport(LIBNAME)]
+            public static extern nint GC_debug_realloc(nint oldPtr, uint newSize, string file, int line);
 
             // GC_finalize_all
 
@@ -177,6 +198,38 @@ namespace ishtar.runtime
 
             [DllImport(LIBNAME)]
             public static extern bool GC_is_marked(void* ptr);
+
+            [DllImport(LIBNAME)]
+            public static extern bool GC_add_roots(void* hi, void* low);
+
+
+            [DllImport(LIBNAME)]
+            public static extern nint GC_is_visible(void* ptr);
+
+
+            [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+            public delegate void GC_is_visible_print_proc_func(void* ptr);
+
+            [DllImport(LIBNAME)]
+            public static extern nint GC_is_visible_print_proc(GC_is_visible_print_proc_func proc);
+
+
+            /* Allocate an object of size lb bytes.  The client guarantees that as  */
+            /* long as the object is live, it will be referenced by a pointer that  */
+            /* points to somewhere within the first GC heap block (hblk) of the     */
+            /* object.  (This should normally be declared volatile to prevent the   */
+            /* compiler from invalidating this assertion.)  This routine is only    */
+            /* useful if a large array is being allocated.  It reduces the chance   */
+            /* of accidentally retaining such an array as a result of scanning an   */
+            /* integer that happens to be an address inside the array.  (Actually,  */
+            /* it reduces the chance of the allocator not finding space for such    */
+            /* an array, since it will try hard to avoid introducing such a false   */
+            /* reference.)  On a SunOS 4.X or Windows system this is recommended    */
+            /* for arrays likely to be larger than 100 KB or so.  For other systems,*/
+            /* or if the collector is not configured to recognize all interior      */
+            /* pointers, the threshold is normally much higher.                     */
+            [DllImport(LIBNAME)]
+            public static extern void* GC_malloc_ignore_off_page(uint size);
         }
 
 
@@ -200,7 +253,7 @@ namespace ishtar.runtime
 
         private static nuint hide_pointer(void* p) => ~(nuint)p;
 
-        public void link(void** link_addr, void* obj, bool trackable)
+        public void create_weak_link(void** link_addr, void* obj, bool trackable)
         {
             *link_addr = (void*)hide_pointer(obj);
             if (trackable)
