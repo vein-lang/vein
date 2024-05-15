@@ -70,7 +70,17 @@ namespace ishtar
             return obj;
         }
 
-        public static IshtarObject* ToIshtarObject<X>(this IshtarGC gc, X value, CallFrame frame)
+        public static IshtarObject* ToIshtarObject(this IshtarGC gc, ushort dotnet_value, CallFrame frame)
+        {
+            var obj = gc.AllocObject(TYPE_U2.AsRuntimeClass(gc.VM.Types), frame);
+            var clazz = obj->clazz;
+            obj->vtable[clazz->Field["!!value"]->vtable_offset] = (long*)dotnet_value;
+
+            return obj;
+        }
+
+
+        public static IshtarObject* ToIshtarObjectT<X>(this IshtarGC gc, X value, CallFrame frame)
         {
             switch (typeof(X))
             {
@@ -96,9 +106,50 @@ namespace ishtar
                     return gc.ToIshtarObject(cast<char>(value), frame);
                 case { } when typeof(X) == typeof(string):
                     return gc.ToIshtarObject(cast<string>(value), frame);
+                case { } when typeof(X) == typeof(bool):
+                    return gc.ToIshtarObject(cast<bool>(value), frame);
+                case { } when typeof(X) == typeof(float):
+                    return gc.ToIshtarObject(cast<float>(value), frame);
                 default:
                     gc.VM.FastFail(WNE.TYPE_MISMATCH,
                         $"[marshal::ToIshtarObject] converter for '{typeof(X).Name}' not support.", frame);
+                    return default;
+            }
+        }
+
+        public static IshtarObject* ToIshtarObject_Raw(this IshtarGC gc, object value, CallFrame frame)
+        {
+            switch (value.GetType())
+            {
+                case { } when value is IntPtr:
+                    return gc.ToIshtarObject(cast<nint>(value), frame);
+                case { } when value is sbyte:
+                    return gc.ToIshtarObject(cast<sbyte>(value), frame);
+                case { } when value is byte:
+                    return gc.ToIshtarObject(cast<byte>(value), frame);
+                case { } when value is short:
+                    return gc.ToIshtarObject(cast<short>(value), frame);
+                case { } when value is ushort:
+                    return gc.ToIshtarObject(cast<ushort>(value), frame);
+                case { } when value is int:
+                    return gc.ToIshtarObject(cast<int>(value), frame);
+                case { } when value is uint:
+                    return gc.ToIshtarObject(cast<uint>(value), frame);
+                case { } when value is long:
+                    return gc.ToIshtarObject(cast<long>(value), frame);
+                case { } when value is ulong:
+                    return gc.ToIshtarObject(cast<ulong>(value), frame);
+                case { } when value is char:
+                    return gc.ToIshtarObject(cast<char>(value), frame);
+                case { } when value is string:
+                    return gc.ToIshtarObject(cast<string>(value), frame);
+                case { } when value is bool:
+                    return gc.ToIshtarObject(cast<bool>(value), frame);
+                case { } when value is float:
+                    return gc.ToIshtarObject(cast<float>(value), frame);
+                default:
+                    gc.VM.FastFail(WNE.TYPE_MISMATCH,
+                        $"[marshal::ToIshtarObject] converter for '{value.GetType().Name}' not support.", frame);
                     return default;
             }
         }
