@@ -902,8 +902,9 @@ namespace ishtar.runtime
             DeleteDebugData((nint)obj);
             RefsHeap.Remove((nint)obj);
 
-            if (obj->clazz != null)
-                GCHandle.FromIntPtr((nint)obj->clazz).Free();
+            gcLayout.free(obj);
+
+
 
             Stats.total_bytes_requested -= allocatorPool.Return(obj);
             Stats.total_allocations--;
