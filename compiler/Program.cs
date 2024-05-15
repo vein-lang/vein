@@ -66,7 +66,7 @@ if (!skipIntro)
 if (!skipIntro)
 {
     MarkupLine($"[grey]Vein Lang Compiler[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
-    MarkupLine($"[grey]Copyright (C)[/] [cyan3]2023[/] [bold]Yuuki Wesp[/].\n\n");
+    MarkupLine($"[grey]Copyright (C)[/] [cyan3]2024[/] [bold]Yuuki Wesp[/].\n\n");
 }
 
 
