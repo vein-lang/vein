@@ -271,14 +271,71 @@ namespace ishtar.runtime
             *link_addr = null;
         }
 
-        public void link(void** child, void* parent) => Native.GC_general_register_disappearing_link(child, parent);
+        public void create_weak_link(void** child, void* parent) => Native.GC_general_register_disappearing_link(child, parent);
         public void register_finalizer_ignore_self(void* obj, IshtarFinalizationProc proc) => Native.GC_register_finalizer_ignore_self(obj, proc, null, null, null);
 
         public void* alloc_atomic(uint size) => (void*)Native.GC_debug_malloc_atomic_uncollectable(size, "empty.vein", 0);
 
-        public void* alloc_immortal(uint size) => (void*)Native.GC_debug_malloc_uncollectable(size, "empty.vein", 0);
 
-        public void add_roots(void* ptr) => throw new NotImplementedException();
+        private struct WeakImmortalRef(void** addr, void* obj)
+        {
+
+        }
+
+        private static readonly List<WeakImmortalRef> _weak_refs = new List<WeakImmortalRef>();
+
+        public void* alloc_immortal(uint size)
+        {
+            //if (root_block == 0)
+            //{
+            //    Interlocked.MemoryBarrier();
+            //    var data = (nint**)Native.GC_malloc_ignore_off_page(totalSize);
+
+            //    Interlocked.Exchange(ref root_block, (nint)data);
+
+            //    Native.GC_add_roots((nint**)root_block, (nint**)(root_block + (totalSize)));
+            //}
+
+            //if (_offset + size > totalSize)
+            //{
+            //    totalSize *= 2;
+            //    Interlocked.Exchange(ref root_block, Native.GC_debug_realloc(root_block, totalSize, "vein.v", 0));
+            //    throw new InsufficientMemoryException();
+            //}
+
+
+            
+
+
+            var ptr = (void*)Native.GC_debug_malloc_uncollectable(size, "empty.vein", 0);
+
+
+            var result = Native.GC_toggleref_add(ptr, 0);
+
+
+            if (result == 0)
+            {
+
+            }
+
+            //var weakData = (void**)NativeMemory.AllocZeroed((uint)sizeof(nint), 2);
+
+            //_weak_refs.Add(new WeakImmortalRef(weakData, ptr));
+
+            //*weakData = (void*)(~(int)1 & (int)ptr);
+
+            //Native.GC_register_long_link(weakData, ptr);
+
+            //create_weak_link(weakData, ptr, false);
+
+
+            //((nint**)root_block)[_offset] = ptr;
+            //_offset+=sizeof(nint);
+
+            return ptr;
+        }
+
+        public void add_roots(void* ptr, int size) => Native.GC_add_roots(ptr, (void*)((nint)ptr + size));
 
         public long get_free_bytes() => Native.GC_get_free_bytes();
 
@@ -882,7 +939,7 @@ namespace ishtar.runtime
         }
 
         public void RegisterWeakLink(IshtarObject* obj, void** link, bool longLive)
-            => gcLayout.link(link, obj, longLive);
+            => gcLayout.create_weak_link(link, obj, longLive);
         public void UnRegisterWeakLink(void** link, bool longLive)
             => gcLayout.unlink(link, longLive);
 
@@ -890,20 +947,38 @@ namespace ishtar.runtime
 
         public long GetUsedMemorySize() => gcLayout.get_heap_size() - gcLayout.get_free_bytes();
 
-        public void Collect()
-        {
-            gcLayout.collect();
-            gcLayout.finalize_all();
-        }
-
+        public void Collect() => gcLayout.collect();
 
 
         #region internal
 
         public static T* AllocateImmortal<T>() where T : unmanaged
-            => (T*)gcLayout.alloc_immortal((uint)sizeof(T));
+        {
+            //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
+            return (T*)gcLayout.alloc_immortal((uint)sizeof(T));
+        }
+
+        public static T* AllocateImmortalRoot<T>() where T : unmanaged
+        {
+            //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
+            var t = (T*)gcLayout.alloc_immortal((uint)sizeof(T));
+            gcLayout.add_roots(t, sizeof(T));
+            return t;
+        }
+
         public static T* AllocateImmortal<T>(int size) where T : unmanaged
-            => (T*)gcLayout.alloc_immortal((uint)(sizeof(T) * size));
+        {
+            //return (T*)NativeMemory.AllocZeroed((uint)(sizeof(T) * size));
+            return (T*)gcLayout.alloc_immortal((uint)(sizeof(T) * size));
+        }
+
+        public static T* AllocateImmortalRoot<T>(int size) where T : unmanaged
+        {
+            //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
+            var t = (T*)gcLayout.alloc_immortal((uint)(sizeof(T) * size));
+            gcLayout.add_roots(t, sizeof(T) * size);
+            return t;
+        }
 
         public static void FreeImmortal<T>(T* t) where T : unmanaged
             => gcLayout.free(t);
