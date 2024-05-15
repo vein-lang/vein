@@ -3,6 +3,7 @@ namespace ishtar;
 using runtime;
 using vein.runtime;
 using collections;
+using vm;
 using static vein.runtime.VeinTypeCode;
 
 public readonly unsafe struct IshtarTypes(
@@ -71,7 +72,7 @@ public readonly unsafe struct IshtarTypes(
 
     public RuntimeIshtarClass* ByQualityName(RuntimeQualityTypeName* name)
     {
-        var result = All->FirstOrNull(x => x->FullName->Equal(name));
+        var result = All->FirstOrNull(x => x->FullName->Equals(name));
         return result;
     }
 
@@ -82,7 +83,7 @@ public readonly unsafe struct IshtarTypes(
         var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>();
 
 
-        *module = new RuntimeIshtarModule(vault, "unnamed_types", module);
+        *module = new RuntimeIshtarModule(vault, "unnamed_types", module, new IshtarVersion(0, 0));
         
 
         var objectClass = r->create($"std%global::vein/lang/Object".L(), null, module, TYPE_OBJECT);
