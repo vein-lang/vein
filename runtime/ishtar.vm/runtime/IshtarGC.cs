@@ -414,8 +414,7 @@ namespace ishtar.runtime
             $"RefsHeap: {RefsHeap.Count}\n" +
             $"ArrayRefsHeap: {ArrayRefsHeap.Count}\n" +
             $"ImmortalHeap: {ImmortalHeap.Count}\n" +
-            $"TemporaryHeap: {TemporaryHeap.Count}\n" +
-            $"AllocationMetadata: {AllocationMetadata.Count}\n";
+            $"TemporaryHeap: {TemporaryHeap.Count}\n";
 
         public class GCStats
         {
@@ -451,43 +450,19 @@ namespace ishtar.runtime
             YELLOW
         }
 
-        public record IshtarObjectMetadata(nint obj_ref)
-        {
-            public ulong ReferenceCount => (ulong)_references.Count;
-            private readonly LinkedList<IshtarObjectMetadata> _references = new();
-
-            // TODO, if ref count is zero, 1 / 0 just open black hole
-            public double Priority => 1d / ReferenceCount;
-            public GcColor Color { get; private set; } = GcColor.RED;
-
-            public IshtarObject* Target => (IshtarObject*)obj_ref;
-
-
-
-            public void AddRef(IshtarObjectMetadata metadata)
-            {
-                _references.AddLast(metadata);
-                if (Color == GcColor.GREEN)
-                    Color = GcColor.YELLOW;
-            }
-
-            public void RemoveRef(IshtarObjectMetadata metadata)
-            {
-                _references.Remove(metadata);
-                if (Color == GcColor.GREEN)
-                    Color = GcColor.YELLOW;
-            }
-        }
 
         public void init()
         {
             if (root is not null)
                 return;
             allocatorPool = new IshtarAllocatorPool(gcLayout);
-            root = AllocObject(TYPE_OBJECT.AsRuntimeClass(VM.Types), vm.Frames.GarbageCollector());
+
+            var rootObj = AllocObject(TYPE_OBJECT.AsRuntimeClass(VM.Types), vm.Frames.GarbageCollector);
+            root = AllocateImmortal<GCRoot>();
+            *root = new GCRoot(rootObj);
         }
 
-        public IshtarObject* root;
+        public static GCRoot* root;
         public VirtualMachine VM => vm;
         public bool check_memory_leak = true;
 
