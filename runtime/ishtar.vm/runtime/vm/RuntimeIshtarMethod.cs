@@ -14,13 +14,7 @@ namespace ishtar
         public InternedString* Name { get; } = name;
         private void* _vein_arg_ref;
 
-
-        public VeinArgumentRef Original
-        {
-            get => IshtarUnsafe.AsRef<VeinArgumentRef>(_vein_arg_ref);
-            set => _vein_arg_ref = IshtarUnsafe.AsPointer(ref value);
-        }
-
+        
 
         public static RuntimeMethodArgument* Create(IshtarTypes* types, (string name, VeinTypeCode code) data)
         {
@@ -28,8 +22,6 @@ namespace ishtar
             var (name, code) = data;
             
             *a = new RuntimeMethodArgument(types->ByTypeCode(code), StringStorage.Intern(name));
-
-            a->Original = new VeinArgumentRef(data.name, a->Type->Original);
 
             return a;
         }
@@ -47,7 +39,6 @@ namespace ishtar
 
                 *a = new RuntimeMethodArgument(types->ByTypeCode(code), StringStorage.Intern(name));
 
-                a->Original = new VeinArgumentRef(tuple.name, a->Type->Original);
 
                 lst->Add(a);
             }
@@ -68,8 +59,6 @@ namespace ishtar
                 
                 *a = new RuntimeMethodArgument(vm.Vault.GlobalFindType(tuple.Type.FullName), StringStorage.Intern(tuple.Name));
 
-                a->Original = new VeinArgumentRef(tuple.Name, a->Type->Original);
-
                 lst->Add(a);
             }
 
@@ -82,13 +71,13 @@ namespace ishtar
 
             *a = new RuntimeMethodArgument(type, StringStorage.Intern(name));
 
-            a->Original = new VeinArgumentRef(name, a->Type->Original);
-
             return a;
         }
 
         public void ReplaceType(RuntimeIshtarClass* clazz)
         {
+            VirtualMachine.Assert(clazz is not null, WNE.TYPE_LOAD, "[arg] Replacing type is nullptr");
+
             if (Type->IsUnresolved)
                 Type = clazz;
         }
@@ -97,30 +86,32 @@ namespace ishtar
 
     public unsafe struct RuntimeIshtarMethod : INamed
     {
-        private void* _veinMethodRef;
-
-        public VeinMethod Original
-        {
-            get => IshtarUnsafe.AsRef<VeinMethod>(_veinMethodRef);
-            set => _veinMethodRef = IshtarUnsafe.AsPointer(ref value);
-        }
-
+        private readonly RuntimeIshtarMethod* _self;
+        
         public MetaMethodHeader* Header;
         public PInvokeInfo PIInfo;
 
         public ulong vtable_offset;
 
-        public string Name => Original.Name;
-        public string RawName => Original.RawName;
-        public MethodFlags Flags => Original.Flags;
+        private readonly InternedString* _name;
+        private readonly InternedString* _rawName;
+        private readonly bool _ctor_called;
+
+        public string Name => StringStorage.GetStringUnsafe(_name);
+        public string RawName => StringStorage.GetStringUnsafe(_rawName);
+        public MethodFlags Flags { get; private set; }
         public RuntimeIshtarClass* ReturnType { get; private set; }
         public RuntimeIshtarClass* Owner { get; private set; }
-        public int ArgLength => Original.ArgLength;
+        public int ArgLength => Arguments->Length;
 
-        public DirectNativeList<RuntimeMethodArgument>* Arguments { get; } = DirectNativeList<RuntimeMethodArgument>.New(4);
-        public DirectNativeList<RuntimeAspect>* Aspects { get; } = DirectNativeList<RuntimeAspect>.New(4);
+        public DirectNativeList<RuntimeMethodArgument>* Arguments { get; }
+        public DirectNativeList<RuntimeAspect>* Aspects { get; }
 
-
+        public void Assert(RuntimeIshtarMethod* @ref)
+        {
+            if (_self != @ref)
+                throw new InvalidOperationException("GC moved unmovable memory!");
+        }
 
         #region Flags
 
@@ -139,66 +130,52 @@ namespace ishtar
 
         internal void ReplaceReturnType(RuntimeIshtarClass* type)
         {
+            VirtualMachine.Assert(type is not null, WNE.TYPE_LOAD, "Replacing type is nullptr");
             VirtualMachine.Assert(ReturnType->IsUnresolved, WNE.TYPE_LOAD, "Replace returnType is possible only if type already unresolved");
-            
+
             ReturnType = type;
-            Original.ReturnType = type->Original;
         }
 
 
-        internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner,
+        internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
             params RuntimeMethodArgument*[] args)
         {
-            Original = new VeinMethod(name, flags, returnType->Original, owner->Original, Cast(args).ToArray())
-            {
-                Owner = owner->Original,
-                ReturnType = returnType->Original
-            };
+            this = default;
+            _self = self;
+            Arguments =  DirectNativeList<RuntimeMethodArgument>.New(4);
+            Aspects = DirectNativeList<RuntimeAspect>.New(4);
+            _name = StringStorage.Intern(name);
+            _rawName = StringStorage.Intern(name.Split('(').First());
+            Flags = flags;
             ReturnType = returnType;
             Owner = owner;
             foreach (var argument in args)
                 Arguments->Add(argument);
+            _ctor_called = true;
         }
 
-        internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner,
+        internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
             DirectNativeList<RuntimeMethodArgument>* args)
         {
-            Original = new VeinMethod(name, flags, returnType->Original, owner->Original, Cast(args).ToArray())
-            {
-                Owner = owner->Original,
-                ReturnType = returnType->Original
-            };
+            this = default;
+            _self = self;
+            Arguments = DirectNativeList<RuntimeMethodArgument>.New(4);
+            Aspects = DirectNativeList<RuntimeAspect>.New(4);
+            _name = StringStorage.Intern(name);
+            _rawName = StringStorage.Intern(name.Split('(').First());
+            Flags = flags;
             ReturnType = returnType;
             Owner = owner;
-            Arguments->AddRange(args);
-        }
-
-        private List<VeinArgumentRef> Cast(RuntimeMethodArgument*[] args)
-        {
-            var list = new List<VeinArgumentRef>();
-            foreach (var argument in args)
-                list.Add(argument->Original);
-
-            return list;
-        }
-
-        private List<VeinArgumentRef> Cast(DirectNativeList<RuntimeMethodArgument>* args)
-        {
-            var list = new List<VeinArgumentRef>();
-
-            args->ForEach(x =>
-            {
-                list.Add(x->Original);
-            });
-            
-            return list;
+            if (args->Length != 0)
+                Arguments->AddRange(args);
+            _ctor_called = true;
         }
 
         public void SetILCode(uint* code, uint size)
         {
-            if ((Original.Flags & MethodFlags.Extern) != 0)
+            if ((Flags & MethodFlags.Extern) != 0)
                 throw new MethodHasExternException();
-            if ((Original.Flags & MethodFlags.Abstract) != 0)
+            if ((Flags & MethodFlags.Abstract) != 0)
                 throw new MethodHasAbstractException();
 
             Header = IshtarGC.AllocateImmortal<MetaMethodHeader>();
@@ -208,9 +185,9 @@ namespace ishtar
 
         public void SetExternalLink(void* @ref)
         {
-            if ((Original.Flags & MethodFlags.Extern) == 0)
+            if ((Flags & MethodFlags.Extern) == 0)
                 throw new MethodHasExternException();
-            if ((Original.Flags & MethodFlags.Abstract) == 0)
+            if ((Flags & MethodFlags.Abstract) == 0)
                 throw new MethodHasAbstractException();
             PIInfo = new PInvokeInfo
             {
@@ -220,10 +197,10 @@ namespace ishtar
         }
 
 
-        public unsafe RuntimeIshtarMethod AsNative(void* p)
+        public RuntimeIshtarMethod* AsNative(void* p)
         {
             this.PIInfo = PInvokeInfo.New(p);
-            return this;
+            return _self;
         }
     }
 }
