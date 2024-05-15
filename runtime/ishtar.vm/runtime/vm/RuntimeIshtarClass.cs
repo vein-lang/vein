@@ -6,6 +6,7 @@ namespace ishtar
     using vein.collections;
     using vein.runtime;
     using collections;
+    using vein.exceptions;
     using static vein.runtime.VeinTypeCode;
     using static WNE;
 
@@ -20,6 +21,7 @@ namespace ishtar
     }
 
     // WARNING: ALLOCATE ONLY BY GC
+    [DebuggerDisplay("name = {_debug_name}, id = {ID}, isValid: {IsValid}")]
     public unsafe struct RuntimeIshtarClass :
         IUnsafeTransitionAlignment<string, RuntimeIshtarField>,
         IUnsafeTransitionAlignment<string, RuntimeIshtarMethod>
@@ -30,24 +32,17 @@ namespace ishtar
         public DirectNativeList<RuntimeIshtarMethod>* Methods { get; } = DirectNativeList<RuntimeIshtarMethod>.New(16);
         public DirectNativeList<RuntimeIshtarField>* Fields { get; } = DirectNativeList<RuntimeIshtarField>.New(16);
         public DirectNativeList<RuntimeAspect>* Aspects { get; } = DirectNativeList<RuntimeAspect>.New(4);
-
-        public VeinClass Original
-        {
-            get => IshtarUnsafe.AsRef<VeinClass>(_veinClassRef);
-            private init => _veinClassRef = IshtarUnsafe.AsPointer(ref value);
-        }
-
+        
         public RuntimeIshtarModule* Owner { get; private set; }
         public RuntimeIshtarClass* Parent { get; private set; }
         public RuntimeQualityTypeName* FullName { get; private set; }
 
-        public VeinTypeCode TypeCode
-        {
-            get => Original.TypeCode;
-            set => Original.TypeCode = value;
-        }
-        public ClassFlags Flags => Original.Flags;
-        public string Name => Original.Name;
+
+        private string _debug_name => FullName->NameWithNS;
+
+        public VeinTypeCode TypeCode { get; set; }
+        public ClassFlags Flags { get; set; }
+        public string Name => FullName->Name;
 
         #region Flags
 
@@ -59,44 +54,49 @@ namespace ishtar
         public bool IsInternal => Flags.HasFlag(ClassFlags.Internal);
         public bool IsAspect => Flags.HasFlag(ClassFlags.Aspect);
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE and not TYPE_STRING;
-        public bool IsValueType => Original.IsValueType;
+        public bool IsValueType => IsPrimitive || Walk(x => x->Name == "ValueType");
         public bool IsUnresolved => Flags.HasFlag(ClassFlags.Unresolved);
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
 
         #endregion
 
+        // TODO
+        public bool Walk(UnsafePredicate<RuntimeIshtarClass> actor)
+        {
+            var target = _selfReference;
+            while (target != null)
+            {
+                if (actor(target))
+                    return true;
+
+                if (target->Parent is null)
+                    return false;
+
+                if (target->Parent->IsInterface) continue;
+                target = target->Parent;
+            }
+            return false;
+        }
+
         internal RuntimeIshtarClass(RuntimeQualityTypeName* name, RuntimeIshtarClass* parent, RuntimeIshtarModule* module, RuntimeIshtarClass* self)
         {
+            Magic1 = 45;
+            Magic2 = 75;
             _selfReference = self;
+            FullName = name;
+            Owner = module;
+            Parent = parent;
             if (module is null) return;
             ID = module->Vault->Value.TokenGranted.GrantClassID();
             runtime_token = new RuntimeToken(module->ID, ID);
-            if (parent is null)
-                Original = new VeinClass((*name).T(), (VeinClass)null, module->Original->Value);
-            else
-                Original = new VeinClass((*name).T(), parent->Original, module->Original->Value);
-            Owner = module;
-            Parent = parent;
-            FullName = name;
         }
 
         internal void ReplaceParent(RuntimeIshtarClass* parent)
         {
             VirtualMachine.Assert(Parent->IsUnresolved, TYPE_LOAD, "Replace Parent is possible only if type already unresolved");
-
             Parent = parent;
-            Original.Parents.Clear();
-            Original.Parents.Add(parent->Original);
         }
-
-        //internal RuntimeIshtarClass(RuntimeQualityTypeName* name, NativeList<RuntimeIshtarClass> parents, RuntimeIshtarModule* module)
-        //{
-        //    if (module is null) return;
-        //    ID = module->Vault.TokenGranted.GrantClassID();
-        //    runtime_token = new RuntimeToken(module->ID, ID);
-        //    Original = new VeinClass((*name).T(), parents, module->Original);
-        //}
-
+        
 
         internal RuntimeIshtarField* DefineField(string name, FieldFlags flags, RuntimeIshtarClass* type)
         {
@@ -104,7 +104,7 @@ namespace ishtar
             var fieldName = IshtarGC.AllocateImmortal<RuntimeFieldName>();
 
             *fieldName = new RuntimeFieldName(StringStorage.Intern(name));
-            *f = new RuntimeIshtarField(_selfReference, fieldName, flags, type);
+            *f = new RuntimeIshtarField(_selfReference, fieldName, flags, type, f);
             this.Fields->Add(f);
             return f;
         }
@@ -112,7 +112,7 @@ namespace ishtar
         internal RuntimeIshtarField* DefineField(RuntimeFieldName* name, FieldFlags flags, RuntimeIshtarClass* type)
         {
             var f = IshtarGC.AllocateImmortal<RuntimeIshtarField>();
-            *f = new RuntimeIshtarField(_selfReference, name, flags, type);
+            *f = new RuntimeIshtarField(_selfReference, name, flags, type, f);
             this.Fields->Add(f);
             return f;
         }
@@ -120,11 +120,15 @@ namespace ishtar
         internal RuntimeIshtarMethod* DefineMethod(string name, RuntimeIshtarClass* returnType, MethodFlags flags, DirectNativeList<RuntimeMethodArgument>* args)
         {
             var method = IshtarGC.AllocateImmortal<RuntimeIshtarMethod>();
-            
-            *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, args);
+            *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, method, args);
+            method->Assert(method);
 
-            Original.Methods.Add(method->Original);
-
+            if (Methods->Any(x =>
+                {
+                    x->Assert(x);
+                    return x->Name.Equals(name);
+                }))
+                throw new MethodAlreadyDefined("");
             Methods->Add(method);
             return method;
         }
@@ -133,14 +137,7 @@ namespace ishtar
         {
             var method = IshtarGC.AllocateImmortal<RuntimeIshtarMethod>();
 
-            *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, DirectNativeList<RuntimeMethodArgument>.New(1));
-
-            Original.Methods.Add(method->Original);
-
-            //#if DEBUG
-            //            if (Methods.Any(x => x->Name.Equals(method->Name)))
-            //                throw new DuplicateItemException($"Method '{method->Name}' already exist in '{this.Original.Name}' class");
-            //#endif
+            *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, method, DirectNativeList<RuntimeMethodArgument>.New(4));
 
             Methods->Add(method);
             return method;
@@ -148,6 +145,11 @@ namespace ishtar
 
         public RuntimeToken runtime_token { get; }
         public ushort ID { get; }
+
+        public ushort Magic1;
+        public ushort Magic2;
+
+        public bool IsValid => Magic1 == 45 && Magic2 == 75;
 
         public ulong computed_size = 0;
         public bool is_inited = false;
@@ -184,22 +186,23 @@ namespace ishtar
                 return;
             }
 
-            if (Parent->IsUnresolved)
-            {
-                vm.FastFail(TYPE_MISMATCH, "Cannot init vtable when parent type is unresolved", vm.Frames.VTableFrame(_selfReference));
-                return;
-            }
-
-            if (IsUnresolved)
-            {
-                vm.FastFail(TYPE_MISMATCH, "Cannot init vtable when type is unresolved", vm.Frames.VTableFrame(_selfReference));
-                return;
-            }
-
+            
             computed_size = 0;
             
             if (Parent is not null)
             {
+                if (Parent->IsUnresolved)
+                {
+                    vm.FastFail(TYPE_MISMATCH, "Cannot init vtable when parent type is unresolved", vm.Frames.VTableFrame(_selfReference));
+                    return;
+                }
+
+                if (IsUnresolved)
+                {
+                    vm.FastFail(TYPE_MISMATCH, "Cannot init vtable when type is unresolved", vm.Frames.VTableFrame(_selfReference));
+                    return;
+                }
+
                 Parent->init_vtable(vm);
                 computed_size += Parent->computed_size;
 #if DEBUG_VTABLE
@@ -321,7 +324,7 @@ namespace ishtar
                         Debug.Assert(vtable[vtable_offset] != null, $"Getting default value for '{field->FieldType->Name}' has incorrect");
 
 #if DEBUG_VTABLE
-                    dvtable.vtable_info[vtable_offset] = $"DEFAULT_VALUE OF [{field->FullName}::{field->FieldType->Name}]";
+                    dvtable.vtable_info[vtable_offset] = $"DEFAULT_VALUE OF [{field->FullName->ToString()}::{field->FieldType->Name}]";
                     dvtable.vtable_fields[vtable_offset] = field;
 #endif
 
@@ -390,6 +393,7 @@ namespace ishtar
             }
             return field->default_value = vm.GC.AllocObject(field->FieldType, frame);
         }
+
         public RuntimeIshtarField* FindField(string name)
         {
             var field = Fields->FirstOrNull(x => x->Name.Equals(name));
@@ -402,6 +406,32 @@ namespace ishtar
 
             return Parent->FindField(name);
         }
+
+        public RuntimeIshtarField* FindField(RuntimeFieldName* name)
+        {
+            var field = Fields->FirstOrNull(x => x->FullName->Equals(name));
+
+            if (field is not null)
+                return field;
+
+            if (Parent is null)
+                return null;
+
+            return Parent->FindField(name);
+        }
+
+        public RuntimeIshtarMethod* GetEntryPoint() =>
+            Methods->FirstOrNull(x =>
+            {
+                x->Arguments->Assert();
+                if (!x->IsStatic)
+                    return false;
+                if (x->ArgLength > 0)
+                    return false;
+                if (!x->Name.Equals("master()"))
+                    return false;
+                return true;
+            });
 
         public RuntimeIshtarMethod* FindMethod(string fullyName)
         {
