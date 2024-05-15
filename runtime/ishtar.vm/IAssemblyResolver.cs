@@ -9,10 +9,11 @@ namespace vein.runtime
     using ishtar;
     using ishtar.collections;
     using ishtar.runtime;
+    using ishtar.vm;
 
     public unsafe delegate void ModuleResolvedEvent(in RuntimeIshtarModule* module);
 
-    public unsafe delegate RuntimeIshtarModule* ModuleResolverCallback(string name, Version version);
+    public unsafe delegate RuntimeIshtarModule* ModuleResolverCallback(string name, IshtarVersion version);
 
     public unsafe class AssemblyResolver : ModuleResolverBase
     {
@@ -32,7 +33,7 @@ namespace vein.runtime
             throw new NotImplementedException();
         }
 
-        public RuntimeIshtarModule* ResolveDep(string name, Version version, DirectNativeList<RuntimeIshtarModule>* deps)
+        public RuntimeIshtarModule* ResolveDep(string name, IshtarVersion version, DirectNativeList<RuntimeIshtarModule>* deps)
         {
             var asm = Find(name, version);
 
@@ -54,7 +55,7 @@ namespace vein.runtime
         }
         
 
-        public IshtarAssembly Find(string name, Version version)
+        public IshtarAssembly Find(string name, IshtarVersion version)
         {
             var file = FindInPaths(name);
 
