@@ -40,11 +40,11 @@ namespace ishtar
 
         public static void InitTable(ForeignFunctionInterface ffi)
         {
-            ffi.Add(ffi.vm.CreateInternalMethod("@_println", Public | Static | Extern, ("val", TYPE_STRING))
-                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FPrintLn));
+            ffi.Add("@_println", Public | Static | Extern, ("val", TYPE_STRING))
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FPrintLn);
 
-            ffi.Add(ffi.vm.CreateInternalMethod("@_readline", Public | Static | Extern, TYPE_STRING.AsRuntimeClass(ffi.vm.Types), Array.Empty<VeinArgumentRef>())
-                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FReadLine));
+            ffi.Add("@_readline", Public | Static | Extern, TYPE_STRING.AsRuntimeClass(ffi.vm.Types))
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FReadLine);
         }
     }
 }

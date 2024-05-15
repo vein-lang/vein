@@ -8,35 +8,35 @@ namespace ishtar
     {
         public static void InitTable(ForeignFunctionInterface ffi)
         {
-            ffi.Add(ffi.vm.CreateInternalMethod("i_call_String_Concat", Private | Static | Extern,
+            ffi.Add("i_call_String_Concat", Private | Static | Extern,
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
                 ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Concat)
-                );
+                ;
 
-            ffi.Add(ffi.vm.CreateInternalMethod("i_call_String_Equal", Private | Static | Extern,
+            ffi.Add("i_call_String_Equal", Private | Static | Extern,
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
                 ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&StrEqual)
-                );
+                ;
 
-            ffi.Add(ffi.vm.CreateInternalMethod("i_call_String_Trim_Start", Private | Static | Extern,
+            ffi.Add("i_call_String_Trim_Start", Private | Static | Extern,
                     ("v1", TYPE_STRING))
                 ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&TrimStart)
-                );
+                ;
 
-            ffi.Add(ffi.vm.CreateInternalMethod("i_call_String_Trim_End", Private | Static | Extern,
+            ffi.Add("i_call_String_Trim_End", Private | Static | Extern,
                     ("v1", TYPE_STRING))
                 ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&TrimEnd)
-                );
+                ;
 
-            ffi.Add(ffi.vm.CreateInternalMethod("i_call_String_fmt", Private | Static | Extern,
+            ffi.Add("i_call_String_fmt", Private | Static | Extern,
                     ("template", TYPE_STRING), ("array", TYPE_ARRAY))
                 ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Fmt)
-                );
+                ;
 
-            ffi.Add(ffi.vm.CreateInternalMethod("i_call_String_Contains", Private | Static | Extern,
+            ffi.Add("i_call_String_Contains", Private | Static | Extern,
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
                 ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Contains)
-                );
+                ;
         }
 
         [IshtarExportFlags(Private | Static)]

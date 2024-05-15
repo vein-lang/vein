@@ -19,20 +19,39 @@ public unsafe class ForeignFunctionInterface
 
     private void INIT()
     {
-        //B_Out.InitTable(this);
-        //B_App.InitTable(this);
-        //B_IEEEConsts.InitTable(this);
+        B_App.InitTable(this);
+
+        B_Out.InitTable(this);
+        B_IEEEConsts.InitTable(this);
         //B_Sys.InitTable(this);
-        //B_String.InitTable(this);
+        B_String.InitTable(this);
         //B_StringBuilder.InitTable(this);
-        //B_GC.InitTable(this);
+        B_GC.InitTable(this);
         //X_Utils.InitTable(this);
         //B_Type.InitTable(this);
         //B_Field.InitTable(this);
         //B_Function.InitTable(this);
         //B_NAPI.InitTable(this);
     }
-        
+
+    public RuntimeIshtarMethod* Add(string name, MethodFlags flags, params (string name, VeinTypeCode type)[] args)
+    {
+        var method = vm.CreateInternalMethod(
+            VeinMethodBase.GetFullName(name, args.Select(x => (x.name, vm.Types->ByTypeCode(x.type)->Name))), flags, args);
+        method->Assert(method);
+        method_table.Add(method->Name, (nint)method);
+        return method;
+    }
+
+    public RuntimeIshtarMethod* Add(string name, MethodFlags flags, RuntimeIshtarClass* returnType, params (string name, VeinTypeCode type)[] args)
+    {
+        var n = VeinMethodBase.GetFullName(name, args.Select(x => (x.name, vm.Types->ByTypeCode(x.type)->Name)));
+        var method = vm.CreateInternalMethod(n, flags, returnType, args);
+        method->Assert(method);
+        method_table.Add(method->Name, (nint)method);
+        return method;
+    }
+
     [Conditional("STATIC_VALIDATE_IL")]
     public static void StaticValidate(void* p, CallFrame frame)
     {
@@ -105,8 +124,10 @@ public record NativeImportCache(string entry, nint handle)
     public Dictionary<string, nint> ImportedSymbols = new();
 }
 
-public unsafe record NativeImportEntity(string entry, string fn, nint importer)
+public unsafe class NativeImportEntity(string entry, string fn, nint importer)
 {
+    public string Entry { get; } = entry;
+    public string Fn { get; } = fn;
     public RuntimeIshtarMethod* Importer => (RuntimeIshtarMethod*)importer;
     public RuntimeIshtarModule* Module => Importer->Owner->Owner;
 
