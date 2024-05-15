@@ -45,6 +45,10 @@ namespace vein.runtime
 
         public static string GetFullName(string name, IEnumerable<VeinArgumentRef> args)
             => $"{name}({args.Where(x => !x.Name.Equals(VeinArgumentRef.THIS_ARGUMENT)).Select(x => x.Type?.Name).Join(",")})";
+
+        public static string GetFullName(string name, IEnumerable<(string argName, string typeName)> args)
+            => $"{name}({args.Where(x => !x.argName.Equals(VeinArgumentRef.THIS_ARGUMENT)).Select(x => x.typeName).Join(",")})";
+
         public static string GetFullName(string name, IEnumerable<VeinClass> args)
             => $"{name}({args.Select(x => x.Name).Join(",")})";
 
