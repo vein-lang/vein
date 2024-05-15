@@ -371,12 +371,22 @@ namespace ishtar.runtime
             => Native.GC_debug_register_finalizer_no_order(obj, proc, null, null, null, frame.Debug_GetFile(), frame.Debug_GetLine());
 
 
+        public static void register_finalizer_no_order2(void* obj, IshtarFinalizationProc proc)
+            => Native.GC_debug_register_finalizer_no_order(obj, proc, null, null, null, "file.cs", 0);
+
+
         public void dump(string file)
         {
             //var ptr = Marshal.StringToHGlobalAnsi(file);
             //Native.GC_dump((void*)ptr);
             //Marshal.ZeroFreeGlobalAllocAnsi(ptr);
         }
+    }
+
+
+    public readonly unsafe struct GCRoot(IshtarObject* obj)
+    {
+        public readonly IshtarObject* Object = obj;
     }
 
 
@@ -387,7 +397,6 @@ namespace ishtar.runtime
         private readonly LinkedList<nint> ArrayRefsHeap = new();
         private readonly LinkedList<nint> ImmortalHeap = new();
         private readonly LinkedList<nint> TemporaryHeap = new();
-        private readonly Dictionary<nint, IshtarObjectMetadata> AllocationMetadata = new();
 
         private readonly LinkedList<AllocationDebugInfo> allocationTreeDebugInfos = new();
         private readonly Dictionary<nint, AllocationDebugInfo> allocationDebugInfos = new();
