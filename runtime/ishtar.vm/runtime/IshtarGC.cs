@@ -8,6 +8,7 @@ namespace ishtar.runtime
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using vein.runtime;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
     using static vein.runtime.VeinTypeCode;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -349,9 +350,14 @@ namespace ishtar.runtime
             return p1;
         }
 
+
         public bool try_collect() => Native.GC_try_to_collect(0) == 1;
 
-        public void collect() => Native.GC_gcollect();
+        public void collect()
+        {
+            Native.GC_gcollect();
+        }
+
         public bool is_marked(void* obj) => Native.GC_is_marked(obj);
 
         public void finalize_all() => Native.GC_finalize_all();
