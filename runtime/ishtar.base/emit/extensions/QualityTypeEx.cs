@@ -5,6 +5,8 @@ namespace ishtar.emit.extensions
     using System.IO;
     using vein.runtime;
 
+
+    public delegate nint TypeNameGetter(int typeIndex);
     public static class QualityTypeEx
     {
         public static QualityTypeName ReadTypeName(this BinaryReader bin, VeinModule module)
@@ -13,6 +15,13 @@ namespace ishtar.emit.extensions
 
             return module.types_table.GetValueOrDefault(typeIndex) ??
                    throw new Exception($"TypeName by index '{typeIndex}' not found in '{module.Name}' module.");
+        }
+
+        public static nint ReadTypeName(this BinaryReader bin, TypeNameGetter getter)
+        {
+            var typeIndex = bin.ReadInt32();
+
+            return getter(typeIndex);
         }
 
         public static void WriteTypeName(this BinaryWriter bin, QualityTypeName type, VeinModuleBuilder module)
