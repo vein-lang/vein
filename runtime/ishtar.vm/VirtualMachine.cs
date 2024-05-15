@@ -69,6 +69,12 @@ namespace ishtar
             return InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, converter_args);
         }
 
+        public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, params (string name, VeinTypeCode code)[] args)
+        {
+            var converter_args = RuntimeMethodArgument.Create(Types, args);
+            return InternalClass->DefineMethod(name, returnType, flags, converter_args);
+        }
+
         public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags)
             => InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags);
 
@@ -79,12 +85,12 @@ namespace ishtar
             => InternalClass->DefineMethod(name, returnType, flags, RuntimeMethodArgument.Create(this, args));
 
         public RuntimeIshtarMethod* DefineEmptySystemMethod(string name)
-            => CreateInternalMethod(name, MethodFlags.Extern, TYPE_VOID.AsRuntimeClass(Types));
+            => CreateInternalMethod(name, MethodFlags.Extern, TYPE_VOID.AsRuntimeClass(Types), Array.Empty<VeinArgumentRef>());
         public RuntimeIshtarMethod* DefineEmptySystemMethod(string name, RuntimeIshtarClass* clazz)
         {
             var args = DirectNativeList<RuntimeMethodArgument>.New(1);
             args->Add(RuntimeMethodArgument.Create(Types, "i1", clazz));
-            return InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types),
+            return InternalClass->DefineMethod(VeinMethodBase.GetFullName(name, new List<(string argName, string typeName)>() { ("i1", clazz->Name) }), TYPE_VOID.AsRuntimeClass(Types),
                 MethodFlags.Extern | MethodFlags.Private | MethodFlags.Special, args);
         }
 
