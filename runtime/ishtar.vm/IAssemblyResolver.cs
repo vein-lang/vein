@@ -9,7 +9,6 @@ namespace vein.runtime
     using ishtar;
     using ishtar.collections;
     using ishtar.runtime;
-    using ishtar.vm;
 
     public unsafe delegate void ModuleResolvedEvent(in RuntimeIshtarModule* module);
 
@@ -33,7 +32,7 @@ namespace vein.runtime
             throw new NotImplementedException();
         }
 
-        public RuntimeIshtarModule* ResolveDep(string name, IshtarVersion version, DirectNativeList<RuntimeIshtarModule>* deps)
+        public RuntimeIshtarModule* ResolveDep(string name, IshtarVersion version, NativeList<RuntimeIshtarModule>* deps)
         {
             var asm = Find(name, version);
 
@@ -46,8 +45,8 @@ namespace vein.runtime
         public RuntimeIshtarModule* Resolve(IshtarAssembly assembly)
         {
             var (_, code) = assembly.Sections.First();
-            var module = RuntimeIshtarModule.Read(Vault, code, DirectNativeList<RuntimeIshtarModule>.New(1), (s, version) =>
-                this.ResolveDep(s, version, DirectNativeList<RuntimeIshtarModule>.New(1)));
+            var module = RuntimeIshtarModule.Read(Vault, code, IshtarGC.AllocateList<RuntimeIshtarModule>(), (s, version) =>
+                this.ResolveDep(s, version, IshtarGC.AllocateList<RuntimeIshtarModule>()));
 
             Resolved?.Invoke(module);
 

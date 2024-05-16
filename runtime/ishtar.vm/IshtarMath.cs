@@ -2,7 +2,7 @@
 #pragma warning disable CS8981
 #pragma warning disable IDE1006
 #pragma warning disable IDE1006
-namespace ishtar.vm;
+namespace ishtar;
 
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;

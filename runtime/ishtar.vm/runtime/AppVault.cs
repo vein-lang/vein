@@ -8,7 +8,7 @@ namespace ishtar
     using vein.reflection;
     using vein.runtime;
     using collections;
-    using vm;
+    using ishtar;
 
     public unsafe class AppVault : AppVaultSync, IDisposable
     {
@@ -20,7 +20,7 @@ namespace ishtar
         public TokenInterlocker TokenGranted { get; }
         public int ThreadID { get; }
 
-        internal readonly DirectNativeList<RuntimeIshtarModule>* Modules = DirectNativeList<RuntimeIshtarModule>.New(8);
+        internal readonly NativeList<RuntimeIshtarModule>* Modules = IshtarGC.AllocateList<RuntimeIshtarModule>();
 
         public AppVault(VirtualMachine vm, string name)
         {

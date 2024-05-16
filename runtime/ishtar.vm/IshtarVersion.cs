@@ -1,4 +1,4 @@
-namespace ishtar.vm;
+namespace ishtar;
 
 public readonly unsafe struct IshtarVersion(uint major, uint minor, uint patch = 0, uint build = 0)
 {

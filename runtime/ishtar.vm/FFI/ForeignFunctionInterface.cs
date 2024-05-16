@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using runtime;
 using vein.runtime;
-using vm;
+using ishtar;
 
 public unsafe class ForeignFunctionInterface
 {

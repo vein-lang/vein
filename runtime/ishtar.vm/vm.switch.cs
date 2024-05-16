@@ -1,7 +1,7 @@
 namespace ishtar
 {
     using System.Collections.Generic;
-    using vm;
+    using ishtar;
 
     public partial class VirtualMachine
     {

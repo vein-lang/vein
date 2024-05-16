@@ -55,4 +55,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="collections\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\bin\gc.dll" Link="gc.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

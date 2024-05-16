@@ -42,9 +42,8 @@ insmvm.sln
 /ALL_BUILD.vcxproj.filters
 
 wave.std/bin/
-
-bin/
-
+!bin/gc.dll
+Release/
 *.*~
 
 .idea/
@@ -76,3 +75,5 @@ dotCover.Output.xml
 
 # wtf
 !logic.cs
+
+
