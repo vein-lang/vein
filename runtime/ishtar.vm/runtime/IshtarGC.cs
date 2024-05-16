@@ -7,6 +7,7 @@ namespace ishtar.runtime
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
+    using collections;
     using vein.runtime;
     using static System.Runtime.InteropServices.JavaScript.JSType;
     using static vein.runtime.VeinTypeCode;
@@ -75,15 +76,15 @@ namespace ishtar.runtime
             [DllImport(LIBNAME)]
             public static extern void GC_deinit();
 
-            [DllImport(LIBNAME, CharSet = CharSet.Ansi)]
-            public static extern void GC_debug_free(void* ptr, string file, int line);
-            [DllImport(LIBNAME, CharSet = CharSet.Ansi)]
-            public static extern void* GC_debug_malloc(uint size, string file, int line);
+            [DllImport(LIBNAME)]
+            public static extern void GC_free(void* ptr);
+            [DllImport(LIBNAME)]
+            public static extern void* GC_malloc(uint size);
 
             [DllImport(LIBNAME)]
             public static extern void GC_register_finalizer_for_ptr(void* ptr, delegate*<void> finalizer);
-            [DllImport(LIBNAME, CharSet = CharSet.Ansi)]
-            public static extern void* GC_debug_malloc_atomic(uint size, string file, int line);
+            [DllImport(LIBNAME)]
+            public static extern void* GC_malloc_atomic(uint size);
             [DllImport(LIBNAME)]
             public static extern void GC_collect();
             [DllImport(LIBNAME)]
@@ -173,7 +174,7 @@ namespace ishtar.runtime
             public static extern nint GC_debug_malloc_uncollectable(uint size, string file, int line);
 
             [DllImport(LIBNAME)]
-            public static extern nint GC_debug_realloc(nint oldPtr, uint newSize, string file, int line);
+            public static extern nint GC_realloc(nint oldPtr, uint newSize);
 
             // GC_finalize_all
 
@@ -242,7 +243,7 @@ namespace ishtar.runtime
 
         public void destroy() => Native.GC_deinit();
 
-        public void* alloc(uint size) => Native.GC_debug_malloc(size, "empty.vein", 0);
+        public void* alloc(uint size) => Native.GC_malloc(size);
 
         /* Explicitly deallocate an object.  Dangerous if used incorrectly.     */
         /* Requires a pointer to the base of an object.                         */
@@ -250,7 +251,7 @@ namespace ishtar.runtime
         /* contain registered disappearing links of any kind) when it is        */
         /* explicitly deallocated.                                              */
         /* GC_free(0) is a no-op, as required by ANSI C for free.               */
-        public void free(void* ptr) => Native.GC_debug_free(ptr, "empty.vein", 0);
+        public void free(void* ptr) => Native.GC_free(ptr);
 
         private static nuint hide_pointer(void* p) => ~(nuint)p;
 
@@ -815,6 +816,9 @@ namespace ishtar.runtime
         {
             var allocator = allocatorPool.Rent<IshtarObject>(out var p, AllocationKind.reference, frame);
 
+            if (!@class->is_inited)
+                @class->init_vtable(frame.vm);
+
             p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class->computed_size), AllocationKind.reference, frame);
 
             Unsafe.CopyBlock(p->vtable, @class->vtable, (uint)@class->computed_size * (uint)sizeof(void*));
@@ -939,10 +943,60 @@ namespace ishtar.runtime
 
         #region internal
 
+        private static readonly AllocatorBlock _allocator = new()
+        {
+            alloc = &IshtarGC_Alloc,
+            alloc_primitives = &IshtarGC_AtomicAlloc,
+            free = &IshtarGC_Free,
+            realloc = &IshtarGC_Realloc
+        };
+
+
+        private static void* NativeMemory_AllocZeroed(uint size)
+            => NativeMemory.AllocZeroed(size);
+
+        private static void* IshtarGC_Alloc(uint size)
+            => BoehmGCLayout.Native.GC_malloc(size);
+        private static void* IshtarGC_AtomicAlloc(uint size)
+            => BoehmGCLayout.Native.GC_malloc_atomic(size);
+
+        private static void NativeMemory_Free(void* ptr)
+            => NativeMemory.Free(ptr);
+
+        private static void IshtarGC_Free(void* ptr)
+            => BoehmGCLayout.Native.GC_free(ptr);
+
+        private static void* NativeMemory_Realloc(void* ptr, uint newBytes)
+            => NativeMemory.Realloc(ptr, newBytes);
+
+        private static void* IshtarGC_Realloc(void* ptr, uint newBytes)
+            => (void*)BoehmGCLayout.Native.GC_realloc((nint)ptr, newBytes);
+
+
+        public static NativeList<T>* AllocateList<T>(int initialCapacity = 16) where T : unmanaged
+            => NativeList<T>.Create(initialCapacity, NativeComparer<T>.Delegate(), _allocator);
+
+        public static AtomicNativeList<T>* AllocateAtomicList<T>(int initialCapacity = 16) where T : unmanaged, IEquatable<T>
+            => AtomicNativeList<T>.Create(initialCapacity, _allocator);
+
+        public static NativeDictionary<TKey, TValue>* AllocateDictionary<TKey, TValue>(int initialCapacity = 16)
+            where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
+            => NativeDictionary<TKey, TValue>.Create(initialCapacity, NativeComparer<TValue>.Delegate(), _allocator);
+
+        public static AtomicNativeDictionary<TKey, TValue>* AllocateAtomicDictionary<TKey, TValue>(int initialCapacity = 16)
+            where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged, IEquatable<TValue>
+            => AtomicNativeDictionary<TKey, TValue>.Create(initialCapacity, _allocator);
+
         public static T* AllocateImmortal<T>() where T : unmanaged
         {
             //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
             return (T*)gcLayout.alloc_immortal((uint)sizeof(T));
+        }
+
+        public static void* AllocateImmortal(uint size)
+        {
+            //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
+            return gcLayout.alloc_immortal(size);
         }
 
         public static T* AllocateImmortalRoot<T>() where T : unmanaged

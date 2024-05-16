@@ -2,18 +2,17 @@ namespace ishtar.runtime;
 
 using collections;
 using emit;
-using emit.extensions;
 using ishtar;
-using vm;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using vein.exceptions;
 using vein.extensions;
 using vein.reflection;
 using vein.runtime;
-using System.Runtime.InteropServices;
 
 public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIshtarModule* self, IshtarVersion version)
 {
@@ -24,18 +23,20 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     private IshtarVersion _version = version;
 
 
-    public DirectNativeList<RuntimeIshtarClass>* class_table { get; }
-        = DirectNativeList<RuntimeIshtarClass>.New(64);
-    public DirectNativeList<RuntimeIshtarModule>* deps_table { get; }
-        = DirectNativeList<RuntimeIshtarModule>.New(64);
-    public DirectNativeList<RuntimeAspect>* aspects_table { get; }
-        = DirectNativeList<RuntimeAspect>.New(64);
-    public DirectNativeDictionary<int, RuntimeQualityTypeName>* types_table { get; }
-        = DirectNativeDictionary<int, RuntimeQualityTypeName>.New();
-    public DirectNativeDictionary<int, RuntimeFieldName>* fields_table { get; }
-        = DirectNativeDictionary<int, RuntimeFieldName>.New();
-    public DirectNativeDictionary<int, InternedString>* string_table { get; }
-        = DirectNativeDictionary<int, InternedString>.New(false);
+    public NativeList<RuntimeIshtarClass>* class_table { get; }
+        = IshtarGC.AllocateList<RuntimeIshtarClass>();
+    public NativeList<RuntimeIshtarModule>* deps_table { get; }
+        = IshtarGC.AllocateList<RuntimeIshtarModule>();
+    public NativeList<RuntimeAspect>* aspects_table { get; }
+        = IshtarGC.AllocateList<RuntimeAspect>();
+
+    public NativeDictionary<int, RuntimeQualityTypeName>* types_table { get; }
+        = IshtarGC.AllocateDictionary<int, RuntimeQualityTypeName>();
+
+    public NativeDictionary<int, RuntimeFieldName>* fields_table { get; }
+        = IshtarGC.AllocateDictionary<int, RuntimeFieldName>();
+    public NativeDictionary<int, InternedString>* string_table { get; }
+        = IshtarGC.AllocateDictionary<int, InternedString>();
     public RuntimeConstStorage* ConstStorage { get; set; }
 
 
@@ -197,7 +198,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         clazz->Flags |= ClassFlags.Unresolved;
 
-        if (class_table->Any(x => x->FullName->NameWithNS.Equals(fullName->NameWithNS)))
+        if (class_table->Any(x => x->FullName->Equals(fullName)))
             throw new ClassAlreadyDefined("");
         class_table->Add(clazz);
 
@@ -214,7 +215,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         return clazz->GetEntryPoint();
     }
 
-    public static RuntimeIshtarModule* Read(AppVault vault, byte[] arr, DirectNativeList<RuntimeIshtarModule>* deps, ModuleResolverCallback resolver)
+    public static RuntimeIshtarModule* Read(AppVault vault, byte[] arr, NativeList<RuntimeIshtarModule>* deps, ModuleResolverCallback resolver)
     {
         var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>();
 
@@ -308,9 +309,9 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             if (clazz is null)
                 module->class_table->Add(@class);
             else if (clazz->IsUnresolved)
-                module->class_table->ReplaceTo(clazz, @class);
+                module->class_table->Swap(clazz, @class);
             else
-                module->class_table->ReplaceTo(clazz, @class);
+                module->class_table->Swap(clazz, @class);
             //throw new ClassAlreadyDefined($"Class '{clazz->FullName->ToString()}' already defined in '{module->Name}' module");
         }
 
@@ -699,7 +700,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     }
 
 
-    private static DirectNativeList<ProtectedZone>* DeconstructExceptions(byte[] arr, int offset, RuntimeIshtarModule* module)
+    private static NativeList<ProtectedZone>* DeconstructExceptions(byte[] arr, int offset, RuntimeIshtarModule* module)
     {
         if (arr.Length == 0)
             return null;
@@ -721,7 +722,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         if (size == 0)
             return null;
-        var result = DirectNativeList<ProtectedZone>.New(size);
+        var result = IshtarGC.AllocateList<ProtectedZone>(size);
         
         foreach (var _ in ..size)
         {
@@ -731,7 +732,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             var filterAddr = bin.ReadIntArray().ToNative();
             var catchAddr = bin.ReadIntArray().ToNative();
             var catchClass = bin.ReadTypesArray((x) => (nint)module->GetTypeNameByIndex(x, module->vm.Frames.ModuleLoaderFrame)).ToNative<RuntimeQualityTypeName>();
-            var types = bin.ReadSpecialByteArray<ExceptionMarkKind>().ToNative();
+            var types = bin.ReadSpecialDirectByteArray().ToNative();
 
             var item = IshtarGC.AllocateImmortal<ProtectedZone>();
 
@@ -776,9 +777,9 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     }
 
 
-    private static DirectNativeList<RuntimeMethodArgument>* ReadArguments(BinaryReader binary, RuntimeIshtarModule* ishtarModule)
+    private static NativeList<RuntimeMethodArgument>* ReadArguments(BinaryReader binary, RuntimeIshtarModule* ishtarModule)
     {
-        var args = DirectNativeList<RuntimeMethodArgument>.New(4);
+        var args = IshtarGC.AllocateList<RuntimeMethodArgument>();
         foreach (var _ in ..binary.ReadInt32())
         {
             var nIdx = binary.ReadInt32();
@@ -812,18 +813,18 @@ public static unsafe class QualityTypeEx
         return result;
     }
 
-    public static DirectNativeList<T>* ToNative<T>(this List<nint> types) where T : unmanaged
+    public static NativeList<T>* ToNative<T>(this List<nint> types) where T : unmanaged
     {
-        var t = DirectNativeList<T>.New(types.Count);
+        var t = IshtarGC.AllocateList<T>(types.Count);
 
         foreach (var name in types) t->Add((T*)name);
 
         return t;
     }
 
-    public static UnsafeDictionary<int, ILLabel>* ToNative(this Dictionary<int, (int pos, OpCodeValue opcode)> dictionary)
+    public static AtomicNativeDictionary<int, ILLabel>* ToNative(this Dictionary<int, (int pos, OpCodeValue opcode)> dictionary)
     {
-        var dt = UnsafeDictionary<int, ILLabel>.New(dictionary.Count);
+        var dt = IshtarGC.AllocateAtomicDictionary<int, ILLabel>(dictionary.Count);
 
         foreach (var (idx, (pos, opcode)) in dictionary)
         {
@@ -833,11 +834,11 @@ public static unsafe class QualityTypeEx
         return dt;
     }
 
-    public static NativeList<T> ToNative<T>(this T[] types) where T : unmanaged
+    public static AtomicNativeList<T>* ToNative<T>(this T[] types) where T : unmanaged, IEquatable<T>
     {
-        var t = NativeList<T>.New(types.Length);
+        var t = IshtarGC.AllocateAtomicList<T>(types.Length);
 
-        foreach (var v in types) t.Add(v);
+        foreach (var v in types) t->Add(v);
 
         return t;
     }
@@ -858,9 +859,9 @@ public readonly unsafe struct RuntimeAspectArgument(RuntimeAspect* owner, uint i
         return t;
     }
 
-    public static DirectNativeList<RuntimeAspectArgument>* Create(RuntimeAspectArgument* arr, int len)
+    public static NativeList<RuntimeAspectArgument>* Create(RuntimeAspectArgument* arr, int len)
     {
-        var t = DirectNativeList<RuntimeAspectArgument>.New(len);
+        var t = IshtarGC.AllocateList<RuntimeAspectArgument>(len);
 
         for (var i = 0; i < len; i++)
         {
@@ -964,7 +965,7 @@ public unsafe struct RuntimeAspect
     public RuntimeAspect_Union Union;
     public AspectTarget Target { get; }
 
-    public DirectNativeList<RuntimeAspectArgument>* Arguments { get; } = DirectNativeList<RuntimeAspectArgument>.New(4);
+    public NativeList<RuntimeAspectArgument>* Arguments { get; } = IshtarGC.AllocateList<RuntimeAspectArgument>();
 
 
     public string Name
@@ -974,7 +975,7 @@ public unsafe struct RuntimeAspect
     }
 
 
-    public RuntimeAspect(string name, DirectNativeList<RuntimeAspectArgument>* args, AspectTarget target, RuntimeAspect* self)
+    public RuntimeAspect(string name, NativeList<RuntimeAspectArgument>* args, AspectTarget target, RuntimeAspect* self)
     {
         _self = self;
         Target = target;
@@ -983,10 +984,10 @@ public unsafe struct RuntimeAspect
         Arguments->AddRange(args);
     }
 
-    public static DirectNativeList<RuntimeAspect>* Deconstruct(RuntimeConstStorage* data, CallFrame frame, IshtarTypes* types)
+    public static NativeList<RuntimeAspect>* Deconstruct(RuntimeConstStorage* data, CallFrame frame, IshtarTypes* types)
         => InternalDeconstruct(data);
 
-    private static unsafe DirectNativeList<RuntimeAspect>* InternalDeconstruct(RuntimeConstStorage* data)
+    private static unsafe NativeList<RuntimeAspect>* InternalDeconstruct(RuntimeConstStorage* data)
     {
         static AspectTarget getTarget(FieldName name)
         {
@@ -1011,7 +1012,7 @@ public unsafe struct RuntimeAspect
             .Select(x => (*((RuntimeFieldName*)x.field),x.obj)).ToList();
 
 
-        var aspects = DirectNativeList<RuntimeAspect>.New(asp_methods.Count + asp_fields.Count + asp_class.Count);
+        var aspects = IshtarGC.AllocateList<RuntimeAspect>(asp_methods.Count + asp_fields.Count + asp_class.Count);
 
         // rly shit
         var groupClasses = asp_class.GroupBy(x =>
@@ -1035,7 +1036,8 @@ public unsafe struct RuntimeAspect
             var aspectName = groupClass.Key.Split('/').First();
             var aspectClass = groupClass.Key.Split('/').Last();
 
-            var args = DirectNativeList<RuntimeAspectArgument>.New(lst.Count);
+            
+            var args = IshtarGC.AllocateList<RuntimeAspectArgument>(lst.Count);
             var asp = IshtarGC.AllocateImmortal<RuntimeAspect>();
 
             foreach (var (key, value) in lst)
@@ -1060,7 +1062,7 @@ public unsafe struct RuntimeAspect
             var aspectClass = groupMethod.Key.Split('/')[1];
             var aspectMethod = groupMethod.Key.Split('/')[2];
 
-            var args = DirectNativeList<RuntimeAspectArgument>.New(lst.Count);
+            var args = IshtarGC.AllocateList<RuntimeAspectArgument>(lst.Count);
             var asp = IshtarGC.AllocateImmortal<RuntimeAspect>();
 
             foreach (var (key, value) in groupMethod)
@@ -1087,7 +1089,7 @@ public unsafe struct RuntimeAspect
             var aspectField = groupMethod.Key.Split('/')[2];
 
 
-            var args = DirectNativeList<RuntimeAspectArgument>.New(lst.Count);
+            var args = IshtarGC.AllocateList<RuntimeAspectArgument>(lst.Count);
             var asp = IshtarGC.AllocateImmortal<RuntimeAspect>();
 
             foreach (var (key, value) in groupMethod)

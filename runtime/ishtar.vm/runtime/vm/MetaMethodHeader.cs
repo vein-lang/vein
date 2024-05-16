@@ -8,8 +8,8 @@ namespace ishtar
         public uint code_size { get; set; }
         public uint* code { get; set; }
         public short max_stack { get; set; }
-        public DirectNativeList<ProtectedZone>* exception_handler_list { get; set; }
-        public UnsafeDictionary<int, ILLabel>* labels_map { get; set; }
-        public NativeList<int> labels { get; set; }
+        public NativeList<ProtectedZone>* exception_handler_list { get; set; }
+        public AtomicNativeDictionary<int, ILLabel>* labels_map { get; set; }
+        public AtomicNativeList<int>* labels { get; set; }
     }
 }

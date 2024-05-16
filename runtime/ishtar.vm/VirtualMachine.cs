@@ -88,7 +88,7 @@ namespace ishtar
             => CreateInternalMethod(name, MethodFlags.Extern, TYPE_VOID.AsRuntimeClass(Types), Array.Empty<VeinArgumentRef>());
         public RuntimeIshtarMethod* DefineEmptySystemMethod(string name, RuntimeIshtarClass* clazz)
         {
-            var args = DirectNativeList<RuntimeMethodArgument>.New(1);
+            var args = IshtarGC.AllocateList<RuntimeMethodArgument>();
             args->Add(RuntimeMethodArgument.Create(Types, "i1", clazz));
             return InternalClass->DefineMethod(VeinMethodBase.GetFullName(name, new List<(string argName, string typeName)>() { ("i1", clazz->Name) }), TYPE_VOID.AsRuntimeClass(Types),
                 MethodFlags.Extern | MethodFlags.Private | MethodFlags.Special, args);
@@ -224,21 +224,21 @@ namespace ishtar
             var zone = default(ProtectedZone*);
             void jump_now()
             {
-                if (mh->labels_map->TryGetValue(mh->labels[(int)*ip], out var label))
+                if (mh->labels_map->TryGetValue(mh->labels->Get((int)*ip), out var label))
                     ip = start + label.pos - 1;
                 else FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[jump_now] cannot find protected zone label", invocation);
             }
 
             void jump_to(int index)
             {
-                if (mh->labels_map->TryGetValue(mh->labels[index], out var label))
+                if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
                     ip = start + label.pos - 1;
                 else FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[jump_to] cannot find protected zone label", invocation);
             }
 
             uint* get_jumper(int index)
             {
-                if (mh->labels_map->TryGetValue(mh->labels[index], out var label))
+                if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
                     return start + label.pos - 1;
                 FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[get_jumper] cannot find protected zone label", invocation);
                 return null;
@@ -1509,17 +1509,17 @@ namespace ishtar
 
                         if (t is null)
                             continue;
-                        if (zone->Types[i] == ExceptionMarkKind.FILTER)
+                        if (zone->Types->Get(i) == (byte)ExceptionMarkKind.FILTER)
                         {
                             if (t == exception->clazz->FullName)
                             {
-                                label_addr = zone->FilterAddr[i];
+                                label_addr = zone->FilterAddr->Get(i);
                                 break;
                             }
                         }
-                        else if (zone->Types[i] == ExceptionMarkKind.CATCH_ANY)
+                        else if (zone->Types->Get(i) == (byte)ExceptionMarkKind.CATCH_ANY)
                         {
-                            label_addr = zone->CatchAddr[i];
+                            label_addr = zone->CatchAddr->Get(i);
                             break;
                         }
                     }
@@ -1532,7 +1532,7 @@ namespace ishtar
                             var t = zone->CatchClass->Get(i);
                             if (t is null)
                                 continue;
-                            if (zone->Types[i] != ExceptionMarkKind.FILTER)
+                            if (zone->Types->Get(i) != (byte)ExceptionMarkKind.FILTER)
                                 continue;
                             if (t->Name.Equals("Void")) // skip empty type
                                 continue;
@@ -1542,7 +1542,7 @@ namespace ishtar
 
                             if (fail_type->IsInner(filter_type))
                             {
-                                label_addr = zone->FilterAddr[i];
+                                label_addr = zone->FilterAddr->Get(i);
                                 break;
                             }
                         }

@@ -13,7 +13,7 @@ public unsafe struct RuntimeQualityTypeName(InternedString* fullName)
     private InternedString* _asmName;
     private InternedString* _nameWithNS;
     
-    public bool Equals(RuntimeQualityTypeName* r) => _fullname == r->_fullname;
+    public bool Equals(RuntimeQualityTypeName* r) => _fullname->Equals(r->_fullname);
 
     public string Name
     {

@@ -26,9 +26,9 @@ namespace ishtar
             return a;
         }
 
-        public static DirectNativeList<RuntimeMethodArgument>* Create(IshtarTypes* types, (string name, VeinTypeCode code)[] data)
+        public static NativeList<RuntimeMethodArgument>* Create(IshtarTypes* types, (string name, VeinTypeCode code)[] data)
         {
-            var lst = DirectNativeList<RuntimeMethodArgument>.New(data.Length);
+            var lst = IshtarGC.AllocateList<RuntimeMethodArgument>(data.Length);
 
             foreach (var tuple in data)
             {
@@ -46,12 +46,12 @@ namespace ishtar
             return lst;
         }
 
-        public static DirectNativeList<RuntimeMethodArgument>* Create(VirtualMachine vm, VeinArgumentRef[] data)
+        public static NativeList<RuntimeMethodArgument>* Create(VirtualMachine vm, VeinArgumentRef[] data)
         {
             if (data.Length == 0)
-                return DirectNativeList<RuntimeMethodArgument>.New(1);
+                return IshtarGC.AllocateList<RuntimeMethodArgument>();
             
-            var lst = DirectNativeList<RuntimeMethodArgument>.New(data.Length);
+            var lst = IshtarGC.AllocateList<RuntimeMethodArgument>(data.Length);
 
             foreach (var tuple in data)
             {
@@ -102,10 +102,10 @@ namespace ishtar
         public MethodFlags Flags { get; private set; }
         public RuntimeIshtarClass* ReturnType { get; private set; }
         public RuntimeIshtarClass* Owner { get; private set; }
-        public int ArgLength => Arguments->Length;
+        public int ArgLength => Arguments->Count;
 
-        public DirectNativeList<RuntimeMethodArgument>* Arguments { get; }
-        public DirectNativeList<RuntimeAspect>* Aspects { get; }
+        public NativeList<RuntimeMethodArgument>* Arguments { get; }
+        public NativeList<RuntimeAspect>* Aspects { get; }
 
         public void Assert(RuntimeIshtarMethod* @ref)
         {
@@ -122,7 +122,7 @@ namespace ishtar
         public bool IsVirtual => Flags.HasFlag(MethodFlags.Virtual);
         public bool IsOverride => !Flags.HasFlag(MethodFlags.Abstract) && Flags.HasFlag(MethodFlags.Override);
         public bool IsConstructor => RawName.Equals("ctor");
-        public bool IsTypeConstructor => RawName.Equals("type_ctor");
+        public bool IsTypeConstructor => RawName.Equals("type_ctor") || RawName.Equals("#type_ctor");
         public bool IsDeconstructor => RawName.Equals("dtor");
         public bool IsSpecial => Flags.HasFlag(MethodFlags.Special);
 
@@ -142,8 +142,8 @@ namespace ishtar
         {
             this = default;
             _self = self;
-            Arguments =  DirectNativeList<RuntimeMethodArgument>.New(4);
-            Aspects = DirectNativeList<RuntimeAspect>.New(4);
+            Arguments =  IshtarGC.AllocateList<RuntimeMethodArgument>();
+            Aspects = IshtarGC.AllocateList<RuntimeAspect>();
             _name = StringStorage.Intern(name);
             _rawName = StringStorage.Intern(name.Split('(').First());
             Flags = flags;
@@ -155,18 +155,18 @@ namespace ishtar
         }
 
         internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
-            DirectNativeList<RuntimeMethodArgument>* args)
+            NativeList<RuntimeMethodArgument>* args)
         {
             this = default;
             _self = self;
-            Arguments = DirectNativeList<RuntimeMethodArgument>.New(4);
-            Aspects = DirectNativeList<RuntimeAspect>.New(4);
+            Arguments = IshtarGC.AllocateList<RuntimeMethodArgument>();
+            Aspects = IshtarGC.AllocateList<RuntimeAspect>();
             _name = StringStorage.Intern(name);
             _rawName = StringStorage.Intern(name.Split('(').First());
             Flags = flags;
             ReturnType = returnType;
             Owner = owner;
-            if (args->Length != 0)
+            if (args->Count != 0)
                 Arguments->AddRange(args);
             _ctor_called = true;
         }

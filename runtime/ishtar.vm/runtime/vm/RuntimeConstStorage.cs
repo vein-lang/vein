@@ -4,8 +4,8 @@ using collections;
 
 public readonly unsafe struct RuntimeConstStorage
 {
-    private readonly DirectNativeDictionary<nint, IshtarObject>* storage =
-        DirectNativeDictionary<IntPtr, IshtarObject>.New();
+    private readonly NativeDictionary<nint, IshtarObject>* storage =
+        IshtarGC.AllocateDictionary<IntPtr, IshtarObject>();
 
     public RuntimeConstStorage()
     {
@@ -26,11 +26,11 @@ public readonly unsafe struct RuntimeConstStorage
         var list = new List<(nint, nint)>();
 
 
-        storage->ForEach(x =>
+        storage->ForEach((key, value) =>
         {
-            var k = (RuntimeFieldName*)x.Key;
+            var k = (RuntimeFieldName*)key;
             if (filter(k))
-                list.Add((x.Key, x.Value));
+                list.Add((key, (nint)value));
         });
         return list;
     }

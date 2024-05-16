@@ -29,9 +29,9 @@ namespace ishtar
         private readonly void* _veinClassRef;
         private readonly RuntimeIshtarClass* _selfReference;
 
-        public DirectNativeList<RuntimeIshtarMethod>* Methods { get; } = DirectNativeList<RuntimeIshtarMethod>.New(16);
-        public DirectNativeList<RuntimeIshtarField>* Fields { get; } = DirectNativeList<RuntimeIshtarField>.New(16);
-        public DirectNativeList<RuntimeAspect>* Aspects { get; } = DirectNativeList<RuntimeAspect>.New(4);
+        public NativeList<RuntimeIshtarMethod>* Methods { get; } = IshtarGC.AllocateList<RuntimeIshtarMethod>();
+        public NativeList<RuntimeIshtarField>* Fields { get; } = IshtarGC.AllocateList<RuntimeIshtarField>();
+        public NativeList<RuntimeAspect>* Aspects { get; } = IshtarGC.AllocateList<RuntimeAspect>();
         
         public RuntimeIshtarModule* Owner { get; private set; }
         public RuntimeIshtarClass* Parent { get; private set; }
@@ -61,7 +61,7 @@ namespace ishtar
         #endregion
 
         // TODO
-        public bool Walk(UnsafePredicate<RuntimeIshtarClass> actor)
+        public bool Walk(UnsafeFilter_Delegate<RuntimeIshtarClass> actor)
         {
             var target = _selfReference;
             while (target != null)
@@ -117,18 +117,29 @@ namespace ishtar
             return f;
         }
 
-        internal RuntimeIshtarMethod* DefineMethod(string name, RuntimeIshtarClass* returnType, MethodFlags flags, DirectNativeList<RuntimeMethodArgument>* args)
+        internal RuntimeIshtarMethod* DefineMethod(string name, RuntimeIshtarClass* returnType, MethodFlags flags, NativeList<RuntimeMethodArgument>* args)
         {
             var method = IshtarGC.AllocateImmortal<RuntimeIshtarMethod>();
             *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, method, args);
             method->Assert(method);
+            var exist = Methods->FirstOrNull(x =>
+            {
+                x->Assert(x);
+                return x->Name.Equals(name);
+            });
 
-            if (Methods->Any(x =>
-                {
-                    x->Assert(x);
-                    return x->Name.Equals(name);
-                }))
-                throw new MethodAlreadyDefined("");
+
+            if (method->IsConstructor && exist is not null)
+                Methods->Swap(exist, method);
+            else if (method->IsTypeConstructor && exist is not null)
+                Methods->Swap(exist, method);
+            else if (exist is not null && method->Header is not null)
+                throw new MethodAlreadyDefined($"Method '{exist->Name}' already defined in '{Name}' class");
+            else if (exist is not null && method->Header is null)
+            {
+                IshtarGC.FreeImmortal(method);
+                return exist;
+            }
             Methods->Add(method);
             return method;
         }
@@ -137,7 +148,7 @@ namespace ishtar
         {
             var method = IshtarGC.AllocateImmortal<RuntimeIshtarMethod>();
 
-            *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, method, DirectNativeList<RuntimeMethodArgument>.New(4));
+            *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, method, IshtarGC.AllocateList<RuntimeMethodArgument>());
 
             Methods->Add(method);
             return method;
@@ -169,9 +180,11 @@ namespace ishtar
             public ulong computed_size = 0;
         }
 #endif
-        public void init_vtable(VirtualMachine vm)
+        public void init_vtable(VirtualMachine vm, CallFrame fr = null)
         {
             if (is_inited) return;
+
+            var frame = fr ?? vm.Frames.VTableFrame(_selfReference);
 
             assertAddressNotMoved(vm);
 
@@ -193,34 +206,34 @@ namespace ishtar
             {
                 if (Parent->IsUnresolved)
                 {
-                    vm.FastFail(TYPE_MISMATCH, "Cannot init vtable when parent type is unresolved", vm.Frames.VTableFrame(_selfReference));
+                    vm.FastFail(TYPE_MISMATCH, "Cannot init vtable when parent type is unresolved", frame);
                     return;
                 }
 
                 if (IsUnresolved)
                 {
-                    vm.FastFail(TYPE_MISMATCH, "Cannot init vtable when type is unresolved", vm.Frames.VTableFrame(_selfReference));
+                    vm.FastFail(TYPE_MISMATCH, "Cannot init vtable when type is unresolved", frame);
                     return;
                 }
 
-                Parent->init_vtable(vm);
+                Parent->init_vtable(vm, fr);
                 computed_size += Parent->computed_size;
 #if DEBUG_VTABLE
                 dvtable.computed_size += dvtables[Parent->ID].computed_size;
 #endif
             }
 
-            computed_size += (ulong)this.Methods->Length;
-            computed_size += (ulong)this.Fields->Length;
+            computed_size += (ulong)this.Methods->Count;
+            computed_size += (ulong)this.Fields->Count;
             
 #if DEBUG_VTABLE
-            dvtable.computed_size += (ulong)this.Methods->Length;
-            dvtable.computed_size += (ulong)this.Fields->Length;
+            dvtable.computed_size += (ulong)this.Methods->Count;
+            dvtable.computed_size += (ulong)this.Fields->Count;
 #endif
 
             if (computed_size >= long.MaxValue) // fuck IntPtr ctor limit
             {
-                vm.FastFail(TYPE_LOAD, $"'{FullName->ToString()}' too big object.", vm.Frames.VTableFrame(_selfReference));
+                vm.FastFail(TYPE_LOAD, $"'{FullName->ToString()}' too big object.", frame);
                 return;
             }
 
@@ -263,14 +276,14 @@ namespace ishtar
 #endif
             }
 
-            for (var i = 0; i != Methods->Length; i++, vtable_offset++)
+            for (var i = 0; i != Methods->Count; i++, vtable_offset++)
             {
-                var method = (*Methods)[i];
+                var method = Methods->Get(i);
 
                 if ((method->Flags & MethodFlags.Abstract) != 0 && (Flags & ClassFlags.Abstract) == 0)
                 {
                     vm.FastFail(TYPE_LOAD,
-                        $"Method '{method->Name}' in '{Name}' type has invalid mapping.", vm.Frames.VTableFrame(_selfReference));
+                        $"Method '{method->Name}' in '{Name}' type has invalid mapping.", frame);
                     return;
                 }
 
@@ -289,7 +302,7 @@ namespace ishtar
                         vm.FastFail(MISSING_METHOD,
                             $"Method '{method->Name}' mark as OVERRIDE," +
                             $" but parent class '{Parent->Name}'" +
-                            $" no contained virtual/abstract method.", vm.Frames.VTableFrame(_selfReference));
+                            $" no contained virtual/abstract method.", frame);
 
                     if (w is null)
                         continue;
@@ -304,16 +317,16 @@ namespace ishtar
                 }
             }
 
-            if (Fields->Length != 0)
+            if (Fields->Count != 0)
             {
-                for (var i = 0; i != Fields->Length; i++, vtable_offset++)
+                for (var i = 0; i != Fields->Count; i++, vtable_offset++)
                 {
-                    var field = (*Fields)[i];
+                    var field = Fields->Get(i);
 
                     if ((field->Flags & FieldFlags.Abstract) != 0 && (Flags & ClassFlags.Abstract) == 0)
                     {
                         vm.FastFail(TYPE_LOAD,
-                            $"Field '{field->Name}' in '{this.Name}' type has invalid mapping.", vm.Frames.VTableFrame(_selfReference));
+                            $"Field '{field->Name}' in '{this.Name}' type has invalid mapping.", frame);
                         return;
                     }
 
@@ -338,7 +351,7 @@ namespace ishtar
                             vm.FastFail(MISSING_FIELD,
                                 $"Field '{field->Name}' mark as OVERRIDE," +
                                 $" but parent class '{Parent->Name}' " +
-                                $"no contained virtual/abstract method.", vm.Frames.VTableFrame(_selfReference));
+                                $"no contained virtual/abstract method.", frame);
 
                         if (w is null)
                             continue;
@@ -354,8 +367,8 @@ namespace ishtar
                 }
             }
 
-            if (Fields->Length != 0) for (var i = 0; i != Fields->Length; i++)
-                (*Fields)[i]->init_mapping(vm.Frames.VTableFrame(_selfReference));
+            if (Fields->Count != 0) for (var i = 0; i != Fields->Count; i++)
+                Fields->Get(i)->init_mapping(fr ?? vm.Frames.VTableFrame(_selfReference));
 
             is_inited = true;
             if (Parent is null)
@@ -423,7 +436,6 @@ namespace ishtar
         public RuntimeIshtarMethod* GetEntryPoint() =>
             Methods->FirstOrNull(x =>
             {
-                x->Arguments->Assert();
                 if (!x->IsStatic)
                     return false;
                 if (x->ArgLength > 0)
@@ -447,7 +459,7 @@ namespace ishtar
             return Parent->FindMethod(fullyName);
         }
 
-        public RuntimeIshtarMethod* FindMethod(string fullyName, UnsafePredicate<RuntimeIshtarMethod> predicate)
+        public RuntimeIshtarMethod* FindMethod(string fullyName, UnsafeFilter_Delegate<RuntimeIshtarMethod> predicate)
         {
             var method = Methods
                 ->FirstOrNull(x => (x->RawName.Equals(fullyName) || x->Name.Equals(fullyName)) || predicate(x));
@@ -495,5 +507,7 @@ namespace ishtar
             fixed (RuntimeIshtarClass* p = &this)
                 vm.Frames.VTableFrame(_selfReference).assert(p == _selfReference, GC_MOVED_UNMOVABLE_MEMORY, $"For class '{Name}' pin pointer is incorrect, maybe GC moved memory");
         }
+
+        public bool Equals(RuntimeIshtarClass* clazz) => clazz->FullName->Equals(this.FullName);
     }
 }

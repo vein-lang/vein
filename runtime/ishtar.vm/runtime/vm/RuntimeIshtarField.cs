@@ -33,7 +33,7 @@ namespace ishtar
 
         public RuntimeFieldName* FullName { get; set; } = fullName;
 
-        public DirectNativeList<RuntimeAspect>* Aspects { get; } = DirectNativeList<RuntimeAspect>.New(4);
+        public NativeList<RuntimeAspect>* Aspects { get; } = IshtarGC.AllocateList<RuntimeAspect>();
 
 
         public IshtarObject* default_value;

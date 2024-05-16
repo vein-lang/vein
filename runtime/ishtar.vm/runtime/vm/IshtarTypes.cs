@@ -3,7 +3,7 @@ namespace ishtar;
 using runtime;
 using vein.runtime;
 using collections;
-using vm;
+using ishtar;
 using static vein.runtime.VeinTypeCode;
 
 public readonly unsafe struct IshtarTypes(
@@ -57,9 +57,10 @@ public readonly unsafe struct IshtarTypes(
     public readonly RuntimeIshtarClass* FunctionClass = functionClass;
     public readonly RuntimeIshtarClass* RangeClass = rangeClass;
 
-    public readonly DirectNativeList<RuntimeIshtarClass>* All = DirectNativeList<RuntimeIshtarClass>.New(32);
+    public readonly NativeList<RuntimeIshtarClass>* All = IshtarGC.AllocateList<RuntimeIshtarClass>();
 
-    private readonly DirectNativeDictionary<int, RuntimeIshtarClass>* Mapping = DirectNativeDictionary<int, RuntimeIshtarClass>.New();
+    private readonly NativeDictionary<int, RuntimeIshtarClass>* Mapping =
+        IshtarGC.AllocateDictionary<int, RuntimeIshtarClass>();
 
 
     public RuntimeIshtarClass* ByTypeCode(VeinTypeCode code)
@@ -115,8 +116,8 @@ public readonly unsafe struct IshtarTypes(
             r->create($"std%global::vein/lang/Function".L(), objectClass, module, TYPE_FUNCTION),
             r->create($"std%global::vein/lang/Range".L(), objectClass, module, TYPE_CLASS)
         );
-        r->Add(objectClass);
-        r->Add(r->VoidClass);
+        r->Add(objectClass, false);
+        r->Add(r->VoidClass, false);
         r->Add(r->ByteClass);
         r->Add(r->SByteClass);
         r->Add(r->Int32Class);
@@ -132,8 +133,8 @@ public readonly unsafe struct IshtarTypes(
         r->Add(r->BoolClass);
         r->Add(r->CharClass);
         r->Add(r->ArrayClass);
-        r->Add(r->RawClass);
-        r->Add(r->FunctionClass);
+        r->Add(r->RawClass, false);
+        r->Add(r->FunctionClass, false);
         r->Add(r->StringClass);
 
 
@@ -151,10 +152,13 @@ public readonly unsafe struct IshtarTypes(
         return r;
     }
 
-    public void Add(in RuntimeIshtarClass* clazz)
+    public void Add(in RuntimeIshtarClass* clazz, bool defineTransitField = true)
     {
         All->Add(clazz);
         Mapping->Add((int)clazz->TypeCode, clazz);
+
+        if (defineTransitField)
+            clazz->DefineField("!!value", FieldFlags.Special, valueTypeClass);
     }
 
     private RuntimeIshtarClass* create(RuntimeQualityTypeName* name, RuntimeIshtarClass* parent, RuntimeIshtarModule* module, VeinTypeCode typeCode, bool autoAdd = true)
