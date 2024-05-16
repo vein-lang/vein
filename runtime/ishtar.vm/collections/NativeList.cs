@@ -172,7 +172,14 @@ public unsafe struct NativeList<T> : IDisposable where T : unmanaged
     {
         for (int i = 0; i < count; i++) actor(items[i]);
     }
-    
+
+    public List<T> ToList()
+    {
+        var lst = new List<T>();
+        for (int i = 0; i < count; i++) lst.Add(*items[i]);
+        return lst;
+    }
+
     public bool Any(UnsafeFilter_Delegate<T> filter)
     {
         if (count == 0) return false;
