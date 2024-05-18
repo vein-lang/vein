@@ -17,6 +17,7 @@ namespace vein.runtime
         Aspect      = 1 << 9,
         Undefined   = 1 << 10,
         Unresolved  = 1 << 11,
-        Predefined  = 1 << 12
+        Predefined  = 1 << 12,
+        NotCompleted= 1 << 13
     }
 }

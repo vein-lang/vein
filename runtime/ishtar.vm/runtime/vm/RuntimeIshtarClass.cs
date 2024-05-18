@@ -24,7 +24,7 @@ namespace ishtar
     [DebuggerDisplay("name = {_debug_name}, id = {ID}, isValid: {IsValid}")]
     public unsafe struct RuntimeIshtarClass :
         IUnsafeTransitionAlignment<string, RuntimeIshtarField>,
-        IUnsafeTransitionAlignment<string, RuntimeIshtarMethod>
+        IUnsafeTransitionAlignment<string, RuntimeIshtarMethod>, IEq<RuntimeIshtarClass>, IDisposable
     {
         private readonly void* _veinClassRef;
         private readonly RuntimeIshtarClass* _selfReference;
@@ -37,6 +37,23 @@ namespace ishtar
         public RuntimeIshtarClass* Parent { get; private set; }
         public RuntimeQualityTypeName* FullName { get; private set; }
 
+        public void Dispose()
+        {
+            var name = Name;
+            VirtualMachine.GlobalPrintln($"@@@ Disposed class '{name}'");
+            Methods->ForEach(x => x->Dispose());
+            Fields->ForEach(x => x->Dispose());
+            Aspects->ForEach(x => x->Dispose());
+
+            IshtarGC.FreeList(Methods);
+            IshtarGC.FreeList(Fields);
+            IshtarGC.FreeList(Aspects);
+
+            Owner = null;
+            Parent = null;
+            FullName = null;
+            VirtualMachine.GlobalPrintln($"@@@ end dispose class '{name}'");
+        }
 
         private string _debug_name => FullName->NameWithNS;
 
@@ -330,11 +347,23 @@ namespace ishtar
                         return;
                     }
 
-                    vtable[vtable_offset] = get_field_default_value(field, vm);
-                    field->vtable_offset = vtable_offset;
+                    // todo literal is not support
+                    if (!field->IsLiteral)
+                    {
+                        field->vtable_offset = vtable_offset;
+                        vtable[vtable_offset] = null;
+                        //if (!field->FieldType->IsPrimitive)
+                        //    vtable[vtable_offset] = get_field_default_value(field, vm);
+                        //else
+                        //    vtable[vtable_offset] = null; // TODO literal support
+                        //field->vtable_offset = vtable_offset;
 
-                    if (!field->FieldType->IsPrimitive)
-                        Debug.Assert(vtable[vtable_offset] != null, $"Getting default value for '{field->FieldType->Name}' has incorrect");
+                        //if (!field->FieldType->IsPrimitive)
+                        //    Debug.Assert(vtable[vtable_offset] != null, $"Getting default value for '{field->FieldType->Name}' has incorrect");
+                    }
+                    else
+                        field->vtable_offset = vtable_offset;
+
 
 #if DEBUG_VTABLE
                     dvtable.vtable_info[vtable_offset] = $"DEFAULT_VALUE OF [{field->FullName->ToString()}::{field->FieldType->Name}]";
@@ -396,6 +425,17 @@ namespace ishtar
                 return field->default_value;
             var frame = vm.Frames.VTableFrame(_selfReference);
 
+            if (field->FieldType->IsUnresolved)
+            {
+                frame.vm.FastFail(WNE.ACCESS_VIOLATION,
+                    $"fieldType {field->FieldType->FullName->ToString()} is unresolved.\n" +
+                    $"field is literal but trying get default value\n" +
+                    "Invalid allocation or incorrect type setup possible.\n" +
+                    "Please report the problem into https://github.com/vein-lang/vein/issues",
+                    frame);
+                return default;
+            }
+
             if (field->FieldType->IsPrimitive)
             {
                 var defaultValue = stackval.Allocate(frame, 1);
@@ -404,6 +444,18 @@ namespace ishtar
 
                 return IshtarMarshal.Boxing(frame, defaultValue.Ref);
             }
+
+            if (field->IsLiteral && field->FieldType->TypeCode is not TYPE_STRING)
+            {
+                frame.vm.FastFail(WNE.ACCESS_VIOLATION,
+                    "get_field_default_value fault.\n" +
+                    $"field is literal but trying get default value\n" +
+                    "Invalid allocation or incorrect type setup possible.\n" +
+                    "Please report the problem into https://github.com/vein-lang/vein/issues",
+                    frame);
+                return default;
+            }
+
             return field->default_value = vm.GC.AllocObject(field->FieldType, frame);
         }
 
@@ -419,6 +471,8 @@ namespace ishtar
 
             return Parent->FindField(name);
         }
+
+        public RuntimeIshtarField* FindField(InternedString* name) => FindField(StringStorage.GetStringUnsafe(name));
 
         public RuntimeIshtarField* FindField(RuntimeFieldName* name)
         {
@@ -508,6 +562,6 @@ namespace ishtar
                 vm.Frames.VTableFrame(_selfReference).assert(p == _selfReference, GC_MOVED_UNMOVABLE_MEMORY, $"For class '{Name}' pin pointer is incorrect, maybe GC moved memory");
         }
 
-        public bool Equals(RuntimeIshtarClass* clazz) => clazz->FullName->Equals(this.FullName);
+        public static bool Eq(RuntimeIshtarClass* p1, RuntimeIshtarClass* p2) => RuntimeQualityTypeName.Eq(p1->FullName, p2->FullName);
     }
 }

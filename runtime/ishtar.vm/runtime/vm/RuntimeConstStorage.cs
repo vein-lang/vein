@@ -2,35 +2,38 @@ namespace ishtar.runtime;
 
 using collections;
 
-public readonly unsafe struct RuntimeConstStorage
+public readonly unsafe struct RuntimeConstStorage : IDisposable
 {
-    private readonly NativeDictionary<nint, IshtarObject>* storage =
-        IshtarGC.AllocateDictionary<IntPtr, IshtarObject>();
+    private readonly AtomicNativeDictionary<nint, stackval>* storage =
+        IshtarGC.AllocateAtomicDictionary<IntPtr, stackval>();
 
     public RuntimeConstStorage()
     {
     }
 
+    public void Dispose() => storage->Clear();
 
-    public void Stage(RuntimeFieldName* name, IshtarObject* o) => storage->Add((nint)name, o);
 
-    public IshtarObject* Get(RuntimeFieldName* name)
+    public void Stage(RuntimeFieldName* name, stackval* o) => storage->Add((nint)name, *o);
+    public void Stage(RuntimeFieldName* name, stackval o) => storage->Add((nint)name, o);
+
+    public stackval Get(RuntimeFieldName* name)
     {
         if (storage->TryGetValue((nint)name, out var result))
             return result;
         throw new KeyNotFoundException();
     }
 
-    public List<(nint field, nint obj)> RawGetWithFilter(RuntimeStorageFilter filter)
+    public List<(nint field, stackval obj)> RawGetWithFilter(RuntimeStorageFilter filter)
     {
-        var list = new List<(nint, nint)>();
+        var list = new List<(nint, stackval)>();
 
 
-        storage->ForEach((key, value) =>
+        storage->ForEach((IntPtr key, ref stackval item) =>
         {
             var k = (RuntimeFieldName*)key;
             if (filter(k))
-                list.Add((key, (nint)value));
+                list.Add((key, item));
         });
         return list;
     }

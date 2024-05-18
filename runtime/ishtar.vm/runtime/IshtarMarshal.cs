@@ -2,6 +2,7 @@ namespace ishtar
 {
     using System;
     using runtime;
+    using vein.runtime;
     using static vein.runtime.VeinTypeCode;
     public static unsafe class IshtarMarshal
     {
@@ -371,10 +372,87 @@ namespace ishtar
             return val;
         }
 
+
+        public static stackval LegacyBoxing(CallFrame frame, VeinTypeCode type_code, string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return new stackval { type = type_code };
+
+            var val = new stackval { type = type_code };
+            if (type_code is TYPE_OBJECT or TYPE_CLASS or TYPE_ARRAY or TYPE_RAW or TYPE_FUNCTION or TYPE_NONE or TYPE_TOKEN or TYPE_VOID or TYPE_CHAR)
+            {
+                frame.vm.FastFail(WNE.ACCESS_VIOLATION,
+                    $"[LegacyBoxing] Scalar value type cannot be extracted. [{type_code}]\n" +
+                    "Invalid memory address is possible.\n" +
+                    "Please report the problem into https://github.com/vein-lang/vein/issues",
+                    frame);
+                return default;
+            }
+
+            switch (val.type)
+            {
+                case TYPE_I1:
+                val.data.b = sbyte.Parse(value);
+                break;
+                case TYPE_I2:
+                val.data.s = short.Parse(value);
+                break;
+                case TYPE_I4:
+                val.data.i = int.Parse(value);
+                break;
+                case TYPE_I8:
+                val.data.l = long.Parse(value);
+                break;
+                case TYPE_U1:
+                val.data.ub = byte.Parse(value);
+                break;
+                case TYPE_U2:
+                val.data.us = ushort.Parse(value);
+                break;
+                case TYPE_U4:
+                val.data.ui = uint.Parse(value);
+                break;
+                case TYPE_U8:
+                val.data.ul = ulong.Parse(value);
+                break;
+                case TYPE_BOOLEAN:
+                val.data.i = bool.Parse(value) ? 1 : 0;
+                break;
+                case TYPE_R4:
+                val.data.f_r4 = float.Parse(value);
+                break;
+                case TYPE_STRING:
+                val.data.p = (nint)StringStorage.Intern(value);
+                break;
+                case TYPE_R8 or TYPE_R2 or TYPE_R16:
+                frame.vm.FastFail(WNE.ACCESS_VIOLATION,
+                    "Unboxing operation error.\n" +
+                    $"Scalar value type '{val.type}' cannot be extracted.\n" +
+                    "Currently is not support.\n" +
+                    "Please report the problem into https://github.com/vein-lang/vein/issues",
+                    frame);
+                return default;
+            }
+
+            return val;
+        }
+
+
+
+
+
         public static IshtarObject* Boxing(CallFrame frame, stackval* p)
         {
             if (p->type == TYPE_NONE)
-                return null;
+            {
+                frame.vm.FastFail(WNE.ACCESS_VIOLATION,
+                    "Boxing operation error.\n" +
+                    $"p->type is NONE [{p->type}]\n" +
+                    "Invalid allocation or incorrect type setup possible.\n" +
+                    "Please report the problem into https://github.com/vein-lang/vein/issues",
+                    frame);
+                return default;
+            }
 
             if (p->type is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_RAW or TYPE_FUNCTION)
                 return (IshtarObject*)p->data.p;

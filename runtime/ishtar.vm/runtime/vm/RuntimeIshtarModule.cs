@@ -8,13 +8,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using vein.exceptions;
 using vein.extensions;
 using vein.reflection;
 using vein.runtime;
+using static ishtar.PInvokeInfo;
 
-public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIshtarModule* self, IshtarVersion version)
+public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIshtarModule* self, IshtarVersion version) : IEq<RuntimeIshtarModule>, IDisposable
 {
     public WeakRef<AppVault>* Vault { get; } = WeakRef<AppVault>.Create(vault);
     public VirtualMachine vm => Vault->Value.vm;
@@ -38,6 +40,26 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     public NativeDictionary<int, InternedString>* string_table { get; }
         = IshtarGC.AllocateDictionary<int, InternedString>();
     public RuntimeConstStorage* ConstStorage { get; set; }
+
+
+    public void Dispose()
+    {
+        var name = Name;
+        VirtualMachine.GlobalPrintln($"Disposed module '{name}'");
+
+        class_table->ForEach(x => x->Dispose());
+
+        IshtarGC.FreeList(class_table);
+        IshtarGC.FreeList(deps_table);
+        IshtarGC.FreeList(aspects_table);
+
+        if (ConstStorage is not null)
+        {
+            ConstStorage->Dispose();
+            IshtarGC.FreeImmortal(ConstStorage);
+        }
+        VirtualMachine.GlobalPrintln($"end disposed module '{name}'");
+    }
 
 
     private InternedString* _name = StringStorage.Intern(name);
@@ -105,41 +127,6 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     }
 
     
-
-    public RuntimeIshtarClass* FindType(QualityTypeName type, bool findExternally, bool dropUnresolvedException)
-    {
-        if (!findExternally)
-            findExternally = this.Name != type.AssemblyName;
-        var result = class_table->FirstOrNull(filter);
-
-        if (result is not null)
-            return result;
-
-        bool filter(RuntimeIshtarClass* x)
-        {
-            return (*x->FullName).T().Equals(type);
-        }
-
-
-        RuntimeIshtarClass* createResult(RuntimeIshtarModule* @this)
-        {
-            if (dropUnresolvedException || findExternally)
-                throw new TypeNotFoundException($"'{type.NameWithNS}' not found in modules and dependency assemblies.");
-            return @this->DefineUnresolvedClass(type.T());
-        }
-
-        if (!findExternally)
-            return createResult(self);
-
-        var dm = deps_table->FirstOrNull(x => x->FindType(type, true, dropUnresolvedException) is not null);
-
-
-        if (dm is not null)
-            return dm->FindType(type, true, dropUnresolvedException);
-
-        return createResult(self);
-    }
-
     public RuntimeIshtarClass* FindType(RuntimeQualityTypeName* type, bool findExternally, bool dropUnresolvedException)
     {
         if (!findExternally)
@@ -149,17 +136,10 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         if (result is not null)
             return result;
 
-        bool filter(RuntimeIshtarClass* x) => x->FullName->Equals(type);
-
-        RuntimeIshtarClass* createResult(RuntimeIshtarModule* @this)
-        {
-            if (dropUnresolvedException /*|| findExternally*/)
-                throw new TypeNotFoundException($"'{type->NameWithNS}' not found in modules and dependency assemblies.");
-            return @this->DefineUnresolvedClass(type);
-        }
-
+        bool filter(RuntimeIshtarClass* x) => RuntimeQualityTypeName.Eq(x->FullName, type);
+        
         if (!findExternally)
-            return createResult(self);
+            throw new TypeNotFoundException($"'{type->NameWithNS}' not found in modules and dependency assemblies.");
 
         var dm = deps_table->FirstOrNull(x => x->FindType(type, true, dropUnresolvedException) is not null);
 
@@ -167,7 +147,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         if (dm is not null)
             return dm->FindType(type, true, dropUnresolvedException);
 
-        return createResult(self);
+        throw new TypeNotFoundException($"'{type->NameWithNS}' not found in modules and dependency assemblies.");
     }
 
 
@@ -190,20 +170,20 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         return clazz;
     }
 
-    public RuntimeIshtarClass* DefineUnresolvedClass(RuntimeQualityTypeName* fullName)
-    {
-        var clazz = IshtarGC.AllocateImmortal<RuntimeIshtarClass>();
+    //public RuntimeIshtarClass* DefineUnresolvedClass(RuntimeQualityTypeName* fullName)
+    //{
+    //    var clazz = IshtarGC.AllocateImmortal<RuntimeIshtarClass>();
 
-        *clazz = new RuntimeIshtarClass(fullName, null, self, clazz);
+    //    *clazz = new RuntimeIshtarClass(fullName, null, self, clazz);
 
-        clazz->Flags |= ClassFlags.Unresolved;
+    //    clazz->Flags |= ClassFlags.Unresolved;
 
-        if (class_table->Any(x => x->FullName->Equals(fullName)))
-            throw new ClassAlreadyDefined("");
-        class_table->Add(clazz);
+    //    if (class_table->Any(x => RuntimeQualityTypeName.Eq(x->FullName, fullName)))
+    //        throw new ClassAlreadyDefined("");
+    //    class_table->Add(clazz);
 
-        return clazz;
-    }
+    //    return clazz;
+    //}
 
     public RuntimeIshtarMethod* GetEntryPoint()
     {
@@ -260,11 +240,24 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             var asmName = reader.ReadIshtarString();
             var ns = reader.ReadIshtarString();
             var name = reader.ReadIshtarString();
-            var t = new QualityTypeName(asmName, name, ns);
+            var t = new QualityTypeName(asmName, name, ns).T();
 
-            //vault.vm.println($"read typename: [{key}] '{t}'");
+            var predefined = module->vm.Types->ByQualityName(t);
+            if (predefined is not null)
+            {
+                vault.vm.println($"read typename: [{key}] '{t->NameWithNS}' and linked by predefined type");
+                module->class_table->Add(predefined);
+            }
+            else
+            {
+                var c = module->DefineClass(t, module->vm.Types->ObjectClass);
+                c->Flags |= ClassFlags.NotCompleted;
+                vault.vm.println($"read typename: [{key}] '{t->NameWithNS}' and set not completed");
+            }
 
-            module->types_table->Add(key, t.T());
+
+
+            module->types_table->Add(key, t);
         }
         // read fields table
         foreach (var _ in ..reader.ReadInt32())
@@ -287,7 +280,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             var name = reader.ReadIshtarString();
             var ver = IshtarVersion.Parse(reader.ReadIshtarString());
 
-            //vault.vm.println($"read dep: [{name}@{ver}] ");
+            vault.vm.println($"read dep: [{name}@{ver}] ");
 
             if (module->deps_table->Any(x => x->_version.Equals(ver) && x->Name.Equals(name)))
                 continue;
@@ -295,46 +288,35 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             module->deps_table->Add(dep);
 
         }
+
+        var deferClassBodies = new List<DeferClassBodyData>();
         // read class storage
         foreach (var _ in ..reader.ReadInt32())
         {
             var body = reader.ReadBytes(reader.ReadInt32());
-            var @class = module->DecodeClass(body, module);
+            var metadata = module->DecodeClass(body, module);
+            deferClassBodies.Add(metadata);
 
-            bool filter(RuntimeIshtarClass* x) => @class->FullName->Equals(x->FullName);
-
-
-            var clazz = module->class_table->FirstOrNull(filter);
-
-            if (clazz is null)
-                module->class_table->Add(@class);
-            else if (clazz->IsUnresolved)
-                module->class_table->Swap(clazz, @class);
-            else
-                module->class_table->Swap(clazz, @class);
             //throw new ClassAlreadyDefined($"Class '{clazz->FullName->ToString()}' already defined in '{module->Name}' module");
         }
 
         // restore unresolved types
-        module->class_table->ForEach(@class =>
-        {
+        module->class_table->ForEach(@class => {
             var parent = @class->Parent;
             if (parent is null)
                 return;
             if (!parent->IsUnresolved)
                 return;
 
-            //vault.vm.println($"resolve class: [{parent->FullName->NameWithNS}] ");
+            vault.vm.println($"resolve class: [{parent->FullName->NameWithNS}] ");
 
             @class->ReplaceParent(parent->FullName != @class->FullName
                 ? module->FindType(parent->FullName, true)
                 : null);
         });
 
-        module->class_table->ForEach(@class =>
-        {
-            @class->Methods->ForEach(method =>
-            {
+        module->class_table->ForEach(@class => {
+            @class->Methods->ForEach(method => {
                 if (!method->ReturnType->IsUnresolved)
                     return;
                 //vault.vm.println($"resolve method.retType: [{method->ReturnType->FullName->NameWithNS}] ");
@@ -342,12 +324,10 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                 method->ReplaceReturnType(module->FindType(method->ReturnType->FullName, true, true));
             });
 
-            @class->Methods->ForEach(method =>
-            {
+            @class->Methods->ForEach(method => {
                 if (method->Arguments->Length == 0)
                     return;
-                method->Arguments->ForEach(arg =>
-                {
+                method->Arguments->ForEach(arg => {
                     if (!arg->Type->IsUnresolved)
                         return;
                     //vault.vm.println($"resolve method.arg[]: [{arg->Type->FullName->NameWithNS}] ");
@@ -363,6 +343,28 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                 field->ReplaceType(module->FindType(field->FieldType->FullName, true, true));
             });
         });
+
+        foreach (var body in deferClassBodies)
+        {
+            var clazz = body.Clazz;
+
+            foreach (byte[] methodBody in body.Methods)
+            {
+                var method = DecodeAndDefineMethod(methodBody, clazz, module);
+                vault.vm.println($"constructed method: [{method->Name} at {method->Owner->FullName->NameWithNS}] ");
+            }
+
+            foreach (var bodyField in body.Fields)
+            {
+                var field = clazz->DefineField(bodyField.FieldName, bodyField.Flags,
+                    module->FindType(bodyField.FieldType, true, true));
+                vault.vm.println($"constructed field: [{field->Name} at {field->Owner->FullName->NameWithNS}] ");
+            }
+
+            clazz->Flags &= ~ClassFlags.NotCompleted;
+            vault.vm.println($"Marked '{clazz->Name}' as completed");
+            // todo restore parent
+        }
 
         var const_body_len = reader.ReadInt32();
         var const_body = reader.ReadBytes(const_body_len);
@@ -385,9 +387,12 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         ValidateRuntimeTokens(module);
         module->LinkFFIMethods(module);
         InitVTables(module);
+        
 
         return module;
     }
+
+
 
     public static void FillConstStorage(RuntimeConstStorage* storage, byte[] arr, CallFrame frame)
     {
@@ -403,9 +408,9 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
             *fn = new RuntimeFieldName(StringStorage.Intern(fullname));
 
-            var go = frame.GetGC().ToIshtarObject_Raw(Convert.ChangeType(value, type_code.ToCLRTypeCode()), frame);
-
-            storage->Stage(fn, go);
+            stackval a = IshtarMarshal.LegacyBoxing(frame, type_code, value);
+            
+            storage->Stage(fn, a);
         }
     }
 
@@ -446,6 +451,10 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                 {
                     var classAspect = aspect->Union.ClassAspect;
                     var @class = classes->FirstOrNull(x => class_eq(x, classAspect.ClassName));
+
+                    if (@class is not null && @class->IsUnresolved)
+                        throw new UnresolvedIshtarClassDetected(@class->FullName);
+
                     if (@class is not null)
                         @class->Aspects->Add(aspect);
                     else
@@ -456,6 +465,10 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                 {
                     var ma = aspect->Union.MethodAspect;
                     var @class = classes->FirstOrNull(x => class_eq(x, ma.ClassName));
+
+                    if (@class is not null && @class->IsUnresolved)
+                        throw new UnresolvedIshtarClassDetected(@class->FullName);
+
                     if (@class is null)
                     {
                         module->vm.println($"Aspect '{aspect->Name}': method '{StringStorage.GetStringUnsafe(ma.ClassName)}/{StringStorage.GetStringUnsafe(ma.MethodName)}' not found. [no class found]");
@@ -465,13 +478,19 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                     if (method is not null)
                         method->Aspects->Add(aspect);
                     else
+                    {
+                        var methods = @class->Methods->ToList();
                         module->vm.println($"Aspect '{aspect->Name}': method '{StringStorage.GetStringUnsafe(ma.ClassName)}/{StringStorage.GetStringUnsafe(ma.MethodName)}' not found.");
+                    }
                     break;
                 }
                 case AspectTarget.Field when !aspect->IsNative(): // currently ignoring native aspect, todo
                 {
                     var fa = aspect->Union.FieldAspect;
                     var @class = classes->FirstOrNull(x => class_eq(x, fa.ClassName));
+
+                    if (@class is not null && @class->IsUnresolved)
+                        throw new UnresolvedIshtarClassDetected(@class->FullName);
 
                     if (@class is null)
                     {
@@ -489,7 +508,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         });
     }
 
-    public RuntimeIshtarClass* DecodeClass(byte[] arr, RuntimeIshtarModule* ishtarModule)
+    public DeferClassBodyData DecodeClass(byte[] arr, RuntimeIshtarModule* ishtarModule)
     {
         using var mem = new MemoryStream(arr);
         using var binary = new BinaryReader(mem);
@@ -498,17 +517,13 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         var parentLen = binary.ReadInt16();
 
-        var @class = default(RuntimeIshtarClass*);
+        
+        bool filter(RuntimeIshtarClass* x) => RuntimeQualityTypeName.Eq(className, x->FullName);
 
 
-        if (flags.HasFlag(ClassFlags.Special))
-        {
-            @class = ishtarModule->vm.Types->ByQualityName(className);
+        var @class = ishtarModule->class_table->FirstOrNull(filter);
 
-            if (@class is null)
-                vm.println($"No found registered special '{className->NameWithNS}' type for forwarding");
-        }
-
+       
         if (parentLen != 0)
         {
             var parentIdx = binary.ReadTypeName(ishtarModule);
@@ -516,8 +531,8 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
             if (@class is null)
                 @class = ishtarModule->DefineClass(className, parent);
-
-            
+            else
+                @class->ReplaceParent(parent);
 
             if (parentLen > 1)
             {
@@ -530,38 +545,60 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         }
         else if (@class is null)
             @class = ishtarModule->DefineClass(className, null);
-        
+
+
+        @class->Flags |= flags;
+
 
         var len = binary.ReadInt32();
-        
-        
-        @class->Flags = flags;
-
+        var methods = new List<byte[]>();
         foreach (var _ in ..len)
         {
             var body =
                 binary.ReadBytes(binary.ReadInt32());
-            DecodeAndDefineMethod(body, @class, ishtarModule);
+
+            methods.Add(body);
+            //DecodeAndDefineMethod(body, @class, ishtarModule);
         }
 
-        DecodeField(binary, @class, ishtarModule);
+        var fieldsData = DecodeField(binary, @class, ishtarModule);
 
-        return @class;
+        return new DeferClassBodyData(@class, methods, fieldsData);
     }
 
-    public void DecodeField(BinaryReader binary, RuntimeIshtarClass* @class, RuntimeIshtarModule* ishtarModule)
+    public class DeferClassBodyData(RuntimeIshtarClass* clazz, List<byte[]> methods, List<DeferClassFieldData> fields)
     {
+        public RuntimeIshtarClass* Clazz { get; } = clazz;
+        public List<byte[]> Methods { get; } = methods;
+        public List<DeferClassFieldData> Fields { get; } = fields;
+    }
+
+    public class DeferClassFieldData(RuntimeFieldName* fieldName, RuntimeQualityTypeName* fieldType, FieldFlags flags)
+    {
+        public RuntimeFieldName* FieldName { get; } = fieldName;
+        public RuntimeQualityTypeName* FieldType { get; } = fieldType;
+        public FieldFlags Flags { get; } = flags;
+    }
+
+    public List<DeferClassFieldData> DecodeField(BinaryReader binary, RuntimeIshtarClass* @class, RuntimeIshtarModule* ishtarModule)
+    {
+        var lst = new List<DeferClassFieldData>();
         foreach (var _ in ..binary.ReadInt32())
         {
             var name = RuntimeFieldName.Resolve(binary.ReadInt32(), ishtarModule);
             var type_name = binary.ReadTypeName(ishtarModule);
-            var type = ishtarModule->FindType(type_name, true, false);
+            //var type = ishtarModule->FindType(type_name, true, false);
             var flags = (FieldFlags) binary.ReadInt16();
-            @class->DefineField(name, flags, type);
+
+            lst.Add(new DeferClassFieldData(name, type_name, flags));
+
+            //@class->DefineField(name, flags, type);
         }
+
+        return lst;
     }
 
-    public unsafe RuntimeIshtarMethod* DecodeAndDefineMethod(byte[] arr, RuntimeIshtarClass* @class, RuntimeIshtarModule* ishtarModule)
+    public static unsafe RuntimeIshtarMethod* DecodeAndDefineMethod(byte[] arr, RuntimeIshtarClass* @class, RuntimeIshtarModule* ishtarModule)
     {
         using var mem = new MemoryStream(arr);
         using var binary = new BinaryReader(mem);
@@ -634,7 +671,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         var import_tg = aspect->Arguments->Get(0);
 
-        if (import_tg->Value->clazz->TypeCode is not VeinTypeCode.TYPE_STRING)
+        if (import_tg->Value.type is not VeinTypeCode.TYPE_STRING)
         {
             vm.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{name}]", sys_frame);
             return;
@@ -642,14 +679,14 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         var import_fn = aspect->Arguments->Get(1);
 
-        if (import_fn->Value->clazz->TypeCode is not VeinTypeCode.TYPE_STRING)
+        if (import_fn->Value.type is not VeinTypeCode.TYPE_STRING)
         {
             vm.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{name}]", sys_frame);
             return;
         }
 
-        var importTarget = IshtarMarshal.ToDotnetString(aspect->Arguments->Get(0)->Value, vm.Frames.NativeLoader);
-        var importFn = IshtarMarshal.ToDotnetString(aspect->Arguments->Get(1)->Value, vm.Frames.NativeLoader);
+        var importTarget = StringStorage.GetString((InternedString*)aspect->Arguments->Get(0)->Value.data.p, sys_frame);
+        var importFn = StringStorage.GetString((InternedString*)aspect->Arguments->Get(1)->Value.data.p, sys_frame);
 
         if (importTarget == InternalTarget)
         {
@@ -799,6 +836,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     public RuntimeIshtarClass* Bootstrapper { get; private set; }
 
     public CallFrame sys_frame => Vault->Value.vm.Frames.ModuleLoaderFrame;
+    public static bool Eq(RuntimeIshtarModule* p1, RuntimeIshtarModule* p2) => p1->ID == p2->ID;
 }
 public static unsafe class QualityTypeEx
 {
@@ -813,7 +851,7 @@ public static unsafe class QualityTypeEx
         return result;
     }
 
-    public static NativeList<T>* ToNative<T>(this List<nint> types) where T : unmanaged
+    public static NativeList<T>* ToNative<T>(this List<nint> types) where T : unmanaged, IEq<T>
     {
         var t = IshtarGC.AllocateList<T>(types.Count);
 
@@ -844,17 +882,22 @@ public static unsafe class QualityTypeEx
     }
 }
 
-public readonly unsafe struct RuntimeAspectArgument(RuntimeAspect* owner, uint index, IshtarObject* val)
+public readonly unsafe struct RuntimeAspectArgument(RuntimeAspect* owner, uint index, stackval val, RuntimeAspectArgument* self) : IEq<RuntimeAspectArgument>, IDisposable
 {
     public RuntimeAspect* Owner { get; } = owner;
     public uint Index { get; } = index;
-    public IshtarObject* Value { get; } = val;
+    public stackval Value { get; } = val;
+    public RuntimeAspectArgument* Self { get; } = self;
 
-    public static RuntimeAspectArgument* Create(AspectArgument arg, IshtarObject* val, RuntimeAspect* self)
+
+    public void Dispose() => IshtarGC.FreeImmortal(Self);
+
+
+    public static RuntimeAspectArgument* Create(AspectArgument arg, stackval val, RuntimeAspect* owner)
     {
         var t = IshtarGC.AllocateImmortal<RuntimeAspectArgument>();
 
-        *t = new RuntimeAspectArgument(self, (uint)arg.Index, val);
+        *t = new RuntimeAspectArgument(owner, (uint)arg.Index, val, t);
 
         return t;
     }
@@ -871,64 +914,18 @@ public readonly unsafe struct RuntimeAspectArgument(RuntimeAspect* owner, uint i
 
         return t;
     }
+
+    public static bool Eq(RuntimeAspectArgument* p1, RuntimeAspectArgument* p2)
+    {
+        var d1 = p1->Value;
+        var d2 = p2->Value;
+        return p1->Index == p2->Index && stackval.Eq(ref d1, ref d2);
+    }
 }
 
-/*public class AspectArgument
-   {
-       public Aspect Owner { get; }
-       public object Value { get; }
-       public int Index { get; }
-   
-       public AspectArgument(Aspect aspect, object value, int index)
-       {
-           Owner = aspect;
-           Value = value;
-           Index = index;
-       }
-   }
-   
-   public class AspectOfClass : Aspect
-   {
-       public string ClassName { get; }
-       public AspectOfClass(string name, string className) : base(name, AspectTarget.Class)
-           => ClassName = className;
-       public override string ToString() => $"Aspect '{Name}' for '{ClassName}' class";
-   }
-   
-   public class AspectOfMethod : Aspect
-   {
-       public string ClassName { get; }
-       public string MethodName { get; }
-       public AspectOfMethod(string name, string className, string methodName) : base(name, AspectTarget.Method)
-       {
-           ClassName = className;
-           MethodName = methodName;
-       }
-       public override string ToString() => $"Aspect '{Name}' for '{ClassName}/{MethodName}(..)' method";
-   }
-   public class AspectOfField : Aspect
-   {
-       public string ClassName { get; }
-       public string FieldName { get; }
-       public AspectOfField(string name, string className, string fieldName) : base(name, AspectTarget.Field)
-       {
-           ClassName = className;
-           FieldName = fieldName;
-       }
-       public override string ToString() => $"Aspect '{Name}' for '{ClassName}/{FieldName}' field";
-   }
-   
-   public class AliasAspect
-   {
-       public AliasAspect(Aspect aspect)
-       {
-           Debug.Assert(aspect.IsAlias());
-           Debug.Assert(aspect.Arguments.Count == 1);
-           Name = (string)aspect.Arguments.Single().Value;
-       }
-   
-       public string Name { get; }
-   }*/
+public unsafe class UnresolvedIshtarClassDetected(RuntimeQualityTypeName* fullName)
+    : Exception($"Detected unresolved '{fullName->ToString()}'");
+
 [StructLayout(LayoutKind.Explicit)]
 public unsafe struct RuntimeAspect_Union
 {
@@ -958,14 +955,36 @@ public unsafe struct RuntimeAspect_Field
     public InternedString* FieldName;
 }
 
-public unsafe struct RuntimeAspect
+[DebuggerDisplay("{_debugString}")]
+public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
 {
     private readonly RuntimeAspect* _self;
     private InternedString* _name;
     public RuntimeAspect_Union Union;
     public AspectTarget Target { get; }
 
+
+    private string _debugString => $"[{StringStorage.GetStringUnsafe(_name)}] {Target}";
+
     public NativeList<RuntimeAspectArgument>* Arguments { get; } = IshtarGC.AllocateList<RuntimeAspectArgument>();
+
+    public void Dispose()
+    {
+        if (_name is not null)
+            VirtualMachine.GlobalPrintln($"@@@@ Disposed aspect '{StringStorage.GetStringUnsafe(_name)}'");
+
+        _name = null;
+        Union = default;
+        if (Arguments is not null)
+        {
+            Arguments->ForEach(x => x->Dispose());
+            IshtarGC.FreeList(Arguments);
+        }
+        IshtarGC.FreeImmortal(_self);
+
+        if (_name is not null)
+            VirtualMachine.GlobalPrintln($"@@@@ end dispose aspect '{StringStorage.GetStringUnsafe(_name)}'");
+    }
 
 
     public string Name
@@ -1008,7 +1027,7 @@ public unsafe struct RuntimeAspect
             .Select(x => (*((RuntimeFieldName*)x.field),x.obj)).ToList();
         var asp_fields = data->RawGetWithFilter(x => x->Class.Contains("aspect/") && x->Class.Contains("/field/"))
             .Select(x => (*((RuntimeFieldName*)x.field),x.obj)).ToList();
-        var asp_class = data->RawGetWithFilter(x => x->Class.Contains("aspect/") && x->Class.Contains("/class/") && !x->Class.Contains("/method/"))
+        var asp_class = data->RawGetWithFilter(x => x->Class.Contains("aspect/") && x->Class.Contains("/class/") && !x->Class.Contains("/method/") && !x->Class.Contains("/field/"))
             .Select(x => (*((RuntimeFieldName*)x.field),x.obj)).ToList();
 
 
@@ -1045,7 +1064,7 @@ public unsafe struct RuntimeAspect
                 var index = key.Fullname.Split("._").Last();
 
                 var arg = IshtarGC.AllocateImmortal<RuntimeAspectArgument>();
-                *arg = new RuntimeAspectArgument(asp, uint.Parse(index), (IshtarObject*)value);
+                *arg = new RuntimeAspectArgument(asp, uint.Parse(index), value, arg);
                 args->Add(arg);
             }
             
@@ -1053,6 +1072,11 @@ public unsafe struct RuntimeAspect
 
             asp->Union.ClassAspect.ClassName = StringStorage.Intern(aspectClass);
 
+            if (aspects->FirstOrNull(x => RuntimeAspect.Eq(x, asp)) is not null)
+            {
+                var aspects2 = aspects->ToList();
+            }
+            
             aspects->Add(asp);
         }
         foreach (var groupMethod in groupMethods)
@@ -1070,7 +1094,7 @@ public unsafe struct RuntimeAspect
                 var index = key.Fullname.Split("._").Last();
 
                 var arg = IshtarGC.AllocateImmortal<RuntimeAspectArgument>();
-                *arg = new RuntimeAspectArgument(asp, uint.Parse(index), (IshtarObject*)value);
+                *arg = new RuntimeAspectArgument(asp, uint.Parse(index), value, arg);
                 args->Add(arg);
             }
             *asp = new RuntimeAspect(aspectName, args, AspectTarget.Method, asp);
@@ -1097,7 +1121,7 @@ public unsafe struct RuntimeAspect
                 var index = key.Fullname.Split("._").Last();
 
                 var arg = IshtarGC.AllocateImmortal<RuntimeAspectArgument>();
-                *arg = new RuntimeAspectArgument(asp, uint.Parse(index), (IshtarObject*)value);
+                *arg = new RuntimeAspectArgument(asp, uint.Parse(index), value, arg);
                 args->Add(arg);
             }
             *asp = new RuntimeAspect(aspectName, args, AspectTarget.Field, asp);
@@ -1115,4 +1139,44 @@ public unsafe struct RuntimeAspect
     public bool IsAlias() => Name.Equals("alias", StringComparison.InvariantCultureIgnoreCase);
     public bool IsNative() => Name.Equals("native", StringComparison.InvariantCultureIgnoreCase);
     public bool IsSpecial() => Name.Equals("special", StringComparison.InvariantCultureIgnoreCase);
+    public static bool Eq(RuntimeAspect* p1, RuntimeAspect* p2)
+    {
+        var eqOther = p1->Name.Equals(p2->Name) &&
+                      p1->Target == p2->Target &&
+                      p1->Arguments->Length == p2->Arguments->Length &&
+                      _list_eq(p1->Arguments, p2->Arguments);
+
+        if (!eqOther)
+            return false;
+
+        return p1->Target switch
+        {
+            AspectTarget.Field =>
+                InternedString.Eq(p1->Union.FieldAspect.FieldName, p2->Union.FieldAspect.FieldName) &&
+                InternedString.Eq(p1->Union.FieldAspect.ClassName, p2->Union.FieldAspect.ClassName),
+            AspectTarget.Method =>
+                InternedString.Eq(p1->Union.MethodAspect.MethodName, p2->Union.MethodAspect.MethodName) &&
+                InternedString.Eq(p1->Union.MethodAspect.ClassName, p2->Union.MethodAspect.ClassName),
+            AspectTarget.Class =>
+                InternedString.Eq(p1->Union.ClassAspect.ClassName, p2->Union.ClassAspect.ClassName),
+            _ => false
+        };
+    }
+
+    private static bool _list_eq(NativeList<RuntimeAspectArgument>* list1, NativeList<RuntimeAspectArgument>* list2)
+    {
+        if (list1->Count != list2->Count)
+            return false;
+
+        var flag = true;
+
+        for (int i = 0; i < list1->Count; i++)
+        {
+            var i1 = list1->Get(i);
+            var i2 = list2->Get(i);
+            flag &= RuntimeAspectArgument.Eq(i1, i2);
+        }
+
+        return flag;
+    }
 }
