@@ -44,10 +44,9 @@
   </PropertyGroup>
 
 
-  <ItemGroup>
+  <ItemGroup  Condition="$(RuntimeIdentifier.StartsWith('win'))">
     <DirectPInvoke Include="gc" />
-    <NativeLibrary Include="includes\gc.lib" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-    <NativeLibrary Include="includes\gc.a" Condition="!$(RuntimeIdentifier.StartsWith('win'))" />
+    <NativeLibrary Include="includes\gc.lib" />
   </ItemGroup>
 
 
