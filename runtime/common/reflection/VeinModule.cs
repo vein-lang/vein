@@ -11,7 +11,7 @@ namespace vein.runtime
     {
         public VeinCore Types { get; }
         public string Name { get; protected set; }
-        public Version Version { get; protected set; } = new(1, 0, 0, 0);
+        public Version Version { get; internal set; } = new(1, 0, 0, 0);
         protected internal List<VeinModule> Deps { get; set; } = new();
 
         internal VeinModule(string name, VeinCore types) => (Name, Types) = (name.AssertNotNull(), types);

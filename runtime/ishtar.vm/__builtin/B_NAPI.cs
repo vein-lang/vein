@@ -10,52 +10,53 @@ public static unsafe class B_NAPI
     [IshtarExportFlags(Public | Static)]
     public static IshtarObject* LoadNativeLibrary(CallFrame current, IshtarObject** args)
     {
-        var arg1 = args[0];
+        throw null;
+        //var arg1 = args[0];
 
-        if (arg1 == null)
-        {
-            current.ThrowException(KnowTypes.NullPointerException(current));
-            return IshtarObject.NullPointer;
-        }
+        //if (arg1 == null)
+        //{
+        //    current.ThrowException(KnowTypes.NullPointerException(current));
+        //    return IshtarObject.NullPointer;
+        //}
 
-        ForeignFunctionInterface.StaticValidate(current, &arg1);
-        ForeignFunctionInterface.StaticTypeOf(current, &arg1, TYPE_STRING);
-        var @class = arg1->decodeClass();
+        //ForeignFunctionInterface.StaticValidate(current, &arg1);
+        //ForeignFunctionInterface.StaticTypeOf(current, &arg1, TYPE_STRING);
+        //var @class = arg1->decodeClass();
 
-        var libPath = IshtarMarshal.ToDotnetString(arg1, current);
-        var libFile = new FileInfo(libPath);
+        //var libPath = IshtarMarshal.ToDotnetString(arg1, current);
+        //var libFile = new FileInfo(libPath);
 
-        if (!libFile.Exists)
-        {
-            current.ThrowException(KnowTypes.VeinLang.FileNotFoundFault(current));
-            return IshtarObject.NullPointer;
-        }
+        //if (!libFile.Exists)
+        //{
+        //    current.ThrowException(KnowTypes.VeinLang.FileNotFoundFault(current));
+        //    return IshtarObject.NullPointer;
+        //}
 
-        var result = current.vm.NativeStorage.TryLoad(libFile, out var h);
+        //var result = current.vm.NativeStorage.TryLoad(libFile, out var h);
 
-        if (!result)
-        {
-            current.ThrowException(KnowTypes.NativeFault(current));
-            return IshtarObject.NullPointer;
-        }
+        //if (!result)
+        //{
+        //    current.ThrowException(KnowTypes.NativeFault(current));
+        //    return IshtarObject.NullPointer;
+        //}
 
 
-        var handleClass = KnowTypes.VeinLang.Native.NativeHandle(current);
-        var handleObj = current.vm.GC.AllocObject(handleClass, current);
+        //var handleClass = KnowTypes.VeinLang.Native.NativeHandle(current);
+        //var handleObj = current.vm.GC.AllocObject(handleClass, current);
 
-        var wrapper = new KnowTypes.WrappedTypes.S_NativeHandle(handleObj, current);
+        //var wrapper = new KnowTypes.WrappedTypes.S_NativeHandle(handleObj, current);
 
-        wrapper.Handle = h;
+        //wrapper.Handle = h;
 
-        return handleObj;
+        //return handleObj;
     }
 
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
-        var table = ffi.method_table;
-        ffi.vm.CreateInternalMethod("i_call_NAPI_LoadNative", Public | Static | Extern)
-            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&LoadNativeLibrary)
-            .AddInto(table, x => x.Name);
+        //var table = ffi.method_table;
+        //ffi.vm.CreateInternalMethod("i_call_NAPI_LoadNative", Public | Static | Extern)
+        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&LoadNativeLibrary)
+        //    .AddInto(table, x => x.Name);
     }
 }

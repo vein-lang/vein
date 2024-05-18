@@ -2,62 +2,18 @@ namespace ishtar.emit
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
-    using System.Linq;
-    using global::ishtar;
+    using ishtar;
     using vein.extensions;
-    using vein.runtime;
+
+    public interface INamed
+    {
+        string Name { get; }
+    }
+    
 
     internal static unsafe class ILReader
     {
-        public static List<ProtectedZone> DeconstructExceptions(byte[] arr, int offset, VeinModule module)
-        {
-            if (arr.Length == 0)
-                return new();
-
-            using var mem = new MemoryStream(arr);
-            using var bin = new BinaryReader(mem);
-
-            mem.Seek(offset, SeekOrigin.Begin);
-
-            if (arr.Length == offset)
-                return new();
-
-            var magic = bin.ReadInt16();
-
-            if (magic != -0xFF1)
-                return new();
-
-            var size = bin.ReadInt32();
-
-            if (size == 0)
-                return new();
-            var result = new List<ProtectedZone>();
-
-            foreach (var i in ..size)
-            {
-                var startAddr = bin.ReadInt32();
-                var tryEndLabel = bin.ReadInt32();
-                var endAddr = bin.ReadInt32();
-                var filterAddr = bin.ReadIntArray();
-                var catchAddr = bin.ReadIntArray();
-                var catchClass = bin.ReadTypesArray(module);
-                var types = bin.ReadSpecialByteArray<ExceptionMarkKind>();
-                var item = new ProtectedZone(
-                    (uint)startAddr,
-                    (uint)endAddr,
-                    tryEndLabel,
-                    filterAddr,
-                    catchAddr,
-                    catchClass,
-                    types);
-
-                result.Add(item);
-            }
-
-            return result;
-        }
         public static List<int> DeconstructLabels(byte[] arr, int* offset)
         {
             if (arr.Length == 0)
@@ -86,12 +42,12 @@ namespace ishtar.emit
             }
             return result;
         }
-        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, VeinMethod method)
+        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, INamed method)
         {
             var i = 0;
             return Deconstruct(arr, &i, method);
         }
-        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, int* offset, VeinMethod method)
+        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, int* offset, INamed method)
         {
             using var mem = new MemoryStream(arr);
             using var bin = new BinaryReader(mem);
@@ -123,7 +79,7 @@ namespace ishtar.emit
                     $"OpCode '{opcode}' is not found in metadata.\n" +
                     $"re-run 'gen.csx' for fix this error.\n" +
                     $"Previous values: '{PreviousValue(1)}, {PreviousValue(2)}, {PreviousValue(3)}'.\n" +
-                    $"Method: '{method.Name}' in '{method.Owner.Name}'.");
+                    $"Method: '{method.Name}'.");
                 var value = OpCodes.all[opcode];
 
                 d.Add((int)mem.Position - sizeof(ushort), (list.Count, opcode));

@@ -57,18 +57,15 @@ public static unsafe class B_Type
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
-        var table = ffi.method_table;
-        ffi.vm.CreateInternalMethod("i_call_Type_findByName", Public | Static | Extern,
-                new VeinArgumentRef("name", ffi.vm.Types.StringClass))
-            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindByName)
-            .AddInto(table, x => x.Name);
-        ffi.vm.CreateInternalMethod("i_call_Type_findField", Public | Static | Extern,
-                new VeinArgumentRef("type", ThisClass), new VeinArgumentRef("name", ffi.vm.Types.StringClass))
-            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindField)
-            .AddInto(table, x => x.Name);
-        ffi.vm.CreateInternalMethod("i_call_Type_findMethod", Public | Static | Extern,
-                new VeinArgumentRef("type", ThisClass), new VeinArgumentRef("name", ffi.vm.Types.StringClass))
-            .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindField)
-            .AddInto(table, x => x.Name);
+        //ffi.Add(ffi.vm.CreateInternalMethod("i_call_Type_findByName", Public | Static | Extern,
+        //        ("name", VeinTypeCode.TYPE_STRING))
+        //    ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindByName));
+        //ffi.Add(ffi.vm.CreateInternalMethod("i_call_Type_findField", Public | Static | Extern,
+        //        new VeinArgumentRef("type", ThisClass), ("name", VeinTypeCode.TYPE_STRING))
+        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindField));
+        //ffi.vm.CreateInternalMethod("i_call_Type_findMethod", Public | Static | Extern,
+        //        new VeinArgumentRef("type", ThisClass), new VeinArgumentRef("name", ffi.vm.Types.StringClass))
+        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindField)
+        //    .AddInto(table, x => x.Name);
     }
 }

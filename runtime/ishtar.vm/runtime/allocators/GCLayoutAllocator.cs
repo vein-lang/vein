@@ -1,6 +1,7 @@
 namespace ishtar.allocators;
 
-using ishtar.vm.runtime;
+using runtime.gc;
+using runtime;
 
 public sealed unsafe class GCLayoutAllocator(GCLayout layout) : IIshtarAllocator
 {
@@ -38,7 +39,7 @@ public sealed unsafe class GCLayoutAllocator(GCLayout layout) : IIshtarAllocator
 
     private void* Alloc(nint size, AllocationKind kind, CallFrame frame)
     {
-        frame.assert(size != 0, WNE.STATE_CORRUPT, "Allocation is not allowed zero size");
+        //frame.assert(size != 0, WNE.STATE_CORRUPT, "Allocation is not allowed zero size");
 
         return kind switch
         {

@@ -23,7 +23,7 @@ jobs:
            target: linux-x64
            install_deps: true
          - os: windows-latest
-           target: win10-x64
+           target: win-x64
            install_deps: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -39,7 +39,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
+        dotnet-version: 8.0.100
     - name: install pre-req
       if: ${{ matrix.install_deps }} 
       run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev
@@ -56,9 +56,6 @@ jobs:
     - name: Build (Installer)
       run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../out 
       working-directory: ./installer/
-    - name: Build (DCH)
-      run: dotnet publish -r ${{ matrix.target }} -c Release --self-contained --output ./../../out 
-      working-directory: ./runtime/ishtar.dch/
     - name: Upload artifacts
       uses: actions/upload-artifact@v2.2.3
       with:
@@ -83,7 +80,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
+        dotnet-version: 8.0.100
     - name: Install GitVersion
       run: dotnet tool install --global --version 5.6.7 GitVersion.Tool
     - name: Restore dependencies
@@ -113,7 +110,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
+        dotnet-version: 8.0.100
     - name: Restore dependencies
       run: dotnet restore
     - name: AOT build
@@ -151,7 +148,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100-rc.1.21458.32
+        dotnet-version: 8.0.100
     - name: Install DotCover
       run: dotnet tool install --global JetBrains.dotCover.GlobalTool --version 2021.2.0-eap03
     - name: Restore dependencies

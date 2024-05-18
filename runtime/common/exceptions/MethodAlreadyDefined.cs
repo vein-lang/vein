@@ -16,4 +16,11 @@ namespace vein.exceptions
 
         }
     }
+    public class ClassAlreadyDefined : Exception
+    {
+        public ClassAlreadyDefined(string msg) : base(msg)
+        {
+
+        }
+    }
 }

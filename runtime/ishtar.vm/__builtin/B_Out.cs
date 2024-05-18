@@ -21,7 +21,7 @@ namespace ishtar
 
             ForeignFunctionInterface.StaticValidate(current, &arg1);
             ForeignFunctionInterface.StaticTypeOf(current, &arg1, TYPE_STRING);
-            var @class = arg1->decodeClass();
+            var @class = arg1->clazz;
 
             var str = IshtarMarshal.ToDotnetString(arg1, current);
 
@@ -40,15 +40,11 @@ namespace ishtar
 
         public static void InitTable(ForeignFunctionInterface ffi)
         {
-            var table = ffi.method_table;
+            ffi.Add("@_println", Public | Static | Extern, ("val", TYPE_STRING))
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FPrintLn);
 
-            ffi.vm.CreateInternalMethod("@_println", Public | Static | Extern, ("val", TYPE_STRING))
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FPrintLn)
-                .AddInto(table, x => x.Name);
-
-            ffi.vm.CreateInternalMethod("@_readline", Public | Static | Extern, TYPE_STRING.AsRuntimeClass(ffi.vm.Types), Array.Empty<VeinArgumentRef>())
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FReadLine)
-                .AddInto(table, x => x.Name);
+            ffi.Add("@_readline", Public | Static | Extern, TYPE_STRING.AsRuntimeClass(ffi.vm.Types))
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FReadLine);
         }
     }
 }

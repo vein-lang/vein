@@ -81,6 +81,19 @@ namespace ishtar.emit
             return result.ToArray();
         }
 
+        public static List<nint> ReadTypesArray(this BinaryReader bin, TypeNameGetter getter)
+        {
+            Debug.Assert(bin.ReadInt32() == 0x19, "[magic number] bin.ReadInt32() == 0x19");
+            var sign = bin.ReadIshtarString();
+            var size = bin.ReadInt32();
+            var result = new List<nint>();
+            foreach (int i in ..size)
+                result.Add(bin.ReadTypeName(getter));
+            Debug.Assert(bin.ReadInt32() == 0x61, "[magic number] bin.ReadInt32() == 0x61");
+            return result;
+        }
+
+
         public static T[] ReadSpecialByteArray<T>(this BinaryReader bin) where T : Enum
         {
             Debug.Assert(bin.ReadInt32() == 0x19, "[magic number] bin.ReadInt32() == 0x19");
@@ -92,6 +105,19 @@ namespace ishtar.emit
             Debug.Assert(bin.ReadInt32() == 0x61, "[magic number] bin.ReadInt32() == 0x61");
             return result.ToArray();
         }
+
+        public static byte[] ReadSpecialDirectByteArray(this BinaryReader bin)
+        {
+            Debug.Assert(bin.ReadInt32() == 0x19, "[magic number] bin.ReadInt32() == 0x19");
+            var sign = bin.ReadIshtarString();
+            var size = bin.ReadInt32();
+            var result = new List<byte>();
+            foreach (int _ in ..size)
+                result.Add(bin.ReadByte());
+            Debug.Assert(bin.ReadInt32() == 0x61, "[magic number] bin.ReadInt32() == 0x61");
+            return result.ToArray();
+        }
+
 
         public static void WriteArray<T>(this BinaryWriter bin, T[] arr, Action<T, BinaryWriter> selector, [CallerArgumentExpression("arr")] string name = "")
         {
@@ -351,7 +377,7 @@ namespace ishtar.emit
             }
             return args;
         }
-        public ModuleReader(VeinCore types) : base(null, types)
+        public ModuleReader(VeinCore types) : base(".unnamed", types)
         {
         }
     }

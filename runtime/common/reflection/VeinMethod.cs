@@ -10,16 +10,12 @@ namespace vein.runtime
     public class VeinMethod : VeinMethodBase, IAspectable
     {
         public VeinClass ReturnType { get; set; }
-        public VeinClass Owner { get; protected set; }
+        public VeinClass Owner { get; protected internal set; }
         public readonly Dictionary<int, VeinArgumentRef> Locals = new();
         public List<Aspect> Aspects { get; } = new();
 
         protected VeinMethod() : base(null, 0) { }
-
-        internal VeinMethod(string name, MethodFlags flags, VeinCore types, params VeinArgumentRef[] args)
-            : base(name, flags, args) =>
-            this.ReturnType = VeinTypeCode.TYPE_VOID.AsClass()(types);
-
+        
         internal VeinMethod(string name, MethodFlags flags, VeinClass returnType, VeinClass owner,
             params VeinArgumentRef[] args)
             : base(name, flags, args)
@@ -49,6 +45,10 @@ namespace vein.runtime
 
         public static string GetFullName(string name, IEnumerable<VeinArgumentRef> args)
             => $"{name}({args.Where(x => !x.Name.Equals(VeinArgumentRef.THIS_ARGUMENT)).Select(x => x.Type?.Name).Join(",")})";
+
+        public static string GetFullName(string name, IEnumerable<(string argName, string typeName)> args)
+            => $"{name}({args.Where(x => !x.argName.Equals(VeinArgumentRef.THIS_ARGUMENT)).Select(x => x.typeName).Join(",")})";
+
         public static string GetFullName(string name, IEnumerable<VeinClass> args)
             => $"{name}({args.Select(x => x.Name).Join(",")})";
 

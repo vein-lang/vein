@@ -2,7 +2,8 @@ namespace ishtar
 {
     using System.Runtime.CompilerServices;
     using System.Text;
-    using ishtar.vm.runtime;
+    using runtime.gc;
+    using runtime;
 
     public static class CallFrameEx
     {
@@ -12,7 +13,7 @@ namespace ishtar
     public unsafe class CallFrame(VirtualMachine vm)
     {
         public CallFrame parent;
-        public RuntimeIshtarMethod method;
+        public RuntimeIshtarMethod* method;
         public SmartPointer<stackval> returnValue;
         public stackval* args;
         public OpCodeValue last_ip;
@@ -36,23 +37,23 @@ namespace ishtar
         }
 
 
-        public void ThrowException(RuntimeIshtarClass @class) =>
+        public void ThrowException(RuntimeIshtarClass* @class) =>
             this.exception = new CallFrameException()
             {
                 value = vm.GC.AllocObject(@class, this)
             };
 
-        public void ThrowException(RuntimeIshtarClass @class, string message)
+        public void ThrowException(RuntimeIshtarClass* @class, string message)
         {
             this.exception = new CallFrameException()
             {
                 value = vm.GC.AllocObject(@class, this)
             };
 
-            if (@class.FindField("message") is null)
-                throw new InvalidOperationException($"Class '{@class.FullName}' is not contained 'message' field.");
+            if (@class->FindField("message") is null)
+                throw new InvalidOperationException($"Class '{@class->FullName->NameWithNS}' is not contained 'message' field.");
 
-            this.exception.value->vtable[@class.Field["message"].vtable_offset]
+            this.exception.value->vtable[@class->Field["message"]->vtable_offset]
                 = vm.GC.ToIshtarObject(message, this);
         }
 
@@ -62,16 +63,16 @@ namespace ishtar
 
             var str = new StringBuilder();
 
-            if (this.method.Owner is not null)
-                str.AppendLine($"\tat {this.method.Owner.FullName.NameWithNS}.{this.method.Name}");
+            if (this.method->Owner is not null)
+                str.AppendLine($"\tat {this.method->Owner->FullName->NameWithNS}.{this.method->Name}");
             else
-                str.AppendLine($"\tat <sys>.{this.method.Name}");
+                str.AppendLine($"\tat <sys>.{this.method->Name}");
 
             var r = this.parent;
 
             while (r != null)
             {
-                str.AppendLine($"\tat {r.method.Owner.FullName.NameWithNS}.{r.method.Name}");
+                str.AppendLine($"\tat {r.method->Owner->FullName->NameWithNS}.{r.method->Name}");
                 r = r.parent;
             }
 
@@ -90,16 +91,16 @@ namespace ishtar
                 return;
             }
 
-            if (frame.method.Owner is not null)
-                str.AppendLine($"\tat {frame.method.Owner.FullName.NameWithNS}.{frame.method.Name}");
+            if (frame.method->Owner is not null)
+                str.AppendLine($"\tat {frame.method->Owner->FullName->NameWithNS}.{frame.method->Name}");
             else
-                str.AppendLine($"\tat <sys>.{frame.method.Name}");
+                str.AppendLine($"\tat <sys>.{frame.method->Name}");
 
             var r = frame.parent;
 
             while (r != null)
             {
-                str.AppendLine($"\tat {r.method.Owner.FullName.NameWithNS}.{r.method.Name}");
+                str.AppendLine($"\tat {r.method->Owner->FullName->NameWithNS}.{r.method->Name}");
                 r = r.parent;
             }
 

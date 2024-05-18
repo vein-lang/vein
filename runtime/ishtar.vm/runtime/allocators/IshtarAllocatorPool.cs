@@ -1,6 +1,7 @@
 namespace ishtar.allocators;
 
-using ishtar.vm.runtime;
+using runtime;
+using runtime.gc;
 
 public sealed unsafe class IshtarAllocatorPool(GCLayout? layout) : IIshtarAllocatorPool
 {
@@ -15,20 +16,7 @@ public sealed unsafe class IshtarAllocatorPool(GCLayout? layout) : IIshtarAlloca
         if (frame.vm.Config.UseDebugAllocator)
             return new DebugManagedAllocator();
 
-        var allocator = 
-#if WINDOWS
-            new NativeMemory_WindowsAllocator();
-#elif LINUX
-            new NullAllocator();
-#elif OSX
-#warning THIS OS CUSTOM ALLOCATOR IS NOT IMPLEMENTED
-            new NullAllocator();
-#else
-#warning THIS OS CUSTOM ALLOCATOR IS NOT IMPLEMENTED
-            new NullAllocator();
-#endif
-
-        return allocator;
+        throw new NotImplementedException();
     }
 
 

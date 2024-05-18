@@ -1,4 +1,4 @@
-namespace ishtar.vm;
+namespace ishtar;
 
 [ExcludeFromCodeCoverage]
 public static class Commands

@@ -14,44 +14,42 @@ namespace ishtar
 
         public static void InitTable(ForeignFunctionInterface ffi)
         {
-            var table = ffi.method_table;
+            ffi.Add("i_call_get_Half_NaN", Public | Static | Extern)
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
 
-            ffi.vm.CreateInternalMethod("i_call_get_Half_NaN", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Float_NaN", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Decimal_NaN", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Double_NaN", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Half_Infinity", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Float_Infinity", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Decimal_Infinity", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Double_Infinity", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Half_NegativeInfinity", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Float_NegativeInfinity", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Decimal_NegativeInfinity", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
-            ffi.vm.CreateInternalMethod("i_call_get_Double_NegativeInfinity", Public | Static | Extern)
-                .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN)
-                .AddInto(table, x => x.Name);
+            ffi.Add("i_call_get_Float_NaN", Public | Static | Extern)
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
+            ffi.Add("i_call_get_Decimal_NaN", Public | Static | Extern)
+                    ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
+            ffi.Add("i_call_get_Double_NaN", Public | Static | Extern)
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
+            ffi.Add("i_call_get_Half_Infinity", Public | Static | Extern)
+                    ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
+            ffi.Add("i_call_get_Float_Infinity", Public | Static | Extern)
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
+            ffi.Add("i_call_get_Decimal_Infinity", Public | Static | Extern)
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
+            ffi.Add("i_call_get_Double_Infinity", Public | Static | Extern)
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
+            ffi.Add("i_call_get_Half_NegativeInfinity", Public | Static | Extern)
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
+            ffi.Add("i_call_get_Float_NegativeInfinity", Public | Static | Extern)
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
+            ffi.Add("i_call_get_Decimal_NegativeInfinity", Public | Static | Extern)
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
+            ffi.Add("i_call_get_Double_NegativeInfinity", Public | Static | Extern)
+                ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&getHalfNaN);
+
         }
     }
 }

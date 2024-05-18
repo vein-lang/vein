@@ -2,9 +2,9 @@ namespace ishtar
 {
     using vein.runtime;
 
-    public static class RuntimeIshtarClassEx
+    public static unsafe class RuntimeIshtarClassEx
     {
-        public static RuntimeIshtarClass AsRuntimeClass(this VeinTypeCode code, IshtarCore types)
-            => (RuntimeIshtarClass)code.AsClass()(types);
+        public static RuntimeIshtarClass* AsRuntimeClass(this VeinTypeCode code, IshtarTypes* types)
+            => types->ByTypeCode(code);
     }
 }

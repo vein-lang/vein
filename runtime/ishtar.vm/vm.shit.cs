@@ -1,6 +1,7 @@
 namespace ishtar
 {
     using System.Collections.Generic;
+    using runtime;
     using vein.reflection;
     using vein.runtime;
     using static vein.runtime.VeinTypeCode;
@@ -9,46 +10,50 @@ namespace ishtar
     {
         private void act<T>(ref T t1, ref T t2, A_OperationDelegate<T> actor) => actor(ref t1, ref t2);
 
-        public QualityTypeName readTypeName(uint index, VeinModule module)
-            => module.types_table.GetValueOrDefault((int)index);
-
-        public RuntimeIshtarClass GetClass(uint index, VeinModule module, CallFrame frame)
+        public RuntimeQualityTypeName* readTypeName(uint index, RuntimeIshtarModule* module, CallFrame frame)
         {
-            var name = module.types_table.GetValueOrDefault((int)index);
-            Assert(name is not null, WNE.TYPE_LOAD, $"Cant find '{index}' in class_table.", frame);
-            var type = module.FindType(name, true, false);
-            if (type is UnresolvedVeinClass)
-            {
-                FastFail(WNE.MISSING_TYPE, $"Cant load '{name.NameWithNS}' in '{name.AssemblyName}'", frame);
-                return null;
-            }
-            Assert(type is RuntimeIshtarClass, WNE.TYPE_LOAD, $"metadata is corrupted.");
-            return type as RuntimeIshtarClass;
+            if (module->types_table->TryGetValue((int)index, out var result))
+                return result;
+            FastFail(WNE.TYPE_LOAD, $"no found type by {index} idx in {module->Name} module", frame);
+            return null;
         }
 
-        public RuntimeIshtarMethod GetMethod(uint index, QualityTypeName owner, VeinModule module, CallFrame frame)
+        public RuntimeIshtarClass* GetClass(uint index, RuntimeIshtarModule* module, CallFrame frame)
         {
-            var clazz = module.FindType(owner);
-            var name = module.GetConstStringByIndex((int) index);
+            if (module->types_table->TryGetValue((int)index, out var name))
+                Assert(false, WNE.TYPE_LOAD, $"Cant find '{index}' in class_table.", frame);
 
-            var method = clazz.FindMethod(name, m => m.Name.Equals(name));
+            var type = module->FindType(name, true, false);
+            if (type->IsUnresolved)
+            {
+                FastFail(WNE.MISSING_TYPE, $"Cant load '{name->NameWithNS}' in '{name->AssemblyName}'", frame);
+                return null;
+            }
+            return type;
+        }
+
+        public RuntimeIshtarMethod* GetMethod(uint index, RuntimeQualityTypeName* owner, RuntimeIshtarModule* module, CallFrame frame)
+        {
+            var clazz = module->FindType(owner);
+            var name = module->GetConstStringByIndex((int) index);
+
+            var method = clazz->FindMethod(name, m => m->Name.Equals(name));
 
             if (method is null)
             {
-                FastFail(WNE.MISSING_METHOD, $"Method '{name}' not found in '{clazz.FullName.NameWithNS}'", frame);
+                FastFail(WNE.MISSING_METHOD, $"Method '{name}' not found in '{clazz->FullName->NameWithNS}'", frame);
                 return null;
             }
-            Assert(method is RuntimeIshtarMethod, WNE.MISSING_METHOD, $"metadata is corrupted.");
-            return (RuntimeIshtarMethod)method;
+            return method;
         }
-        public RuntimeIshtarField GetField(uint index, RuntimeIshtarClass owner, VeinModule module, CallFrame frame)
+        public RuntimeIshtarField* GetField(uint index, RuntimeIshtarClass* owner, RuntimeIshtarModule* module, CallFrame frame)
         {
-            var name = module.GetFieldNameByIndex((int) index);
-            var field = owner.FindField(name.Name);
+            var name = module->GetFieldNameByIndex((int) index);
+            var field = owner->FindField(name->Name);
 
             if (field is null)
             {
-                FastFail(WNE.MISSING_FIELD, $"Field '{name}' not found in '{owner.FullName.NameWithNS}'", frame);
+                FastFail(WNE.MISSING_FIELD, $"Field '{name->Name}' not found in '{owner->FullName->NameWithNS}'", frame);
                 return null;
             }
             return field;

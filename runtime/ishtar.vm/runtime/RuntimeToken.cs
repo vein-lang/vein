@@ -8,12 +8,12 @@ namespace ishtar
     ///         |        |
     ///       ModuleID  EntityID
     /// </summary>
-    public record RuntimeToken(uint Value)
+    public record struct RuntimeToken(uint Value)
     {
         public static readonly RuntimeToken Default = new (0);
 
-        public ushort ModuleID { get; }
-        public ushort ClassID { get; }
+        public readonly ushort ModuleID;
+        public readonly ushort ClassID;
 
         public RuntimeToken(ushort moduleID, ushort classID)
             : this(new cast_uint(moduleID, classID).Value)
