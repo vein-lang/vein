@@ -39,7 +39,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
+        dotnet-version: 8.0.100
     - name: install pre-req
       if: ${{ matrix.install_deps }} 
       run: sudo apt-get install clang zlib1g-dev libkrb5-dev libssl-dev
@@ -83,7 +83,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
+        dotnet-version: 8.0.100
     - name: Install GitVersion
       run: dotnet tool install --global --version 5.6.7 GitVersion.Tool
     - name: Restore dependencies
@@ -113,7 +113,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100
+        dotnet-version: 8.0.100
     - name: Restore dependencies
       run: dotnet restore
     - name: AOT build
@@ -151,7 +151,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.100-rc.1.21458.32
+        dotnet-version: 8.0.100
     - name: Install DotCover
       run: dotnet tool install --global JetBrains.dotCover.GlobalTool --version 2021.2.0-eap03
     - name: Restore dependencies
