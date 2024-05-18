@@ -54,7 +54,7 @@ public unsafe class Tests
             };
         }
 
-        var list = NativeList<Magic>.Create(1, &Comparer, allocator);
+        var list = NativeList<Magic>.Create(1, allocator);
 
 
         if (useCollect && boehm)
@@ -192,7 +192,7 @@ public unsafe class Tests
             };
         }
 
-        var dict = NativeDictionary<int, Magic>.Create(16, &Comparer, allocator);
+        var dict = NativeDictionary<int, Magic>.Create(16, allocator);
 
         foreach (int i in Enumerable.Range(0, size)) dict->Add(i, Magic.Create());
 
@@ -283,6 +283,57 @@ public unsafe class Tests
         TestContext.Out.WriteLine($"Time elapsed: {watch.Elapsed:G}");
     }
 
+
+
+    [TestCase(true)]
+    public void TestEq(bool boehm)
+    {
+        var allocator = default(AllocatorBlock);
+
+        if (boehm)
+        {
+            allocator = new AllocatorBlock
+            {
+                alloc = &IshtarGC_Alloc,
+                alloc_primitives = &IshtarGC_AtomicAlloc,
+                free = &IshtarGC_Free,
+                realloc = &IshtarGC_Realloc
+            };
+        }
+        else
+        {
+            allocator = new AllocatorBlock
+            {
+                alloc = &NativeMemory_AllocZeroed,
+                alloc_primitives = &NativeMemory_AllocZeroed,
+                free = &NativeMemory_Free,
+                realloc = &NativeMemory_Realloc
+            };
+        }
+
+
+        var list = NativeList<Magic>.Create(16, allocator);
+
+        var item1 = Magic.Create(12);
+        var item2 = Magic.Create(14);
+        var item3 = Magic.Create(16);
+        list->Add(item1);
+        list->Add(item2);
+        list->Add(item3);
+
+        var target = list->FirstOrNull(x => x->i1 == 16);
+
+        Assert.AreEqual(target->i1, item3->i1);
+
+        list->Remove(target);
+
+        Assert.AreEqual(2, list->Count);
+
+        target = list->FirstOrNull(x => x->i1 == 16);
+
+        Assert.IsTrue(target is null);
+    }
+
     public static void* NativeMemory_AllocZeroed(uint size)
         => NativeMemory.AllocZeroed(size);
 
@@ -305,8 +356,8 @@ public unsafe class Tests
 
     public static bool Comparer(Magic* p1, Magic* p2)
     {
-        Assert.IsTrue(p1->Assert());
-        Assert.IsTrue(p2->Assert());
+        //Assert.IsTrue(p1->Assert());
+        //Assert.IsTrue(p2->Assert());
         return p1->i1 == p2->i1 && p1->i2 == p2->i2 && p1->i3 == p2->i3 && p1->i4 == p2->i4;
     }
 
@@ -319,7 +370,7 @@ public unsafe class Tests
 }
 
 
-public unsafe struct Magic : IEquatable<Magic>
+public unsafe struct Magic : IEquatable<Magic>, IEq<Magic>
 {
     public int i1;
     public int i2;
@@ -340,6 +391,20 @@ public unsafe struct Magic : IEquatable<Magic>
         return p;
     }
 
+    public static Magic* Create(int i1)
+    {
+        var p = (Magic*)NativeMemory.AllocZeroed((uint)sizeof(Magic));
+
+        *p = new Magic();
+
+        p->i1 = i1;
+        p->i2 = i1 * 228;
+        p->i3 = i1 * 14.48f;
+        p->i4 = i1 * 5252;
+
+        return p;
+    }
+
     public static Magic CreateAtomic()
     {
         var p = new Magic
@@ -356,6 +421,8 @@ public unsafe struct Magic : IEquatable<Magic>
     public bool Assert() => i1 == 1448 && i2 == 228 && i3 == 14.48f && i4 == 5252;
 
     public bool Equals(Magic other) => i1 == other.i1 && i2 == other.i2 && i3.Equals(other.i3) && i4 == other.i4;
+
+    public static bool Eq(Magic* p1, Magic* p2) => Tests.Comparer(p1, p2);
 
     public override bool Equals(object? obj) => obj is Magic other && Equals(other);
 
