@@ -12,7 +12,7 @@ unsafe
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         Console.OutputEncoding = Encoding.Unicode;
 
-    //BoehmGCLayout.Native.GC_set_find_leak(true);
+    BoehmGCLayout.Native.GC_set_find_leak(true);
     BoehmGCLayout.Native.GC_init();
     
     var vm = VirtualMachine.Create("app");
@@ -51,16 +51,7 @@ unsafe
     var module = resolver.Resolve(masterModule);
 
     module->class_table->ForEach(x => x->init_vtable(vm));
-
-    //using var enumerator = module->class_table->_nativeData->GetEnumerator();
-
-    //while (enumerator.MoveNext())
-    //{
-    //    var _clazz = (RuntimeIshtarClass*)enumerator.Current;
-    //    _clazz->init_vtable(vm);
-    //}
-
-
+    
     var entry_point = module->GetEntryPoint();
 
     if (entry_point is null)
@@ -93,39 +84,7 @@ unsafe
     watcher.Stop();
     Console.WriteLine($"Elapsed: {watcher.Elapsed}");
 
-
-
-    var s1 = vm.GC.AllocObject(vm.Types->ExceptionClass, frame);
-
-    var isMarked = BoehmGCLayout.Native.GC_is_marked(s1);
-
-    var size = BoehmGCLayout.Native.GC_size(s1);
-
-
-    BoehmGCLayout.Native.GC_gcollect();
-
-    var isMarked2 = BoehmGCLayout.Native.GC_is_marked(s1);
-
-    var size2 = BoehmGCLayout.Native.GC_size(s1);
-
     vm.Dispose();
 
-    var isMarked3 = BoehmGCLayout.Native.GC_is_marked(s1);
-
-
-    var invalid = NativeMemory.AllocZeroed(100);
-    var size3 = BoehmGCLayout.Native.GC_is_visible(invalid);
-
-
     return 0;
-
-
-    static void my_is_visible_print_proc(void *ptr) {
-        Console.WriteLine($"Proc");
-        //int visible = GC_is_visible(ptr);
-        //printf("Object at %p is visible: %d\n", ptr, visible);
-    }
 }
-
-
-public record FooBarClass(string data, string anus);
