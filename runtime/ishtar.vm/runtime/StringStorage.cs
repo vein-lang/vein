@@ -4,6 +4,7 @@ namespace ishtar
     using System.Diagnostics;
     using System.Runtime.InteropServices;
     using collections;
+    using runtime.gc;
     using runtime;
     using vein.runtime;
 

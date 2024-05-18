@@ -2,6 +2,7 @@ namespace ishtar.runtime;
 
 using System.Linq;
 using collections;
+using gc;
 using vein.extensions;
 using vein.runtime;
 

@@ -2,6 +2,7 @@ namespace ishtar
 {
     using System.Runtime.CompilerServices;
     using System.Text;
+    using runtime.gc;
     using runtime;
 
     public static class CallFrameEx

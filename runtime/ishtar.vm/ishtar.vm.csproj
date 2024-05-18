@@ -18,6 +18,8 @@
     <IlcDisableReflection>false</IlcDisableReflection>
     <DebugType>embedded</DebugType>
     <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS</DefineConstants>
+    <SingleAppImage>true</SingleAppImage>
+
   </PropertyGroup>
 
 
@@ -40,6 +42,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS</DefineConstants>
   </PropertyGroup>
+
+
+  <ItemGroup>
+    <DirectPInvoke Include="gc" />
+    <NativeLibrary Include="includes\gc.lib" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+    <NativeLibrary Include="includes\gc.a" Condition="!$(RuntimeIdentifier.StartsWith('win'))" />
+  </ItemGroup>
+
+
   <ItemGroup>
     <PackageReference Include="Iced" Version="1.20.0" />
   </ItemGroup>
@@ -51,16 +62,19 @@
     <ProjectReference Include="..\ishtar.base\ishtar.base.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="includes\gc.lib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="sample_native_library.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="collections\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\bin\gc.dll" Link="gc.dll">
+    <None Include="..\..\bin\gc.dll" Link="includes\gc.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  
+
 </Project>

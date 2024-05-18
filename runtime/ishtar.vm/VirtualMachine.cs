@@ -15,6 +15,7 @@ namespace ishtar
     using static OpCodeValue;
     using static vein.runtime.VeinTypeCode;
     using static WNE;
+    using runtime.gc;
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 

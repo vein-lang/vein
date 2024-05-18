@@ -9,6 +9,7 @@ namespace ishtar
     using vein.runtime;
     using collections;
     using ishtar;
+    using runtime.gc;
 
     public unsafe class AppVault : AppVaultSync, IDisposable
     {

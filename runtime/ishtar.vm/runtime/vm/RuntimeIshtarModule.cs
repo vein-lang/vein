@@ -3,6 +3,7 @@ namespace ishtar.runtime;
 using collections;
 using emit;
 using ishtar;
+using gc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

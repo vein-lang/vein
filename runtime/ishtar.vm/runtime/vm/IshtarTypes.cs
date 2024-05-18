@@ -6,6 +6,7 @@ using collections;
 using ishtar;
 using vein.reflection;
 using static vein.runtime.VeinTypeCode;
+using runtime.gc;
 
 public readonly unsafe struct IshtarTypes(
     RuntimeIshtarClass* objectClass,

@@ -9,6 +9,7 @@ namespace ishtar
     using vein.exceptions;
     using static vein.runtime.VeinTypeCode;
     using static WNE;
+    using runtime.gc;
 
     public interface ITransitionAlignment<TKey, TValue>
     {

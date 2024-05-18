@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using ishtar;
-using ishtar.runtime;
+using ishtar.runtime.gc;
 using vein.fs;
 using vein.runtime;
 

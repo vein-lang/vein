@@ -1,6 +1,7 @@
 namespace ishtar
 {
     using System;
+    using runtime.gc;
     using runtime;
     using vein.runtime;
     using static vein.runtime.VeinTypeCode;

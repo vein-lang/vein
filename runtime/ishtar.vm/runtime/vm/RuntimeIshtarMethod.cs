@@ -4,6 +4,7 @@ namespace ishtar
     using runtime;
     using collections;
     using emit;
+    using runtime.gc;
 
     public unsafe struct RuntimeMethodArgument(RuntimeIshtarClass* type, InternedString* name, RuntimeMethodArgument* self) : IEq<RuntimeMethodArgument>, IDisposable
     {

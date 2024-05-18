@@ -1,5 +1,6 @@
 namespace ishtar.allocators;
 
+using runtime.gc;
 using runtime;
 
 public sealed unsafe class GCLayoutAllocator(GCLayout layout) : IIshtarAllocator

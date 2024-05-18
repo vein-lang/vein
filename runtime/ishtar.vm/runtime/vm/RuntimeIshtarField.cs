@@ -4,6 +4,7 @@ namespace ishtar
     using collections;
     using vein.runtime;
     using runtime;
+    using runtime.gc;
 
     public readonly unsafe struct WeakRef<T>(void* ptr) where T : class
     {

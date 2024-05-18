@@ -9,6 +9,7 @@ namespace vein.runtime
     using ishtar;
     using ishtar.collections;
     using ishtar.runtime;
+    using ishtar.runtime.gc;
 
     public unsafe delegate void ModuleResolvedEvent(in RuntimeIshtarModule* module);
 

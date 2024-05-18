@@ -1,6 +1,7 @@
 namespace ishtar.runtime;
 
 using collections;
+using gc;
 
 public readonly unsafe struct RuntimeConstStorage : IDisposable
 {
