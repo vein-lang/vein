@@ -38,7 +38,7 @@ unsafe
         var entry = new FileInfo(args.First());
         if (!entry.Exists)
         {
-            vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"0x2 [{entry} is not found]", vm.Frames.EntryPoint);
+            vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"0x2 [{entry.FullName} is not found]", vm.Frames.EntryPoint);
             return -2;
         }
         vault.WorkDirectory = entry.Directory;

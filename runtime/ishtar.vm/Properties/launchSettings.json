@@ -5,19 +5,7 @@
     },
     "run test fast": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\git\\vein.lang\\test\\ishtar_test\\std.wll --sys::log::use-console=1"
-    },
-    "run test": {
-      "commandName": "Project",
-      "commandLineArgs": "C:\\git\\std\\test\\bin\\test.std.wll --sys::log::use-console=1 --sys::display-ffi-mapping --sys::ishtar::skip-validate-args=1"
-    },
-    "run test_case 00": {
-      "commandName": "Project",
-      "commandLineArgs": "O:\\wave_vm\\test\\mana_test\\00\\bin\\00.wll --sys::log::use-console=1"
-    },
-    "run vein unit": {
-      "commandName": "Project",
-      "commandLineArgs": "C:\\git\\vein.unit\\vein.unit\\bin\\vein.unit.wll --sys::log::use-console=1"
+      "commandLineArgs": "..\\..\\..\\..\\..\\test\\ishtar_test\\std.wll --sys::log::use-console=1"
     }
   }
 }
