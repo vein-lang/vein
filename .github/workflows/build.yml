@@ -23,7 +23,7 @@ jobs:
            target: linux-x64
            install_deps: true
          - os: windows-latest
-           target: win10-x64
+           target: win-x64
            install_deps: false
     runs-on: ${{ matrix.os }}
     steps:
