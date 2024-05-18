@@ -1,8 +1,10 @@
 namespace ishtar
 {
+    using collections;
+    using System.Runtime.InteropServices;
     using vein.runtime;
 
-    public struct stackval
+    public struct stackval : IEq<stackval>, IDirectEq<stackval>, IEquatable<stackval>
     {
         public stack_union data;
         public VeinTypeCode type;
@@ -39,5 +41,40 @@ namespace ishtar
 #endif
             return p;
         }
+
+        public static unsafe bool Eq(stackval* p1, stackval* p2)
+        {
+            if (p1->type != p2->type)
+                return false;
+
+            var s1 = AsSpan(ref *p1);
+            var s2 = AsSpan(ref *p2);
+
+            return s1.SequenceEqual(s2);
+        }
+
+        private static Span<byte> AsSpan(ref stackval val)
+        {
+            Span<stackval> valSpan = MemoryMarshal.CreateSpan(ref val, 1);
+            return MemoryMarshal.Cast<stackval, byte>(valSpan);
+        }
+
+        public static bool Eq(ref stackval p1, ref stackval p2)
+        {
+            if (p1.type != p2.type)
+                return false;
+
+            var s1 = AsSpan(ref p1);
+            var s2 = AsSpan(ref p2);
+
+            return s1.SequenceEqual(s2);
+        }
+
+        public bool Equals(stackval other) => Eq(ref this, ref other);
+
+
+        public override bool Equals(object obj) => obj is stackval other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(data.d, (int)type);
     }
 }

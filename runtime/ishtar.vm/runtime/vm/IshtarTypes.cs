@@ -4,6 +4,7 @@ using runtime;
 using vein.runtime;
 using collections;
 using ishtar;
+using vein.reflection;
 using static vein.runtime.VeinTypeCode;
 
 public readonly unsafe struct IshtarTypes(
@@ -73,7 +74,7 @@ public readonly unsafe struct IshtarTypes(
 
     public RuntimeIshtarClass* ByQualityName(RuntimeQualityTypeName* name)
     {
-        var result = All->FirstOrNull(x => x->FullName->Equals(name));
+        var result = All->FirstOrNull(x => RuntimeQualityTypeName.Eq(x->FullName, name));
         return result;
     }
 
@@ -157,8 +158,25 @@ public readonly unsafe struct IshtarTypes(
         All->Add(clazz);
         Mapping->Add((int)clazz->TypeCode, clazz);
 
-        if (defineTransitField)
-            clazz->DefineField("!!value", FieldFlags.Special, valueTypeClass);
+        //if (defineTransitField)
+        //{
+        //    var field = clazz->DefineField("_value", FieldFlags.Special, valueTypeClass);
+        //    var aspect = IshtarGC.AllocateImmortal<RuntimeAspect>();
+
+        //    var args = IshtarGC.AllocateList<RuntimeAspectArgument>();
+        //    var arg = IshtarGC.AllocateImmortal<RuntimeAspectArgument>();
+
+        //    *arg = new RuntimeAspectArgument(aspect, 0, (IshtarObject*)0x14);
+
+        //    args->Add(arg);
+
+        //    *aspect = new RuntimeAspect("native", args, AspectTarget.Field, aspect);
+
+        //    aspect->Union.FieldAspect.FieldName = StringStorage.Intern("!!value");
+        //    aspect->Union.FieldAspect.ClassName = StringStorage.Intern(clazz->Name);
+
+        //    field->Aspects->Add(aspect);
+        //}
     }
 
     private RuntimeIshtarClass* create(RuntimeQualityTypeName* name, RuntimeIshtarClass* parent, RuntimeIshtarModule* module, VeinTypeCode typeCode, bool autoAdd = true)
@@ -166,6 +184,7 @@ public readonly unsafe struct IshtarTypes(
         var clazz = IshtarGC.AllocateImmortal<RuntimeIshtarClass>();
         *clazz = new RuntimeIshtarClass(name, parent, module, clazz);
         clazz->TypeCode = typeCode;
+        clazz->Flags |= ClassFlags.Predefined;
         return clazz;
     }
 }

@@ -36,6 +36,8 @@ namespace ishtar.runtime
         public void* alloc_atomic(uint size);
         public void* alloc_immortal(uint size);
         public void add_roots(void* ptr, int size);
+        public void remove_roots(void* ptr, int size);
+        public void clear_roots();
         public long get_heap_size();
         public long get_free_bytes();
         public GcHeapUsageStat get_heap_usage();
@@ -204,9 +206,17 @@ namespace ishtar.runtime
             [DllImport(LIBNAME)]
             public static extern bool GC_add_roots(void* hi, void* low);
 
+            [DllImport(LIBNAME)]
+            public static extern void GC_clear_roots();
+
+            [DllImport(LIBNAME)]
+            public static extern void GC_remove_roots(void* hi, void* low);
+
 
             [DllImport(LIBNAME)]
             public static extern nint GC_is_visible(void* ptr);
+
+           
 
 
             [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -306,9 +316,6 @@ namespace ishtar.runtime
             //}
 
 
-            
-
-
             var ptr = (void*)Native.GC_debug_malloc_uncollectable(size, "empty.vein", 0);
 
 
@@ -338,6 +345,9 @@ namespace ishtar.runtime
         }
 
         public void add_roots(void* ptr, int size) => Native.GC_add_roots(ptr, (void*)((nint)ptr + size));
+        public void remove_roots(void* ptr, int size) => Native.GC_remove_roots(ptr, (void*)((nint)ptr + size));
+
+        public void clear_roots() => Native.GC_clear_roots();
 
         public long get_free_bytes() => Native.GC_get_free_bytes();
 
@@ -454,16 +464,15 @@ namespace ishtar.runtime
 
         public void init()
         {
-            if (root is not null)
-                return;
+            if (is_inited)
+                throw new NotImplementedException();
             allocatorPool = new IshtarAllocatorPool(gcLayout);
 
-            var rootObj = AllocObject(TYPE_OBJECT.AsRuntimeClass(VM.Types), vm.Frames.GarbageCollector);
-            root = AllocateImmortal<GCRoot>();
-            *root = new GCRoot(rootObj);
+            is_inited = true;
         }
 
-        public static GCRoot* root;
+        private bool is_inited;
+        
         public VirtualMachine VM => vm;
         public bool check_memory_leak = true;
 
@@ -474,7 +483,7 @@ namespace ishtar.runtime
             var gcHeapUsageBefore = gcLayout.get_heap_usage();
 
 
-            gcLayout.collect();
+            var hasCollected = gcLayout.try_collect();
             gcLayout.finalize_all();
 
             foreach (var p in RefsHeap.ToArray())
@@ -489,8 +498,7 @@ namespace ishtar.runtime
             }
             ArrayRefsHeap.Clear();
 
-            gcLayout.collect();
-            gcLayout.finalize_all();
+            hasCollected = gcLayout.try_collect();
 
             if (!check_memory_leak) return;
 
@@ -505,25 +513,6 @@ namespace ishtar.runtime
             }
         }
 
-        public ImmortalObject<T>* AllocStatic<T>() where T : class, new()
-        {
-            throw null;
-            //var allocator = allocatorPool.Rent<ImmortalObject<T>>(out var p);
-
-            //p->Create(new T());
-
-            //ImmortalHeap.AddLast((nint)p);
-
-            //InsertDebugData(new((ulong)sizeof(ImmortalObject<T>),
-            //    nameof(AllocImmortal), (nint)p));
-
-            //Stats.total_allocations++;
-            //Stats.total_bytes_requested += allocatorPool.Return(allocator);
-
-            //return p;
-        }
-
-
         private void InsertDebugData(AllocationDebugInfo info)
         {
             allocationTreeDebugInfos.AddLast(info);
@@ -533,11 +522,6 @@ namespace ishtar.runtime
 
         private void DeleteDebugData(nint pointer)
             => allocationTreeDebugInfos.Remove(allocationDebugInfos[pointer]);
-
-        public void FreeStatic<T>(ImmortalObject<T>* p) where T : class, new()
-        {
-            throw null;
-        }
 
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
         public stackval* AllocValue(CallFrame frame)
@@ -618,7 +602,7 @@ namespace ishtar.runtime
         public IshtarArray* AllocArray(RuntimeIshtarClass* @class, ulong size, byte rank, CallFrame frame)
         {
             if (!@class->is_inited)
-                @class->init_vtable(vm);
+                throw new NotImplementedException();
 
             if (size >= IshtarArray.MAX_SIZE)
             {
@@ -716,7 +700,7 @@ namespace ishtar.runtime
         public IshtarObject* AllocTypeInfoObject(RuntimeIshtarClass* @class, CallFrame frame)
         {
             if (!@class->is_inited)
-                @class->init_vtable(frame.vm);
+                throw new NotImplementedException();
 
             //IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_TYPE_BARRIER);
 
@@ -746,7 +730,7 @@ namespace ishtar.runtime
         {
             var @class = field->Owner;
             if (!@class->is_inited)
-                @class->init_vtable(vm);
+                throw new NotImplementedException();
 
             var name = field->Name;
             var gc = frame.GetGC();
@@ -781,7 +765,7 @@ namespace ishtar.runtime
         {
             var @class = method->Owner;
             if (!@class->is_inited)
-                @class->init_vtable(vm);
+                throw new NotImplementedException();
 
             var key = method->Name;
             var gc = frame.GetGC();
@@ -817,7 +801,7 @@ namespace ishtar.runtime
             var allocator = allocatorPool.Rent<IshtarObject>(out var p, AllocationKind.reference, frame);
 
             if (!@class->is_inited)
-                @class->init_vtable(frame.vm);
+                throw new NotImplementedException();
 
             p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class->computed_size), AllocationKind.reference, frame);
 
@@ -851,11 +835,12 @@ namespace ishtar.runtime
         {
             var o = (IshtarObject*)obj;
 
-            //if (!IsAlive(o))
-            //{
-            //    vm.println("@@[dtor] failed finalize object, not alived");
-            //    return;
-            //}
+            if (!o->IsValidObject())
+            {
+                vm.println($"@@[dtor] called! for invalid object!");
+                return;
+            }
+
             var frame = vm.Frames.GarbageCollector;
 
             ObjectRegisterFinalizer(o, null, frame);
@@ -908,8 +893,6 @@ namespace ishtar.runtime
 
             gcLayout.free(obj);
 
-
-
             Stats.total_bytes_requested -= allocatorPool.Return(obj);
             Stats.total_allocations--;
             Stats.alive_objects--;
@@ -943,6 +926,7 @@ namespace ishtar.runtime
 
         #region internal
 
+#if !BOEHM_GC
         private static readonly AllocatorBlock _allocator = new()
         {
             alloc = &IshtarGC_Alloc,
@@ -950,6 +934,18 @@ namespace ishtar.runtime
             free = &IshtarGC_Free,
             realloc = &IshtarGC_Realloc
         };
+
+#else
+
+        private static readonly AllocatorBlock _allocator = new()
+        {
+            alloc = &NativeMemory_AllocZeroed,
+            alloc_primitives = &NativeMemory_AllocZeroed,
+            free = &NativeMemory_Free,
+            realloc = &NativeMemory_Realloc
+        };
+
+#endif
 
 
         private static void* NativeMemory_AllocZeroed(uint size)
@@ -973,15 +969,20 @@ namespace ishtar.runtime
             => (void*)BoehmGCLayout.Native.GC_realloc((nint)ptr, newBytes);
 
 
-        public static NativeList<T>* AllocateList<T>(int initialCapacity = 16) where T : unmanaged
-            => NativeList<T>.Create(initialCapacity, NativeComparer<T>.Delegate(), _allocator);
+        public static NativeList<T>* AllocateList<T>(int initialCapacity = 16) where T : unmanaged, IEq<T>
+            => NativeList<T>.Create(initialCapacity, _allocator);
+
+
+        public static void FreeList<T>(NativeList<T>* list) where T : unmanaged, IEq<T>
+            => NativeList<T>.Free(list, _allocator);
+
 
         public static AtomicNativeList<T>* AllocateAtomicList<T>(int initialCapacity = 16) where T : unmanaged, IEquatable<T>
             => AtomicNativeList<T>.Create(initialCapacity, _allocator);
 
         public static NativeDictionary<TKey, TValue>* AllocateDictionary<TKey, TValue>(int initialCapacity = 16)
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
-            => NativeDictionary<TKey, TValue>.Create(initialCapacity, NativeComparer<TValue>.Delegate(), _allocator);
+            => NativeDictionary<TKey, TValue>.Create(initialCapacity, _allocator);
 
         public static AtomicNativeDictionary<TKey, TValue>* AllocateAtomicDictionary<TKey, TValue>(int initialCapacity = 16)
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged, IEquatable<TValue>
@@ -1007,6 +1008,12 @@ namespace ishtar.runtime
             return t;
         }
 
+        public static void FreeImmortalRoot<T>(T* ptr) where T : unmanaged
+        {
+            gcLayout.remove_roots(ptr, sizeof(T));
+            gcLayout.free(ptr);
+        }
+
         public static T* AllocateImmortal<T>(int size) where T : unmanaged
         {
             //return (T*)NativeMemory.AllocZeroed((uint)(sizeof(T) * size));
@@ -1021,9 +1028,15 @@ namespace ishtar.runtime
             return t;
         }
 
+        public static void FreeImmortalRoot<T>(T* ptr, int size) where T : unmanaged
+        {
+            gcLayout.remove_roots(ptr, sizeof(T) * size);
+            gcLayout.free(ptr);
+        }
+
         public static void FreeImmortal<T>(T* t) where T : unmanaged
             => gcLayout.free(t);
 
-        #endregion
+#endregion
     }
 }

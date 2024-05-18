@@ -5,23 +5,30 @@ namespace ishtar
     using collections;
     using emit;
 
-    public unsafe struct RuntimeMethodArgument(RuntimeIshtarClass* type, InternedString* name)
+    public unsafe struct RuntimeMethodArgument(RuntimeIshtarClass* type, InternedString* name, RuntimeMethodArgument* self) : IEq<RuntimeMethodArgument>, IDisposable
     {
         public const string THIS_ARGUMENT = "<this>";
 
 
         public RuntimeIshtarClass* Type { get; private set; } = type;
         public InternedString* Name { get; } = name;
-        private void* _vein_arg_ref;
+        public RuntimeMethodArgument* Self { get; } = self;
 
-        
+
+        public void Dispose()
+        {
+            type = null;
+            name = null;
+            IshtarGC.FreeImmortal(self);
+        }
+
 
         public static RuntimeMethodArgument* Create(IshtarTypes* types, (string name, VeinTypeCode code) data)
         {
             var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>();
             var (name, code) = data;
             
-            *a = new RuntimeMethodArgument(types->ByTypeCode(code), StringStorage.Intern(name));
+            *a = new RuntimeMethodArgument(types->ByTypeCode(code), StringStorage.Intern(name), a);
 
             return a;
         }
@@ -37,7 +44,7 @@ namespace ishtar
                 var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>();
 
 
-                *a = new RuntimeMethodArgument(types->ByTypeCode(code), StringStorage.Intern(name));
+                *a = new RuntimeMethodArgument(types->ByTypeCode(code), StringStorage.Intern(name), a);
 
 
                 lst->Add(a);
@@ -57,7 +64,7 @@ namespace ishtar
             {
                 var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>();
                 
-                *a = new RuntimeMethodArgument(vm.Vault.GlobalFindType(tuple.Type.FullName), StringStorage.Intern(tuple.Name));
+                *a = new RuntimeMethodArgument(vm.Vault.GlobalFindType(tuple.Type.FullName.T()), StringStorage.Intern(tuple.Name), a);
 
                 lst->Add(a);
             }
@@ -69,7 +76,7 @@ namespace ishtar
         {
             var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>();
 
-            *a = new RuntimeMethodArgument(type, StringStorage.Intern(name));
+            *a = new RuntimeMethodArgument(type, StringStorage.Intern(name), a);
 
             return a;
         }
@@ -82,9 +89,10 @@ namespace ishtar
                 Type = clazz;
         }
 
+        public static bool Eq(RuntimeMethodArgument* p1, RuntimeMethodArgument* p2) => InternedString.Eq(p1->Name, p2->Name) && RuntimeIshtarClass.Eq(p1->Type, p2->Type);
     }
 
-    public unsafe struct RuntimeIshtarMethod : INamed
+    public unsafe struct RuntimeIshtarMethod : INamed, IEq<RuntimeIshtarMethod>, IDisposable
     {
         private readonly RuntimeIshtarMethod* _self;
         
@@ -106,6 +114,19 @@ namespace ishtar
 
         public NativeList<RuntimeMethodArgument>* Arguments { get; }
         public NativeList<RuntimeAspect>* Aspects { get; }
+
+
+        public void Dispose()
+        {
+            VirtualMachine.GlobalPrintln($"Disposed method '{Name}'");
+
+            if (Header is not null)
+                IshtarGC.FreeImmortal(Header);
+            Arguments->ForEach(x => x->Dispose());
+            Aspects->ForEach(x => x->Dispose());
+            IshtarGC.FreeList(Arguments);
+            IshtarGC.FreeImmortal(_self);
+        }
 
         public void Assert(RuntimeIshtarMethod* @ref)
         {
@@ -202,5 +223,7 @@ namespace ishtar
             this.PIInfo = PInvokeInfo.New(p);
             return _self;
         }
+
+        public static bool Eq(RuntimeIshtarMethod* p1, RuntimeIshtarMethod* p2) => p1->Name.Equals(p2->Name) && RuntimeIshtarClass.Eq(p1->Owner, p2->Owner) && p1->ArgLength == p2->ArgLength;
     }
 }

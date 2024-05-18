@@ -10,16 +10,31 @@ public unsafe class IshtarFrames(VirtualMachine vm)
         method = vm.DefineEmptySystemMethod("#module")
     };
 
-    public CallFrame VTableFrame(RuntimeIshtarClass* clazz) => new(vm)
+    public CallFrame VTableFrame(RuntimeIshtarClass* clazz)
     {
-        method = clazz->DefineMethod($"#type()", clazz, MethodFlags.Special)
-    };
+        var method = clazz->FindMethod($"#type()");
 
-    public CallFrame StaticCtor(RuntimeIshtarClass* clazz) =>
-        new(vm)
+        if (method is not null)
+            return new CallFrame(vm) { method = method };
+
+        return new CallFrame(vm)
+        {
+            method = clazz->DefineMethod($"#type()", clazz, MethodFlags.Special)
+        };
+    }
+
+    public CallFrame StaticCtor(RuntimeIshtarClass* clazz)
+    {
+        var method = clazz->FindMethod($"#static_ctor()");
+
+        if (method is not null)
+            return new CallFrame(vm) { method = method };
+
+        return new CallFrame(vm)
         {
             method = clazz->DefineMethod("#static_ctor()", null, MethodFlags.Special | MethodFlags.Static)
         };
+    }
 
 
     public CallFrame EntryPoint = new(vm)

@@ -46,21 +46,6 @@ namespace ishtar
             return null;
         }
 
-        public RuntimeIshtarClass* GlobalFindType(QualityTypeName typeName)
-        {
-            using var enumerator = Modules->GetEnumerator();
-
-            while (enumerator.MoveNext())
-            {
-                var module = (RuntimeIshtarModule*)enumerator.Current;
-                var r = module->FindType(typeName, false, false);
-                if (r->IsUnresolved)
-                    continue;
-                return r;
-            }
-
-            return null;
-        }
 
         public RuntimeIshtarClass*[] GlobalFindType(string name)
             => throw new NotImplementedException();
@@ -112,7 +97,13 @@ namespace ishtar
         internal ushort LastModuleID;
         internal ushort LastClassID;
 
-        public void Dispose() => Modules->Clear();
+        public void Dispose()
+        {
+            VirtualMachine.GlobalPrintln($"Disposed vault '{Name}'");
+
+            Modules->ForEach(x => x->Dispose());
+            IshtarGC.FreeList(Modules);
+        }
 
         public RuntimeIshtarModule* DefineModule(string @internal)
         {

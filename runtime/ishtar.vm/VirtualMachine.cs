@@ -55,8 +55,13 @@ namespace ishtar
 
         public void Dispose()
         {
+            InternalModule->Dispose();
+            IshtarGC.FreeImmortal(InternalClass);
+            IshtarGC.FreeImmortalRoot(InternalModule);
+
             GC.Dispose();
             Vault.Dispose();
+            StringStorage.Dispose();
         }
 
 
@@ -1571,5 +1576,7 @@ namespace ishtar
                 return;
             frame?.vm?.FastFail(type, $"static assert failed: '{msg}'", frame);
         }
+
+        public static void GlobalPrintln(string empty) => Console.WriteLine(empty);
     }
 }

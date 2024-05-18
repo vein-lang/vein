@@ -2,7 +2,6 @@ namespace ishtar.collections;
 
 public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
 {
-    private readonly delegate*<TValue*, TValue*, bool> _comparer;
     private readonly AllocatorBlock _allocator;
 
 
@@ -12,18 +11,17 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
     private int count;
     private int capacity;
 
-    public static NativeDictionary<TKey, TValue>* Create(int initialCapacity, delegate*<TValue*, TValue*, bool> comparer, AllocatorBlock allocator)
+    public static NativeDictionary<TKey, TValue>* Create(int initialCapacity, AllocatorBlock allocator)
     {
         var p = (NativeDictionary<TKey, TValue>*)allocator.alloc((uint)(sizeof(NativeDictionary<TKey, TValue>)));
 
-        *p = new NativeDictionary<TKey, TValue>(initialCapacity, comparer, allocator);
+        *p = new NativeDictionary<TKey, TValue>(initialCapacity, allocator);
 
         return p;
     }
 
-    public NativeDictionary(int initialCapacity, delegate*<TValue*, TValue*, bool> comparer, AllocatorBlock allocator)
+    public NativeDictionary(int initialCapacity, AllocatorBlock allocator)
     {
-        _comparer = comparer;
         _allocator = allocator;
         capacity = IshtarMath.max(initialCapacity, 16);
         keys = (TKey*)_allocator.alloc_primitives((uint)(capacity * sizeof(TKey)));
@@ -101,13 +99,13 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
         return true;
     }
 
-    public NativeList<TValue>* GetValues()
-    {
-        var v = NativeList<TValue>.Create(count, _comparer, _allocator);
-        for (int i = 0; i < count; i++)
-            v->Add(values[i]);
-        return v;
-    }
+    //public NativeList<TValue>* GetValues()
+    //{
+    //    var v = NativeList<TValue>.Create(count, _comparer, _allocator);
+    //    for (int i = 0; i < count; i++)
+    //        v->Add(values[i]);
+    //    return v;
+    //}
 
     private int FindIndex(TKey key)
     {

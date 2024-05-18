@@ -1,11 +1,12 @@
 namespace ishtar.runtime;
 
 using System.Linq;
+using collections;
 using vein.extensions;
 using vein.runtime;
 
 // remark: temporary using dotnet api and lazy interning
-public unsafe struct RuntimeQualityTypeName(InternedString* fullName)
+public unsafe struct RuntimeQualityTypeName(InternedString* fullName) : IEq<RuntimeQualityTypeName>
 {
     private readonly InternedString* _fullname = fullName;
     private InternedString* _name;
@@ -13,8 +14,6 @@ public unsafe struct RuntimeQualityTypeName(InternedString* fullName)
     private InternedString* _asmName;
     private InternedString* _nameWithNS;
     
-    public bool Equals(RuntimeQualityTypeName* r) => _fullname->Equals(r->_fullname);
-
     public string Name
     {
         get
@@ -70,6 +69,9 @@ public unsafe struct RuntimeQualityTypeName(InternedString* fullName)
             return StringStorage.GetStringUnsafe(_nameWithNS);
         }
     }
+
+    public static bool Eq(RuntimeQualityTypeName* p1, RuntimeQualityTypeName* p2)
+        => InternedString.Eq(p1->_fullname, p2->_fullname);
 
     public override string ToString() => StringStorage.GetStringUnsafe(fullName);
 }

@@ -4,76 +4,63 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using ishtar.runtime;
+using vein.collections;
 
 public unsafe delegate bool UnsafeComparer<T>(T* p1, T* p2) where T : unmanaged;
 
-public static unsafe class NativeComparer<T> where T : unmanaged
+public unsafe interface IEq<T> where T : unmanaged
 {
-    internal static UnsafeComparer<T> DefaultComparer;
-
-
-    public static delegate*<T*, T*, bool> Delegate()
-    {
-        if (DefaultComparer is null)
-            throw new NotImplementedException();
-        //return (delegate*<T*, T*, bool>)Marshal.GetFunctionPointerForDelegate();
-        return (delegate*<T*, T*, bool>)DefaultComparer.Method.MethodHandle.GetFunctionPointer();
-    }
-
-    static NativeComparer()
-    {
-        NativeComparer<RuntimeIshtarClass>.DefaultComparer = (p1, p2) => p1->Equals(p2);
-        NativeComparer<RuntimeIshtarField>.DefaultComparer = (p1, p2) => p1->Name.Equals(p2->Name) && p1->Owner->Equals(p2->Owner);
-        NativeComparer<RuntimeIshtarMethod>.DefaultComparer =
-            (p1, p2) => p1->Name.Equals(p2->Name) && p1->Owner->Equals(p2->Owner);
-        NativeComparer<RuntimeMethodArgument>.DefaultComparer =
-            (p1, p2) => p1->Name->Equals(p2->Name) && p1->Type->Equals(p2->Type);
-        NativeComparer<RuntimeIshtarModule>.DefaultComparer = (p1, p2) => p1->ID.Equals(p2->ID);
-        NativeComparer<RuntimeQualityTypeName>.DefaultComparer = (p1, p2) => p1->Equals(p2);
-        NativeComparer<RuntimeFieldName>.DefaultComparer = (p1, p2) => p1->Equals(p2);
-        NativeComparer<RuntimeAspect>.DefaultComparer = (p1, p2) => p1->Name.Equals(p2->Name) && p1->Target == p2->Target;
-        NativeComparer<RuntimeAspectArgument>.DefaultComparer = (p1, p2) => p1->Index.Equals(p2->Index) && p1->Owner->Name.Equals(p2->Owner->Name) && p1->Owner->Target == p2->Owner->Target;
-        NativeComparer<InternedString>.DefaultComparer = (p1, p2) => p1->Equals(p2);
-
-        // maybe not needed look at gc_id
-        NativeComparer<IshtarObject>.DefaultComparer = (p1, p2) => p1->__gc_id.Equals(p2->__gc_id);
-
-
-    }
+    static abstract bool Eq(T* p1, T* p2);
 }
 
-public unsafe struct NativeList<T> : IDisposable where T : unmanaged
+public unsafe interface IDirectEq<T> where T : unmanaged
+{
+    static abstract bool Eq(ref T p1, ref T p2);
+}
+
+public unsafe struct NativeList<T> : IDisposable where T : unmanaged, IEq<T>
 {
     private T** items;
     private int capacity;
-    private readonly delegate* <T*, T*, bool> _comparer;
     private readonly AllocatorBlock _allocator;
     private int count;
 
 
-    public NativeList(int initialCapacity, delegate*<T*, T*, bool> comparer, AllocatorBlock allocator)
+    public NativeList(int initialCapacity, AllocatorBlock allocator)
     {
         capacity = IshtarMath.max(initialCapacity, 16);
-        _comparer = comparer;
         _allocator = allocator;
         count = 0;
         items = (T**)allocator.alloc((uint)(sizeof(T*) * capacity));
     }
 
-    public static NativeList<T>* Create(int initial, delegate*<T*, T*, bool> comparer, AllocatorBlock allocator)
+    public static NativeList<T>* Create(int initial, AllocatorBlock allocator)
     {
         var r = (NativeList<T>*)allocator.alloc((uint)sizeof(NativeList<T>));
 
-        *r = new NativeList<T>(initial, comparer, allocator);
+        *r = new NativeList<T>(initial, allocator);
 
         return r;
     }
+
+    public static void Free(NativeList<T>* list, AllocatorBlock allocator)
+    {
+        list->Dispose();
+        allocator.free(list);
+    }
+
 
     public void Add(T* value)
     {
         if (count == capacity)
             EnsureCapacity(capacity * 2);
-        items[count++] = value;
+
+#if DEBUG
+        if (IndexOf(value) != -1)
+            throw new DuplicateItemException("");
+#endif
+
+            items[count++] = value;
     }
 
     public void Remove(T* value)
@@ -82,21 +69,21 @@ public unsafe struct NativeList<T> : IDisposable where T : unmanaged
         if (index != -1)
         {
             RemoveAt(index);
+            return;
         }
+
+        throw new NotImplementedException();
     }
 
     public void RemoveAt(int index)
     {
         if (index < 0 || index >= count)
-        {
             throw new IndexOutOfRangeException("Index is out of range.");
-        }
 
         T** dst = items + index;
         T** src = dst + 1;
         count--;
-        for (int i = index; i < count; i++)
-            *dst++ = *src++;
+        for (int i = index; i < count; i++) *dst++ = *src++;
     }
 
     public void AddRange(T** values, int sizeValues)
@@ -143,7 +130,7 @@ public unsafe struct NativeList<T> : IDisposable where T : unmanaged
     {
         for (int i = 0; i < count; i++)
         {
-            if (_comparer(items[i], value))
+            if (T.Eq(items[i], value))
                 return i;
         }
         return -1;
@@ -218,10 +205,23 @@ public unsafe struct NativeList<T> : IDisposable where T : unmanaged
     public T* FirstOrNull(UnsafeFilter_Delegate<T> filter)
     {
         if (count == 0) return null;
+#if !DEBUG
+
         for (int i = 0; i < count; i++)
             if (filter(items[i]))
                 return items[i];
         return null;
+#else
+        var item = default(T*);
+        for (int i = 0; i < count; i++)
+            if (filter(items[i]))
+            {
+                if (item is not null)
+                    throw new DuplicateItemException("");
+                item = items[i];
+            }
+        return item;
+#endif
     }
 
     public void Swap(T* from, T* to)
