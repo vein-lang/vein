@@ -3,6 +3,9 @@
     <None Include="..\..\bin\gc.dll" Link="gc.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\..\runtime\ishtar.vm\includes\libgc.so" Link="libgc.so">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
