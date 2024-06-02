@@ -12,6 +12,7 @@ unsafe
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         Console.OutputEncoding = Encoding.Unicode;
 
+    BoehmGCLayout.Native.Load();
     BoehmGCLayout.Native.GC_set_find_leak(true);
     BoehmGCLayout.Native.GC_init();
     
