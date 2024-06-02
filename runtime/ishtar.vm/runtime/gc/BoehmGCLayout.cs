@@ -6,6 +6,11 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 {
     public class Native
     {
+        public static void Load() =>
+            NativeLibrary.Load(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? "includes/gc.dll"
+                : "includes/libgc.so");
+
         public const string LIBNAME = "gc";
 
 

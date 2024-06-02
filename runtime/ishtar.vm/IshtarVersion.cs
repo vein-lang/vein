@@ -15,4 +15,9 @@ public readonly unsafe struct IshtarVersion(uint major, uint minor, uint patch =
         var mv = Version.Parse(str);
         return new IshtarVersion((uint)mv.Major, (uint)mv.Minor, (uint)mv.Revision, (uint)mv.Build);
     }
+
+    public override string ToString()
+        => $"{major}.{minor}.{patch}.{build}";
+
+    public override int GetHashCode() => HashCode.Combine(Major, Minor, Patch, Build);
 }

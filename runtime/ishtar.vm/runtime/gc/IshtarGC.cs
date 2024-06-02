@@ -417,19 +417,18 @@ namespace ishtar.runtime.gc
             if (!@class->is_inited)
                 throw new NotImplementedException();
 
-            p->vtable = (void**)allocator.AllocZeroed((nuint)(sizeof(void*) * (long)@class->computed_size), AllocationKind.reference, frame);
+            p->vtable = (void**)allocator.AllocZeroed(
+                (nuint)(sizeof(void*) * (long)@class->computed_size),
+                AllocationKind.reference, frame);
 
-            Unsafe.CopyBlock(p->vtable, @class->vtable, (uint)@class->computed_size * (uint)sizeof(void*));
+            IshtarUnsafe.CopyBlock(p->vtable, @class->vtable, (uint)@class->computed_size * (uint)sizeof(void*));
             p->clazz = @class;
             p->vtable_size = (uint)@class->computed_size;
-#if DEBUG
             p->__gc_id = (long)Stats.alive_objects++;
+#if DEBUG
             p->m1 = IshtarObject.magic1;
             p->m2 = IshtarObject.magic2;
             IshtarObject.CreationTrace[p->__gc_id] = Environment.StackTrace;
-            var st = new StackTrace(true);
-#else
-            Stats.alive_objects++;
 #endif
             @class->computed_size = @class->computed_size;
 

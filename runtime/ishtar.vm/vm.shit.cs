@@ -20,7 +20,7 @@ namespace ishtar
 
         public RuntimeIshtarClass* GetClass(uint index, RuntimeIshtarModule* module, CallFrame frame)
         {
-            if (module->types_table->TryGetValue((int)index, out var name))
+            if (!module->types_table->TryGetValue((int)index, out var name))
                 Assert(false, WNE.TYPE_LOAD, $"Cant find '{index}' in class_table.", frame);
 
             var type = module->FindType(name, true, false);
@@ -34,8 +34,11 @@ namespace ishtar
 
         public RuntimeIshtarMethod* GetMethod(uint index, RuntimeQualityTypeName* owner, RuntimeIshtarModule* module, CallFrame frame)
         {
-            var clazz = module->FindType(owner);
+            var clazz = module->FindType(owner, true);
             var name = module->GetConstStringByIndex((int) index);
+
+            if (clazz is null)
+                throw new Exception($"Class by index {index} not found in {module->Name} module");
 
             var method = clazz->FindMethod(name, m => m->Name.Equals(name));
 

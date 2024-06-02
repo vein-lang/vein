@@ -17,7 +17,7 @@ public unsafe class IshtarJIT(VirtualMachine vm)
     {
         var asm = AllocEmitter();
 
-        asm.mov(rax, 60);
+        asm.mov(rax, 0x80);
         asm.xor(rdi, rdi);
         asm.syscall();
 

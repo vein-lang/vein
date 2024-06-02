@@ -36,6 +36,8 @@ namespace ishtar
             public T data;
         }
 
+        public static void CopyBlock(void* dest, void* source, uint bytes) => Unsafe.CopyBlock(dest, source, bytes);
+
         public static unsafe void MemSet(void* dst, int value, ulong numberOfBytes)
         {
             // Copy per 8 bytes

@@ -123,6 +123,14 @@ namespace ishtar
             watcher?.ValidateLastError();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void FastFail(bool assert, WNE type, string msg, CallFrame frame)
+        {
+            if (!assert) return;
+            watcher?.FastFail(type, msg, frame);
+            watcher?.ValidateLastError();
+        }
+
         [Conditional("DEBUG")]
         public void println(string str) => trace.println(str);
 
@@ -203,13 +211,8 @@ namespace ishtar
 
             var _module = invocation.method->Owner->Owner;
             var mh = invocation.method->Header;
-
-            if (mh is null)
-            {
-                FastFail(WNE.MISSING_METHOD, "method code is zero", invocation);
-                return;
-            }
-
+            FastFail(mh is null, WNE.MISSING_METHOD, "method code is zero", invocation);
+            
             var args = invocation.args;
 
             var locals = default(SmartPointer<stackval>);
@@ -234,14 +237,12 @@ namespace ishtar
                     ip = start + label.pos - 1;
                 else FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[jump_now] cannot find protected zone label", invocation);
             }
-
             void jump_to(int index)
             {
                 if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
                     ip = start + label.pos - 1;
                 else FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[jump_to] cannot find protected zone label", invocation);
             }
-
             uint* get_jumper(int index)
             {
                 if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
@@ -269,24 +270,9 @@ namespace ishtar
 
                 if (invocation.exception is not null && invocation.level == 0)
                     return;
-
-                if (ip == end)
-                {
-                    FastFail(END_EXECUTE_MEMORY, "unexpected end of executable memory.", invocation);
-                    continue;
-                }
-
-                if (sp >= end_stack)
-                {
-                    FastFail(OVERFLOW, "stack overflow dectected.", invocation);
-                    continue;
-                }
-
-                if (sp < sp_start)
-                {
-                    FastFail(OVERFLOW, "incorrect sp address beyond sp_start was detected", invocation);
-                    continue;
-                }
+                FastFail(ip == end, END_EXECUTE_MEMORY, "unexpected end of executable memory.", invocation);
+                FastFail(sp >= end_stack, OVERFLOW, "stack overflow detected.", invocation);
+                FastFail(sp < sp_start, OVERFLOW, "incorrect sp address beyond sp_start was detected", invocation);
 
                 if (!assert_violation_zone_writes(invocation, stack, STACK_VIOLATION_LEVEL_SIZE))
                     continue;
@@ -332,11 +318,8 @@ namespace ishtar
                     case LDARG_2:
                     case LDARG_3:
                     case LDARG_4:
-                        if (args == null)
-                        {
-                            FastFail(OUT_OF_RANGE, $"Arguments in current function is empty, but trying access it.", invocation);
-                            return;
-                        }
+                        FastFail(args == null, OUT_OF_RANGE,
+                            $"Arguments in current function is empty, but trying access it.", invocation);
                         *sp = args[(*ip) - (short)LDARG_0];
                         println($"load from args ({sp->type})");
                         ++sp;
@@ -649,6 +632,8 @@ namespace ishtar
                             ++ip;
                             var tokenIdx = *ip;
                             var owner = readTypeName(*++ip, _module, invocation);
+
+
                             var method = GetMethod(tokenIdx, owner, _module, invocation);
                             child_frame.level++;
                             child_frame.parent = invocation;
