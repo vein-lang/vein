@@ -35,6 +35,16 @@ namespace vein.runtime
 
         public RuntimeIshtarModule* ResolveDep(string name, IshtarVersion version, NativeList<RuntimeIshtarModule>* deps)
         {
+            var lib = Vault.Modules->FirstOrNull(x => x->Name.Equals(name));
+
+            if (lib is not null)
+            {
+                if (!lib->Version.Equals(version))
+                    throw new AggregateException($"Detected already loaded '{name}' module, but version is not matched {lib->Version} != {version}");
+
+                return lib;
+            }
+
             var asm = Find(name, version);
 
             var module = RuntimeIshtarModule.Read(Vault, asm.Sections.First().data, deps, (s, v) =>
