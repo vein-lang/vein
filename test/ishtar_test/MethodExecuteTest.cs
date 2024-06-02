@@ -9,25 +9,26 @@ public unsafe class MethodExecuteTest : IshtarTestBase
     [Parallelizable(ParallelScope.None)]
     public void S0()
     {
-        using var ctx = CreateContext();
+        using var scope = CreateScope();
 
-        ctx.OnClassBuild((x, y) =>
-        {
-            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_I4.AsClass()(Types));
+        scope.OnClassBuild((x, y) => {
+            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_I4.AsClass()(scope.Types));
             method.GetGenerator()
                 .Emit(OpCodes.LDC_I4_S, 225)
                 .Emit(OpCodes.RET);
             y.m = method;
         });
 
-
-        var result = ctx.Execute((x, y) =>
+        scope.OnCodeBuild((x, y) =>
         {
             x.Emit(OpCodes.CALL, (MethodBuilder)y.m);
             x.Emit(OpCodes.LDC_I4_2);
             x.Emit(OpCodes.MUL);
             x.Emit(OpCodes.RET);
         });
+
+
+        var result = scope.Compile().Execute().Validate();
 
         Assert.AreEqual(result.returnValue[0].data.i, 225 * 2);
     }
@@ -36,12 +37,11 @@ public unsafe class MethodExecuteTest : IshtarTestBase
     [Parallelizable(ParallelScope.None)]
     public void S1()
     {
-        using var ctx = CreateContext();
+        using var scope = CreateScope();
 
-        ctx.OnClassBuild((x, y) =>
-        {
-            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_I4.AsClass()(Types),
-                new VeinArgumentRef("value", VeinTypeCode.TYPE_I4.AsClass()(Types)));
+        scope.OnClassBuild((x, y) => {
+            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_I4.AsClass()(scope.Types),
+                new VeinArgumentRef("value", VeinTypeCode.TYPE_I4.AsClass()(scope.Types)));
             method.GetGenerator()
                 .Emit(OpCodes.LDARG_0)
                 .Emit(OpCodes.LDARG_S, 0)
@@ -50,8 +50,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
             y.m = method;
         });
 
-
-        var result = ctx.Execute((x, y) =>
+        scope.OnCodeBuild((x, y) =>
         {
             x.Emit(OpCodes.LDC_I4_2);
             x.Emit(OpCodes.CALL, (MethodBuilder)y.m);
@@ -60,18 +59,19 @@ public unsafe class MethodExecuteTest : IshtarTestBase
             x.Emit(OpCodes.RET);
         });
 
+        var result = scope.Compile().Execute().Validate();
+
         Assert.AreEqual(result.returnValue[0].data.i, 2 * 2 * 2);
     }
 
-    [Test, Ignore("LDNULL cause crash ishtar.")]
+    [Test]
     [Parallelizable(ParallelScope.None)]
     public void S2()
     {
-        using var ctx = CreateContext();
+        using var scope = CreateScope();
 
-        ctx.OnClassBuild((x, y) =>
-        {
-            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_STRING.AsClass()(Types));
+        scope.OnClassBuild((x, y) => {
+            var method = x.DefineMethod("foo", Public | Static, VeinTypeCode.TYPE_STRING.AsClass()(scope.Types));
             method.GetGenerator()
                 .Emit(OpCodes.LDNULL)
                 .Emit(OpCodes.LDC_STR, "foo")
@@ -79,13 +79,14 @@ public unsafe class MethodExecuteTest : IshtarTestBase
             y.method = method;
         });
 
-
-        var result = ctx.Execute((x, y) =>
+        scope.OnCodeBuild((x, y) =>
         {
             x.Emit(OpCodes.RESERVED_2);
             x.Emit(OpCodes.CALL, (MethodBuilder)y.method);
             x.Emit(OpCodes.RET);
         });
+
+        var result = scope.Compile().Execute().Validate();
 
         Assert.AreEqual(result.last_ip, OpCodeValue.RET);
     }

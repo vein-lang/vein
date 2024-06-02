@@ -11,20 +11,21 @@ namespace ishtar_test
         [Parallelizable(ParallelScope.None)]
         public void Call_FE_Console_Println()
         {
-            using var ctx = CreateContext();
-            ctx.OnClassBuild((x, storage) =>
-            {
+            using var scope = CreateScope();
+            scope.OnClassBuild((x, storage) => {
                 var type = x.Owner.FindType("std%global::vein/lang/Out", true);
 
                 storage.method = type.FindMethod("@_println");
             });
 
-            ctx.Execute((gen, storage) =>
+            scope.OnCodeBuild((gen, storage) =>
             {
                 gen.Emit(OpCodes.LDC_STR, "foo");
                 gen.Emit(OpCodes.CALL, (VeinMethod)storage.method);
                 gen.Emit(OpCodes.RET);
             });
+
+            scope.Compile().Execute().Validate();
         }
     }
 }

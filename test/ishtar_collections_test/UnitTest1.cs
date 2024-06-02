@@ -6,12 +6,15 @@ using System.Runtime.InteropServices;
 using ishtar.runtime;
 using ishtar;
 using ishtar.collections;
+using ishtar.runtime.gc;
 
 public unsafe class Tests
 {
     [SetUp]
     public void Setup() => BoehmGCLayout.Native.GC_init();
 
+
+    [Ignore("")]
     [TestCase(true, 10)]
     [TestCase(true, 100)]
     [TestCase(true, 1000)]

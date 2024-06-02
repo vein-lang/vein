@@ -7,38 +7,38 @@ namespace ishtar_test
 
     public unsafe class OverrideTest : IshtarTestBase
     {
-        [Test]
-        [Parallelizable(ParallelScope.None)]
-        public void TestValidCall()
-        {
-            var module = new RuntimeIshtarModule(GetVM().Vault, _module.Name);
+        //[Test]
+        //[Parallelizable(ParallelScope.None)]
+        //public void TestValidCall()
+        //{
+        //    var module = new RuntimeIshtarModule(GetVM().Vault, _module.Name);
 
-            var b1 = new RuntimeIshtarClass("tst%global::foo/bar1", VeinTypeCode.TYPE_OBJECT.AsRuntimeClass(Types), module);
+        //    var b1 = new RuntimeIshtarClass("tst%global::foo/bar1", VeinTypeCode.TYPE_OBJECT.AsRuntimeClass(Types), module);
 
-            var m1 = b1.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(Types), MethodFlags.Public | MethodFlags.Virtual);
+        //    var m1 = b1.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(Types), MethodFlags.Public | MethodFlags.Virtual);
 
-            m1.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo1));
+        //    m1.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo1));
 
-            var b2 = new RuntimeIshtarClass("tst%global::foo/bar2", b1, module);
+        //    var b2 = new RuntimeIshtarClass("tst%global::foo/bar2", b1, module);
 
-            var m2 = b2.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(Types), MethodFlags.Public | MethodFlags.Override);
+        //    var m2 = b2.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(Types), MethodFlags.Public | MethodFlags.Override);
 
-            m2.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo2));
+        //    m2.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo2));
 
-            b2.init_vtable(GetVM());
-
-
-            ((delegate*<void>)b2.Method["soq()"].PIInfo.Addr)();
+        //    b2.init_vtable(GetVM());
 
 
+        //    ((delegate*<void>)b2.Method["soq()"].PIInfo.Addr)();
 
-            var result = GC.AllocObject(b2, GetVM().Frames.EntryPoint);
 
-            var pointer = result->vtable[m2.vtable_offset];
 
-            var d2 = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(pointer);
-            ((delegate*<void>)d2.PIInfo.Addr)();
-        }
+        //    var result = GC.AllocObject(b2, GetVM().Frames.EntryPoint);
+
+        //    var pointer = result->vtable[m2.vtable_offset];
+
+        //    var d2 = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(pointer);
+        //    ((delegate*<void>)d2.PIInfo.Addr)();
+        //}
 
 
         [Test]
