@@ -23,7 +23,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     public VirtualMachine vm => Vault->Value.vm;
     public ushort ID { get; internal set; }
 
-    private IshtarVersion _version = version;
+    public IshtarVersion Version { get; internal set; } = version;
 
 
     public NativeList<RuntimeIshtarClass>* class_table { get; }
@@ -124,7 +124,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         return null;
 
-        bool filter(RuntimeIshtarClass* x) => x->FullName == type;
+        bool filter(RuntimeIshtarClass* x) => RuntimeQualityTypeName.Eq(x->FullName, type);
     }
 
     
@@ -196,6 +196,16 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         return clazz->GetEntryPoint();
     }
 
+    public RuntimeIshtarMethod* GetSpecialEntryPoint(string name)
+    {
+        var clazz = class_table->FirstOrNull(x => x->GetSpecialEntryPoint(name) is not null);
+
+        if (clazz is null)
+            return null;
+
+        return clazz->GetSpecialEntryPoint(name);
+    }
+
     public static RuntimeIshtarModule* Read(AppVault vault, byte[] arr, NativeList<RuntimeIshtarModule>* deps, ModuleResolverCallback resolver)
     {
         var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>();
@@ -249,7 +259,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                 vault.vm.println($"read typename: [{key}] '{t->NameWithNS}' and linked by predefined type");
                 module->class_table->Add(predefined);
             }
-            else
+            else if (asmName.Equals(module->Name))
             {
                 var c = module->DefineClass(t, module->vm.Types->ObjectClass);
                 c->Flags |= ClassFlags.NotCompleted;
@@ -283,7 +293,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
             vault.vm.println($"read dep: [{name}@{ver}] ");
 
-            if (module->deps_table->Any(x => x->_version.Equals(ver) && x->Name.Equals(name)))
+            if (module->deps_table->Any(x => x->Version.Equals(ver) && x->Name.Equals(name)))
                 continue;
             var dep = resolver(name, ver);
             module->deps_table->Add(dep);
@@ -379,7 +389,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         vault.vm.println($"Read {module->Name} module success");
 
 
-        module->_version = IshtarVersion.Parse(module->GetConstStringByIndex(vdx));
+        module->Version = IshtarVersion.Parse(module->GetConstStringByIndex(vdx));
         module->aspects_table->AddRange(RuntimeAspect.Deconstruct(module->ConstStorage, module->vm.Frames.ModuleLoaderFrame, vault.vm.Types));
 
         module->DefineBootstrapper();
@@ -457,7 +467,18 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                         throw new UnresolvedIshtarClassDetected(@class->FullName);
 
                     if (@class is not null)
+                    {
+                        var exist = @class->Aspects->FirstOrNull(x => RuntimeAspect.Eq(x, aspect));
+
+                        if (exist is not null)
+                        {
+                            if (exist == aspect)
+                                break;
+                            @class->Aspects->Remove(exist);
+                        }
+
                         @class->Aspects->Add(aspect);
+                    }
                     else
                         module->vm.println($"Aspect '{aspect->Name}': class '{StringStorage.GetStringUnsafe(classAspect.ClassName)}' not found.");
                     break;

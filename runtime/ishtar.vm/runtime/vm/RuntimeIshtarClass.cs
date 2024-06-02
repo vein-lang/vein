@@ -118,20 +118,30 @@ namespace ishtar
 
         internal RuntimeIshtarField* DefineField(string name, FieldFlags flags, RuntimeIshtarClass* type)
         {
+            var exist = Fields->FirstOrNull(x => x->Name.Equals(name));
+
+            if (exist is not null)
+                return exist;
+
             var f = IshtarGC.AllocateImmortal<RuntimeIshtarField>();
             var fieldName = IshtarGC.AllocateImmortal<RuntimeFieldName>();
 
             *fieldName = new RuntimeFieldName(StringStorage.Intern(name));
             *f = new RuntimeIshtarField(_selfReference, fieldName, flags, type, f);
-            this.Fields->Add(f);
+            Fields->Add(f);
             return f;
         }
 
         internal RuntimeIshtarField* DefineField(RuntimeFieldName* name, FieldFlags flags, RuntimeIshtarClass* type)
         {
+            var exist = Fields->FirstOrNull(x => x->Name.Equals(name->Name));
+
+            if (exist is not null)
+                return exist;
+
             var f = IshtarGC.AllocateImmortal<RuntimeIshtarField>();
             *f = new RuntimeIshtarField(_selfReference, name, flags, type, f);
-            this.Fields->Add(f);
+            Fields->Add(f);
             return f;
         }
 
@@ -149,13 +159,14 @@ namespace ishtar
 
             if (method->IsConstructor && exist is not null)
                 Methods->Swap(exist, method);
-            else if (method->IsTypeConstructor && exist is not null)
+            if (method->IsTypeConstructor && exist is not null)
                 Methods->Swap(exist, method);
-            else if (exist is not null && method->Header is not null)
+            if (exist is not null && method->Header is not null)
                 throw new MethodAlreadyDefined($"Method '{exist->Name}' already defined in '{Name}' class");
-            else if (exist is not null && method->Header is null)
+            if (exist is not null && method->Header is null)
             {
-                IshtarGC.FreeImmortal(method);
+                Methods->Remove(method);
+                method->Dispose();
                 return exist;
             }
             Methods->Add(method);
@@ -496,6 +507,21 @@ namespace ishtar
                 if (x->ArgLength > 0)
                     return false;
                 if (!x->Name.Equals("master()"))
+                    return false;
+                return true;
+            });
+
+
+        public RuntimeIshtarMethod* GetSpecialEntryPoint(string name) =>
+            Methods->FirstOrNull(x =>
+            {
+                if (!name.EndsWith(")"))
+                    throw new InvalidOperationException($"Trying summon method, but methodName is not completed {name}");
+                if (!x->IsStatic)
+                    return false;
+                if (x->ArgLength > 0)
+                    return false;
+                if (!x->Name.Equals(name))
                     return false;
                 return true;
             });
