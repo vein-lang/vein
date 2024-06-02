@@ -1,5 +1,13 @@
 {
   "profiles": {
+    "Default": {
+      "commandName": "Project",
+      "commandLineArgs": "build"
+    },
+    "Default add std": {
+      "commandName": "Project",
+      "commandLineArgs": "add std"
+    },
     "compile vein std": {
       "commandName": "Project",
       "commandLineArgs": "build C:\\git\\std\\src\\std.vproj --ignore-cache --EF:+exp_simplify_optimize --EF:+use_predef_array_type_initer"

@@ -1,17 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>veinc</AssemblyName>
     <RootNamespace>vein</RootNamespace>
   <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DeviceId" Version="6.4.0" />
-    <PackageReference Include="DeviceId.Linux" Version="6.3.0" />
-    <PackageReference Include="DeviceId.Mac" Version="6.2.0" />
-    <PackageReference Include="DeviceId.Windows" Version="6.4.0" />
-    <PackageReference Include="DeviceId.Windows.Wmi" Version="6.5.0" />
-    <PackageReference Include="Flurl.Http" Version="4.0.0-pre4" />
-    <PackageReference Include="xunit.assert" Version="2.5.3" />
+    <PackageReference Include="DeviceId" Version="6.6.0" />
+    <PackageReference Include="DeviceId.Linux" Version="6.4.0" />
+    <PackageReference Include="DeviceId.Mac" Version="6.3.0" />
+    <PackageReference Include="DeviceId.Windows" Version="6.6.0" />
+    <PackageReference Include="DeviceId.Windows.Wmi" Version="6.6.0" />
+    <PackageReference Include="Flurl.Http" Version="4.0.2" />
+    <PackageReference Include="Flurl.Http.Newtonsoft" Version="0.9.1" />
+    <PackageReference Include="xunit.assert" Version="2.8.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\lib\spectre.console\src\Spectre.Console.Cli\Spectre.Console.Cli.csproj" />
@@ -30,8 +31,5 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics.CodeAnalysis" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="compilation\parts\" />
   </ItemGroup>
 </Project>

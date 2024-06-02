@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Flurl.Http;
+using Newtonsoft.Json;
 using project;
 using project.shards;
 
@@ -17,8 +18,18 @@ public class ShardRegistryQuery
 
     public ShardRegistryQuery(Uri endpoint)
     {
+        var settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
+        var serializer = new Flurl.Http.Newtonsoft.NewtonsoftJsonSerializer(settings);
+
         _endpoint = endpoint;
-        _client = new FlurlClient($"{endpoint}");
+        _client = new FlurlClient($"{endpoint}").WithSettings(x =>
+        {
+            x.JsonSerializer = serializer;
+        });
+        
     }
 
     public ShardRegistryQuery WithStorage(IShardStorage storage)
