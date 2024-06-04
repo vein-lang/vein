@@ -42,6 +42,16 @@ namespace ishtar.emit
             }
             return result;
         }
+        private class NamedClass(string name) : INamed
+        {
+            public string Name => name;
+        }
+
+        public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, string method)
+        {
+            var i = 0;
+            return Deconstruct(arr, &i, new NamedClass(method));
+        }
         public static (List<uint> opcodes, Dictionary<int, (int pos, OpCodeValue opcode)> map) Deconstruct(byte[] arr, INamed method)
         {
             var i = 0;
