@@ -11,7 +11,7 @@ public class il_test
         gen.Emit(OpCodes.ADD);
         gen.Emit(OpCodes.DIV);
         gen.Emit(OpCodes.LDARG_1);
-        var (result, _) = ILReader.Deconstruct(gen.BakeByteArray(), null);
+        var (result, _) = ILReader.Deconstruct(gen.BakeByteArray(), "");
 
 
         Assert.AreEqual(OpCodes.ADD.Value, result[0]);
@@ -26,7 +26,7 @@ public class il_test
 
         gen.Emit(OpCodes.LDC_I4_S, 1448);
         gen.Emit(OpCodes.LDC_I4_S, 228);
-        var (result, _) = ILReader.Deconstruct(gen.BakeByteArray(), null);
+        var (result, _) = ILReader.Deconstruct(gen.BakeByteArray(), "");
 
 
         Assert.AreEqual(OpCodes.LDC_I4_S.Value, result[0]);
@@ -52,7 +52,7 @@ public class il_test
 
         var str = gen.BakeDebugString();
         var bytes = gen.BakeByteArray();
-        var (result, _) = ILReader.Deconstruct(bytes, null);
+        var (result, _) = ILReader.Deconstruct(bytes, "");
     }
 
 

@@ -1,6 +1,0 @@
-#space "moe/lang"
-
-public class AssertFailedException : Exception
-{
-    
-}
