@@ -6,21 +6,28 @@ namespace ishtar
     using emit;
     using runtime.gc;
 
-    public unsafe struct RuntimeMethodArgument(RuntimeIshtarClass* type, InternedString* name, RuntimeMethodArgument* self) : IEq<RuntimeMethodArgument>, IDisposable
+    public unsafe struct RuntimeMethodArgument : IEq<RuntimeMethodArgument>, IDisposable
     {
+        public RuntimeMethodArgument(RuntimeIshtarClass* type, InternedString* name, RuntimeMethodArgument* self)
+        {
+            Type = type;
+            Name = name;
+            Self = self;
+        }
+
         public const string THIS_ARGUMENT = "<this>";
 
 
-        public RuntimeIshtarClass* Type { get; private set; } = type;
-        public InternedString* Name { get; } = name;
-        public RuntimeMethodArgument* Self { get; } = self;
+        public RuntimeIshtarClass* Type { get; private set; }
+        public InternedString* Name { get; private set; }
+        public RuntimeMethodArgument* Self { get; private set; }
 
 
         public void Dispose()
         {
-            type = null;
-            name = null;
-            IshtarGC.FreeImmortal(self);
+            Type = null;
+            Name = null;
+            Self = null;
         }
 
 
@@ -95,7 +102,7 @@ namespace ishtar
 
     public unsafe struct RuntimeIshtarMethod : INamed, IEq<RuntimeIshtarMethod>, IDisposable
     {
-        private readonly RuntimeIshtarMethod* _self;
+        private RuntimeIshtarMethod* _self;
         
         public MetaMethodHeader* Header;
         public PInvokeInfo PIInfo;
@@ -106,6 +113,8 @@ namespace ishtar
         private readonly InternedString* _rawName;
         private readonly bool _ctor_called;
 
+        public bool IsValid() => _name != null && Header != null && _rawName != null && _ctor_called;
+
         public string Name => StringStorage.GetStringUnsafe(_name);
         public string RawName => StringStorage.GetStringUnsafe(_rawName);
         public MethodFlags Flags { get; private set; }
@@ -113,20 +122,29 @@ namespace ishtar
         public RuntimeIshtarClass* Owner { get; private set; }
         public int ArgLength => Arguments->Count;
 
-        public NativeList<RuntimeMethodArgument>* Arguments { get; }
-        public NativeList<RuntimeAspect>* Aspects { get; }
+        public NativeList<RuntimeMethodArgument>* Arguments { get; private set; }
+        public NativeList<RuntimeAspect>* Aspects { get; private set; }
 
 
         public void Dispose()
         {
+            if (_self is null)
+                return;
+            DiagnosticDtorTraces[(nint)_self] = Environment.StackTrace;
+
             VirtualMachine.GlobalPrintln($"Disposed method '{Name}'");
 
             if (Header is not null)
                 IshtarGC.FreeImmortal(Header);
             Arguments->ForEach(x => x->Dispose());
-            Aspects->ForEach(x => x->Dispose());
+            Arguments->ForEach(IshtarGC.FreeImmortal);
+            Aspects->Clear();
+            Arguments->Clear();
+            IshtarGC.FreeList(Aspects);
             IshtarGC.FreeList(Arguments);
-            IshtarGC.FreeImmortal(_self);
+            _self = null;
+            Arguments = null;
+            Aspects = null;
         }
 
         public void Assert(RuntimeIshtarMethod* @ref)
@@ -134,6 +152,8 @@ namespace ishtar
             if (_self != @ref)
                 throw new InvalidOperationException("GC moved unmovable memory!");
         }
+
+        public bool IsDisposed() => _self is null;
 
         #region Flags
 
@@ -158,6 +178,11 @@ namespace ishtar
             ReturnType = type;
         }
 
+        private static readonly Dictionary<nint, string> DiagnosticCtorTraces = new();
+        private static readonly Dictionary<nint, string> DiagnosticDtorTraces = new();
+
+        private string DiagnosticCtorTrace => DiagnosticCtorTraces[(nint)_self];
+        private string DiagnosticDtorTrace => DiagnosticDtorTraces[(nint)_self];
 
         internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
             params RuntimeMethodArgument*[] args)
@@ -174,6 +199,7 @@ namespace ishtar
             foreach (var argument in args)
                 Arguments->Add(argument);
             _ctor_called = true;
+            DiagnosticCtorTraces[(nint)self] = Environment.StackTrace;
         }
 
         internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
@@ -191,6 +217,7 @@ namespace ishtar
             if (args->Count != 0)
                 Arguments->AddRange(args);
             _ctor_called = true;
+            DiagnosticCtorTraces[(nint)self] = Environment.StackTrace;
         }
 
         public void SetILCode(uint* code, uint size)
@@ -225,6 +252,14 @@ namespace ishtar
             return _self;
         }
 
-        public static bool Eq(RuntimeIshtarMethod* p1, RuntimeIshtarMethod* p2) => p1->Name.Equals(p2->Name) && RuntimeIshtarClass.Eq(p1->Owner, p2->Owner) && p1->ArgLength == p2->ArgLength;
+        public static bool Eq(RuntimeIshtarMethod* p1, RuntimeIshtarMethod* p2)
+        {
+            if (p1->IsDisposed())
+                return false;
+            if (p2->IsDisposed())
+                return false;
+            return p1->Name.Equals(p2->Name) && RuntimeIshtarClass.Eq(p1->Owner, p2->Owner) &&
+                   p1->ArgLength == p2->ArgLength;
+        }
     }
 }

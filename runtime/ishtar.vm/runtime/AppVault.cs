@@ -103,6 +103,7 @@ namespace ishtar
             VirtualMachine.GlobalPrintln($"Disposed vault '{Name}'");
 
             Modules->ForEach(x => x->Dispose());
+            Modules->Clear();
             IshtarGC.FreeList(Modules);
         }
 

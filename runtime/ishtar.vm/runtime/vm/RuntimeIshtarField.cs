@@ -5,6 +5,8 @@ namespace ishtar
     using vein.runtime;
     using runtime;
     using runtime.gc;
+    using vein.reflection;
+    using Microsoft.VisualBasic.FileIO;
 
     public readonly unsafe struct WeakRef<T>(void* ptr) where T : class
     {
@@ -16,40 +18,36 @@ namespace ishtar
             *r = new WeakRef<T>(IshtarUnsafe.AsPointer(ref value));
             return r;
         }
+
+        public static void Free(WeakRef<T>* value) => IshtarGC.FreeImmortal(value);
     }
     
-    public unsafe struct RuntimeIshtarField(
-        RuntimeIshtarClass* owner,
-        RuntimeFieldName* fullName,
-        FieldFlags flags,
-        RuntimeIshtarClass* fieldType,
-        RuntimeIshtarField* selfRef) : IEq<RuntimeIshtarField>, IDisposable
+    public unsafe struct RuntimeIshtarField : IEq<RuntimeIshtarField>, IDisposable
     {
-        public RuntimeIshtarClass* Owner { get; } = owner;
-        public RuntimeIshtarClass* FieldType { get; private set; } = fieldType;
+        public RuntimeIshtarClass* Owner { get; private set; }
+        public RuntimeIshtarClass* FieldType { get; private set; }
         public string Name => FullName->Name;
         public ulong vtable_offset;
 
-        public FieldFlags Flags { get; set; } = flags;
+        public FieldFlags Flags { get; set; }
 
-        public RuntimeFieldName* FullName { get; set; } = fullName;
+        public RuntimeFieldName* FullName { get; set; }
 
-        public NativeList<RuntimeAspect>* Aspects { get; } = IshtarGC.AllocateList<RuntimeAspect>();
+        public NativeList<RuntimeAspect>* Aspects { get; private set; } = IshtarGC.AllocateList<RuntimeAspect>();
 
 
         public void Dispose()
         {
             VirtualMachine.GlobalPrintln($"Disposed field '{Name}'");
 
-            fullName = null;
-            owner = null;
-            fieldType = null;
+            FullName = null;
+            FieldType = null;
+            Owner = null;
             default_value = null;
-
-            Aspects->ForEach(x => x->Dispose());
-
+            _selfRef = null;
+            Aspects->Clear();
             IshtarGC.FreeList(Aspects);
-            IshtarGC.FreeImmortal(selfRef);
+            Aspects = null;
         }
 
 
@@ -57,6 +55,20 @@ namespace ishtar
         public bool IsValueType => Owner->IsValueType;
 
         public IshtarObject* default_value;
+        private RuntimeIshtarField* _selfRef;
+
+        public RuntimeIshtarField(RuntimeIshtarClass* owner,
+            RuntimeFieldName* fullName,
+            FieldFlags flags,
+            RuntimeIshtarClass* fieldType,
+            RuntimeIshtarField* selfRef)
+        {
+            Owner = owner;
+            FieldType = fieldType;
+            Flags = flags;
+            FullName = fullName;
+            _selfRef = selfRef;
+        }
 
         internal void ReplaceType(RuntimeIshtarClass* type)
         {
@@ -78,7 +90,7 @@ namespace ishtar
             if (nativeAspect is null)
                 return false;
             if (nativeAspect->Arguments->Length != 1)
-                return failMapping(0, selfRef);
+                return failMapping(0, _selfRef);
             var arg = nativeAspect->Arguments->Get(0);
 
             //if (arg->Value == (IshtarObject*)0x14) // marked by internal system
@@ -95,18 +107,18 @@ namespace ishtar
             //}
 
             if (arg->Value.type is not VeinTypeCode.TYPE_STRING)
-                return failMapping(1, selfRef);
+                return failMapping(1, _selfRef);
 
             var existName = (InternedString*)arg->Value.data.p;
 
             var existField = Owner->FindField(existName);
 
             if (existField is null)
-                return failMapping(2, selfRef);
+                return failMapping(2, _selfRef);
 
             
             if (!RuntimeIshtarClass.Eq(FieldType, existField->FieldType))
-                return failMapping(3, selfRef);
+                return failMapping(3, _selfRef);
 
             vtable_offset = existField->vtable_offset;
 

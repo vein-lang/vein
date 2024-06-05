@@ -57,7 +57,6 @@ namespace ishtar
         public void Dispose()
         {
             InternalModule->Dispose();
-            IshtarGC.FreeImmortal(InternalClass);
             IshtarGC.FreeImmortalRoot(InternalModule);
 
             GC.Dispose();

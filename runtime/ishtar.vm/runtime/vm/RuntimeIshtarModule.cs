@@ -15,45 +15,70 @@ using vein.exceptions;
 using vein.extensions;
 using vein.reflection;
 using vein.runtime;
-using static ishtar.PInvokeInfo;
 
-public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIshtarModule* self, IshtarVersion version) : IEq<RuntimeIshtarModule>, IDisposable
+public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 {
-    public WeakRef<AppVault>* Vault { get; } = WeakRef<AppVault>.Create(vault);
+    public WeakRef<AppVault>* Vault { get; private set; }
     public VirtualMachine vm => Vault->Value.vm;
     public ushort ID { get; internal set; }
 
-    public IshtarVersion Version { get; internal set; } = version;
+    public IshtarVersion Version { get; internal set; }
 
 
-    public NativeList<RuntimeIshtarClass>* class_table { get; }
+    public NativeList<RuntimeIshtarClass>* class_table { get; private set; }
         = IshtarGC.AllocateList<RuntimeIshtarClass>();
-    public NativeList<RuntimeIshtarModule>* deps_table { get; }
+    public NativeList<RuntimeIshtarModule>* deps_table { get; private set; }
         = IshtarGC.AllocateList<RuntimeIshtarModule>();
-    public NativeList<RuntimeAspect>* aspects_table { get; }
+    public NativeList<RuntimeAspect>* aspects_table { get; private set; }
         = IshtarGC.AllocateList<RuntimeAspect>();
 
-    public NativeDictionary<int, RuntimeQualityTypeName>* types_table { get; }
+    public NativeDictionary<int, RuntimeQualityTypeName>* types_table { get; private set; }
         = IshtarGC.AllocateDictionary<int, RuntimeQualityTypeName>();
 
-    public NativeDictionary<int, RuntimeFieldName>* fields_table { get; }
+    public NativeDictionary<int, RuntimeFieldName>* fields_table { get; private set; }
         = IshtarGC.AllocateDictionary<int, RuntimeFieldName>();
-    public NativeDictionary<int, InternedString>* string_table { get; }
+    public NativeDictionary<int, InternedString>* string_table { get; private set; }
         = IshtarGC.AllocateDictionary<int, InternedString>();
     public RuntimeConstStorage* ConstStorage { get; set; }
 
 
     public void Dispose()
     {
+        if (_name is null)
+            return;
+
         var name = Name;
         VirtualMachine.GlobalPrintln($"Disposed module '{name}'");
 
         class_table->ForEach(x => x->Dispose());
+        class_table->ForEach(IshtarGC.FreeImmortal);
 
+        aspects_table->ForEach(x => x->Dispose());
+        aspects_table->ForEach(IshtarGC.FreeImmortal);
+
+        types_table->Clear();
+        class_table->Clear();
+        deps_table->Clear();
+        aspects_table->Clear();
+
+        IshtarGC.FreeDictionary(types_table);
+        IshtarGC.FreeDictionary(fields_table);
+        IshtarGC.FreeDictionary(string_table);
         IshtarGC.FreeList(class_table);
         IshtarGC.FreeList(deps_table);
         IshtarGC.FreeList(aspects_table);
 
+        WeakRef<AppVault>.Free(Vault);
+        
+        class_table = null;
+        deps_table = null;
+        aspects_table = null;
+        types_table = null;
+        fields_table = null;
+        string_table = null;
+        _self = null;
+        _name = null;
+        Vault = null;
         if (ConstStorage is not null)
         {
             ConstStorage->Dispose();
@@ -63,7 +88,16 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     }
 
 
-    private InternedString* _name = StringStorage.Intern(name);
+    private InternedString* _name;
+    private RuntimeIshtarModule* _self;
+
+    public RuntimeIshtarModule(AppVault vault, string name, RuntimeIshtarModule* self, IshtarVersion version)
+    {
+        _self = self;
+        Vault = WeakRef<AppVault>.Create(vault);
+        Version = version;
+        _name = StringStorage.Intern(name);
+    }
 
     public string Name
     {
@@ -163,7 +197,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         var clazz = IshtarGC.AllocateImmortal<RuntimeIshtarClass>();
 
-        *clazz = new RuntimeIshtarClass(fullName, parent, self, clazz);
+        *clazz = new RuntimeIshtarClass(fullName, parent, _self, clazz);
 
         
         class_table->Add(clazz);
@@ -980,7 +1014,7 @@ public unsafe struct RuntimeAspect_Field
 [DebuggerDisplay("{_debugString}")]
 public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
 {
-    private readonly RuntimeAspect* _self;
+    private RuntimeAspect* _self;
     private InternedString* _name;
     public RuntimeAspect_Union Union;
     public AspectTarget Target { get; }
@@ -992,9 +1026,10 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
 
     public void Dispose()
     {
-        if (_name is not null)
-            VirtualMachine.GlobalPrintln($"@@@@ Disposed aspect '{StringStorage.GetStringUnsafe(_name)}'");
-
+        if (_self is null)
+            return;
+        var n = StringStorage.GetStringUnsafe(_name);
+        VirtualMachine.GlobalPrintln($"@@@@ Disposed aspect '{n}'");
         _name = null;
         Union = default;
         if (Arguments is not null)
@@ -1002,10 +1037,10 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
             Arguments->ForEach(x => x->Dispose());
             IshtarGC.FreeList(Arguments);
         }
-        IshtarGC.FreeImmortal(_self);
 
-        if (_name is not null)
-            VirtualMachine.GlobalPrintln($"@@@@ end dispose aspect '{StringStorage.GetStringUnsafe(_name)}'");
+        _self = null;
+
+        VirtualMachine.GlobalPrintln($"@@@@ end dispose aspect '{n}'");
     }
 
 

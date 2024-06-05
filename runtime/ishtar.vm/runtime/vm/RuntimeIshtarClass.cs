@@ -27,33 +27,51 @@ namespace ishtar
         IUnsafeTransitionAlignment<string, RuntimeIshtarField>,
         IUnsafeTransitionAlignment<string, RuntimeIshtarMethod>, IEq<RuntimeIshtarClass>, IDisposable
     {
-        private readonly void* _veinClassRef;
-        private readonly RuntimeIshtarClass* _selfReference;
+        private RuntimeIshtarClass* _selfReference;
 
-        public NativeList<RuntimeIshtarMethod>* Methods { get; } = IshtarGC.AllocateList<RuntimeIshtarMethod>();
-        public NativeList<RuntimeIshtarField>* Fields { get; } = IshtarGC.AllocateList<RuntimeIshtarField>();
-        public NativeList<RuntimeAspect>* Aspects { get; } = IshtarGC.AllocateList<RuntimeAspect>();
+        public NativeList<RuntimeIshtarMethod>* Methods { get; private set; } = IshtarGC.AllocateList<RuntimeIshtarMethod>();
+        public NativeList<RuntimeIshtarField>* Fields { get; private set; } = IshtarGC.AllocateList<RuntimeIshtarField>();
+        public NativeList<RuntimeAspect>* Aspects { get; private set; } = IshtarGC.AllocateList<RuntimeAspect>();
         
         public RuntimeIshtarModule* Owner { get; private set; }
         public RuntimeIshtarClass* Parent { get; private set; }
         public RuntimeQualityTypeName* FullName { get; private set; }
 
+        private bool _isDisposed;
+
         public void Dispose()
         {
+            if (_isDisposed) return;
+            if (FullName is null)
+                return;
             var name = Name;
             VirtualMachine.GlobalPrintln($"@@@ Disposed class '{name}'");
             Methods->ForEach(x => x->Dispose());
+            Methods->ForEach(IshtarGC.FreeImmortal);
+            Methods->Clear();
+
+
             Fields->ForEach(x => x->Dispose());
-            Aspects->ForEach(x => x->Dispose());
+            Fields->ForEach(IshtarGC.FreeImmortal);
+            
+            Methods->Clear();
+            Fields->Clear();
+            Aspects->Clear();
 
             IshtarGC.FreeList(Methods);
             IshtarGC.FreeList(Fields);
             IshtarGC.FreeList(Aspects);
 
+            Methods = null;
+            Fields = null;
+            Aspects = null;
+
             Owner = null;
             Parent = null;
             FullName = null;
+            _selfReference = null;
             VirtualMachine.GlobalPrintln($"@@@ end dispose class '{name}'");
+            _isDisposed = true;
         }
 
         private string _debug_name => FullName->NameWithNS;
@@ -152,6 +170,8 @@ namespace ishtar
             method->Assert(method);
             var exist = Methods->FirstOrNull(x =>
             {
+                if (x->IsDisposed())
+                    return false;
                 x->Assert(x);
                 return x->Name.Equals(name);
             });
