@@ -11,6 +11,7 @@ namespace ishtar_test
     using System.IO;
     using System.Linq;
     using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
     using vein.extensions;
     using vein.fs;
     using vein.runtime;
@@ -70,15 +71,23 @@ namespace ishtar_test
 
         public void EnsureType(QualityTypeName type) => Module.InternTypeName(type);
 
+        private readonly List<IDisposable> _disposables = new();
+
+        private bool isDisposed;
         public void Dispose()
         {
-            // TODO release managed resources here
+            if (isDisposed) return;
+            isDisposed = true;
+            foreach (var disposable in _disposables) disposable.Dispose();
+            _disposables.Clear();
+
         }
 
 
         public IshtarExecutionContext Compile()
         {
             var ctx = new IshtarExecutionContext(Module, testCase, uid);
+            _disposables.Add(ctx);
             ctx.Compile();
             return ctx;
         }
@@ -96,18 +105,19 @@ namespace ishtar_test
         private RuntimeIshtarModule* _corlib;
         public VirtualMachine VM { get; }
 
-        
 
+        private static nint _gcHandle;
         public IshtarExecutionContext(VeinModuleBuilder veinModule, string testCase, string uid)
         {
+            if (_gcHandle == 0 && RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                _gcHandle = NativeLibrary.Load("libgc.so");
+            BoehmGCLayout.Native.GC_init();
+
             _veinModule = veinModule;
             _testCase = testCase;
             _uid = uid;
             _deps = IshtarGC.AllocateList<RuntimeIshtarModule>();
-            VM = VirtualMachine.Create("test-app");
-
-            BoehmGCLayout.Native.GC_set_find_leak(true);
-            BoehmGCLayout.Native.GC_init();
+            VM = VirtualMachine.Create($"test-app-{uid}-{testCase}");
 
             if (VM.watcher is DefaultWatchDog)
                 VM.watcher = new TestWatchDog();
@@ -157,8 +167,12 @@ namespace ishtar_test
             return resolver.ResolveDep("std", new IshtarVersion(0, 0), _deps);
         }
 
+        private bool isDisposed;
+
         public void Dispose()
         {
+            if (isDisposed) return;
+            isDisposed = true;
             VM?.Dispose();
             IshtarGC.FreeList(_deps);
         }
@@ -166,14 +180,27 @@ namespace ishtar_test
 
     public class IshtarTestBase : IDisposable
     {
-        internal string UID { get; } = Guid.NewGuid().ToString().Where(char.IsLetter).Join();
+        internal string UID { get; } = Guid.NewGuid().ToString("N");
 
+        private readonly IList<IDisposable> _disposables = new List<IDisposable>();
 
-        public IshtarPreparationContext CreateScope([CallerMemberName] string caller = "<unnamed>") => new(caller, UID);
+        public IshtarPreparationContext CreateScope([CallerMemberName] string caller = "<unnamed>")
+        {
+            var ctx = new IshtarPreparationContext(caller, UID);
+            _disposables.Add(ctx);
+            return ctx;
+        }
+        public IshtarExecutionContext CreateEmptyRuntime([CallerMemberName] string caller = "<unnamed>")
+        {
+            var ctx = new IshtarPreparationContext(caller, UID);
+            _disposables.Add(ctx);
+            return ctx.Compile();
+        }
 
         public void Dispose()
         {
-            // TODO release managed resources here
+            foreach (var disposable in _disposables) disposable.Dispose();
+            _disposables.Clear();
         }
     }
 }
