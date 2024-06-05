@@ -19,9 +19,30 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         // GC_API void GC_CALL GC_deinit(void);
         [DllImport(LIBNAME)]
         public static extern void GC_deinit();
+        [DllImport(LIBNAME)]
+        public static extern bool GC_is_init_called();
+
+
+        // && for safe destroy
+
+        [DllImport(LIBNAME)]
+        public static extern void GC_clear_exclusion_table();
+        [DllImport(LIBNAME)]
+        public static extern void GC_clear_roots();
+
+        public static void SafeDestroy()
+        {
+            GC_clear_exclusion_table();
+            GC_clear_roots();
+            GC_deinit();
+        }
+        
 
         [DllImport(LIBNAME)]
         public static extern void GC_free(void* ptr);
+
+        [DllImport(LIBNAME)]
+        public static extern bool GC_is_heap_ptr(void* ptr);
         [DllImport(LIBNAME)]
         public static extern void* GC_malloc(uint size);
 
@@ -195,7 +216,12 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
     public void destroy() => Native.GC_deinit();
 
-    public void* alloc(uint size) => Native.GC_malloc(size);
+    public void* alloc(uint size)
+    {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
+        return Native.GC_malloc(size);
+    }
 
     /* Explicitly deallocate an object.  Dangerous if used incorrectly.     */
     /* Requires a pointer to the base of an object.                         */
@@ -203,12 +229,32 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
     /* contain registered disappearing links of any kind) when it is        */
     /* explicitly deallocated.                                              */
     /* GC_free(0) is a no-op, as required by ANSI C for free.               */
-    public void free(void* ptr) => Native.GC_free(ptr);
+    public void free(void** ptr)
+    {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
+        if (Native.GC_is_heap_ptr(*ptr))
+        {
+            Native.GC_free(*ptr);
+            *ptr = null;
+        }
+        else
+            throw new PointerIsNotGcOwnership();
+    }
+
+    public bool isOwnerShip(void** ptr)
+    {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
+        return Native.GC_is_heap_ptr(*ptr);
+    }
 
     private static nuint hide_pointer(void* p) => ~(nuint)p;
 
     public void create_weak_link(void** link_addr, void* obj, bool trackable)
     {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
         *link_addr = (void*)hide_pointer(obj);
         if (trackable)
             Native.GC_register_long_link(link_addr, obj);
@@ -225,10 +271,26 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         *link_addr = null;
     }
 
-    public void create_weak_link(void** child, void* parent) => Native.GC_general_register_disappearing_link(child, parent);
-    public void register_finalizer_ignore_self(void* obj, IshtarFinalizationProc proc) => Native.GC_register_finalizer_ignore_self(obj, proc, null, null, null);
+    public void create_weak_link(void** child, void* parent)
+    {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
+        Native.GC_general_register_disappearing_link(child, parent);
+    }
 
-    public void* alloc_atomic(uint size) => (void*)Native.GC_debug_malloc_atomic_uncollectable(size, "empty.vein", 0);
+    public void register_finalizer_ignore_self(void* obj, delegate*<nint, nint, void> proc)
+    {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
+        Native.GC_register_finalizer_ignore_self(obj, proc, null, null, null);
+    }
+
+    public void* alloc_atomic(uint size)
+    {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
+        return (void*)Native.GC_malloc_atomic_uncollectable(size);
+    }
 
 
     private struct WeakImmortalRef(void** addr, void* obj)
