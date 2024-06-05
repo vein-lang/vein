@@ -10,6 +10,7 @@ namespace ishtar.runtime.gc
     using collections;
     using vein.runtime;
     using static vein.runtime.VeinTypeCode;
+    using LLVMSharp;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void IshtarFinalizationProc(nint p, nint i);
@@ -90,14 +91,21 @@ namespace ishtar.runtime.gc
         public VirtualMachine VM => vm;
         public bool check_memory_leak = true;
 
+        private bool is_disposed;
+        public static string previousDisposeStackTrace;
+
         public void Dispose()
         {
+            if (is_disposed)
+                throw new InvalidOperationException();
+            is_disposed = true;
+            previousDisposeStackTrace = Environment.StackTrace;
             var gcHeapSizeBefore = gcLayout.get_heap_size();
             var gcFreeBytesBefore = gcLayout.get_free_bytes();
             var gcHeapUsageBefore = gcLayout.get_heap_usage();
 
-
-            var hasCollected = gcLayout.try_collect();
+            gcLayout.collect();
+            //var hasCollected = gcLayout.try_collect();
             gcLayout.finalize_all();
 
             foreach (var p in RefsHeap.ToArray())
@@ -112,7 +120,7 @@ namespace ishtar.runtime.gc
             }
             ArrayRefsHeap.Clear();
 
-            hasCollected = gcLayout.try_collect();
+            //hasCollected = gcLayout.try_collect();
 
             if (!check_memory_leak) return;
 
@@ -438,25 +446,31 @@ namespace ishtar.runtime.gc
             InsertDebugData(new(checked((ulong)allocator.TotalSize), nameof(AllocObject), (nint)p));
             RefsHeap.AddLast((nint)p);
 
-            ObjectRegisterFinalizer(p, _direct_finalizer, frame);
+            ObjectRegisterFinalizer(p, &_direct_finalizer, frame);
 
             return p;
         }
 
 
-        private void _direct_finalizer(nint obj, nint _)
+        private static void _direct_finalizer(nint obj, nint _)
         {
             var o = (IshtarObject*)obj;
 
             if (!o->IsValidObject())
             {
-                vm.println($"@@[dtor] called! for invalid object!");
+                #if DEBUG
+                Debug.WriteLine($"Detected invalid object when calling _direct_finalizer");
+                Debugger.Break();
+                #endif
                 return;
             }
 
+            var vm = o->clazz->Owner->vm;
+            var gc = vm.GC;
+
             var frame = vm.Frames.GarbageCollector;
 
-            ObjectRegisterFinalizer(o, null, frame);
+            gc.ObjectRegisterFinalizer(o, null, frame);
 
             if (vm.Config.DisabledFinalization)
                 return;
@@ -478,13 +492,14 @@ namespace ishtar.runtime.gc
                 vm.watcher.ValidateLastError();
             }
 
-            RefsHeap.Remove((nint)o);
-            DeleteDebugData(obj);
+            gc.RefsHeap.Remove((nint)o);
+            gc.DeleteDebugData(obj);
 
-            Stats.total_allocations--;
-            Stats.alive_objects--;
+            gc.Stats.total_allocations--;
+            gc.Stats.alive_objects--;
 
-            gcLayout.free(o);
+
+            gcLayout.free((void**)&o);
         }
 
 
@@ -501,20 +516,22 @@ namespace ishtar.runtime.gc
                 VM.FastFail(WNE.ACCESS_VIOLATION, "trying free memory of static native object", frame);
                 return;
             }
+            gcLayout.register_finalizer_no_order(obj, null, frame);
+
             DeleteDebugData((nint)obj);
             RefsHeap.Remove((nint)obj);
-
-            gcLayout.free(obj);
-
+            
             Stats.total_bytes_requested -= allocatorPool.Return(obj);
             Stats.total_allocations--;
             Stats.alive_objects--;
+
+            gcLayout.free((void**)&obj);
         }
 
         public bool IsAlive(IshtarObject* obj)
             => obj->IsValidObject() && gcLayout.is_marked(obj);
 
-        public void ObjectRegisterFinalizer(IshtarObject* obj, IshtarFinalizationProc proc, CallFrame frame)
+        public void ObjectRegisterFinalizer(IshtarObject* obj, delegate*<nint, nint, void> proc, CallFrame frame)
         {
             var clazz = obj->clazz;
 
@@ -601,16 +618,24 @@ namespace ishtar.runtime.gc
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged, IEquatable<TValue>
             => AtomicNativeDictionary<TKey, TValue>.Create(initialCapacity, _allocator);
 
+        public static void FreeDictionary<TKey, TValue>(NativeDictionary<TKey, TValue>* list)
+            where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
+            => NativeDictionary<TKey, TValue>.Free(list, _allocator);
+
         public static T* AllocateImmortal<T>() where T : unmanaged
         {
             //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
-            return (T*)gcLayout.alloc_immortal((uint)sizeof(T));
+            var p = (T*)gcLayout.alloc_immortal((uint)sizeof(T));
+            allocatedImmortals.Add((nint)p);
+            return p;
         }
 
         public static void* AllocateImmortal(uint size)
         {
             //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
-            return gcLayout.alloc_immortal(size);
+            var p = gcLayout.alloc_immortal(size);
+            allocatedImmortals.Add((nint)p);
+            return p;
         }
 
         public static T* AllocateImmortalRoot<T>() where T : unmanaged
@@ -624,13 +649,17 @@ namespace ishtar.runtime.gc
         public static void FreeImmortalRoot<T>(T* ptr) where T : unmanaged
         {
             gcLayout.remove_roots(ptr, sizeof(T));
-            gcLayout.free(ptr);
+            gcLayout.free((void**)&ptr);
         }
 
         public static T* AllocateImmortal<T>(int size) where T : unmanaged
         {
             //return (T*)NativeMemory.AllocZeroed((uint)(sizeof(T) * size));
-            return (T*)gcLayout.alloc_immortal((uint)(sizeof(T) * size));
+            var p = (T*)gcLayout.alloc_immortal((uint)(sizeof(T) * size));
+
+            allocatedImmortals.Add((nint)p);
+
+            return p;
         }
 
         public static T* AllocateImmortalRoot<T>(int size) where T : unmanaged
@@ -644,12 +673,39 @@ namespace ishtar.runtime.gc
         public static void FreeImmortalRoot<T>(T* ptr, int size) where T : unmanaged
         {
             gcLayout.remove_roots(ptr, sizeof(T) * size);
-            gcLayout.free(ptr);
+            gcLayout.free((void**)&ptr);
         }
 
+
+        private static readonly List<nint> allocatedImmortals = new();
+        private static readonly Dictionary<nint, string> disposedImmortals = new();
         public static void FreeImmortal<T>(T* t) where T : unmanaged
-            => gcLayout.free(t);
+        {
+            if (!gcLayout.isOwnerShip((void**)&t))
+            {
+                Debug.WriteLine($"Trying free pointer without access");
+                return;
+            }
+
+            var stackTrace = Environment.StackTrace;
+            if (allocatedImmortals.Remove((nint)t))
+            {
+                disposedImmortals[(nint)t] = stackTrace;
+                gcLayout.free((void**)&t);
+            }
+            else if (disposedImmortals.TryGetValue((nint)t, out var result))
+            {
+                if (stackTrace.Equals(result))
+                    return;
+                throw new TryingFreeAlreadyDisposedImmortalObject(disposedImmortals[(nint)t]);
+            }
+            else
+                throw new BadMemoryOfImmortalObject();
+        }
 
         #endregion
     }
+
+    public class BadMemoryOfImmortalObject : Exception;
+    public class TryingFreeAlreadyDisposedImmortalObject(string stackTrace) : Exception(stackTrace);
 }

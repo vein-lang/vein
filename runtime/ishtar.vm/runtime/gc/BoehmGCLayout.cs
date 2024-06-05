@@ -4,6 +4,10 @@ using System.Runtime.InteropServices;
 
 public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 {
+    public class GcNotLoaded : Exception;
+    public class GcAlreadyLoaded : Exception;
+    public class PointerIsNotGcOwnership : Exception;
+
     public class Native
     {
         public static void Load() =>
@@ -78,7 +82,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         /* refers to the object itself.                                 */
         // GC_API void GC_CALL GC_register_finalizer_ignore_self(void* /* obj */, GC_finalization_proc /* fn */, void* /* cd */, GC_finalization_proc* /* ofn */, void** /* ocd */) GC_ATTR_NONNULL(1);
         [DllImport(LIBNAME)]
-        public static extern void GC_register_finalizer_ignore_self(void* obj, IshtarFinalizationProc fn, void* cd, IshtarFinalizationProc ofn, void** ocd);
+        public static extern void GC_register_finalizer_ignore_self(void* obj, delegate*<nint, nint, void> fn, void* cd, delegate*<nint, nint, void> ofn, void** ocd);
 
 
         /* Register a given object for toggle-ref processing.  It will  */
@@ -101,7 +105,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
 
         [DllImport(LIBNAME, CharSet = CharSet.Ansi)]
-        public static extern void GC_debug_register_finalizer_no_order(void* obj, IshtarFinalizationProc fn, void* cd, IshtarFinalizationProc ofn, void** ocd, string file, int line);
+        public static extern void GC_register_finalizer_no_order(void* obj, delegate*<nint, nint, void> fn, void* cd, delegate*<nint, nint, void> ofn, void** ocd);
 
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -133,10 +137,10 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
         // GC_API GC_ATTR_MALLOC void * GC_CALL GC_debug_malloc_atomic_uncollectable(size_t lb, GC_EXTRA_PARAMS)
         [DllImport(LIBNAME)]
-        public static extern nint GC_debug_malloc_atomic_uncollectable(uint size, string file, int line);
+        public static extern nint GC_malloc_atomic_uncollectable(uint size);
 
         [DllImport(LIBNAME)]
-        public static extern nint GC_debug_malloc_uncollectable(uint size, string file, int line);
+        public static extern nint GC_malloc_uncollectable(uint size);
 
         [DllImport(LIBNAME)]
         public static extern nint GC_realloc(nint oldPtr, uint newSize);
@@ -168,10 +172,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
         [DllImport(LIBNAME)]
         public static extern bool GC_add_roots(void* hi, void* low);
-
-        [DllImport(LIBNAME)]
-        public static extern void GC_clear_roots();
-
+        
         [DllImport(LIBNAME)]
         public static extern void GC_remove_roots(void* hi, void* low);
 
@@ -264,6 +265,8 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
     public void unlink(void** link_addr, bool trackable)
     {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
         if (trackable)
             Native.GC_unregister_long_link(link_addr);
         else
@@ -302,6 +305,8 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
     public void* alloc_immortal(uint size)
     {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
         //if (root_block == 0)
         //{
         //    Interlocked.MemoryBarrier();
@@ -320,7 +325,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         //}
 
 
-        var ptr = (void*)Native.GC_debug_malloc_uncollectable(size, "empty.vein", 0);
+        var ptr = (void*)Native.GC_malloc_atomic_uncollectable(size);
 
 
         var result = Native.GC_toggleref_add(ptr, 0);
@@ -348,8 +353,19 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         return ptr;
     }
 
-    public void add_roots(void* ptr, int size) => Native.GC_add_roots(ptr, (void*)((nint)ptr + size));
-    public void remove_roots(void* ptr, int size) => Native.GC_remove_roots(ptr, (void*)((nint)ptr + size));
+    public void add_roots(void* ptr, int size)
+    {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
+        Native.GC_add_roots(ptr, (void*)((nint)ptr + size));
+    }
+
+    public void remove_roots(void* ptr, int size)
+    {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
+        Native.GC_remove_roots(ptr, (void*)((nint)ptr + size));
+    }
 
     public void clear_roots() => Native.GC_clear_roots();
 
@@ -366,10 +382,17 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
     }
 
 
-    public bool try_collect() => Native.GC_try_to_collect(0) == 1;
+    public bool try_collect()
+    {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
+        return Native.GC_try_to_collect(0) == 1;
+    }
 
     public void collect()
     {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
         Native.GC_gcollect();
     }
 
@@ -382,12 +405,12 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
     public void find_leak() => throw new NotImplementedException();
 
 
-    public void register_finalizer_no_order(IshtarObject* obj, IshtarFinalizationProc proc, CallFrame frame)
-        => Native.GC_debug_register_finalizer_no_order(obj, proc, null, null, null, frame.Debug_GetFile(), frame.Debug_GetLine());
+    public void register_finalizer_no_order(IshtarObject* obj, delegate*<nint, nint, void> proc, CallFrame frame)
+        => Native.GC_register_finalizer_no_order(obj, proc, null, null, null);
 
 
-    public static void register_finalizer_no_order2(void* obj, IshtarFinalizationProc proc)
-        => Native.GC_debug_register_finalizer_no_order(obj, proc, null, null, null, "file.cs", 0);
+    public static void register_finalizer_no_order2(void* obj, delegate*<nint, nint, void> proc)
+        => Native.GC_register_finalizer_no_order(obj, proc, null, null, null);
 
 
     public void dump(string file)
