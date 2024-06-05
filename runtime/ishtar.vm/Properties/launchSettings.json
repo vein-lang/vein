@@ -3,6 +3,9 @@
     "default run": {
       "commandName": "Project"
     },
+    "WSL": {
+      "commandName": "WSL2"
+    },
     "run test fast": {
       "commandName": "Project",
       "commandLineArgs": "..\\..\\..\\..\\..\\test\\ishtar_test\\std.wll --sys::log::use-console=1"
