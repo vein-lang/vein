@@ -91,16 +91,25 @@ namespace ishtar
                 return;
             }
 
-            if (frame.method->Owner is not null)
+            if (frame.method != null && !frame.method->IsDisposed() && frame.method->Owner is not null && frame.method->Owner->FullName is not null)
                 str.AppendLine($"\tat {frame.method->Owner->FullName->NameWithNS}.{frame.method->Name}");
-            else
+            else if (frame.method is not null && !frame.method->IsDisposed())
                 str.AppendLine($"\tat <sys>.{frame.method->Name}");
+            else
+                str.AppendLine($"\tat <sys>.ukn+0");
+
 
             var r = frame.parent;
-
+            var index = 0;
             while (r != null)
             {
-                str.AppendLine($"\tat {r.method->Owner->FullName->NameWithNS}.{r.method->Name}");
+                if (r.method is not null && !r.method->IsDisposed() && r.method->Owner is not null && r.method->Owner->FullName is not null)
+                    str.AppendLine($"\tat {r.method->Owner->FullName->NameWithNS}.{r.method->Name}");
+                else if (r.method is not null && !r.method->IsDisposed())
+                    str.AppendLine($"\tat sys.{r.method->Name}");
+                else
+                    str.AppendLine($"\tat <sys>.ukn+{++index}");
+
                 r = r.parent;
             }
 
