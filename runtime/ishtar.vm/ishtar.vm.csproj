@@ -66,6 +66,9 @@
     <None Update="includes\gc.lib">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="includes\libgc.so">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="sample_native_library.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
