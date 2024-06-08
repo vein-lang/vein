@@ -16,6 +16,7 @@ namespace ishtar
     using static vein.runtime.VeinTypeCode;
     using static WNE;
     using runtime.gc;
+    using ishtar.llmv;
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
@@ -50,6 +51,7 @@ namespace ishtar
             
             vm.FFI = new ForeignFunctionInterface(vm);
 
+            vm.Jitter = new LLVMContext(vm);
             
             return vm;
         }
@@ -110,6 +112,7 @@ namespace ishtar
         public volatile IshtarJIT Jit;
         public volatile NativeStorage NativeStorage;
         internal volatile IshtarTrace trace;
+        internal LLVMContext Jitter;
         public IshtarTypes* Types;
 
         
@@ -135,17 +138,39 @@ namespace ishtar
 
         public void halt(int exitCode = -1) => Environment.Exit(exitCode);
 
+
         public void exec_method_external_native(CallFrame frame)
         {
-            FastFail(WNE.MISSING_METHOD, "exec_method_external_native not implemented", frame);
-            return; // TODO
+            var executionEngine = Jitter.GetExecutionEngine();
+
+
+            ref var pinfo = ref frame.method->PIInfo;
+            if (pinfo.compiled_func_ref == default)
+                pinfo.create_bindings(executionEngine);
+
+            Jitter.PrintAsm(frame.method);
+
+            var caller = (delegate*<stackval*, int, stackval>)
+                pinfo.compiled_func_ref;
+
+            var result = caller(frame.args, frame.method->ArgLength);
+            Assert(result.type == frame.method->ReturnType->TypeCode, TYPE_MISMATCH,
+                $"jit generated incorrect return type for '{frame.method->Name}'");
+
+            if (frame.method->ReturnType->TypeCode is TYPE_VOID)
+                return;
+
+            frame.returnValue = stackval.Allocate(frame, 1);
+            *frame.returnValue.Ref = result;
         }
 
         public void exec_method_internal_native(CallFrame frame)
         {
+            // TODO remove using AllocHGlobal
             var caller = (delegate*<CallFrame, IshtarObject**, IshtarObject*>)
-                frame.method->PIInfo.Addr;
+                frame.method->PIInfo.compiled_func_ref;
             var args_len = frame.method->ArgLength;
+
             var args = (IshtarObject**)Marshal.AllocHGlobal(sizeof(IshtarObject*) * args_len);
 
             if (args == null)
@@ -170,13 +195,13 @@ namespace ishtar
 
         public void exec_method_native(CallFrame frame)
         {
-            if (frame.method->PIInfo.Addr == null)
+            if (frame.method->PIInfo.Equals(PInvokeInfo.Zero))
             {
                 FastFail(MISSING_METHOD, "Native method not linked.", frame);
                 return;
             }
 
-            if (frame.method->PIInfo.IsExternal())
+            if (!frame.method->PIInfo.isInternal)
                 exec_method_external_native(frame);
             else
                 exec_method_internal_native(frame);
@@ -220,7 +245,7 @@ namespace ishtar
             var stack = stackval.Allocate(invocation, mh->max_stack);
 
             const int STACK_VIOLATION_LEVEL_SIZE = 32;
-
+            
             create_violation_zone_for_stack(stack, STACK_VIOLATION_LEVEL_SIZE);
 
             var sp = stack.Ref + STACK_VIOLATION_LEVEL_SIZE;
@@ -234,8 +259,11 @@ namespace ishtar
             {
                 if (mh->labels_map->TryGetValue(mh->labels->Get((int)*ip), out var label))
                     ip = start + label.pos - 1;
-                else FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[jump_now] cannot find protected zone label", invocation);
+                else
+                    FastFail(PROTECTED_ZONE_LABEL_CORRUPT, "[jump_now] cannot find protected zone label", invocation);
             }
+
+
             void jump_to(int index)
             {
                 if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
