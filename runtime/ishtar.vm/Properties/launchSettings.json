@@ -8,7 +8,11 @@
     },
     "run test fast": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\..\\test\\ishtar_test\\std.wll --sys::log::use-console=1"
+      "commandLineArgs": "..\\..\\..\\..\\..\\..\\test\\ishtar_test\\std.wll --sys::log::use-console=1"
+    },
+    "run external_test": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\git\\std\\test\\bin\\test.std.wll --sys::log::use-console=1"
     }
   }
 }
