@@ -231,24 +231,14 @@ namespace ishtar
             Header->code = code;
             Header->code_size = size;
         }
-
-        public void SetExternalLink(void* @ref)
-        {
-            if ((Flags & MethodFlags.Extern) == 0)
-                throw new MethodHasExternException();
-            if ((Flags & MethodFlags.Abstract) == 0)
-                throw new MethodHasAbstractException();
-            PIInfo = new PInvokeInfo
-            {
-                Addr = @ref,
-                iflags = 0
-            };
-        }
-
-
+        
         public RuntimeIshtarMethod* AsNative(void* p)
         {
-            this.PIInfo = PInvokeInfo.New(p);
+            this.PIInfo = new PInvokeInfo()
+            {
+                isInternal = true,
+                compiled_func_ref = (nint)p,
+            };
             return _self;
         }
 

@@ -782,12 +782,12 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             return;
         }
 
-        if (m->PIInfo is { Addr: null, iflags: 0 })
-        {
-            vm.FastFail(WNE.TYPE_LOAD, $"Extern '{method->Name}' method has nul PIInfo", sys_frame);
-            vm.FFI.DisplayDefinedMapping();
-            return;
-        }
+        //if (m->PIInfo is { Addr: null, iflags: 0 })
+        //{
+        //    vm.FastFail(WNE.TYPE_LOAD, $"Extern '{method->Name}' method has nul PIInfo", sys_frame);
+        //    vm.FFI.DisplayDefinedMapping();
+        //    return;
+        //}
 
         method->PIInfo = m->PIInfo;
     }
