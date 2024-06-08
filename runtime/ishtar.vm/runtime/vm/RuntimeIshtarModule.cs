@@ -431,6 +431,9 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         DistributionAspects(module);
         ValidateRuntimeTokens(module);
         module->LinkFFIMethods(module);
+#if DEBUG
+        module->vm.Jitter.GetExecutionModule().PrintToFile($"{module->Name}_ffi.ll");
+#endif
         InitVTables(module);
         
 
