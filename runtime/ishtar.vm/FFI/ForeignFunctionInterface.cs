@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using runtime;
 using vein.runtime;
-using ishtar;
 
 public unsafe class ForeignFunctionInterface
 {
@@ -99,14 +98,17 @@ public unsafe class ForeignFunctionInterface
         => (RuntimeIshtarMethod*)method_table.GetValueOrDefault(FullName);
 
 
-    public static void LinkExternalNativeLibrary(string inportTarget, string fnName,
+    public static void LinkExternalNativeLibrary(string importModule, string fnName,
         RuntimeIshtarMethod* importCaller)
     {
-        importCaller->PIInfo = PInvokeInfo.New(null) with { iflags = (ushort)PInvokeInfo.Flags.EXTERNAL };
+        var jitter = importCaller->Owner->Owner->vm.Jitter;
 
-        var entity = new NativeImportEntity(inportTarget, fnName, (nint)importCaller);
+        jitter.Compile21FFI(importCaller, importModule, fnName);
 
-        throw new NotImplementedException("clazz.nativeImports.Add(entity)");
+        //Console.WriteLine($"ERROR FFI LINK");
+        //importCaller->PIInfo = PInvokeInfo.New(null) with { iflags = (ushort)PInvokeInfo.Flags.EXTERNAL };
+        //var entity = new NativeImportEntity(inportTarget, fnName, (nint)importCaller);
+        //throw new NotImplementedException("clazz.nativeImports.Add(entity)");
     }
 
 
