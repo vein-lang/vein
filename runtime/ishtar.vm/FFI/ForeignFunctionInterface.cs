@@ -104,11 +104,6 @@ public unsafe class ForeignFunctionInterface
         var jitter = importCaller->Owner->Owner->vm.Jitter;
 
         jitter.Compile21FFI(importCaller, importModule, fnName);
-
-        //Console.WriteLine($"ERROR FFI LINK");
-        //importCaller->PIInfo = PInvokeInfo.New(null) with { iflags = (ushort)PInvokeInfo.Flags.EXTERNAL };
-        //var entity = new NativeImportEntity(inportTarget, fnName, (nint)importCaller);
-        //throw new NotImplementedException("clazz.nativeImports.Add(entity)");
     }
 
 

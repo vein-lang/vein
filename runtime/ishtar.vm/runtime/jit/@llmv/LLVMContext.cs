@@ -54,7 +54,7 @@ public unsafe class LLVMContext
         return new Span<byte>(function, size);
     }
 
-    public PInvokeInfo CompileFFI(string methodName, string moduleName, string fnName, List<VeinTypeCode> args, VeinTypeCode returnType)
+    public PInvokeInfo CompileFFIWithSEH(string methodName, string moduleName, string fnName, List<VeinTypeCode> args, VeinTypeCode returnType)
     {
         var retType = GetLLVMType(returnType);
         var args_converted = args.Select(GetLLVMType).ToList();
@@ -127,7 +127,7 @@ public unsafe class LLVMContext
         };
     }
 
-    public void CompileFFI(RuntimeIshtarMethod* method, string moduleName, string fnName)
+    public void CompileRawFFI(RuntimeIshtarMethod* method, string moduleName, string fnName)
     {
         if (_ffiModule == default)
             _ffiModule = LLVMModuleRef.CreateWithName("_ffi");
@@ -184,9 +184,7 @@ public unsafe class LLVMContext
         method->Arguments->ForEach(x => {
             argTypes.Add(GetLLVMType(x->Type));
         });
-
         
-
         var externalFuncType = LLVMTypeRef.CreateFunction(retType, argTypes.ToArray(), false);
         var externalFunc = _ffiModule.AddFunction($"{moduleName}_{fnName}", externalFuncType);
         
