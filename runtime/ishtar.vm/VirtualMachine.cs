@@ -1562,6 +1562,6 @@ namespace ishtar
             frame?.vm?.FastFail(type, $"static assert failed: '{msg}'", frame);
         }
 
-        public static void GlobalPrintln(string empty) => Console.WriteLine(empty);
+        public static void GlobalPrintln(string empty) {}
     }
 }
