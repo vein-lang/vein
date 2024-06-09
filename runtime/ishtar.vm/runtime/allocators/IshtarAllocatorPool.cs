@@ -8,19 +8,19 @@ public sealed unsafe class IshtarAllocatorPool(GCLayout? layout) : IIshtarAlloca
     internal readonly Dictionary<nint, IIshtarAllocator> _allocators = new();
 
 
-    private IIshtarAllocator GetAllocator(CallFrame frame)
+    private IIshtarAllocator GetAllocator(CallFrame* frame)
     {
         if (layout is not null)
             return new GCLayoutAllocator(layout);
 
-        if (frame.vm.Config.UseDebugAllocator)
+        if (frame->vm.Config.UseDebugAllocator)
             return new DebugManagedAllocator();
 
         throw new NotImplementedException();
     }
 
 
-    public IIshtarAllocator Rent<T>(out T* output, AllocationKind kind, CallFrame frame) where T : unmanaged
+    public IIshtarAllocator Rent<T>(out T* output, AllocationKind kind, CallFrame* frame) where T : unmanaged
     {
         var allocator = GetAllocator(frame);
 
@@ -33,7 +33,7 @@ public sealed unsafe class IshtarAllocatorPool(GCLayout? layout) : IIshtarAlloca
         return allocator;
     }
 
-    public IIshtarAllocator RentArray<T>(out T* output, int size, CallFrame frame) where T : unmanaged
+    public IIshtarAllocator RentArray<T>(out T* output, int size, CallFrame* frame) where T : unmanaged
     {
         var allocator = GetAllocator(frame);
 

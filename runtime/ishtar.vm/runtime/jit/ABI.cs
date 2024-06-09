@@ -1,6 +1,6 @@
 namespace ishtar;
 
-public class ABI(VirtualMachine vm)
+public unsafe class ABI(VirtualMachine vm)
 {
     // ==================
     // TODO, move to outside
@@ -8,23 +8,23 @@ public class ABI(VirtualMachine vm)
 
     private readonly Dictionary<string, NativeImportCache> _cache = new ();
 
-    public void LoadNativeLibrary(NativeImportEntity entity, CallFrame frame)
+    public void LoadNativeLibrary(NativeImportEntity entity, CallFrame* frame)
     {
         if (_cache.ContainsKey(entity.Entry))
             return;
 
-        var result = frame.vm.NativeStorage.TryLoad(new FileInfo(entity.Entry), out var handle);
+        var result = frame->vm.NativeStorage.TryLoad(new FileInfo(entity.Entry), out var handle);
 
         if (!result)
         {
-            frame.vm.FastFail(WNE.NATIVE_LIBRARY_COULD_NOT_LOAD, $"{entity.Entry}", frame);
+            frame->vm.FastFail(WNE.NATIVE_LIBRARY_COULD_NOT_LOAD, $"{entity.Entry}", frame);
             return;
         }
 
         _cache[entity.Entry] = new NativeImportCache(entity.Entry, handle);
     }
 
-    public void LoadNativeSymbol(NativeImportEntity entity, CallFrame frame)
+    public void LoadNativeSymbol(NativeImportEntity entity, CallFrame* frame)
     {
         var cached = _cache[entity.Entry];
 
@@ -33,14 +33,14 @@ public class ABI(VirtualMachine vm)
 
         try
         {
-            var symbol = frame.vm.NativeStorage.GetSymbol(cached.handle, entity.Fn);
+            var symbol = frame->vm.NativeStorage.GetSymbol(cached.handle, entity.Fn);
 
             cached.ImportedSymbols.Add(entity.Fn, symbol);
             entity.Handle = symbol;
         }
         catch
         {
-            frame.vm.FastFail(WNE.NATIVE_LIBRARY_SYMBOL_COULD_NOT_FOUND, $"{entity.Entry}::{entity.Fn}", frame);
+            frame->vm.FastFail(WNE.NATIVE_LIBRARY_SYMBOL_COULD_NOT_FOUND, $"{entity.Entry}::{entity.Fn}", frame);
         }
     }
 

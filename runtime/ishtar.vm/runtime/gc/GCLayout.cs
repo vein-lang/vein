@@ -21,7 +21,7 @@ public unsafe interface GCLayout
     public void finalize_all();
     public void finalize_on_demand();
 
-    public void register_finalizer_no_order(IshtarObject* obj, delegate*<nint, nint, void> proc, CallFrame frame);
+    public void register_finalizer_no_order(IshtarObject* obj, delegate*<nint, nint, void> proc, CallFrame* frame);
     public void collect();
     bool is_marked(void* obj);
 }

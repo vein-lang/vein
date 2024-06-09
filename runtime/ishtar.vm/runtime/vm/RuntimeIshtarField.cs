@@ -1,12 +1,9 @@
 namespace ishtar
 {
-    using System.Linq;
     using collections;
     using vein.runtime;
     using runtime;
     using runtime.gc;
-    using vein.reflection;
-    using Microsoft.VisualBasic.FileIO;
 
     public readonly unsafe struct WeakRef<T>(void* ptr) where T : class
     {
@@ -77,11 +74,11 @@ namespace ishtar
         }
 
 
-        public bool init_mapping(CallFrame frame)
+        public bool init_mapping(CallFrame* frame)
         {
             bool failMapping(int code, RuntimeIshtarField* field)
             {
-                frame.vm.FastFail(WNE.TYPE_LOAD,
+                frame->vm.FastFail(WNE.TYPE_LOAD,
                     $"Native aspect has incorrect mapping for '{field->FullName->Name}' field. [0x{code:X}]", frame);
                 return false;
             }

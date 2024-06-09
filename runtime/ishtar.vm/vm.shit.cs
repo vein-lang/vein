@@ -10,7 +10,7 @@ namespace ishtar
     {
         private void act<T>(ref T t1, ref T t2, A_OperationDelegate<T> actor) => actor(ref t1, ref t2);
 
-        public RuntimeQualityTypeName* readTypeName(uint index, RuntimeIshtarModule* module, CallFrame frame)
+        public RuntimeQualityTypeName* readTypeName(uint index, RuntimeIshtarModule* module, CallFrame* frame)
         {
             if (module->types_table->TryGetValue((int)index, out var result))
                 return result;
@@ -18,7 +18,7 @@ namespace ishtar
             return null;
         }
 
-        public RuntimeIshtarClass* GetClass(uint index, RuntimeIshtarModule* module, CallFrame frame)
+        public RuntimeIshtarClass* GetClass(uint index, RuntimeIshtarModule* module, CallFrame* frame)
         {
             if (!module->types_table->TryGetValue((int)index, out var name))
                 Assert(false, WNE.TYPE_LOAD, $"Cant find '{index}' in class_table.", frame);
@@ -32,7 +32,7 @@ namespace ishtar
             return type;
         }
 
-        public RuntimeIshtarMethod* GetMethod(uint index, RuntimeQualityTypeName* owner, RuntimeIshtarModule* module, CallFrame frame)
+        public RuntimeIshtarMethod* GetMethod(uint index, RuntimeQualityTypeName* owner, RuntimeIshtarModule* module, CallFrame* frame)
         {
             var clazz = module->FindType(owner, true);
             var name = module->GetConstStringByIndex((int) index);
@@ -49,7 +49,7 @@ namespace ishtar
             }
             return method;
         }
-        public RuntimeIshtarField* GetField(uint index, RuntimeIshtarClass* owner, RuntimeIshtarModule* module, CallFrame frame)
+        public RuntimeIshtarField* GetField(uint index, RuntimeIshtarClass* owner, RuntimeIshtarModule* module, CallFrame* frame)
         {
             var name = module->GetFieldNameByIndex((int) index);
             var field = owner->FindField(name->Name);
@@ -62,7 +62,7 @@ namespace ishtar
             return field;
         }
 
-        private void A_OP(stackval* sp, int a_t, uint* ip, CallFrame frame)
+        private void A_OP(stackval* sp, int a_t, uint* ip, CallFrame* frame)
         {
             if (sp[-1].type != sp[0].type)
             {
