@@ -229,14 +229,26 @@ namespace ishtar
             public ulong computed_size = 0;
         }
 #endif
-        public void init_vtable(VirtualMachine vm, CallFrame fr = null)
+        private readonly struct native_disposer<T>(T* ptr, UnsafeVoid_Delegate<T> disposer) : IDisposable where T : unmanaged
+        {
+            public void Dispose() => disposer(ptr);
+        }
+        
+        public void init_vtable(VirtualMachine vm, CallFrame* fr = null)
         {
             if (is_inited) return;
 
-            var frame = fr ?? vm.Frames.VTableFrame(_selfReference);
+            var typeCtor = FindMethod("#type()");
+            if (typeCtor is null)
+                typeCtor = DefineMethod("#type()", _selfReference, MethodFlags.Special | MethodFlags.Static);
+            CallFrame* frame;
+            if (fr is null)
+                frame = CallFrame.Create(typeCtor, null);
+            else
+                frame = CallFrame.Create(typeCtor, fr);
 
-            assertAddressNotMoved(vm);
-
+            using var _ = new native_disposer<CallFrame>(frame, x => x->Dispose());
+            
             var dvtable = dvtables[ID] = new debug_vtable();
 
             if (TypeCode is TYPE_RAW)
@@ -429,7 +441,7 @@ namespace ishtar
             }
 
             if (Fields->Count != 0) for (var i = 0; i != Fields->Count; i++)
-                Fields->Get(i)->init_mapping(fr ?? vm.Frames.VTableFrame(_selfReference));
+                Fields->Get(i)->init_mapping(frame);
 
             is_inited = true;
             if (Parent is null)
@@ -449,48 +461,6 @@ namespace ishtar
         }
 
         
-        public IshtarObject* get_field_default_value(RuntimeIshtarField* field, VirtualMachine vm)
-        {
-            assertAddressNotMoved(vm);
-
-            if (field->default_value != null)
-                return field->default_value;
-            var frame = vm.Frames.VTableFrame(_selfReference);
-
-            if (field->FieldType->IsUnresolved)
-            {
-                frame.vm.FastFail(WNE.ACCESS_VIOLATION,
-                    $"fieldType {field->FieldType->FullName->ToString()} is unresolved.\n" +
-                    $"field is literal but trying get default value\n" +
-                    "Invalid allocation or incorrect type setup possible.\n" +
-                    "Please report the problem into https://github.com/vein-lang/vein/issues",
-                    frame);
-                return default;
-            }
-
-            if (field->FieldType->IsPrimitive)
-            {
-                var defaultValue = stackval.Allocate(frame, 1);
-                
-                vm.GC.UnsafeAllocValueInto(field->FieldType, defaultValue.Ref);
-
-                return IshtarMarshal.Boxing(frame, defaultValue.Ref);
-            }
-
-            if (field->IsLiteral && field->FieldType->TypeCode is not TYPE_STRING)
-            {
-                frame.vm.FastFail(WNE.ACCESS_VIOLATION,
-                    "get_field_default_value fault.\n" +
-                    $"field is literal but trying get default value\n" +
-                    "Invalid allocation or incorrect type setup possible.\n" +
-                    "Please report the problem into https://github.com/vein-lang/vein/issues",
-                    frame);
-                return default;
-            }
-
-            return field->default_value = vm.GC.AllocObject(field->FieldType, frame);
-        }
-
         public RuntimeIshtarField* FindField(string name)
         {
             var field = Fields->FirstOrNull(x => x->Name.Equals(name));
@@ -601,14 +571,7 @@ namespace ishtar
                 return true;
             return false;
         }
-
-        [Conditional("DEBUG_VTABLE")]
-        private void assertAddressNotMoved(VirtualMachine vm)
-        {
-            fixed (RuntimeIshtarClass* p = &this)
-                vm.Frames.VTableFrame(_selfReference).assert(p == _selfReference, GC_MOVED_UNMOVABLE_MEMORY, $"For class '{Name}' pin pointer is incorrect, maybe GC moved memory");
-        }
-
+        
         public static bool Eq(RuntimeIshtarClass* p1, RuntimeIshtarClass* p2) => RuntimeQualityTypeName.Eq(p1->FullName, p2->FullName);
     }
 }
