@@ -277,3 +277,4 @@ public unsafe struct NativeList<T> : IDisposable where T : unmanaged, IEq<T>
 
 public unsafe delegate void UnsafeForEach_Delegate<T>(T* item) where T : unmanaged;
 public unsafe delegate bool UnsafeFilter_Delegate<T>(T* item) where T : unmanaged;
+public unsafe delegate void UnsafeVoid_Delegate<T>(T* item) where T : unmanaged;

@@ -7,23 +7,24 @@ public static unsafe class B_File
 {
     [IshtarExport(1, "i_call_fs_File_info")]
     [IshtarExportFlags(Public | Static)]
-    public static IshtarObject* GetFileInfo(CallFrame current, IshtarObject** args)
+    public static IshtarObject* GetFileInfo(CallFrame* current, IshtarObject** args)
     {
-        var raw = args[0];
+        throw null;
+        //var raw = args[0];
 
 
-        ForeignFunctionInterface.StaticValidate(current, &raw);
-        ForeignFunctionInterface.StaticTypeOf(current, &raw, TYPE_STRING);
+        //ForeignFunctionInterface.StaticValidate(current, &raw);
+        //ForeignFunctionInterface.StaticTypeOf(current, &raw, TYPE_STRING);
 
-        ForeignFunctionInterface.StaticValidateField(current, &raw, "!!value");
+        //ForeignFunctionInterface.StaticValidateField(current, &raw, "!!value");
 
-        var path = IshtarMarshal.ToDotnetString(raw, current);
-
-
-        var fi = new FileInfo(path);
+        //var path = IshtarMarshal.ToDotnetString(raw, current);
 
 
-        return Marshals.GetFor<FileInfo>(current).Marshal(fi, current);
+        //var fi = new FileInfo(path);
+
+
+        //return Marshals.GetFor<FileInfo>(current).Marshal(fi, current);
     }
 
 

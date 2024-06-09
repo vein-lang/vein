@@ -6,18 +6,18 @@ public static unsafe class B_Function
 {
     [IshtarExport(2, "i_call_Function_call")]
     [IshtarExportFlags(Public | Static)]
-    public static IshtarObject* Call(CallFrame current, IshtarObject** args)
+    public static IshtarObject* Call(CallFrame* current, IshtarObject** args)
     {
-        current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_setValue currently is not support.");
+       // current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_setValue currently is not support.");
 
         return null;
     }
 
     [IshtarExport(4, "i_call_Function_create")]
     [IshtarExportFlags(Public | Static)]
-    public static IshtarObject* Create(CallFrame current, IshtarObject** args)
+    public static IshtarObject* Create(CallFrame* current, IshtarObject** args)
     {
-        current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_setValue currently is not support.");
+        //current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_setValue currently is not support.");
 
         return null;
     }

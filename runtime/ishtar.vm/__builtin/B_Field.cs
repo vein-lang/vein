@@ -6,25 +6,25 @@ public static unsafe class B_Field
 {
     [IshtarExport(3, "i_call_Field_setValue")]
     [IshtarExportFlags(Public | Static)]
-    public static IshtarObject* FieldSetValue(CallFrame current, IshtarObject** args)
+    public static IshtarObject* FieldSetValue(CallFrame* current, IshtarObject** args)
     {
         var arg1 = args[0];
         var arg2 = args[1];
         var arg3 = args[2];
 
-        current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_setValue currently is not support.");
+        current->ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_setValue currently is not support.");
 
         return null;
     }
 
     [IshtarExport(3, "i_call_Field_getValue")]
     [IshtarExportFlags(Public | Static)]
-    public static IshtarObject* FieldGetValue(CallFrame current, IshtarObject** args)
+    public static IshtarObject* FieldGetValue(CallFrame* current, IshtarObject** args)
     {
         var arg1 = args[0];
         var arg2 = args[1];
 
-        current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_getValue currently is not support.");
+        current->ThrowException(KnowTypes.PlatformIsNotSupportFault(current), "i_call_Field_getValue currently is not support.");
 
         return null;
     }
