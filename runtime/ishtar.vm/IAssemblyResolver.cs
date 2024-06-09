@@ -113,6 +113,6 @@ namespace vein.runtime
         protected override void debug(string s) { }
 
 
-        public CallFrame sys_frame => Vault.vm.Frames.ModuleLoaderFrame;
+        public CallFrame* sys_frame => Vault.vm.Frames.ModuleLoaderFrame;
     }
 }

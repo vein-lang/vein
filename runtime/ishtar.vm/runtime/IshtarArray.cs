@@ -43,30 +43,30 @@ namespace ishtar
 
         public Block _block;
 
-        public IshtarObject* this[uint index, CallFrame frame]
+        public IshtarObject* this[uint index, CallFrame* frame]
         {
             get => Get(index, frame);
             set => Set(index, value, frame);
         }
 
-        public IshtarObject* Get(uint index, CallFrame frame)
+        public IshtarObject* Get(uint index, CallFrame* frame)
         {
             if (!ElementClass->IsPrimitive) return elements[index];
-            var result = frame.vm.GC.AllocObject(ElementClass, frame);
+            var result = frame->vm.GC.AllocObject(ElementClass, frame);
             var el = elements[index];
             var offset = result->clazz->Field["!!value"]->vtable_offset;
             result->vtable[offset] = el->vtable[offset];
             return result;
         }
 
-        public void Set(uint index, IshtarObject* value, CallFrame frame)
+        public void Set(uint index, IshtarObject* value, CallFrame* frame)
         {
             ForeignFunctionInterface.StaticValidate(frame, &value);
             var value_class = value->clazz;
             VirtualMachine.Assert(value_class->TypeCode == ElementClass->TypeCode || value_class->IsInner(ElementClass), WNE.TYPE_MISMATCH, "Element type mismatch.", frame);
             if (index >= length)
             {
-                frame.vm.FastFail(WNE.OUT_OF_RANGE, $"", frame);
+                frame->vm.FastFail(WNE.OUT_OF_RANGE, $"", frame);
                 return;
             }
 

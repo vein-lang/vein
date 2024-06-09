@@ -12,9 +12,9 @@ public sealed unsafe class DebugManagedAllocator : IIshtarAllocator
 
 
 
-    private void* Alloc(nint size, CallFrame frame)
+    private void* Alloc(nint size, CallFrame* frame)
     {
-        frame.assert(size != 0, WNE.STATE_CORRUPT, "Allocation is not allowed zero size");
+        frame->assert(size != 0, WNE.STATE_CORRUPT, "Allocation is not allowed zero size");
 
         var bytes = new byte[size];
 
@@ -30,31 +30,31 @@ public sealed unsafe class DebugManagedAllocator : IIshtarAllocator
 
     internal record struct ManagedMemHandle(nint size, GCHandle handler, nint originalAddr);
 
-    public void* AllocZeroed(ulong size, AllocationKind kind, CallFrame frame)
+    public void* AllocZeroed(ulong size, AllocationKind kind, CallFrame* frame)
     {
         TotalSize += (long)size;
         return Alloc((nint)size, frame);
     }
 
-    public void* AllocZeroed(long size, AllocationKind kind, CallFrame frame)
+    public void* AllocZeroed(long size, AllocationKind kind, CallFrame* frame)
     {
         TotalSize += size;
         return Alloc((nint)size, frame);
     }
 
-    public void* AllocZeroed(UIntPtr size, AllocationKind kind, CallFrame frame)
+    public void* AllocZeroed(UIntPtr size, AllocationKind kind, CallFrame* frame)
     {
         TotalSize += (long)size;
         return Alloc((nint)size, frame);
     }
 
-    public void* AllocZeroed(IntPtr size, AllocationKind kind, CallFrame frame)
+    public void* AllocZeroed(IntPtr size, AllocationKind kind, CallFrame* frame)
     {
         TotalSize += size;
         return Alloc(size, frame);
     }
 
-    public void* AllocZeroed(int size, AllocationKind kind, CallFrame frame)
+    public void* AllocZeroed(int size, AllocationKind kind, CallFrame* frame)
     {
         TotalSize += size;
         return Alloc(size, frame);

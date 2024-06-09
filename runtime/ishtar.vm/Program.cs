@@ -63,28 +63,26 @@ unsafe
 
     var args_ = stackalloc stackval[1];
 
-    var frame = new CallFrame(vm)
-    {
-        args = args_,
-        method = entry_point,
-        level = 0
-    };
+
+
+    var frame = CallFrame.Create(entry_point, null);
+    frame->args = args_;
 
 
     var watcher = Stopwatch.StartNew();
     vm.exec_method(frame);
 
-    if (frame.exception is not null)
+    if (!frame->exception.IsDefault())
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"unhandled exception '{frame.exception.value->clazz->Name}' was thrown. \n" +
-                          $"{frame.exception.stack_trace}");
+        Console.WriteLine($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
+                          $"{frame->exception.GetStackTrace()}");
         Console.ForegroundColor = ConsoleColor.White;
     }
 
     watcher.Stop();
     Console.WriteLine($"Elapsed: {watcher.Elapsed}");
-
+    frame->Dispose();
     vm.Dispose();
 
     return 0;

@@ -146,7 +146,7 @@ namespace ishtar.runtime.gc
             => allocationTreeDebugInfos.Remove(allocationDebugInfos[pointer]);
 
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
-        public stackval* AllocValue(CallFrame frame)
+        public stackval* AllocValue(CallFrame* frame)
         {
             var allocator = allocatorPool.Rent<stackval>(out var p, AllocationKind.no_reference, frame);
 
@@ -161,10 +161,10 @@ namespace ishtar.runtime.gc
         }
 
 
-        public stackval* AllocateStack(CallFrame frame, int size)
+        public stackval* AllocateStack(CallFrame* frame, int size)
         {
             var allocator = allocatorPool.RentArray<stackval>(out var p, size, frame);
-            vm.println($"Allocated stack '{size}' for '{frame.method->Name}'");
+            vm.println($"Allocated stack '{size}' for '{frame->method->Name}'");
 
             Stats.total_allocations++;
             Stats.total_bytes_requested += allocator.TotalSize;
@@ -177,7 +177,7 @@ namespace ishtar.runtime.gc
             return p;
         }
 
-        public void FreeStack(CallFrame frame, stackval* stack, int size)
+        public void FreeStack(CallFrame* frame, stackval* stack, int size)
         {
             ImmortalHeap.Remove((nint)stack);
             DeleteDebugData((nint)stack);
@@ -194,7 +194,7 @@ namespace ishtar.runtime.gc
         }
 
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
-        public stackval* AllocValue(VeinClass @class, CallFrame frame)
+        public stackval* AllocValue(VeinClass @class, CallFrame* frame)
         {
             if (!@class.IsPrimitive)
                 return null;
@@ -212,7 +212,7 @@ namespace ishtar.runtime.gc
             Stats.total_bytes_requested -= allocatorPool.Return(value);
         }
 
-        public void FreeArray(IshtarArray* array, CallFrame frame)
+        public void FreeArray(IshtarArray* array, CallFrame* frame)
         {
             DeleteDebugData((nint)array);
             ArrayRefsHeap.Remove((nint)array);
@@ -221,7 +221,7 @@ namespace ishtar.runtime.gc
             Stats.alive_objects--;
         }
 
-        public IshtarArray* AllocArray(RuntimeIshtarClass* @class, ulong size, byte rank, CallFrame frame)
+        public IshtarArray* AllocArray(RuntimeIshtarClass* @class, ulong size, byte rank, CallFrame* frame)
         {
             if (!@class->is_inited)
                 throw new NotImplementedException();
@@ -319,7 +319,7 @@ namespace ishtar.runtime.gc
             return p;
         }
 
-        public IshtarObject* AllocTypeInfoObject(RuntimeIshtarClass* @class, CallFrame frame)
+        public IshtarObject* AllocTypeInfoObject(RuntimeIshtarClass* @class, CallFrame* frame)
         {
             if (!@class->is_inited)
                 throw new NotImplementedException();
@@ -331,7 +331,7 @@ namespace ishtar.runtime.gc
 
             var tt = KnowTypes.Type(frame);
             var obj = AllocObject(tt, frame);
-            var gc = frame.GetGC();
+            var gc = frame->GetGC();
 
             obj->flags |= GCFlags.IMMORTAL;
 
@@ -348,14 +348,14 @@ namespace ishtar.runtime.gc
             return obj;
         }
 
-        public IshtarObject* AllocFieldInfoObject(RuntimeIshtarField* field, CallFrame frame)
+        public IshtarObject* AllocFieldInfoObject(RuntimeIshtarField* field, CallFrame* frame)
         {
             var @class = field->Owner;
             if (!@class->is_inited)
                 throw new NotImplementedException();
 
             var name = field->Name;
-            var gc = frame.GetGC();
+            var gc = frame->GetGC();
 
             //IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_FIELD_BARRIER);
 
@@ -383,14 +383,14 @@ namespace ishtar.runtime.gc
         }
 
 
-        public IshtarObject* AllocMethodInfoObject(RuntimeIshtarMethod* method, CallFrame frame)
+        public IshtarObject* AllocMethodInfoObject(RuntimeIshtarMethod* method, CallFrame* frame)
         {
             var @class = method->Owner;
             if (!@class->is_inited)
                 throw new NotImplementedException();
 
             var key = method->Name;
-            var gc = frame.GetGC();
+            var gc = frame->GetGC();
 
             //IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_METHOD_BARRIER);
 
@@ -418,7 +418,7 @@ namespace ishtar.runtime.gc
             return obj;
         }
 
-        public IshtarObject* AllocObject(RuntimeIshtarClass* @class, CallFrame frame)
+        public IshtarObject* AllocObject(RuntimeIshtarClass* @class, CallFrame* frame)
         {
             var allocator = allocatorPool.Rent<IshtarObject>(out var p, AllocationKind.reference, frame);
 
@@ -482,13 +482,7 @@ namespace ishtar.runtime.gc
             vm.println($"@@[dtor] called! for instance of {clazz->FullName->NameWithNS}");
             if (finalizer is not null)
             {
-                vm.exec_method(new CallFrame(vm)
-                {
-                    args = null,
-                    method = finalizer,
-                    level = 1,
-                    parent = frame
-                });
+                vm.exec_method(frame->CreateChild(finalizer));
                 vm.watcher.ValidateLastError();
             }
 
@@ -503,7 +497,7 @@ namespace ishtar.runtime.gc
         }
 
 
-        public void FreeObject(IshtarObject* obj, CallFrame frame)
+        public void FreeObject(IshtarObject* obj, CallFrame* frame)
         {
             if (!obj->IsValidObject())
             {
@@ -531,7 +525,7 @@ namespace ishtar.runtime.gc
         public bool IsAlive(IshtarObject* obj)
             => obj->IsValidObject() && gcLayout.is_marked(obj);
 
-        public void ObjectRegisterFinalizer(IshtarObject* obj, delegate*<nint, nint, void> proc, CallFrame frame)
+        public void ObjectRegisterFinalizer(IshtarObject* obj, delegate*<nint, nint, void> proc, CallFrame* frame)
         {
             var clazz = obj->clazz;
 
@@ -547,7 +541,7 @@ namespace ishtar.runtime.gc
         public void UnRegisterWeakLink(void** link, bool longLive)
             => gcLayout.unlink(link, longLive);
 
-        public void FreeObject(IshtarObject** obj, CallFrame frame) => FreeObject(*obj, frame);
+        public void FreeObject(IshtarObject** obj, CallFrame* frame) => FreeObject(*obj, frame);
 
         public long GetUsedMemorySize() => gcLayout.get_heap_size() - gcLayout.get_free_bytes();
 

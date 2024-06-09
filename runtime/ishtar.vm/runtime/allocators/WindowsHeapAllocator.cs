@@ -24,9 +24,9 @@ public sealed unsafe class WindowsHeapAllocator : IIshtarAllocator
 
     internal record struct HeapMemRef(nint heapHandle, nint memPtr, long size);
 
-    private void* AllocFromHeap(long size, CallFrame frame)
+    private void* AllocFromHeap(long size, CallFrame* frame)
     {
-        frame.assert(size != 0, WNE.STATE_CORRUPT, "Allocation is not allowed zero size");
+        frame->assert(size != 0, WNE.STATE_CORRUPT, "Allocation is not allowed zero size");
 
         TotalSize += size;
 
@@ -40,19 +40,19 @@ public sealed unsafe class WindowsHeapAllocator : IIshtarAllocator
     }
 
 
-    public void* AllocZeroed(ulong size, AllocationKind kind, CallFrame frame)
+    public void* AllocZeroed(ulong size, AllocationKind kind, CallFrame* frame)
         => AllocFromHeap((long)size, frame);
 
-    public void* AllocZeroed(long size, AllocationKind kind, CallFrame frame)
+    public void* AllocZeroed(long size, AllocationKind kind, CallFrame* frame)
         => AllocFromHeap(size, frame);
 
-    public void* AllocZeroed(UIntPtr size, AllocationKind kind, CallFrame frame)
+    public void* AllocZeroed(UIntPtr size, AllocationKind kind, CallFrame* frame)
         => AllocFromHeap((long)size, frame);
 
-    public void* AllocZeroed(IntPtr size, AllocationKind kind, CallFrame frame)
+    public void* AllocZeroed(IntPtr size, AllocationKind kind, CallFrame* frame)
         => AllocFromHeap(size, frame);
 
-    public void* AllocZeroed(int size, AllocationKind kind, CallFrame frame)
+    public void* AllocZeroed(int size, AllocationKind kind, CallFrame* frame)
         => AllocFromHeap(size, frame);
 
     void IIshtarAllocatorIdentifier.SetId(nint id) => Id = id;

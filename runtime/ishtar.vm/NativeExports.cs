@@ -10,32 +10,34 @@ public static unsafe class NativeExports
 
     public static stackval* VM_EXECUTE_METHOD(VirtualMachine vm, Types.FrameRef* frame)
     {
-        var vault = vm.Vault;
-        var type = vault.GlobalFindType(*frame->runtime_token);
+        throw null;
+        //var vault = vm.Vault;
+        //var type = vault.GlobalFindType(*frame->runtime_token);
 
-        if (type is null)
-            return null;
+        //if (type is null)
+        //    return null;
 
-        if (type->Methods->Length >= frame->index)
-            return null;
+        //if (type->Methods->Length >= frame->index)
+        //    return null;
 
-        var method = type->Methods->Get(frame->index);
+        //var method = type->Methods->Get(frame->index);
 
-        if (*method is not { } or { IsExtern: true } or { IsStatic: false })
-            return null;
+        //if (*method is not { } or { IsExtern: true } or { IsStatic: false })
+        //    return null;
 
-        
 
-        var callframe = new CallFrame(vm)
-        {
-            args = frame->args,
-            level = 0,
-            method = method
-        };
+        //var callframe = CallFrame.Create(method, null)
 
-        vm.exec_method(callframe);
+        //var callframe = new CallFrame()
+        //{
+        //    args = frame->args,
+        //    level = 0,
+        //    method = method
+        //};
 
-        return callframe.returnValue.Ref;
+        //vm.exec_method(callframe);
+
+        //return callframe.returnValue.Ref;
     }
 
     public static class Types

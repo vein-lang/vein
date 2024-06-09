@@ -1,10 +1,10 @@
 namespace ishtar
 {
-    public class NativeException
+    public unsafe class NativeException
     {
         public WNE code;
         public string msg;
-        public CallFrame frame;
+        public CallFrame* frame;
     };
 
     public enum WNE

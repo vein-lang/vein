@@ -6,11 +6,11 @@ public static unsafe class B_Type
 {
     [IshtarExport(1, "i_call_Type_findByName")]
     [IshtarExportFlags(Public | Static)]
-    public static IshtarObject* FindByName(CallFrame current, IshtarObject** args)
+    public static IshtarObject* FindByName(CallFrame* current, IshtarObject** args)
     {
         var arg1 = args[0];
-        var vault = current.vm.Vault;
-        var gc = current.GetGC();
+        var vault = current->vm.Vault;
+        var gc = current->GetGC();
 
         ForeignFunctionInterface.StaticValidate(current, &arg1);
         ForeignFunctionInterface.StaticTypeOf(current, &arg1, VeinTypeCode.TYPE_STRING);
@@ -20,14 +20,14 @@ public static unsafe class B_Type
         var results = vault.GlobalFindType(name);
         if (results.Length == 0)
         {
-            current.ThrowException(KnowTypes.TypeNotFoundFault(current), $"'{name}' not found.");
+            current->ThrowException(KnowTypes.TypeNotFoundFault(current), $"'{name}' not found.");
             return null;
         }
 
         if (results.Length > 1)
         {
             // todo, add info about all types
-            current.ThrowException(KnowTypes.MultipleTypeFoundFault(current), $"Multiple detected '{name}' types.");
+            current->ThrowException(KnowTypes.MultipleTypeFoundFault(current), $"Multiple detected '{name}' types.");
             return null;
         }
 
@@ -38,7 +38,7 @@ public static unsafe class B_Type
 
     [IshtarExport(1, "i_call_Type_findField")]
     [IshtarExportFlags(Public | Static)]
-    public static IshtarObject* FindField(CallFrame current, IshtarObject** args)
+    public static IshtarObject* FindField(CallFrame* current, IshtarObject** args)
     {
         var arg1 = args[0];
         var arg2 = args[1];
@@ -47,7 +47,7 @@ public static unsafe class B_Type
         ForeignFunctionInterface.StaticValidate(current, &arg2);
         ForeignFunctionInterface.StaticTypeOf(current, &arg2, VeinTypeCode.TYPE_STRING);
 
-        current.ThrowException(KnowTypes.PlatformIsNotSupportFault(current));
+        current->ThrowException(KnowTypes.PlatformIsNotSupportFault(current));
 
         return null;
     }
@@ -59,13 +59,13 @@ public static unsafe class B_Type
     {
         //ffi.Add(ffi.vm.CreateInternalMethod("i_call_Type_findByName", Public | Static | Extern,
         //        ("name", VeinTypeCode.TYPE_STRING))
-        //    ->AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindByName));
+        //    ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FindByName));
         //ffi.Add(ffi.vm.CreateInternalMethod("i_call_Type_findField", Public | Static | Extern,
         //        new VeinArgumentRef("type", ThisClass), ("name", VeinTypeCode.TYPE_STRING))
-        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindField));
+        //    .AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FindField));
         //ffi.vm.CreateInternalMethod("i_call_Type_findMethod", Public | Static | Extern,
         //        new VeinArgumentRef("type", ThisClass), new VeinArgumentRef("name", ffi.vm.Types.StringClass))
-        //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&FindField)
+        //    .AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FindField)
         //    .AddInto(table, x => x.Name);
     }
 }

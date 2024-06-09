@@ -14,69 +14,63 @@ public static unsafe partial class KnowTypes
         public static class Native
         {
             public static QualityTypeName NativeHandleTypeName =
-                new QualityTypeName("std", nameof(NativeHandle), "global::vein/lang/native");
+                new("std", nameof(NativeHandle), "global::vein/lang/native");
 
-            public static RuntimeIshtarClass* NativeHandle(CallFrame frame)
+            public static RuntimeIshtarClass* NativeHandle(CallFrame* frame)
                 => findType(NativeHandleTypeName, frame);
         }
 
 
         public static QualityTypeName FileNotFoundFaultTypeName =
-            new QualityTypeName("std", nameof(FileNotFoundFault), "global::vein/lang");
+            new("std", nameof(FileNotFoundFault), "global::vein/lang");
 
-        public static RuntimeIshtarClass* FileNotFoundFault(CallFrame frame)
+        public static RuntimeIshtarClass* FileNotFoundFault(CallFrame* frame)
             => findType(FileNotFoundFaultTypeName, frame);
     }
 
 
-    public static QualityTypeName TypeInfoTypeName =
-        new QualityTypeName("std", nameof(Type), "global::vein/lang");
-    public static QualityTypeName FieldInfoTypeName =
-        new QualityTypeName("std", nameof(Field), "global::vein/lang");
-    public static QualityTypeName FunctionInfoTypeName =
-        new QualityTypeName("std", nameof(Function), "global::vein/lang");
+    public static QualityTypeName TypeInfoTypeName = new("std", nameof(Type), "global::vein/lang");
+    public static QualityTypeName FieldInfoTypeName = new("std", nameof(Field), "global::vein/lang");
+    public static QualityTypeName FunctionInfoTypeName = new("std", nameof(Function), "global::vein/lang");
 
-    public static QualityTypeName NullPointerExceptionTypeName =
-        new QualityTypeName("std", "NullPointerException", "global::vein/lang");
-    public static QualityTypeName IncorrectCastFaultTypeName =
-        new QualityTypeName("std", "IncorrectCastFault", "global::vein/lang");
+    public static QualityTypeName NullPointerExceptionTypeName = new("std", "NullPointerException", "global::vein/lang");
+    public static QualityTypeName IncorrectCastFaultTypeName = new("std", "IncorrectCastFault", "global::vein/lang");
     public static QualityTypeName FreeImmortalObjectFaultTypeName =
-        new QualityTypeName("std", nameof(FreeImmortalObjectFault), "global::vein/lang");
+        new("std", nameof(FreeImmortalObjectFault), "global::vein/lang");
     public static QualityTypeName TypeNotFoundFaultTypeName =
-        new QualityTypeName("std", nameof(TypeNotFoundFault), "global::vein/lang/reflection");
+        new("std", nameof(TypeNotFoundFault), "global::vein/lang/reflection");
     public static QualityTypeName MultipleTypeFoundFaultTypeName =
-        new QualityTypeName("std", nameof(MultipleTypeFoundFault), "global::vein/lang/reflection");
+        new("std", nameof(MultipleTypeFoundFault), "global::vein/lang/reflection");
     public static QualityTypeName PlatformIsNotSupportFaultTypeName =
-        new QualityTypeName("std", nameof(PlatformIsNotSupportFault), "global::vein/lang");
-    public static QualityTypeName IshatFault =
-        new QualityTypeName("std", nameof(IshatFault), "global::vein/lang");
+        new("std", nameof(PlatformIsNotSupportFault), "global::vein/lang");
+    public static QualityTypeName IshatFault = new("std", nameof(IshatFault), "global::vein/lang");
 
-    public static RuntimeIshtarClass* NullPointerException(CallFrame frame)
+    public static RuntimeIshtarClass* NullPointerException(CallFrame* frame)
         => findType(NullPointerExceptionTypeName, frame);
 
-    public static RuntimeIshtarClass* IncorrectCastFault(CallFrame frame)
+    public static RuntimeIshtarClass* IncorrectCastFault(CallFrame* frame)
         => findType(IncorrectCastFaultTypeName, frame);
 
-    public static RuntimeIshtarClass* FreeImmortalObjectFault(CallFrame frame)
+    public static RuntimeIshtarClass* FreeImmortalObjectFault(CallFrame* frame)
         => findType(FreeImmortalObjectFaultTypeName, frame);
 
-    public static RuntimeIshtarClass* TypeNotFoundFault(CallFrame frame)
+    public static RuntimeIshtarClass* TypeNotFoundFault(CallFrame* frame)
         => findType(TypeNotFoundFaultTypeName, frame);
 
-    public static RuntimeIshtarClass* MultipleTypeFoundFault(CallFrame frame)
+    public static RuntimeIshtarClass* MultipleTypeFoundFault(CallFrame* frame)
         => findType(MultipleTypeFoundFaultTypeName, frame);
 
-    public static RuntimeIshtarClass* PlatformIsNotSupportFault(CallFrame frame)
+    public static RuntimeIshtarClass* PlatformIsNotSupportFault(CallFrame* frame)
         => findType(PlatformIsNotSupportFaultTypeName, frame);
 
-    public static RuntimeIshtarClass* NativeFault(CallFrame frame)
+    public static RuntimeIshtarClass* NativeFault(CallFrame* frame)
         => findType(IshatFault, frame);
 
-    public static RuntimeIshtarClass* Type(CallFrame frame)
+    public static RuntimeIshtarClass* Type(CallFrame* frame)
         => findType(TypeInfoTypeName, frame);
-    public static RuntimeIshtarClass* Field(CallFrame frame)
+    public static RuntimeIshtarClass* Field(CallFrame* frame)
         => findType(FieldInfoTypeName, frame);
-    public static RuntimeIshtarClass* Function(CallFrame frame)
+    public static RuntimeIshtarClass* Function(CallFrame* frame)
         => findType(FunctionInfoTypeName, frame);
 
 
@@ -84,25 +78,25 @@ public static unsafe partial class KnowTypes
 
 
 
-    public static RuntimeIshtarClass* FromCache(QualityTypeName q, CallFrame frame)
+    public static RuntimeIshtarClass* FromCache(QualityTypeName q, CallFrame* frame)
         => findType(q.T(), frame);
 
-    public static RuntimeIshtarClass* FromCache(RuntimeQualityTypeName* q, CallFrame frame)
+    public static RuntimeIshtarClass* FromCache(RuntimeQualityTypeName* q, CallFrame* frame)
         => findType(q, frame);
 
-    private static RuntimeIshtarClass* findType(QualityTypeName q, CallFrame frame)
+    private static RuntimeIshtarClass* findType(QualityTypeName q, CallFrame* frame)
         => findType(q.T(), frame);
 
-    private static RuntimeIshtarClass* findType(RuntimeQualityTypeName* q, CallFrame frame)
+    private static RuntimeIshtarClass* findType(RuntimeQualityTypeName* q, CallFrame* frame)
     {
         if (_cache.TryGetValue((nint)q, out IntPtr type))
             return (RuntimeIshtarClass*)type;
 
-        var t = frame.method->Owner->Owner->FindType(q, true, false);
+        var t = frame->method->Owner->Owner->FindType(q, true, false);
 
         if (t->IsUnresolved)
         {
-            frame.vm.FastFail(WNE.MISSING_TYPE, $"Cannot find '{q->NameWithNS}' bulitin type", frame);
+            frame->vm.FastFail(WNE.MISSING_TYPE, $"Cannot find '{q->NameWithNS}' bulitin type", frame);
             return null;
         }
         

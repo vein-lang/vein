@@ -11,9 +11,9 @@ public unsafe interface IIshtarAllocator : IIshtarAllocatorIdentifier, IIshtarAl
     long TotalSize { get; }
     nint Id { get; }
 
-    void* AllocZeroed(ulong size, AllocationKind kind, CallFrame frame);
-    void* AllocZeroed(long size, AllocationKind kind, CallFrame frame);
-    void* AllocZeroed(nuint size, AllocationKind kind, CallFrame frame);
-    void* AllocZeroed(nint size, AllocationKind kind, CallFrame frame);
-    void* AllocZeroed(int size, AllocationKind kind, CallFrame frame);
+    void* AllocZeroed(ulong size, AllocationKind kind, CallFrame* frame);
+    void* AllocZeroed(long size, AllocationKind kind, CallFrame* frame);
+    void* AllocZeroed(nuint size, AllocationKind kind, CallFrame* frame);
+    void* AllocZeroed(nint size, AllocationKind kind, CallFrame* frame);
+    void* AllocZeroed(int size, AllocationKind kind, CallFrame* frame);
 }

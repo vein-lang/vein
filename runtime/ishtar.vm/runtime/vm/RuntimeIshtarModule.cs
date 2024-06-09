@@ -442,7 +442,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 
 
 
-    public static void FillConstStorage(RuntimeConstStorage* storage, byte[] arr, CallFrame frame)
+    public static void FillConstStorage(RuntimeConstStorage* storage, byte[] arr, CallFrame* frame)
     {
         using var mem = new MemoryStream(arr);
         using var bin = new BinaryReader(mem);
@@ -683,7 +683,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         return mth;
     }
 
-    public RuntimeQualityTypeName* GetTypeNameByIndex(int idx, CallFrame frame)
+    public RuntimeQualityTypeName* GetTypeNameByIndex(int idx, CallFrame* frame)
     {
         if (types_table->TryGetValue(idx, out var result))
             return result;
@@ -894,7 +894,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 
     public RuntimeIshtarClass* Bootstrapper { get; private set; }
 
-    public CallFrame sys_frame => Vault->Value.vm.Frames.ModuleLoaderFrame;
+    public CallFrame* sys_frame => Vault->Value.vm.Frames.ModuleLoaderFrame;
     public static bool Eq(RuntimeIshtarModule* p1, RuntimeIshtarModule* p2) => p1->ID == p2->ID;
 }
 public static unsafe class QualityTypeEx
@@ -1063,7 +1063,7 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
         Arguments->AddRange(args);
     }
 
-    public static NativeList<RuntimeAspect>* Deconstruct(RuntimeConstStorage* data, CallFrame frame, IshtarTypes* types)
+    public static NativeList<RuntimeAspect>* Deconstruct(RuntimeConstStorage* data, CallFrame* frame, IshtarTypes* types)
         => InternalDeconstruct(data);
 
     private static unsafe NativeList<RuntimeAspect>* InternalDeconstruct(RuntimeConstStorage* data)

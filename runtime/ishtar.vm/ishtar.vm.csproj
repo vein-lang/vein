@@ -63,6 +63,7 @@
   <ItemGroup>
     <ProjectReference Include="..\common\vein.common.csproj" />
     <ProjectReference Include="..\ishtar.base\ishtar.base.csproj" />
+    <ProjectReference Include="..\ishtar.vm.libuv\ishtar.vm.libuv.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="includes\gc.lib">

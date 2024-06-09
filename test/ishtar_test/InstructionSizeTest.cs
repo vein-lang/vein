@@ -22,8 +22,8 @@ namespace ishtar_test
             
             var result = scope.Compile().Execute().Validate();
 
-            Assert.AreEqual(VeinTypeCode.TYPE_I8, (result.returnValue[0]).type);
-            Assert.AreEqual(long.MaxValue, (result.returnValue[0]).data.l);
+            Assert.AreEqual(VeinTypeCode.TYPE_I8, (result->returnValue[0]).type);
+            Assert.AreEqual(long.MaxValue, (result->returnValue[0]).data.l);
         }
     }
 }

@@ -3,57 +3,21 @@ namespace ishtar;
 
 using vein.runtime;
 
-public unsafe class IshtarFrames(VirtualMachine vm)
+public unsafe struct IshtarFrames
 {
-    public CallFrame ModuleLoaderFrame = new(vm)
+    public IshtarFrames(VirtualMachine vm)
     {
-        method = vm.DefineEmptySystemMethod("#module")
-    };
-
-    public CallFrame VTableFrame(RuntimeIshtarClass* clazz)
-    {
-        var method = clazz->FindMethod($"#type()");
-
-        if (method is not null)
-            return new CallFrame(vm) { method = method };
-
-        return new CallFrame(vm)
-        {
-            method = clazz->DefineMethod($"#type()", clazz, MethodFlags.Special)
-        };
-    }
-
-    public CallFrame StaticCtor(RuntimeIshtarClass* clazz)
-    {
-        var method = clazz->FindMethod($"#static_ctor()");
-
-        if (method is not null)
-            return new CallFrame(vm) { method = method };
-
-        return new CallFrame(vm)
-        {
-            method = clazz->DefineMethod("#static_ctor()", null, MethodFlags.Special | MethodFlags.Static)
-        };
+        EntryPoint = CallFrame.Create(vm.DefineEmptySystemMethod("ishtar_entry"), null);
+        ModuleLoaderFrame = CallFrame.Create(vm.DefineEmptySystemMethod("#module"), EntryPoint);
+        Jit = CallFrame.Create(vm.DefineEmptySystemMethod("#jit"), EntryPoint);
+        GarbageCollector = CallFrame.Create(vm.DefineEmptySystemMethod("#gc"), EntryPoint);
+        NativeLoader = CallFrame.Create(vm.DefineEmptySystemMethod("#ffi"), EntryPoint);
     }
 
 
-    public CallFrame EntryPoint = new(vm)
-    {
-        method = vm.DefineEmptySystemMethod("ishtar_entry")
-    };
-
-    public CallFrame Jit = new(vm)
-    {
-        method = vm.DefineEmptySystemMethod("#jit")
-    };
-
-    public CallFrame GarbageCollector = new(vm)
-    {
-        method = vm.DefineEmptySystemMethod("#gc")
-    };
-
-    public CallFrame NativeLoader = new(vm)
-    {
-        method = vm.DefineEmptySystemMethod("#ffi")
-    };
+    public readonly CallFrame* ModuleLoaderFrame;
+    public readonly CallFrame* EntryPoint;
+    public readonly CallFrame* Jit;
+    public readonly CallFrame* GarbageCollector;
+    public readonly CallFrame* NativeLoader;
 }

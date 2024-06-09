@@ -1,15 +1,9 @@
 namespace ishtar;
 
-internal class IshtarTrace
+internal struct IshtarTrace()
 {
-    private static bool useConsole;
-    private static bool useFile;
-
-    public IshtarTrace()
-    {
-        useConsole = Environment.GetCommandLineArgs().Contains("--sys::log::use-console=1");
-        useFile = Environment.GetCommandLineArgs().Contains("--sys::log::use-file=1"); // TODO
-    }
+    private bool useConsole = Environment.GetCommandLineArgs().Contains("--sys::log::use-console=1");
+    private bool useFile = Environment.GetCommandLineArgs().Contains("--sys::log::use-file=1");
 
     public void println(string s)
     {

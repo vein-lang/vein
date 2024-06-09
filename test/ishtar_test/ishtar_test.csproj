@@ -16,6 +16,8 @@
     <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
+    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\runtime\ishtar.vm\ishtar.vm.csproj" />

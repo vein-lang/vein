@@ -52,13 +52,13 @@ public unsafe class ForeignFunctionInterface
     }
 
     [Conditional("STATIC_VALIDATE_IL")]
-    public static void StaticValidate(void* p, CallFrame frame)
+    public static void StaticValidate(void* p, CallFrame* frame)
     {
         if (p != null) return;
-        frame.vm.FastFail(WNE.STATE_CORRUPT, "Null pointer state.", frame);
+        frame->vm.FastFail(WNE.STATE_CORRUPT, "Null pointer state.", frame);
     }
     [Conditional("STATIC_VALIDATE_IL")]
-    public static void StaticValidateField(CallFrame current, IshtarObject** arg1, string name)
+    public static void StaticValidateField(CallFrame* current, IshtarObject** arg1, string name)
     {
         StaticValidate(*arg1, current);
         var @class = ( *arg1)->clazz;
@@ -67,19 +67,19 @@ public unsafe class ForeignFunctionInterface
     }
 
     [Conditional("STATIC_VALIDATE_IL")]
-    public static void StaticValidate(CallFrame frame, stackval* value, RuntimeIshtarClass* clazz)
+    public static void StaticValidate(CallFrame* frame, stackval* value, RuntimeIshtarClass* clazz)
     {
-        frame.assert(clazz is not null);
-        frame.assert(value->type != VeinTypeCode.TYPE_NONE);
+        frame->assert(clazz is not null);
+        frame->assert(value->type != VeinTypeCode.TYPE_NONE);
         var obj = IshtarMarshal.Boxing(frame, value);
-        frame.assert(obj->__gc_id != -1);
+        frame->assert(obj->__gc_id != -1);
         var currentClass = obj->clazz;
         var targetClass = clazz;
-        frame.assert(currentClass->ID == targetClass->ID, $"{currentClass->Name}.ID == {targetClass->Name}.ID");
+        frame->assert(currentClass->ID == targetClass->ID, $"{currentClass->Name}.ID == {targetClass->Name}.ID");
     }
 
     [Conditional("STATIC_VALIDATE_IL")]
-    public static void StaticValidate(CallFrame current, IshtarObject** arg1)
+    public static void StaticValidate(CallFrame* current, IshtarObject** arg1)
     {
         StaticValidate(*arg1, current);
         var @class = (*arg1)->clazz;
@@ -87,7 +87,7 @@ public unsafe class ForeignFunctionInterface
         VirtualMachine.Assert(!@class->IsAbstract, WNE.TYPE_LOAD, $"Class '{@class->FullName->NameWithNS}' abstract.", current);
     }
     [Conditional("STATIC_VALIDATE_IL")]
-    public static void StaticTypeOf(CallFrame current, IshtarObject** arg1, VeinTypeCode code)
+    public static void StaticTypeOf(CallFrame* current, IshtarObject** arg1, VeinTypeCode code)
     {
         StaticValidate(*arg1, current);
         var @class = (*arg1)->clazz;

@@ -6,16 +6,14 @@ using System.Runtime.InteropServices;
 using vein.extensions;
 using vein.runtime;
 
-public unsafe class LLVMContext
+public unsafe struct LLVMContext
 {
-    private readonly VirtualMachine _vm;
     private readonly LLVMOpaqueContext* _ctx;
     private LLVMModuleRef _ffiModule;
     private readonly LLVMExecutionEngineRef _executionEngine;
 
-    public LLVMContext(VirtualMachine vm)
+    public LLVMContext()
     {
-        _vm = vm;
         LLVM.LinkInMCJIT();
         LLVM.InitializeNativeAsmPrinter();
         LLVM.InitializeNativeAsmParser();
@@ -251,7 +249,7 @@ public unsafe class LLVMContext
 
     public class DeOptimizationDetected : Exception;
 
-    private LLVMTypeRef GetLLVMType(VeinTypeCode typeCode) =>
+    private static LLVMTypeRef GetLLVMType(VeinTypeCode typeCode) =>
         typeCode switch
         {
             VeinTypeCode.TYPE_BOOLEAN => LLVMTypeRef.Int1,
@@ -271,7 +269,7 @@ public unsafe class LLVMContext
             _ => throw new DeOptimizationDetected()
         };
 
-    private LLVMTypeRef GetLLVMType(RuntimeIshtarClass* clazz)
+    private static LLVMTypeRef GetLLVMType(RuntimeIshtarClass* clazz)
     {
         var type = clazz->TypeCode;
         return GetLLVMType(type);

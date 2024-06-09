@@ -50,8 +50,7 @@ namespace ishtar
             vm.GC.init();
             
             vm.FFI = new ForeignFunctionInterface(vm);
-
-            vm.Jitter = new LLVMContext(vm);
+            vm.Jitter = new LLVMContext();
             
             return vm;
         }
@@ -74,6 +73,16 @@ namespace ishtar
         {
             var converter_args = RuntimeMethodArgument.Create(Types, args);
             return InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, converter_args);
+        }
+
+        public RuntimeIshtarMethod* GetOrCreateSpecialMethod(string name)
+        {
+            var exist = InternalClass->FindMethod(name, x => x->Name.Contains(name));
+
+            if (exist is not null)
+                return exist;
+
+            return CreateInternalMethod(name, MethodFlags.Special | MethodFlags.Static);
         }
 
         public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, params (string name, VeinTypeCode code)[] args)
@@ -108,10 +117,10 @@ namespace ishtar
         public volatile IshtarGC GC;
         public volatile ForeignFunctionInterface FFI;
         public volatile VMConfig Config;
-        public volatile IshtarFrames Frames;
+        public IshtarFrames Frames;
         public volatile IshtarJIT Jit;
         public volatile NativeStorage NativeStorage;
-        internal volatile IshtarTrace trace;
+        internal IshtarTrace trace;
         internal LLVMContext Jitter;
         public IshtarTypes* Types;
 
@@ -119,14 +128,14 @@ namespace ishtar
         public bool HasFaulted() => CurrentException is not null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void FastFail(WNE type, string msg, CallFrame frame)
+        public void FastFail(WNE type, string msg, CallFrame* frame)
         {
             watcher?.FastFail(type, msg, frame);
             watcher?.ValidateLastError();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void FastFail(bool assert, WNE type, string msg, CallFrame frame)
+        public void FastFail(bool assert, WNE type, string msg, CallFrame* frame)
         {
             if (!assert) return;
             watcher?.FastFail(type, msg, frame);
@@ -139,37 +148,37 @@ namespace ishtar
         public void halt(int exitCode = -1) => Environment.Exit(exitCode);
 
 
-        public void exec_method_external_native(CallFrame frame)
+        public void exec_method_external_native(CallFrame* frame)
         {
             var executionEngine = Jitter.GetExecutionEngine();
 
 
-            ref var pinfo = ref frame.method->PIInfo;
+            ref var pinfo = ref frame->method->PIInfo;
             if (pinfo.compiled_func_ref == default)
                 pinfo.create_bindings(executionEngine);
 
-            Jitter.PrintAsm(frame.method);
+            Jitter.PrintAsm(frame->method);
 
             var caller = (delegate*<stackval*, int, stackval>)
                 pinfo.compiled_func_ref;
 
-            var result = caller(frame.args, frame.method->ArgLength);
-            Assert(result.type == frame.method->ReturnType->TypeCode, TYPE_MISMATCH,
-                $"jit generated incorrect return type for '{frame.method->Name}'");
+            var result = caller(frame->args, frame->method->ArgLength);
+            Assert(result.type == frame->method->ReturnType->TypeCode, TYPE_MISMATCH,
+                $"jit generated incorrect return type for '{frame->method->Name}'");
 
-            if (frame.method->ReturnType->TypeCode is TYPE_VOID)
+            if (frame->method->ReturnType->TypeCode is TYPE_VOID)
                 return;
 
-            frame.returnValue = stackval.Allocate(frame, 1);
-            *frame.returnValue.Ref = result;
+            frame->returnValue = stackval.Allocate(frame, 1);
+            *frame->returnValue.Ref = result;
         }
 
-        public void exec_method_internal_native(CallFrame frame)
+        public void exec_method_internal_native(CallFrame* frame)
         {
             // TODO remove using AllocHGlobal
-            var caller = (delegate*<CallFrame, IshtarObject**, IshtarObject*>)
-                frame.method->PIInfo.compiled_func_ref;
-            var args_len = frame.method->ArgLength;
+            var caller = (delegate*<CallFrame*, IshtarObject**, IshtarObject*>)
+                frame->method->PIInfo.compiled_func_ref;
+            var args_len = frame->method->ArgLength;
 
             var args = (IshtarObject**)Marshal.AllocHGlobal(sizeof(IshtarObject*) * args_len);
 
@@ -180,28 +189,28 @@ namespace ishtar
             }
 
             for (var i = 0; i != args_len; i++)
-                args[i] = IshtarMarshal.Boxing(frame, &frame.args[i]);
+                args[i] = IshtarMarshal.Boxing(frame, &frame->args[i]);
 
             var result = caller(frame, args);
 
             Marshal.FreeHGlobal((nint)args);
 
-            if (frame.method->ReturnType->TypeCode == TYPE_VOID)
+            if (frame->method->ReturnType->TypeCode == TYPE_VOID)
                 return;
-            frame.returnValue = stackval.Allocate(frame, 1);
-            frame.returnValue.Ref->type = frame.method->ReturnType->TypeCode;
-            frame.returnValue.Ref->data.p = (nint)result;
+            frame->returnValue = stackval.Allocate(frame, 1);
+            frame->returnValue.Ref->type = frame->method->ReturnType->TypeCode;
+            frame->returnValue.Ref->data.p = (nint)result;
         }
 
-        public void exec_method_native(CallFrame frame)
+        public void exec_method_native(CallFrame* frame)
         {
-            if (frame.method->PIInfo.Equals(PInvokeInfo.Zero))
+            if (frame->method->PIInfo.Equals(PInvokeInfo.Zero))
             {
                 FastFail(MISSING_METHOD, "Native method not linked.", frame);
                 return;
             }
 
-            if (!frame.method->PIInfo.isInternal)
+            if (!frame->method->PIInfo.isInternal)
                 exec_method_external_native(frame);
             else
                 exec_method_internal_native(frame);
@@ -215,7 +224,7 @@ namespace ishtar
                 stack[i].data.l = long.MaxValue;
             }
         }
-        private bool assert_violation_zone_writes(CallFrame frame, SmartPointer<stackval> stack, int size)
+        private bool assert_violation_zone_writes(CallFrame* frame, SmartPointer<stackval> stack, int size)
         {
             for (int i = 0; i < size; i++)
             {
@@ -229,15 +238,15 @@ namespace ishtar
         }
 
 
-        public void exec_method(CallFrame invocation)
+        public void exec_method(CallFrame* invocation)
         {
-            println($"@.frame> {invocation.method->Owner->Name}::{invocation.method->Name}");
+            println($"@.frame> {invocation->method->Owner->Name}::{invocation->method->Name}");
 
-            var _module = invocation.method->Owner->Owner;
-            var mh = invocation.method->Header;
+            var _module = invocation->method->Owner->Owner;
+            var mh = invocation->method->Header;
             FastFail(mh is null, WNE.MISSING_METHOD, "method code is zero", invocation);
             
-            var args = invocation.args;
+            var args = invocation->args;
 
             var locals = default(SmartPointer<stackval>);
 
@@ -292,10 +301,10 @@ namespace ishtar
             while (true)
             {
                 vm_cycle_start:
-                invocation.last_ip = (OpCodeValue)(ushort)*ip;
-                println($"@@.{invocation.last_ip} 0x{(nint)ip:X} [sp: {(((nint)sp) - ((nint)sp))}]");
+                invocation->last_ip = (OpCodeValue)(ushort)*ip;
+                println($"@@.{invocation->last_ip} 0x{(nint)ip:X} [sp: {(((nint)sp) - ((nint)sp))}]");
 
-                if (invocation.exception is not null && invocation.level == 0)
+                if (!invocation->exception.IsDefault() && invocation->level == 0)
                     return;
                 FastFail(ip == end, END_EXECUTE_MEMORY, "unexpected end of executable memory.", invocation);
                 FastFail(sp >= end_stack, OVERFLOW, "stack overflow detected.", invocation);
@@ -305,7 +314,7 @@ namespace ishtar
                     continue;
 
 
-                switch (invocation.last_ip)
+                switch (invocation->last_ip)
                 {
                     case NOP:
                         ++ip;
@@ -465,7 +474,7 @@ namespace ishtar
                             --sp;
                             var typeID = GetClass(sp->data.ui, _module, invocation);
                             sp->type = TYPE_ARRAY;
-                            if (invocation.method->IsStatic)
+                            if (invocation->method->IsStatic)
                                 sp->data.p = (nint)GC.AllocArray(typeID, size, 1, invocation);
                             //else fixed (IshtarObject** node = &invocation._this_)
                             //       sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
@@ -504,8 +513,8 @@ namespace ishtar
                     case RET:
                         ++ip;
                         --sp;
-                        invocation.returnValue = stackval.Allocate(invocation, 1);
-                        invocation.returnValue[0] = *sp;
+                        invocation->returnValue = stackval.Allocate(invocation, 1);
+                        invocation->returnValue[0] = *sp;
                         stack.Dispose();
                         locals.Dispose();
                         return;
@@ -608,7 +617,7 @@ namespace ishtar
                     case SEH_LEAVE:
                     case SEH_LEAVE_S:
                         while (sp > sp_start) --sp;
-                        invocation.last_ip = (OpCodeValue)(*ip);
+                        invocation->last_ip = (OpCodeValue)(*ip);
                         if (*ip == (uint)SEH_LEAVE_S)
                         {
                             ++ip;
@@ -655,16 +664,14 @@ namespace ishtar
                         break;
                     case CALL:
                         {
-                            var child_frame = new CallFrame(this);
                             ++ip;
                             var tokenIdx = *ip;
                             var owner = readTypeName(*++ip, _module, invocation);
 
 
                             var method = GetMethod(tokenIdx, owner, _module, invocation);
-                            child_frame.level++;
-                            child_frame.parent = invocation;
-                            child_frame.method = method;
+
+                            var child_frame = invocation->CreateChild(method);
                             ++ip;
                             println($"@@@ {owner->NameWithNS}::{method->Name}");
                             var method_args = GC.AllocateStack(child_frame, method->ArgLength);
@@ -710,7 +717,7 @@ namespace ishtar
                                 method_args[y] = *sp;
                             }
 
-                            child_frame.args = method_args;
+                            child_frame->args = method_args;
 
 
                             if (method->IsExtern) exec_method_native(child_frame);
@@ -718,26 +725,27 @@ namespace ishtar
 
                             if (method->ReturnType->TypeCode != TYPE_VOID)
                             {
-                                invocation.assert(!child_frame.returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
-                                *sp = child_frame.returnValue[0];
+                                invocation->assert(!child_frame->returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
+                                *sp = child_frame->returnValue[0];
 
-                                child_frame.returnValue.Dispose();
+                                child_frame->returnValue.Dispose();
 
                                 sp++;
                             }
 
-                            if (child_frame.exception is not null)
+                            if (!child_frame->exception.IsDefault())
                             {
                                 sp->type = TYPE_CLASS;
-                                sp->data.p = (nint)child_frame.exception.value;
+                                sp->data.p = (nint)child_frame->exception.value;
 
                                 GC.FreeStack(child_frame, method_args, method->ArgLength);
+                                child_frame->Dispose();
                                 goto exception_handle;
                             }
 
                             GC.FreeStack(child_frame, method_args, method->ArgLength);
-                        }
-                        break;
+                            child_frame->Dispose();
+                    } break;
                     case LOC_INIT:
                         {
                             ++ip;
@@ -1490,9 +1498,9 @@ namespace ishtar
                     default:
                         CallFrame.FillStackTrace(invocation);
 
-                        FastFail(STATE_CORRUPT, $"Unknown opcode: {invocation.last_ip}\n" +
+                        FastFail(STATE_CORRUPT, $"Unknown opcode: {invocation->last_ip}\n" +
                             $"{ip - start}\n" +
-                            $"{invocation.exception.stack_trace}", invocation);
+                            $"{invocation->exception.GetStackTrace()}", invocation);
                         ++ip;
                         break;
                 }
@@ -1506,7 +1514,7 @@ namespace ishtar
 
                 void fill_frame_exception()
                 {
-                    invocation.exception = new CallFrameException
+                    invocation->exception = new CallFrameException
                     {
                         last_ip = ip,
                         value = (IshtarObject*)sp->data.p
@@ -1583,11 +1591,13 @@ namespace ishtar
             }
         }
 
-        public static void Assert(bool conditional, WNE type, string msg, CallFrame frame = null)
+        public static void Assert(bool conditional, WNE type, string msg, CallFrame* frame = null)
         {
             if (conditional)
                 return;
-            frame?.vm?.FastFail(type, $"static assert failed: '{msg}'", frame);
+            if (frame is null)
+                return;
+            frame->vm.FastFail(type, $"static assert failed: '{msg}'", frame);
         }
 
         public static void GlobalPrintln(string empty) {}

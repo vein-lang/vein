@@ -1,8 +1,8 @@
 namespace ishtar
 {
-    public interface IWatchDog
+    public unsafe interface IWatchDog
     {
-        void FastFail(WNE type, string msg, CallFrame frame = null);
+        void FastFail(WNE type, string msg, CallFrame* frame = null);
         void ValidateLastError();
     }
 }

@@ -13,12 +13,12 @@ namespace ishtar_test
         { }
     }
     [ExcludeFromCodeCoverage]
-    public class TestWatchDog : IWatchDog
+    public unsafe class TestWatchDog : IWatchDog
     {
         private static readonly object guarder = new();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void IWatchDog.FastFail(WNE type, string msg, CallFrame frame)
+        void IWatchDog.FastFail(WNE type, string msg, CallFrame* frame)
         {
             lock (guarder)
             {
