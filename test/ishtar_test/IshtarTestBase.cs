@@ -98,7 +98,7 @@ namespace ishtar_test
         private readonly VeinModuleBuilder _veinModule;
         private readonly string _testCase;
         private readonly string _uid;
-        public CallFrame entryPointFrame;
+        public CallFrame* entryPointFrame;
         private RuntimeIshtarMethod* entryPointMethod;
 
         private readonly NativeList<RuntimeIshtarModule>* _deps;
@@ -132,12 +132,9 @@ namespace ishtar_test
             entryPointMethod = runtimeModule->GetSpecialEntryPoint($"master_{_testCase}_{_uid}()");
 
             var args_ = stackalloc stackval[1];
-            var frame = new CallFrame(VM)
-            {
-                args = args_,
-                method = entryPointMethod,
-                level = 0
-            };
+
+            var frame = CallFrame.Create(entryPointMethod, null);
+            frame->args = args_;
             entryPointFrame = frame;
         }
 
@@ -148,14 +145,14 @@ namespace ishtar_test
             return this;
         }
 
-        public CallFrame Validate()
+        public CallFrame* Validate()
         {
-            if (entryPointFrame.exception is not null)
-            {
-                var ex = entryPointFrame.exception.value;
-                var clazz = ex->clazz;
-                Assert.Fail($"Fault has throw. [{clazz->Name}]");
-            }
+            if (entryPointFrame->exception.value == null)
+                return entryPointFrame;
+
+            var ex = entryPointFrame->exception.value;
+            var clazz = ex->clazz;
+            Assert.Fail($"Fault has throw. [{clazz->Name}]");
 
             return entryPointFrame;
         }

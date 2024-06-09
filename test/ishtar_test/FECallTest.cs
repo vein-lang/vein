@@ -5,7 +5,7 @@ namespace ishtar_test
     using NUnit.Framework;
 
     [TestFixture]
-    public class FECallTest : IshtarTestBase
+    public unsafe class FECallTest : IshtarTestBase
     {
         [Test]
         [Parallelizable(ParallelScope.None)]
