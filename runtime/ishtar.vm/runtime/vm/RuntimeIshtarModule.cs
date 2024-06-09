@@ -271,7 +271,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             var key = reader.ReadInt32();
             var value = reader.ReadIshtarString();
 
-           // vault.vm.println($"read string: [{key}] '{value}'");
+            VirtualMachine.GlobalPrintln($"read string: [{key}] '{value}'");
 
             module->string_table->Add(key, StringStorage.Intern(value));
         }
@@ -290,14 +290,14 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             var predefined = module->vm.Types->ByQualityName(t);
             if (predefined is not null)
             {
-                vault.vm.println($"read typename: [{key}] '{t->NameWithNS}' and linked by predefined type");
+                VirtualMachine.GlobalPrintln($"read typename: [{key}] '{t->NameWithNS}' and linked by predefined type");
                 module->class_table->Add(predefined);
             }
             else if (asmName.Equals(module->Name))
             {
                 var c = module->DefineClass(t, module->vm.Types->ObjectClass);
                 c->Flags |= ClassFlags.NotCompleted;
-                vault.vm.println($"read typename: [{key}] '{t->NameWithNS}' and set not completed");
+                VirtualMachine.GlobalPrintln($"read typename: [{key}] '{t->NameWithNS}' and set not completed");
             }
 
 
@@ -312,7 +312,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             var clazz = reader.ReadIshtarString();
             var f = new FieldName(name, clazz);
 
-            //vault.vm.println($"read fieldname: [{key}] '{f}'");
+            VirtualMachine.GlobalPrintln($"read fieldname: [{key}] '{f}'");
 
             var field = IshtarGC.AllocateImmortal<RuntimeFieldName>();
             *field = new RuntimeFieldName(name, clazz);
@@ -325,7 +325,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             var name = reader.ReadIshtarString();
             var ver = IshtarVersion.Parse(reader.ReadIshtarString());
 
-            vault.vm.println($"read dep: [{name}@{ver}] ");
+            VirtualMachine.GlobalPrintln($"read dep: [{name}@{ver}] ");
 
             if (module->deps_table->Any(x => x->Version.Equals(ver) && x->Name.Equals(name)))
                 continue;
@@ -353,7 +353,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             if (!parent->IsUnresolved)
                 return;
 
-            vault.vm.println($"resolve class: [{parent->FullName->NameWithNS}] ");
+            VirtualMachine.GlobalPrintln($"resolve class: [{parent->FullName->NameWithNS}] ");
 
             @class->ReplaceParent(parent->FullName != @class->FullName
                 ? module->FindType(parent->FullName, true)
@@ -364,7 +364,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             @class->Methods->ForEach(method => {
                 if (!method->ReturnType->IsUnresolved)
                     return;
-                //vault.vm.println($"resolve method.retType: [{method->ReturnType->FullName->NameWithNS}] ");
+                VirtualMachine.GlobalPrintln($"resolve method.retType: [{method->ReturnType->FullName->NameWithNS}] ");
 
                 method->ReplaceReturnType(module->FindType(method->ReturnType->FullName, true, true));
             });
@@ -375,7 +375,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
                 method->Arguments->ForEach(arg => {
                     if (!arg->Type->IsUnresolved)
                         return;
-                    //vault.vm.println($"resolve method.arg[]: [{arg->Type->FullName->NameWithNS}] ");
+                    VirtualMachine.GlobalPrintln($"resolve method.arg[]: [{arg->Type->FullName->NameWithNS}] ");
                     arg->ReplaceType(module->FindType(arg->Type->FullName, true, true));
                 });
             });
@@ -383,7 +383,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             @class->Fields->ForEach(field => {
                 if (!field->FieldType->IsUnresolved)
                     return;
-                //vault.vm.println($"resolve field.type[]: [{field->FieldType->FullName->NameWithNS}] ");
+                VirtualMachine.GlobalPrintln($"resolve field.type[]: [{field->FieldType->FullName->NameWithNS}] ");
 
                 field->ReplaceType(module->FindType(field->FieldType->FullName, true, true));
             });
@@ -396,18 +396,18 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             foreach (byte[] methodBody in body.Methods)
             {
                 var method = DecodeAndDefineMethod(methodBody, clazz, module);
-                vault.vm.println($"constructed method: [{method->Name} at {method->Owner->FullName->NameWithNS}] ");
+                VirtualMachine.GlobalPrintln($"constructed method: [{method->Name} at {method->Owner->FullName->NameWithNS}] ");
             }
 
             foreach (var bodyField in body.Fields)
             {
                 var field = clazz->DefineField(bodyField.FieldName, bodyField.Flags,
                     module->FindType(bodyField.FieldType, true, true));
-                vault.vm.println($"constructed field: [{field->Name} at {field->Owner->FullName->NameWithNS}] ");
+                VirtualMachine.GlobalPrintln($"constructed field: [{field->Name} at {field->Owner->FullName->NameWithNS}] ");
             }
 
             clazz->Flags &= ~ClassFlags.NotCompleted;
-            vault.vm.println($"Marked '{clazz->Name}' as completed");
+            VirtualMachine.GlobalPrintln($"Marked '{clazz->Name}' as completed");
             // todo restore parent
         }
 
@@ -420,7 +420,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         FillConstStorage(module->ConstStorage, const_body, module->vm.Frames.ModuleLoaderFrame);
 
 
-        vault.vm.println($"Read {module->Name} module success");
+        VirtualMachine.GlobalPrintln($"Read {module->Name} module success");
 
 
         module->Version = IshtarVersion.Parse(module->GetConstStringByIndex(vdx));
@@ -431,6 +431,9 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         DistributionAspects(module);
         ValidateRuntimeTokens(module);
         module->LinkFFIMethods(module);
+#if DEBUG
+        module->vm.Jitter.GetExecutionModule().PrintToFile($"{module->Name}_ffi.ll");
+#endif
         InitVTables(module);
         
 
@@ -782,12 +785,12 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             return;
         }
 
-        if (m->PIInfo is { Addr: null, iflags: 0 })
-        {
-            vm.FastFail(WNE.TYPE_LOAD, $"Extern '{method->Name}' method has nul PIInfo", sys_frame);
-            vm.FFI.DisplayDefinedMapping();
-            return;
-        }
+        //if (m->PIInfo is { Addr: null, iflags: 0 })
+        //{
+        //    vm.FastFail(WNE.TYPE_LOAD, $"Extern '{method->Name}' method has nul PIInfo", sys_frame);
+        //    vm.FFI.DisplayDefinedMapping();
+        //    return;
+        //}
 
         method->PIInfo = m->PIInfo;
     }
