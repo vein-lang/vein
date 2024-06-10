@@ -1,7 +1,10 @@
 namespace ishtar.collections;
 
-public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
+using static vm.libuv.LibUV;
+
+public unsafe struct NativeConcurrentDictionary<TKey, TValue> where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
 {
+    private readonly NativeConcurrentDictionary<TKey, TValue>* _self;
     private readonly AllocatorBlock _allocator;
 
 
@@ -10,25 +13,44 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
 
     private int count;
     private int capacity;
+    private uv_sem_t semaphore;
 
-    public static NativeDictionary<TKey, TValue>* Create(int initialCapacity, AllocatorBlock allocator)
+    public static NativeConcurrentDictionary<TKey, TValue>* Create(int initialCapacity, AllocatorBlock allocator)
     {
-        var p = (NativeDictionary<TKey, TValue>*)allocator.alloc((uint)(sizeof(NativeDictionary<TKey, TValue>)));
+        var p = (NativeConcurrentDictionary<TKey, TValue>*)allocator.alloc((uint)(sizeof(NativeConcurrentDictionary<TKey, TValue>)));
 
-        *p = new NativeDictionary<TKey, TValue>(initialCapacity, allocator);
+        *p = new NativeConcurrentDictionary<TKey, TValue>(initialCapacity, p, allocator);
+
+        var result = uv_sem_init(out p->semaphore, 1);
+
+        VirtualMachine.Assert(result == 0, WNE.SEMAPHORE_FAILED, "failed initialize NativeConcurrentDictionary");
 
         return p;
     }
 
-    public static void Free(NativeDictionary<TKey, TValue>* dict, AllocatorBlock allocator)
+    private readonly struct sem_slim : IDisposable
+    {
+        private readonly NativeConcurrentDictionary<TKey, TValue>* _dict;
+
+        public sem_slim(NativeConcurrentDictionary<TKey, TValue>* dict)
+        {
+            _dict = dict;
+            uv_sem_wait(ref _dict->semaphore);
+        }
+        public void Dispose() => uv_sem_post(ref _dict->semaphore);
+    }
+
+    public static void Free(NativeConcurrentDictionary<TKey, TValue>* dict, AllocatorBlock allocator)
     {
         allocator.free(dict->keys);
         allocator.free(dict->values);
         allocator.free(dict);
+        uv_sem_destroy(ref dict->semaphore);
     }
 
-    public NativeDictionary(int initialCapacity, AllocatorBlock allocator)
+    public NativeConcurrentDictionary(int initialCapacity, NativeConcurrentDictionary<TKey, TValue>* self, AllocatorBlock allocator)
     {
+        _self = self;
         _allocator = allocator;
         capacity = IshtarMath.max(initialCapacity, 16);
         keys = (TKey*)_allocator.alloc_primitives((uint)(capacity * sizeof(TKey)));
@@ -44,9 +66,9 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
 
     public bool TryAdd(TKey key, TValue* value)
     {
-        if (ContainsKey(key))
+        using var locker = new sem_slim(_self);
+        if (FindIndex(key) != -1) // do not use ContainsKey
             return false;
-
         if (count == capacity)
             Resize();
 
@@ -72,6 +94,8 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
 
     public bool TryRemove(TKey key)
     {
+        using var locker = new sem_slim(_self);
+
         int index = FindIndex(key);
         if (index == -1)
             return false;
@@ -82,19 +106,24 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
         return true;
     }
 
-    public bool ContainsKey(TKey key) => FindIndex(key) != -1;
+    public bool ContainsKey(TKey key)
+    {
+        using var locker = new sem_slim(_self);
+        return FindIndex(key) != -1;
+    }
 
     public TValue* Get(TKey key)
     {
+        using var locker = new sem_slim(_self);
         int index = FindIndex(key);
         if (index == -1)
             throw new ArgumentException("Key not found in the dictionary.");
-
         return values[index];
     }
 
     public bool TryGetValue(TKey key, out TValue* value)
     {
+        using var locker = new sem_slim(_self);
         int index = FindIndex(key);
         if (index == -1)
         {
@@ -105,7 +134,7 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
         value = values[index];
         return true;
     }
-
+    
     private int FindIndex(TKey key)
     {
         if (count == 0) return -1;
@@ -130,6 +159,7 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
 
     public void Clear()
     {
+        using var locker = new sem_slim(_self);
         _allocator.free(keys);
         _allocator.free(values);
         capacity = 16;
@@ -139,36 +169,5 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
     }
 
     public int Count => count;
-
-
-    public delegate void UnsafeForEach_Delegate(TKey key, TValue* item);
-    public void ForEach(UnsafeForEach_Delegate actor)
-    {
-        for (int i = 0; i < count; i++) actor(keys[i], values[i]);
-    }
-    public delegate bool UnsafeFilter_Delegate(TKey key, TValue* item);
-
-    public bool Any(UnsafeFilter_Delegate filter)
-    {
-        if (count == 0) return false;
-        for (int i = 0; i < count; i++)
-        {
-            if (filter(keys[i], values[i]))
-                return true;
-        }
-
-        return false;
-    }
-
-    public bool All(UnsafeFilter_Delegate filter)
-    {
-        if (count == 0) return false;
-        var all = true;
-        for (int i = 0; i < count; i++)
-        {
-            all &= filter(keys[i], values[i]);
-        }
-        return all;
-    }
 }
 

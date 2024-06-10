@@ -20,6 +20,9 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
         [DllImport(LIBNAME)]
         public static extern void GC_init();
+
+        [DllImport(LIBNAME)]
+        public static extern void GC_allow_register_threads();
         // GC_API void GC_CALL GC_deinit(void);
         [DllImport(LIBNAME)]
         public static extern void GC_deinit();
@@ -114,6 +117,19 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         // GC_API int GC_CALL GC_register_long_link(void** /* link */, const void * /* obj */) GC_ATTR_NONNULL(1) GC_ATTR_NONNULL(2);
         [DllImport(LIBNAME)]
         public static extern void GC_register_long_link(void** link, void* obj);
+
+        [DllImport(LIBNAME)]
+        public static extern void GC_use_threads_discovery();
+
+        [DllImport(LIBNAME)]
+        public static extern void GC_register_my_thread(GC_stack_base* attr);
+
+
+        [DllImport(LIBNAME)]
+        public static extern int GC_get_stack_base(GC_stack_base* attr);
+
+        [DllImport(LIBNAME)]
+        public static extern int GC_unregister_my_thread();
 
 
         /* Given a pointer to the base of an object, return its size in bytes.  */
@@ -295,6 +311,11 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         return (void*)Native.GC_malloc_atomic_uncollectable(size);
     }
 
+
+    public void register_thread(GC_stack_base* attr) => Native.GC_register_my_thread(attr);
+    public void unregister_thread() => Native.GC_unregister_my_thread();
+
+    public bool get_stack_base(GC_stack_base* attr) => Native.GC_get_stack_base(attr) == 0;
 
     private struct WeakImmortalRef(void** addr, void* obj)
     {

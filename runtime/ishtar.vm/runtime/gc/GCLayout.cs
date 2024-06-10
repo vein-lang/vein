@@ -1,5 +1,11 @@
 namespace ishtar.runtime.gc;
 
+public unsafe struct GC_stack_base
+{
+    public void* mem_base;
+    public void* reg_base;
+}
+
 public unsafe interface GCLayout
 {
     public void init();
@@ -20,6 +26,9 @@ public unsafe interface GCLayout
     public bool try_collect();
     public void finalize_all();
     public void finalize_on_demand();
+    public bool get_stack_base(GC_stack_base* attr);
+    public void register_thread(GC_stack_base* attr);
+    public void unregister_thread();
 
     public void register_finalizer_no_order(IshtarObject* obj, delegate*<nint, nint, void> proc, CallFrame* frame);
     public void collect();

@@ -92,6 +92,65 @@ public unsafe class Tests
     [TestCase(false, 100)]
     [TestCase(false, 1000)]
     [TestCase(false, 10000)]
+    [TestCase(true, 10, true)]
+    [TestCase(true, 100, true)]
+    [TestCase(true, 1000, true)]
+    [TestCase(true, 10000, true)]
+    [TestCase(false, 10, true)]
+    [TestCase(false, 100, true)]
+    [TestCase(false, 1000, true)]
+    [TestCase(false, 10000, true)]
+    public void CreateNativeQueueAndFill(bool boehm, int size, bool useCollect = false)
+    {
+        var allocator = default(AllocatorBlock);
+
+        if (boehm)
+        {
+            allocator = new AllocatorBlock
+            {
+                alloc = &IshtarGC_Alloc,
+                alloc_primitives = &IshtarGC_AtomicAlloc,
+                free = &IshtarGC_Free,
+                realloc = &IshtarGC_Realloc
+            };
+        }
+        else
+        {
+            allocator = new AllocatorBlock
+            {
+                alloc = &NativeMemory_AllocZeroed,
+                alloc_primitives = &NativeMemory_AllocZeroed,
+                free = &NativeMemory_Free,
+                realloc = &NativeMemory_Realloc
+            };
+        }
+
+        var queue = NativeQueue<Magic>.Create(1, allocator);
+
+
+        if (useCollect && boehm)
+            BoehmGCLayout.Native.GC_gcollect();
+        else if (useCollect)
+            GC.Collect();
+
+        foreach (int i in Enumerable.Range(0, size)) queue->Enqueue((Magic*)i);
+
+        Assert.AreEqual(queue->Count, size);
+
+
+        foreach (int _ in Enumerable.Range(0, size / 2)) queue->Dequeue();
+
+        Assert.AreEqual(queue->Count, size / 2);
+    }
+
+    [TestCase(true, 10)]
+    [TestCase(true, 100)]
+    [TestCase(true, 1000)]
+    [TestCase(true, 10000)]
+    [TestCase(false, 10)]
+    [TestCase(false, 100)]
+    [TestCase(false, 1000)]
+    [TestCase(false, 10000)]
 
     [TestCase(true, 10, true)]
     [TestCase(true, 100, true)]

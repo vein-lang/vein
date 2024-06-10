@@ -2,7 +2,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using ishtar;
-using ishtar.runtime.gc;
 using vein.fs;
 using vein.runtime;
 
@@ -12,14 +11,9 @@ unsafe
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         Console.OutputEncoding = Encoding.Unicode;
 
-    BoehmGCLayout.Native.Load();
-    BoehmGCLayout.Native.GC_set_find_leak(true);
-    BoehmGCLayout.Native.GC_init();
-    
     var vm = VirtualMachine.Create("app");
     var vault = vm.Vault;
-
-
+    
     var masterModule = default(IshtarAssembly);
     var resolver = default(AssemblyResolver);
 
@@ -51,7 +45,7 @@ unsafe
 
     var module = resolver.Resolve(masterModule);
 
-    module->class_table->ForEach(x => x->init_vtable(vm));
+    module->class_table->ForEach(x => x->init_vtable(x->Owner->vm));
     
     var entry_point = module->GetEntryPoint();
 
@@ -62,15 +56,17 @@ unsafe
     }
 
     var args_ = stackalloc stackval[1];
-
-
-
+    
     var frame = CallFrame.Create(entry_point, null);
     frame->args = args_;
 
 
     var watcher = Stopwatch.StartNew();
-    vm.exec_method(frame);
+
+    entry_point->ForceSetAsAsync();
+
+    vm.task_scheduler->start_threading(module);
+    vm.task_scheduler->execute_method(frame);
 
     if (!frame->exception.IsDefault())
     {
