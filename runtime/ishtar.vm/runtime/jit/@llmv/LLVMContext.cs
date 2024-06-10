@@ -171,7 +171,7 @@ public unsafe struct LLVMContext
         };
     }
 
-    public void Compile21FFI(RuntimeIshtarMethod* method, string moduleName, string fnName)
+    public void CompileFFI(RuntimeIshtarMethod* method, string moduleName, string fnName)
     {
         var maxSize = Math.Max(Math.Max(sizeof(decimal), sizeof(Half)), IntPtr.Size);
         var stackUnionType = LLVMTypeRef.CreateArray(LLVMTypeRef.Int8, (uint)maxSize);

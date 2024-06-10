@@ -103,7 +103,7 @@ public unsafe class ForeignFunctionInterface
     {
         var jitter = importCaller->Owner->Owner->vm.Jitter;
 
-        jitter.Compile21FFI(importCaller, importModule, fnName);
+        jitter.CompileFFI(importCaller, importModule, fnName);
     }
 
 
