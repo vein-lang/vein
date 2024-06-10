@@ -126,6 +126,11 @@ namespace ishtar
         public NativeList<RuntimeAspect>* Aspects { get; private set; }
 
 
+        public void ForceSetAsAsync()
+        {
+            Flags |= MethodFlags.Async;
+        }
+
         public void Dispose()
         {
             if (_self is null)

@@ -1,34 +1,35 @@
 namespace ishtar
 {
     using emit;
+    using io;
+    using ishtar.llmv;
     using ishtar.runtime.vin;
     using runtime;
+    using runtime.gc;
     using System;
     using System.Diagnostics;
-    using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
-    using collections;
     using vein.extensions;
-    using vein.reflection;
     using vein.runtime;
     using static OpCodeValue;
     using static vein.runtime.VeinTypeCode;
     using static WNE;
-    using runtime.gc;
-    using ishtar.llmv;
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
     public unsafe partial class VirtualMachine : IDisposable
     {
-
-
         VirtualMachine() {}
 
         /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
         public static VirtualMachine Create(string name)
         {
+            BoehmGCLayout.Native.Load();
+            BoehmGCLayout.Native.GC_set_find_leak(true);
+            BoehmGCLayout.Native.GC_init();
+            BoehmGCLayout.Native.GC_allow_register_threads();
+
             var vm = new VirtualMachine();
             vm.Jit = new IshtarJIT(vm);
             vm.Config = new VMConfig();
@@ -51,6 +52,10 @@ namespace ishtar
             
             vm.FFI = new ForeignFunctionInterface(vm);
             vm.Jitter = new LLVMContext();
+
+            vm.threading = new IshtarThreading();
+
+            vm.task_scheduler = vm.threading.CreateScheduler();
             
             return vm;
         }
@@ -123,8 +128,10 @@ namespace ishtar
         internal IshtarTrace trace;
         internal LLVMContext Jitter;
         public IshtarTypes* Types;
+        public IshtarThreading threading;
+        public TaskScheduler* task_scheduler;
 
-        
+
         public bool HasFaulted() => CurrentException is not null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -251,6 +258,8 @@ namespace ishtar
             var locals = default(SmartPointer<stackval>);
 
             var ip = mh->code;
+
+            // todo, revert to stackalloc
             var stack = stackval.Allocate(invocation, mh->max_stack);
 
             const int STACK_VIOLATION_LEVEL_SIZE = 32;
@@ -720,8 +729,10 @@ namespace ishtar
                             child_frame->args = method_args;
 
 
-                            if (method->IsExtern) exec_method_native(child_frame);
-                            else exec_method(child_frame);
+                            if (method->IsExtern)
+                                exec_method_native(child_frame);
+                            else
+                                task_scheduler->execute_method(child_frame);
 
                             if (method->ReturnType->TypeCode != TYPE_VOID)
                             {
