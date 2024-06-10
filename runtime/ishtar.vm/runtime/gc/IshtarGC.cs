@@ -535,7 +535,7 @@ namespace ishtar.runtime.gc
 
             //IshtarSync.LeaveCriticalSection(ref clazz.Owner.Interlocker.GC_FINALIZER_BARRIER);
         }
-
+        
         public void RegisterWeakLink(IshtarObject* obj, void** link, bool longLive)
             => gcLayout.create_weak_link(link, obj, longLive);
         public void UnRegisterWeakLink(void** link, bool longLive)
@@ -547,6 +547,11 @@ namespace ishtar.runtime.gc
 
         public void Collect() => gcLayout.collect();
 
+        
+
+        public void register_thread(GC_stack_base* attr) => gcLayout.register_thread(attr);
+        public void unregister_thread() => gcLayout.unregister_thread();
+        public bool get_stack_base(GC_stack_base* attr) => gcLayout.get_stack_base(attr);
 
         #region internal
 
@@ -601,7 +606,8 @@ namespace ishtar.runtime.gc
             => NativeList<T>.Free(list, _allocator);
 
 
-        public static AtomicNativeList<T>* AllocateAtomicList<T>(int initialCapacity = 16) where T : unmanaged, IEquatable<T>
+        public static AtomicNativeList<T>* AllocateAtomicList<T>(int initialCapacity = 16)
+            where T : unmanaged, IEquatable<T>
             => AtomicNativeList<T>.Create(initialCapacity, _allocator);
 
         public static NativeDictionary<TKey, TValue>* AllocateDictionary<TKey, TValue>(int initialCapacity = 16)
@@ -615,6 +621,22 @@ namespace ishtar.runtime.gc
         public static void FreeDictionary<TKey, TValue>(NativeDictionary<TKey, TValue>* list)
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
             => NativeDictionary<TKey, TValue>.Free(list, _allocator);
+
+        public static NativeQueue<T>* AllocateQueue<T>(int initialCapacity = 16)
+            where T : unmanaged, IEq<T>
+            => NativeQueue<T>.Create(initialCapacity, _allocator);
+
+        public static void FreeQueue<T>(NativeQueue<T>* queue) where T : unmanaged, IEq<T>
+            => NativeQueue<T>.Free(queue, _allocator);
+
+
+        public static NativeConcurrentDictionary<TKey, TValue>* AllocateConcurrentDictionary<TKey, TValue>(int initialCapacity = 16)
+            where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
+            => NativeConcurrentDictionary<TKey, TValue>.Create(initialCapacity, _allocator);
+
+        public static void FreeConcurrentDictionary<TKey, TValue>(NativeConcurrentDictionary<TKey, TValue>* list)
+            where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
+            => NativeConcurrentDictionary<TKey, TValue>.Free(list, _allocator);
 
         public static T* AllocateImmortal<T>() where T : unmanaged
         {
