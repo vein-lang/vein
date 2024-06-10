@@ -15,6 +15,7 @@ namespace vein.runtime
         Virtual     = 1 << 6,
         Abstract    = 1 << 7,
         Override    = 1 << 8,
-        Special     = 1 << 9
+        Special     = 1 << 9,
+        Async       = 1 << 10,
     }
 }
