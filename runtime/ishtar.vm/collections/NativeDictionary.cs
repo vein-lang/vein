@@ -106,14 +106,6 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
         return true;
     }
 
-    //public NativeList<TValue>* GetValues()
-    //{
-    //    var v = NativeList<TValue>.Create(count, _comparer, _allocator);
-    //    for (int i = 0; i < count; i++)
-    //        v->Add(values[i]);
-    //    return v;
-    //}
-
     private int FindIndex(TKey key)
     {
         if (count == 0) return -1;
