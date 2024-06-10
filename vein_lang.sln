@@ -55,12 +55,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sample_native_library", "te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spectre.Console.Cli", "lib\spectre.console\src\Spectre.Console.Cli\Spectre.Console.Cli.csproj", "{B929FCEA-CC44-4673-A1E0-90522693F42A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ishtar_collections_test", "test\ishtar_collections_test\ishtar_collections_test.csproj", "{A9632845-23EC-4F5F-B422-92DDE1234134}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar_collections_test", "test\ishtar_collections_test\ishtar_collections_test.csproj", "{A9632845-23EC-4F5F-B422-92DDE1234134}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Binaries", "Binaries", "{6000F789-5A11-4FEB-89F5-77671D2316DD}"
 	ProjectSection(SolutionItems) = preProject
 		bin\gc.dll = bin\gc.dll
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ishtar.vm.libuv", "runtime\ishtar.vm.libuv\ishtar.vm.libuv.csproj", "{3E9D576A-C96E-407F-8112-E0D15F11322A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -276,6 +278,18 @@ Global
 		{A9632845-23EC-4F5F-B422-92DDE1234134}.Release|x64.Build.0 = Release|Any CPU
 		{A9632845-23EC-4F5F-B422-92DDE1234134}.Release|x86.ActiveCfg = Release|Any CPU
 		{A9632845-23EC-4F5F-B422-92DDE1234134}.Release|x86.Build.0 = Release|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Debug|x64.Build.0 = Debug|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Debug|x86.Build.0 = Debug|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Release|x64.ActiveCfg = Release|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Release|x64.Build.0 = Release|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Release|x86.ActiveCfg = Release|Any CPU
+		{3E9D576A-C96E-407F-8112-E0D15F11322A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -299,6 +313,7 @@ Global
 		{B929FCEA-CC44-4673-A1E0-90522693F42A} = {B79D9C1A-8074-4105-8447-93A5A059A2CB}
 		{A9632845-23EC-4F5F-B422-92DDE1234134} = {5AF546C3-347F-4595-9CA9-3DE286DBC585}
 		{6000F789-5A11-4FEB-89F5-77671D2316DD} = {95745037-9902-4EFA-83A6-0E43669EF927}
+		{3E9D576A-C96E-407F-8112-E0D15F11322A} = {F1A3DE9B-263D-4F44-9A88-9ED37E9A9330}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2BB3994-6F65-4E41-BA44-6258F00A3A28}
