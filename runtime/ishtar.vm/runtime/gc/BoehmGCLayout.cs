@@ -10,10 +10,26 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
     public class Native
     {
-        public static void Load() =>
-            NativeLibrary.Load(RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                ? "includes/gc.dll"
-                : "includes/libgc.so");
+        public static void Load(RuntimeInfo info)
+        {
+            switch (info)
+            {
+                case { isWindows: true, Architecture: Architecture.X64 }:
+                    NativeLibrary.Load("includes/gc.dll");
+                    break;
+                case { isLinux: true, Architecture: Architecture.X64 }:
+                    NativeLibrary.Load("includes/libgc.so");
+                    break;
+                case { isOSX: true, Architecture: Architecture.X64 }:
+                    NativeLibrary.Load("includes/libgc_x64.dylib");
+                    break;
+                case { isOSX: true, Architecture: Architecture.Arm64 }:
+                    NativeLibrary.Load("includes/libgc_arm64.dylib");
+                    break;
+                default:
+                    throw new NotSupportedException($"Platform is not support gc loading");
+            }
+        }
 
         public const string LIBNAME = "gc";
 
@@ -23,15 +39,11 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
         [DllImport(LIBNAME)]
         public static extern void GC_allow_register_threads();
-        // GC_API void GC_CALL GC_deinit(void);
+
         [DllImport(LIBNAME)]
         public static extern void GC_deinit();
         [DllImport(LIBNAME)]
         public static extern bool GC_is_init_called();
-
-
-        // && for safe destroy
-
         [DllImport(LIBNAME)]
         public static extern void GC_clear_exclusion_table();
         [DllImport(LIBNAME)]

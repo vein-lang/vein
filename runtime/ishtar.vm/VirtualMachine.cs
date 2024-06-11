@@ -18,19 +18,41 @@ namespace ishtar
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
+    public readonly struct RuntimeInfo
+    {
+        public RuntimeInfo()
+        {
+            isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+            isOSX = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+            isFreeBSD = RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
+            Architecture = RuntimeInformation.OSArchitecture;
+        }
+
+        public readonly bool isWindows;
+        public readonly bool isLinux;
+        public readonly bool isOSX;
+        public readonly bool isFreeBSD;
+        public readonly Architecture Architecture;
+    }
+
     public unsafe partial class VirtualMachine : IDisposable
     {
         VirtualMachine() {}
 
+
+        public readonly RuntimeInfo runtimeInfo = new RuntimeInfo(); 
+
         /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
         public static VirtualMachine Create(string name)
         {
-            BoehmGCLayout.Native.Load();
+            var vm = new VirtualMachine();
+
+            BoehmGCLayout.Native.Load(vm.runtimeInfo);
             BoehmGCLayout.Native.GC_set_find_leak(true);
             BoehmGCLayout.Native.GC_init();
             BoehmGCLayout.Native.GC_allow_register_threads();
 
-            var vm = new VirtualMachine();
             vm.Jit = new IshtarJIT(vm);
             vm.Config = new VMConfig();
             vm.Vault = new AppVault(vm, name);

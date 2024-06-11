@@ -72,6 +72,12 @@
     <None Update="includes\libgc.so">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="includes\libgc_arm64.dylib">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="includes\libgc_x64.dylib">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="sample_native_library.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
