@@ -15,16 +15,16 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
             switch (info)
             {
                 case { isWindows: true, Architecture: Architecture.X64 }:
-                    NativeLibrary.Load("includes/gc.dll");
+                    NativeLibrary.Load("./includes/gc.dll");
                     break;
                 case { isLinux: true, Architecture: Architecture.X64 }:
-                    NativeLibrary.Load("includes/libgc.so");
+                    NativeLibrary.Load("./includes/libgc.so");
                     break;
                 case { isOSX: true, Architecture: Architecture.X64 }:
-                    NativeLibrary.Load("includes/libgc_x64.dylib");
+                    NativeLibrary.Load("./includes/libgc_x64.dylib");
                     break;
                 case { isOSX: true, Architecture: Architecture.Arm64 }:
-                    NativeLibrary.Load("includes/libgc_arm64.dylib");
+                    NativeLibrary.Load("./includes/libgc_arm64.dylib");
                     break;
                 default:
                     throw new NotSupportedException($"Platform is not support gc loading");
