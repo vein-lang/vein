@@ -77,7 +77,7 @@ Linux                         |                               | x64, ARM64
 ### Building on Windows
 
 For building, you need the following tools:
-- dotnet 6.0
+- dotnet 8.0
 - Win10 SDK
 - vsbuild-tools-2019 with MSVC 2019, MSVC142 for ARM64
 
@@ -140,11 +140,12 @@ The `output` folder should contain:
 ### Building on Linux (on ubuntu)
 
 For building, you need the following tools:
-- dotnet 6.0
+- dotnet 8.0
 - clang
 - zlib1g-dev
 - libkrb5-dev
 - libssl-dev  
+- libgc-dev
     
 and additional for arm64 (or maybe using [prebuiled docker image](https://github.com/vein-lang/docker-arm64))
 - clang-9
