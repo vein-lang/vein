@@ -247,6 +247,16 @@ namespace ishtar
             return _self;
         }
 
+        public RuntimeIshtarMethod* AsNative(delegate*<stackval*, int, stackval> p)
+        {
+            this.PIInfo = new PInvokeInfo()
+            {
+                isInternal = true,
+                compiled_func_ref = (nint)p,
+            };
+            return _self;
+        }
+
         public static bool Eq(RuntimeIshtarMethod* p1, RuntimeIshtarMethod* p2)
         {
             if (p1->IsDisposed())

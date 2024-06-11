@@ -17,8 +17,12 @@ public unsafe struct IshtarThreading
     public IshtarThread* CreateThread(CallFrame* frame)
     {
         var thread = IshtarGC.AllocateImmortal<IshtarThread>();
+        var threadContext = IshtarGC.AllocateImmortal<IshtarThreadContext>();
         LibUV.uv_thread_create(out var threadId, execute, (IntPtr)thread);
-        *thread = new IshtarThread(threadId, frame);
+        LibUV.uv_sem_init(out var locker, 0);
+        *threadContext = new IshtarThreadContext(threadId, locker);
+
+        *thread = new IshtarThread(threadId, frame, threadContext);
         return thread;
     }
 
@@ -31,6 +35,8 @@ public unsafe struct IshtarThreading
     private static void execute(nint arg)
     {
         var threadData = (IshtarThread*)arg;
+
+        LibUV.uv_sem_wait(ref threadData->ctx->Locker);
 
         var frame = threadData->callFrame;
         var vm = threadData->callFrame->vm;

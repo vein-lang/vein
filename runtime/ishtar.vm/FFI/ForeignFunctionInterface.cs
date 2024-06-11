@@ -57,6 +57,7 @@ public unsafe class ForeignFunctionInterface
         if (p != null) return;
         frame->vm.FastFail(WNE.STATE_CORRUPT, "Null pointer state.", frame);
     }
+
     [Conditional("STATIC_VALIDATE_IL")]
     public static void StaticValidateField(CallFrame* current, IshtarObject** arg1, string name)
     {

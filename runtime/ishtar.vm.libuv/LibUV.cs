@@ -64,6 +64,18 @@ public static class LibUV
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern void uv_sem_destroy(ref uv_sem_t sem);
 
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int uv_mutex_init(out uv_mutex_t handle);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_mutex_lock(ref uv_mutex_t handle);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_mutex_unlock(ref uv_mutex_t handle);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_mutex_destroy(ref uv_mutex_t handle);
+
     public delegate void uv_async_cb(nint handle);
     public delegate void uv_close_cb(nint handle);
     public delegate void uv_timer_cb(nint handle);
@@ -99,6 +111,12 @@ public static class LibUV
 
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_work_t
+    {
+        private nint handle;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct uv_mutex_t
     {
         private nint handle;
     }

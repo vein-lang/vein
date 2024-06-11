@@ -1,5 +1,8 @@
 namespace ishtar.io;
 
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using collections;
 using runtime;
 using runtime.gc;
