@@ -15,7 +15,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
             switch (info)
             {
                 case { isWindows: true, Architecture: Architecture.X64 }:
-                    NativeLibrary.Load("./includes/gc.dll");
+                    NativeLibrary.Load("./includes/libgc.dll");
                     break;
                 case { isLinux: true, Architecture: Architecture.X64 }:
                     NativeLibrary.Load("./includes/libgc.so");
@@ -31,7 +31,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
             }
         }
 
-        public const string LIBNAME = "gc";
+        public const string LIBNAME = "libgc";
 
 
         [DllImport(LIBNAME)]
