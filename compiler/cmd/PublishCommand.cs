@@ -9,7 +9,7 @@ using Spectre.Console.Cli;
 
 public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
 {
-    public static readonly Uri VEIN_GALLERY = new Uri("https://api.vein.gallery/");
+    public static readonly Uri VEIN_GALLERY = new Uri("https://api.vein-lang.org/");
 
     public override async Task<int> ExecuteAsync(CommandContext context, PublishCommandSettings settings,
         VeinProject project)

@@ -1,13 +1,11 @@
 namespace vein.cmd;
 
-using System;
-using System.Collections.Generic;
+using resources;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
 using System.IO;
-using resources;
-using vein.project;
+using project;
 
 [ExcludeFromCodeCoverage]
 public class NewCommandSettings : CommandSettings
@@ -35,15 +33,27 @@ public class NewCommand : Command<NewCommandSettings>
                 .MoreChoicesText("[grey](Move up and down to reveal more licenses)[/]")
                 .AddChoices(licenses));
 
-        var project = new YAML.Project();
-
-        project.Version = version;
-        project.Authors = new List<PackageAuthor>() { new PackageAuthor(author, "") };
-        project.License = license;
-
+        var project = new YAML.Project
+        {
+            Version = version,
+            Authors = [new(author, "")],
+            License = license
+        };
 
         project.Save(curDir.File($"{name}.vproj"));
+        curDir.File("app.vein").WriteAllText(
+            $"""
+             #space "{name}"
+             #use "vein/lang"
 
+             class App {"{"}
+                public static master(): void
+                {"{"}
+                    Out.print("hello world!");
+                {"}"}
+             {"}"}
+             """
+            );
         Log.Info($"[green]Success[/] created [orange]{name}[/] project.");
 
         return 0;
