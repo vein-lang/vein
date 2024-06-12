@@ -1,46 +1,52 @@
 namespace ishtar.io;
-
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using collections;
 using runtime;
 using runtime.gc;
+using System.Threading;
 using vein.runtime;
-using vm.libuv;
+using static VirtualMachine;
+using static vm.libuv.LibUV;
 
-public readonly unsafe struct TaskScheduler(
-    nint loopHandle,
-    nint* asyncHandle,
-    NativeQueue<IshtarTask>* queue) : IDisposable
+public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
 {
-    private readonly Data* data = IshtarGC.AllocateImmortal<Data>();
+    private ulong task_index;
+    private void* async_header;
+    private nint loop;
+    private readonly NativeQueue<IshtarTask>* _queue = queue;
+
 
     public static TaskScheduler* Create()
     {
         var scheduler = IshtarGC.AllocateImmortal<TaskScheduler>();
-        var loop = LibUV.uv_default_loop();
         var queue = IshtarGC.AllocateQueue<IshtarTask>();
-        var asyncHandle = IshtarGC.AllocateImmortal<nint>();
+        *scheduler = new TaskScheduler(queue);
 
-        *scheduler = new TaskScheduler(loop, asyncHandle, queue);
-
-        LibUV.uv_async_init(loop, (nint)asyncHandle, scheduler->onAsync);
+        var asyncHeader = IshtarGC.AllocateImmortal<nint>();
+        scheduler->loop = uv_default_loop();
+        Assert(uv_async_init(scheduler->loop, (nint)asyncHeader, on_async) == 0,
+            WNE.THREAD_STATE_CORRUPTED, "scheduler has failed create async io");
+        ((uv_async_t*)asyncHeader)->data = scheduler;
+        scheduler->async_header = asyncHeader;
+        scheduler->task_index = 0;
 
         return scheduler;
     }
+
 
     public static void Free(TaskScheduler* scheduler)
     {
         // TODO
     }
 
-    public void onAsync(nint handler)
+    public static void on_async(nint handler)
     {
+        var bw = (uv_async_t*)handler;
+        var taskScheduler = (TaskScheduler*)bw->data;
+        var queue = taskScheduler->_queue;
         while (queue->TryDequeue(out var task))
         {
             task->Frame->vm.exec_method(task->Frame);
-            LibUV.uv_sem_post(ref task->Data->semaphore);
+            uv_sem_post(ref task->Data->semaphore);
         }
     }
     public void execute_method(CallFrame* frame)
@@ -57,34 +63,33 @@ public readonly unsafe struct TaskScheduler(
     private void doAsyncExecute(CallFrame* frame)
     {
         // TODO remove using interlocked
-        var taskIdx = Interlocked.Increment(ref data->task_index);
+        var taskIdx = Interlocked.Increment(ref task_index);
         var task = IshtarGC.AllocateImmortal<IshtarTask>();
 
         *task = new IshtarTask(frame, taskIdx);
 
-        LibUV.uv_sem_init(out task->Data->semaphore, 0);
+        uv_sem_init(out task->Data->semaphore, 0);
 
-        queue->Enqueue(task);
+        _queue->Enqueue(task);
 
-        LibUV.uv_async_send((nint)asyncHandle);
+        uv_async_send((nint)async_header);
 
-        LibUV.uv_sem_wait(ref task->Data->semaphore);
-        LibUV.uv_sem_destroy(ref task->Data->semaphore);
+        uv_sem_wait(ref task->Data->semaphore);
+        uv_sem_destroy(ref task->Data->semaphore);
         task->Dispose();
         IshtarGC.FreeImmortal(task);
     }
 
-    public void Dispose() => IshtarGC.FreeImmortal(data);
+    public void Dispose() => IshtarGC.FreeQueue(_queue);
 
-    public void run() => LibUV.uv_run(loopHandle, LibUV.uv_run_mode.UV_RUN_DEFAULT);
-    public void stop() => LibUV.uv_stop(loopHandle);
+    public void run() => uv_run(loop, uv_run_mode.UV_RUN_DEFAULT);
+    public void stop() => uv_stop(loop);
 
 
     public void start_threading(RuntimeIshtarModule* entryModule)
     {
-        static void execute_scheduler(nint args)
+        static void execute_scheduler(IshtarRawThread* thread)
         {
-            var thread = (IshtarRawThread*)args;
             var vm = thread->MainModule->vm;
 
             var gcInfo = new GC_stack_base();
@@ -98,11 +103,19 @@ public readonly unsafe struct TaskScheduler(
             vm.GC.unregister_thread();
         }
 
-        entryModule->vm.threading.CreateRawThread(entryModule, &execute_scheduler);
-    }
+        new Thread((x) =>
+        {
+            RuntimeIshtarModule* module = (RuntimeIshtarModule*)(nint)x;
+            var vm = module->vm;
+            var gcInfo = new GC_stack_base();
 
-    private struct Data
-    {
-        public ulong task_index;
+            vm.GC.get_stack_base(&gcInfo);
+
+            vm.GC.register_thread(&gcInfo);
+
+            vm.task_scheduler->run();
+
+            vm.GC.unregister_thread();
+        }).Start((nint)entryModule);
     }
 }

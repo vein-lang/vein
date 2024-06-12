@@ -6,7 +6,7 @@ using vm.libuv;
 
 public unsafe struct IshtarThreading
 {
-    public IshtarRawThread* CreateRawThread(RuntimeIshtarModule* mainModule, delegate*<nint, void> frame)
+    public IshtarRawThread* CreateRawThread(RuntimeIshtarModule* mainModule, delegate*<IshtarRawThread*, void> frame)
     {
         var thread = IshtarGC.AllocateImmortal<IshtarRawThread>();
         LibUV.uv_thread_create(out var threadId, executeRaw, (IntPtr)thread);
@@ -52,11 +52,12 @@ public unsafe struct IshtarThreading
 
     private static void executeRaw(nint arg)
     {
+        var thread = (IshtarRawThread*)arg;
         var stackbase = new GC_stack_base();
 
         BoehmGCLayout.Native.GC_get_stack_base(&stackbase);
         BoehmGCLayout.Native.GC_register_my_thread(&stackbase);
-        ((IshtarRawThread*)arg)->callFrame(arg);
+        thread->callFrame(thread);
         BoehmGCLayout.Native.GC_unregister_my_thread();
     }
 }

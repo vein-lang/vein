@@ -12,23 +12,23 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
     {
         public static void Load(RuntimeInfo info)
         {
-            switch (info)
-            {
-                case { isWindows: true, Architecture: Architecture.X64 }:
-                    NativeLibrary.Load("./includes/libgc.dll");
-                    break;
-                case { isLinux: true, Architecture: Architecture.X64 }:
-                    NativeLibrary.Load("./includes/libgc.so");
-                    break;
-                case { isOSX: true, Architecture: Architecture.X64 }:
-                    NativeLibrary.Load("./includes/libgc_x64.dylib");
-                    break;
-                case { isOSX: true, Architecture: Architecture.Arm64 }:
-                    NativeLibrary.Load("./includes/libgc_arm64.dylib");
-                    break;
-                default:
-                    throw new NotSupportedException($"Platform is not support gc loading");
-            }
+            //switch (info)
+            //{
+            //    case { isWindows: true, Architecture: Architecture.X64 }:
+            //        NativeLibrary.Load("libgc");
+            //        break;
+            //    case { isLinux: true, Architecture: Architecture.X64 }:
+            //        NativeLibrary.Load("./includes/libgc.so");
+            //        break;
+            //    case { isOSX: true, Architecture: Architecture.X64 }:
+            //        NativeLibrary.Load("./includes/libgc_x64.dylib");
+            //        break;
+            //    case { isOSX: true, Architecture: Architecture.Arm64 }:
+            //        NativeLibrary.Load("./includes/libgc_arm64.dylib");
+            //        break;
+            //    default:
+            //        throw new NotSupportedException($"Platform is not support gc loading");
+            //}
         }
 
         public const string LIBNAME = "libgc";

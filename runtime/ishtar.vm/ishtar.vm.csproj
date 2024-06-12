@@ -6,7 +6,7 @@
     <EnablePreviewFeatures>True</EnablePreviewFeatures>
     <GenerateRequiresPreviewFeaturesAttribute>True</GenerateRequiresPreviewFeaturesAttribute>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
-    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;win-arm64;osx-x64;osx-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PublishAot>true</PublishAot>
@@ -19,9 +19,8 @@
     <IlcTrimMetadata>false</IlcTrimMetadata>
     <IlcDisableReflection>false</IlcDisableReflection>
     <DebugType>embedded</DebugType>
-    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS</DefineConstants>
-    <SingleAppImage>true</SingleAppImage>
-
+    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS;DEBUG</DefineConstants>
+    <SingleAppImage>false</SingleAppImage>
   </PropertyGroup>
 
 
@@ -45,15 +44,10 @@
     <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS</DefineConstants>
   </PropertyGroup>
 
-
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('win'))">
-    <DirectPInvoke Include="gc" />
-    <NativeLibrary Include="includes\gc.lib" />
-  </ItemGroup>
-
-
   <ItemGroup>
     <PackageReference Include="Iced" Version="1.20.0" />
+    <PackageReference Include="ishtar.bdwgc" Version="8.2.6.40" GeneratePathProperty="true" />
+    <PackageReference Include="ishtar.libuv" Version="1.48.0.10" GeneratePathProperty="true" />
     <PackageReference Include="LLVMSharp" Version="16.0.0" />
     <PackageReference Include="LLVMSharp.Interop" Version="16.0.0" />
   </ItemGroup>
@@ -65,27 +59,5 @@
     <ProjectReference Include="..\ishtar.base\ishtar.base.csproj" />
     <ProjectReference Include="..\ishtar.vm.libuv\ishtar.vm.libuv.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Update="includes\gc.lib">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="includes\libgc.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="includes\libgc.so">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="includes\libgc_arm64.dylib">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="includes\libgc_x64.dylib">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="sample_native_library.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  
 
 </Project>

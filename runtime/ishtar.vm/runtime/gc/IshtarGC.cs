@@ -11,6 +11,7 @@ namespace ishtar.runtime.gc
     using vein.runtime;
     using static vein.runtime.VeinTypeCode;
     using LLVMSharp;
+    using ishtar.vm.libuv;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void IshtarFinalizationProc(nint p, nint i);
@@ -637,6 +638,20 @@ namespace ishtar.runtime.gc
         public static void FreeConcurrentDictionary<TKey, TValue>(NativeConcurrentDictionary<TKey, TValue>* list)
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
             => NativeConcurrentDictionary<TKey, TValue>.Free(list, _allocator);
+
+        public static void uv_replace_allocators()
+        {
+            var result = LibUV.uv_replace_allocator(uv_alloc, uv_free);
+        }
+
+        private static nint uv_alloc(nint size, nint align, nint zero_fill)
+            => (nint)gcLayout.alloc((uint)size);
+
+        private static void uv_free(nint ptr)
+        {
+            void* p = (void*)ptr;
+            gcLayout.free(&p);
+        }
 
         public static T* AllocateImmortal<T>() where T : unmanaged
         {

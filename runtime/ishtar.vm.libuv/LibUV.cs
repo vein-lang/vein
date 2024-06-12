@@ -3,7 +3,7 @@ namespace ishtar.vm.libuv;
 using System.Runtime.InteropServices;
 
 
-public static class LibUV
+public static unsafe class LibUV
 {
     public const string LIBNAME = "libuv";
 
@@ -17,19 +17,38 @@ public static class LibUV
     public static extern nint uv_loop_new();
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int uv_loop_init(nint loop);
-
-    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern int uv_run(nint loop, uv_run_mode mode);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern void uv_stop(nint loop);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int uv_async_init(nint loop, nint handle, uv_async_cb cb);
+    public static extern int uv_async_init(nint loop, nint handle, uv_async_cb asyncCallback);
+    [StructLayout(LayoutKind.Sequential)]
+    public struct uv_async_t
+    {
+        public void* data;
+        public void* loop;
+    }
+    //[StructLayout(LayoutKind.Sequential)]
+    //public struct uv_loop_t
+    //{
+    //    public void* data;
+    //    public uint active_handles;
+    //}
+
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int uv_async_send(nint handle);
+    public static extern void uv_loop_set_data(nint loop, void* data);
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void* uv_loop_get_data(nint loop);
+    
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int uv_async_send(nint async);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int uv_loop_close(nint loop);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern void uv_close(nint handle, uv_close_cb cb);
@@ -76,13 +95,19 @@ public static class LibUV
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern void uv_mutex_destroy(ref uv_mutex_t handle);
 
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int uv_replace_allocator(uv_alloc_cb alloc, uv_free_cb free);
+
     public delegate void uv_async_cb(nint handle);
     public delegate void uv_close_cb(nint handle);
     public delegate void uv_timer_cb(nint handle);
     public delegate void uv_thread_cb(nint arg);
     public delegate void uv_after_work_cb(nint req, int status);
     public delegate void uv_work_cb(nint req);
-
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate nint uv_alloc_cb(nint size, nint align, nint zero_fill);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void uv_free_cb(nint ptr);
 
     public enum uv_run_mode
     {
@@ -119,5 +144,60 @@ public static class LibUV
     public struct uv_mutex_t
     {
         private nint handle;
+    }
+    
+    public struct uv_buf_t
+    {
+        private readonly IntPtr _field0;
+        private readonly IntPtr _field1;
+
+        public uv_buf_t(IntPtr memory, int len, bool IsWindows)
+        {
+            if (IsWindows)
+            {
+                _field0 = (IntPtr)len;
+                _field1 = memory;
+            }
+            else
+            {
+                _field0 = memory;
+                _field1 = (IntPtr)len;
+            }
+        }
+    }
+
+    public enum HandleType
+    {
+        Unknown = 0,
+        ASYNC,
+        CHECK,
+        FS_EVENT,
+        FS_POLL,
+        HANDLE,
+        IDLE,
+        NAMED_PIPE,
+        POLL,
+        PREPARE,
+        PROCESS,
+        STREAM,
+        TCP,
+        TIMER,
+        TTY,
+        UDP,
+        SIGNAL,
+    }
+
+    public enum RequestType
+    {
+        Unknown = 0,
+        REQ,
+        CONNECT,
+        WRITE,
+        SHUTDOWN,
+        UDP_SEND,
+        FS,
+        WORK,
+        GETADDRINFO,
+        GETNAMEINFO,
     }
 }
