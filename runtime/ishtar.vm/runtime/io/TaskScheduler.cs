@@ -80,7 +80,11 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
         IshtarGC.FreeImmortal(task);
     }
 
-    public void Dispose() => IshtarGC.FreeQueue(_queue);
+    public void Dispose()
+    {
+        stop();
+        IshtarGC.FreeQueue(_queue);
+    }
 
     public void run() => uv_run(loop, uv_run_mode.UV_RUN_DEFAULT);
     public void stop() => uv_stop(loop);
@@ -90,6 +94,8 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
     {
         static void execute_scheduler(IshtarRawThread* thread)
         {
+            GlobalPrintln("execute_scheduler:start");
+
             var vm = thread->MainModule->vm;
 
             var gcInfo = new GC_stack_base();
@@ -101,21 +107,24 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
             vm.task_scheduler->run();
 
             vm.GC.unregister_thread();
+            GlobalPrintln("execute_scheduler:end");
         }
 
-        new Thread((x) =>
-        {
-            RuntimeIshtarModule* module = (RuntimeIshtarModule*)(nint)x;
-            var vm = module->vm;
-            var gcInfo = new GC_stack_base();
+        //new Thread((x) =>
+        //{
+        //    RuntimeIshtarModule* module = (RuntimeIshtarModule*)(nint)x;
+        //    var vm = module->vm;
+        //    var gcInfo = new GC_stack_base();
 
-            vm.GC.get_stack_base(&gcInfo);
+        //    vm.GC.get_stack_base(&gcInfo);
 
-            vm.GC.register_thread(&gcInfo);
+        //    vm.GC.register_thread(&gcInfo);
 
-            vm.task_scheduler->run();
+        //    vm.task_scheduler->run();
 
-            vm.GC.unregister_thread();
-        }).Start((nint)entryModule);
+        //    vm.GC.unregister_thread();
+        //}).Start((nint)entryModule);
+
+        entryModule->vm.threading.CreateRawThread(entryModule, &execute_scheduler);
     }
 }
