@@ -43,8 +43,7 @@ public static class G_Access
         // first order: search variable
         if (context.CurrentScope.HasVariable(id))
         {
-            var index = context.CurrentScope.locals_index[id];
-            var type = context.CurrentScope.variables[id];
+            var (type, index) = context.CurrentScope.GetVariable(id);
             gen.WriteDebugMetadata($"/* access local, var: '{id}', index: '{index}', type: '{type.FullName.NameWithNS}' */");
             return gen.Emit(OpCodes.LDLOC_S, index);
         }
@@ -80,8 +79,17 @@ public static class G_Access
         var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
         var flags = AccessFlags.NONE;
 
-        if (context.CurrentScope.HasVariable(id))
-            flags |= AccessFlags.VARIABLE;
+        var currentScope = context.CurrentScope;
+
+        while (currentScope is not null)
+        {
+            if (currentScope.HasVariable(id))
+            {
+                flags |= AccessFlags.VARIABLE;
+                break;
+            }
+            currentScope = currentScope.TopScope;
+        }
 
         // second order: search argument
         var args = context.ResolveArgument(id);

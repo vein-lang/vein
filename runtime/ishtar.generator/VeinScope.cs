@@ -48,10 +48,20 @@ public class VeinScope
     }
 
     public bool HasVariable(IdentifierExpression id)
-        => variables.ContainsKey(id);
+    {
+        if (variables.ContainsKey(id))
+            return true;
+        if (TopScope is null)
+            return false;
+        return TopScope.HasVariable(id);
+    }
 
     public (VeinClass @class, int index) GetVariable(IdentifierExpression id)
-        => (variables[id], locals_index[id]);
+    {
+        if (variables.TryGetValue(id, out var variable))
+            return (variable, locals_index[id]);
+        return TopScope.GetVariable(id);
+    }
 
     public VeinScope DefineVariable(IdentifierExpression id, VeinClass type, int localIndex)
     {
