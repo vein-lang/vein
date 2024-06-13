@@ -59,6 +59,10 @@
     "get config value": {
       "commandName": "Project",
       "commandLineArgs": "config get foo:bar"
+    },
+    "compile vein test 5": {
+      "commandName": "Project",
+      "commandLineArgs": "build C:\\git\\std\\asd\\asd.vproj"
     }
   }
 }
