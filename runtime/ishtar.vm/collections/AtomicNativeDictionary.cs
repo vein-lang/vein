@@ -86,7 +86,11 @@ public unsafe struct AtomicNativeDictionary<TKey, TValue> where TKey : unmanaged
         return ref entries[index].Value;
     }
 
-    public bool TryGetValue(TKey key, out TValue value) => TryGetValue(key, out value);
+    public bool TryGetValue(TKey key, out TValue value)
+    {
+        value = default;
+        return TryGet(key, ref value);
+    }
 
     public bool TryGet(TKey key, ref TValue value)
     {

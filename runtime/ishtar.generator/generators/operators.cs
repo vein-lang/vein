@@ -79,6 +79,14 @@ public static class G_Operators
                 return;
             }
 
+            if (accessTag is AccessFlags.VARIABLE)
+            {
+                var (clazz, slot) = context.CurrentScope.GetVariable(id);
+                gen.EmitExpression(bin.Right);
+                gen.Emit(OpCodes.STLOC_S, slot);
+                return;
+            }
+
             context.LogError($"Member '{id}' is not found in '{gen._methodBuilder.classBuilder.Owner.Name}'.", id);
             throw new SkipStatementException();
         }

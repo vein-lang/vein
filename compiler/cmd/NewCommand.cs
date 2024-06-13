@@ -40,20 +40,23 @@ public class NewCommand : Command<NewCommandSettings>
             License = license
         };
 
-        project.Save(curDir.File($"{name}.vproj"));
-        curDir.File("app.vein").WriteAllText(
-            $"""
-             #space "{name}"
-             #use "vein/lang"
+        if (!settings.DryRun)
+        {
+            project.Save(curDir.File($"{name}.vproj"));
+            curDir.File("app.vein").WriteAllText(
+                $"""
+                 #space "{name}"
+                 #use "vein/lang"
 
-             class App {"{"}
-                public static master(): void
-                {"{"}
-                    Out.print("hello world!");
-                {"}"}
-             {"}"}
-             """
+                 class App {"{"}
+                    public static master(): void
+                    {"{"}
+                        Out.print("hello world!");
+                    {"}"}
+                 {"}"}
+                 """
             );
+        }
         Log.Info($"[green]Success[/] created [orange]{name}[/] project.");
 
         return 0;

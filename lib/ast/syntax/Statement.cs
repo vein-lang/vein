@@ -51,12 +51,12 @@ namespace vein.syntax
             Parse.Char(';').Token().Return((StatementSyntax)new EmptyStatementSyntax())
             .Or(QualifiedExpression.Then(x => Parse.Char(';').Token().Return(new QualifiedExpressionStatement(x))).Positioned())
             .Or(IfStatement.Positioned())
-            .Or(WhileStatement)
+            .Or(WhileStatement.Positioned())
             .Or(TryStatement.Positioned())
             .Or(ReturnStatement.Positioned())
             .Or(foreach_statement.Positioned())
-            .Or(FailStatement)
-            .Or(DeleteStatement);
+            .Or(FailStatement.Positioned())
+            .Or(DeleteStatement.Positioned());
 
 
         /// <example>

@@ -1,14 +1,20 @@
-namespace vein.syntax
+namespace vein.syntax;
+
+using System.Collections.Generic;
+using Sprache;
+
+public class DeleteStatementSyntax(ExpressionSyntax e)
+    : StatementSyntax, IAdvancedPositionAware<DeleteStatementSyntax>
 {
-    using System.Collections.Generic;
+    public override SyntaxType Kind => SyntaxType.DeleteStatement;
 
-    public class DeleteStatementSyntax : StatementSyntax
+    public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);
+
+    public ExpressionSyntax Expression { get; set; } = e;
+
+    public new DeleteStatementSyntax SetPos(Position startPos, int length)
     {
-        public DeleteStatementSyntax(ExpressionSyntax e) => Expression = e;
-        public override SyntaxType Kind => SyntaxType.DeleteStatement;
-
-        public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);
-
-        public ExpressionSyntax Expression { get; set; }
+        base.SetPos(startPos, length);
+        return this;
     }
 }

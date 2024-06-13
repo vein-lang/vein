@@ -1,18 +1,21 @@
-namespace vein.syntax
+namespace vein.syntax;
+
+using System.Collections.Generic;
+using Sprache;
+
+public class WhileStatementSyntax(ExpressionSyntax e, StatementSyntax s) : StatementSyntax, IAdvancedPositionAware<WhileStatementSyntax>
 {
-    using System.Collections.Generic;
+    public override SyntaxType Kind => SyntaxType.WhileStatement;
 
-    public class WhileStatementSyntax : StatementSyntax
+    public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression, Statement);
+
+    public ExpressionSyntax Expression { get; set; } = e;
+
+    public StatementSyntax Statement { get; set; } = s;
+
+    public new WhileStatementSyntax SetPos(Position startPos, int length)
     {
-        public WhileStatementSyntax(ExpressionSyntax e, StatementSyntax s)
-            => (Expression, Statement) = (e, s);
-
-        public override SyntaxType Kind => SyntaxType.WhileStatement;
-
-        public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression, Statement);
-
-        public ExpressionSyntax Expression { get; set; }
-
-        public StatementSyntax Statement { get; set; }
+        base.SetPos(startPos, length);
+        return this;
     }
 }

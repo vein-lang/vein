@@ -137,7 +137,8 @@ public static class G_Emitters
             return;
         var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
         using var scope = ctx.CurrentScope.EnterScope();
-        foreach (var v in block.Statements) gen.EmitStatement(v);
+        foreach (var v in block.Statements)
+            gen.EmitStatement(v);
     }
 
     public static void EmitDefault(this ILGenerator gen, VeinTypeCode code)

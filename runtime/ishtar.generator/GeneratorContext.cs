@@ -112,7 +112,7 @@ public class GeneratorContext
             return a.Value.Item1.Type;
         }
         if (CurrentScope.HasVariable(id))
-            return CurrentScope.variables[id];
+            return CurrentScope.GetVariable(id).@class;
         if (CurrentMethod.Owner.ContainsField(id))
             return CurrentMethod.Owner.ResolveField(id)?.FieldType;
         if (CurrentMethod.Owner.FindProperty(id) is not null)
