@@ -84,6 +84,7 @@ namespace ishtar
 
         public void Dispose()
         {
+            task_scheduler->Dispose();
             InternalModule->Dispose();
             IshtarGC.FreeImmortalRoot(InternalModule);
 
@@ -297,7 +298,8 @@ namespace ishtar
             var zone = default(ProtectedZone*);
             void jump_now()
             {
-                if (mh->labels_map->TryGetValue(mh->labels->Get((int)*ip), out var label))
+                var labelKey = mh->labels->Get((int)*ip);
+                if (mh->labels_map->TryGetValue(labelKey, out var label))
                     ip = start + label.pos - 1;
                 else
                     FastFail(PROTECTED_ZONE_LABEL_CORRUPT, "[jump_now] cannot find protected zone label", invocation);
@@ -403,6 +405,7 @@ namespace ishtar
                     case LDC_I2_1:
                     case LDC_I2_2:
                     case LDC_I2_3:
+                    case LDC_I2_4:
                     case LDC_I2_5:
                         sp->type = TYPE_I2;
                         sp->data.i = (int)(*ip) - (int)LDC_I2_0;
@@ -413,6 +416,7 @@ namespace ishtar
                     case LDC_I4_1:
                     case LDC_I4_2:
                     case LDC_I4_3:
+                    case LDC_I4_4:
                     case LDC_I4_5:
                         sp->type = TYPE_I4;
                         sp->data.i = (int)(*ip) - (int)LDC_I4_0;
@@ -423,6 +427,7 @@ namespace ishtar
                     case LDC_I8_1:
                     case LDC_I8_2:
                     case LDC_I8_3:
+                    case LDC_I8_4:
                     case LDC_I8_5:
                         sp->type = TYPE_I8;
                         sp->data.l = (*ip) - (long)LDC_I8_0;
@@ -710,7 +715,6 @@ namespace ishtar
                             {
                                 var _a = method->Arguments->Get(i); // TODO, type eq validate
                                 --sp;
-
 #if DEBUG
                                 println($"@@@@<< {StringStorage.GetString(_a->Name, invocation)}: {_a->Type->FullName->NameWithNS}");
                                 if (Environment.GetCommandLineArgs().Contains("--sys::ishtar::skip-validate-args=1"))
@@ -805,9 +809,9 @@ namespace ishtar
                         {
                             ++ip;
                             --sp;
-                            var first = *sp;
-                            --sp;
                             var second = *sp;
+                            --sp;
+                            var first = *sp;
 
                             println($"$$$ EQL_H : {first.data.i} > {second.data.i} == {first.data.i < second.data.i}");
 
@@ -972,9 +976,9 @@ namespace ishtar
                         {
                             ++ip;
                             --sp;
-                            var first = *sp;
-                            --sp;
                             var second = *sp;
+                            --sp;
+                            var first = *sp;
 
                             println($"$$$ : {first.data.i} < {second.data.i} == {first.data.i < second.data.i}");
 
@@ -1139,9 +1143,9 @@ namespace ishtar
                         {
                             ++ip;
                             --sp;
-                            var first = *sp;
-                            --sp;
                             var second = *sp;
+                            --sp;
+                            var first = *sp;
 
                             if (first.type == second.type)
                             {
@@ -1268,9 +1272,9 @@ namespace ishtar
                         {
                             ++ip;
                             --sp;
-                            var first = *sp;
-                            --sp;
                             var second = *sp;
+                            --sp;
+                            var first = *sp;
 
                             if (first.type == second.type)
                             {
@@ -1336,9 +1340,9 @@ namespace ishtar
                         {
                             ++ip;
                             --sp;
-                            var first = *sp;
-                            --sp;
                             var second = *sp;
+                            --sp;
+                            var first = *sp;
 
                             if (first.type == second.type)
                             {
