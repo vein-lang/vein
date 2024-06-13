@@ -12,7 +12,7 @@ namespace ishtar
             _guarder = guarder;
         }
 
-        public ushort GrantModuleID()
+        public uint GrantModuleID()
         {
             Interlocked.MemoryBarrier();
             lock (_guarder.TokenInterlockerGuard)
@@ -21,7 +21,7 @@ namespace ishtar
             }
         }
 
-        public ushort GrantClassID()
+        public uint GrantClassID()
         {
             Interlocked.MemoryBarrier();
             lock (_guarder.TokenInterlockerGuard)
@@ -30,12 +30,9 @@ namespace ishtar
             }
         }
 
-        private static unsafe ushort Increment(ref ushort location)
+        private static unsafe uint Increment(ref uint location)
         {
-            fixed (ushort* ptr = &location)
-            {
-                return (ushort)Interlocked.Increment(ref *(int*)ptr);
-            }
+            return Interlocked.Increment(ref location);
         }
     }
 }

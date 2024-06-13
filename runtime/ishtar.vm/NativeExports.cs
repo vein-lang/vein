@@ -51,8 +51,8 @@ public static unsafe class NativeExports
 
         public struct RuntimeTokenRef
         {
-            public ushort ModuleID;
-            public ushort ClassID;
+            public uint ModuleID;
+            public uint ClassID;
 
 
             public static implicit operator RuntimeTokenRef(RuntimeToken tok)

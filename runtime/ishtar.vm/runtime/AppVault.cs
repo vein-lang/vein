@@ -95,8 +95,8 @@ namespace ishtar
         }
 
         object AppVaultSync.TokenInterlockerGuard { get; } = new();
-        internal ushort LastModuleID;
-        internal ushort LastClassID;
+        internal uint LastModuleID;
+        internal uint LastClassID;
 
         public void Dispose()
         {

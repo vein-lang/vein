@@ -8,14 +8,14 @@ namespace ishtar
     ///         |        |
     ///       ModuleID  EntityID
     /// </summary>
-    public record struct RuntimeToken(uint Value)
+    public record struct RuntimeToken(ulong Value)
     {
         public static readonly RuntimeToken Default = new (0);
 
-        public readonly ushort ModuleID;
-        public readonly ushort ClassID;
+        public readonly uint ModuleID;
+        public readonly uint ClassID;
 
-        public RuntimeToken(ushort moduleID, ushort classID)
+        public RuntimeToken(uint moduleID, uint classID)
             : this(new cast_uint(moduleID, classID).Value)
         {
             ModuleID = moduleID;
@@ -26,14 +26,14 @@ namespace ishtar
         private readonly struct cast_uint
         {
             [FieldOffset(0)]
-            private readonly uint _result;
+            private readonly ulong _result;
             [FieldOffset(0)]
-            private readonly ushort _s1;
-            [FieldOffset(2)]
-            private readonly ushort _s2;
+            private readonly uint _s1;
+            [FieldOffset(4)]
+            private readonly uint _s2;
 
 
-            public cast_uint(ushort s1, ushort s2)
+            public cast_uint(uint s1, uint s2)
             {
                 _result = 0;
                 _s1 = s1;
@@ -41,7 +41,7 @@ namespace ishtar
             }
             // wtf resharper, _result is contains offset, why u are bully me?
             // ReSharper disable once ConvertToAutoProperty
-            public uint Value => _result;
+            public ulong Value => _result;
         }
     }
 }

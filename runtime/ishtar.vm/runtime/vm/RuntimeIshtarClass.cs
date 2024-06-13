@@ -204,7 +204,7 @@ namespace ishtar
         }
 
         public RuntimeToken runtime_token { get; }
-        public ushort ID { get; }
+        public uint ID { get; }
 
         public ushort Magic1;
         public ushort Magic2;
@@ -217,7 +217,7 @@ namespace ishtar
         public ulong vtable_size = 0;
         
 #if DEBUG_VTABLE
-        public static Dictionary<ushort, debug_vtable> dvtables = new();
+        public static Dictionary<uint, debug_vtable> dvtables = new();
 
 
         public class debug_vtable

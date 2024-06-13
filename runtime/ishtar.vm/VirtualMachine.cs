@@ -274,7 +274,7 @@ namespace ishtar
 
             var _module = invocation->method->Owner->Owner;
             var mh = invocation->method->Header;
-            FastFail(mh is null, WNE.MISSING_METHOD, "method code is zero", invocation);
+            FastFail(mh is null, MISSING_METHOD, "method code is zero", invocation);
             
             var args = invocation->args;
 

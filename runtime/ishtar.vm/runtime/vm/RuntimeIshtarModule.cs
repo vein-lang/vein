@@ -20,7 +20,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 {
     public WeakRef<AppVault>* Vault { get; private set; }
     public VirtualMachine vm => Vault->Value.vm;
-    public ushort ID { get; internal set; }
+    public uint ID { get; internal set; }
 
     public IshtarVersion Version { get; internal set; }
 
