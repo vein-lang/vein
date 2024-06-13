@@ -1,15 +1,19 @@
-namespace vein.syntax
+namespace vein.syntax;
+
+using System.Collections.Generic;
+using Sprache;
+
+public class FailStatementSyntax(ExpressionSyntax e) : StatementSyntax, IAdvancedPositionAware<FailStatementSyntax>
 {
-    using System.Collections.Generic;
+    public override SyntaxType Kind => SyntaxType.FailStatement;
 
-    public class FailStatementSyntax : StatementSyntax
+    public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);
+
+    public ExpressionSyntax Expression { get; set; } = e;
+
+    public new FailStatementSyntax SetPos(Position startPos, int length)
     {
-        public FailStatementSyntax(ExpressionSyntax e) => Expression = e;
-
-        public override SyntaxType Kind => SyntaxType.FailStatement;
-
-        public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);
-
-        public ExpressionSyntax Expression { get; set; }
+        base.SetPos(startPos, length);
+        return this;
     }
 }

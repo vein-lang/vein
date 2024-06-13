@@ -5,13 +5,11 @@ namespace vein.syntax
     using extensions;
     using Sprache;
 
-    public class TypeExpression : ExpressionSyntax, IPositionAware<TypeExpression>
+    public class TypeExpression(TypeSyntax typeword)
+        : ExpressionSyntax(typeword.Identifier.ExpressionString), IPositionAware<TypeExpression>
     {
-        public TypeSyntax Typeword { get; set; }
+        public TypeSyntax Typeword { get; set; } = typeword;
         public override SyntaxType Kind => SyntaxType.Type;
-
-        public TypeExpression(TypeSyntax typeword) : base(typeword.Identifier.ExpressionString)
-            => this.Typeword = typeword;
 
         public new TypeExpression SetPos(Position startPos, int length)
         {
@@ -29,5 +27,7 @@ namespace vein.syntax
             Typeword.IsPointer = settings.Any(x => x is PointerSpecifierValue);
             return this;
         }
+
+        public override string ToString() => $"TypeExpression [{ExpressionString}]";
     }
 }
