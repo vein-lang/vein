@@ -47,7 +47,7 @@
   <ItemGroup>
     <PackageReference Include="Iced" Version="1.20.0" />
     <PackageReference Include="ishtar.bdwgc" Version="8.2.6.40" GeneratePathProperty="true" />
-    <PackageReference Include="ishtar.libuv" Version="1.48.0.10" GeneratePathProperty="true" />
+    <PackageReference Include="ishtar.libuv" Version="1.48.0.20" GeneratePathProperty="true" />
     <PackageReference Include="LLVMSharp" Version="16.0.0" />
     <PackageReference Include="LLVMSharp.Interop" Version="16.0.0" />
   </ItemGroup>
