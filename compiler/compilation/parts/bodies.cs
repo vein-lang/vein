@@ -45,7 +45,7 @@ public partial class CompilationTask
         var generator = method.GetGenerator();
         Context.Document = doc;
         Context.CurrentMethod = method;
-        Context.CreateScope();
+        using var scope = Context.CreateScope();
         generator.StoreIntoMetadata("context", Context);
 
         foreach (var statement in block.Statements)
