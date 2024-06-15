@@ -29,6 +29,34 @@ public static class G_Cycles
         gen.UseLabel(end);
     }
 
+    public static void EmitForStatement(this ILGenerator gen, ForStatementSyntax @for)
+    {
+        var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+        if (@for.LoopVariable is not null)
+            gen.EmitLocalVariable(@for.LoopVariable);
+        var start = gen.DefineLabel("for-start");
+        gen.UseLabel(start);
+        gen.EmitStatement(@for.Statement);
+
+        if (@for.LoopCounter is not null)
+            gen.EmitExpression(@for.LoopCounter);
+        if (@for.LoopContact is not null)
+        {
+            var expType = @for.LoopContact.DetermineType(ctx);
+
+            if (expType.TypeCode is not VeinTypeCode.TYPE_BOOLEAN)
+            {
+                ctx.LogError($"Cannot implicitly convert type '{expType}' to 'Boolean'", @for.LoopContact);
+                return; // TODO implicit boolean
+            }
+
+            gen.EmitExpression(@for.LoopContact);
+            gen.Emit(OpCodes.JMP_T, start);
+        }
+        else
+            gen.Emit(OpCodes.JMP, start);
+    }
+
     public static void EmitForeach(this ILGenerator generator, ForeachStatementSyntax @foreach)
     {
         var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
