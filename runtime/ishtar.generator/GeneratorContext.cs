@@ -11,8 +11,14 @@ using vein.runtime;
 using vein.syntax;
 using Xunit;
 
-public class GeneratorContext
+public record GeneratorContextConfig(bool DisableOptimization)
 {
+}
+
+public class GeneratorContext(GeneratorContextConfig config)
+{
+    public bool DisableOptimization => config.DisableOptimization;
+
     internal VeinModuleBuilder Module { get; set; }
     internal Dictionary<QualityTypeName, ClassBuilder> Classes { get; } = new();
     internal DocumentDeclaration Document { get; set; }
@@ -39,7 +45,7 @@ public class GeneratorContext
     {
         if (CurrentScope is not null)
             return CurrentScope.EnterScope();
-        CurrentScope = new VeinScope(this);
+        CurrentScope = new VeinScope(this, null);
         Scopes.Add(CurrentMethod, CurrentScope);
         return new ScopeTransit(CurrentScope);
     }

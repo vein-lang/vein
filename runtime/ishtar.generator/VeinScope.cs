@@ -2,6 +2,7 @@ namespace ishtar;
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using emit;
 using vein.runtime;
 using vein.syntax;
@@ -11,13 +12,16 @@ public class VeinScope
     public VeinScope TopScope { get; }
     public List<VeinScope> Scopes { get; } = new();
     public GeneratorContext Context { get; }
+    public ulong ScopeId { get; }
 
     public Dictionary<IdentifierExpression, VeinClass> variables { get; } = new();
     public Dictionary<IdentifierExpression, int> locals_index { get; } = new();
 
+    private static ulong _id;
 
     public VeinScope(GeneratorContext gen, VeinScope owner = null)
     {
+        ScopeId = Interlocked.Increment(ref _id);
         this.Context = gen;
         if (owner is null)
             return;
@@ -35,9 +39,27 @@ public class VeinScope
     public VeinScope ExitScope()
     {
         if (this.TopScope is null)
+        {
+            return null;
             throw new CannotExistMainScopeException();
+        }
         Context.CurrentScope = this.TopScope;
         return this.TopScope;
+    }
+
+    public VeinScope ExitScope(bool allowExitFromRoot)
+    {
+        try
+        {
+            return ExitScope();
+        }
+        catch (CannotExistMainScopeException e)
+        {
+            if (!allowExitFromRoot)
+                throw;
+        }
+
+        return null;
     }
 
     public IDisposable EnterScope()
@@ -77,9 +99,8 @@ public class VeinScope
 }
 
 
-public class ScopeTransit : IDisposable
+public class ScopeTransit(VeinScope scope) : IDisposable
 {
-    public readonly VeinScope Scope;
-    public ScopeTransit(VeinScope scope) => Scope = scope;
-    public void Dispose() => Scope.ExitScope();
+    public readonly VeinScope Scope = scope;
+    public void Dispose() => Scope.ExitScope(true);
 }

@@ -27,8 +27,8 @@ public static class G_Operators
         var right = bin.Right;
         var op = bin.OperatorType;
 
-        gen.EmitExpression(left);
         gen.EmitExpression(right);
+        gen.EmitExpression(left);
 
         var left_type = left.DetermineType(context);
         var right_type = right.DetermineType(context);
@@ -236,15 +236,14 @@ public static class G_Operators
         {
             gen.EmitExpression(node.Operand);
             gen.Emit(OpCodes.LDC_I4_0);
-            gen.Emit(OpCodes.EQL_T);
+            gen.Emit(OpCodes.EQL_NQ);
         }
         else
             throw new NotSupportedException("EmitUnary");
 
         return gen;
     }
-
-
+    
     public static void EmitBinaryOperator(this ILGenerator gen, ExpressionType op, VeinTypeCode leftType = VeinTypeCode.TYPE_CLASS, VeinTypeCode rightType = VeinTypeCode.TYPE_CLASS, VeinTypeCode resultType = VeinTypeCode.TYPE_CLASS)
     {
         switch (op)
@@ -284,10 +283,10 @@ public static class G_Operators
             case ExpressionType.NotEqual:
                 if (leftType == VeinTypeCode.TYPE_BOOLEAN)
                     goto case ExpressionType.ExclusiveOr;
-                gen.Emit(OpCodes.EQL_F);
+                gen.Emit(OpCodes.EQL_NN);
                 return;
             case ExpressionType.Equal:
-                gen.Emit(OpCodes.EQL_T);
+                gen.Emit(OpCodes.EQL_NQ);
                 return;
             case ExpressionType.ExclusiveOr:
                 gen.Emit(OpCodes.XOR);

@@ -10,11 +10,11 @@ public static class G_Cycles
     public static void EmitWhileStatement(this ILGenerator gen, WhileStatementSyntax @while)
     {
         var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
-        var start = gen.DefineLabel();
-        var end = gen.DefineLabel();
+        var start = gen.DefineLabel("while-start");
+        var end = gen.DefineLabel("while-end");
         var expType = @while.Expression.DetermineType(ctx);
         gen.UseLabel(start);
-        if (expType.FullName == VeinTypeCode.TYPE_BOOLEAN.AsClass()(Types.Storage).FullName)
+        if (expType.TypeCode == VeinTypeCode.TYPE_BOOLEAN)
         {
             gen.EmitExpression(@while.Expression);
             gen.Emit(OpCodes.JMP_F, end);

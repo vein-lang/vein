@@ -22,19 +22,12 @@ using syntax;
 using vein.fs;
 using vein.styles;
 
-public partial class CompilationTask
+public partial class CompilationTask(CompilationTarget target, CompileSettings flags)
 {
-    public CompilationTask(CompilationTarget target, CompileSettings flags)
-    {
-        _flags = flags;
-        Project = target.Project;
-        Target = target;
-    }
+    internal VeinProject Project { get; set; } = target.Project;
+    internal CompilationTarget Target { get; set; } = target;
 
-    internal VeinProject Project { get; set; }
-    internal CompilationTarget Target { get; set; }
-
-    internal readonly CompileSettings _flags;
+    internal readonly CompileSettings _flags = flags;
     internal readonly VeinSyntax syntax = new();
     internal readonly Dictionary<FileInfo, string> Sources = new ();
     internal ProgressTask Status;
@@ -43,7 +36,7 @@ public partial class CompilationTask
     internal GeneratorContext Context;
     internal List<VeinArtifact> artifacts { get; } = new();
 
-    private Dictionary<IdentifierExpression, VeinClass> KnowClasses = new ();
+    private readonly Dictionary<IdentifierExpression, VeinClass> KnowClasses = new ();
 
     private static string PleaseReportProblemInto()
         => $"Please report the problem into 'https://github.com/vein-lang/vein/issues'.";
@@ -205,7 +198,7 @@ public partial class CompilationTask
             }
             catch (VeinParseException e)
             {
-                Log.Defer.Error($"[red bold]{e.Message.Trim().EscapeMarkup()}[/]\n\tin '[orange bold]{key}[/]'.");
+                Log.Defer.Error($"[red bold]{e.Message.Trim().EscapeMarkup()}[/]", e.AstItem, key);
                 read_task.FailTask();
                 return false;
             }
@@ -213,9 +206,9 @@ public partial class CompilationTask
 
         read_task.SuccessTask();
 
-        Context = new GeneratorContext();
+        Context = new(new(_flags.DisableOptimization));
 
-        module = new VeinModuleBuilder(Project.Name, Project.Version.Version, Types.Storage);
+        module = new(Project.Name, Project.Version.Version, Types.Storage);
 
         Context.Module = module;
         Context.Module.Deps.AddRange(deps);

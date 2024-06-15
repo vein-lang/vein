@@ -352,7 +352,7 @@ namespace ishtar.emit
 
             Emit(OpCodes.SEH_ENTER, (int)exceptionIndex);
 
-            var label = DefineLabel();
+            var label = DefineLabel("seh-enter");
             var info = new ExceptionBlockInfo(ILOffset, label);
 
             exceptionBlocks[exceptionIndex++] = info;
@@ -401,13 +401,13 @@ namespace ishtar.emit
 
             if (info.EndTryLabel == default)
             {
-                info.EndTryLabel = DefineLabel();
+                info.EndTryLabel = DefineLabel("catch-start");
                 UseLabel(info.EndTryLabel);
             }
 
             /* temporary shit */
             Emit(OpCodes.NOP);
-            var label = DefineLabel();
+            var label = DefineLabel("seh-temp-label");
             UseLabel(label);
             /*                */
 
@@ -427,7 +427,7 @@ namespace ishtar.emit
                 Emit(OpCodes.SEH_LEAVE_S, endLabel);
             UseLabel(endLabel);
 
-            Label finallyEndLabel = DefineLabel();
+            Label finallyEndLabel = DefineLabel("finally-end");
             info.SetFinallyEndLabel(finallyEndLabel);
             info.MarkFinallyAddr(ILOffset);
             WriteDebugMetadata($"/* finally block @0x{info.StartAddr:X} */");
@@ -450,19 +450,19 @@ namespace ishtar.emit
         /// Define label for future use. 
         /// </summary>
         /// <returns></returns>
-        public virtual Label DefineLabel()
+        public virtual Label DefineLabel(string name)
         {
             _labels ??= new int[4];
             if (_labels_count >= _labels.Length)
                 _labels = IncreaseCapacity(_labels);
             _labels[_labels_count] = -1;
-            return new Label(_labels_count++);
+            return new Label(_labels_count++, name);
         }
         /// <summary>
         /// Define multiple labels for future use.
         /// </summary>
-        public virtual Label[] DefineLabel(uint size) =>
-            Enumerable.Range(0, (int)size).Select(_ => DefineLabel()).ToArray();
+        public virtual Label[] DefineLabel(uint size, string name) =>
+            Enumerable.Range(0, (int)size).Select(x => DefineLabel($"name.{x}")).ToArray();
 
         /// <summary>
         /// Use label in current position.
@@ -476,7 +476,7 @@ namespace ishtar.emit
             if (_labels[loc.Value] != -1)
                 throw new UndefinedLabelException();
             _labels[loc.Value] = _position;
-            DebugAppendLine($"/* defined-label id: 0x{loc.Value:X}, offset: 0x{_position:X} */");
+            DebugAppendLine($"/* defined-label id: 0x{loc.Value:X}, offset: 0x{_position:X} [{loc.Name}] */");
         }
         /// <summary>
         /// Get labels positions.
@@ -486,7 +486,7 @@ namespace ishtar.emit
         internal byte[] BakeByteArray()
         {
             if (_position == 0)
-                return new byte[0];
+                return Array.Empty<byte>();
             using var mem = new MemoryStream();
             using var bin = new BinaryWriter(mem);
 

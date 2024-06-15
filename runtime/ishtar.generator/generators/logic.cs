@@ -9,22 +9,29 @@ public static class G_Logic
 {
     public static void EmitIfElse(this ILGenerator generator, IfStatementSyntax ifStatement)
     {
-        var elseLabel = generator.DefineLabel();
+        var elseLabel = generator.DefineLabel("else");
+        var endLabel = generator.DefineLabel("if-end");
         var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
         var expType = ifStatement.Expression.DetermineType(ctx);
 
-        if (ifStatement.Expression is BoolLiteralExpressionSyntax @bool)
+        if (!ctx.DisableOptimization && ifStatement.Expression is BoolLiteralExpressionSyntax @bool)
         {
             if (@bool.Value)
+            {
                 generator.EmitStatement(ifStatement.ThenStatement);
+                if (ifStatement.ElseStatement is not null)
+                    generator.Emit(OpCodes.JMP, endLabel);
+            }
             else
                 generator.Emit(OpCodes.JMP, elseLabel);
         }
         else if (expType.TypeCode == VeinTypeCode.TYPE_BOOLEAN)
         {
             generator.EmitExpression(ifStatement.Expression);
-            generator.Emit(OpCodes.JMP_T, elseLabel);
+            generator.Emit(OpCodes.JMP_F, elseLabel);
             generator.EmitStatement(ifStatement.ThenStatement);
+            if (ifStatement.ElseStatement is not null)
+                generator.Emit(OpCodes.JMP, endLabel);
         }
         else
         {
@@ -37,6 +44,7 @@ public static class G_Logic
             return;
 
         generator.EmitStatement(ifStatement.ElseStatement);
+        generator.UseLabel(endLabel);
     }
 
     public static void EmitStatement(this ILGenerator generator, StatementSyntax statement)

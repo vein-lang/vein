@@ -21,6 +21,10 @@ namespace vein.cmd
         [CommandOption("--print-result-types")]
         public bool PrintResultType { get; set; }
 
+        [Description("Display exported types table")]
+        [CommandOption("--disable-optimization|-O")]
+        public bool DisableOptimization { get; set; }
+
         [Description("Compile into single file")]
         [CommandOption("--single-file|-s")]
         public bool HasSingleFile { get; set; }
@@ -48,10 +52,10 @@ namespace vein.cmd
 
     public abstract class AsyncCommandWithProject<T> : CommandWithProject<T> where T : CommandSettings, IProjectSettingProvider
     {
-        public sealed override int Execute(CommandContext ctx, T settigs, VeinProject project)
-            => ExecuteAsync(ctx, settigs, project).Result;
+        public sealed override int Execute(CommandContext ctx, T settings, VeinProject project)
+            => ExecuteAsync(ctx, settings, project).Result;
 
-        public abstract Task<int> ExecuteAsync(CommandContext ctx, T settigs, VeinProject project);
+        public abstract Task<int> ExecuteAsync(CommandContext ctx, T settings, VeinProject project);
     }
     public abstract class CommandWithProject<T> : Command<T> where T : CommandSettings, IProjectSettingProvider
     {
@@ -111,7 +115,7 @@ namespace vein.cmd
             return Execute(ctx, settings, project);
         }
 
-        public abstract int Execute(CommandContext ctx, T settigs, VeinProject project);
+        public abstract int Execute(CommandContext ctx, T settings, VeinProject project);
     }
 
 
@@ -125,9 +129,9 @@ namespace vein.cmd
             var targets = CompilationTask.Run(project.WorkDir, settings);
 
 
-            foreach (var info in targets.SelectMany(x => x.Logs.Info).Reverse())
+            foreach (var info in targets.SelectMany(x => x.Logs.Info))
                 MarkupLine(info.TrimEnd('\n'));
-            foreach (var info in Log.infos)
+            foreach (var info in Log.infos.Reverse())
                 MarkupLine(info.TrimEnd('\n'));
 
             if (new[] { Log.errors.Count, targets.Sum(x => x.Logs.Error.Count) }.Sum() > 0)
@@ -136,10 +140,10 @@ namespace vein.cmd
                 Write(rule1);
             }
 
-            foreach (var target in targets.SelectMany(x => x.Logs.Error).Reverse())
+            foreach (var target in targets.SelectMany(x => x.Logs.Error))
                 MarkupLine(target);
 
-            foreach (var error in Log.errors)
+            foreach (var error in Log.errors.Reverse())
                 MarkupLine(error);
 
             if (new[] { Log.warnings.Count, targets.Sum(x => x.Logs.Warn.Count) }.Sum() > 0)
@@ -148,17 +152,16 @@ namespace vein.cmd
                 Write(rule2);
             }
 
-            foreach (var warn in targets.SelectMany(x => x.Logs.Warn).Reverse())
+            foreach (var warn in targets.SelectMany(x => x.Logs.Warn))
                 MarkupLine(warn);
-            foreach (var warn in Log.warnings)
+            foreach (var warn in Log.warnings.Reverse())
                 MarkupLine(warn);
 
             if (!Log.warnings.Any() && !Log.errors.Any())
-                MarkupLine($"\n\n\n");
+                MarkupLine($"\n");
 
             if (new[] { Log.errors.Count, targets.Sum(x => x.Logs.Error.Count) }.Sum() > 0)
             {
-
                 var rule3 = new Rule($"[red bold]COMPILATION FAILED[/]") {Style = Style.Parse("lime rapidblink")};
                 Write(rule3);
                 MarkupLine($"\n");

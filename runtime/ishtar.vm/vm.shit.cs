@@ -1,14 +1,146 @@
 namespace ishtar
 {
     using System.Collections.Generic;
+    using System.Numerics;
+    using System.Runtime.CompilerServices;
     using runtime;
     using vein.reflection;
     using vein.runtime;
+    using static OpCodeValue;
     using static vein.runtime.VeinTypeCode;
 
     public unsafe partial class VirtualMachine
     {
         private void act<T>(ref T t1, ref T t2, A_OperationDelegate<T> actor) => actor(ref t1, ref t2);
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private stackval _comparer(in stackval first, in stackval second, OpCodeValue operation, CallFrame* frame)
+        {
+            if (operation is not EQL_F and not EQL_T && first.type != second.type)
+            {
+                switch (first.type)
+                {
+                    case TYPE_I4 when second.type is TYPE_BOOLEAN:
+                        break;
+                    case TYPE_BOOLEAN when second.type is TYPE_I4:
+                        break;
+                    default:
+                        FastFail(WNE.TYPE_MISMATCH, "", frame);
+                        return default;
+                }
+            }
+
+            var result = (first.type) switch
+            {
+                TYPE_I4 or TYPE_BOOLEAN or TYPE_CHAR
+                    => comparer(first.data.i, second.data.i, operation),
+                TYPE_I1 => comparer(first.data.b, second.data.b, operation),
+                TYPE_U1 => comparer(first.data.ub, second.data.ub, operation),
+                TYPE_I2 => comparer(first.data.s, second.data.s, operation),
+                TYPE_U2 => comparer(first.data.us, second.data.us, operation),
+                TYPE_U4 => comparer(first.data.ui, second.data.ui, operation),
+                TYPE_I8 => comparer(first.data.l, second.data.l, operation),
+                TYPE_U8 => comparer(first.data.ul, second.data.ul, operation),
+                TYPE_R2 => comparer(first.data.hf, second.data.hf, operation),
+                TYPE_R4 => comparer(first.data.f_r4, second.data.f_r4, operation),
+                TYPE_R8 => comparer(first.data.f, second.data.f, operation),
+                TYPE_R16 => comparer(first.data.d, second.data.d, operation),
+                TYPE_RAW => comparer(first.data.p, second.data.p, operation),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            if (result is -1)
+            {
+                FastFail(WNE.STATE_CORRUPT, "", frame);
+                return default;
+            }
+
+            return new stackval()
+            {
+                data = { i = result },
+                type = TYPE_BOOLEAN
+            };
+        }
+
+        private const int _true = 1;
+        private const int _false = 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private string debug_comparer_get_symbol(in stackval first, in stackval second, OpCodeValue operation)
+        {
+            return (first.type) switch
+            {
+                TYPE_I4 or TYPE_BOOLEAN or TYPE_CHAR
+                    => debug_comparer_get_symbol(first.data.i, second.data.i, operation),
+                TYPE_I1 => debug_comparer_get_symbol(first.data.b, second.data.b, operation),
+                TYPE_U1 => debug_comparer_get_symbol(first.data.ub, second.data.ub, operation),
+                TYPE_I2 => debug_comparer_get_symbol(first.data.s, second.data.s, operation),
+                TYPE_U2 => debug_comparer_get_symbol(first.data.us, second.data.us, operation),
+                TYPE_U4 => debug_comparer_get_symbol(first.data.ui, second.data.ui, operation),
+                TYPE_I8 => debug_comparer_get_symbol(first.data.l, second.data.l, operation),
+                TYPE_U8 => debug_comparer_get_symbol(first.data.ul, second.data.ul, operation),
+                TYPE_R2 => debug_comparer_get_symbol(first.data.hf, second.data.hf, operation),
+                TYPE_R4 => debug_comparer_get_symbol(first.data.f_r4, second.data.f_r4, operation),
+                TYPE_R8 => debug_comparer_get_symbol(first.data.f, second.data.f, operation),
+                TYPE_R16 => debug_comparer_get_symbol(first.data.d, second.data.d, operation),
+                TYPE_RAW => debug_comparer_get_symbol(first.data.p, second.data.p, operation),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static string debug_comparer_get_symbol<TNumber>(TNumber first, TNumber second, OpCodeValue operation)
+            where TNumber : INumber<TNumber>
+            => (operation) switch
+            {
+                EQL_F => $"{first} == {TNumber.Zero}",
+                EQL_H => $"{first} > {second}",
+                EQL_L => $"{first} < {second}",
+                EQL_T => $"{first} == {TNumber.One}",
+                EQL_NN => $"{first} != {second}",
+                EQL_HQ => $"{first} >= {second}",
+                EQL_LQ => $"{first} <= {second}",
+                EQL_NQ => $"{first} == {second}",
+                _ => "INVALID"
+            };
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int comparer<TNumber>(
+            TNumber first,
+            TNumber second,
+            OpCodeValue operation)
+            where TNumber : INumber<TNumber> =>
+            (operation) switch
+            {
+
+                EQL_F when first == TNumber.Zero => _true,
+                EQL_F => _false,
+
+                EQL_H when first > second => _true,
+                EQL_H => _false,
+
+                EQL_L when first < second => _true,
+                EQL_L => _false,
+
+                EQL_T when first == TNumber.One => _true,
+                EQL_T => _false,
+
+                EQL_NN when first != second => _true,
+                EQL_NN => _false,
+
+                EQL_HQ when first >= second => _true,
+                EQL_HQ => _false,
+
+                EQL_LQ when first <= second => _true,
+                EQL_LQ => _false,
+
+                EQL_NQ when first == second => _true,
+                EQL_NQ => _false,
+
+                _ => -1
+            };
+
 
         public RuntimeQualityTypeName* readTypeName(uint index, RuntimeIshtarModule* module, CallFrame* frame)
         {

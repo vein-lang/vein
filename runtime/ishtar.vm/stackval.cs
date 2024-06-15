@@ -1,9 +1,11 @@
 namespace ishtar
 {
+    using System.Diagnostics;
     using collections;
     using System.Runtime.InteropServices;
     using vein.runtime;
 
+    [DebuggerDisplay("{ToString()}")]
     public unsafe struct stackval : IEq<stackval>, IDirectEq<stackval>, IEquatable<stackval>
     {
         public stack_union data;
@@ -74,5 +76,34 @@ namespace ishtar
         public override bool Equals(object obj) => obj is stackval other && Equals(other);
 
         public override int GetHashCode() => HashCode.Combine(data.d, (int)type);
+
+        public override string ToString() =>
+            type switch
+            {
+                VeinTypeCode.TYPE_NONE => $"[type {type}]",
+                VeinTypeCode.TYPE_VOID => $"[type {type}]",
+                VeinTypeCode.TYPE_CLASS => $"[type {type}]",
+                VeinTypeCode.TYPE_ARRAY => $"[type {type}]",
+                VeinTypeCode.TYPE_FUNCTION => $"[type {type}]",
+                VeinTypeCode.TYPE_TOKEN => $"[type {type}]",
+                VeinTypeCode.TYPE_STRING => $"[type {type}]",
+                VeinTypeCode.TYPE_OBJECT => $"[type {type}]",
+                VeinTypeCode.TYPE_BOOLEAN => $"[type {type} - {data.i == 1}]",
+                VeinTypeCode.TYPE_CHAR => $"[type {type} - {data.i}]",
+                VeinTypeCode.TYPE_I4 => $"[type {type} - {data.i}]",
+                VeinTypeCode.TYPE_I1 => $"[type {type} - {data.b}]",
+                VeinTypeCode.TYPE_U1 => $"[type {type} - {data.ub}]",
+                VeinTypeCode.TYPE_I2 => $"[type {type} - {data.s}]",
+                VeinTypeCode.TYPE_U2 => $"[type {type} - {data.us}]",
+                VeinTypeCode.TYPE_U4 => $"[type {type} - {data.ui}]",
+                VeinTypeCode.TYPE_I8 => $"[type {type} - {data.l}]",
+                VeinTypeCode.TYPE_U8 => $"[type {type} - {data.ul}]",
+                VeinTypeCode.TYPE_R2 => $"[type {type} - {data.hf}]",
+                VeinTypeCode.TYPE_R4 => $"[type {type} - {data.f_r4}]",
+                VeinTypeCode.TYPE_R8 => $"[type {type} - {data.f}]",
+                VeinTypeCode.TYPE_R16 => $"[type {type} - {data.d}]",
+                VeinTypeCode.TYPE_RAW => $"[type {type} - {data.d}]",
+                _ => $"[type !!BAD!!]"
+            };
     }
 }

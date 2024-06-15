@@ -805,340 +805,35 @@ namespace ishtar
                             }
                         }
                         break;
+                    case EQL_T:
+                    case EQL_F:
+                    {
+                        ++ip;
+                        --sp;
+                        var first = *sp;
+                        *sp = _comparer(first, default, invocation->last_ip, invocation);
+                        println($"$$$ {invocation->last_ip} : {debug_comparer_get_symbol(first, default, invocation->last_ip)} == {sp->data.i == 1}");
+                        sp++;
+                    }
+                    break;
                     case EQL_H:
-                        {
-                            ++ip;
-                            --sp;
-                            var second = *sp;
-                            --sp;
-                            var first = *sp;
-
-                            println($"$$$ EQL_H : {first.data.i} > {second.data.i} == {first.data.i < second.data.i}");
-
-                            if (first.type == second.type)
-                            {
-                                switch (first.type)
-                                {
-                                    case TYPE_I1:
-                                        if (first.data.b > second.data.b)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_U1:
-                                        if (first.data.ub > second.data.ub)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_I2:
-                                        if (first.data.s > second.data.s)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_U2:
-                                        if (first.data.us > second.data.us)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_I4:
-                                        if (first.data.i > second.data.i)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_U4:
-                                        if (first.data.ui > second.data.ui)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_I8:
-                                        if (first.data.l > second.data.l)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_U8:
-                                        if (first.data.ul > second.data.ul)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_R2:
-                                        if (first.data.hf > second.data.hf)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_R4:
-                                        if (first.data.f_r4 > second.data.f_r4)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_R8:
-                                        if (first.data.f > second.data.f)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_R16:
-                                        if (first.data.d > second.data.d)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    default:
-                                        throw new NotImplementedException();
-                                }
-                                sp++;
-                            }
-                            else
-                                throw new NotImplementedException();
-                        }
-                        break;
                     case EQL_L:
-                        {
-                            ++ip;
-                            --sp;
-                            var second = *sp;
-                            --sp;
-                            var first = *sp;
+                    case EQL_NN:
+                    case EQL_HQ:
+                    case EQL_LQ:
+                    case EQL_NQ:
+                    {
+                        ++ip;
+                        --sp;
+                        var first = *sp;
+                        --sp;
+                        var second = *sp;
 
-                            println($"$$$ : {first.data.i} < {second.data.i} == {first.data.i < second.data.i}");
-
-                            if (first.type == second.type)
-                            {
-                                switch (first.type)
-                                {
-                                    case TYPE_I1:
-                                        if (first.data.b < second.data.b)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_U1:
-                                        if (first.data.ub < second.data.ub)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_I2:
-                                        if (first.data.s < second.data.s)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_U2:
-                                        if (first.data.us < second.data.us)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_I4:
-                                        if (first.data.i < second.data.i)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_U4:
-                                        if (first.data.ui < second.data.ui)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_I8:
-                                        if (first.data.l < second.data.l)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_U8:
-                                        if (first.data.ul < second.data.ul)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_R2:
-                                        if (first.data.hf < second.data.hf)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_R4:
-                                        if (first.data.f_r4 < second.data.f_r4)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_R8:
-                                        if (first.data.f < second.data.f)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    case TYPE_R16:
-                                        if (first.data.d < second.data.d)
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 1;
-                                        }
-                                        else
-                                        {
-                                            sp->type = TYPE_I4;
-                                            sp->data.i = 0;
-                                        }
-                                        break;
-                                    default:
-                                        throw new NotImplementedException();
-                                }
-                                sp++;
-                            }
-                            else
-                                throw new NotImplementedException();
-                        }
-                        break;
+                        *sp = _comparer(first, second, invocation->last_ip, invocation);
+                        println($"$$$ {invocation->last_ip} : {debug_comparer_get_symbol(first, second, invocation->last_ip)} == {sp->data.i == 1}");
+                        sp++;
+                    }
+                    break;
                     case JMP_L:
                         {
                             ++ip;
@@ -1232,6 +927,7 @@ namespace ishtar
                                         jump_now();
                                     else ++ip; break;
                                 case TYPE_I4:
+                                case TYPE_BOOLEAN:
                                     if (first.data.i != 0)
                                         jump_now();
                                     else ++ip; break;
@@ -1432,6 +1128,7 @@ namespace ishtar
                                         jump_now();
                                     else ++ip; break;
                                 case TYPE_I4:
+                                case TYPE_BOOLEAN:
                                     if (first.data.i == 0)
                                         jump_now();
                                     else ++ip; break;
