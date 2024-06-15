@@ -39,7 +39,7 @@ public class GeneratorContext
     {
         if (CurrentScope is not null)
             return CurrentScope.EnterScope();
-        CurrentScope = new VeinScope(this);
+        CurrentScope = new VeinScope(this, null);
         Scopes.Add(CurrentMethod, CurrentScope);
         return new ScopeTransit(CurrentScope);
     }
