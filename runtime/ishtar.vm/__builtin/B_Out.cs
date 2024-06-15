@@ -1,7 +1,6 @@
 namespace ishtar
 {
-    using vein.runtime;
-    using static System.Console;
+    using static Console;
     using static vein.runtime.MethodFlags;
     using static vein.runtime.VeinTypeCode;
 
@@ -9,7 +8,7 @@ namespace ishtar
     {
         [IshtarExport(1, "@_println")]
         [IshtarExportFlags(Public | Static)]
-        public static IshtarObject* FPrintLn(CallFrame* current, IshtarObject** args)
+        public static IshtarObject* FPrintLn_Object(CallFrame* current, IshtarObject** args)
         {
             var arg1 = args[0];
 
@@ -20,10 +19,36 @@ namespace ishtar
             }
 
             ForeignFunctionInterface.StaticValidate(current, &arg1);
-            ForeignFunctionInterface.StaticTypeOf(current, &arg1, TYPE_STRING);
             var @class = arg1->clazz;
 
-            var str = IshtarMarshal.ToDotnetString(arg1, current);
+            var str = @class->TypeCode is TYPE_STRING ?
+                    IshtarMarshal.ToDotnetString(arg1, current) :
+                    IshtarMarshal.ToDotnetString(IshtarMarshal.ToIshtarString(arg1, current), current);
+
+            Out.WriteLine();
+            Out.WriteLine($"\t{str}");
+            Out.WriteLine();
+
+            return null;
+        }
+
+        [IshtarExport(1, "@_println")]
+        [IshtarExportFlags(Public | Static)]
+        public static IshtarObject* FPrintLn_Int32(CallFrame* current, IshtarObject** args)
+        {
+            var arg1 = args[0];
+
+            if (arg1 == null)
+            {
+                current->ThrowException(KnowTypes.NullPointerException(current));
+                return null;
+            }
+
+            ForeignFunctionInterface.StaticValidate(current, &arg1);
+            ForeignFunctionInterface.StaticTypeOf(current, &arg1, TYPE_I4);
+            var @class = arg1->clazz;
+            var castedStr = IshtarMarshal.ToIshtarString(arg1, current);
+            var str = IshtarMarshal.ToDotnetString(castedStr, current);
 
             Out.WriteLine();
             Out.WriteLine($"\t{str}");
@@ -40,8 +65,10 @@ namespace ishtar
 
         public static void InitTable(ForeignFunctionInterface ffi)
         {
-            ffi.Add("@_println", Public | Static | Extern, ("val", TYPE_STRING))
-                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FPrintLn);
+            ffi.Add("@_println", Public | Static | Extern, ("val", TYPE_OBJECT))
+                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FPrintLn_Object);
+            ffi.Add("@_println", Public | Static | Extern, ("val", TYPE_I4))
+                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FPrintLn_Int32);
 
             ffi.Add("@_readline", Public | Static | Extern, TYPE_STRING.AsRuntimeClass(ffi.vm.Types))
                 ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FReadLine);
