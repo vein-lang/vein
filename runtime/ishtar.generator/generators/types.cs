@@ -122,6 +122,12 @@ public static class G_Types
 
             return lt == rt ? lt : ExplicitConversion(lt, rt);
         }
+        if (exp is UnaryExpressionSyntax unary)
+        {
+            if (unary.OperatorType.IsLogic())
+                return VeinTypeCode.TYPE_BOOLEAN.AsClass()(Types.Storage);
+            // todo
+        }
         context.LogError($"Cannot determine expression.", exp);
         throw new SkipStatementException();
     }
