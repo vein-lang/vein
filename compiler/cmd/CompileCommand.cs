@@ -129,9 +129,9 @@ namespace vein.cmd
             var targets = CompilationTask.Run(project.WorkDir, settings);
 
 
-            foreach (var info in targets.SelectMany(x => x.Logs.Info).Reverse())
+            foreach (var info in targets.SelectMany(x => x.Logs.Info))
                 MarkupLine(info.TrimEnd('\n'));
-            foreach (var info in Log.infos)
+            foreach (var info in Log.infos.Reverse())
                 MarkupLine(info.TrimEnd('\n'));
 
             if (new[] { Log.errors.Count, targets.Sum(x => x.Logs.Error.Count) }.Sum() > 0)
@@ -140,10 +140,10 @@ namespace vein.cmd
                 Write(rule1);
             }
 
-            foreach (var target in targets.SelectMany(x => x.Logs.Error).Reverse())
+            foreach (var target in targets.SelectMany(x => x.Logs.Error))
                 MarkupLine(target);
 
-            foreach (var error in Log.errors)
+            foreach (var error in Log.errors.Reverse())
                 MarkupLine(error);
 
             if (new[] { Log.warnings.Count, targets.Sum(x => x.Logs.Warn.Count) }.Sum() > 0)
@@ -152,17 +152,16 @@ namespace vein.cmd
                 Write(rule2);
             }
 
-            foreach (var warn in targets.SelectMany(x => x.Logs.Warn).Reverse())
+            foreach (var warn in targets.SelectMany(x => x.Logs.Warn))
                 MarkupLine(warn);
-            foreach (var warn in Log.warnings)
+            foreach (var warn in Log.warnings.Reverse())
                 MarkupLine(warn);
 
             if (!Log.warnings.Any() && !Log.errors.Any())
-                MarkupLine($"\n\n\n");
+                MarkupLine($"\n");
 
             if (new[] { Log.errors.Count, targets.Sum(x => x.Logs.Error.Count) }.Sum() > 0)
             {
-
                 var rule3 = new Rule($"[red bold]COMPILATION FAILED[/]") {Style = Style.Parse("lime rapidblink")};
                 Write(rule3);
                 MarkupLine($"\n");

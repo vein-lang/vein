@@ -22,17 +22,19 @@ public static class Log
         public static void Warn(string text) => _print(text, null, null, warnings);
         public static void Warn(string text, BaseSyntax posed) => _print(text, posed, null, warnings);
         public static void Warn(string text, BaseSyntax posed, DocumentDeclaration doc)
-            => _print(text, posed, doc, warnings);
+            => _print(text, posed, doc.FileEntity, warnings);
 
         public static void Error(string text) => _print(text, null, null, errors);
         public static void Error(string text, BaseSyntax posed) => _print(text, posed, null, errors);
         public static void Error(string text, BaseSyntax posed, DocumentDeclaration doc)
+            => _print(text, posed, doc.FileEntity, errors);
+        public static void Error(string text, BaseSyntax posed, FileInfo doc)
             => _print(text, posed, doc, errors);
 
         public static void Info(string text) => _print(text, null, null, infos);
         public static void Info(string text, BaseSyntax posed) => _print(text, posed, null, infos);
         public static void Info(string text, BaseSyntax posed, DocumentDeclaration doc)
-            => _print(text, posed, doc, infos);
+            => _print(text, posed, doc.FileEntity, infos);
 
     }
 
@@ -50,7 +52,7 @@ public static class Log
     public static void Warn(string s, CompilationTarget t) => t.Logs.Warn.Enqueue($"[orange]WARN[/]: {s}");
     public static void Error(string s, CompilationTarget t) => t.Logs.Error.Enqueue($"[red]ERROR[/]: {s}");
 
-    private static void _print(string text, BaseSyntax posed, DocumentDeclaration doc, Queue<string> queue)
+    private static void _print(string text, BaseSyntax posed, FileInfo doc, Queue<string> queue)
     {
         if (posed is { Transform: null })
         {
@@ -73,7 +75,7 @@ public static class Log
         if (doc is not null)
         {
             strBuilder.Append(
-                $"\tin '[orange bold]{doc.FileEntity}[/]'.");
+                $"\tin '[orange bold]{doc}[/]'.");
         }
 
         if (posed is not null && doc is not null)
