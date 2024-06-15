@@ -67,6 +67,8 @@ public static class G_Logic
             generator.EmitAccess(access);
         else if (statement is WhileStatementSyntax @while)
             generator.EmitWhileStatement(@while);
+        else if (statement is ForStatementSyntax @for)
+            generator.EmitForStatement(@for);
         else if (statement is QualifiedExpressionStatement { Value: BinaryExpressionSyntax } qes2)
             generator.EmitBinaryExpression((BinaryExpressionSyntax)qes2.Value);
 

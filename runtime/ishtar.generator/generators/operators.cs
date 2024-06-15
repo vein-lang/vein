@@ -238,6 +238,14 @@ public static class G_Operators
             gen.Emit(OpCodes.LDC_I4_0);
             gen.Emit(OpCodes.EQL_NQ);
         }
+        else if (node.OperatorType is ExpressionType.PostIncrementAssign)
+        {
+            // todo work only in for cycle, in other cases, it works like ++i
+            var addOne =
+                new BinaryExpressionSyntax(node.Operand, new Int32LiteralExpressionSyntax(1), ExpressionType.Add);
+            var operand_assign = new BinaryExpressionSyntax(node.Operand, addOne);
+            gen.EmitAssignExpression(operand_assign);
+        }
         else
             throw new NotSupportedException("EmitUnary");
 

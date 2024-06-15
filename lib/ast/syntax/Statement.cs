@@ -31,8 +31,17 @@ namespace vein.syntax
             select decl;
 
         protected internal virtual Parser<StatementSyntax> declarationStatement =>
-            local_variable_declaration.Token().Positioned().Then(x => Parse.Char(';').Token().Return(x));
+            from loc in local_variable_declaration.Token().Positioned()
+            from s in Parse.Char(';').Token().Optional()
+            select ValidateSemicolon(s, loc);
 
+        protected internal virtual T ValidateSemicolon<T>(IOption<char> semi, T other) where T : BaseSyntax
+        {
+            if (semi.IsDefined)
+                return other;
+            var poz = other.Transform.pos;
+            throw new VeinParseException("Semicolon required", poz, other);
+        }
 
         protected internal virtual Parser<StatementSyntax> foreach_statement =>
             from k in KeywordExpression("foreach").Positioned().Token()
@@ -44,6 +53,18 @@ namespace vein.syntax
             from statement in embedded_statement.Token().Positioned()
             select new ForeachStatementSyntax(declaration, exp, statement);
 
+        protected internal virtual Parser<StatementSyntax> for_statement =>
+            from k in KeywordExpression("for").Positioned().Token()
+            from ob in Parse.Char('(').Token()
+            from loopVariable in local_variable_declaration.Positioned().Token().Optional()
+            from d1 in Parse.Char(';').Token()
+            from exp in QualifiedExpression.Positioned().Token().Optional()
+            from d2 in Parse.Char(';').Token()
+            from loopCounter in QualifiedExpression.Positioned().Token().Optional()
+            from cb in Parse.Char(')').Token()
+            from statement in embedded_statement.Token().Positioned()
+            select new ForStatementSyntax(loopVariable, exp, loopCounter, statement);
+
         protected internal virtual Parser<StatementSyntax> embedded_statement =>
             Block.Or(simple_embedded_statement);
 
@@ -54,6 +75,7 @@ namespace vein.syntax
             .Or(WhileStatement.Positioned())
             .Or(TryStatement.Positioned())
             .Or(ReturnStatement.Positioned())
+            .Or(for_statement.Positioned())
             .Or(foreach_statement.Positioned())
             .Or(FailStatement.Positioned())
             .Or(DeleteStatement.Positioned());
