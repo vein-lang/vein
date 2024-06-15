@@ -60,4 +60,10 @@
     <ProjectReference Include="..\ishtar.vm.libuv\ishtar.vm.libuv.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="runtime\jit\%40llmv\*.ll" TargetPath="applets\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

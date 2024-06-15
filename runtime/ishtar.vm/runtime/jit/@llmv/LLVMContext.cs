@@ -2,6 +2,7 @@ namespace ishtar.llmv;
 
 using LLVMSharp.Interop;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using vein.extensions;
 using vein.runtime;
@@ -18,6 +19,13 @@ public unsafe struct LLVMContext
         LLVM.InitializeNativeAsmPrinter();
         LLVM.InitializeNativeAsmParser();
         LLVM.InitializeNativeTarget();
+
+
+        LLVM.InitializeAArch64Target();
+        LLVM.InitializeAArch64AsmParser();
+        LLVM.InitializeAArch64Disassembler();
+        LLVM.InitializeAArch64TargetInfo();
+        LLVM.InitializeAArch64TargetMC();
 
         _ctx = LLVM.ContextCreate();
         

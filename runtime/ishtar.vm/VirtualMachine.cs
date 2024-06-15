@@ -18,22 +18,13 @@ namespace ishtar
 
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
-    public readonly struct RuntimeInfo
+    public readonly struct RuntimeInfo()
     {
-        public RuntimeInfo()
-        {
-            isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
-            isOSX = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-            isFreeBSD = RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
-            Architecture = RuntimeInformation.OSArchitecture;
-        }
-
-        public readonly bool isWindows;
-        public readonly bool isLinux;
-        public readonly bool isOSX;
-        public readonly bool isFreeBSD;
-        public readonly Architecture Architecture;
+        public readonly bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        public readonly bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        public readonly bool isOSX = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+        public readonly bool isFreeBSD = RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD);
+        public readonly Architecture Architecture = RuntimeInformation.OSArchitecture;
     }
 
     public unsafe partial class VirtualMachine : IDisposable
