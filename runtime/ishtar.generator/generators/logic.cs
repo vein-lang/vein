@@ -14,7 +14,7 @@ public static class G_Logic
         var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
         var expType = ifStatement.Expression.DetermineType(ctx);
 
-        if (ifStatement.Expression is BoolLiteralExpressionSyntax @bool)
+        if (!ctx.DisableOptimization && ifStatement.Expression is BoolLiteralExpressionSyntax @bool)
         {
             if (@bool.Value)
                 generator.EmitStatement(ifStatement.ThenStatement);

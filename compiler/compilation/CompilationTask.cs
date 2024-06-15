@@ -213,9 +213,9 @@ public partial class CompilationTask
 
         read_task.SuccessTask();
 
-        Context = new GeneratorContext();
+        Context = new(new(_flags.DisableOptimization));
 
-        module = new VeinModuleBuilder(Project.Name, Project.Version.Version, Types.Storage);
+        module = new(Project.Name, Project.Version.Version, Types.Storage);
 
         Context.Module = module;
         Context.Module.Deps.AddRange(deps);

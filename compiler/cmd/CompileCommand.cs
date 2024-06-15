@@ -21,6 +21,10 @@ namespace vein.cmd
         [CommandOption("--print-result-types")]
         public bool PrintResultType { get; set; }
 
+        [Description("Display exported types table")]
+        [CommandOption("--disable-optimization|-O")]
+        public bool DisableOptimization { get; set; }
+
         [Description("Compile into single file")]
         [CommandOption("--single-file|-s")]
         public bool HasSingleFile { get; set; }
@@ -48,10 +52,10 @@ namespace vein.cmd
 
     public abstract class AsyncCommandWithProject<T> : CommandWithProject<T> where T : CommandSettings, IProjectSettingProvider
     {
-        public sealed override int Execute(CommandContext ctx, T settigs, VeinProject project)
-            => ExecuteAsync(ctx, settigs, project).Result;
+        public sealed override int Execute(CommandContext ctx, T settings, VeinProject project)
+            => ExecuteAsync(ctx, settings, project).Result;
 
-        public abstract Task<int> ExecuteAsync(CommandContext ctx, T settigs, VeinProject project);
+        public abstract Task<int> ExecuteAsync(CommandContext ctx, T settings, VeinProject project);
     }
     public abstract class CommandWithProject<T> : Command<T> where T : CommandSettings, IProjectSettingProvider
     {
@@ -111,7 +115,7 @@ namespace vein.cmd
             return Execute(ctx, settings, project);
         }
 
-        public abstract int Execute(CommandContext ctx, T settigs, VeinProject project);
+        public abstract int Execute(CommandContext ctx, T settings, VeinProject project);
     }
 
 
