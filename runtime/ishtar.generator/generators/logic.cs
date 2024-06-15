@@ -9,7 +9,8 @@ public static class G_Logic
 {
     public static void EmitIfElse(this ILGenerator generator, IfStatementSyntax ifStatement)
     {
-        var elseLabel = generator.DefineLabel();
+        var elseLabel = generator.DefineLabel("else");
+        var endLabel = generator.DefineLabel("if-end");
         var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
         var expType = ifStatement.Expression.DetermineType(ctx);
 
