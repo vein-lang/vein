@@ -61,7 +61,7 @@ namespace vein.stl
                 return result.Value;
             }
             throw new VeinParseException(result.Message,
-                new Position(result.Remainder.Position, result.Remainder.Line, result.Remainder.Column));
+                new Position(result.Remainder.Position, result.Remainder.Line, result.Remainder.Column), null);
         }
 
         /// <summary>
@@ -116,11 +116,9 @@ namespace vein.stl
         public static ExchangeWrapper<T> Exchange<T>(this Parser<T> p)
             => new(p);
 
-        public struct ExchangeWrapper<T>
+        public struct ExchangeWrapper<T>(Parser<T> _1)
         {
-            public ExchangeWrapper(Parser<T> _1) => this._ = _1;
-            public Parser<T> _;
-
+            public Parser<T> _ = _1;
             public Parser<D> Return<D>() where D : class, new() => _.Return(new D());
         }
     }
@@ -131,12 +129,10 @@ namespace vein.stl
         IComment CommentParser { get; }
     }
 
-    public class VeinParseException : ParseException
+    public class VeinParseException(string message, Position pos, BaseSyntax astItem)
+        : ParseException($"{message}", pos)
     {
-        public VeinParseException(string message, Position pos)
-            : base($"{message} at {pos}", pos) =>
-            this.ErrorMessage = message;
-
-        public string ErrorMessage { get; set; }
+        public string ErrorMessage { get; set; } = message;
+        public BaseSyntax AstItem { get; } = astItem;
     }
 }
