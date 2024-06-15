@@ -3,7 +3,7 @@ namespace vein.syntax;
 using System.Collections.Generic;
 using Sprache;
 
-public class IfStatementSyntax(ExpressionSyntax e, StatementSyntax then, StatementSyntax @else)
+public class IfStatementSyntax(ExpressionSyntax e, StatementSyntax then, StatementSyntax? @else)
     : StatementSyntax, IPositionAware<IfStatementSyntax>
 {
     public override SyntaxType Kind => SyntaxType.IfStatement;
@@ -14,7 +14,7 @@ public class IfStatementSyntax(ExpressionSyntax e, StatementSyntax then, Stateme
 
     public StatementSyntax ThenStatement { get; set; } = then;
 
-    public StatementSyntax ElseStatement { get; set; } = @else;
+    public StatementSyntax? ElseStatement { get; set; } = @else;
 
     public new IfStatementSyntax SetPos(Position startPos, int length)
     {

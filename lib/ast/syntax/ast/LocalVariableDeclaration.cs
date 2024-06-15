@@ -2,7 +2,7 @@ namespace vein.syntax
 {
     using Sprache;
 
-    public class LocalVariableDeclaration : StatementSyntax, IPositionAware<LocalVariableDeclaration>
+    public class LocalVariableDeclaration : StatementSyntax, IAdvancedPositionAware<LocalVariableDeclaration>
     {
         public readonly IdentifierExpression Identifier;
         public readonly IOption<ExpressionSyntax> Body;
