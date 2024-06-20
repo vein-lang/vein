@@ -1,0 +1,19 @@
+#space "vein/lang"
+
+public class TypeNotFoundFault : Exception 
+{
+    public new(m: string) 
+        |> this.message = m;
+}
+
+public class MemberNotFoundFault : Exception 
+{
+    public new(m: string) 
+        |> this.message = m;
+}
+
+public class MultipleTypeFoundFault : Exception 
+{
+    public new(m: string)
+        |> this.message = m;
+}

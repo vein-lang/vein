@@ -1,0 +1,67 @@
+#space "vein/lang"
+
+[special, forwarded, alias("string")]
+public class String : Object
+{
+    [native("!!value")]
+    __value: raw;
+    //[native]
+    //public extern this[index: i32]: Char;
+    [native]
+    public /*extern*/ Length: i32;
+
+    public override toString(): String
+        |> Sys.toString(this);
+
+    [special]
+    public static op_Add(v1: string, v2: string): string
+        |> self.Concat(v1, v2);
+    [special]
+    public static op_Add(v1: string, v2: i32): string
+    {
+        auto t = v2.toString();
+        return self.Concat(v1, t);
+    }
+
+    [special]
+    public static op_NotEqual(v1: string, v2: string): bool
+        |> !self.op_Equal(v1, v2);
+
+    [special]
+    public static op_Equal(v1: string, v2: string): bool
+        |> self.Equal(v1, v2);
+
+
+    // temporary using vm_bridge, todo: rework to using vein-code
+    [native("__internal__", "i_call_String_Concat")]
+    private extern static Concat(v1: string, v2: string): string;
+    // temporary using vm_bridge, todo: rework to using vein-code
+    [native("__internal__", "i_call_String_Equal")]
+    private extern static Equal(v1: string, v2: string): string;
+
+
+    public static format(template: string, o1: Object): string
+    {
+        let a = new string[1] { o1 };
+        return self._fmt(template, a);
+    }
+    public static format(template: string, o1: Object, o2: Object): string
+    {
+        let a = new string[2] { o1, o2 };
+        return self._fmt(template, a);
+    }
+    public static format(template: string, o1: Object, o2: Object, o3: Object): string
+    {
+        let a = new string[3] { o1, o2, o3 };
+        return self._fmt(template, a);
+    }
+    public static format(template: string, arr: Array): string
+    {
+        return self._fmt(template, arr);
+    }
+
+    // temporary using vm_bridge, todo: rework to using vein-code
+    [native("__internal__", "i_call_String_fmt")]
+    private static extern _fmt(t: string, arr: Array): string;
+
+}

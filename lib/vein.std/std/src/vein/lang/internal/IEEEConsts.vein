@@ -1,0 +1,31 @@
+#space "vein/lang"
+
+internal static class IEEEConsts
+{
+    [native("__internal__", "i_call_get_Half_NaN")]
+    public static extern getHalfNaN(): Half;
+    [native("__internal__", "i_call_get_Float_NaN")]
+    public static extern getFloatNaN(): Float;
+    [native("__internal__", "i_call_get_Decimal_NaN")]
+    public static extern getDecimalNaN(): Decimal;
+    [native("__internal__", "i_call_get_Double_NaN")]
+    public static extern getDoubleNaN(): Double;
+
+    [native("__internal__", "i_call_get_Half_Infinity")]
+    public static extern getHalfInfinity(): Half;
+    [native("__internal__", "i_call_get_Float_Infinity")]
+    public static extern getFloatInfinity(): Float;
+    [native("__internal__", "i_call_get_Decimal_Infinity")]
+    public static extern getDecimalInfinity(): Decimal;
+    [native("__internal__", "i_call_get_Double_Infinity")]
+    public static extern getDoubleInfinity(): Double;
+
+    [native("__internal__", "i_call_get_Half_NegativeInfinity")]
+    public static extern getHalfNegativeInfinity(): Half;
+    [native("__internal__", "i_call_get_Float_NegativeInfinity")]
+    public static extern getFloatNegativeInfinity(): Float;
+    [native("__internal__", "i_call_get_Decimal_NegativeInfinity")]
+    public static extern getDecimalNegativeInfinity(): Decimal;
+    [native("__internal__", "i_call_get_Double_NegativeInfinity")]
+    public static extern getDoubleNegativeInfinity(): Double;
+}

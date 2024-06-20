@@ -1,0 +1,7 @@
+version: 1.0.0.0
+author:
+- name: yuuki
+  github: ''
+license: MIT license
+packages:
+- std@0.14.3

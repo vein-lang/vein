@@ -1,0 +1,14 @@
+#space "vein/lang/collections"
+#use "vein/lang"
+
+public interface IYieldable
+{
+    Current: object { get; set; }
+    public MoveNext(): bool;
+    public Reset(): void;
+}
+
+public interface IYield
+{
+    public Yield: IYieldable { get; set; }
+}

@@ -1,0 +1,39 @@
+#space "vein/lang"
+
+
+alias f16 <| Half;
+
+[special, forwarded, alias("f16")]
+public struct Half : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+    /*
+    public const MaxValue: f16 = 65504h;
+    public const MinValue: f16 = -65504h;
+    */
+    /**
+        Represents the smallest positive f16 value that is greater than zero. 
+    **/
+    [special]
+    public Epsilon: f16
+        |> 5.9604645e-08h;
+    /**
+        Represents positive infinity.
+    **/
+    [special]
+    public PositiveInfinity: f16 
+        |> IEEEConsts.getHalfInfinity();
+    /**
+        Represents negative infinity.
+    **/
+    [special]
+    public NegativeInfinity: f16 
+        |> IEEEConsts.getHalfNegativeInfinity();
+    /**
+        Represents not a number.
+    **/
+    [special]
+    public NaN: f16 
+        |> IEEEConsts.getHalfNaN();
+};

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\compiler\veinc.csproj" />
+  </ItemGroup>
+
+
+  <Target Name="CustomTask" AfterTargets="AfterBuild">
+    <Exec Command="veinc.exe" WorkingDirectory="$(OutputPath)" 
+          EnvironmentVariables="VEINC_NOVID=1;NO_COLOR=1;NO_CONSOLE=1">
+      <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfTheCommand" />
+    </Exec>
+  </Target>
+</Project>

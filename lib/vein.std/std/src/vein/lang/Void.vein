@@ -1,0 +1,7 @@
+#space "vein/lang"
+
+
+[special, forwarded, alias("void")]
+public struct Void : ValueType { }
+
+alias Void <| void;

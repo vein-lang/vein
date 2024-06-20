@@ -1,0 +1,22 @@
+#space "vein/lang"
+
+public class Field
+{
+    /* keep name in IshtarGC.cs */
+    internal _target: Type;
+    /* keep name in IshtarGC.cs */
+    internal _name: string;
+    /* keep name in IshtarGC.cs */
+    internal _vtoffset: i64;
+
+    public name: string |> this._name;
+    public owner: Type |> this._target;
+
+    internal new() { } // internal ctor
+
+
+    //[native("__internal__", "i_call_Field_getValue")]
+    //public static extern getValue(targetObject: object, f: Field): object;
+    //[native("__internal__", "i_call_Field_setValue")]
+    //public static extern setValue(targetObject: object, f: Field, value: object): void;
+}

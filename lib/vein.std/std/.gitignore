@@ -1,0 +1,11 @@
+# Build and Release Folders
+[Oo]bj/
+[Bb]in/
+
+# Other files and folders
+.cache/
+
+# Executables and metadata
+*.wll
+*.bin
+*.lay

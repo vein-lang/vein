@@ -1,0 +1,35 @@
+#space "vein/lang"
+
+public class List<T>
+{
+    Add(value: T): void;
+    Remove(value: T): void;
+    RemoveAt(index: i32): void;
+    AddRange(values: T[]): void;
+    Get(index: i32): T;
+}
+
+
+public class Queue<T>
+{
+    Enqueue(value: T): void;
+    Dequeue(): T;
+    Clear(): void;
+}
+
+
+public class Map<TKey, TValue>
+{
+    Add(key: TKey, value: TValue): void;
+    Remove(key: TKey): void;
+    ContainsKey(key: TKey): void;
+    Get(key: TKey): TValue;
+}
+
+public class Stack<T>
+{
+    Push(value: T): void;
+    Peek(): T;
+    Pop(): T;
+    Clear(): void;
+}

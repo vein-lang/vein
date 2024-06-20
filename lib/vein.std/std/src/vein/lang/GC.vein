@@ -1,0 +1,15 @@
+#space "vein/lang"
+
+
+public static class GC
+{
+    public static allocated: u64
+        |> self._get_allocated();
+    public static alive_objects: u64
+        |> self._get_alive_objects();
+
+    [native("__internal__", "i_call_GC_get_allocated")]
+    private static extern _get_allocated(): u64;
+    [native("__internal__", "i_call_GC_get_alive_objects")]
+    private static extern _get_alive_objects(): u64;
+}

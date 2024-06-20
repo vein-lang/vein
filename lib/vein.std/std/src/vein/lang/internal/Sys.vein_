@@ -1,0 +1,13 @@
+#space "vein/lang"
+
+internal static class Sys
+{
+    [native("__internal__", "@value2string")]
+    public extern static toString(value: ValueType): string;
+
+    [native("__internal__", "@object2string")]
+    public extern static toString(value: object): string;
+
+    [native("__internal__", "@queryPerformanceCounter")]
+    public extern static queryPerformanceCounter(): i64;
+}
