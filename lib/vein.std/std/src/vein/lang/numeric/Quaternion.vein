@@ -1,0 +1,24 @@
+#space "vein/lang/numeric"
+
+#use "vein/lang"
+
+public struct Quaternion : ValueType
+{
+    /* public static Zero: Quaternion = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f); */
+
+    public X: f32;
+    public Y: f32;
+    public Z: f32;
+    public W: f32;
+
+    public IsZero(): bool
+        |> X + Y + Z + W == 0;
+    
+    new (x: f32, y: f32, z: f32, w: f32)
+    {
+        X = x;
+        Y = y;
+        Z = z;
+        W = w;
+    }
+}

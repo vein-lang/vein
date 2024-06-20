@@ -1,0 +1,14 @@
+#space "vein/lang"
+
+
+[special, forwarded, alias("u16")]
+public struct UInt16 : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+
+    public const MaxValue: u16 = 65535;
+    public const MinValue: u16 = 0;
+}
+
+alias u16 <| UInt16;

@@ -1,0 +1,14 @@
+name: std
+version: '0.30.0'
+license: MIT
+packable: true
+description: A standard core library for Ishtar VM and Vein Lang
+author:
+  - name: Yuuki Wesp
+    github: '0xF6'
+  - name: Vein Lang
+    github: 'vein-lang'
+urls:
+  BugUrl: https://github.com/vein-lang/std
+  HomepageUrl: https://github.com/vein-lang/std
+  Repository: https://github.com/vein-lang/std

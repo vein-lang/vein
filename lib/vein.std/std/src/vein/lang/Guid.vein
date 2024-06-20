@@ -1,0 +1,20 @@
+#space "vein/lang"
+
+
+
+public struct Guid : ValueType
+{
+    public static readonly Empty: Guid = new Guid();
+
+    private _a: i32;
+    private _b: i16;
+    private _c: i16;
+    private _d: u8;
+    private _e: u8;
+    private _f: u8;
+    private _g: u8;
+    private _h: u8;
+    private _i: u8;
+    private _j: u8;
+    private _k: u8;
+}

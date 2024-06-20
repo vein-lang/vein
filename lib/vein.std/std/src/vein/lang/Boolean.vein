@@ -1,0 +1,17 @@
+#space "vein/lang"
+
+
+[special, forwarded, alias("bool")]
+public struct Boolean : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+
+    public const True: bool = true;
+    public const False: bool = false;
+
+    public const TrueString: string = "true";
+    public const FalseString: string = "false";
+}
+
+alias bool <| Boolean;

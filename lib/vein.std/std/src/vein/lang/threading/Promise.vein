@@ -1,0 +1,21 @@
+#space "vein/lang"
+
+public struct Promise
+{
+    public Wait(): void;
+    public TryWait(time: TimeSpan): bool;
+
+
+    public Finally(onFinally: Function): Promise;
+    public Then(onResolved: Function): Promise;
+    public Catch(onRejected: Function): Promise;
+
+    public static WaitAll(list: Promise[]): void;
+    public static WaitAny(list: Promise[]): void;
+    public static WhenAll(list: Promise[]): Promise[];
+    public static WhenAny(list: Promise[]): Promise;
+    public static When(list: Promise[], predicate: PromiseSelector): Promise;
+
+    [special]
+    private static @await(promise: Promise): IshtarTask;
+}

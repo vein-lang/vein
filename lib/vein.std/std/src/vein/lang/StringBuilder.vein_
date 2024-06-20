@@ -1,0 +1,58 @@
+/*
+#space "vein/lang"
+
+public class StringBuilder
+{
+    [native("!!buffer")]
+    private __buffer: raw;
+
+    private _capacity: u32;
+
+    public capacity: u32 
+        |> this._capacity;
+
+    public new()
+        |> self._init_buffer(this);
+    
+    public delete()
+        |> self._clear_buffer(this);
+
+    public append(value: string): self
+        |> self._append(this, value);
+
+    public append(value: i64): self
+        |> self._append(this, value);
+    public append(value: i32): self
+        |> self._append(this, value);
+    public append(value: i16): self
+        |> self._append(this, value);
+
+    public override toString(): string
+        |> self._to_string(this);
+    
+
+    public appendLine(value: string): self
+        |> self._appendLine(this, value);
+    public appendLine(value: i64): self
+        |> self._appendLine(this, value);
+    public appendLine(value: i32): self
+        |> self._appendLine(this, value);
+    public appendLine(value: i16): self
+        |> self._appendLine(this, value);
+
+    [native("__internal__", "i_call_StringBuilder_append")]
+    private static extern _append(builder: self, s: object): self;
+    [native("__internal__", "i_call_StringBuilder_append")]
+    private static extern _append(builder: self, s: ValueType): self;
+    [native("__internal__", "i_call_StringBuilder_appendLine")]
+    private static extern _appendLine(builder: self, s: object): self;
+    [native("__internal__", "i_call_StringBuilder_appendLine")]
+    private static extern _appendLine(builder: self, s: ValueType): self;
+    [native("__internal__", "i_call_StringBuilder_init_buffer")]
+    private static extern _init_buffer(builder: self): void;
+    [native("__internal__", "i_call_StringBuilder_clear_buffer")]
+    private static extern _clear_buffer(builder: self): void;
+    [native("__internal__", "i_call_StringBuilder_toString")]
+    private static extern _to_string(buffer: self): string;
+}
+*/

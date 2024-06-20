@@ -1,0 +1,12 @@
+#space "vein/lang"
+
+
+[special, forwarded, alias("f64")]
+public struct Double : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+}
+
+
+alias f64 <| Double;

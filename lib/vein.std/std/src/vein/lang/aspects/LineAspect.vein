@@ -1,0 +1,3 @@
+#space "vein/lang/aspects"
+
+aspect Line(fo: i64);

@@ -1,0 +1,14 @@
+#space "vein/lang"
+
+
+[special, forwarded, alias("i64")]
+public struct Int64 : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+
+    public const MaxValue: i64 = 9223372036854775807;
+    public const MinValue: i64 = -9223372036854775808;
+}
+
+alias i64 <| Int64;

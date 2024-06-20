@@ -1,0 +1,7 @@
+#space "vein/lang/numeric"
+
+#use "vein/lang"
+
+public struct BigInt : ValueType
+{
+}

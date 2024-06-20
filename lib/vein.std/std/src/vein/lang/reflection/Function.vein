@@ -1,0 +1,37 @@
+#space "vein/lang"
+
+public class Function : Object
+{
+    /* keep name in IshtarGC.cs */
+    internal _target: Type;
+    /* keep name in IshtarGC.cs */
+    internal _vtoffset: i64;
+    /* keep name in IshtarGC.cs */
+    internal _name: string;
+    /* keep name in IshtarGC.cs */
+    internal _quality_name: string;
+
+    public name: string 
+        |> this._name;
+    public owner: Type 
+        |> this._target;
+
+    internal new() { } // internal ctor
+
+    public call(): object
+        |> self._call(this, Array.empty);
+    public call(args: Array): object
+        |> self._call(this, args);
+
+    public static createFunctionFrom(target: object, name: string): Function
+        |> self._createFn(target, name, false, true);
+    public static createFunctionFrom(target: object, name: string, ignoreCase: boolean): Function
+        |> self._createFn(target, name, ignoreCase, true);
+    public static createFunctionFrom(target: object, name: string, ignoreCase: boolean, throwWhenFailBind: boolean): Function
+        |> self._createFn(target, name, ignoreCase, throwWhenFailBind);
+
+    [native("__internal__", "i_call_Function_call")]
+    private static extern _call(f: Function, args: Array): object;
+    [native("__internal__", "i_call_Function_create")]
+    private static extern _createFn(target: object, name: string, ignoreCase: boolean, throwWhenFailBind: boolean): Function;
+}

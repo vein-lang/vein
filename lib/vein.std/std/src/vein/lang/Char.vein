@@ -1,0 +1,11 @@
+#space "vein/lang"
+
+
+[special, forwarded, alias("char")]
+public struct Char : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+}
+
+alias char <| Char;

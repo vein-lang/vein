@@ -1,0 +1,54 @@
+#ignore
+#space "vein/lang/diag"
+
+#use "vein/lang"
+
+public class Stopwatch
+{
+    private TicksPerMillisecond: i64 = 10000L;
+    private TicksPerSecond: i64 = TicksPerMillisecond * 1000L;
+
+    private elapsed: i64;
+    private startTimeStamp: i64;
+    private isRunning: bool;
+
+
+    public static /*readonly*/ Frequency: i64;
+    public static /*readonly*/ IsHighResolution: bool;
+
+    private static /*readonly*/ tickFrequency: f32;
+
+    public Elapsed: TimeSpan 
+    {
+        get 
+        {
+            auto s = Sys.GetElapsedDateTimeTicks();
+            return new TimeSpan(s); 
+        }
+    }
+
+
+    public Start(): void  { } 
+    public Stop(): void  { }
+    public Reset(): void
+    {
+        elapsed = 0;
+        isRunning = false;
+        startTimeStamp = 0;
+    }
+    public Restart(): void
+    {
+        elapsed = 0;
+        startTimeStamp = this.getTimestamp();
+        isRunning = true;
+    }
+    private getTimestamp(): i64
+    {
+        if(IsHighResolution) 
+        {
+            auto result = Sys.queryPerformanceCounter();
+            return result;
+        }
+        else return 0L;
+    }
+}
