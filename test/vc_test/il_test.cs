@@ -61,8 +61,8 @@ public class il_test
     {
         var gen = CreateGenerator();
 
-        var l1 = gen.DefineLabel();
-        var l2 = gen.DefineLabel();
+        var l1 = gen.DefineLabel("1");
+        var l2 = gen.DefineLabel("2");
         gen.Emit(OpCodes.ADD);
         gen.Emit(OpCodes.LDC_I4_S, 228);
         gen.Emit(OpCodes.ADD);

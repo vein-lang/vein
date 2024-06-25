@@ -12,15 +12,14 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using vein;
 using vein.cmd;
-using static System.Console;
 using static Spectre.Console.AnsiConsole;
 using vein.json;
 using vein.resources;
 using static vein.GlobalVersion;
-
 [assembly: InternalsVisibleTo("veinc_test")]
 
-
+if (Environment.GetEnvironmentVariable("NO_CONSOLE") is not null)
+    AnsiConsole.Console = RawConsole.Create();
 
 if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
 {
@@ -28,13 +27,14 @@ if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
     return -1;
 }
 
-var skipIntro = SecurityStorage.HasKey("app:novid") || Environment.GetEnvironmentVariable("VEINC_NOVID") is not null;
+var skipIntro = SecurityStorage.HasKey("app:novid") ||
+                Environment.GetEnvironmentVariable("VEINC_NOVID") is not null;
 
 var watch = Stopwatch.StartNew();
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-    OutputEncoding = Encoding.Unicode;
+    System.Console.OutputEncoding = Encoding.Unicode;
 JsonConvert.DefaultSettings = () => new JsonSerializerSettings
 {
     NullValueHandling = NullValueHandling.Ignore,
