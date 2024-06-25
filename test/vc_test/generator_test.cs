@@ -288,10 +288,10 @@ puts after - before;*/
             //fibGen.Emit(OpCodes.EQL);
             //fibGen.Emit(OpCodes.RET);
 
-            var label_if_1 = fibGen.DefineLabel("1");
-            var label_if_2 = fibGen.DefineLabel("2");
-            var for_1 = fibGen.DefineLabel("3");
-            var for_body = fibGen.DefineLabel("4");
+            var label_if_1 = fibGen.DefineLabel("check_zero");
+            var label_if_2 = fibGen.DefineLabel("check_one");
+            var for_1 = fibGen.DefineLabel("loop_start");
+            var for_body = fibGen.DefineLabel("loop_body");
 
             // if (x == 0) return 0;
             fibGen.Emit(OpCodes.LDARG_1);
