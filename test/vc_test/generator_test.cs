@@ -27,8 +27,8 @@ namespace veinc_test
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var gen = method.GetGenerator();
 
-            var l1 = gen.DefineLabel();
-            var l2 = gen.DefineLabel();
+            var l1 = gen.DefineLabel("1");
+            var l2 = gen.DefineLabel("2");
             gen.Emit(OpCodes.ADD);
             gen.Emit(OpCodes.LDC_I4_S, 228);
             gen.Emit(OpCodes.ADD);
@@ -187,7 +187,7 @@ namespace veinc_test
             var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage), args);
 
             var gen =  method.GetGenerator();
-            var ctx = new GeneratorContext();
+            var ctx = new GeneratorContext(new GeneratorContextConfig(true));
             ctx.Module = module;
             ctx.Classes.Add(@class.FullName, @class);
             ctx.CurrentMethod = method;
@@ -248,7 +248,7 @@ puts after - before;*/
                 VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
             var body = method.GetGenerator();
 
-            var @while = body.DefineLabel();
+            var @while = body.DefineLabel("while");
 
             body.UseLabel(@while);
             body.Emit(OpCodes.NOP);
@@ -288,10 +288,10 @@ puts after - before;*/
             //fibGen.Emit(OpCodes.EQL);
             //fibGen.Emit(OpCodes.RET);
 
-            var label_if_1 = fibGen.DefineLabel();
-            var label_if_2 = fibGen.DefineLabel();
-            var for_1 = fibGen.DefineLabel();
-            var for_body = fibGen.DefineLabel();
+            var label_if_1 = fibGen.DefineLabel("1");
+            var label_if_2 = fibGen.DefineLabel("2");
+            var for_1 = fibGen.DefineLabel("3");
+            var for_body = fibGen.DefineLabel("4");
 
             // if (x == 0) return 0;
             fibGen.Emit(OpCodes.LDARG_1);

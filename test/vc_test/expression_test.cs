@@ -133,7 +133,7 @@ namespace veinc_test
         [Test]
         public void DetermineSelfMethodType()
         {
-            var genCtx = new GeneratorContext();
+            var genCtx = new GeneratorContext(new GeneratorContextConfig(true));
 
             genCtx.Module = new VeinModuleBuilder("doo", Types.Storage);
             var @class = genCtx.Module.DefineClass("global::mana/foo");
@@ -155,7 +155,7 @@ namespace veinc_test
         [Test]
         public void DetermineOtherMethodType()
         {
-            var genCtx = new GeneratorContext();
+            var genCtx = new GeneratorContext(new GeneratorContextConfig(true));
             genCtx.Document = new DocumentDeclaration { FileEntity = new FileInfo("<in-memory-file>.data") };
 
             genCtx.Module = new VeinModuleBuilder("doo", Types.Storage);
