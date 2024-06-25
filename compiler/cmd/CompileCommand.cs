@@ -101,7 +101,7 @@ namespace vein.cmd
             var name = Path.GetFileName(settings.Project);
             if (!File.Exists(settings.Project))
             {
-                Log.Error($"Project [orange]'{name}'[/] not found.");
+                Log.Error($"Project [orange]'{name}'[/] not found.\nSearch folder: [orange]'{new FileInfo(settings.Project).FullName}'[/]");
                 return -1;
             }
             var project = VeinProject.LoadFrom(new(Path.GetFullPath(settings.Project)));
