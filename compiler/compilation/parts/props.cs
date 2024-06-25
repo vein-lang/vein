@@ -4,7 +4,6 @@ using ishtar.emit;
 using runtime;
 using syntax;
 using System;
-using static runtime.VeinTypeCode;
 
 public partial class CompilationTask
 {
@@ -50,13 +49,13 @@ public partial class CompilationTask
             var val_ref = new VeinArgumentRef("value", prop.PropType);
             var this_ref = new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, prop.Owner);
             if (prop.IsStatic && !isSetter)
-                return new VeinArgumentRef[0];
+                return Array.Empty<VeinArgumentRef>();
             if (prop.IsStatic && isSetter)
-                return new VeinArgumentRef[1] { val_ref };
+                return [val_ref];
             if (!prop.IsStatic && isSetter)
-                return new VeinArgumentRef[2] { this_ref, val_ref };
+                return [this_ref, val_ref];
             if (!prop.IsStatic && !isSetter)
-                return new VeinArgumentRef[1] { this_ref };
+                return [this_ref];
             throw new ArgumentException();
         }
 
