@@ -203,6 +203,25 @@ namespace ishtar.emit
 
                 module.class_table.Add(@class);
             }
+            // read aliases
+            foreach (var _ in ..reader.ReadInt32())
+            {
+                var key = reader.ReadInt32();
+                var name = reader.ReadIshtarString();
+                var isType = reader.ReadBoolean();
+
+                if (isType)
+                {
+                    var typename = reader.ReadTypeName(module);
+                    module.alias_table.Add(new VeinAliasType(name, module.FindType(typename, true)));
+                }
+                else
+                {
+                    var retType = reader.ReadComplexType(module);
+                    var args = ReadArguments(reader, module);
+                    module.alias_table.Add(new VeinAliasMethod(name, new VeinMethodSignature(retType, args)));
+                }
+            }
 
             // restore unresolved types
             foreach (var @class in module.class_table)
