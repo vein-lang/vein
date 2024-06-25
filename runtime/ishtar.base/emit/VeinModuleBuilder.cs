@@ -181,6 +181,27 @@ namespace ishtar.emit
                 binary.Write(body);
             }
 
+            binary.Write(alias_table.Count);
+            foreach (var (alias, i) in alias_table.Select((x, y) => (x,y)))
+            {
+                binary.Write(i);
+                binary.WriteTypeName(alias.aliasName, this);
+
+                switch (alias)
+                {
+                    case VeinAliasType t:
+                        binary.Write(true);
+                        binary.WriteTypeName(t.type.FullName, this);
+                        break;
+                    case VeinAliasMethod method:
+                        binary.Write(false);
+                        binary.WriteComplexType(method.method.ReturnType, this);
+                        binary.WriteArguments(method.method, this);
+                        break;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
             var constBody = const_table.BakeByteArray();
             binary.Write(constBody.Length);
             binary.Write(constBody);
@@ -195,6 +216,12 @@ namespace ishtar.emit
             var str = new StringBuilder();
             str.AppendLine($".module '{Name}'::'{Version}'");
             str.AppendLine("{");
+
+            foreach (var value in alias_table.OfType<VeinAliasType>())
+                str.AppendLine($"\t.alias '{value.aliasName}' -> '{value.type.FullName}'");
+            foreach (var value in alias_table.OfType<VeinAliasMethod>())
+                str.AppendLine($"\t.alias '{value.aliasName}' -> '{value.method.ToTemplateString()}'");
+
             foreach (var dep in Deps)
                 str.AppendLine($"\t.dep '{dep.Name}'::'{dep.Version}'");
 
