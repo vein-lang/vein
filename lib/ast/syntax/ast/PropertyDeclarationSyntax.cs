@@ -3,14 +3,9 @@ namespace vein.syntax;
 using System.Collections.Generic;
 using System.Linq;
 
-public class PropertyDeclarationSyntax : MemberDeclarationSyntax
+public class PropertyDeclarationSyntax(MemberDeclarationSyntax? heading = null) : MemberDeclarationSyntax(heading)
 {
-    public PropertyDeclarationSyntax(MemberDeclarationSyntax heading = null)
-        : base(heading)
-    {
-    }
-
-    public PropertyDeclarationSyntax(IEnumerable<AccessorDeclarationSyntax> accessors, MemberDeclarationSyntax heading = null)
+    public PropertyDeclarationSyntax(IEnumerable<AccessorDeclarationSyntax> accessors, MemberDeclarationSyntax? heading = null)
         : this(heading) =>
         Accessors = accessors.ToList();
 
@@ -25,9 +20,9 @@ public class PropertyDeclarationSyntax : MemberDeclarationSyntax
 
     public List<AccessorDeclarationSyntax> Accessors { get; set; } = new();
 
-    public AccessorDeclarationSyntax Getter => Accessors.FirstOrDefault(a => a.IsGetter);
+    public AccessorDeclarationSyntax? Getter => Accessors.FirstOrDefault(a => a.IsGetter);
 
-    public AccessorDeclarationSyntax Setter => Accessors.FirstOrDefault(a => a.IsSetter);
+    public AccessorDeclarationSyntax? Setter => Accessors.FirstOrDefault(a => a.IsSetter);
 
     public override MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName)
     {
@@ -35,7 +30,7 @@ public class PropertyDeclarationSyntax : MemberDeclarationSyntax
         Identifier = typeAndName.Identifier ?? typeAndName.Type.Identifier;
         return this;
     }
-    public ExpressionSyntax Expression { get; set; }
+    public ExpressionSyntax? Expression { get; set; }
 
     public bool IsShortform() => Getter is null && Setter is null && Expression is not null;
 

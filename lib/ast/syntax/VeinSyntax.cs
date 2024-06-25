@@ -168,13 +168,12 @@ namespace vein.syntax
             };
         // native("args")
         protected internal virtual Parser<AspectSyntax> AspectSyntax =>
-            (from kind in Aspect
+            (from kind in Aspect.Positioned()
              from args in object_creation_expression.Optional()
              select new AspectSyntax(kind, args))
             .Positioned()
             .Token()
             .Named("aspect");
-
 
         protected internal virtual Parser<AspectSyntax[]> AspectsExpression =>
             (from open in Parse.Char('[')
@@ -194,7 +193,66 @@ namespace vein.syntax
             select new DocumentDeclaration
             {
                 Directives = directives,
-                Members = members.Select(x => x.WithTrailingComments(trailingComments))
+                Members = members.Select(x => x.WithTrailingComments(trailingComments)),
+                //Aliases = aliases.GetOrEmpty()
             };
+
+        public virtual Parser<DocumentDeclaration> CompilationUnitV2 =>
+            from entities in (from members in
+                AnyCommentUnit
+                    .Or(DirectivesUnit)
+                    .Or(AliasesUnit)
+                    .Or(AspectUnit)
+                    .Or(ClassUnit) select members).Many()
+            select recast(entities.SelectMany(x => x).ToList());
+
+        private static DocumentDeclaration recast(List<CompilationUnitEntity> entities) => new()
+        {
+            Aspects = entities.Where(x => x.kind == UnitKind.Aspect).Select(x => x.syntax)
+                .OfType<AspectDeclarationSyntax>(),
+            Aliases = entities.Where(x => x.kind == UnitKind.Aliases).Select(x => x.syntax).OfType<AliasSyntax>(),
+            Directives = entities.Where(x => x.kind == UnitKind.Directive).Select(x => x.syntax)
+                .OfType<DirectiveSyntax>(),
+            Members = entities.Where(x => x.kind == UnitKind.Class).Select(x => x.syntax)
+                .OfType<MemberDeclarationSyntax>(),
+        };
+
+        public virtual Parser<List<CompilationUnitEntity>> AnyCommentUnit =>
+            from trailingComments in CommentParser.AnyComment.Token().Many()
+            select trailingComments.Select(x => new CompilationUnitEntity(null, UnitKind.Comments)).ToList();
+
+        public virtual Parser<List<CompilationUnitEntity>> DirectivesUnit =>
+            from directives in SpaceSyntax.Token().Or(UseSyntax.Token()).Many()
+            select directives.Select(x => new CompilationUnitEntity(x, UnitKind.Directive))
+                .ToList();
+
+        public virtual Parser<List<CompilationUnitEntity>> AliasesUnit =>
+            from aliases in AliasDeclaration.Token().Many()
+            select aliases.Select(x => new CompilationUnitEntity(x, UnitKind.Aliases))
+                .ToList();
+
+        public virtual Parser<List<CompilationUnitEntity>> AspectUnit =>
+            from aliases in AspectDeclaration.Token().Many()
+            select aliases.Select(x => new CompilationUnitEntity(x, UnitKind.Aspect))
+                .ToList();
+
+        public virtual Parser<List<CompilationUnitEntity>> ClassUnit =>
+            from aliases in ClassDeclaration.Token().Many()
+            select aliases.Select(x => new CompilationUnitEntity(x, UnitKind.Class))
+                .ToList();
     }
+}
+
+public enum UnitKind
+{
+    Comments,
+    Directive,
+    Aliases,
+    Aspect,
+    Class
+}
+
+public record CompilationUnitEntity(BaseSyntax syntax, UnitKind kind)
+{
+
 }

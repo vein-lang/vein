@@ -29,9 +29,9 @@ namespace vein.syntax
         public string SourceText { get; set; }
         public string[] SourceLines => SourceText.Replace("\r", "").Split("\n");
 
-        private List<string> _includes;
+        private List<string>? _includes;
 
-        public int[] _line_offsets;
+        public int[]? _line_offsets;
 
         public List<string> Includes => _includes ??= Directives.OfExactType<UseSyntax>().Select(x =>
         {
