@@ -27,8 +27,8 @@ namespace veinc_test
             method.Flags = MethodFlags.Public | MethodFlags.Static;
             var gen = method.GetGenerator();
 
-            var l1 = gen.DefineLabel("1");
-            var l2 = gen.DefineLabel("2");
+            var l1 = gen.DefineLabel("start_loop");
+            var l2 = gen.DefineLabel("end_loop");
             gen.Emit(OpCodes.ADD);
             gen.Emit(OpCodes.LDC_I4_S, 228);
             gen.Emit(OpCodes.ADD);
