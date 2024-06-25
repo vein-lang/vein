@@ -10,6 +10,12 @@ namespace vein.runtime
     using reflection;
     using static VeinTypeCode;
 
+    public abstract record VeinAlias(QualityTypeName aliasName);
+
+    public record VeinAliasType(QualityTypeName aliasName, VeinClass type) : VeinAlias(aliasName);
+
+    public record VeinAliasMethod(QualityTypeName aliasName, VeinMethodSignature method) : VeinAlias(aliasName);
+
     [DebuggerDisplay("{fullName}")]
     public record FieldName(string fullName)
     {
@@ -36,20 +42,13 @@ namespace vein.runtime
         public override string ToString() => $"{Class}.{Name}";
     }
 
-    public class VeinProperty : VeinMember, IAspectable
+    public class VeinProperty(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass propType)
+        : VeinMember, IAspectable
     {
-        public VeinProperty(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass propType)
-        {
-            this.Owner = owner;
-            this.FullName = fullName;
-            this.Flags = flags;
-            this.PropType = propType;
-        }
-
-        public FieldName FullName { get; protected internal set; }
-        public VeinClass PropType { get; set; }
-        public FieldFlags Flags { get; set; }
-        public VeinClass Owner { get; set; }
+        public FieldName FullName { get; protected internal set; } = fullName;
+        public VeinClass PropType { get; set; } = propType;
+        public FieldFlags Flags { get; set; } = flags;
+        public VeinClass Owner { get; set; } = owner;
         public List<Aspect> Aspects { get; } = new();
 
         public override string Name
@@ -59,18 +58,18 @@ namespace vein.runtime
         }
         public override VeinMemberKind Kind => VeinMemberKind.Field;
 
-        public bool IsLiteral => this.Flags.HasFlag(FieldFlags.Literal);
-        public bool IsStatic => this.Flags.HasFlag(FieldFlags.Static);
-        public bool IsPublic => this.Flags.HasFlag(FieldFlags.Public);
-        public bool IsReadonly => this.Flags.HasFlag(FieldFlags.Readonly) && Setter is null;
+        public bool IsLiteral => Flags.HasFlag(FieldFlags.Literal);
+        public bool IsStatic => Flags.HasFlag(FieldFlags.Static);
+        public bool IsPublic => Flags.HasFlag(FieldFlags.Public);
+        public bool IsReadonly => Flags.HasFlag(FieldFlags.Readonly) && Setter is null;
         public bool IsPrivate => !IsPublic;
         [MaybeNull] public VeinMethod Getter { get; set; }
         [MaybeNull] public VeinMethod Setter { get; set; }
         [MaybeNull] public VeinField ShadowField { get; set; }
 
 
-        public static FieldName GetShadowFieldName(FieldName propName)
-            => new FieldName($"$_prop_shadow_{propName.Name}_", propName.Class);
+        public static FieldName GetShadowFieldName(FieldName propName) =>
+            new($"$_prop_shadow_{propName.Name}_", propName.Class);
         public static FieldName GetShadowFieldName(string propName)
             => $"$_prop_shadow_{propName}_";
 
@@ -109,13 +108,13 @@ namespace vein.runtime
             if (shadowField is null)
                 return null;
             var prop = new VeinProperty(clazz, new FieldName(name, clazz.Name), shadowField.Flags,
-                shadowField.FieldType);
-            prop.ShadowField = shadowField;
+                shadowField.FieldType)
+            {
+                ShadowField = shadowField
+            };
 
-            var setterArgs = shadowField.IsStatic ?
-                new VeinClass[0] : new VeinClass[1] { clazz };
-            var getterArgs = shadowField.IsStatic ?
-                new VeinClass[1] { shadowField.FieldType } : new VeinClass[2] { clazz, shadowField.FieldType };
+            var setterArgs = shadowField.IsStatic ? Array.Empty<VeinClass>() : [clazz];
+            var getterArgs = shadowField.IsStatic ? [shadowField.FieldType] : new[] { clazz, shadowField.FieldType };
 
             var getMethod = clazz.FindMethod(GetterFnName(name), setterArgs, true);
 
@@ -131,19 +130,13 @@ namespace vein.runtime
         }
     }
 
-    public class VeinField : VeinMember, IAspectable
+    public class VeinField(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass fieldType)
+        : VeinMember, IAspectable
     {
-        public VeinField(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass fieldType)
-        {
-            this.Owner = owner;
-            this.FullName = fullName;
-            this.Flags = flags;
-            this.FieldType = fieldType;
-        }
-        public FieldName FullName { get; protected internal set; }
-        public VeinClass FieldType { get; set; }
-        public FieldFlags Flags { get; set; }
-        public VeinClass Owner { get; set; }
+        public FieldName FullName { get; protected internal set; } = fullName;
+        public VeinClass FieldType { get; set; } = fieldType;
+        public FieldFlags Flags { get; set; } = flags;
+        public VeinClass Owner { get; set; } = owner;
         public List<Aspect> Aspects { get; } = new();
 
         public override string Name
@@ -154,10 +147,10 @@ namespace vein.runtime
         public override VeinMemberKind Kind => VeinMemberKind.Field;
 
 
-        public override bool IsSpecial => this.Flags.HasFlag(FieldFlags.Special);
-        public bool IsLiteral => this.Flags.HasFlag(FieldFlags.Literal);
-        public bool IsStatic => this.Flags.HasFlag(FieldFlags.Static);
-        public bool IsPublic => this.Flags.HasFlag(FieldFlags.Public);
+        public override bool IsSpecial => Flags.HasFlag(FieldFlags.Special);
+        public bool IsLiteral => Flags.HasFlag(FieldFlags.Literal);
+        public bool IsStatic => Flags.HasFlag(FieldFlags.Static);
+        public bool IsPublic => Flags.HasFlag(FieldFlags.Public);
         public bool IsPrivate => !IsPublic;
     }
 

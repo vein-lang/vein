@@ -20,6 +20,7 @@ namespace vein.runtime
         protected internal List<Aspect> aspects { get; } = new();
         protected internal ConstStorage const_table { get; set; } = new();
         protected internal readonly List<VeinClass> class_table = new();
+        protected internal readonly List<VeinAlias> alias_table = new();
         protected internal readonly Dictionary<int, string> strings_table = new();
         protected internal readonly Dictionary<int, QualityTypeName> types_table = new();
         protected internal readonly Dictionary<int, FieldName> fields_table = new();
@@ -86,7 +87,7 @@ namespace vein.runtime
         public VeinClass FindType(QualityTypeName type, bool findExternally = false, bool dropUnresolvedException = true)
         {
             if (!findExternally)
-                findExternally = this.Name != type.AssemblyName;
+                findExternally = Name != type.AssemblyName;
             var result = class_table.FirstOrDefault(filter);
 
             if (result is not null)

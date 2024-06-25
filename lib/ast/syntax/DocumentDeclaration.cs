@@ -25,6 +25,7 @@ namespace vein.syntax
         public IEnumerable<DirectiveSyntax> Directives { get; set; }
         public IEnumerable<MemberDeclarationSyntax> Members { get; set; }
         public IEnumerable<AspectDeclarationSyntax> Aspects { get; set; }
+        public IEnumerable<AliasSyntax> Aliases { get; set; }
         public FileInfo FileEntity { get; set; }
         public string SourceText { get; set; }
         public string[] SourceLines => SourceText.Replace("\r", "").Split("\n");
