@@ -63,6 +63,11 @@
     "compile vein test 5": {
       "commandName": "Project",
       "commandLineArgs": "build C:\\git\\std\\asd\\asd.vproj"
+    },
+
+    "compile std library": {
+      "commandName": "Project",
+      "commandLineArgs": "build ..\\..\\..\\..\\lib\\vein.std\\std\\std.vproj --ignore-cache"
     }
   }
 }

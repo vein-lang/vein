@@ -3,7 +3,6 @@ namespace vein.compilation;
 using System.Linq;
 using ishtar.emit;
 using syntax;
-using static runtime.VeinTypeCode;
 
 public partial class CompilationTask
 {

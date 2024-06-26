@@ -83,7 +83,6 @@ public partial class CompilationTask
                     continue;
                 case { IsNative: true }:
                 case { IsForwarded: true }:
-                case { IsAlias: true }:
                 case { IsAspectUsage: true }:
                     continue;
                 //case VeinAnnotationKind.Readonly when !clazz.IsStruct:
@@ -142,6 +141,11 @@ public partial class CompilationTask
     public List<(ClassBuilder clazz, MemberDeclarationSyntax member)>
         LinkClasses((FileInfo, DocumentDeclaration doc) tuple)
         => LinkClasses(tuple.doc, Types.Storage);
+
+    public void GenerateLinksForAliases(DocumentDeclaration doc)
+    {
+
+    }
     public List<(ClassBuilder clazz, MemberDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc, VeinCore types)
     {
         var classes = new List<(ClassBuilder clazz, MemberDeclarationSyntax member)>();
@@ -167,6 +171,18 @@ public partial class CompilationTask
             else
                 Log.Defer.Warn($"[grey]Member[/] [yellow underline]'{member.GetType().Name}'[/] [grey]is not supported.[/]");
         }
+        foreach (var alias in doc.Aliases)
+        {
+            if (alias.IsType)
+            {
+                var type = FetchType(alias.Type!.Typeword, doc);
+                Context.Module.alias_table.Add(new VeinAliasType($"{module.Name}%global::{doc.Name}/{alias.AliasName.ExpressionString}",
+                    type));
+                KnowClasses.Add(alias.AliasName, type);
+            }
+            else
+                Log.Defer.Warn($"Method [grey]Alias[/] [yellow underline]'{alias.AliasName.ExpressionString}'[/] [grey]is not supported.[/]");
+        }
 
         return classes;
     }
@@ -176,9 +192,6 @@ public partial class CompilationTask
         void _defineClass(ClassBuilder clz)
         {
             KnowClasses.Add(member.Identifier, clz);
-            if (member.Aspects.FirstOrDefault(x => x.IsAlias)?.Args?.SingleOrDefault().Value is not StringLiteralExpressionSyntax alias)
-                return;
-            KnowClasses.Add(new IdentifierExpression(alias.Value), clz);
         }
 
 
