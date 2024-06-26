@@ -44,7 +44,7 @@ public class MethodBuilder : VeinMethod, IBaker
             binary.Write(0); // body size
             binary.Write((byte)0); // stack size
             binary.Write((byte)0); // locals size
-            binary.WriteTypeName(ReturnType.FullName, moduleBuilder);
+            binary.WriteComplexType(ReturnType, moduleBuilder);
             binary.WriteArguments(Signature, moduleBuilder);
             binary.Write(Array.Empty<byte>()); // IL Body
             return mem.ToArray();
@@ -57,7 +57,7 @@ public class MethodBuilder : VeinMethod, IBaker
         binary.Write(body.Length); // body size
         binary.Write(_generator.GetStackSize());
         binary.Write((byte)_generator.LocalsSize); // locals size
-        binary.WriteTypeName(ReturnType.FullName, moduleBuilder);
+        binary.WriteComplexType(ReturnType, moduleBuilder);
         binary.WriteArguments(Signature, moduleBuilder);
         binary.Write(body); // IL Body
 

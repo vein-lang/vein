@@ -2,12 +2,12 @@ namespace vein.runtime;
 #nullable enable
 using System;
 
-public class VeinArgumentRef
+public class VeinArgumentRef(string name, VeinComplexType complexType)
 {
     public const string THIS_ARGUMENT = "<this>";
 
-    public VeinComplexType ComplexType { get; private set; }
-    public string Name { get; }
+    public VeinComplexType ComplexType { get; private set; } = complexType;
+    public string Name { get; } = name;
 
 
     public void Temp_ReplaceType(VeinClass @class)
@@ -22,18 +22,6 @@ public class VeinArgumentRef
 
 
     public bool IsGeneric => ComplexType.IsGeneric;
-
-    public VeinArgumentRef(string name, VeinClass clazz)
-    {
-        Name = name;
-        ComplexType = clazz;
-    }
-
-    public VeinArgumentRef(string name, VeinTypeArg typeArg)
-    {
-        Name = name;
-        ComplexType = typeArg;
-    }
 
     public string ToTemplateString() => ComplexType!.ToTemplateString();
 

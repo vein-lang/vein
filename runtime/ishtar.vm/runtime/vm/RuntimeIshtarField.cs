@@ -22,7 +22,7 @@ namespace ishtar
     public unsafe struct RuntimeIshtarField : IEq<RuntimeIshtarField>, IDisposable
     {
         public RuntimeIshtarClass* Owner { get; private set; }
-        public RuntimeIshtarClass* FieldType { get; private set; }
+        public RuntimeComplexType FieldType { get; private set; }
         public string Name => FullName->Name;
         public ulong vtable_offset;
 
@@ -38,7 +38,7 @@ namespace ishtar
             VirtualMachine.GlobalPrintln($"Disposed field '{Name}'");
 
             FullName = null;
-            FieldType = null;
+            FieldType = default;
             Owner = null;
             default_value = null;
             _selfRef = null;
@@ -57,7 +57,7 @@ namespace ishtar
         public RuntimeIshtarField(RuntimeIshtarClass* owner,
             RuntimeFieldName* fullName,
             FieldFlags flags,
-            RuntimeIshtarClass* fieldType,
+            RuntimeComplexType fieldType,
             RuntimeIshtarField* selfRef)
         {
             Owner = owner;
@@ -124,6 +124,11 @@ namespace ishtar
 
         public static bool Eq(RuntimeIshtarField* p1, RuntimeIshtarField* p2) => p1->Name.Equals(p2->Name) && p1->Flags == p2->Flags && RuntimeIshtarClass.Eq(p1->FieldType, p2->FieldType);
 
-        public override string ToString() => $"Field '{FullName->Name}': '{FieldType->FullName->NameWithNS}'";
+        public override string ToString()
+        {
+            if (FieldType.IsGeneric)
+                return $"Field '{FullName->Name}': '{StringStorage.GetStringUnsafe(FieldType.TypeArg->Name)}'";
+            return $"Field '{FullName->Name}': '{FieldType.Class->FullName->ToString()}'";
+        }
     }
 }

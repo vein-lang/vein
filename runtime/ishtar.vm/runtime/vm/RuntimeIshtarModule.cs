@@ -449,11 +449,14 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             });
 
             @class->Fields->ForEach(field => {
-                if (!field->FieldType->IsUnresolved)
+                if (field->FieldType.IsGeneric)
                     return;
-                VirtualMachine.GlobalPrintln($"resolve field.type[]: [{field->FieldType->FullName->NameWithNS}] ");
 
-                field->ReplaceType(module->FindType(field->FieldType->FullName, true, true));
+                if (!field->FieldType.Class->IsUnresolved)
+                    return;
+                VirtualMachine.GlobalPrintln($"resolve field.type[]: [{field->FieldType.Class->FullName->ToString()}] ");
+
+                field->ReplaceType(module->FindType(field->FieldType.Class->FullName, true, true));
             });
         });
 
@@ -472,8 +475,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 
             foreach (var bodyField in body.Fields)
             {
-                var field = clazz->DefineField(bodyField.FieldName, bodyField.Flags,
-                    module->FindType(bodyField.FieldType, true, true));
+                var field = clazz->DefineField(bodyField.FieldName, bodyField.Flags, bodyField.FieldType);
                 VirtualMachine.GlobalPrintln($"constructed field: [{field->Name} at {field->Owner->FullName->NameWithNS}] ");
             }
 
@@ -703,10 +705,10 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         public List<DeferClassFieldData> Fields { get; } = fields;
     }
 
-    public class DeferClassFieldData(RuntimeFieldName* fieldName, RuntimeQualityTypeName* fieldType, FieldFlags flags)
+    public class DeferClassFieldData(RuntimeFieldName* fieldName, RuntimeComplexType fieldType, FieldFlags flags)
     {
         public RuntimeFieldName* FieldName { get; } = fieldName;
-        public RuntimeQualityTypeName* FieldType { get; } = fieldType;
+        public RuntimeComplexType FieldType { get; } = fieldType;
         public FieldFlags Flags { get; } = flags;
     }
 
@@ -716,13 +718,10 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         foreach (var _ in ..binary.ReadInt32())
         {
             var name = RuntimeFieldName.Resolve(binary.ReadInt32(), ishtarModule);
-            var type_name = binary.ReadTypeName(ishtarModule);
-            //var type = ishtarModule->FindType(type_name, true, false);
+            var type = binary.ReadComplexType(ishtarModule);
             var flags = (FieldFlags) binary.ReadInt16();
 
-            lst.Add(new DeferClassFieldData(name, type_name, flags));
-
-            //@class->DefineField(name, flags, type);
+            lst.Add(new DeferClassFieldData(name, type, flags));
         }
 
         return lst;
@@ -740,13 +739,11 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         var bodysize = binary.ReadInt32();
         var stacksize = binary.ReadByte();
         var locals = binary.ReadByte();
-        var retType = binary.ReadTypeName(ishtarModule);
+        var retType = binary.ReadComplexType(ishtarModule);
         var args = ReadArguments(binary, ishtarModule);
         var body = binary.ReadBytes(bodysize);
 
-        var returnType = ishtarModule->FindType(retType, true, false);
-
-        var mth = @class->DefineMethod(methodName, returnType, flags, args);
+        var mth = @class->DefineMethod(methodName, retType, flags, args);
 
         if (mth->IsExtern)
             return mth;

@@ -30,15 +30,30 @@ public static class G_Operators
         gen.EmitExpression(right);
         gen.EmitExpression(left);
 
-        var left_type = left.DetermineType(context);
-        var right_type = right.DetermineType(context);
+        var left_type_u = left.DetermineType(context);
+        var right_type_u = right.DetermineType(context);
+
+
+        if (left_type_u.IsGeneric)
+        {
+            context.LogError($"Cannot implicitly convert type '{left_type_u.TypeArg.Name}' to 'Number'", left);
+            return;
+        }
+        if (right_type_u.IsGeneric)
+        {
+            context.LogError($"Cannot implicitly convert type '{right_type_u.TypeArg.Name}' to 'Number'", right);
+            return;
+        }
+
+        var left_type = left_type_u.Class;
+        var right_type = right_type_u.Class;
 
         if (left_type.TypeCode.HasNumber() && right_type.TypeCode.HasNumber())
             gen.EmitBinaryOperator(op);
         else
         {
             var name = $"op_{op}";
-            var args = new[] { left_type, right_type };
+            var args = new[] { (VeinComplexType)left_type, (VeinComplexType)right_type };
 
 
             var method = left_type.FindMethod(name, args);

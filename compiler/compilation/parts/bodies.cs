@@ -25,9 +25,11 @@ public partial class CompilationTask
         // VM needs the end-of-method notation, which is RETURN.
         // but in case of the VOID method, user may not write it
         // and i didnt think of anything smarter than checking last OpCode
-        if (!generator._opcodes.Any() && method.ReturnType.TypeCode == TYPE_VOID)
+        if (!generator._opcodes.Any() && method.ReturnType.IsGeneric)
             generator.Emit(OpCodes.RET);
-        if (generator._opcodes.Any() && generator._opcodes.Last() != OpCodes.RET.Value && method.ReturnType.TypeCode == TYPE_VOID)
+        if (!generator._opcodes.Any() && !method.ReturnType.IsGeneric && method.ReturnType.Class.TypeCode == TYPE_VOID)
+            generator.Emit(OpCodes.RET);
+        if (generator._opcodes.Any() && generator._opcodes.Last() != OpCodes.RET.Value && !method.ReturnType.IsGeneric && method.ReturnType.Class.TypeCode == TYPE_VOID)
             generator.Emit(OpCodes.RET);
     }
 

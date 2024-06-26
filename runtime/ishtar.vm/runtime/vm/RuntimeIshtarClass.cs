@@ -153,7 +153,7 @@ namespace ishtar
             return f;
         }
 
-        internal RuntimeIshtarField* DefineField(RuntimeFieldName* name, FieldFlags flags, RuntimeIshtarClass* type)
+        internal RuntimeIshtarField* DefineField(RuntimeFieldName* name, FieldFlags flags, RuntimeComplexType type)
         {
             var exist = Fields->FirstOrNull(x => x->Name.Equals(name->Name));
 
@@ -413,7 +413,10 @@ namespace ishtar
 
 
 #if DEBUG_VTABLE
-                    dvtable.vtable_info[vtable_offset] = $"DEFAULT_VALUE OF [{field->FullName->ToString()}::{field->FieldType->Name}]";
+                    if (field->FieldType.IsGeneric)
+                        dvtable.vtable_info[vtable_offset] = $"DEFAULT_VALUE OF [{field->FullName->ToString()}::{StringStorage.GetStringUnsafe(field->FieldType.TypeArg->Name)}]";
+                    else
+                        dvtable.vtable_info[vtable_offset] = $"DEFAULT_VALUE OF [{field->FullName->ToString()}::{field->FieldType.Class->FullName->ToString()}]";
                     dvtable.vtable_fields[vtable_offset] = field;
 #endif
 

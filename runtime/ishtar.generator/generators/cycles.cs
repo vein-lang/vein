@@ -14,7 +14,14 @@ public static class G_Cycles
         var end = gen.DefineLabel("while-end");
         var expType = @while.Expression.DetermineType(ctx);
         gen.UseLabel(start);
-        if (expType.TypeCode == VeinTypeCode.TYPE_BOOLEAN)
+
+        if (expType.IsGeneric) // todo implicit boolean and generics
+        {
+            ctx.LogError($"Cannot implicitly convert generic type '{expType}' to 'Boolean'", @while.Expression);
+            return;
+        }
+
+        if (expType.Class.TypeCode == VeinTypeCode.TYPE_BOOLEAN)
         {
             gen.EmitExpression(@while.Expression);
             gen.Emit(OpCodes.JMP_F, end);
@@ -44,7 +51,13 @@ public static class G_Cycles
         {
             var expType = @for.LoopContact.DetermineType(ctx);
 
-            if (expType.TypeCode is not VeinTypeCode.TYPE_BOOLEAN)
+            if (expType.IsGeneric)
+            {
+                ctx.LogError($"Cannot implicitly convert generic type '{expType}' to 'Boolean'", @for.LoopContact);
+                return; // TODO implicit boolean
+            }
+
+            if (expType.Class.TypeCode is not VeinTypeCode.TYPE_BOOLEAN)
             {
                 ctx.LogError($"Cannot implicitly convert type '{expType}' to 'Boolean'", @for.LoopContact);
                 return; // TODO implicit boolean
