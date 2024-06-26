@@ -106,7 +106,7 @@ namespace vein.fs
             });
             file.Data.Write(il, 0, il.Length);
 
-            var vm_notes = Encoding.ASCII.GetBytes("insomnia");
+            var vm_notes = "insomnia"u8.ToArray();
             file.Sections.Add(new ElfSection
             {
                 Name = file.Strings.SaveString(".note"),
@@ -148,7 +148,7 @@ namespace vein.fs
     {
         public Version Version { get; set; } = new(1, 0, 0, 0);
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
-        public string TargetFramework { get; set; } = "ManaStandard,Version=v1.0";
+        public string TargetFramework { get; set; } = "IshtarStandard,Version=v2.0";
 
         public Dictionary<string, string> OtherMeta { get; } = new();
     }
