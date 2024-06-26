@@ -1070,11 +1070,11 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
     {
         static AspectTarget getTarget(FieldName name)
         {
-            if (name.fullName.Contains("/method/"))
+            if (name.fullName.Contains($"{Aspect.ASPECT_METADATA_DIVIDER}method{Aspect.ASPECT_METADATA_DIVIDER}"))
                 return AspectTarget.Method;
-            if (name.fullName.Contains("/field/"))
+            if (name.fullName.Contains($"{Aspect.ASPECT_METADATA_DIVIDER}field{Aspect.ASPECT_METADATA_DIVIDER}"))
                 return AspectTarget.Field;
-            if (name.fullName.Contains("/class/"))
+            if (name.fullName.Contains($"{Aspect.ASPECT_METADATA_DIVIDER}class{Aspect.ASPECT_METADATA_DIVIDER}"))
                 return AspectTarget.Class;
 
             throw new UnknownAspectTargetException(name);
@@ -1083,11 +1083,11 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
         
 
 
-        var asp_methods = data->RawGetWithFilter(x => x->Class.Contains("aspect/") && x->Class.Contains("/method/"))
+        var asp_methods = data->RawGetWithFilter(x => x->Class.Contains($"aspect{Aspect.ASPECT_METADATA_DIVIDER}") && x->Class.Contains($"{Aspect.ASPECT_METADATA_DIVIDER}method{Aspect.ASPECT_METADATA_DIVIDER}"))
             .Select(x => (*((RuntimeFieldName*)x.field),x.obj)).ToList();
-        var asp_fields = data->RawGetWithFilter(x => x->Class.Contains("aspect/") && x->Class.Contains("/field/"))
+        var asp_fields = data->RawGetWithFilter(x => x->Class.Contains($"aspect{Aspect.ASPECT_METADATA_DIVIDER}") && x->Class.Contains($"{Aspect.ASPECT_METADATA_DIVIDER}field{Aspect.ASPECT_METADATA_DIVIDER}"))
             .Select(x => (*((RuntimeFieldName*)x.field),x.obj)).ToList();
-        var asp_class = data->RawGetWithFilter(x => x->Class.Contains("aspect/") && x->Class.Contains("/class/") && !x->Class.Contains("/method/") && !x->Class.Contains("/field/"))
+        var asp_class = data->RawGetWithFilter(x => x->Class.Contains($"aspect{Aspect.ASPECT_METADATA_DIVIDER}") && x->Class.Contains($"{Aspect.ASPECT_METADATA_DIVIDER}class{Aspect.ASPECT_METADATA_DIVIDER}") && !x->Class.Contains($"{Aspect.ASPECT_METADATA_DIVIDER}method{Aspect.ASPECT_METADATA_DIVIDER}") && !x->Class.Contains($"{Aspect.ASPECT_METADATA_DIVIDER}field{Aspect.ASPECT_METADATA_DIVIDER}"))
             .Select(x => (*((RuntimeFieldName*)x.field),x.obj)).ToList();
 
 
@@ -1095,25 +1095,25 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
 
         // rly shit
         var groupClasses = asp_class.GroupBy(x =>
-                x.Item1.Fullname.Replace("aspect/", "")
-                    .Replace("/class", "")
+                x.Item1.Fullname.Replace($"aspect{Aspect.ASPECT_METADATA_DIVIDER}", "")
+                    .Replace($"{Aspect.ASPECT_METADATA_DIVIDER}class", "")
                     .Split('.').First());
         var groupMethods = asp_methods.GroupBy(x =>
-                x.Item1.Fullname.Replace("aspect/", "")
-                    .Replace("/class", "")
-                    .Replace("/method", "")
+                x.Item1.Fullname.Replace($"aspect{Aspect.ASPECT_METADATA_DIVIDER}", "")
+                    .Replace($"{Aspect.ASPECT_METADATA_DIVIDER}class", "")
+                    .Replace($"{Aspect.ASPECT_METADATA_DIVIDER}method", "")
                     .Split('.').First());
         var groupFields = asp_fields.GroupBy(x =>
-                x.Item1.Fullname.Replace("aspect/", "")
-                    .Replace("/class", "")
-                    .Replace("/field", "")
+                x.Item1.Fullname.Replace($"aspect{Aspect.ASPECT_METADATA_DIVIDER}", "")
+                    .Replace($"{Aspect.ASPECT_METADATA_DIVIDER}class", "")
+                    .Replace($"{Aspect.ASPECT_METADATA_DIVIDER}field", "")
                     .Split('.').First());
 
         foreach (var groupClass in groupClasses)
         {
             var lst = groupClass.ToList();
-            var aspectName = groupClass.Key.Split('/').First();
-            var aspectClass = groupClass.Key.Split('/').Last();
+            var aspectName = groupClass.Key.Split(Aspect.ASPECT_METADATA_DIVIDER).First();
+            var aspectClass = groupClass.Key.Split(Aspect.ASPECT_METADATA_DIVIDER).Last();
 
             
             var args = IshtarGC.AllocateList<RuntimeAspectArgument>(lst.Count);
@@ -1142,9 +1142,9 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
         foreach (var groupMethod in groupMethods)
         {
             var lst = groupMethod.ToList();
-            var aspectName = groupMethod.Key.Split('/')[0];
-            var aspectClass = groupMethod.Key.Split('/')[1];
-            var aspectMethod = groupMethod.Key.Split('/')[2];
+            var aspectName = groupMethod.Key.Split(Aspect.ASPECT_METADATA_DIVIDER)[0];
+            var aspectClass = groupMethod.Key.Split(Aspect.ASPECT_METADATA_DIVIDER)[1];
+            var aspectMethod = groupMethod.Key.Split(Aspect.ASPECT_METADATA_DIVIDER)[2];
 
             var args = IshtarGC.AllocateList<RuntimeAspectArgument>(lst.Count);
             var asp = IshtarGC.AllocateImmortal<RuntimeAspect>();
@@ -1168,9 +1168,9 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
         foreach (var groupMethod in groupFields)
         {
             var lst = groupMethod.ToList();
-            var aspectName = groupMethod.Key.Split('/')[0];
-            var aspectClass = groupMethod.Key.Split('/')[1];
-            var aspectField = groupMethod.Key.Split('/')[2];
+            var aspectName = groupMethod.Key.Split(Aspect.ASPECT_METADATA_DIVIDER)[0];
+            var aspectClass = groupMethod.Key.Split(Aspect.ASPECT_METADATA_DIVIDER)[1];
+            var aspectField = groupMethod.Key.Split(Aspect.ASPECT_METADATA_DIVIDER)[2];
 
 
             var args = IshtarGC.AllocateList<RuntimeAspectArgument>(lst.Count);
@@ -1186,8 +1186,8 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
             }
             *asp = new RuntimeAspect(aspectName, args, AspectTarget.Field, asp);
 
-            asp->Union.FieldAspect.ClassName = StringStorage.Intern(aspectClass);
-            asp->Union.FieldAspect.FieldName = StringStorage.Intern(aspectField);
+            asp->Union.FieldAspect.ClassName = Intern(aspectClass);
+            asp->Union.FieldAspect.FieldName = Intern(aspectField);
 
             aspects->Add(asp);
         }
