@@ -1,5 +1,9 @@
 namespace ishtar;
 
+using System.Runtime.InteropServices;
+using LLVMSharp.Interop;
+using vein.runtime;
+
 [ExcludeFromCodeCoverage]
 public static unsafe class NativeExports
 {
@@ -7,6 +11,17 @@ public static unsafe class NativeExports
     {
         var vm = VirtualMachine.Create("app");
     }
+
+    //[UnmanagedCallersOnly]
+    //public static void execute_method(CallFrame** frame)
+    //{
+
+    //}
+    //[UnmanagedCallersOnly]
+    //public static void create_method(MarshaledString name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass** args)
+    //{
+
+    //}
 
     public static stackval* VM_EXECUTE_METHOD(VirtualMachine vm, Types.FrameRef* frame)
     {

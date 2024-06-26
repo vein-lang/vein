@@ -23,7 +23,7 @@ public static unsafe class B_Function
     }
 
 
-    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("vein/lang", "Function");
+    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("std", "Function");
 
 
     public static void InitTable(ForeignFunctionInterface ffi)

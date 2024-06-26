@@ -2,13 +2,19 @@ namespace ishtar;
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using collections;
 using runtime;
+using runtime.gc;
 using vein.runtime;
 
 public unsafe class ForeignFunctionInterface
 {
     public readonly VirtualMachine vm;
-    public Dictionary<string, nint> method_table { get; } = new();
+    public NativeDictionary<ulong, RuntimeIshtarMethod>* methods { get; } = IshtarGC.AllocateDictionary<ulong, RuntimeIshtarMethod>();
+    public Dictionary<string, ulong> method_table { get; } = new();
+
+    private ulong _index;
 
     public ForeignFunctionInterface(VirtualMachine vm)
     {
@@ -33,21 +39,25 @@ public unsafe class ForeignFunctionInterface
         //B_NAPI.InitTable(this);
     }
 
-    public RuntimeIshtarMethod* Add(string name, MethodFlags flags, params (string name, VeinTypeCode type)[] args)
-    {
-        var method = vm.CreateInternalMethod(
-            VeinMethodBase.GetFullName(name, args.Select(x => (x.name, vm.Types->ByTypeCode(x.type)->Name))), flags, args);
-        method->Assert(method);
-        method_table.Add(method->Name, (nint)method);
-        return method;
-    }
+    public RuntimeIshtarMethod* Add(string name, MethodFlags flags, VeinTypeCode returnType, params (string name, VeinTypeCode type)[] args)
+        => Add(name, flags, vm.Types->ByTypeCode(returnType), args);
 
     public RuntimeIshtarMethod* Add(string name, MethodFlags flags, RuntimeIshtarClass* returnType, params (string name, VeinTypeCode type)[] args)
     {
-        var n = VeinMethodBase.GetFullName(name, args.Select(x => (x.name, vm.Types->ByTypeCode(x.type)->Name)));
-        var method = vm.CreateInternalMethod(n, flags, returnType, args);
+        _index++;
+        var arr = new RuntimeIshtarClass*[args.Length];
+
+        for (int index = 0; index < args.Length; index++)
+        {
+            var (_, type) = args[index];
+            arr[index] = vm.Types->ByTypeCode(type);
+        }
+
+        var method = vm.CreateInternalMethod(
+            RuntimeIshtarMethod.GetFullName(name, returnType, arr), flags, args);
         method->Assert(method);
-        method_table.Add(method->Name, (nint)method);
+        method_table.Add(method->Name, _index);
+        methods->Add(_index, method);
         return method;
     }
 
@@ -96,7 +106,13 @@ public unsafe class ForeignFunctionInterface
     }
 
     public RuntimeIshtarMethod* GetMethod(string FullName)
-        => (RuntimeIshtarMethod*)method_table.GetValueOrDefault(FullName);
+    {
+        if (method_table.TryGetValue(FullName, out var idx))
+            return methods->Get(idx);
+        throw new EntryPointNotFoundException(FullName);
+    }
+
+    private RuntimeIshtarMethod* GetMethod(ulong idx) => methods->Get(idx);
 
 
     public static void LinkExternalNativeLibrary(string importModule, string fnName,
@@ -110,10 +126,9 @@ public unsafe class ForeignFunctionInterface
 
     public void DisplayDefinedMapping()
     {
-        if (!vm.Config.HasFlag(SysFlag.DISPLAY_FFI_MAPPING)) return;
+        if (vm.Config.HasFlag(SysFlag.DISPLAY_FFI_MAPPING)) return;
 
-        foreach (var (key, value) in method_table)
-            vm.trace.println($"ffi map '{key}' -> 'sys::FFI/{((RuntimeIshtarClass*)value)->Name}'");
+        foreach (var (key, value) in method_table) vm.trace.println($"ffi map '{key}' -> 'sys::FFI/{(GetMethod(value))->Name}'");
     }
 }
 

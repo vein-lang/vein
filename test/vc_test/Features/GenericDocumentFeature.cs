@@ -7,43 +7,46 @@ public class GenericDocumentFeature
     [Test]
     public void test1()
     {
-        Syntax.CompilationUnit.ParseVein(
-            """
-            #space "test"
-            #use "vein/lang"
-            
-            struct App {
-                public test2(): void
-                {
-                    for (let i = 55; i++; i != 500) {
-                        Out.print("hello world!");
-                    }
-                }
-                public test1(): void {
-                    fail null;
-                }
-            
-                public test1(): void {
-                    let b = "asdads" + "gfdfg";
-                }
-            
-                public static master(): void {
-                    Out.print(Fib(15));
-                }
-            
-                public static Fib(n: i32): i32
-                {
-                    if (n < 2)
+        Assert.Throws<VeinParseException>(() =>
+        {
+            Syntax.CompilationUnit.ParseVein(
+                """
+                #space "test"
+                #use "vein/lang"
+
+                struct App {
+                    public test2(): void
                     {
-                        return n;
+                        for (let i = 55; i++; i != 500) {
+                            Out.print("hello world!");
+                        }
                     }
-                    auto a = Fib(n - 1);
-                    auto b = Fib(n - 2)
-                    return a + b;
+                    public test1(): void {
+                        fail null;
+                    }
+                
+                    public test1(): void {
+                        let b = "asdads" + "gfdfg";
+                    }
+                
+                    public static master(): void {
+                        Out.print(Fib(15));
+                    }
+                
+                    public static Fib(n: i32): i32
+                    {
+                        if (n < 2)
+                        {
+                            return n;
+                        }
+                        auto a = Fib(n - 1);
+                        auto b = Fib(n - 2)
+                        return a + b;
+                    }
                 }
-            }
-            """
-        );
+                """
+            );
+        }, "Semicolon required");
     }
 
     [Test]
@@ -118,7 +121,7 @@ public class GenericDocumentFeature
                         return n;
                     }
                     auto a = Fib(n - 1);
-                    auto b = Fib(n - 2)
+                    auto b = Fib(n - 2);
                     return a + b;
                 }
             }

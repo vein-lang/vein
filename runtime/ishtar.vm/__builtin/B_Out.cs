@@ -65,12 +65,12 @@ namespace ishtar
 
         public static void InitTable(ForeignFunctionInterface ffi)
         {
-            ffi.Add("@_println", Public | Static | Extern, ("val", TYPE_OBJECT))
+            ffi.Add("@_println", Public | Static | Extern, TYPE_VOID, ("val", TYPE_OBJECT))
                 ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FPrintLn_Object);
-            ffi.Add("@_println", Public | Static | Extern, ("val", TYPE_I4))
+            ffi.Add("@_println", Public | Static | Extern, TYPE_VOID, ("val", TYPE_I4))
                 ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FPrintLn_Int32);
 
-            ffi.Add("@_readline", Public | Static | Extern, TYPE_STRING.AsRuntimeClass(ffi.vm.Types))
+            ffi.Add("@_readline", Public | Static | Extern,  TYPE_STRING.AsRuntimeClass(ffi.vm.Types))
                 ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FReadLine);
         }
     }

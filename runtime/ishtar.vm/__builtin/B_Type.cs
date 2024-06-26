@@ -52,7 +52,7 @@ public static unsafe class B_Type
         return null;
     }
 
-    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("vein/lang", "Type");
+    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("std", "Type");
 
 
     public static void InitTable(ForeignFunctionInterface ffi)

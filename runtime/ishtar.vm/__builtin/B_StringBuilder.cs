@@ -85,7 +85,7 @@ public unsafe static class B_StringBuilder
         //return gc.ToIshtarObject(buffer->Value.ToString(), current);
     }
 
-    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("vein/lang", "StringBuilder");
+    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("std", "StringBuilder");
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
