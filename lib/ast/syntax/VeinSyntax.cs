@@ -1,3 +1,5 @@
+using vein.syntax;
+
 namespace vein.syntax
 {
     using System.Collections.Generic;
@@ -50,6 +52,7 @@ namespace vein.syntax
                     Keyword("protected")).Or(
                     Keyword("virtual")).Or(
                     Keyword("abstract")).Or(
+                    Keyword("async")).Or(
                     Keyword("readonly")).Or(
                     Keyword("private")).Or(
                     Keyword("internal")).Or(
@@ -133,9 +136,11 @@ namespace vein.syntax
         // Test() : void {}
         // Test() : void;
         protected internal virtual Parser<MethodDeclarationSyntax> MethodParametersAndBody =>
+            from generics in GenericsDeclarationParser.Token().Optional()
             from parameters in MethodParameters
             from @as in Parse.Char(':').Token().Commented(this)
             from type in TypeReference.Commented(this)
+            from constraints in GenericConstraintParser.Token().Optional()
             from methodBody in BlockShortform<ReturnStatementSyntax>().Or(Block.Or(Parse.Char(';').Return(new EmptyBlockSyntax())))
                 .Token().Positioned().Commented(this)
             select new MethodDeclarationSyntax
@@ -143,8 +148,11 @@ namespace vein.syntax
                 Parameters = parameters,
                 Body = methodBody.Value,
                 ReturnType = type.Value,
-                EndPoint = methodBody.Transform?.pos ?? type.Transform.pos
+                EndPoint = methodBody.Transform?.pos ?? type.Transform.pos,
+                GenericTypes = generics.GetOrEmpty().ToList(),
+                TypeParameterConstraints = constraints.GetOrEmpty().ToList()
             };
+
 
         protected internal virtual Parser<MethodDeclarationSyntax> CtorParametersAndBody =>
             from parameters in MethodParameters
@@ -186,6 +194,7 @@ namespace vein.syntax
             from directives in
                 SpaceSyntax.Token()
                 .Or(UseSyntax.Token()).Many()
+            from aliases in AliasDeclaration.Token().Many().Optional()
             from members in AspectDeclaration.Select(x => x.As<MemberDeclarationSyntax>())
                 .Or(ClassDeclaration.Select(x => x.As<MemberDeclarationSyntax>())).Token().AtLeastOnce()
             from whiteSpace in Parse.WhiteSpace.Many()

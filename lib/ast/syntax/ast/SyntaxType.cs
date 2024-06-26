@@ -64,6 +64,8 @@ namespace vein.syntax
         WhileStatement,
         GCDeclaration,
         SyncDeclaration,
-        DirectiveDeclaration
+        DirectiveDeclaration,
+        TypeParameterConstraint,
+        Alias
     }
 }
