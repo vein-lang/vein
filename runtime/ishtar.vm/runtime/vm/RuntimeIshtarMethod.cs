@@ -5,27 +5,25 @@ namespace ishtar
     using collections;
     using emit;
     using runtime.gc;
+    using LLVMSharp;
 
-    public unsafe struct RuntimeMethodArgument : IEq<RuntimeMethodArgument>, IDisposable
+    public unsafe struct RuntimeMethodArgument(
+        RuntimeComplexType type,
+        InternedString* name,
+        RuntimeMethodArgument* self)
+        : IEq<RuntimeMethodArgument>, IDisposable
     {
-        public RuntimeMethodArgument(RuntimeIshtarClass* type, InternedString* name, RuntimeMethodArgument* self)
-        {
-            Type = type;
-            Name = name;
-            Self = self;
-        }
-
         public const string THIS_ARGUMENT = "<this>";
 
 
-        public RuntimeIshtarClass* Type { get; private set; }
-        public InternedString* Name { get; private set; }
-        public RuntimeMethodArgument* Self { get; private set; }
+        public RuntimeComplexType Type { get; private set; } = type;
+        public InternedString* Name { get; private set; } = name;
+        public RuntimeMethodArgument* Self { get; private set; } = self;
 
 
         public void Dispose()
         {
-            Type = null;
+            Type = default;
             Name = null;
             Self = null;
         }
@@ -80,7 +78,7 @@ namespace ishtar
             return lst;
         }
 
-        public static RuntimeMethodArgument* Create(IshtarTypes* types, string name, RuntimeIshtarClass* type)
+        public static RuntimeMethodArgument* Create(IshtarTypes* types, string name, RuntimeComplexType type)
         {
             var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>();
 
@@ -92,12 +90,167 @@ namespace ishtar
         public void ReplaceType(RuntimeIshtarClass* clazz)
         {
             VirtualMachine.Assert(clazz is not null, WNE.TYPE_LOAD, "[arg] Replacing type is nullptr");
-
-            if (Type->IsUnresolved)
+            if (Type.IsGeneric) return;
+            if (Type.Class->IsUnresolved)
                 Type = clazz;
         }
 
         public static bool Eq(RuntimeMethodArgument* p1, RuntimeMethodArgument* p2) => InternedString.Eq(p1->Name, p2->Name) && RuntimeIshtarClass.Eq(p1->Type, p2->Type);
+    }
+    
+    public readonly unsafe struct RuntimeIshtarTypeArg(
+        InternedString* id,
+        InternedString* name,
+        NativeList<IshtarParameterConstraint>* constraints)
+        : IEq<RuntimeIshtarTypeArg>
+    {
+        public readonly InternedString* Id = id;
+        public readonly InternedString* Name = name;
+        public readonly NativeList<IshtarParameterConstraint>* Constraints = constraints;
+
+
+        public static bool Eq(RuntimeIshtarTypeArg* p1, RuntimeIshtarTypeArg* p2)
+        {
+            if (p1 is null || p2 is null)
+                throw null;
+            return InternedString.Eq(p1->Id, p2->Id);
+        }
+
+        public static RuntimeIshtarTypeArg* Allocate(InternedString* Name,
+            NativeList<IshtarParameterConstraint>* constraints)
+        {
+            var type = IshtarGC.AllocateImmortal<RuntimeIshtarTypeArg>();
+
+            *type = new RuntimeIshtarTypeArg(CreateId(Name, constraints), Name, constraints);
+
+            return type;
+        }
+
+        public static void Free(RuntimeIshtarTypeArg* typeArg)
+            => IshtarGC.FreeImmortal(typeArg);
+
+
+        // TODO
+        private static InternedString* CreateId(InternedString* Name,
+            NativeList<IshtarParameterConstraint>* constraints)
+        {
+            var rawName = StringStorage.GetStringUnsafe(Name);
+            constraints->ForEach(x =>
+            {
+                if (x->Kind == VeinTypeParameterConstraint.BITTABLE)
+                    rawName += "[bittable]";
+                else if (x->Kind == VeinTypeParameterConstraint.CLASS)
+                    rawName += "[class]";
+                else if (x->Kind == VeinTypeParameterConstraint.SIGNATURE || x->Kind == VeinTypeParameterConstraint.TYPE)
+                    rawName += $"[{x->Type->FullName->NameWithNS}]";
+            });
+
+            return StringStorage.Intern(rawName);
+        }
+    }
+
+    public unsafe struct IshtarParameterConstraint : IEquatable<IshtarParameterConstraint>, IEq<IshtarParameterConstraint>
+    {
+        public VeinTypeParameterConstraint Kind;
+        public RuntimeIshtarClass* Type; // when TYPE or SIGNATURE
+
+        public bool Equals(IshtarParameterConstraint other) => Kind == other.Kind && RuntimeIshtarClass.Eq(other.Type, Type);
+
+        public static bool Eq(IshtarParameterConstraint* p1, IshtarParameterConstraint* p2)
+        {
+            if (p1 is null || p2 is null)
+                throw null;
+            return p1->Kind == p2->Kind && RuntimeIshtarClass.Eq(p1->Type, p2->Type);
+        }
+
+        public static IshtarParameterConstraint* CreateBittable()
+        {
+            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>();
+            *e = new IshtarParameterConstraint();
+            e->Kind = VeinTypeParameterConstraint.BITTABLE;
+            return e;
+        }
+        public static IshtarParameterConstraint* CreateClass()
+        {
+            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>();
+            *e = new IshtarParameterConstraint();
+            e->Kind = VeinTypeParameterConstraint.CLASS;
+            return e;
+        }
+        public static IshtarParameterConstraint* CreateSignature(RuntimeIshtarClass* @interface)
+        {
+            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>();
+            *e = new IshtarParameterConstraint();
+            e->Kind = VeinTypeParameterConstraint.SIGNATURE;
+            e->Type = @interface;
+            return e;
+        }
+
+        public static IshtarParameterConstraint* CreateType(RuntimeIshtarClass* type)
+        {
+            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>();
+            *e = new IshtarParameterConstraint();
+            e->Kind = VeinTypeParameterConstraint.TYPE;
+            e->Type = type;
+            return e;
+        }
+    }
+
+
+
+    public readonly unsafe struct RuntimeComplexType
+    {
+        private readonly RuntimeIshtarTypeArg* _typeArg;
+        private readonly RuntimeIshtarClass* _class;
+
+        public RuntimeComplexType(RuntimeIshtarClass* @class) => _class = @class;
+
+        public RuntimeComplexType(RuntimeIshtarTypeArg* typeArg) => _typeArg = typeArg;
+
+        public bool IsGeneric => _typeArg is not null;
+
+        public RuntimeIshtarTypeArg* TypeArg => _typeArg;
+        public RuntimeIshtarClass* Class => _class;
+
+
+        public static implicit operator RuntimeComplexType(RuntimeIshtarClass* cpx) => new(cpx);
+        public static implicit operator RuntimeComplexType(RuntimeIshtarTypeArg* cpx) => new(cpx);
+
+
+        public static implicit operator RuntimeIshtarClass*(RuntimeComplexType cpx)
+        {
+            if (cpx.IsGeneric)
+                throw new NotSupportedException($"Trying summon non generic vein type, but complex type is generic");
+            return cpx._class;
+        }
+
+        public static implicit operator RuntimeIshtarTypeArg*(RuntimeComplexType cpx)
+        {
+            if (cpx.IsGeneric)
+                throw new NotSupportedException($"Trying summon generic type, but complex type is non generic vein type");
+            return cpx._typeArg;
+        }
+    }
+
+    public unsafe struct RuntimeIshtarSignature(
+        RuntimeComplexType returnType,
+        NativeList<RuntimeMethodArgument>* arguments)
+    {
+        public RuntimeComplexType ReturnType = returnType;
+        public readonly NativeList<RuntimeMethodArgument>* Arguments = arguments;
+
+
+        public static RuntimeIshtarSignature* Allocate(RuntimeComplexType returnType,
+            NativeList<RuntimeMethodArgument>* arguments)
+        {
+            var sig = IshtarGC.AllocateImmortal<RuntimeIshtarSignature>();
+
+            *sig = new RuntimeIshtarSignature(returnType, arguments);
+
+            return sig;
+        }
+
+        public static void Free(RuntimeIshtarSignature* sig) => IshtarGC.FreeImmortal(sig);
     }
 
     public unsafe struct RuntimeIshtarMethod : INamed, IEq<RuntimeIshtarMethod>, IDisposable
@@ -118,13 +271,14 @@ namespace ishtar
         public string Name => StringStorage.GetStringUnsafe(_name);
         public string RawName => StringStorage.GetStringUnsafe(_rawName);
         public MethodFlags Flags { get; private set; }
-        public RuntimeIshtarClass* ReturnType { get; private set; }
+        public RuntimeIshtarClass* ReturnType => Signature->ReturnType;
         public RuntimeIshtarClass* Owner { get; private set; }
         public int ArgLength => Arguments->Count;
 
-        public NativeList<RuntimeMethodArgument>* Arguments { get; private set; }
+        public NativeList<RuntimeMethodArgument>* Arguments => Signature->Arguments;
         public NativeList<RuntimeAspect>* Aspects { get; private set; }
 
+        public RuntimeIshtarSignature* Signature { get; private set; }
 
         public void ForceSetAsAsync()
         {
@@ -141,14 +295,15 @@ namespace ishtar
 
             if (Header is not null)
                 IshtarGC.FreeImmortal(Header);
-            Arguments->ForEach(x => x->Dispose());
-            Arguments->ForEach(IshtarGC.FreeImmortal);
+            (Arguments)->ForEach(x => x->Dispose());
+            (Arguments)->ForEach(IshtarGC.FreeImmortal);
             Aspects->Clear();
-            Arguments->Clear();
+            (Arguments)->Clear();
+            RuntimeIshtarSignature.Free(Signature);
             IshtarGC.FreeList(Aspects);
             IshtarGC.FreeList(Arguments);
             _self = null;
-            Arguments = null;
+            Signature = null;
             Aspects = null;
         }
 
@@ -178,9 +333,9 @@ namespace ishtar
         internal void ReplaceReturnType(RuntimeIshtarClass* type)
         {
             VirtualMachine.Assert(type is not null, WNE.TYPE_LOAD, "Replacing type is nullptr");
-            VirtualMachine.Assert(ReturnType->IsUnresolved, WNE.TYPE_LOAD, "Replace returnType is possible only if type already unresolved");
+            VirtualMachine.Assert((ReturnType)->IsUnresolved, WNE.TYPE_LOAD, "Replace returnType is possible only if type already unresolved");
 
-            ReturnType = type;
+            Signature->ReturnType = type;
         }
 
         private static readonly Dictionary<nint, string> DiagnosticCtorTraces = new();
@@ -194,17 +349,17 @@ namespace ishtar
         {
             this = default;
             _self = self;
-            Arguments =  IshtarGC.AllocateList<RuntimeMethodArgument>();
+            var arguments = IshtarGC.AllocateList<RuntimeMethodArgument>();
             Aspects = IshtarGC.AllocateList<RuntimeAspect>();
             _name = StringStorage.Intern(name);
             _rawName = StringStorage.Intern(name.Split('(').First());
             Flags = flags;
-            ReturnType = returnType;
             Owner = owner;
             foreach (var argument in args)
-                Arguments->Add(argument);
+                arguments->Add(argument);
             _ctor_called = true;
             DiagnosticCtorTraces[(nint)self] = Environment.StackTrace;
+            Signature = RuntimeIshtarSignature.Allocate(returnType, arguments);
         }
 
         internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
@@ -212,17 +367,17 @@ namespace ishtar
         {
             this = default;
             _self = self;
-            Arguments = IshtarGC.AllocateList<RuntimeMethodArgument>();
+            var arguments = IshtarGC.AllocateList<RuntimeMethodArgument>();
             Aspects = IshtarGC.AllocateList<RuntimeAspect>();
             _name = StringStorage.Intern(name);
             _rawName = StringStorage.Intern(name.Split('(').First());
             Flags = flags;
-            ReturnType = returnType;
             Owner = owner;
             if (args->Count != 0)
-                Arguments->AddRange(args);
+                arguments->AddRange(args);
             _ctor_called = true;
             DiagnosticCtorTraces[(nint)self] = Environment.StackTrace;
+            Signature = RuntimeIshtarSignature.Allocate(returnType, arguments);
         }
 
         public void SetILCode(uint* code, uint size)
@@ -266,5 +421,87 @@ namespace ishtar
             return p1->Name.Equals(p2->Name) && RuntimeIshtarClass.Eq(p1->Owner, p2->Owner) &&
                    p1->ArgLength == p2->ArgLength;
         }
+
+
+
+        // TODO remove fucking using .NET types
+
+        public static string GetFullName(string name, RuntimeComplexType* returnType, IEnumerable<VeinArgumentRef> args)
+        {
+            static string ToTemplateString(RuntimeComplexType* t) => t->IsGeneric
+                ? $"µ{StringStorage.GetStringUnsafe(t->TypeArg->Name)}"
+                : t->Class->FullName->ToString();
+            return $"{name}({string.Join(',', args.Select(x => $"{x.ToTemplateString()}"))}) -> {ToTemplateString(returnType)}";
+        }
+
+        public static string GetFullName(string name, RuntimeComplexType* returnType, NativeList<RuntimeMethodArgument>* args)
+        {
+            static string ToTemplateString(RuntimeComplexType* t) => t->IsGeneric
+                ? $"µ{StringStorage.GetStringUnsafe(t->TypeArg->Name)}"
+                : t->Class->FullName->ToString();
+
+            var str = new List<string>();
+
+            args->ForEach(x =>
+            {
+                var data = x->Type;
+                str.Add(ToTemplateString(&data));
+            });
+
+            return $"{name}({string.Join(',', str)}) -> {ToTemplateString(returnType)}";
+        }
+
+        public static string GetFullName(string name, RuntimeIshtarClass* returnType, NativeList<RuntimeMethodArgument>* args)
+        {
+            static string ToTemplateString(RuntimeComplexType* t) => t->IsGeneric
+                ? $"µ{StringStorage.GetStringUnsafe(t->TypeArg->Name)}"
+                : t->Class->FullName->ToString();
+
+            var str = new List<string>();
+
+            args->ForEach(x =>
+            {
+                if (!NotThis(x))
+                    return;
+
+                var data = x->Type;
+                str.Add(ToTemplateString(&data));
+            });
+
+            return $"{name}({string.Join(',', str)}) -> {returnType->FullName->ToString()}";
+        }
+
+        public static string GetFullName(string name, RuntimeIshtarClass* returnType, IEnumerable<VeinArgumentRef> args)
+            => $"{name}({string.Join(',', args.Where(NotThis).Select(x => $"{x.ToTemplateString()}"))}) -> {returnType->FullName->ToString()}";
+
+        public static string GetFullName(string name, RuntimeIshtarClass* returnType, RuntimeIshtarClass*[] args)
+        {
+            var stw = new List<string>();
+
+            foreach (var @class in args)
+                stw.Add($"{@class->FullName->ToString()}");
+
+            return $"{name}({string.Join(',', stw)}) -> {returnType->FullName->ToString()}";
+        }
+
+        public static string GetFullName(string name, RuntimeComplexType* returnType, RuntimeIshtarClass*[] args)
+        {
+            static string ToTemplateString(RuntimeComplexType* t) => t->IsGeneric ?
+                $"µ{StringStorage.GetStringUnsafe(t->TypeArg->Name)}" :
+                t->Class->FullName->NameWithNS;
+
+            var stw = new List<string>();
+
+            foreach (var @class in args)
+                stw.Add($"{@class->FullName->ToString()}");
+
+            return $"{name}({string.Join(',', stw)}) -> {ToTemplateString(returnType)}";
+        }
+
+        private static bool NotThis(RuntimeMethodArgument* @ref) =>
+            !StringStorage.GetStringUnsafe(@ref->Name).Equals(VeinArgumentRef.THIS_ARGUMENT);
+        private static bool NotThis(VeinArgumentRef @ref) =>
+            !@ref.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
+        // end TODO
     }
 }
