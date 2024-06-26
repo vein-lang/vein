@@ -51,9 +51,9 @@ public static class G_Types
             _ => throw new NotSupportedException($"{number} is not support number.")
         };
 
-    public static VeinClass ResolveMemberType(this IEnumerable<ExpressionSyntax> chain, GeneratorContext context)
+    public static VeinComplexType ResolveMemberType(this IEnumerable<ExpressionSyntax> chain, GeneratorContext context)
     {
-        var t = default(VeinClass);
+        var t = default(VeinComplexType);
         var prev_id = default(IdentifierExpression);
         using var enumerator = chain.GetEnumerator();
 
@@ -82,10 +82,17 @@ public static class G_Types
         return t;
     }
 
-    public static IEnumerable<VeinClass> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context)
-        => exps.Select(x => x.DetermineType(context)).Where(x => x is not null /* if failed determine skip analyze */);
+    public static IEnumerable<VeinComplexType> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context)
+    {
+        var list = exps.ToList();
 
-    public static VeinClass DetermineType(this ExpressionSyntax exp, GeneratorContext context)
+        var d = list.Select(x => x.DetermineType(context))
+            .Where(x => x is not null /* if failed determine skip analyze */).ToList();
+
+        return d;
+    }
+
+    public static VeinComplexType DetermineType(this ExpressionSyntax exp, GeneratorContext context)
     {
         if (exp.CanOptimizationApply())
             return exp.ForceOptimization().DetermineType(context);
@@ -133,7 +140,7 @@ public static class G_Types
         throw new SkipStatementException();
     }
 
-    public static VeinClass ResolveType(this AccessExpressionSyntax access, GeneratorContext context)
+    public static VeinComplexType ResolveType(this AccessExpressionSyntax access, GeneratorContext context)
     {
         var chain = access.ToChain().ToArray();
         var lastToken = chain.Last();
@@ -157,10 +164,10 @@ public static class G_Types
     public static VeinClass ResolveReturnType(this InvocationExpression inv, GeneratorContext context)
         => context.ResolveMethod(context.CurrentMethod.Owner, inv)?.ReturnType;
 
-    public static VeinClass ResolveReturnType(this InvocationExpression member,
+    public static VeinComplexType ResolveReturnType(this InvocationExpression member,
         GeneratorContext context, IEnumerable<ExpressionSyntax> chain)
     {
-        var t = default(VeinClass);
+        var t = default(VeinComplexType);
         var prev_id = default(IdentifierExpression);
         var enumerator = chain.ToArray();
         for (var i = 0; i != enumerator.Length; i++)

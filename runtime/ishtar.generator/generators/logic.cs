@@ -14,6 +14,12 @@ public static class G_Logic
         var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
         var expType = ifStatement.Expression.DetermineType(ctx);
 
+        if (expType.IsGeneric)
+        {
+            ctx.LogError($"Cannot implicitly convert generic type '{expType.ToTemplateString()}' to 'Boolean'", ifStatement.Expression);
+            return;
+        }
+
         if (!ctx.DisableOptimization && ifStatement.Expression is BoolLiteralExpressionSyntax @bool)
         {
             if (@bool.Value)
@@ -25,7 +31,7 @@ public static class G_Logic
             else
                 generator.Emit(OpCodes.JMP, elseLabel);
         }
-        else if (expType.TypeCode == VeinTypeCode.TYPE_BOOLEAN)
+        else if (expType.Class.TypeCode == VeinTypeCode.TYPE_BOOLEAN)
         {
             generator.EmitExpression(ifStatement.Expression);
             generator.Emit(OpCodes.JMP_F, elseLabel);
