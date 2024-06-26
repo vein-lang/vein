@@ -35,6 +35,10 @@ namespace vein.runtime
         public List<Aspect> Aspects { get; } = new();
 #if DEBUG
         public ulong ReferenceID = DebugReference.Get();
+        protected VeinClass() => CreationPlace = Environment.StackTrace;
+
+#else
+        protected VeinClass()  {}
 #endif
         public string CreationPlace { get; set; }
         internal VeinClass(QualityTypeName name, VeinClass parent, VeinModule module)
@@ -53,10 +57,7 @@ namespace vein.runtime
             CreationPlace = Environment.StackTrace;
         }
 
-        protected VeinClass()
-        {
-            CreationPlace = Environment.StackTrace;
-        }
+        
 
         public bool IsSpecial => Flags.HasFlag(ClassFlags.Special);
         public bool IsPublic => Flags.HasFlag(ClassFlags.Public);
@@ -82,7 +83,7 @@ namespace vein.runtime
             => $"{FullName}, {Flags}";
 
 
-        public VeinMethod FindMethod(string name, IEnumerable<VeinClass> user_types, bool includeThis = false) =>
+        public VeinMethod FindMethod(string name, IEnumerable<VeinComplexType> user_types, bool includeThis = false) =>
             Methods.Concat(Parents.SelectMany(x => x.Methods))
                 .FirstOrDefault(x =>
                 {
@@ -96,13 +97,180 @@ namespace vein.runtime
                     var args = x.Signature.Arguments.Where(z => includeThis || NotThis(z)).Select(z => z.ComplexType).ToList();
                     var argsHas = CheckCompatibility(userTypes, args);
 
-                    if (!argsHas && !args.Any(z => z.IsGeneric))
-                        argsHas = CheckInheritance(userTypes.ToArray(), args.Select(z => z.Class).ToArray());
+                    if (!argsHas && !args.Any(z => z.IsGeneric) && !userTypes.Any(z => z.IsGeneric))
+                        argsHas = CheckInheritance(userTypes.Select(z => z.Class).ToArray(), args.Select(z => z.Class).ToArray());
 
                     return argsHas;
                 });
 
-        private bool CheckCompatibility(List<VeinClass> userArgs, List<VeinComplexType> methodArgs)
+
+        private bool CheckCompatibility(List<VeinComplexType> userArgs, List<VeinComplexType> methodArgs)
+        {
+            if (userArgs.Count != methodArgs.Count) return false;
+
+            Dictionary<string, VeinClass> t2cMap = new();
+            Dictionary<string, VeinTypeArg> t2tMap = new();
+
+            for (int i = 0; i < userArgs.Count; i++)
+            {
+                var userType = userArgs[i];
+                var methodType = methodArgs[i];
+
+                if (methodType.IsGeneric)
+                {
+                    if (!CheckGenericCompatibility(userType, methodType, t2cMap, t2tMap))
+                        return false;
+                }
+                else if (!CheckObjectCompatibility(methodType, userType))
+                    return false;
+            }
+            return true;
+        }
+
+        private bool CheckGenericCompatibility(VeinComplexType userType, VeinComplexType methodType, Dictionary<string, VeinClass> genericMap, Dictionary<string, VeinTypeArg> generic2genericMap)
+        {
+            var genericName = methodType.TypeArg.Name;
+
+            if (userType.IsGeneric)
+            {
+                if (generic2genericMap.TryGetValue(genericName, out var val))
+                    return val.Name.Equals(genericName);
+                generic2genericMap[genericName] = userType.TypeArg;
+                return true;
+            }
+
+            if (genericMap.TryGetValue(genericName, out var value))
+                return value.FullName.Equals(userType.Class.FullName);
+
+            genericMap[genericName] = userType.Class;
+            return true;
+        }
+
+        private bool CheckObjectCompatibility(VeinComplexType methodClass, VeinComplexType userClass)
+        {
+            if (methodClass.IsGeneric)
+                return true;
+            if (methodClass.Class.TypeCode == TYPE_OBJECT && userClass.IsGeneric)
+                return true;
+            return false;
+        }
+
+        private bool CheckCompatibilityV4(VeinComplexType[] userArgs, List<VeinComplexType> methodArgs)
+        {
+            if (userArgs.Length != methodArgs.Count) return false;
+
+            Dictionary<string, VeinClass> genericMap = new();
+
+            for (int i = 0; i < userArgs.Length; i++)
+            {
+                var userType = userArgs[i];
+                var methodType = methodArgs[i];
+
+                if (methodType.IsGeneric)
+                {
+                    var genericName = methodType.TypeArg.Name;
+
+                    if (userType.IsGeneric)
+                    {
+                        if (!methodType.TypeArg.Name.Equals(userType.TypeArg.Name))
+                            return false;
+                    }
+                    else
+                    {
+                        if (genericMap.TryGetValue(genericName, out var value))
+                        {
+                            if (!value.FullName.Equals(userType.Class.FullName) && userType.Class.TypeCode != TYPE_OBJECT)
+                                return false;
+                        }
+                        else
+                            genericMap[genericName] = userType.Class;
+                    }
+                }
+                else
+                {
+                    if (userType.IsGeneric)
+                        return false;
+                    if (!methodType.Class.FullName.Equals(userType.Class.FullName) && methodType.Class.TypeCode != TYPE_OBJECT && userType.Class.TypeCode != TYPE_OBJECT)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        private bool CheckCompatibilityV3(List<VeinComplexType> userArgs, List<VeinComplexType> methodArgs)
+        {
+            if (userArgs.Count != methodArgs.Count) return false;
+
+            var genericMap = new Dictionary<string, VeinClass>();
+
+            for (int i = 0; i < userArgs.Count; i++)
+            {
+                var userType = userArgs[i];
+                var methodType = methodArgs[i];
+
+                if (methodType.IsGeneric)
+                {
+                    var genericName = methodType.TypeArg.Name;
+                    if (userType.IsGeneric)
+                    {
+                        if (!methodType.TypeArg.Name.Equals(userType.TypeArg.Name))
+                            return false;
+                    }
+                    else
+                    {
+                        if (genericMap.TryGetValue(genericName, out var value))
+                        {
+                            if (!value.FullName.Equals(userType.Class.FullName))
+                                return false;
+                        }
+                        else
+                            genericMap[genericName] = userType.Class;
+                    }
+                }
+                else
+                {
+                    if (userType.IsGeneric)
+                        return false;
+                    if (!methodType.Class.FullName.Equals(userType.Class.FullName))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+
+        private bool CheckCompatibilityV2(List<VeinComplexType> userArgs, List<VeinComplexType> methodArgs)
+        {
+            if (userArgs.Count != methodArgs.Count) return false;
+
+            Dictionary<string, VeinClass> genericMap = new();
+
+            for (int i = 0; i < userArgs.Count; i++)
+            {
+                var userType = userArgs[i];
+                var methodType = methodArgs[i];
+
+                if (methodType.IsGeneric)
+                {
+                    var genericName = methodType.TypeArg.Name;
+                    if (genericMap.TryGetValue(genericName, out var value))
+                    {
+                        if (!value.FullName.Equals(userType.Class.FullName))
+                            return false;
+                    }
+                    else
+                        genericMap[genericName] = userType.Class;
+                }
+                else
+                {
+                    if (!methodType.Class.FullName.Equals(userType.Class.FullName))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        private bool CheckCompatibilityV1(List<VeinClass> userArgs, List<VeinComplexType> methodArgs)
         {
             if (userArgs.Count != methodArgs.Count) return false;
 
