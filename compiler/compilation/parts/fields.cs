@@ -140,7 +140,7 @@ public partial class CompilationTask
         if (@override is not null && @override.Args.Any())
         {
             var exp = @override.Args[0];
-            if (exp is ArgumentExpression { Value: StringLiteralExpressionSyntax value })
+            if (exp is { Value: StringLiteralExpressionSyntax value })
                 name = value.Value;
             else
             {
@@ -171,9 +171,20 @@ public partial class CompilationTask
         // validate type compatible
         if (member.Field.Expression is LiteralExpressionSyntax literal)
         {
+            if (field.FieldType.IsGeneric)
+            {
+                Log.errors.Enqueue(
+                    $"[red bold]Cannot implicitly convert generic type[/] " +
+                    $"'[purple underline]{literal.GetTypeCode().AsClass()(Types.Storage).Name}[/]' to " +
+                    $"'[purple underline]{field.FieldType.ToTemplateString()}[/]'.\n\t" +
+                    $"at '[orange bold]{literal.Transform.pos.Line} line, {literal.Transform.pos.Column} column[/]' \n\t" +
+                    $"in '[orange bold]{doc.FileEntity}[/]'.");
+                return;
+            }
+
             if (literal is NumericLiteralExpressionSyntax numeric)
             {
-                if (!field.FieldType.TypeCode.CanImplicitlyCast(numeric))
+                if (!field.FieldType.Class.TypeCode.CanImplicitlyCast(numeric))
                 {
                     var diff_err = literal.Transform.DiffErrorFull(doc);
 
@@ -184,13 +195,13 @@ public partial class CompilationTask
                     Log.errors.Enqueue(
                         $"[red bold]Cannot implicitly convert type[/] " +
                         $"'[purple underline]{numeric.GetTypeCode().AsClass()(Types.Storage).Name}[/]' to " +
-                        $"'[purple underline]{field.FieldType.Name}[/]'.\n\t" +
+                        $"'[purple underline]{field.FieldType.ToTemplateString()}[/]'.\n\t" +
                         $"at '[orange bold]{numeric.Transform.pos.Line} line, {numeric.Transform.pos.Column} column[/]' \n\t" +
                         $"in '[orange bold]{doc.FileEntity}[/]'." +
                         $"{diff_err}");
                 }
             }
-            else if (literal.GetTypeCode() != field.FieldType.TypeCode)
+            else if (literal.GetTypeCode() != field.FieldType.Class.TypeCode)
             {
                 var diff_err = literal.Transform.DiffErrorFull(doc);
                 Log.errors.Enqueue(
