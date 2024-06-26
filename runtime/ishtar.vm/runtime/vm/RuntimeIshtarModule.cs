@@ -9,12 +9,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using vein.exceptions;
 using vein.extensions;
 using vein.reflection;
 using vein.runtime;
+using static StringStorage;
 
 public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 {
@@ -87,6 +87,8 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         types_table = null;
         fields_table = null;
         string_table = null;
+        alias_table = null;
+        generics_table = null;
         _self = null;
         _name = null;
         Vault = null;
@@ -107,13 +109,13 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         _self = self;
         Vault = WeakRef<AppVault>.Create(vault);
         Version = version;
-        _name = StringStorage.Intern(name);
+        _name = Intern(name);
     }
 
     public string Name
     {
-        get => StringStorage.GetStringUnsafe(_name);
-        set => _name = StringStorage.Intern(value);
+        get => GetStringUnsafe(_name);
+        set => _name = Intern(value);
     }
 
 
@@ -284,7 +286,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 
             VirtualMachine.GlobalPrintln($"read string: [{key}] '{value}'");
 
-            module->string_table->Add(key, StringStorage.Intern(value));
+            module->string_table->Add(key, Intern(value));
         }
 
         module->Name = module->GetConstStringByIndex(idx);
@@ -356,6 +358,59 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             //throw new ClassAlreadyDefined($"Class '{clazz->FullName->ToString()}' already defined in '{module->Name}' module");
         }
 
+        foreach (var _ in ..reader.ReadInt32())
+        {
+            var key = reader.ReadInt32();
+            var name = reader.ReadTypeName(module);
+            var isType = reader.ReadBoolean();
+
+            if (isType)
+            {
+                var typename = reader.ReadTypeName(module);
+                var type = module->FindType(typename, true, true);
+
+                module->alias_table->Add(RuntimeIshtarAlias.CreateTypeAlias(name, type));
+            }
+            else
+            {
+                var retType = reader.ReadComplexType(module);
+                var args = ReadArguments(reader, module);
+                var sig = RuntimeIshtarSignature.Allocate(retType, args);
+                module->alias_table->Add(RuntimeIshtarAlias.CreateMethodAlias(name, sig));
+            }
+        }
+        // read generics
+        foreach (var _ in ..reader.ReadInt32())
+        {
+            var key = reader.ReadInt32();
+            var name = reader.ReadIshtarString();
+            var cts = IshtarGC.AllocateList<IshtarParameterConstraint>();
+
+            foreach (var count in ..reader.ReadInt32())
+            {
+                var k = reader.ReadInt32();
+                var kind = (VeinTypeParameterConstraint)reader.ReadInt32();
+
+                if (kind == VeinTypeParameterConstraint.BITTABLE)
+                    cts->Add(IshtarParameterConstraint.CreateBittable());
+                else if (kind == VeinTypeParameterConstraint.CLASS)
+                    cts->Add(IshtarParameterConstraint.CreateClass());
+                else if (kind == VeinTypeParameterConstraint.TYPE)
+                {
+                    var type = reader.ReadTypeName(module);
+                    cts->Add(IshtarParameterConstraint.CreateType(module->FindType(type, true, true)));
+                }
+                else if (kind == VeinTypeParameterConstraint.SIGNATURE)
+                {
+                    var type = reader.ReadTypeName(module);
+                    cts->Add(IshtarParameterConstraint.CreateType(module->FindType(type, true, true)));
+                }
+                else
+                    throw new NotImplementedException();
+            }
+            module->generics_table->Add(key, RuntimeIshtarTypeArg.Allocate(Intern(name), cts));
+        }
+
         // restore unresolved types
         module->class_table->ForEach(@class => {
             var parent = @class->Parent;
@@ -384,10 +439,12 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
                 if (method->Arguments->Length == 0)
                     return;
                 method->Arguments->ForEach(arg => {
-                    if (!arg->Type->IsUnresolved)
+                    if (arg->Type.IsGeneric)
                         return;
-                    VirtualMachine.GlobalPrintln($"resolve method.arg[]: [{arg->Type->FullName->NameWithNS}] ");
-                    arg->ReplaceType(module->FindType(arg->Type->FullName, true, true));
+                    if (!arg->Type.Class->IsUnresolved)
+                        return;
+                    VirtualMachine.GlobalPrintln($"resolve method.arg[]: [{arg->Type.Class->FullName->NameWithNS}] ");
+                    arg->ReplaceType(module->FindType(arg->Type.Class->FullName, true, true));
                 });
             });
 
@@ -399,6 +456,9 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
                 field->ReplaceType(module->FindType(field->FieldType->FullName, true, true));
             });
         });
+
+
+        
 
         foreach (var body in deferClassBodies)
         {
@@ -465,7 +525,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             var value = bin.ReadIshtarString();
             var fn = IshtarGC.AllocateImmortal<RuntimeFieldName>();
 
-            *fn = new RuntimeFieldName(StringStorage.Intern(fullname));
+            *fn = new RuntimeFieldName(Intern(fullname));
 
             stackval a = IshtarMarshal.LegacyBoxing(frame, type_code, value);
             
@@ -499,7 +559,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 
         var class_eq = (RuntimeIshtarClass* x, InternedString* clazz) =>
         {
-            return x->Name.Equals(StringStorage.GetStringUnsafe(clazz));
+            return x->Name.Equals(GetStringUnsafe(clazz));
         };
 
         module->aspects_table->ForEach(aspect =>
@@ -528,7 +588,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
                         @class->Aspects->Add(aspect);
                     }
                     else
-                        module->vm.println($"Aspect '{aspect->Name}': class '{StringStorage.GetStringUnsafe(classAspect.ClassName)}' not found.");
+                        module->vm.println($"Aspect '{aspect->Name}': class '{GetStringUnsafe(classAspect.ClassName)}' not found.");
                     break;
                 }
                 case AspectTarget.Method:
@@ -541,16 +601,16 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 
                     if (@class is null)
                     {
-                        module->vm.println($"Aspect '{aspect->Name}': method '{StringStorage.GetStringUnsafe(ma.ClassName)}/{StringStorage.GetStringUnsafe(ma.MethodName)}' not found. [no class found]");
+                        module->vm.println($"Aspect '{aspect->Name}': method '{GetStringUnsafe(ma.ClassName)}/{GetStringUnsafe(ma.MethodName)}' not found. [no class found]");
                         return;
                     }
-                    var method = @class->Methods->FirstOrNull(m => m->Name.Equals(StringStorage.GetStringUnsafe(ma.MethodName)));
+                    var method = @class->Methods->FirstOrNull(m => m->Name.Equals(GetStringUnsafe(ma.MethodName)));
                     if (method is not null)
                         method->Aspects->Add(aspect);
                     else
                     {
                         var methods = @class->Methods->ToList();
-                        module->vm.println($"Aspect '{aspect->Name}': method '{StringStorage.GetStringUnsafe(ma.ClassName)}/{StringStorage.GetStringUnsafe(ma.MethodName)}' not found.");
+                        module->vm.println($"Aspect '{aspect->Name}': method '{GetStringUnsafe(ma.ClassName)}/{GetStringUnsafe(ma.MethodName)}' not found.");
                     }
                     break;
                 }
@@ -564,14 +624,14 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 
                     if (@class is null)
                     {
-                        module->vm.println($"Aspect '{aspect->Name}': field '{StringStorage.GetStringUnsafe(fa.ClassName)}/{StringStorage.GetStringUnsafe(fa.FieldName)}' not found. [no class found]");
+                        module->vm.println($"Aspect '{aspect->Name}': field '{GetStringUnsafe(fa.ClassName)}/{GetStringUnsafe(fa.FieldName)}' not found. [no class found]");
                         return;
                     }
-                    var field = @class->Fields->FirstOrNull(m => m->Name.Equals(StringStorage.GetStringUnsafe(fa.FieldName)));
+                    var field = @class->Fields->FirstOrNull(m => m->Name.Equals(GetStringUnsafe(fa.FieldName)));
                     if (field is not null)
                         field->Aspects->Add(aspect);
                     else
-                        module->vm.println($"Aspect '{aspect->Name}': field '{StringStorage.GetStringUnsafe(fa.ClassName)}/{StringStorage.GetStringUnsafe(fa.FieldName)}' not found.");
+                        module->vm.println($"Aspect '{aspect->Name}': field '{GetStringUnsafe(fa.ClassName)}/{GetStringUnsafe(fa.FieldName)}' not found.");
                     break;
                 }
             }
@@ -673,6 +733,9 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         using var mem = new MemoryStream(arr);
         using var binary = new BinaryReader(mem);
         var idx = binary.ReadInt32();
+        var methodName = ishtarModule->GetConstStringByIndex(idx);
+
+
         var flags = (MethodFlags)binary.ReadInt16();
         var bodysize = binary.ReadInt32();
         var stacksize = binary.ReadByte();
@@ -681,7 +744,6 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         var args = ReadArguments(binary, ishtarModule);
         var body = binary.ReadBytes(bodysize);
 
-        var methodName = ishtarModule->GetConstStringByIndex(idx);
         var returnType = ishtarModule->FindType(retType, true, false);
 
         var mth = @class->DefineMethod(methodName, returnType, flags, args);
@@ -705,7 +767,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
     public string GetConstStringByIndex(int index)
     {
         if (string_table->TryGetValue(index, out var value))
-            return StringStorage.GetStringUnsafe(value);
+            return GetStringUnsafe(value);
         throw new AggregateException($"String by index  '{index}' not found in module '{Name}'.");
     }
 
@@ -755,20 +817,12 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
             return;
         }
 
-        var importTarget = StringStorage.GetString((InternedString*)aspect->Arguments->Get(0)->Value.data.p, sys_frame);
-        var importFn = StringStorage.GetString((InternedString*)aspect->Arguments->Get(1)->Value.data.p, sys_frame);
+        var importTarget = GetString((InternedString*)aspect->Arguments->Get(0)->Value.data.p, sys_frame);
+        var importFn = GetString((InternedString*)aspect->Arguments->Get(1)->Value.data.p, sys_frame);
 
         if (importTarget == InternalTarget)
         {
-            var args = new List<(string argName, string typeName)>();
-
-
-            method->Arguments->ForEach(x =>
-            {
-                args.Add((StringStorage.GetStringUnsafe(x->Name), x->Type->Name));
-            });
-
-            name = VeinMethodBase.GetFullName(importFn, args);
+            name = RuntimeIshtarMethod.GetFullName(importFn, method->ReturnType, method->Arguments);
             LinkInternalNative(name, method);
             return;
         }
@@ -787,12 +841,11 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 
         if (m is null)
         {
+            vm.FFI.DisplayDefinedMapping();
             vm.FastFail(WNE.TYPE_LOAD,
                 method->RawName != name
                     ? $"Extern '{method->Name} -> {name}' method not found in native mapping."
                     : $"Extern '{method->Name}' method not found in native mapping.", sys_frame);
-
-            vm.FFI.DisplayDefinedMapping();
             return;
         }
 
@@ -887,14 +940,18 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
     private static NativeList<RuntimeMethodArgument>* ReadArguments(BinaryReader binary, RuntimeIshtarModule* ishtarModule)
     {
         var args = IshtarGC.AllocateList<RuntimeMethodArgument>();
-        foreach (var _ in ..binary.ReadInt32())
+        var size = binary.ReadInt32();
+        foreach (var _ in ..size)
         {
             var nIdx = binary.ReadInt32();
-            var type = binary.ReadTypeName(ishtarModule);
+            var isGeneric = binary.ReadBoolean();
+            RuntimeComplexType argType = isGeneric ?
+                binary.ReadGenericTypeName(ishtarModule) :
+                ishtarModule->FindType(binary.ReadTypeName(ishtarModule), true, false);
 
             var a = RuntimeMethodArgument.Create(ishtarModule->vm.Types,
                 ishtarModule->GetConstStringByIndex(nIdx),
-                ishtarModule->FindType(type, true, false));
+                argType);
             args->Add(a);
         }
         return args;
@@ -914,11 +971,28 @@ public static unsafe class QualityTypeEx
     {
         var typeIndex = bin.ReadInt32();
 
-
         if (!module->types_table->TryGetValue(typeIndex, out var result))
             throw new Exception($"TypeName by index '{typeIndex}' not found in '{module->Name}' module.");
 
         return result;
+    }
+
+    public static RuntimeComplexType ReadComplexType(this BinaryReader bin, RuntimeIshtarModule* module)
+    {
+        var isGeneric = bin.ReadBoolean();
+        if (isGeneric)
+            return bin.ReadGenericTypeName(module);
+        return module->FindType(bin.ReadTypeName(module), true, true);
+    }
+
+    public static RuntimeIshtarTypeArg* ReadGenericTypeName(this BinaryReader bin, RuntimeIshtarModule* module)
+    {
+        var typeIndex = bin.ReadInt32();
+
+        if (module->generics_table->TryGetValue(typeIndex, out var result))
+            return result;
+
+        throw new Exception($"RuntimeIshtarTypeArg by index '{typeIndex}' not found in '{module->Name}' module.");
     }
 
     public static NativeList<T>* ToNative<T>(this List<nint> types) where T : unmanaged, IEq<T>
@@ -1034,7 +1108,7 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
     public AspectTarget Target { get; }
 
 
-    private string _debugString => $"[{StringStorage.GetStringUnsafe(_name)}] {Target}";
+    private string _debugString => $"[{GetStringUnsafe(_name)}] {Target}";
 
     public NativeList<RuntimeAspectArgument>* Arguments { get; } = IshtarGC.AllocateList<RuntimeAspectArgument>();
 
@@ -1042,7 +1116,7 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
     {
         if (_self is null)
             return;
-        var n = StringStorage.GetStringUnsafe(_name);
+        var n = GetStringUnsafe(_name);
         VirtualMachine.GlobalPrintln($"@@@@ Disposed aspect '{n}'");
         _name = null;
         Union = default;
@@ -1060,8 +1134,8 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
 
     public string Name
     {
-        get => StringStorage.GetStringUnsafe(_name);
-        set => _name = StringStorage.Intern(value);
+        get => GetStringUnsafe(_name);
+        set => _name = Intern(value);
     }
 
 
@@ -1141,7 +1215,7 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
             
             *asp = new RuntimeAspect(aspectName, args, AspectTarget.Class, asp);
 
-            asp->Union.ClassAspect.ClassName = StringStorage.Intern(aspectClass);
+            asp->Union.ClassAspect.ClassName = Intern(aspectClass);
 
             if (aspects->FirstOrNull(x => RuntimeAspect.Eq(x, asp)) is not null)
             {
@@ -1170,8 +1244,8 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
             }
             *asp = new RuntimeAspect(aspectName, args, AspectTarget.Method, asp);
 
-            asp->Union.MethodAspect.ClassName = StringStorage.Intern(aspectClass);
-            asp->Union.MethodAspect.MethodName = StringStorage.Intern(aspectMethod);
+            asp->Union.MethodAspect.ClassName = Intern(aspectClass);
+            asp->Union.MethodAspect.MethodName = Intern(aspectMethod);
 
 
             aspects->Add(asp);
