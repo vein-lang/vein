@@ -11,11 +11,14 @@ namespace ishtar
     using static WNE;
     using runtime.gc;
 
+
+    // ReSharper disable once TypeParameterCanBeVariant
     public interface ITransitionAlignment<TKey, TValue>
     {
         TValue this[TKey key] { get; }
     }
 
+    // ReSharper disable once TypeParameterCanBeVariant
     public unsafe interface IUnsafeTransitionAlignment<TKey, TValue> where TValue : unmanaged
     {
         TValue* this[TKey key] { get; }
@@ -492,11 +495,17 @@ namespace ishtar
         public RuntimeIshtarMethod* GetEntryPoint() =>
             Methods->FirstOrNull(x =>
             {
+                if (x->IsSpecial)
+                    return false;
                 if (!x->IsStatic)
+                    return false;
+                if (x->IsExtern)
+                    return false;
+                if (x->ReturnType->TypeCode != TYPE_VOID)
                     return false;
                 if (x->ArgLength > 0)
                     return false;
-                if (!x->Name.Equals("master()"))
+                if (!x->RawName.Equals("master"))
                     return false;
                 return true;
             });
