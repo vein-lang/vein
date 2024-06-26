@@ -1,0 +1,18 @@
+#space "std"
+
+
+
+public static class Mathf : Object
+{
+    public const E: f32 = 2.71828183f;
+
+    public const PI: f32 = 3.14159265f;
+
+    public const Tau: f32 = 6.283185307f;
+
+    private const defaultRoundDigits: i32 = 6;
+
+
+    public static Abs(x: f32): f32 
+        |> 12f;
+}

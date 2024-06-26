@@ -9,9 +9,8 @@
 
 
   <Target Name="CustomTask" AfterTargets="AfterBuild">
-    <Exec Command="veinc.exe" WorkingDirectory="$(OutputPath)" 
-          EnvironmentVariables="VEINC_NOVID=1;NO_COLOR=1;NO_CONSOLE=1">
-      <Output TaskParameter="ConsoleOutput" PropertyName="OutputOfTheCommand" />
-    </Exec>
+    <Exec Command="veinc.exe build --ignore-cache $(ProjectDir)std/std.vproj"
+          WorkingDirectory="$(OutputPath)"
+          EnvironmentVariables="VEINC_NOVID=1;NO_COLOR=1;NO_CONSOLE=1"/>
   </Target>
 </Project>

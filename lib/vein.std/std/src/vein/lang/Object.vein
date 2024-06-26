@@ -1,9 +1,0 @@
-#space "vein/lang"
-
-
-[special, forwarded, alias("object")]
-public class Object
-{
-    public virtual toString(): string
-        |> "<object>";
-}

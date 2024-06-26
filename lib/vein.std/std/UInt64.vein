@@ -1,0 +1,13 @@
+#space "std"
+
+[special, forwarded]
+public struct UInt64 : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+
+    public const MaxValue: self = 18446744073709551615;
+    public const MinValue: self = 0;
+}
+
+global alias u64 <| UInt64;

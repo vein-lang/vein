@@ -1,0 +1,27 @@
+#space "std"
+
+[special, forwarded]
+public class Array
+{
+    [native("!!value")]
+    private _value: ValueType;
+
+    [native("!!block")]
+    private _block: i64;
+
+    [native("!!size")]
+    public readonly Length: i64;
+
+    [native("!!rank")]
+    public readonly Rank: i64;
+
+    public override toString(): string
+    {
+        return "Array";
+    }
+
+    public static empty: Array = new Object[0];
+
+    //protected extern _indexer_get(index: i64): Object;
+    //protected extern _indexer_set(index: i64, o: Object): Void;
+}

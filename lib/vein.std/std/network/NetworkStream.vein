@@ -1,0 +1,12 @@
+#space "vein/lang/network"
+
+#use "vein/lang"
+
+public class NetworkStream : Object
+{
+    /*
+    public read(): u8[] {}
+    public write(u8s: u8[]): Void {}
+    public flush(): Void {}
+    */
+}

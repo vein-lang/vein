@@ -1,0 +1,9 @@
+#space "std"
+
+
+[special, forwarded]
+public class Object
+{
+    public virtual toString(): string
+        |> "<Object>";
+}

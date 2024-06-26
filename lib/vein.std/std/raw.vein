@@ -1,0 +1,9 @@
+#space "std"
+
+
+[special, forwarded, native]
+internal struct Raw {}
+
+
+global alias raw <| Raw;
+global alias ptr <| Raw;

@@ -1,9 +1,0 @@
-#space "vein/lang"
-
-
-[special, forwarded, native, alias("raw")]
-internal struct Raw {}
-
-
-alias raw <| Raw;
-alias ptr <| Raw;

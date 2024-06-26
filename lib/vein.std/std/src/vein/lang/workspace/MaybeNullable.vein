@@ -1,5 +1,0 @@
-#space "vein/lang/workspace"
-#use "vein/lang"
-
-// hmm, maybe need add syntax-sugar for mark as nullable
-public aspect MaybeNullableAspect();

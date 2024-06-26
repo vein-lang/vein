@@ -1,0 +1,11 @@
+#space "std"
+
+
+[special, forwarded]
+public struct Float : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+}
+
+global alias f32 <| Float;

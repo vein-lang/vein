@@ -1,0 +1,5 @@
+#space "std"
+
+
+[special, forwarded]
+public struct Void : ValueType { }

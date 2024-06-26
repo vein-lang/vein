@@ -1,0 +1,11 @@
+#space "std"
+
+
+[special, forwarded]
+public struct Byte : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+}
+
+global alias u8 <| Byte;

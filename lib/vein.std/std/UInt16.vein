@@ -1,0 +1,14 @@
+#space "std"
+
+
+[special, forwarded]
+public struct UInt16 : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+
+    public const MaxValue: u16 = 65535;
+    public const MinValue: u16 = 0;
+}
+
+global alias u16 <| UInt16;

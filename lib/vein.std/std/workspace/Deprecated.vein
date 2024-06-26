@@ -1,0 +1,4 @@
+#space "std/workspace"
+#use "std"
+
+public aspect DeprecatedAspect();

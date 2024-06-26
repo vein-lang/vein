@@ -1,0 +1,11 @@
+#space "std"
+
+
+[special, forwarded]
+public struct Char : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+}
+
+global alias char <| Char;

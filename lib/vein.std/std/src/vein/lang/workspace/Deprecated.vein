@@ -1,4 +1,0 @@
-#space "vein/lang/workspace"
-#use "vein/lang"
-
-public aspect DeprecatedAspect();

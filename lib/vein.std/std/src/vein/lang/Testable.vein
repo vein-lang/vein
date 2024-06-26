@@ -1,9 +1,0 @@
-#space "vein/lang"
-
-public class Testable
-{
-    public static master(): void
-    {
-        Out.print("yamete...");
-    }
-}

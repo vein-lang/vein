@@ -1,0 +1,13 @@
+#space "std"
+
+
+
+public class BitConvert : Object
+{
+    /*
+    public static Tou8s(str: string): u8[]
+    {
+        // ...
+    }
+    */
+}
