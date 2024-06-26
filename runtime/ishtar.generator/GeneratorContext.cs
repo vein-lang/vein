@@ -110,12 +110,15 @@ public class GeneratorContext(GeneratorContextConfig config)
         this.LogError($"Argument '{id}' is not found in '{this.CurrentMethod.Name}' function.", id);
         throw new SkipStatementException();
     }
-    public VeinClass ResolveScopedIdentifierType(IdentifierExpression id)
+    public VeinComplexType ResolveScopedIdentifierType(IdentifierExpression id)
     {
         if (ResolveArgument(id) is not null)
         {
-            var a = ResolveArgument(id);
-            return a.Value.Item1.Type;
+            var (arg, index) = ResolveArgument(id)!.Value;
+
+            if (arg.IsGeneric)
+                return arg.TypeArg;
+            return arg.Type;
         }
         if (CurrentScope.HasVariable(id))
             return CurrentScope.GetVariable(id).@class;
