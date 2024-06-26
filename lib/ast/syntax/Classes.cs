@@ -31,8 +31,8 @@ namespace vein.syntax
         /// [special] public foo: Type;
         /// </example>
         protected internal virtual Parser<PropertyDeclarationSyntax> PropertyDeclaration =>
-            from heading in MemberDeclarationHeading
-            from typeAndName in NameAndType
+            from heading in MemberDeclarationHeading.Positioned()
+            from typeAndName in NameAndType.Positioned()
             from accessors in PropertyBody
             select new PropertyDeclarationSyntax(heading)
             {
@@ -41,8 +41,8 @@ namespace vein.syntax
                 Accessors = accessors.Accessors,
             };
         protected internal virtual Parser<PropertyDeclarationSyntax> PropertyDeclarationShortform =>
-            from heading in MemberDeclarationHeading
-            from typeAndName in NameAndType
+            from heading in MemberDeclarationHeading.Positioned()
+            from typeAndName in NameAndType.Positioned()
             from op in Parse.String("|>").Token()
             from exp in QualifiedExpression.Positioned()
             from end in Parse.IgnoreCase(";").Token()
@@ -73,7 +73,7 @@ namespace vein.syntax
             };
         /// examples: get; private set; get { return 0; }
         protected internal virtual Parser<AccessorDeclarationSyntax> PropertyAccessor =>
-            from heading in MemberDeclarationHeading
+            from heading in MemberDeclarationHeading.Positioned()
             from keyword in Parse.IgnoreCase("get").Or(Parse.IgnoreCase("set")).Token().Text()
             from body in Parse.Char(';').Return(default(BlockSyntax)).Or(Block).Commented(this)
             select new AccessorDeclarationSyntax(heading)
@@ -85,19 +85,19 @@ namespace vein.syntax
         /// example: { get; set; }
         protected internal virtual Parser<PropertyDeclarationSyntax> PropertyBody =>
             from openBrace in Parse.Char('{').Token()
-            from accessors in PropertyAccessor.Many()
+            from accessors in PropertyAccessor.Positioned().Many()
             from closeBrace in Parse.Char('}').Token()
             select new PropertyDeclarationSyntax(accessors);
 
         /// method or property declaration starting with the type and name
         protected internal virtual Parser<MemberDeclarationSyntax> MethodDeclaration =>
-            from dec in MemberDeclarationHeading
-            from name in IdentifierExpression
+            from dec in MemberDeclarationHeading.Positioned()
+            from name in IdentifierExpression.Positioned()
             from member in MethodParametersAndBody.Select(c => c as MemberDeclarationSyntax)
             select member.WithName(name).WithProperties(dec);
 
         protected internal virtual Parser<MemberDeclarationSyntax> CtorDeclaration =>
-            from dec in MemberDeclarationHeading
+            from dec in MemberDeclarationHeading.Positioned()
             from kw in KeywordExpression("new").Or(
                 KeywordExpression("delete"))
             from member in CtorParametersAndBody.Select(c => c as MemberDeclarationSyntax)

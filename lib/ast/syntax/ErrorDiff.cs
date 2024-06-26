@@ -1,6 +1,7 @@
 namespace vein.syntax
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
     using ishtar;
     using Spectre.Console;
@@ -31,8 +32,9 @@ namespace vein.syntax
                     return "";
                 return $"\n\t[grey] {diff.EscapeMarkup().EscapeArgumentSymbols()} [/]\n\t[red] {arrow_line.EscapeMarkup().EscapeArgumentSymbols()} [/]";
             }
-            catch
+            catch(Exception e)
             {
+                Trace.WriteLine(e.ToString());
                 return ""; // TODO analytic
             }
         }
@@ -71,21 +73,41 @@ namespace vein.syntax
             {
                 return NewDiffError(t, sourceLines);
             }
-            catch { }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.ToString());
+            }
 
-            var line = sourceLines[t.pos.Line].Length < t.len ?
-                t.pos.Line - 1 : 
-                /*t.pos.Line*/throw new Exception("cannot detect line");
+            (string line, string arrow_line) cast(int line)
+            {
+                var original = sourceLines[line];
+                var err_line = original[(t.pos.Column - 1)..];
+                var space1 = original[..(t.pos.Column - 1)];
+                var space2 = (t.pos.Column - 1) + t.len > original.Length ? "" : original[((t.pos.Column - 1) + t.len)..];
 
-            var original = sourceLines[line];
-            var err_line = original[(t.pos.Column - 1)..];
-            var space1 = original[..(t.pos.Column - 1)];
-            var space2 = (t.pos.Column - 1) + t.len > original.Length ? "" : original[((t.pos.Column - 1) + t.len)..];
+                return (original,
+                    $"{new string(' ', space1.Length)}{new string('^', err_line.Length)}{new string(' ', space2.Length)}");
+            }
 
-            return (original,
-                $"{new string(' ', space1.Length)}{new string('^', err_line.Length)}{new string(' ', space2.Length)}");
+
+            try
+            {
+                return cast(t.pos.Line - 1);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.ToString());
+            }
+            try
+            {
+                return cast(t.pos.Line);
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine(e.ToString());
+            }
+
+            throw new Exception($"Cant detect line");
         }
-
-
     }
 }

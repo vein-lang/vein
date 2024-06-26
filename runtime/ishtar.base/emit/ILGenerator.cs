@@ -328,14 +328,14 @@ namespace ishtar.emit
         public ExceptionBlockInfo[] GetExceptions()
         {
             if (exceptionBlocks is null)
-                return new ExceptionBlockInfo[0];
-            return exceptionBlocks.Where(x => x is not null).ToArray() ?? new ExceptionBlockInfo[0];
+                return Array.Empty<ExceptionBlockInfo>();
+            return exceptionBlocks.Where(x => x is not null).ToArray() ?? Array.Empty<ExceptionBlockInfo>();
         }
 
         public VeinClass[] GetEffectedExceptions()
         {
             if (exceptionIndex == 0)
-                return new VeinClass[0];
+                return Array.Empty<VeinClass>();
             return new HashSet<VeinClass>(exceptionBlocks.Where(x => x is not null)
                 .SelectMany(x => x.CatchClass).Where(x => x is not null)).ToArray();
         }
@@ -482,6 +482,8 @@ namespace ishtar.emit
         /// Get labels positions.
         /// </summary>
         public int[] GetLabels() => _labels;
+
+        public byte GetStackSize() => 64; // todo calculate stack size
 
         internal byte[] BakeByteArray()
         {
