@@ -1,17 +1,10 @@
 #space "std"
 
-
 public static class Out
 {
     [native("__internal__", "@_println")]
-    public extern static @_println(value: Object): Void;
-    [native("__internal__", "@_println")]
-    public extern static @_println(value: i32): Void;
+    public extern static _println(value: Object): Void;
 
-    public static print(value: string): Void
-        |> Out.@_println(value);
-
-    public static print(value: i32): Void
-        |> Out.@_println(value);
+    public static print<Any>(value: Any): Void
+        |> Out._println(value);
 }
-

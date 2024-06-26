@@ -1,16 +1,31 @@
 #space "std"
 
+
 public class Testable
 {
     public static master(): Void
     {
         Out.print("yamete...");
 
-
         aboba(1, "test string");
+
+        abobus(delMethod);
+    }
+
+
+    public static delMethod(i: i32): Void {
+        Out.print("yamete...");
     }
 
     public static aboba<T, E>(t: T, b: E): Void {
         Out.print("yamete...");
+        Out.print(t);
+        Out.print(b);
+    }
+
+    public static abobus(fn: testMethod): Void {
+        fn(255);
     }
 }
+
+global alias testMethod(i: i32): Void;
