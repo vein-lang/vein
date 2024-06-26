@@ -23,6 +23,7 @@ namespace vein.runtime
         protected internal readonly List<VeinAlias> alias_table = new();
         protected internal readonly Dictionary<int, string> strings_table = new();
         protected internal readonly Dictionary<int, QualityTypeName> types_table = new();
+        protected internal readonly Dictionary<int, VeinTypeArg> generics_table = new();
         protected internal readonly Dictionary<int, FieldName> fields_table = new();
 
         protected internal readonly MutexStorage Interlocker = new ();

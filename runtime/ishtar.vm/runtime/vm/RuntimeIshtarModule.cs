@@ -25,6 +25,9 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
     public IshtarVersion Version { get; internal set; }
 
 
+    
+    public NativeList<RuntimeIshtarAlias>* alias_table { get; private set; }
+        = IshtarGC.AllocateList<RuntimeIshtarAlias>();
     public NativeList<RuntimeIshtarClass>* class_table { get; private set; }
         = IshtarGC.AllocateList<RuntimeIshtarClass>();
     public NativeList<RuntimeIshtarModule>* deps_table { get; private set; }
@@ -34,6 +37,8 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 
     public NativeDictionary<int, RuntimeQualityTypeName>* types_table { get; private set; }
         = IshtarGC.AllocateDictionary<int, RuntimeQualityTypeName>();
+    public NativeDictionary<int, RuntimeIshtarTypeArg>* generics_table { get; private set; }
+        = IshtarGC.AllocateDictionary<int, RuntimeIshtarTypeArg>();
 
     public NativeDictionary<int, RuntimeFieldName>* fields_table { get; private set; }
         = IshtarGC.AllocateDictionary<int, RuntimeFieldName>();
@@ -55,11 +60,15 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
 
         aspects_table->ForEach(x => x->Dispose());
         aspects_table->ForEach(IshtarGC.FreeImmortal);
+        alias_table->ForEach(RuntimeIshtarAlias.Free);
+        generics_table->ForEach((x, y) => RuntimeIshtarTypeArg.Free(y));
 
         types_table->Clear();
         class_table->Clear();
         deps_table->Clear();
         aspects_table->Clear();
+        alias_table->Clear();
+        generics_table->Clear();
 
         IshtarGC.FreeDictionary(types_table);
         IshtarGC.FreeDictionary(fields_table);
@@ -67,6 +76,8 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         IshtarGC.FreeList(class_table);
         IshtarGC.FreeList(deps_table);
         IshtarGC.FreeList(aspects_table);
+        IshtarGC.FreeList(alias_table);
+        IshtarGC.FreeDictionary(generics_table);
 
         WeakRef<AppVault>.Free(Vault);
         
