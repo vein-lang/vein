@@ -286,9 +286,11 @@ namespace ishtar.emit
             {
                 foreach (var method in @class.Methods)
                 {
-                    if (method.ReturnType is not UnresolvedVeinClass)
+                    if (method.ReturnType.IsGeneric)
                         continue;
-                    method.Temp_ReplaceReturnType(module.FindType(method.ReturnType.FullName, true));
+                    if (method.ReturnType.Class is not UnresolvedVeinClass)
+                        continue;
+                    method.Temp_ReplaceReturnType(module.FindType(method.ReturnType.Class.FullName, true));
                 }
 
                 foreach (var method in @class.Methods)
@@ -304,9 +306,11 @@ namespace ishtar.emit
                 }
                 foreach (var field in @class.Fields)
                 {
-                    if (field.FieldType is not UnresolvedVeinClass)
+                    if (field.FieldType.IsGeneric)
                         continue;
-                    field.FieldType = module.FindType(field.FieldType.FullName, true);
+                    if (field.FieldType.Class is not UnresolvedVeinClass)
+                        continue;
+                    field.FieldType = module.FindType(field.FieldType.Class.FullName, true);
                 }
             }
 
@@ -400,8 +404,7 @@ namespace ishtar.emit
             foreach (var _ in ..binary.ReadInt32())
             {
                 var name = FieldName.Resolve(binary.ReadInt32(), module);
-                var type_name = binary.ReadTypeName(module);
-                var type = module.FindType(type_name, true, false);
+                var type = binary.ReadComplexType(module);
                 var flags = (FieldFlags) binary.ReadInt16();
                 var method = new VeinField(@class, name, flags, type);
                 @class.Fields.Add(method);
@@ -417,11 +420,11 @@ namespace ishtar.emit
             var bodysize = binary.ReadInt32();
             var stacksize = binary.ReadByte();
             var locals = binary.ReadByte();
-            var retType = binary.ReadTypeName(module);
+            var retType = binary.ReadComplexType(module);
             var args = ReadArguments(binary, module);
             var _ = binary.ReadBytes(bodysize);
             return new VeinMethod(module.GetConstStringByIndex(idx), flags,
-                module.FindType(retType, true, false),
+                retType,
                 @class, args.ToArray());
         }
 

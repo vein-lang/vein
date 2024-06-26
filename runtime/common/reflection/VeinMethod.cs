@@ -65,7 +65,7 @@ namespace vein.runtime
     public class VeinMethod : VeinMember, IAspectable
     {
         public VeinMethodSignature Signature { get; private set; }
-        public VeinClass ReturnType => Signature.ReturnType;
+        public VeinComplexType ReturnType => Signature.ReturnType;
         public VeinClass Owner { get; protected internal set; }
         public Dictionary<int, VeinArgumentRef> Locals { get; } = new();
         public List<Aspect> Aspects { get; } = new();
@@ -74,15 +74,7 @@ namespace vein.runtime
         public void Temp_ReplaceReturnType(VeinClass clazz) => Signature = Signature with { ReturnType = clazz };
 
 
-        internal VeinMethod(string name, MethodFlags flags, VeinClass returnType, VeinClass owner, params VeinArgumentRef[] args)
-        {
-            Owner = owner;
-            Flags = flags;
-            Signature = new VeinMethodSignature(returnType, args);
-            Name = RegenerateName(name);
-        }
-
-        internal VeinMethod(string name, MethodFlags flags, VeinTypeArg returnType, VeinClass owner, params VeinArgumentRef[] args)
+        internal VeinMethod(string name, MethodFlags flags, VeinComplexType returnType, VeinClass owner, params VeinArgumentRef[] args)
         {
             Owner = owner;
             Flags = flags;
@@ -97,7 +89,10 @@ namespace vein.runtime
 
         public static string GetFullName(string name, VeinComplexType returnType, IEnumerable<VeinArgumentRef> args)
             => $"{name}{new VeinMethodSignature(returnType, args.ToList()).ToTemplateString()}";
-        
+
+        public static string GetFullName(string name, VeinComplexType returnType, IEnumerable<VeinComplexType> args)
+            => $"{name}{new VeinMethodSignature(returnType, args.Select((x, y) => new VeinArgumentRef(y.ToString(), x)).ToList()).ToTemplateString()}";
+
         public static string GetFullName(string name, VeinComplexType returnType, IEnumerable<VeinClass> args)
             => $"{name}{new VeinMethodSignature(returnType, args.Select((x, y) => new VeinArgumentRef(y.ToString(), x)).ToList()).ToTemplateString()}";
 

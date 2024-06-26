@@ -195,7 +195,7 @@ namespace ishtar.emit
             foreach (var field in Fields)
             {
                 binary.Write(moduleBuilder.InternFieldName(field.FullName));
-                binary.WriteTypeName(field.FieldType.FullName, moduleBuilder);
+                binary.WriteComplexType(field.FieldType, moduleBuilder);
                 binary.Write((short)field.Flags);
             }
             return mem.ToArray();
@@ -214,7 +214,7 @@ namespace ishtar.emit
             foreach (var field in Fields)
             {
                 var flags = field.Flags.EnumerateFlags(new [] {FieldFlags.None}).Join(' ').ToLowerInvariant();
-                str.AppendLine($"\t.field '{field.Name}' as '{field.FieldType.Name}' {flags}");
+                str.AppendLine($"\t.field '{field.Name}' as '{field.FieldType.ToTemplateString()}' {flags}");
             }
             foreach (var method in Methods.OfType<IBaker>().Select(method => method.BakeDebugString()))
                 str.AppendLine($"{method.Split("\n").Select(x => $"\t{x}").Join("\n").TrimEnd('\n')}");
@@ -236,8 +236,7 @@ namespace ishtar.emit
                 flags |= MethodFlags.Static;
 
             var returnType = isStatic ? VeinTypeCode.TYPE_VOID.AsClass(moduleBuilder) : this;
-            var args = isStatic || name == "dtor" ? new VeinArgumentRef[0] :
-                new VeinArgumentRef[1] { new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, this) };
+            var args = isStatic || name == "dtor" ? Array.Empty<VeinArgumentRef>() : [new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, this)];
 
             ctor = DefineMethod(name, flags, returnType, args);
             moduleBuilder.InternString(ctor.Name);

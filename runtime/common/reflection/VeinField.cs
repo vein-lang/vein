@@ -42,11 +42,11 @@ namespace vein.runtime
         public override string ToString() => $"{Class}.{Name}";
     }
 
-    public class VeinProperty(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass propType)
+    public class VeinProperty(VeinClass owner, FieldName fullName, FieldFlags flags, VeinComplexType propType)
         : VeinMember, IAspectable
     {
         public FieldName FullName { get; protected internal set; } = fullName;
-        public VeinClass PropType { get; set; } = propType;
+        public VeinComplexType PropType { get; set; } = propType;
         public FieldFlags Flags { get; set; } = flags;
         public VeinClass Owner { get; set; } = owner;
         public List<Aspect> Aspects { get; } = new();
@@ -113,8 +113,8 @@ namespace vein.runtime
                 ShadowField = shadowField
             };
 
-            var setterArgs = shadowField.IsStatic ? Array.Empty<VeinClass>() : [clazz];
-            var getterArgs = shadowField.IsStatic ? [shadowField.FieldType] : new[] { clazz, shadowField.FieldType };
+            var setterArgs = shadowField.IsStatic ? Array.Empty<VeinComplexType>() : [clazz];
+            var getterArgs = shadowField.IsStatic ? [shadowField.FieldType] : new[] { (VeinComplexType)clazz, shadowField.FieldType };
 
             var getMethod = clazz.FindMethod(GetterFnName(name), setterArgs, true);
 
@@ -130,11 +130,11 @@ namespace vein.runtime
         }
     }
 
-    public class VeinField(VeinClass owner, FieldName fullName, FieldFlags flags, VeinClass fieldType)
+    public class VeinField(VeinClass owner, FieldName fullName, FieldFlags flags, VeinComplexType fieldType)
         : VeinMember, IAspectable
     {
         public FieldName FullName { get; protected internal set; } = fullName;
-        public VeinClass FieldType { get; set; } = fieldType;
+        public VeinComplexType FieldType { get; set; } = fieldType;
         public FieldFlags Flags { get; set; } = flags;
         public VeinClass Owner { get; set; } = owner;
         public List<Aspect> Aspects { get; } = new();
@@ -195,9 +195,11 @@ namespace vein.runtime
 
         public static Func<string, object> GetConverter(this VeinField field)
         {
+            if (field.FieldType.IsGeneric)
+                throw new ConvertNotSupportedException(field); // generic not support convert
             try
             {
-                return GetConverter(field.FieldType.TypeCode);
+                return GetConverter(field.FieldType.Class.TypeCode);
             }
             catch (NotSupportedException)
             {

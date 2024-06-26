@@ -9,6 +9,7 @@ namespace vein.exceptions
             : base($"Cannot get converted, '{typeCode}' is not supported.") { }
 
         public ConvertNotSupportedException(VeinField field)
-            : base($"Cannot get converted, '{field.FullName}' with '{field.FieldType.FullName.NameWithNS}' type is not supported.") { }
+            : base(
+                $"Cannot get converted, '{field.FullName}' with '{field.FieldType.ToTemplateString()}' type is not supported.") { }
     }
 }
