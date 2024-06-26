@@ -121,13 +121,6 @@ namespace ishtar
 
         public RuntimeIshtarMethod* DefineEmptySystemMethod(string name)
             => CreateInternalMethod(name, MethodFlags.Extern, TYPE_VOID.AsRuntimeClass(Types), Array.Empty<VeinArgumentRef>());
-        public RuntimeIshtarMethod* DefineEmptySystemMethod(string name, RuntimeIshtarClass* clazz)
-        {
-            var args = IshtarGC.AllocateList<RuntimeMethodArgument>();
-            args->Add(RuntimeMethodArgument.Create(Types, "i1", clazz));
-            return InternalClass->DefineMethod(VeinMethodBase.GetFullName(name, new List<(string argName, string typeName)>() { ("i1", clazz->Name) }), TYPE_VOID.AsRuntimeClass(Types),
-                MethodFlags.Extern | MethodFlags.Private | MethodFlags.Special, args);
-        }
 
 
         public volatile NativeException CurrentException;
