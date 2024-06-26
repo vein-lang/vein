@@ -19,19 +19,50 @@ public partial class CompilationTask
             throw new SkipStatementException();
         }
 
-        if (!method.Modifiers.Any(x => x.ModificatorKind == ModificatorKind.Static))
+        if (method.Modifiers.All(x => x.ModificatorKind != ModificatorKind.Static))
             args.Add(new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, FetchType(method.OwnerClass.Identifier, doc)));
 
         if (method.Parameters.Count == 0)
             return args.ToArray();
+        
+        return args.Concat(Convert(method.Parameters, method)).ToArray();
+    }
 
-        return args.Concat(method.Parameters.Select(parameter => new VeinArgumentRef
+    private IEnumerable<VeinArgumentRef> Convert(List<ParameterSyntax> args, MethodDeclarationSyntax method)
+    {
+        VeinClass selector(TypeExpression exp) => FetchType(exp.Typeword, method.OwnerDocument);
+
+        foreach (var parameter in args)
         {
-            Type = parameter.Type.IsSelf ?
-                FetchType(method.OwnerClass.Identifier, doc) :
-                FetchType(parameter.Type, doc),
-            Name = parameter.Identifier.ExpressionString
+            var name = parameter.Identifier.ExpressionString;
+            var generic = method.GenericTypes.FirstOrDefault(x => x.Typeword.Equals(parameter.Type));
+            var constraints =
+                method.TypeParameterConstraints.FirstOrDefault(x => x.GenericIndex.Typeword.Equals(parameter.Type));
 
-        })).ToArray();
+            var classGeneric = method.OwnerClass.GenericTypes.FirstOrDefault(x => x.Typeword.Equals(parameter.Type));
+            var classGenericConstrains = method.OwnerClass.TypeParameterConstraints.FirstOrDefault(x => x.GenericIndex.Typeword.Equals(parameter.Type));
+
+            if (generic is not null && classGeneric is not null)
+            {
+                Log.Defer.Error($"Detected conflict of declaration generic types, generic type '[red bold]{parameter.Type.Identifier}[/]' " +
+                                $"is declared in the '[red bold]{method.Identifier}[/]' method and in the '[red bold]{method.OwnerClass.Identifier}[/]' class", generic, method.OwnerDocument);
+                throw new SkipStatementException();
+            }
+
+            if (generic is not null && constraints is not null)
+                yield return new VeinArgumentRef(name,
+                    generic.Typeword.ToTypeArg([constraints.ToConstraint(selector)]));
+            else if (generic is not null)
+                yield return new VeinArgumentRef(name, generic.Typeword.ToTypeArg([]));
+            else if (classGeneric is not null && classGenericConstrains is not null)
+                yield return new VeinArgumentRef(name,
+                    classGeneric.Typeword.ToTypeArg([classGenericConstrains.ToConstraint(selector)]));
+            else if (classGeneric is not null)
+                yield return new VeinArgumentRef(name, classGeneric.Typeword.ToTypeArg([]));
+            else if(parameter.Type.IsSelf)
+                yield return new VeinArgumentRef(name, FetchType(method.OwnerClass.Identifier, method.OwnerDocument));
+            else
+                yield return new VeinArgumentRef(name, FetchType(parameter.Type, method.OwnerDocument));
+        }
     }
 }

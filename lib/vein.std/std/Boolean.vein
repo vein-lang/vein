@@ -1,0 +1,17 @@
+#space "std"
+
+
+[special, forwarded]
+public struct Boolean : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+
+    public const True: bool = true;
+    public const False: bool = false;
+
+    public const TrueString: string = "true";
+    public const FalseString: string = "false";
+}
+
+global alias bool <| Boolean;

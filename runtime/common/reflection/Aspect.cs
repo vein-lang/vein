@@ -4,7 +4,7 @@ namespace vein.reflection
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using vein.runtime;
+    using runtime;
 
     public class AspectArgument
     {
@@ -70,6 +70,8 @@ namespace vein.reflection
 
     public class Aspect
     {
+        public const string ASPECT_METADATA_DIVIDER = "#";
+
         public string Name { get; }
         public AspectTarget Target { get; }
 
@@ -96,11 +98,11 @@ namespace vein.reflection
         {
             static AspectTarget getTarget(FieldName name)
             {
-                if (name.fullName.Contains("/method/"))
+                if (name.fullName.Contains($"{ASPECT_METADATA_DIVIDER}method{ASPECT_METADATA_DIVIDER}"))
                     return AspectTarget.Method;
-                if (name.fullName.Contains("/field/"))
+                if (name.fullName.Contains($"{ASPECT_METADATA_DIVIDER}field{ASPECT_METADATA_DIVIDER}"))
                     return AspectTarget.Field;
-                if (name.fullName.Contains("/class/"))
+                if (name.fullName.Contains($"{ASPECT_METADATA_DIVIDER}class{ASPECT_METADATA_DIVIDER}"))
                     return AspectTarget.Class;
 
                 throw new UnknownAspectTargetException(name);
@@ -110,7 +112,7 @@ namespace vein.reflection
 
             // shit
             var groups =
-                dictionary.Where(x => x.Key.fullName.StartsWith("aspect/"))
+                dictionary.Where(x => x.Key.fullName.StartsWith($"aspect{ASPECT_METADATA_DIVIDER}"))
                     .Select(x => (getTarget(x.Key), x))
                 .GroupBy(x => x.Item1)
                 .ToArray();
@@ -143,24 +145,24 @@ namespace vein.reflection
 
             // rly shit
             var groupClasses = classes.GroupBy(x =>
-                x.Key.fullName.Replace("aspect/", "")
-                    .Replace("/class", "")
+                x.Key.fullName.Replace($"aspect{ASPECT_METADATA_DIVIDER}", "")
+                    .Replace($"{ASPECT_METADATA_DIVIDER}class", "")
                     .Split('.').First());
             var groupMethods = methods.GroupBy(x =>
-                x.Key.fullName.Replace("aspect/", "")
-                    .Replace("/class", "")
-                    .Replace("/method", "")
+                x.Key.fullName.Replace($"aspect{ASPECT_METADATA_DIVIDER}", "")
+                    .Replace($"{ASPECT_METADATA_DIVIDER}class", "")
+                    .Replace($"{ASPECT_METADATA_DIVIDER}method", "")
                     .Split('.').First());
             var groupFields = fields.GroupBy(x =>
-                x.Key.fullName.Replace("aspect/", "")
-                    .Replace("/class", "")
-                    .Replace("/field", "")
+                x.Key.fullName.Replace($"aspect{ASPECT_METADATA_DIVIDER}", "")
+                    .Replace($"{ASPECT_METADATA_DIVIDER}class", "")
+                    .Replace($"{ASPECT_METADATA_DIVIDER}field", "")
                     .Split('.').First());
 
             foreach (var groupClass in groupClasses)
             {
-                var aspectName = groupClass.Key.Split('/').First();
-                var aspectClass = groupClass.Key.Split('/').Last();
+                var aspectName = groupClass.Key.Split(ASPECT_METADATA_DIVIDER).First();
+                var aspectClass = groupClass.Key.Split(ASPECT_METADATA_DIVIDER).Last();
                 var aspect = new AspectOfClass(aspectName, aspectClass);
                 foreach (var (key, value) in groupClass)
                 {
@@ -171,9 +173,9 @@ namespace vein.reflection
             }
             foreach (var groupMethod in groupMethods)
             {
-                var aspectName = groupMethod.Key.Split('/')[0];
-                var aspectClass = groupMethod.Key.Split('/')[1];
-                var aspectMethod = groupMethod.Key.Split('/')[2];
+                var aspectName = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[0];
+                var aspectClass = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[1];
+                var aspectMethod = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[2];
                 var aspect = new AspectOfMethod(aspectName, aspectClass, aspectMethod);
                 foreach (var (key, value) in groupMethod)
                 {
@@ -184,9 +186,9 @@ namespace vein.reflection
             }
             foreach (var groupMethod in groupFields)
             {
-                var aspectName = groupMethod.Key.Split('/')[0];
-                var aspectClass = groupMethod.Key.Split('/')[1];
-                var aspectField = groupMethod.Key.Split('/')[2];
+                var aspectName = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[0];
+                var aspectClass = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[1];
+                var aspectField = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[2];
                 var aspect = new AspectOfField(aspectName, aspectClass, aspectField);
                 foreach (var (key, value) in groupMethod)
                 {

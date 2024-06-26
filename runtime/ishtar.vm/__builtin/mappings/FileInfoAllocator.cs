@@ -23,5 +23,5 @@ public unsafe class FileInfoAllocator : TransitAllocator<FileInfo>
         //IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_TYPE_BARRIER);
     }
 
-    public override VeinClass Type => IshtarMetaClass.Define("vein/lang/fs", "File");
+    public override VeinClass Type => IshtarMetaClass.Define("std/fs", "File");
 }

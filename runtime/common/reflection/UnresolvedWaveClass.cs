@@ -1,10 +1,10 @@
 namespace vein.reflection
 {
-    using vein.runtime;
+    using runtime;
 
     public class UnresolvedVeinClass : VeinClass
     {
         public UnresolvedVeinClass(QualityTypeName fullName)
-            => this.FullName = fullName;
+            => FullName = fullName;
     }
 }

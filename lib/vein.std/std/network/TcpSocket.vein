@@ -1,0 +1,62 @@
+#space "vein/lang/network"
+
+#use "vein/lang"
+
+public class TcpSocket2
+{
+    private _port: u16;
+    private _is_listing: bool;
+    private _handle: ValueType;
+    private _blocked: bool;
+    private _connected: bool;
+
+    /*
+    [native("__internal__", "@_sock_listen")]
+    public static extern _sock_listen(handle: ValueType, cq: i32): i32;
+
+    [native("__internal__", "@_sock_send")]
+    public static extern _sock_send(handle: ValueType, buffer: u8[], len: i32): ValueType;
+
+    [native("__internal__", "@_sock_create")]
+    public static extern _create_native_socket(): ValueType;
+    */
+
+    public IsBlocked(): bool { return _blocked; }
+    public IsListed(): bool { return _is_listing; }
+    public IsConnected(): bool { return _connected; }
+
+    public Bind(): Void
+    { }
+
+    public Send(buffer: u8[]): i32
+    {
+        /*
+        auto result = TcpSocket._sock_send(this._handle, buffer, buffer.Length);
+        return result;
+        */
+        return 0;
+    }
+
+    public Listen(cq: i32): Void
+    {
+        /*
+        auto errorCode = TcpSocket._sock_listen(this._handle, cq);
+
+        if (errorCode != 0)
+        {
+            Application.Shutdown("socker error", errorCode);
+        }
+
+        _is_listing = true;
+        */
+    }
+
+    public static Create(port: u16): TcpSocket
+    {
+        /*
+        auto sock = new TcpSocket();
+        sock._port = port;
+        sock._handle = TcpSocket._create_native_socket();
+        */
+    }
+}

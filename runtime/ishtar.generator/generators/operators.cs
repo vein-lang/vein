@@ -40,9 +40,11 @@ public static class G_Operators
             var name = $"op_{op}";
             var args = new[] { left_type, right_type };
 
-            var methodName = VeinMethodBase.GetFullName(name, args);
 
             var method = left_type.FindMethod(name, args);
+
+            var methodName = VeinMethod.GetFullName(name, method.ReturnType, args);
+
             if (method is null || !method.IsStatic || !method.IsSpecial)
             {
                 context.LogError($"Operator '{op.GetSymbol()}' " +

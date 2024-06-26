@@ -106,6 +106,20 @@ namespace ishtar.emit
             //logger.Information("TypeName '{name}' baked by index: {key}", name, key);
             return key;
         }
+
+        /// <summary>
+        /// Intern TypeName constant into module storage and return TypeName index.
+        /// </summary>
+        /// <exception cref="ArgumentNullException"></exception>
+        public int InternGenericTypeName(VeinTypeArg name)
+        {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+            var key = _intern(generics_table, name);
+
+            //logger.Information("TypeName '{name}' baked by index: {key}", name, key);
+            return key;
+        }
         /// <summary>
         /// Intern FieldName constant into module storage and return FieldName index.
         /// </summary>
@@ -140,9 +154,6 @@ namespace ishtar.emit
             binary.Write(idx);
             binary.Write(vdx);
             binary.Write(OpCodes.SetVersion);
-
-
-
 
             binary.Write(strings_table.Count);
             foreach (var (key, value) in strings_table)
@@ -202,6 +213,33 @@ namespace ishtar.emit
                         throw new NotSupportedException();
                 }
             }
+
+            binary.Write(generics_table.Count);
+            foreach (var (i, generic) in generics_table)
+            {
+                binary.Write(i);
+                binary.WriteIshtarString(generic.Name);
+
+                binary.Write(generic.Constraints.Count);
+                foreach (var constraint in generic.Constraints)
+                {
+                    switch (constraint.Constraint)
+                    {
+                        case VeinTypeParameterConstraint.BITTABLE:
+                        case VeinTypeParameterConstraint.CLASS:
+                            break;
+                        case VeinTypeParameterConstraint.TYPE when constraint is VeinBaseConstraintConstType t:
+                            binary.WriteTypeName(t.classes.FullName, this);
+                            break;
+                        case VeinTypeParameterConstraint.SIGNATURE when constraint is VeinBaseConstraintConstSignature s:
+                            binary.WriteTypeName(s.@interface.FullName, this);
+                        break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+            }
+
             var constBody = const_table.BakeByteArray();
             binary.Write(constBody.Length);
             binary.Write(constBody);

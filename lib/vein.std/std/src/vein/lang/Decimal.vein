@@ -1,9 +1,0 @@
-#space "vein/lang"
-
-
-[special, forwarded]
-public struct Decimal : ValueType
-{
-    [native("!!value")]
-    private _value: ValueType;
-}

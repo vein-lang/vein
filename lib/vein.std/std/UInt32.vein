@@ -1,0 +1,14 @@
+#space "std"
+
+
+[special, forwarded]
+public struct UInt32 : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+
+    public const MaxValue: self = 4294967295;
+    public const MinValue: self = 0;
+}
+
+global alias u32 <| UInt32;

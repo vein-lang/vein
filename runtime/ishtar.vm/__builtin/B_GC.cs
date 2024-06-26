@@ -1,6 +1,7 @@
 namespace ishtar;
 
 using static vein.runtime.MethodFlags;
+using static vein.runtime.VeinTypeCode;
 
 public static unsafe class B_GC
 {
@@ -16,10 +17,10 @@ public static unsafe class B_GC
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
-        ffi.Add("i_call_GC_get_allocated", Public | Static | Extern)->
+        ffi.Add("i_call_GC_get_allocated", Public | Static | Extern, TYPE_I8)->
             AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&GetAllocatedBytes);
 
-        ffi.Add("i_call_GC_get_alive_objects", Public | Static | Extern)->
+        ffi.Add("i_call_GC_get_alive_objects", Public | Static | Extern, TYPE_I8)->
             AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&GetAliveObjects);
     }
 }

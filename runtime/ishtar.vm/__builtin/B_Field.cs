@@ -30,7 +30,7 @@ public static unsafe class B_Field
     }
 
 
-    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("vein/lang", "Field");
+    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("std", "Field");
 
 
     public static void InitTable(ForeignFunctionInterface ffi)

@@ -177,6 +177,9 @@ public unsafe class IshtarJIT(VirtualMachine vm)
     public void* WrapNativeCall(IntPtr procedure, List<VeinArgumentRef> Arguments,
         void* returnValue, VeinTypeCode returnType)
     {
+        if (Arguments.Any(x => x.IsGeneric))
+            throw new NotSupportedException("generics is not support");
+
         var asm = AllocEmitter();
         var stackOffset = 0;
         var desc = ConvertArgumentToDesc(Arguments);
@@ -201,7 +204,7 @@ public unsafe class IshtarJIT(VirtualMachine vm)
         for (var i = 0; i < desc.Count; i++)
         {
             var argInfo = desc[i];
-            var atype = Arguments[i].Type.TypeCode;
+            var atype = Arguments[i].ComplexType.Class.TypeCode;
 
             if (argInfo.Instruction is x64_AssemblerStep.InstructionTarget.push)
             {
@@ -452,22 +455,6 @@ public unsafe class IshtarJIT(VirtualMachine vm)
         return null;
     }
 
-    
-    private TypeMarshalBox RemapToNative(VeinArgumentRef arg)
-    {
-        if (arg.Type.IsValueType)
-            return RemapValueTypeToNative(arg);
-        return new TypeMarshalBox((byte)sizeof(nint), arg.Type);
-    }
-
-
-    private TypeMarshalBox RemapValueTypeToNative(VeinArgumentRef arg)
-    {
-        var type = arg.Type;
-        var size = type.TypeCode.GetNativeSize();
-
-        return new TypeMarshalBox(size, type);
-    }
     
     public void* WrapNativeCall_WithArg_Int32(void* procedure, long value)
     {

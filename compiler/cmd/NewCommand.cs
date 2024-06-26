@@ -46,7 +46,7 @@ public class NewCommand : Command<NewCommandSettings>
             curDir.File("app.vein").WriteAllText(
                 $"""
                  #space "{name}"
-                 #use "vein/lang"
+                 #use "std"
 
                  class App {"{"}
                     public static master(): void

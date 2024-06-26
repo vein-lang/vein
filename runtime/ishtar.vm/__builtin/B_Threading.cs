@@ -16,7 +16,7 @@ public static unsafe class B_Threading
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
-        ffi.Add("_createThread", MethodFlags.Static)
+        ffi.Add("_createThread", MethodFlags.Static, VeinTypeCode.TYPE_VOID)
             ->AsNative(&createThread);
     }
 }

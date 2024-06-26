@@ -106,6 +106,18 @@ namespace ishtar.emit
             return result.ToArray();
         }
 
+        public static T[] ReadSpecialInt32Array<T>(this BinaryReader bin) where T : Enum
+        {
+            Debug.Assert(bin.ReadInt32() == 0x19, "[magic number] bin.ReadInt32() == 0x19");
+            var sign = bin.ReadIshtarString();
+            var size = bin.ReadInt32();
+            var result = new List<T>();
+            foreach (int _ in ..size)
+                result.Add((T)(object)bin.ReadInt32());
+            Debug.Assert(bin.ReadInt32() == 0x61, "[magic number] bin.ReadInt32() == 0x61");
+            return result.ToArray();
+        }
+
         public static byte[] ReadSpecialDirectByteArray(this BinaryReader bin)
         {
             Debug.Assert(bin.ReadInt32() == 0x19, "[magic number] bin.ReadInt32() == 0x19");
@@ -131,7 +143,7 @@ namespace ishtar.emit
         }
     }
 
-    internal class ModuleReader : VeinModule
+    internal class ModuleReader(VeinCore types) : VeinModule(".unnamed", types)
     {
         public static ModuleReader Read(byte[] arr, IReadOnlyList<VeinModule> deps, Func<string, Version, VeinModule> resolver)
         {
@@ -223,6 +235,38 @@ namespace ishtar.emit
                 }
             }
 
+            foreach (var _ in ..reader.ReadInt32())
+            {
+                var key = reader.ReadInt32();
+                var name = reader.ReadIshtarString();
+                var cts = new List<VeinBaseConstraint>();
+
+                foreach (var count in ..reader.ReadInt32())
+                {
+                    var k = reader.ReadInt32();
+                    var kind = (VeinTypeParameterConstraint)reader.ReadInt32();
+
+                    if (kind == VeinTypeParameterConstraint.BITTABLE)
+                        cts.Add(new VeinBaseConstraintConstBittable());
+                    else if (kind == VeinTypeParameterConstraint.CLASS)
+                        cts.Add(new VeinBaseConstraintConstClass());
+                    else if (kind == VeinTypeParameterConstraint.TYPE)
+                    {
+                        var type = reader.ReadTypeName(module);
+                        cts.Add(new VeinBaseConstraintConstType(module.FindType(type, true)));
+                    }
+                    else if (kind == VeinTypeParameterConstraint.SIGNATURE)
+                    {
+                        var type = reader.ReadTypeName(module);
+                        cts.Add(new VeinBaseConstraintConstSignature(module.FindType(type, true)));
+                    }
+                    else
+                        throw new NotImplementedException();
+                }
+
+                module.generics_table.Add(key, new VeinTypeArg(name, cts));
+            }
+
             // restore unresolved types
             foreach (var @class in module.class_table)
             {
@@ -244,16 +288,18 @@ namespace ishtar.emit
                 {
                     if (method.ReturnType is not UnresolvedVeinClass)
                         continue;
-                    method.ReturnType = module.FindType(method.ReturnType.FullName, true);
+                    method.Temp_ReplaceReturnType(module.FindType(method.ReturnType.FullName, true));
                 }
 
                 foreach (var method in @class.Methods)
                 {
-                    foreach (var argument in method.Arguments)
+                    foreach (var argument in method.Signature.Arguments)
                     {
-                        if (argument.Type is not UnresolvedVeinClass)
+                        if (argument.IsGeneric)
                             continue;
-                        argument.Type = module.FindType(argument.Type.FullName, true);
+                        if (argument.ComplexType.Class is not UnresolvedVeinClass)
+                            continue;
+                        argument.Temp_ReplaceType(module.FindType(argument.ComplexType.Class.FullName, true));
                     }
                 }
                 foreach (var field in @class.Fields)
@@ -387,17 +433,19 @@ namespace ishtar.emit
             foreach (var _ in ..binary.ReadInt32())
             {
                 var nIdx = binary.ReadInt32();
-                var type = binary.ReadTypeName(module);
-                args.Add(new VeinArgumentRef
+                var isGeneric = binary.ReadBoolean();
+                if (isGeneric)
                 {
-                    Name = module.GetConstStringByIndex(nIdx),
-                    Type = module.FindType(type, true, false)
-                });
+                    var generic = binary.ReadGenericTypeName(module);
+                    args.Add(new VeinArgumentRef(module.GetConstStringByIndex(nIdx), generic));
+                }
+                else
+                {
+                    var type = binary.ReadTypeName(module);
+                    args.Add(new VeinArgumentRef(module.GetConstStringByIndex(nIdx), module.FindType(type, true, false)));
+                }
             }
             return args;
-        }
-        public ModuleReader(VeinCore types) : base(".unnamed", types)
-        {
         }
     }
 }

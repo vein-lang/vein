@@ -1,0 +1,12 @@
+#space "std"
+
+
+[special, forwarded]
+public struct Double : ValueType
+{
+    [native("!!value")]
+    private _value: ValueType;
+}
+
+
+global alias f64 <| Double;

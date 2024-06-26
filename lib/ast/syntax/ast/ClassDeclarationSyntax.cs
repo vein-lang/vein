@@ -73,9 +73,16 @@ namespace vein.syntax
             TrailingComments = classBody.TrailingComments;
         }
 
-        public static ClassDeclarationSyntax Create(MemberDeclarationSyntax heading, ClassDeclarationSyntax classBody) =>
-            classBody.IsInterface ? new InterfaceDeclarationSyntax(heading, classBody) :
-                new ClassDeclarationSyntax(heading, classBody);
+        public static ClassDeclarationSyntax Create(MemberDeclarationSyntax heading, ClassDeclarationSyntax classBody)
+        {
+            if (classBody.IsInterface)
+                return new InterfaceDeclarationSyntax(heading, classBody);
+            return new ClassDeclarationSyntax(heading, classBody)
+            {
+                GenericTypes = classBody.GenericTypes,
+                TypeParameterConstraints = classBody.TypeParameterConstraints
+            };
+        }
 
         public override SyntaxType Kind => SyntaxType.Class;
 
@@ -106,7 +113,8 @@ namespace vein.syntax
         public List<FieldDeclarationSyntax> Fields => Members.OfType<FieldDeclarationSyntax>().ToList();
 
         public List<PropertyDeclarationSyntax> Properties => Members.OfType<PropertyDeclarationSyntax>().ToList();
-
+        public List<TypeParameterConstraintSyntax> TypeParameterConstraints { get; set; } = new();
+        public List<TypeExpression> GenericTypes { get; set; } = new();
 
         public new ClassDeclarationSyntax SetPos(Position startPos, int length)
         {

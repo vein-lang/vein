@@ -1,9 +1,0 @@
-#space "test"
-
-#use "vein/lang"
-
-public static class Na
-{
-    [native("kernel32", "GetConsoleWindow")]
-    public static extern foobar(): i32;
-}

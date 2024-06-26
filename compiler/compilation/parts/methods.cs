@@ -81,6 +81,9 @@ public partial class CompilationTask
                 case "abstract":
                     flags |= MethodFlags.Virtual;
                     continue;
+                case "async":
+                    flags |= MethodFlags.Async;
+                    continue;
                 default:
                     Log.Defer.Error(
                         $"In [orange]'{method.Identifier}'[/] method [red bold]{mod.ModificatorKind}[/] " +
@@ -96,7 +99,11 @@ public partial class CompilationTask
                 $"Modificator [red bold]public[/] cannot be combined with [red bold]private[/] " +
                 $"in [orange]'{method.Identifier}'[/] method.",
                 method.ReturnType, method.OwnerClass.OwnerDocument);
-
+        if (flags.HasFlag(MethodFlags.Async) && !method.ReturnType.IsAsyncJob)
+            Log.Defer.Error(
+                $"Method [orange]'{method.Identifier}'[/] has marked as [red bold]async[/] " +
+                $"but return type is not [red bold]Job[/] ",
+                method.ReturnType, method.OwnerClass.OwnerDocument);
 
         return flags;
     }

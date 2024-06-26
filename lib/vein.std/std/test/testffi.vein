@@ -1,9 +1,0 @@
-#space "test"
-
-#use "vein/lang"
-
-
-public class FooBar {
-    [native("kernel32", "GetConsoleWindow")]
-    public extern static GetConsoleWindow(): raw;
-}

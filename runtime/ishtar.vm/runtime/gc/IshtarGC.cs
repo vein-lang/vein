@@ -556,17 +556,15 @@ namespace ishtar.runtime.gc
 
         #region internal
 
-#if !BOEHM_GC
+#if BOEHM_GC
         private static readonly AllocatorBlock _allocator = new()
         {
-            alloc = &IshtarGC_Alloc,
-            alloc_primitives = &IshtarGC_AtomicAlloc,
+            alloc = &AllocateImmortal,
+            alloc_primitives = &AllocateImmortal,
             free = &IshtarGC_Free,
             realloc = &IshtarGC_Realloc
         };
-
 #else
-
         private static readonly AllocatorBlock _allocator = new()
         {
             alloc = &NativeMemory_AllocZeroed,
@@ -574,7 +572,6 @@ namespace ishtar.runtime.gc
             free = &NativeMemory_Free,
             realloc = &NativeMemory_Realloc
         };
-
 #endif
 
 

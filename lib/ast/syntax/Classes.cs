@@ -112,32 +112,57 @@ namespace vein.syntax
                 .SetStart(heading.Transform.pos)
                 .SetPos<ClassDeclarationSyntax>(classBody.Transform);
 
-        /// example: class Program { void main() {} }
+
         protected internal virtual Parser<ClassDeclarationSyntax> ClassDeclarationBody =>
             from @class in
                 Parse.IgnoreCase("class").Text().Token()
                     .Or(Parse.IgnoreCase("interface").Text().Token())
                     .Or(Parse.IgnoreCase("struct").Text().Token()).Commented(this)
             from className in IdentifierExpression.Token().Positioned()
-            from interfaces in Parse.IgnoreCase(":").Token().Then(t => TypeReference.Positioned().DelimitedBy(Parse.Char(',').Token())).Optional()
+            from generics in GenericsDeclarationParser.Token().Optional()
+            from interfaces in Parse.IgnoreCase(":").Token()
+                .Then(_ => TypeReference.Positioned().DelimitedBy(Parse.Char(',').Token())).Optional()
             from skippedComments in CommentParser.AnyComment.Token().Many()
+            from constraints in GenericConstraintParser.Token().Optional()
             from openBrace in Parse.Char('{').Token().Commented(this)
             from members in ClassMemberDeclaration.Positioned().Token().Many()
             from closeBrace in Parse.Char('}').Token().Commented(this)
             let classBody = new ClassDeclarationSyntax
             {
                 Identifier = className,
-                IsInterface = @class.Value == "interface",
-                IsStruct = @class.Value == "struct",
-                Inheritances = interfaces.GetOrElse(Enumerable.Empty<TypeSyntax>()).ToList(),
+                IsInterface = @class.Value == Keywords.INTERFACE,
+                IsStruct = @class.Value == Keywords.STRUCT,
+                Inheritances = interfaces.GetOrEmpty().ToList(),
                 Members = ConvertConstructors(members, className).ToList(),
                 InnerComments = closeBrace.LeadingComments.ToList(),
                 TrailingComments = closeBrace.TrailingComments.ToList(),
+                TypeParameterConstraints = constraints.GetOrEmpty().ToList(),
+                GenericTypes = generics.GetOrEmpty().ToList()
             }
             select ClassDeclarationSyntax.Create(null, classBody)
                 .SetStart(@class.Transform.pos)
                 .SetEnd(closeBrace.Transform.pos)
                 .As<ClassDeclarationSyntax>();
+        
+        protected internal virtual Parser<List<TypeParameterConstraintSyntax>> GenericConstraintParser =>
+            from keyword in Parse.IgnoreCase("when").Token()
+            from data in GenericConstraintUnitParser.Positioned().DelimitedBy(Parse.Char(',').Token())
+            select data.ToList();
+
+        protected internal virtual Parser<TypeParameterConstraintSyntax> GenericConstraintUnitParser =>
+            from genericIndex in TypeExpression.Token().Positioned()
+            from keyword1 in Parse.IgnoreCase("is").Token()
+            from constraint in TypeExpression.Token().Positioned()
+            select new TypeParameterConstraintSyntax(genericIndex, constraint);
+
+        protected internal virtual Parser<List<TypeExpression>> GenericsDeclarationParser =>
+            from openBrace in Parse.Char('<').Token().Commented(this)
+            from types in TypeExpression.Token().Positioned().DelimitedBy(Parse.Char(','))
+            from closeBrace in Parse.Char('>').Token().Commented(this)
+            select types.ToList();
+
+
+
 
         private IEnumerable<MemberDeclarationSyntax> ConvertConstructors(IEnumerable<MemberDeclarationSyntax> members, IdentifierExpression className)
         {

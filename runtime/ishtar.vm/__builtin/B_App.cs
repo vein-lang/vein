@@ -62,13 +62,13 @@ namespace ishtar
 
         public static void InitTable(ForeignFunctionInterface ffi)
         {
-            ffi.Add("@_get_os_value", Public | Static | Extern)->
+            ffi.Add("@_get_os_value", Public | Static | Extern, TYPE_I4)->
                 AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&GetOSValue);
 
-            ffi.Add("@_exit", Public | Static | Extern, ("msg", TYPE_STRING), ("code", TYPE_I4))->
+            ffi.Add("@_exit", Public | Static | Extern, TYPE_VOID, ("msg", TYPE_STRING), ("code", TYPE_I4))->
                 AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&Exit);
 
-            ffi.Add("@_switch_flag", Public | Static | Extern, ("key", TYPE_STRING), ("value", TYPE_BOOLEAN))
+            ffi.Add("@_switch_flag", Public | Static | Extern, TYPE_VOID, ("key", TYPE_STRING), ("value", TYPE_BOOLEAN))
                 ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&SwitchFlag);
         }
     }

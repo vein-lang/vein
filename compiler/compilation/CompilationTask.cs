@@ -189,7 +189,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
             read_task.Increment(1);
             try
             {
-                var result = syntax.CompilationUnit.ParseVein(value);
+                var result = syntax.CompilationUnitV2.ParseVein(value);
                 result.FileEntity = key;
                 result.SourceText = value;
                 // apply root namespace into includes

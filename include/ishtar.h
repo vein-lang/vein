@@ -406,14 +406,14 @@ typedef union {
     uint64_t ul;
     float f_r4;
     double f;
-    // Note: C does not have a native decimal type
+    // C does not have a native decimal type
     struct {
         uint64_t low;
         uint64_t mid;
         uint64_t high;
         uint16_t sign_scale;
     } d;
-    // Note: C does not have a native Half type
+    // C does not have a native Half type
     uint16_t hf;
     void* p;
 } ishtar_stackval_union_t;
@@ -532,6 +532,37 @@ typedef struct {
     void** vtable;
     uint64_t vtable_size;
 } ishtar_class_t;
+
+typedef struct {
+ void* mem_base;
+ void* reg_base;
+} ishtar_gc_stack_base;
+
+
+// ishtar GC
+ishtar_stackval_t* ishtar_gc_allocvalue(ishtar_callframe_t* frame);
+ishtar_stackval_t* ishtar_gc_allocvalue(ishtar_class_t* clazz, ishtar_callframe_t* frame);
+ishtar_stackval_t* ishtar_gc_allocatestack(ishtar_callframe_t* frame, int32_t size);
+void ishtar_gc_freestack(ishtar_callframe_t* frame, ishtar_stackval_t* stack, int32_t size);
+void ishtar_gc_freevalue(ishtar_stackval_t* value);
+void** ishtar_gc_allocvtable(uint32_t size);
+ishtar_object_t* ishtar_gc_alloctypeinfoobject(ishtar_class_t* clazz, ishtar_callframe_t* frame);
+ishtar_object_t* ishtar_gc_allocfieldinfoobject(void* field, ishtar_callframe_t* frame);
+ishtar_object_t* ishtar_gc_allocmethodinfoobject(ishtar_method_t* method, ishtar_callframe_t* frame);
+ishtar_object_t* ishtar_gc_allocobject(ishtar_class_t* clazz, ishtar_callframe_t* frame);
+void ishtar_gc_freeobject(ishtar_object_t** obj, ishtar_callframe_t* frame);
+void ishtar_gc_freeobject(ishtar_object_t* obj, ishtar_callframe_t* frame);
+bool ishtar_gc_isalive(ishtar_object_t* obj);
+void ishtar_gc_objectregisterfinalizer(ishtar_object_t* obj, void* proc, ishtar_callframe_t* frame);
+void ishtar_gc_registerweaklink(ishtar_object_t* obj, void** link, bool longlive);
+void ishtar_gc_unregisterweaklink(void** link, bool longlive);
+long ishtar_gc_getusedmemorysize();
+void ishtar_gc_collect();
+void ishtar_gc_register_thread(ishtar_gc_stack_base* attr);
+void ishtar_gc_unregister_thread() ;
+bool ishtar_gc_get_stack_base(ishtar_gc_stack_base* attr);
+// end ishtar GC
+
 
 #ifdef __cplusplus
 }

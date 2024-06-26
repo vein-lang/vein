@@ -121,13 +121,6 @@ namespace ishtar
 
         public RuntimeIshtarMethod* DefineEmptySystemMethod(string name)
             => CreateInternalMethod(name, MethodFlags.Extern, TYPE_VOID.AsRuntimeClass(Types), Array.Empty<VeinArgumentRef>());
-        public RuntimeIshtarMethod* DefineEmptySystemMethod(string name, RuntimeIshtarClass* clazz)
-        {
-            var args = IshtarGC.AllocateList<RuntimeMethodArgument>();
-            args->Add(RuntimeMethodArgument.Create(Types, "i1", clazz));
-            return InternalClass->DefineMethod(VeinMethodBase.GetFullName(name, new List<(string argName, string typeName)>() { ("i1", clazz->Name) }), TYPE_VOID.AsRuntimeClass(Types),
-                MethodFlags.Extern | MethodFlags.Private | MethodFlags.Special, args);
-        }
 
 
         public volatile NativeException CurrentException;
@@ -706,40 +699,43 @@ namespace ishtar
                             {
                                 var _a = method->Arguments->Get(i); // TODO, type eq validate
                                 --sp;
-#if DEBUG
-                                println($"@@@@<< {StringStorage.GetString(_a->Name, invocation)}: {_a->Type->FullName->NameWithNS}");
-                                if (Environment.GetCommandLineArgs().Contains("--sys::ishtar::skip-validate-args=1"))
-                                {
-                                    method_args[y] = *sp;
-                                    continue;
-                                }
-                                var arg_class = _a->Type;
-                                if (arg_class->Name is not "Object" and not "ValueType")
-                                {
-                                    var sp_obj = IshtarMarshal.Boxing(invocation, sp);
+//#if DEBUG
+//                                if (_a->Type.IsGeneric)
+//                                    println($"@@@@<< {StringStorage.GetString(_a->Name, invocation)}: {StringStorage.GetString(_a->Type.TypeArg->Name, invocation)}");
+//                                else
+//                                    println($"@@@@<< {StringStorage.GetString(_a->Name, invocation)}: {_a->Type.Class->FullName->NameWithNS}");
+                                
+//                                if (Config.CallOpCodeSkipValidateArgs)
+//                                {
+//                                    method_args[y] = *sp;
+//                                    continue;
+//                                }
+//                                var arg_class = _a->Type;
+//                                if (arg_class->Name is not "Object" and not "ValueType")
+//                                {
+//                                    var sp_obj = IshtarMarshal.Boxing(invocation, sp);
 
-                                    if (sp_obj == null)
-                                        continue;
+//                                    if (sp_obj == null)
+//                                        continue;
 
-                                    var sp_class = sp_obj->clazz;
+//                                    var sp_class = sp_obj->clazz;
 
-                                    if (sp_class == null)
-                                        continue;
+//                                    if (sp_class == null)
+//                                        continue;
 
-                                    if (sp_class->ID != arg_class->ID)
-                                    {
-                                        if (!sp_class->IsInner(arg_class))
-                                        {
-                                            FastFail(TYPE_MISMATCH,
-                                                $"Argument '{StringStorage.GetString(_a->Name, invocation)}: {_a->Type->Name}'" +
-                                                $" is not matched for '{method->Name}' function.",
-                                                invocation);
-                                            break;
-                                        }
-                                    }
-                                }
-#endif
-
+//                                    if (sp_class->ID != arg_class->ID)
+//                                    {
+//                                        if (!sp_class->IsInner(arg_class))
+//                                        {
+//                                            FastFail(TYPE_MISMATCH,
+//                                                $"Argument '{StringStorage.GetString(_a->Name, invocation)}: {_a->Type->Name}'" +
+//                                                $" is not matched for '{method->Name}' function.",
+//                                                invocation);
+//                                            break;
+//                                        }
+//                                    }
+//                                }
+//#endif
                                 method_args[y] = *sp;
                             }
 

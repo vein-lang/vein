@@ -92,7 +92,7 @@ public class GeneratorContext(GeneratorContextConfig config)
 
     public (VeinArgumentRef, int index)? ResolveArgument(IdentifierExpression id)
     {
-        foreach (var (argument, index) in CurrentMethod.Arguments.Select((x, i) => (x, i)))
+        foreach (var (argument, index) in CurrentMethod.Signature.Arguments.Select((x, i) => (x, i)))
         {
             if (argument.Name.Equals(id.ExpressionString))
                 return (argument, index);
@@ -101,7 +101,7 @@ public class GeneratorContext(GeneratorContextConfig config)
     }
     public (VeinArgumentRef, int index) GetCurrentArgument(IdentifierExpression id)
     {
-        foreach (var (argument, index) in CurrentMethod.Arguments.Select((x, i) => (x, i)))
+        foreach (var (argument, index) in CurrentMethod.Signature.Arguments.Select((x, i) => (x, i)))
         {
             if (argument.Name.Equals(id.ExpressionString))
                 return (argument, index);

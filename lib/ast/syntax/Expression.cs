@@ -279,6 +279,7 @@ namespace vein.syntax
             from h in Parse.Char('*').Optional()
             select new PointerSpecifierValue(h.IsDefined);
 
+        // type
         protected internal virtual Parser<TypeExpression> TypeExpression =>
             from type in BaseType.Or(namespace_or_type_name.Token()).Positioned()
             from meta in nullable_specifier

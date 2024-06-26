@@ -1,0 +1,20 @@
+#space "vein/lang/collections"
+#use "vein/lang"
+
+
+public class Yieldable
+{
+    private _current: Object;
+    public Current: Object 
+    { 
+        get
+        {
+            return this._current;
+        }
+        set
+        {
+            this._current = value;
+        }
+    }
+
+}

@@ -3,10 +3,11 @@ namespace vein.syntax
     using System.Collections.Generic;
     using System.Linq;
     using extensions;
+    using runtime;
     using Sprache;
     using stl;
 
-    public class TypeSyntax : BaseSyntax, IPositionAware<TypeSyntax>
+    public class TypeSyntax : BaseSyntax, IPositionAware<TypeSyntax>, IEquatable<TypeSyntax>
     {
         public TypeSyntax(IEnumerable<IdentifierExpression> qualifiedName)
         {
@@ -55,6 +56,7 @@ namespace vein.syntax
         public List<TypeSyntax> TypeParameters { get; set; } = new();
         public bool IsArray { get; set; }
         public bool IsPointer { get; set; }
+        public bool IsAsyncJob => Identifier.ExpressionString.Equals("Job");
 
 
         public int ArrayRank { get; set; }
@@ -80,5 +82,24 @@ namespace vein.syntax
             base.SetPos(startPos, length);
             return this;
         }
+
+        public bool Equals(TypeSyntax? other)
+        {
+            if (other == null) return false;
+            return other.Identifier.Equals(Identifier);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((TypeSyntax)obj);
+        }
+
+        public override int GetHashCode() => HashCode.Combine(Namespaces, Identifier, TypeParameters, IsArray, IsPointer, ArrayRank, PointerRank);
+
+        public VeinTypeArg ToTypeArg(IReadOnlyList<VeinBaseConstraint> constraint) =>
+            new(Identifier.ExpressionString, constraint);
     }
 }

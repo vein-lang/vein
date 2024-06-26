@@ -1,56 +1,105 @@
 namespace vein.runtime
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.CompilerServices;
     using System.Text.RegularExpressions;
     using extensions;
     using reflection;
 
-    public class VeinMethod : VeinMethodBase, IAspectable
+    public record VeinComplexType
     {
-        public VeinClass ReturnType { get; set; }
-        public VeinClass Owner { get; protected internal set; }
-        public readonly Dictionary<int, VeinArgumentRef> Locals = new();
-        public List<Aspect> Aspects { get; } = new();
+        private readonly VeinTypeArg _typeArg;
+        private readonly VeinClass _class;
 
-        protected VeinMethod() : base(null, 0) { }
-        
-        internal VeinMethod(string name, MethodFlags flags, VeinClass returnType, VeinClass owner,
-            params VeinArgumentRef[] args)
-            : base(name, flags, args)
+        public VeinComplexType(VeinClass @class) => _class = @class;
+
+        public VeinComplexType(VeinTypeArg typeArg) => _typeArg = typeArg;
+
+        public bool IsGeneric => _typeArg is not null;
+
+
+        public VeinTypeArg TypeArg => _typeArg;
+        public VeinClass Class => _class;
+
+
+        public static implicit operator VeinComplexType(VeinClass cpx) => new(cpx);
+        public static implicit operator VeinComplexType(VeinTypeArg cpx) => new(cpx);
+
+
+        public static implicit operator VeinClass(VeinComplexType cpx)
         {
-            this.Owner = owner;
-            this.ReturnType = returnType;
+            if (cpx.IsGeneric)
+                throw new NotSupportedException($"Trying summon non generic vein type, but complex type is generic");
+            return cpx._class;
         }
 
-        public override string ToString()
-            => $"{Owner.Name}::{RawName}({Arguments.Select(x => $"{x.Name}: {x.Type.Name}").Join(',')})";
+        public static implicit operator VeinTypeArg(VeinComplexType cpx)
+        {
+            if (cpx.IsGeneric)
+                throw new NotSupportedException($"Trying summon generic type, but complex type is non generic vein type");
+            return cpx._typeArg;
+        }
+
+        public string ToTemplateString() => IsGeneric ?
+            _typeArg.ToTemplateString() :
+            _class.FullName.ToString();
     }
 
-
-    public abstract class VeinMethodBase : VeinMember
+    public record VeinMethodSignature(
+        VeinComplexType ReturnType,
+        IReadOnlyList<VeinArgumentRef> Arguments)
     {
-        [MethodImpl(MethodImplOptions.NoOptimization)]
-        protected VeinMethodBase(string name, MethodFlags flags, params VeinArgumentRef[] args)
+        public int ArgLength => Arguments.Count;
+
+        public override string ToString() => $"({Arguments.Where(NotThis).Select(x => $"{x.ToTemplateString()}").Join(',')}) -> {ReturnType.ToTemplateString()}";
+
+
+        private bool NotThis(VeinArgumentRef @ref) => !@ref.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
+
+        public bool IsGeneric => Arguments.Any(x => x.IsGeneric);
+
+        public string ToTemplateString() => ToString();
+    }
+
+    public class VeinMethod : VeinMember, IAspectable
+    {
+        public VeinMethodSignature Signature { get; private set; }
+        public VeinClass ReturnType => Signature.ReturnType;
+        public VeinClass Owner { get; protected internal set; }
+        public Dictionary<int, VeinArgumentRef> Locals { get; } = new();
+        public List<Aspect> Aspects { get; } = new();
+
+
+        public void Temp_ReplaceReturnType(VeinClass clazz) => Signature = Signature with { ReturnType = clazz };
+
+
+        internal VeinMethod(string name, MethodFlags flags, VeinClass returnType, VeinClass owner, params VeinArgumentRef[] args)
         {
-            this.Arguments.AddRange(args);
-            this.Name = this.RegenerateName(name);
-            this.Flags = flags;
+            Owner = owner;
+            Flags = flags;
+            Signature = new VeinMethodSignature(returnType, args);
+            Name = RegenerateName(name);
         }
+
+        internal VeinMethod(string name, MethodFlags flags, VeinTypeArg returnType, VeinClass owner, params VeinArgumentRef[] args)
+        {
+            Owner = owner;
+            Flags = flags;
+            Signature = new VeinMethodSignature(returnType, args);
+            Name = RegenerateName(name);
+        }
+
 
         private string RegenerateName(string n) =>
             Regex.IsMatch(n, @"\S+\((.+)?\)", RegexOptions.Compiled)
-                ? n : GetFullName(n, Arguments);
+                ? n : GetFullName(n, Signature.ReturnType, Signature.Arguments);
 
-        public static string GetFullName(string name, IEnumerable<VeinArgumentRef> args)
-            => $"{name}({args.Where(x => !x.Name.Equals(VeinArgumentRef.THIS_ARGUMENT)).Select(x => x.Type?.Name).Join(",")})";
-
-        public static string GetFullName(string name, IEnumerable<(string argName, string typeName)> args)
-            => $"{name}({args.Where(x => !x.argName.Equals(VeinArgumentRef.THIS_ARGUMENT)).Select(x => x.typeName).Join(",")})";
-
-        public static string GetFullName(string name, IEnumerable<VeinClass> args)
-            => $"{name}({args.Select(x => x.Name).Join(",")})";
+        public static string GetFullName(string name, VeinComplexType returnType, IEnumerable<VeinArgumentRef> args)
+            => $"{name}{new VeinMethodSignature(returnType, args.ToList()).ToTemplateString()}";
+        
+        public static string GetFullName(string name, VeinComplexType returnType, IEnumerable<VeinClass> args)
+            => $"{name}{new VeinMethodSignature(returnType, args.Select((x, y) => new VeinArgumentRef(y.ToString(), x)).ToList()).ToTemplateString()}";
 
         public MethodFlags Flags { get; set; }
 
@@ -67,10 +116,6 @@ namespace vein.runtime
 
         public sealed override string Name { get; protected set; }
         public string RawName => Name.Split('(').First();
-
-        public List<VeinArgumentRef> Arguments { get; } = new();
-
-        public int ArgLength => Arguments.Count;
 
         public override VeinMemberKind Kind => VeinMemberKind.Method;
     }

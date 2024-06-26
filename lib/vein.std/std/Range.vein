@@ -1,0 +1,17 @@
+#space "std"
+
+
+[special]
+public struct Range : ValueType
+{
+    public Start: u32;
+    public End: u32;
+
+
+    
+    new (start: u32, end: u32)
+    {
+        this.Start = start;
+        this.End = end;
+    }
+}

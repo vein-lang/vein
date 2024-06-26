@@ -1,0 +1,44 @@
+#space "vein/lang/network"
+
+#use "vein/lang"
+
+public class TcpListener
+{
+    public static create(port: u16): TcpListener 
+    {
+        return null; //new TcpListener(port);
+    }
+
+    private _port: u16;
+    private _dualMode: bool;
+    private _active: bool;
+    private _socket: TcpSocket;
+
+    public ExclusiveAddressUse: bool;
+
+
+    
+
+    public IsActive(): bool
+    {
+        return _active;
+    }
+
+    public Start(): Void
+    {
+        //this._socket.Listen(9999);
+    }
+
+    private new(port: u16)
+    {
+        /*
+        this._socket = new TcpSocket(port);
+        this._port = port;
+        this._dualMode = true;
+        */
+    }
+
+    
+
+    
+}

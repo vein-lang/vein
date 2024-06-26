@@ -6,9 +6,9 @@
     "WSL": {
       "commandName": "WSL2"
     },
-    "run test fast": {
+    "run std": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\..\\..\\test\\ishtar_test\\std.wll --sys::log::use-console=1"
+      "commandLineArgs": "..\\..\\..\\..\\..\\..\\lib\\vein.std\\std\\bin\\std.wll --sys::log::use-console=1"
     },
     "run external_test": {
       "commandName": "Project",

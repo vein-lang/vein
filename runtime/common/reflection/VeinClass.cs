@@ -11,7 +11,7 @@ namespace vein.runtime
     using static VeinTypeCode;
 
 #if DEBUG
-    public static class DebugRefenrence
+    public static class DebugReference
     {
         private static ulong ID = 0;
 
@@ -31,29 +31,32 @@ namespace vein.runtime
         public List<VeinField> Fields { get; } = new();
         public List<VeinMethod> Methods { get; set; } = new();
         public VeinTypeCode TypeCode { get; set; } = TYPE_CLASS;
-        public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE and not TYPE_STRING;
-        public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
-        public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
         public VeinModule Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
 #if DEBUG
-        public ulong ReferenceID = DebugRefenrence.Get();
+        public ulong ReferenceID = DebugReference.Get();
 #endif
-
+        public string CreationPlace { get; set; }
         internal VeinClass(QualityTypeName name, VeinClass parent, VeinModule module)
         {
-            this.FullName = name;
+            FullName = name;
             if (parent is not null)
-                this.Parents.Add(parent);
-            this.Owner = module;
+                Parents.Add(parent);
+            Owner = module;
+            CreationPlace = Environment.StackTrace;
         }
         internal VeinClass(QualityTypeName name, VeinClass[] parents, VeinModule module)
         {
-            this.FullName = name;
-            this.Parents.AddRange(parents);
-            this.Owner = module;
+            FullName = name;
+            Parents.AddRange(parents);
+            Owner = module;
+            CreationPlace = Environment.StackTrace;
         }
-        protected VeinClass() { }
+
+        protected VeinClass()
+        {
+            CreationPlace = Environment.StackTrace;
+        }
 
         public bool IsSpecial => Flags.HasFlag(ClassFlags.Special);
         public bool IsPublic => Flags.HasFlag(ClassFlags.Public);
@@ -62,6 +65,9 @@ namespace vein.runtime
         public bool IsStatic => Flags.HasFlag(ClassFlags.Static);
         public bool IsInternal => Flags.HasFlag(ClassFlags.Internal);
         public bool IsAspect => Flags.HasFlag(ClassFlags.Aspect);
+        public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE and not TYPE_STRING;
+        public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
+        public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
 
         public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor("dtor");
         public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor("ctor");
@@ -76,23 +82,50 @@ namespace vein.runtime
             => $"{FullName}, {Flags}";
 
 
-        public VeinMethod FindMethod(string name, IEnumerable<VeinClass> args_types, bool includeThis = false) =>
-            this.Methods.Concat(Parents.SelectMany(x => x.Methods))
+        public VeinMethod FindMethod(string name, IEnumerable<VeinClass> user_types, bool includeThis = false) =>
+            Methods.Concat(Parents.SelectMany(x => x.Methods))
                 .FirstOrDefault(x =>
                 {
+                    var userTypes = user_types.ToList();
+
                     var nameHas = x.RawName.Equals(name);
-                    var args = x.Arguments.Where(z => includeThis || NotThis(z)).Select(z => z.Type).ToArray();
-                    var argsHas = args.SequenceEqual(args_types);
 
-                    if (nameHas && !argsHas)
-                    {
-                        argsHas = CheckInheritance(args_types.ToArray(), args);
-                    }
+                    if (!nameHas)
+                        return false;
 
-                    return nameHas && argsHas;
+                    var args = x.Signature.Arguments.Where(z => includeThis || NotThis(z)).Select(z => z.ComplexType).ToList();
+                    var argsHas = CheckCompatibility(userTypes, args);
+
+                    if (!argsHas && !args.Any(z => z.IsGeneric))
+                        argsHas = CheckInheritance(userTypes.ToArray(), args.Select(z => z.Class).ToArray());
+
+                    return argsHas;
                 });
 
-        // TODO
+        private bool CheckCompatibility(List<VeinClass> userArgs, List<VeinComplexType> methodArgs)
+        {
+            if (userArgs.Count != methodArgs.Count) return false;
+
+            Dictionary<string, VeinClass> genericMap = new();
+
+            for (int i = 0; i < userArgs.Count; i++)
+            {
+                var userType = userArgs[i];
+                var methodType = methodArgs[i];
+
+                if (methodType.IsGeneric)
+                {
+                    var genericName = methodType.TypeArg.Name;
+                    if (genericMap.TryAdd(genericName, userType)) continue;
+                    if (!genericMap[genericName].FullName.Equals(userType.FullName))
+                        return false;
+                }
+                else if (!methodType.Class.FullName.Equals(userType.FullName))
+                    return false;
+            }
+            return true;
+        }
+
         private bool CheckInheritance(VeinClass[] current, VeinClass[] target)
         {
             if (current.Length != target.Length)
@@ -131,7 +164,7 @@ namespace vein.runtime
         public static bool NotThis(VeinArgumentRef arg) => !arg.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
 
         public VeinField FindField(string name) =>
-            this.Fields.Concat(Parents.SelectMany(x => x.Fields))
+            Fields.Concat(Parents.SelectMany(x => x.Fields))
                 .FirstOrDefault(x => x.Name.Equals(name));
 
         public VeinProperty FindProperty(string name)
@@ -184,7 +217,7 @@ namespace vein.runtime
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((VeinClass)obj);
         }
 

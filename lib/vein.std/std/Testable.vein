@@ -1,0 +1,16 @@
+#space "std"
+
+public class Testable
+{
+    public static master(): Void
+    {
+        Out.print("yamete...");
+
+
+        aboba(1, "test string");
+    }
+
+    public static aboba<T, E>(t: T, b: E): Void {
+        Out.print("yamete...");
+    }
+}
