@@ -55,9 +55,35 @@ namespace vein.runtime
         public override string ToString() => $"({Arguments.Where(NotThis).Select(x => $"{x.ToTemplateString()}").Join(',')}) -> {ReturnType.ToTemplateString()}";
 
 
-        private bool NotThis(VeinArgumentRef @ref) => !@ref.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
+        public static bool NotThis(VeinArgumentRef @ref) => !@ref.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
 
         public bool IsGeneric => Arguments.Any(x => x.IsGeneric);
+
+        public bool HasCompatibility(VeinMethodSignature otherSig)
+        {
+            if (ArgLength != otherSig.ArgLength)
+                return false;
+
+            var argumentsCompatibility = true;
+            for (int i = 0; i < Arguments.Count; i++)
+            {
+                var a1 = Arguments[i];
+                var a2 = otherSig.Arguments[i];
+
+                if (a1.IsGeneric != a2.IsGeneric)
+                {
+                    argumentsCompatibility = false;
+                    break;
+                }
+                if (a1.IsGeneric)
+                    continue;
+                if (a1.Type.FullName != a2.Type.FullName)
+                    argumentsCompatibility = false;
+            }
+
+            return argumentsCompatibility;
+        }
+
 
         public string ToTemplateString() => ToString();
     }
