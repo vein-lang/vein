@@ -1,16 +1,22 @@
-<!-- warning -->
-<p align="center">
-  <a href="#">
-    <!--<img src="https://user-images.githubusercontent.com/13326808/163280244-b20be103-074c-4e7d-849c-260359e1d174.png">-->
-    <!--<img src="https://user-images.githubusercontent.com/13326808/118900923-c3c9c280-b91a-11eb-94f3-691feb53e0f4.png">-->
-  </a>
-</p>
+<div align="center">
+  <picture>
+    <img alt="The Vein Programming Language"
+         src="https://raw.githubusercontent.com/vein-lang/artwork/master/vein-poster.png"
+         width="50%">
+  </picture>
 
+[Website][Vein] | [Getting started] | [Documentation] | [Contributing]
+</div>
 <p align="center">
-  <a href="#">
-    <img height="256" src="https://raw.githubusercontent.com/vein-lang/artwork/main/vein-poster.png">
-  </a>
-</p>
+This is the master source code repository for <a href="https://www.vein-lang.org/">Vein</a>. It contains the compiler,      
+standard library, virtual machine and other tools.
+</p>      
+      
+[Vein]: https://www.vein-lang.org/
+[Getting Started]: https://docs.vein-lang.org/begin
+[Documentation]: https://docs.vein-lang.org
+[Contributing]: CONTRIBUTING.md
+
 <!-- classic badges -->
 <p align="center">
   <a href="https://www.codacy.com/gh/vein-lang/vein/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=vein-lang/vein&amp;utm_campaign=Badge_Grade">
