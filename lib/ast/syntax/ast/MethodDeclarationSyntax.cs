@@ -20,14 +20,13 @@ namespace vein.syntax
 
         public BlockSyntax? Body { get; set; }
 
-        public bool IsAbstract => Body == null;
+        public bool IsAbstract => Body is null or EmptyBlockSyntax;
 
         public List<TypeParameterConstraintSyntax> TypeParameterConstraints { get; set; } = new();
         public List<TypeExpression> GenericTypes { get; set; } = new();
 
 
-        public string GetQualityName()
-            => $"{Identifier}({Parameters.Select(x => $"{(x.Type.IsSelf ? OwnerClass.Identifier : x.Type.Identifier)}").Join(",")})";
+        public string GetQualityName() => IsMethodType ? $"({Parameters.Select(x => $"{(x.Type.Identifier)}").Join(",")})" : $"{Identifier}({Parameters.Select(x => $"{(x.Type.IsSelf ? OwnerClass.Identifier : x.Type.Identifier)}").Join(",")})";
 
         public override MemberDeclarationSyntax WithTypeAndName(ParameterSyntax typeAndName)
         {
@@ -44,7 +43,9 @@ namespace vein.syntax
 
         public bool IsConstructor() => Identifier.ExpressionString.Equals("new");
 
-        public ClassDeclarationSyntax OwnerClass { get; set; }
+        public ClassDeclarationSyntax? OwnerClass { get; set; }
+
+        public bool IsMethodType => OwnerClass is null && IsAbstract && !Modifiers.Any();
     }
 
 

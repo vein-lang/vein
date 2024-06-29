@@ -141,7 +141,8 @@ namespace vein.syntax
             from @as in Parse.Char(':').Token().Commented(this)
             from type in TypeReference.Commented(this)
             from constraints in GenericConstraintParser.Token().Optional()
-            from methodBody in BlockShortform<ReturnStatementSyntax>().Or(Block.Or(Parse.Char(';').Return(new EmptyBlockSyntax())))
+            from methodBody in BlockShortform<ReturnStatementSyntax>().Positioned()
+                .Or(Block.Or(Parse.Char(';').Return(new EmptyBlockSyntax())))
                 .Token().Positioned().Commented(this)
             select new MethodDeclarationSyntax
             {

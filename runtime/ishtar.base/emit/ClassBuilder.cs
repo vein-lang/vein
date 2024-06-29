@@ -55,7 +55,7 @@ namespace ishtar.emit
         /// <remarks>
         /// Method name will be interned.
         /// </remarks>
-        public MethodBuilder DefineMethod(string name, VeinClass returnType, params VeinArgumentRef[] args)
+        public MethodBuilder DefineMethod(string name, VeinComplexType returnType, params VeinArgumentRef[] args)
         {
             moduleBuilder.InternString(name);
             var method = new MethodBuilder(this, name, returnType, args);
