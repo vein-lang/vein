@@ -9,7 +9,7 @@ public class Testable
 
         aboba(1, "test string");
 
-        abobus(delMethod);
+        abobus(&delMethod);
     }
 
 
@@ -28,4 +28,4 @@ public class Testable
     }
 }
 
-global alias testMethod(i: i32): Void;
+global alias testMethod <| (i: i32): Void;

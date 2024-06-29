@@ -32,7 +32,6 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
         return scheduler;
     }
 
-
     public static void Free(TaskScheduler* scheduler)
     {
         // TODO
@@ -110,21 +109,7 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
             GlobalPrintln("execute_scheduler:end");
         }
 
-        //new Thread((x) =>
-        //{
-        //    RuntimeIshtarModule* module = (RuntimeIshtarModule*)(nint)x;
-        //    var vm = module->vm;
-        //    var gcInfo = new GC_stack_base();
-
-        //    vm.GC.get_stack_base(&gcInfo);
-
-        //    vm.GC.register_thread(&gcInfo);
-
-        //    vm.task_scheduler->run();
-
-        //    vm.GC.unregister_thread();
-        //}).Start((nint)entryModule);
-
-        entryModule->vm.threading.CreateRawThread(entryModule, &execute_scheduler);
+        entryModule->vm.threading
+            .CreateRawThread(entryModule, &execute_scheduler);
     }
 }

@@ -187,7 +187,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         bool filter(RuntimeIshtarClass* x) => RuntimeQualityTypeName.Eq(x->FullName, type);
         
         if (!findExternally)
-            throw new TypeNotFoundException($"'{type->NameWithNS}' not found in modules and dependency assemblies.");
+            throw new TypeNotFoundException($"'{type->ToString()}' not found in modules and dependency assemblies.");
 
         var dm = deps_table->FirstOrNull(x => x->FindType(type, true, dropUnresolvedException) is not null);
 
@@ -195,7 +195,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
         if (dm is not null)
             return dm->FindType(type, true, dropUnresolvedException);
 
-        throw new TypeNotFoundException($"'{type->NameWithNS}' not found in modules and dependency assemblies.");
+        throw new TypeNotFoundException($"'{type->ToString()}' not found in modules and dependency assemblies.");
     }
 
 
@@ -203,7 +203,7 @@ public unsafe struct RuntimeIshtarModule : IEq<RuntimeIshtarModule>, IDisposable
     public RuntimeIshtarClass* DefineClass(RuntimeQualityTypeName* fullName, RuntimeIshtarClass* parent)
     {
         var exist = class_table->FirstOrNull(x
-            => x->FullName->NameWithNS.Equals(fullName->NameWithNS));
+            => x->FullName->ToString().Equals(fullName->ToString()));
         
         if (exist is not null)
             return exist;
