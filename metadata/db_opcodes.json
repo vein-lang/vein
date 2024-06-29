@@ -112,5 +112,7 @@
   "SEH.FINALLY": 110,
   "SEH.FILTER": 111,
   "SEH.ENTER": 112,
-  "CAST": 113
+  "CAST": 113,
+  "CALL_SP": 114,
+  "LDFN": 115
 }

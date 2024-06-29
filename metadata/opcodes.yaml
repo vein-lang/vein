@@ -56,6 +56,11 @@
 - CALL:
     description: Call operation.
     override-size: 8
+- CALL_SP:
+    description: Call operation (load pointer from stack).
+- LDFN:
+    description: Load function pointer into stack.
+    override-size: 8
 - LDNULL:
     description: Load NULL into stack.
 - LDF:

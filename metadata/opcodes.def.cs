@@ -208,6 +208,14 @@ namespace ishtar
 		/// </summary>
 		CALL = 0x32,
 		/// <summary>
+		/// Call operation (load pointer from stack).
+		/// </summary>
+		CALL_SP = 0x72,
+		/// <summary>
+		/// Load function pointer into stack.
+		/// </summary>
+		LDFN = 0x73,
+		/// <summary>
 		/// Load NULL into stack.
 		/// </summary>
 		LDNULL = 0x33,
