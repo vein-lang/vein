@@ -300,7 +300,7 @@ namespace ishtar.emit
         {
             if (method is null)
                 throw new ArgumentNullException(nameof(method));
-            if (opcode != OpCodes.CALL)
+            if (opcode != OpCodes.CALL && opcode != OpCodes.LDFN)
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
 
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);

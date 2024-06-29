@@ -1,21 +1,19 @@
-namespace vein.syntax
+namespace vein.syntax;
+
+using System.Collections.Generic;
+using Sprache;
+
+public class ReturnStatementSyntax(ExpressionSyntax e) : StatementSyntax, IPositionAware<ReturnStatementSyntax>
 {
-    using System.Collections.Generic;
-    using Sprache;
+    public override SyntaxType Kind => SyntaxType.ReturnStatement;
 
-    public class ReturnStatementSyntax : StatementSyntax, IPositionAware<ReturnStatementSyntax>
+    public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);
+
+    public ExpressionSyntax Expression { get; set; } = e;
+
+    public new ReturnStatementSyntax SetPos(Position startPos, int length)
     {
-        public ReturnStatementSyntax(ExpressionSyntax e) => Expression = e;
-        public override SyntaxType Kind => SyntaxType.ReturnStatement;
-
-        public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Expression);
-
-        public ExpressionSyntax Expression { get; set; }
-
-        public new ReturnStatementSyntax SetPos(Position startPos, int length)
-        {
-            base.SetPos(startPos, length);
-            return this;
-        }
+        base.SetPos(startPos, length);
+        return this;
     }
 }

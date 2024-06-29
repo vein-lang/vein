@@ -3,13 +3,19 @@ namespace ishtar;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Intrinsics.Arm;
+using System.Security.Claims;
+using System.Text;
 using emit;
 using Spectre.Console;
 using Sprache;
+using vein.extensions;
 using vein.reflection;
 using vein.runtime;
 using vein.syntax;
 using Xunit;
+using static vein.runtime.MethodFlags;
+using static vein.runtime.VeinTypeCode;
 
 public record GeneratorContextConfig(bool DisableOptimization)
 {
@@ -83,7 +89,25 @@ public class GeneratorContext(GeneratorContextConfig config)
 
         var b = Module.DefineClass(fullName);
 
-        b.Flags |= ClassFlags.Internal;
+        b.Flags |= ClassFlags.Internal | ClassFlags.Special;
+
+        Classes.Add(b.FullName, b);
+
+        return b;
+    }
+
+    public ClassBuilder CreateHiddenType(string name, VeinClass parent)
+    {
+        QualityTypeName fullName = $"{Module.Name}%global::internal/{name}";
+
+        var currentType = Module.FindType(fullName, false, false);
+
+        if (currentType is not UnresolvedVeinClass)
+            return Assert.IsType<ClassBuilder>(currentType);
+
+        var b = Module.DefineClass(fullName, parent);
+
+        b.Flags |= ClassFlags.Internal | ClassFlags.Special;
 
         Classes.Add(b.FullName, b);
 
@@ -129,9 +153,76 @@ public class GeneratorContext(GeneratorContextConfig config)
         var modType = Module.FindType(id.ExpressionString, Classes[CurrentMethod.Owner.FullName].Includes, false);
         if (modType is not null)
             return modType;
+        var methods = CurrentMethod.Owner.FindAnyMethods(id.ExpressionString);
+        if (methods.Count > 1)
+        {
+            this.LogError($"In the current context detected multiple methods with name '{id}'", id);
+            throw new SkipStatementException();
+        }
+        if (methods.Count == 1)
+            return CreateFunctionMulticastGroup(methods.Single().Signature);
+
         this.LogError($"The name '{id}' does not exist in the current context.", id);
         throw new SkipStatementException();
     }
+
+    public VeinClass CreateFunctionMulticastGroup(VeinMethodSignature sig)
+    {
+        var @base = CurrentScope.Context.Module
+            .FindType(new QualityTypeName("std", "FunctionMulticast", "global::std"),
+                true, true);
+
+        var hiddenClass = CurrentScope.Context
+            .CreateHiddenType($"fn_{string.Join(' ', Encoding.UTF8.GetBytes(sig.ToTemplateString()).Select(x => $"{x:X}"))}", @base);
+
+        if (hiddenClass.TypeCode is TYPE_FUNCTION)
+            return hiddenClass;
+
+
+        var types = CurrentScope.Context.Module.Types;
+
+        hiddenClass.TypeCode = TYPE_FUNCTION;
+
+        var objType = TYPE_OBJECT.AsClass(types);
+        var rawType = TYPE_RAW.AsClass(types);
+
+        var ctorMethod = hiddenClass.DefineMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, TYPE_VOID.AsClass(types), [
+            new("fn", rawType),
+            new("scope",objType)
+        ]);
+
+        var scope = hiddenClass.DefineField("_scope", FieldFlags.Internal, objType);
+        var ptrRef = hiddenClass.DefineField("_fn", FieldFlags.Internal, rawType);
+
+        var ctorGen = ctorMethod.GetGenerator();
+
+        ctorGen.Emit(OpCodes.LDARG_0);
+        ctorGen.Emit(OpCodes.STF, ptrRef);
+        ctorGen.Emit(OpCodes.LDARG_1);
+        ctorGen.Emit(OpCodes.STF, scope);
+        ctorGen.Emit(OpCodes.RET);
+
+
+        var method = hiddenClass.DefineMethod("invoke", Internal | Special,
+            sig.ReturnType,sig.Arguments.Where(VeinMethodSignature.NotThis).ToArray());
+
+        var hasThis = sig.Arguments.All(VeinMethodSignature.NotThis);
+
+        var generator = method.GetGenerator();
+        
+        if (hasThis)
+            generator.Emit(OpCodes.LDF, scope);
+        foreach (int i in ..method.Signature.ArgLength)
+            generator.Emit(OpCodes.LDARG_S, i); // TODO optimization for LDARG_X
+
+        generator.Emit(OpCodes.LDF, ptrRef);
+        generator.Emit(OpCodes.CALL_SP);
+        generator.Emit(OpCodes.RET);
+
+        return hiddenClass;
+    }
+
+
     public VeinField ResolveField(VeinClass targetType, IdentifierExpression target, IdentifierExpression id)
     {
         var field = targetType.FindField(id.ExpressionString);

@@ -89,7 +89,7 @@ public static class G_Emitters
             gen.Emit(OpCodes.NEWOBJ, type);
             foreach (var arg in args)
                 gen.EmitExpression(arg);
-            var ctor = type.FindMethod("ctor", args.DetermineTypes(context));
+            var ctor = type.FindMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, args.DetermineTypes(context));
 
             if (ctor is null)
             {

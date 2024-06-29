@@ -68,6 +68,21 @@ namespace ishtar.emit
             return c;
         }
 
+        /// <summary>
+        /// Define class by name.
+        /// </summary>
+        public ClassBuilder DefineClass(QualityTypeName name, VeinClass parent)
+        {
+            if (class_table.Any(x => x.FullName.Equals(name)))
+                throw new DuplicateNameException($"Class '{name}' already defined.");
+            InternString(name.Name);
+            InternString(name.Namespace);
+            InternString(name.AssemblyName);
+            var c = new ClassBuilder(this, name, parent);
+            class_table.Add(c);
+            return c;
+        }
+
         private int _intern<T>(Dictionary<int, T> storage, T val)
         {
             var (key, value) = storage.FirstOrDefault(x => x.Value.Equals(val));

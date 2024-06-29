@@ -164,7 +164,7 @@ public static class G_Access
         // literal access call
         if (access is { Left: LiteralExpressionSyntax literal, Right: InvocationExpression invoke1 })
         {
-            var @class = literal.GetTypeCode().AsClass()(Types.Storage);
+            var @class = literal.GetTypeCode(ctx).AsClass()(Types.Storage);
             return gen.EmitLiteral(literal).EmitCall(@class, invoke1);
         }
 

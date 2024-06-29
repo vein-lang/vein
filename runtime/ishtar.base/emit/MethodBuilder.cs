@@ -17,7 +17,7 @@ public class MethodBuilder : VeinMethod, IBaker
     private readonly ILGenerator _generator;
 
 
-    internal MethodBuilder(ClassBuilder clazz, string name, VeinClass returnType, params VeinArgumentRef[] args)
+    internal MethodBuilder(ClassBuilder clazz, string name, VeinComplexType returnType, params VeinArgumentRef[] args)
         : base(name, 0, returnType, clazz, args)
     {
         classBuilder = clazz;

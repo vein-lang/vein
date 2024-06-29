@@ -70,8 +70,8 @@ namespace vein.runtime
         public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
 
-        public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor("dtor");
-        public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor("ctor");
+        public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor(VeinMethod.METHOD_NAME_DECONSTRUCTOR);
+        public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor(VeinMethod.METHOD_NAME_CONSTRUCTOR);
 
         public virtual VeinMethod GetStaticCtor() => GetOrCreateTor("type_ctor", true);
 
@@ -99,10 +99,30 @@ namespace vein.runtime
 
                     if (!argsHas && !args.Any(z => z.IsGeneric) && !userTypes.Any(z => z.IsGeneric))
                         argsHas = CheckInheritance(userTypes.Select(z => z.Class).ToArray(), args.Select(z => z.Class).ToArray());
-
+                    
                     return argsHas;
                 });
+        public List<VeinMethod> FindAnyMethods(string name) =>
+            Methods.Concat(Parents.SelectMany(x => x.Methods))
+                .Where(x => {
+                    var nameHas = x.RawName.Equals(name);
 
+                    if (!nameHas)
+                        return false;
+                    return true;
+                }).ToList();
+
+
+        private bool CheckCompatibilityFunctionClass(VeinClass userArg, VeinClass methodArg)
+        {
+            var userInvoke = userArg.FindMethod("invoke");
+            var methodInvoke = methodArg.FindMethod("invoke");
+
+            if (userInvoke is null || methodInvoke is null)
+                return false;
+
+            return userInvoke.Signature.HasCompatibility(methodInvoke.Signature);
+        }
 
         private bool CheckCompatibility(List<VeinComplexType> userArgs, List<VeinComplexType> methodArgs)
         {
@@ -122,7 +142,10 @@ namespace vein.runtime
                         return false;
                 }
                 else if (!CheckObjectCompatibility(methodType, userType))
-                    return false;
+                {
+                    if (!CheckCompatibilityFunctionClass(userType, methodType))
+                        return false;
+                }
             }
             return true;
         }
@@ -193,103 +216,6 @@ namespace vein.runtime
                     if (!methodType.Class.FullName.Equals(userType.Class.FullName) && methodType.Class.TypeCode != TYPE_OBJECT && userType.Class.TypeCode != TYPE_OBJECT)
                         return false;
                 }
-            }
-            return true;
-        }
-
-        private bool CheckCompatibilityV3(List<VeinComplexType> userArgs, List<VeinComplexType> methodArgs)
-        {
-            if (userArgs.Count != methodArgs.Count) return false;
-
-            var genericMap = new Dictionary<string, VeinClass>();
-
-            for (int i = 0; i < userArgs.Count; i++)
-            {
-                var userType = userArgs[i];
-                var methodType = methodArgs[i];
-
-                if (methodType.IsGeneric)
-                {
-                    var genericName = methodType.TypeArg.Name;
-                    if (userType.IsGeneric)
-                    {
-                        if (!methodType.TypeArg.Name.Equals(userType.TypeArg.Name))
-                            return false;
-                    }
-                    else
-                    {
-                        if (genericMap.TryGetValue(genericName, out var value))
-                        {
-                            if (!value.FullName.Equals(userType.Class.FullName))
-                                return false;
-                        }
-                        else
-                            genericMap[genericName] = userType.Class;
-                    }
-                }
-                else
-                {
-                    if (userType.IsGeneric)
-                        return false;
-                    if (!methodType.Class.FullName.Equals(userType.Class.FullName))
-                        return false;
-                }
-            }
-            return true;
-        }
-
-
-        private bool CheckCompatibilityV2(List<VeinComplexType> userArgs, List<VeinComplexType> methodArgs)
-        {
-            if (userArgs.Count != methodArgs.Count) return false;
-
-            Dictionary<string, VeinClass> genericMap = new();
-
-            for (int i = 0; i < userArgs.Count; i++)
-            {
-                var userType = userArgs[i];
-                var methodType = methodArgs[i];
-
-                if (methodType.IsGeneric)
-                {
-                    var genericName = methodType.TypeArg.Name;
-                    if (genericMap.TryGetValue(genericName, out var value))
-                    {
-                        if (!value.FullName.Equals(userType.Class.FullName))
-                            return false;
-                    }
-                    else
-                        genericMap[genericName] = userType.Class;
-                }
-                else
-                {
-                    if (!methodType.Class.FullName.Equals(userType.Class.FullName))
-                        return false;
-                }
-            }
-            return true;
-        }
-
-        private bool CheckCompatibilityV1(List<VeinClass> userArgs, List<VeinComplexType> methodArgs)
-        {
-            if (userArgs.Count != methodArgs.Count) return false;
-
-            Dictionary<string, VeinClass> genericMap = new();
-
-            for (int i = 0; i < userArgs.Count; i++)
-            {
-                var userType = userArgs[i];
-                var methodType = methodArgs[i];
-
-                if (methodType.IsGeneric)
-                {
-                    var genericName = methodType.TypeArg.Name;
-                    if (genericMap.TryAdd(genericName, userType)) continue;
-                    if (!genericMap[genericName].FullName.Equals(userType.FullName))
-                        return false;
-                }
-                else if (!methodType.Class.FullName.Equals(userType.FullName))
-                    return false;
             }
             return true;
         }

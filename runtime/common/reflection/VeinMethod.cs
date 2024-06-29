@@ -55,9 +55,35 @@ namespace vein.runtime
         public override string ToString() => $"({Arguments.Where(NotThis).Select(x => $"{x.ToTemplateString()}").Join(',')}) -> {ReturnType.ToTemplateString()}";
 
 
-        private bool NotThis(VeinArgumentRef @ref) => !@ref.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
+        public static bool NotThis(VeinArgumentRef @ref) => !@ref.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
 
         public bool IsGeneric => Arguments.Any(x => x.IsGeneric);
+
+        public bool HasCompatibility(VeinMethodSignature otherSig)
+        {
+            if (ArgLength != otherSig.ArgLength)
+                return false;
+
+            var argumentsCompatibility = true;
+            for (int i = 0; i < Arguments.Count; i++)
+            {
+                var a1 = Arguments[i];
+                var a2 = otherSig.Arguments[i];
+
+                if (a1.IsGeneric != a2.IsGeneric)
+                {
+                    argumentsCompatibility = false;
+                    break;
+                }
+                if (a1.IsGeneric)
+                    continue;
+                if (a1.Type.FullName != a2.Type.FullName)
+                    argumentsCompatibility = false;
+            }
+
+            return argumentsCompatibility;
+        }
+
 
         public string ToTemplateString() => ToString();
     }
@@ -69,6 +95,9 @@ namespace vein.runtime
         public VeinClass Owner { get; protected internal set; }
         public Dictionary<int, VeinArgumentRef> Locals { get; } = new();
         public List<Aspect> Aspects { get; } = new();
+
+        public const string METHOD_NAME_CONSTRUCTOR = "ctor";
+        public const string METHOD_NAME_DECONSTRUCTOR = "dtor";
 
 
         public void Temp_ReplaceReturnType(VeinClass clazz) => Signature = Signature with { ReturnType = clazz };
@@ -104,9 +133,9 @@ namespace vein.runtime
         public bool IsAbstract => Flags.HasFlag(MethodFlags.Abstract);
         public bool IsVirtual => Flags.HasFlag(MethodFlags.Virtual);
         public bool IsOverride => !Flags.HasFlag(MethodFlags.Abstract) && Flags.HasFlag(MethodFlags.Override);
-        public bool IsConstructor => RawName.Equals("ctor");
+        public bool IsConstructor => RawName.Equals(METHOD_NAME_CONSTRUCTOR);
         public bool IsTypeConstructor => RawName.Equals("type_ctor");
-        public bool IsDeconstructor => RawName.Equals("dtor");
+        public bool IsDeconstructor => RawName.Equals(METHOD_NAME_DECONSTRUCTOR);
         public override bool IsSpecial => Flags.HasFlag(MethodFlags.Special);
 
         public sealed override string Name { get; protected set; }

@@ -222,6 +222,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
             Target.AST.Select(x => (x.Key, x.Value))
                 .Pipe(x => Status.VeinStatus($"Linking [grey]'{x.Key.Name}'[/]..."))
                 .SelectMany(LinkClasses)
+                .Concat(aliasesQueue.SelectMany(RegenerateAliases))
                 .ToList()
                 .Pipe(LinkMetadata)
                 .Pipe(ShitcodePlug)

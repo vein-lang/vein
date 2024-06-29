@@ -1,23 +1,27 @@
 namespace vein.compilation;
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using exceptions;
+using extensions;
 using ishtar;
 using ishtar.emit;
 using MoreLinq;
 using runtime;
 using syntax;
+using vein.reflection;
+using static runtime.MethodFlags;
 
 public partial class CompilationTask
 {
     public void LinkMetadata((ClassBuilder @class, MemberDeclarationSyntax member) x)
     {
-        if (x.member is not ClassDeclarationSyntax)
+        if (x.member is not ClassDeclarationSyntax clazz)
             return;
 
-        var (@class, member) = (x.@class, x.member as ClassDeclarationSyntax);
+        var (@class, member) = (x.@class, xMember: clazz);
         var doc = member.OwnerDocument;
         @class.Flags = GenerateClassFlags(member);
 
@@ -146,6 +150,9 @@ public partial class CompilationTask
     {
 
     }
+
+    private Queue<(DocumentDeclaration doc, VeinCore types)> aliasesQueue { get; } = new();
+
     public List<(ClassBuilder clazz, MemberDeclarationSyntax member)> LinkClasses(DocumentDeclaration doc, VeinCore types)
     {
         var classes = new List<(ClassBuilder clazz, MemberDeclarationSyntax member)>();
@@ -157,6 +164,9 @@ public partial class CompilationTask
                 Status.VeinStatus($"Regeneration class [grey]'{clazz.Identifier}'[/]");
                 clazz.OwnerDocument = doc;
                 var result = CompileClass(clazz, doc, types);
+
+                Debug.WriteLine($"compiled class '{result.FullName}'");
+
                 Context.Classes.Add(result.FullName, result);
                 classes.Add((result, clazz));
             }
@@ -171,20 +181,105 @@ public partial class CompilationTask
             else
                 Log.Defer.Warn($"[grey]Member[/] [yellow underline]'{member.GetType().Name}'[/] [grey]is not supported.[/]");
         }
+
+        if (doc.Aliases.Any()) aliasesQueue.Enqueue((doc, types));
+
+        return classes;
+    }
+
+    private List<(ClassBuilder clazz, MemberDeclarationSyntax member)> RegenerateAliases(
+        (DocumentDeclaration doc, VeinCore types) data)
+        => RegenerateAliases(data.doc, data.types);
+
+    private List<(ClassBuilder clazz, MemberDeclarationSyntax member)> RegenerateAliases(DocumentDeclaration doc, VeinCore types)
+    {
+        var classes = new List<(ClassBuilder clazz, MemberDeclarationSyntax member)>();
         foreach (var alias in doc.Aliases)
         {
             if (alias.IsType)
             {
                 var type = FetchType(alias.Type!.Typeword, doc);
                 Context.Module.alias_table.Add(new VeinAliasType($"{module.Name}%global::{doc.Name}/{alias.AliasName.ExpressionString}",
-                    type));
+                type));
+
+                Status.VeinStatus($"Regeneration type alias [grey]'{type}'[/] -> [grey]'{alias.AliasName.ExpressionString}'[/]");
+
                 KnowClasses.Add(alias.AliasName, type);
             }
             else
-                Log.Defer.Warn($"Method [grey]Alias[/] [yellow underline]'{alias.AliasName.ExpressionString}'[/] [grey]is not supported.[/]");
+            {
+                var delegateClass = DefineDelegateClass(alias, doc, types);
+
+                Status.VeinStatus($"Regeneration method alias [grey]'{delegateClass.FullName}'[/]");
+
+                delegateClass.TypeCode = VeinTypeCode.TYPE_FUNCTION;
+                Context.Classes.Add(delegateClass.FullName, delegateClass);
+                classes.Add((delegateClass, null!));
+            }
         }
 
         return classes;
+    }
+
+    public ClassBuilder DefineDelegateClass(AliasSyntax alias, DocumentDeclaration doc, VeinCore types)
+    {
+        var aliasName = new QualityTypeName(module.Name, alias.AliasName.ExpressionString, $"global::{doc.Name}");
+        var multicastFnType = new QualityTypeName("std", "FunctionMulticast", $"global::std");
+
+        var args = GenerateArgument(alias.MethodDeclaration!, doc);
+
+        var retType = FetchType(alias.MethodDeclaration!.ReturnType, doc);
+        var sig = new VeinMethodSignature(retType, args);
+        Context.Module.alias_table.Add(new VeinAliasMethod(aliasName, sig));
+
+        var @base = module.FindType(multicastFnType, true);
+
+        var clazz = module.DefineClass(aliasName, @base)
+            .WithIncludes(doc.Includes);
+
+
+        clazz.TypeCode = VeinTypeCode.TYPE_FUNCTION;
+
+        var objType = VeinTypeCode.TYPE_OBJECT.AsClass(types);
+        var rawType = VeinTypeCode.TYPE_RAW.AsClass(types);
+
+        var ctorMethod = clazz.DefineMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, VeinTypeCode.TYPE_VOID.AsClass(types), [
+            new("fn", rawType),
+            new("scope", objType)
+        ]);
+
+
+        var scope = clazz.DefineField("_scope", FieldFlags.Internal, objType);
+        var ptrRef = clazz.DefineField("_fn", FieldFlags.Internal, rawType);
+
+        var ctorGen = ctorMethod.GetGenerator();
+
+        ctorGen.Emit(OpCodes.LDARG_0);
+        ctorGen.Emit(OpCodes.STF, ptrRef);
+        ctorGen.Emit(OpCodes.LDARG_1);
+        ctorGen.Emit(OpCodes.STF, scope);
+        ctorGen.Emit(OpCodes.RET);
+
+        var method = clazz.DefineMethod("invoke", Internal | Special,
+            sig.ReturnType,sig.Arguments.Where(VeinMethodSignature.NotThis).ToArray());
+
+        var hasThis = sig.Arguments.All(VeinMethodSignature.NotThis);
+
+        var generator = method.GetGenerator();
+
+
+        if (hasThis)
+            generator.Emit(OpCodes.LDF, scope);
+        foreach (int i in ..method.Signature.ArgLength)
+            generator.Emit(OpCodes.LDARG_S, i); // TODO optimization for LDARG_X
+
+        generator.Emit(OpCodes.LDF, ptrRef);
+        generator.Emit(OpCodes.CALL_SP);
+        generator.Emit(OpCodes.RET);
+
+
+        KnowClasses.Add(alias.AliasName, clazz);
+        return clazz;
     }
 
     public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc, VeinCore types)

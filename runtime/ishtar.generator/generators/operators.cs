@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using vein;
 using vein.extensions;
+using InvocationExpression = vein.syntax.InvocationExpression;
 
 public static class G_Operators
 {
@@ -242,6 +243,8 @@ public static class G_Operators
 
     public static ILGenerator EmitUnary(this ILGenerator gen, UnaryExpressionSyntax node)
     {
+        var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
         if (node.OperatorType == ExpressionType.NegateChecked && node.Operand.GetTypeCode().HasInteger())
         {
             var type = node.Operand.GetTypeCode();
@@ -263,6 +266,38 @@ public static class G_Operators
             var operand_assign = new BinaryExpressionSyntax(node.Operand, addOne);
             gen.EmitAssignExpression(operand_assign);
         }
+        else if (node.OperatorType == ExpressionType.And && node.Operand.GetTypeCode(ctx) == VeinTypeCode.TYPE_FUNCTION)
+        {
+            var fnType = node.Operand.GetType(ctx);
+
+            var invokeMethod = fnType.FindMethod("invoke");
+
+
+
+            gen.Emit(OpCodes.NEWOBJ, fnType);
+            gen.Emit(OpCodes.LDNULL);
+
+            if (node.Operand is IdentifierExpression id)
+            {
+                var method = ctx.CurrentMethod.Owner.FindMethod(id.ExpressionString, invokeMethod.Signature.Arguments.Select(x => x.ComplexType));
+
+                gen.Emit(OpCodes.LDFN, method);
+            }
+            else
+                throw new NotSupportedException("EmitLoadFunction");
+
+
+            var ctor = fnType.FindMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR,
+            [
+                VeinTypeCode.TYPE_RAW.AsClass(ctx.Module.Types),
+                VeinTypeCode.TYPE_OBJECT.AsClass(ctx.Module.Types)
+            ]);
+
+
+
+            gen.Emit(OpCodes.CALL, ctor);
+        }
+
         else
             throw new NotSupportedException("EmitUnary");
 
