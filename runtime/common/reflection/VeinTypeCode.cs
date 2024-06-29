@@ -244,6 +244,7 @@ public static class VeinTypeCodeEx
         TYPE_I8 => (x) => x.Int64Class,
         TYPE_STRING => (x) => x.StringClass,
         TYPE_FUNCTION => (x) => x.FunctionClass,
+        TYPE_RAW => (x) => x.RawClass,
         _ => throw new ArgumentOutOfRangeException(nameof(code), code, null)
     };
 
