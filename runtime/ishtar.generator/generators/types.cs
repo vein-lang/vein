@@ -2,6 +2,7 @@ namespace ishtar;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using vein.runtime;
@@ -9,7 +10,7 @@ using vein.syntax;
 
 public static class G_Types
 {
-    public static VeinTypeCode GetTypeCode(this ExpressionSyntax exp)
+    public static VeinTypeCode GetTypeCode(this ExpressionSyntax exp, GeneratorContext? gen = null)
     {
         if (exp is NumericLiteralExpressionSyntax num)
             return GetTypeCodeFromNumber(num);
@@ -19,8 +20,54 @@ public static class G_Types
             return VeinTypeCode.TYPE_STRING;
         if (exp is NullLiteralExpressionSyntax)
             return VeinTypeCode.TYPE_NONE;
+        if (exp is IdentifierExpression id && gen is not null)
+        {
+            try
+            {
+                var t = id.DetermineType(gen);
+
+                if (t.IsGeneric)
+                    return VeinTypeCode.TYPE_CLASS;
+                return t.Class.TypeCode;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+        }
+
         return VeinTypeCode.TYPE_CLASS;
     }
+
+    public static VeinClass GetType(this ExpressionSyntax exp, GeneratorContext gen)
+    {
+        if (exp is NumericLiteralExpressionSyntax num)
+            return GetTypeCodeFromNumber(num).AsClass(gen.Module.Types);
+        if (exp is BoolLiteralExpressionSyntax)
+            return VeinTypeCode.TYPE_BOOLEAN.AsClass(gen.Module.Types);
+        if (exp is StringLiteralExpressionSyntax)
+            return VeinTypeCode.TYPE_STRING.AsClass(gen.Module.Types);
+        if (exp is NullLiteralExpressionSyntax)
+            throw new NotSupportedException("NULL is not a type");
+        if (exp is IdentifierExpression id && gen is not null)
+        {
+            try
+            {
+                var t = id.DetermineType(gen);
+
+                if (t.IsGeneric)
+                    throw new NotSupportedException($"Cannot summon type from generic declaration");
+                return t.Class;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+            }
+        }
+
+        throw new NotImplementedException();
+    }
+
 
     public static (VeinClass, VeinClass) Fusce(this BinaryExpressionSyntax binary, GeneratorContext context)
     {
@@ -132,8 +179,34 @@ public static class G_Types
         }
         if (exp is UnaryExpressionSyntax unary)
         {
+            if (unary.Kind == SyntaxType.PostfixUnaryExpression)
+            {
+                if (unary.Operand is not IdentifierExpression name)
+                {
+                    context.LogError($"PostfixUnary cannot determine expression. support only IdentifierExpression operand", exp);
+                    throw new SkipStatementException();
+                }
+                var type = context.ResolveScopedIdentifierType(name);
+
+                if (type.IsGeneric)
+                {
+                    context.LogError($"PostfixUnary expression cannot user with Generic Type. support only Function expression operand", exp);
+                    throw new SkipStatementException();
+                }
+
+                if (type.Class.TypeCode != VeinTypeCode.TYPE_FUNCTION)
+                {
+                    context.LogError($"PostfixUnary expression cannot user with non function type. support only Function expression operand", exp);
+                    throw new SkipStatementException();
+                }
+
+                return type;
+            }
+
             if (unary.OperatorType.IsLogic())
                 return VeinTypeCode.TYPE_BOOLEAN.AsClass()(Types.Storage);
+
+            
             // todo
         }
         context.LogError($"Cannot determine expression.", exp);

@@ -1,5 +1,8 @@
 namespace ishtar;
-
+#nullable enable
+using System;
+using System.Linq;
+using System.Security.Claims;
 using emit;
 using vein.runtime;
 using vein.syntax;
@@ -10,6 +13,23 @@ public static class G_Call
     {
         var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
+        if (ctx.IsCallingDelegate(invocation, out var argument))
+        {
+            foreach (var arg in invocation.Arguments)
+                gen.EmitExpression(arg);
+            var internalMethod = argument!.Type.FindMethod("invoke") ;
+
+            if (internalMethod is null)
+            {
+                ctx.LogError($"Bad '{argument!.Type.FullName}' function class.", invocation);
+                throw new SkipStatementException();
+            }
+
+            gen.Emit(OpCodes.CALL, internalMethod);
+            return gen;
+        }
+
+
         var method = ctx.ResolveMethod(@class, invocation);
         var args = invocation.Arguments;
 
@@ -18,6 +38,21 @@ public static class G_Call
 
         gen.Emit(OpCodes.CALL, method);
         return gen;
+    }
+
+    public static bool IsCallingDelegate(this GeneratorContext gen, InvocationExpression invocation, out VeinArgumentRef? arg)
+    {
+        arg = gen.CurrentMethod.Signature.Arguments
+            .Where(x => !x.IsGeneric)
+            .FirstOrDefault(x => x.Name.Equals(invocation.Name.ExpressionString));
+
+        if (arg is null)
+            return false;
+        if (arg.IsGeneric)
+            return false;
+        if (arg.Type.TypeCode is VeinTypeCode.TYPE_FUNCTION)
+            return true;
+        return false;
     }
 
     public static ILGenerator EmitCallProperty(this ILGenerator gen, VeinClass @class, params IdentifierExpression[] chain)
