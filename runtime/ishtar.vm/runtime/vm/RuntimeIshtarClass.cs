@@ -556,9 +556,9 @@ namespace ishtar
             return Parent->FindMethod(fullyName, predicate);
         }
 
-        public RuntimeIshtarMethod* GetDefaultDtor() => _get_tor("dtor");
+        public RuntimeIshtarMethod* GetDefaultDtor() => _get_tor(VeinMethod.METHOD_NAME_DECONSTRUCTOR);
 
-        public RuntimeIshtarMethod* GetDefaultCtor() => _get_tor("ctor");
+        public RuntimeIshtarMethod* GetDefaultCtor() => _get_tor(VeinMethod.METHOD_NAME_CONSTRUCTOR);
 
 
         private RuntimeIshtarMethod* _get_tor(string name, bool isStatic = false)

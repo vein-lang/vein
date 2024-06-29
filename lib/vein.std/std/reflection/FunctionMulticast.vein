@@ -1,0 +1,4 @@
+#space "std"
+
+// base class for methods alias and other cases with method signatures
+public class FunctionMulticast : Function { }

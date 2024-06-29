@@ -17,22 +17,5 @@ public class Function : Object
         |> this._target;
 
     internal new() { } // internal ctor
-
-    /*
-    public call(): Object
-        |> self._call(this, Array.empty);
-    public call(args: Array): Object
-        |> self._call(this, args);
-
-    public static createFunctionFrom(target: Object, name: string): Function
-        |> self._createFn(target, name, false, true);
-    public static createFunctionFrom(target: Object, name: string, ignoreCase: boolean): Function
-        |> self._createFn(target, name, ignoreCase, true);
-    public static createFunctionFrom(target: Object, name: string, ignoreCase: boolean, throwWhenFailBind: boolean): Function
-        |> self._createFn(target, name, ignoreCase, throwWhenFailBind);
-
-    [native("__internal__", "i_call_Function_call")]
-    private static extern _call(f: Function, args: Array): Object;
-    [native("__internal__", "i_call_Function_create")]
-    private static extern _createFn(target: Object, name: string, ignoreCase: boolean, throwWhenFailBind: boolean): Function;*/
 }
+

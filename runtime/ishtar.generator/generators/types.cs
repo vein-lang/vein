@@ -32,7 +32,8 @@ public static class G_Types
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e);
+                gen.LogError($"Error determining type for identifier '{id}': {e.Message}", id);
+                throw;
             }
         }
 
@@ -61,7 +62,8 @@ public static class G_Types
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e);
+                gen.LogError($"Error determining type for identifier '{id}': {e.Message}", id);
+                throw;
             }
         }
 
