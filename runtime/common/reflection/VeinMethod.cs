@@ -70,6 +70,9 @@ namespace vein.runtime
         public Dictionary<int, VeinArgumentRef> Locals { get; } = new();
         public List<Aspect> Aspects { get; } = new();
 
+        public const string METHOD_NAME_CONSTRUCTOR = "ctor";
+        public const string METHOD_NAME_DECONSTRUCTOR = "dtor";
+
 
         public void Temp_ReplaceReturnType(VeinClass clazz) => Signature = Signature with { ReturnType = clazz };
 
@@ -104,9 +107,9 @@ namespace vein.runtime
         public bool IsAbstract => Flags.HasFlag(MethodFlags.Abstract);
         public bool IsVirtual => Flags.HasFlag(MethodFlags.Virtual);
         public bool IsOverride => !Flags.HasFlag(MethodFlags.Abstract) && Flags.HasFlag(MethodFlags.Override);
-        public bool IsConstructor => RawName.Equals("ctor");
+        public bool IsConstructor => RawName.Equals(METHOD_NAME_CONSTRUCTOR);
         public bool IsTypeConstructor => RawName.Equals("type_ctor");
-        public bool IsDeconstructor => RawName.Equals("dtor");
+        public bool IsDeconstructor => RawName.Equals(METHOD_NAME_DECONSTRUCTOR);
         public override bool IsSpecial => Flags.HasFlag(MethodFlags.Special);
 
         public sealed override string Name { get; protected set; }

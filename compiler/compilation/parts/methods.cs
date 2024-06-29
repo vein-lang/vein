@@ -173,11 +173,10 @@ public partial class CompilationTask
 
         if (member.IsConstructor())
         {
-            member.Identifier = new IdentifierExpression("ctor");
-
+            member.Identifier = new IdentifierExpression(VeinMethod.METHOD_NAME_CONSTRUCTOR);
             if (args.Length == 0)
                 return (clazz.GetDefaultCtor() as MethodBuilder, member);
-            var ctor = clazz.DefineMethod("ctor", GenerateMethodFlags(member), clazz, args);
+            var ctor = clazz.DefineMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, GenerateMethodFlags(member), clazz, args);
             CompileAspectFor(member, doc, ctor);
             return (ctor, member);
         }

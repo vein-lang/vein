@@ -70,8 +70,8 @@ namespace vein.runtime
         public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == "ValueType");
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
 
-        public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor("dtor");
-        public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor("ctor");
+        public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor(VeinMethod.METHOD_NAME_DECONSTRUCTOR);
+        public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor(VeinMethod.METHOD_NAME_CONSTRUCTOR);
 
         public virtual VeinMethod GetStaticCtor() => GetOrCreateTor("type_ctor", true);
 
