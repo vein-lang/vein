@@ -31,8 +31,8 @@ public partial class CompilationTask
     public ClassBuilder CompileAspect(AspectDeclarationSyntax member, DocumentDeclaration doc)
     {
         var name = member.Identifier.ExpressionString.EndsWith("Aspect")
-            ? $"global::{doc.Name}/{member.Identifier.ExpressionString}"
-            : $"global::{doc.Name}/{member.Identifier.ExpressionString}Aspect";
+            ? $"{doc.Name}/{member.Identifier.ExpressionString}"
+            : $"{doc.Name}/{member.Identifier.ExpressionString}Aspect";
 
         var clazz = module.DefineClass(name)
             .WithIncludes(doc.Includes);

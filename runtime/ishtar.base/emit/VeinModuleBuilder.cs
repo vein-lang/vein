@@ -7,7 +7,7 @@ namespace ishtar.emit
     using System.Linq;
     using System.Text;
     using extensions;
-    using global::ishtar;
+    using ishtar;
     using MoreLinq;
     using vein;
     using vein.exceptions;
@@ -23,11 +23,11 @@ namespace ishtar.emit
         /// Define class by name.
         /// </summary>
         /// <remarks>
-        /// 'assemblyName%global::namespace/className' - VALID
+        /// 'assemblyName%namespace/className' - VALID
         /// <br/>
-        /// 'global::namespace/className' - VALID
+        /// 'namespace/className' - VALID
         /// <br/>
-        /// 'namespace/className' - INVALID, need 'global::' prefix.
+        /// 'namespace/className' - INVALID, need '' prefix.
         /// <br/>
         /// 'className' - INVALID, need describe namespace.
         /// </remarks>
@@ -48,8 +48,8 @@ namespace ishtar.emit
 
             if (typename.TryGet(x => x.Namespace) is null)
                 throw new IncompleteClassNameException($"Class name has incorrect format.");
-            if (!typename.Namespace.StartsWith("global::"))
-                throw new IncompleteClassNameException($"Class namespace not start with 'global::'.");
+            if (!typename.Namespace.StartsWith(""))
+                throw new IncompleteClassNameException($"Class namespace not start with ''.");
 
             return DefineClass(typename);
         }

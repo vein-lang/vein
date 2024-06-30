@@ -38,8 +38,8 @@ namespace vein.syntax
         {
             var result = x.Value.Token;
 
-            if (!result.StartsWith("global::"))
-                return $"global::{result}";
+            if (!result.StartsWith(""))
+                return $"{result}";
             return result;
         }).ToList();
     }

@@ -59,7 +59,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar_collections_test", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar.vm.libuv", "runtime\ishtar.vm.libuv\ishtar.vm.libuv.csproj", "{3E9D576A-C96E-407F-8112-E0D15F11322A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vein.std", "lib\vein.std\vein.std.csproj", "{4630487E-D9EA-4B62-A677-B8F0CDB3831F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.std", "lib\vein.std\vein.std.csproj", "{4630487E-D9EA-4B62-A677-B8F0CDB3831F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ishtar.debug.console", "lib\ishtar.debug.console\ishtar.debug.console.csproj", "{17D286DB-1DF3-4280-8852-CED37FF50006}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -299,6 +301,18 @@ Global
 		{4630487E-D9EA-4B62-A677-B8F0CDB3831F}.Release|x64.Build.0 = Release|Any CPU
 		{4630487E-D9EA-4B62-A677-B8F0CDB3831F}.Release|x86.ActiveCfg = Release|Any CPU
 		{4630487E-D9EA-4B62-A677-B8F0CDB3831F}.Release|x86.Build.0 = Release|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Debug|x64.Build.0 = Debug|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Debug|x86.Build.0 = Debug|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Release|x64.ActiveCfg = Release|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Release|x64.Build.0 = Release|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Release|x86.ActiveCfg = Release|Any CPU
+		{17D286DB-1DF3-4280-8852-CED37FF50006}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -323,6 +337,7 @@ Global
 		{A9632845-23EC-4F5F-B422-92DDE1234134} = {5AF546C3-347F-4595-9CA9-3DE286DBC585}
 		{3E9D576A-C96E-407F-8112-E0D15F11322A} = {F1A3DE9B-263D-4F44-9A88-9ED37E9A9330}
 		{4630487E-D9EA-4B62-A677-B8F0CDB3831F} = {B79D9C1A-8074-4105-8447-93A5A059A2CB}
+		{17D286DB-1DF3-4280-8852-CED37FF50006} = {B79D9C1A-8074-4105-8447-93A5A059A2CB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2BB3994-6F65-4E41-BA44-6258F00A3A28}

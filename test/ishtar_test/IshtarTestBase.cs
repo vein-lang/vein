@@ -60,7 +60,7 @@ namespace ishtar_test
 
         public void OnCodeBuild(Action<ILGenerator, dynamic> ctor)
         {
-            Class = Module.DefineClass($"global::test/testClass_{testCase}_{uid}");
+            Class = Module.DefineClass($"test/testClass_{testCase}_{uid}");
             ClassCtor?.Invoke(Class, _context);
             var _method = Class.DefineMethod($"master_{testCase}_{uid}", MethodFlags.Public | MethodFlags.Static,
                 VeinTypeCode.TYPE_OBJECT.AsClass()(Types));

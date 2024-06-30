@@ -54,7 +54,7 @@ namespace veinc_test
                 moduleSR.Deps.AddRange(GetDeps());
 
 
-                var @class = moduleSR.DefineClass("set1%global::wave/lang/SR");
+                var @class = moduleSR.DefineClass("set1%wave/lang/SR");
 
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
@@ -81,7 +81,7 @@ namespace veinc_test
                 module.Deps.AddRange(GetDeps());
 
 
-                var @class = module.DefineClass("set2%global::wave/lang/DR");
+                var @class = module.DefineClass("set2%wave/lang/DR");
 
 
                 @class.Flags = ClassFlags.Public | ClassFlags.Static;
@@ -146,7 +146,7 @@ namespace veinc_test
             //IshtarAssert.NotEmpty(result.class_table);
             //var @class = result.class_table.First();
             //Assert.AreEqual("DR", @class.Name);
-            //Assert.AreEqual("aspera%global::wave/lang/DR", @class.FullName.fullName);
+            //Assert.AreEqual("aspera%wave/lang/DR", @class.FullName.fullName);
             //IshtarAssert.NotEmpty(@class.Methods);
             //var method = @class.Methods.First();
             //Assert.AreEqual("blank()", method.Name);

@@ -173,9 +173,9 @@ void gen_cs_props(StringBuilder builder)
             => ((chain << 0xC) | 0x1F) | ((flow << 0x11) | 0x1F) | ((size << 0x16) | 0x1F);
     builder.AppendLine(header);
     builder.AppendLine("namespace ishtar \n{");
-    builder.AppendLine("\tusing global::vein.runtime;");
-    builder.AppendLine("\tusing global::ishtar.emit;");
-    builder.AppendLine("\tusing global::System.Collections.Generic;");
+    builder.AppendLine("\tusing vein.runtime;");
+    builder.AppendLine("\tusing ishtar.emit;");
+    builder.AppendLine("\tusing System.Collections.Generic;");
     builder.AppendLine("\tpublic static class OpCodes \n\t{");
 
     builder.AppendLine($"\t\tinternal static int SetVersion = {version};");

@@ -21,7 +21,7 @@ namespace veinc_test
         public void Test()
         {
             var module = new VeinModuleBuilder("xuy", (Types.Storage));
-            var clazz = module.DefineClass("xuy%global::vein/lang/svack_pidars");
+            var clazz = module.DefineClass("xuy%vein/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass()((Types.Storage)), VeinArgumentRef.Create(Types.Storage, ("x", VeinTypeCode.TYPE_STRING)));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
@@ -65,7 +65,7 @@ namespace veinc_test
         public void TestIL()
         {
             var module = new VeinModuleBuilder("xuy", (Types.Storage));
-            var clazz = module.DefineClass("global::vein/lang/svack_pidars");
+            var clazz = module.DefineClass("vein/lang/svack_pidars");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
             var method = clazz.DefineMethod("insert_dick_into_svack", MethodFlags.Public, VeinTypeCode.TYPE_VOID.AsClass()((Types.Storage)), VeinArgumentRef.Create(Types.Storage, ("x", VeinTypeCode.TYPE_STRING)));
             method.Flags = MethodFlags.Public | MethodFlags.Static;
@@ -103,7 +103,7 @@ namespace veinc_test
             {
                 if (member is ClassDeclarationSyntax classMember)
                 {
-                    var @class = module.DefineClass($"global::vein/lang/{classMember.Identifier}");
+                    var @class = module.DefineClass($"vein/lang/{classMember.Identifier}");
 
                     foreach (var methodMember in classMember.Methods)
                     {
@@ -183,7 +183,7 @@ namespace veinc_test
         public static ILGenerator CreateGenerator(params VeinArgumentRef[] args)
         {
             var module = new VeinModuleBuilder(Guid.NewGuid().ToString(), (Types.Storage));
-            var @class = module.DefineClass("global::foo/bar");
+            var @class = module.DefineClass("foo/bar");
             var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage), args);
 
             var gen =  method.GetGenerator();
@@ -240,7 +240,7 @@ puts after - before;*/
         public void ManualGenCallExternFunction()
         {
             var module = new VeinModuleBuilder("hello_world", (Types.Storage));
-            var clazz = module.DefineClass("hello_world%global::wave/lang/program");
+            var clazz = module.DefineClass("hello_world%wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
 
 
@@ -273,7 +273,7 @@ puts after - before;*/
         public void ManualGen()
         {
             var module = new VeinModuleBuilder("satl", (Types.Storage));
-            var clazz = module.DefineClass("satl%global::wave/lang/program");
+            var clazz = module.DefineClass("satl%wave/lang/program");
             clazz.Flags = ClassFlags.Public | ClassFlags.Static;
 
 
@@ -338,7 +338,7 @@ puts after - before;*/
             fibGen.Emit(OpCodes.STLOC_3);
 
             // var exceptionType =
-            //    module.FindType(new QualityTypeName("std%global::wave/lang/Exception")).AsClass();
+            //    module.FindType(new QualityTypeName("std%wave/lang/Exception")).AsClass();
 
             //fibGen.Emit(OpCodes.NEWOBJ, exceptionType.FullName);
             //fibGen.Emit(OpCodes.CALL, exceptionType.FindMethod("ctor()"));

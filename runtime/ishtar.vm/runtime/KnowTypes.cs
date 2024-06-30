@@ -14,7 +14,7 @@ public static unsafe partial class KnowTypes
         public static class Native
         {
             public static QualityTypeName NativeHandleTypeName =
-                new("std", nameof(NativeHandle), "global::std/native");
+                new("std", nameof(NativeHandle), "std/native");
 
             public static RuntimeIshtarClass* NativeHandle(CallFrame* frame)
                 => findType(NativeHandleTypeName, frame);
@@ -22,28 +22,28 @@ public static unsafe partial class KnowTypes
 
 
         public static QualityTypeName FileNotFoundFaultTypeName =
-            new("std", nameof(FileNotFoundFault), "global::std");
+            new("std", nameof(FileNotFoundFault), "std");
 
         public static RuntimeIshtarClass* FileNotFoundFault(CallFrame* frame)
             => findType(FileNotFoundFaultTypeName, frame);
     }
 
 
-    public static QualityTypeName TypeInfoTypeName = new("std", nameof(Type), "global::std");
-    public static QualityTypeName FieldInfoTypeName = new("std", nameof(Field), "global::std");
-    public static QualityTypeName FunctionInfoTypeName = new("std", nameof(Function), "global::std");
+    public static QualityTypeName TypeInfoTypeName = new("std", nameof(Type), "std");
+    public static QualityTypeName FieldInfoTypeName = new("std", nameof(Field), "std");
+    public static QualityTypeName FunctionInfoTypeName = new("std", nameof(Function), "std");
 
-    public static QualityTypeName NullPointerExceptionTypeName = new("std", "NullPointerException", "global::std");
-    public static QualityTypeName IncorrectCastFaultTypeName = new("std", "IncorrectCastFault", "global::std");
+    public static QualityTypeName NullPointerExceptionTypeName = new("std", "NullPointerException", "std");
+    public static QualityTypeName IncorrectCastFaultTypeName = new("std", "IncorrectCastFault", "std");
     public static QualityTypeName FreeImmortalObjectFaultTypeName =
-        new("std", nameof(FreeImmortalObjectFault), "global::std");
+        new("std", nameof(FreeImmortalObjectFault), "std");
     public static QualityTypeName TypeNotFoundFaultTypeName =
-        new("std", nameof(TypeNotFoundFault), "global::std/reflection");
+        new("std", nameof(TypeNotFoundFault), "std/reflection");
     public static QualityTypeName MultipleTypeFoundFaultTypeName =
-        new("std", nameof(MultipleTypeFoundFault), "global::std/reflection");
+        new("std", nameof(MultipleTypeFoundFault), "std/reflection");
     public static QualityTypeName PlatformIsNotSupportFaultTypeName =
-        new("std", nameof(PlatformIsNotSupportFault), "global::std");
-    public static QualityTypeName IshatFault = new("std", nameof(IshatFault), "global::std");
+        new("std", nameof(PlatformIsNotSupportFault), "std");
+    public static QualityTypeName IshatFault = new("std", nameof(IshatFault), "std");
 
     public static RuntimeIshtarClass* NullPointerException(CallFrame* frame)
         => findType(NullPointerExceptionTypeName, frame);

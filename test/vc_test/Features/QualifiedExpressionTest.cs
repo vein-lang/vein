@@ -15,7 +15,7 @@ public class QualifiedExpressionTest
         Assert.NotNull(exp);
         Assert.AreEqual(SyntaxType.NewExpression, exp.Kind);
         IshtarAssert.IsType<ObjectCreationExpression>(exp.CtorArgs);
-        Assert.AreEqual("global::Foo", exp.TargetType.Typeword.GetFullName());
+        Assert.AreEqual("Foo", exp.TargetType.Typeword.GetFullName());
     }
     [Test]
     public void ExpSimplifyTest()
@@ -60,7 +60,7 @@ public class QualifiedExpressionTest
     [TestCase("foo.bar.zoo(a, b, 4, woo())")]
     [TestCase("foo.bar.zoo(a, b, 4, zak.woo())")]
     [TestCase("foo.bar.zoo(a, b, 4, zak.woo(a, b, 4))")]
-    //[TestCase("global::foo.bar.zoo(a, b, 4, 4 + 4);")]
+    //[TestCase("foo.bar.zoo(a, b, 4, 4 + 4);")]
     public void InvocationTest(string parseStr)
         => VeinAst.QualifiedExpression.End().ParseVein(parseStr);
 

@@ -1,6 +1,6 @@
 namespace ishtar.emit.extensions
 {
-    using global::ishtar;
+    using ishtar;
     using vein.extensions;
 
     public static class OpCodeExtensions

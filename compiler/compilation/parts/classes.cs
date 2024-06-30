@@ -199,7 +199,7 @@ public partial class CompilationTask
             if (alias.IsType)
             {
                 var type = FetchType(alias.Type!.Typeword, doc);
-                Context.Module.alias_table.Add(new VeinAliasType($"{module.Name}%global::{doc.Name}/{alias.AliasName.ExpressionString}",
+                Context.Module.alias_table.Add(new VeinAliasType($"{module.Name}%{doc.Name}/{alias.AliasName.ExpressionString}",
                 type));
 
                 Status.VeinStatus($"Regeneration type alias [grey]'{type}'[/] -> [grey]'{alias.AliasName.ExpressionString}'[/]");
@@ -223,8 +223,8 @@ public partial class CompilationTask
 
     public ClassBuilder DefineDelegateClass(AliasSyntax alias, DocumentDeclaration doc, VeinCore types)
     {
-        var aliasName = new QualityTypeName(module.Name, alias.AliasName.ExpressionString, $"global::{doc.Name}");
-        var multicastFnType = new QualityTypeName("std", "FunctionMulticast", $"global::std");
+        var aliasName = new QualityTypeName(module.Name, alias.AliasName.ExpressionString, $"{doc.Name}");
+        var multicastFnType = new QualityTypeName("std", "FunctionMulticast", $"std");
 
         var args = GenerateArgument(alias.MethodDeclaration!, doc);
 
@@ -243,7 +243,8 @@ public partial class CompilationTask
         var objType = VeinTypeCode.TYPE_OBJECT.AsClass(types);
         var rawType = VeinTypeCode.TYPE_RAW.AsClass(types);
 
-        var ctorMethod = clazz.DefineMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, VeinTypeCode.TYPE_VOID.AsClass(types), [
+        var ctorMethod = clazz.DefineMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, clazz, [
+            new (VeinArgumentRef.THIS_ARGUMENT, clazz),
             new("fn", rawType),
             new("scope", objType)
         ]);
@@ -254,25 +255,33 @@ public partial class CompilationTask
 
         var ctorGen = ctorMethod.GetGenerator();
 
-        ctorGen.Emit(OpCodes.LDARG_0);
-        ctorGen.Emit(OpCodes.STF, ptrRef);
-        ctorGen.Emit(OpCodes.LDARG_1);
-        ctorGen.Emit(OpCodes.STF, scope);
-        ctorGen.Emit(OpCodes.RET);
+        ctorGen.Emit(OpCodes.LDARG_1); // load ref
+        ctorGen.Emit(OpCodes.LDARG_0); // load this
+        ctorGen.Emit(OpCodes.STF, ptrRef); // this.ptrRef = ref;
+        ctorGen.Emit(OpCodes.LDARG_2); // load scope
+        ctorGen.Emit(OpCodes.LDARG_0); // load this
+        ctorGen.Emit(OpCodes.STF, scope); // this.scope = scope;
+        ctorGen.Emit(OpCodes.LDARG_0); // load this
+        ctorGen.Emit(OpCodes.RET); // return this
+
 
         var method = clazz.DefineMethod("invoke", Internal | Special,
-            sig.ReturnType,sig.Arguments.Where(VeinMethodSignature.NotThis).ToArray());
+            sig.ReturnType, new List<VeinArgumentRef> { new (VeinArgumentRef.THIS_ARGUMENT, clazz) }.Concat(sig.Arguments.Where(VeinMethodSignature.NotThis)).ToArray());
 
-        var hasThis = sig.Arguments.All(VeinMethodSignature.NotThis);
+        var hasNotThis = sig.Arguments.All(VeinMethodSignature.NotThis);
 
         var generator = method.GetGenerator();
 
 
-        if (hasThis)
+        if (!hasNotThis)
+        {
+            generator.EmitThis();
             generator.Emit(OpCodes.LDF, scope);
-        foreach (int i in ..method.Signature.ArgLength)
-            generator.Emit(OpCodes.LDARG_S, i); // TODO optimization for LDARG_X
+        }
+        foreach (int i in ..method.Signature.Arguments.Where(VeinMethodSignature.NotThis).Count())
+            generator.EmitLoadArgument(i + 1);
 
+        generator.EmitThis();
         generator.Emit(OpCodes.LDF, ptrRef);
         generator.Emit(OpCodes.CALL_SP);
         generator.Emit(OpCodes.RET);
@@ -311,7 +320,7 @@ public partial class CompilationTask
             throw new ForwardedTypeNotDefinedException(member.Identifier.ExpressionString);
         }
 
-        var clazz = module.DefineClass($"global::{doc.Name}/{member.Identifier.ExpressionString}")
+        var clazz = module.DefineClass($"{doc.Name}/{member.Identifier.ExpressionString}")
             .WithIncludes(doc.Includes);
         _defineClass(clazz);
         CompileAspectFor(member, doc, clazz);

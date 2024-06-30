@@ -53,7 +53,7 @@ namespace ishtar
 
             vm.InternalModule = vm.Vault.DefineModule("$ishtar$");
 
-            vm.InternalClass = vm.InternalModule->DefineClass("sys%global::$ishtar$/global".L(),
+            vm.InternalClass = vm.InternalModule->DefineClass("sys%$ishtar$/global".L(),
                 vm.Types->ObjectClass);
 
             vm.Frames = new IshtarFrames(vm);

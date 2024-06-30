@@ -13,7 +13,7 @@ namespace ishtar_test
         {
             using var scope = CreateScope();
             scope.OnClassBuild((x, storage) => {
-                var type = x.Owner.FindType("std%global::vein/lang/Out", true);
+                var type = x.Owner.FindType("std%vein/lang/Out", true);
 
                 storage.method = type.FindMethod("@_println");
             });

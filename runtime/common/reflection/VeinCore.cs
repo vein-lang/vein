@@ -66,29 +66,29 @@ namespace vein.runtime
         {
             var asmName = "std%";
             var coreModule = new VeinModule("std", new Version(1, 0, 0), this);
-            ObjectClass = new($"{asmName}global::std/Object", (VeinClass)null, coreModule) { TypeCode = VeinTypeCode.TYPE_OBJECT };
-            ValueTypeClass = new($"{asmName}global::std/ValueType", (VeinClass)null, coreModule) { TypeCode = VeinTypeCode.TYPE_OBJECT };
-            VoidClass = new($"{asmName}global::std/Void", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_VOID };
-            StringClass = new($"{asmName}global::std/String", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_STRING };
-            ByteClass = new($"{asmName}global::std/Byte", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_U1 };
-            SByteClass = new($"{asmName}global::std/SByte", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_I1 };
-            Int16Class = new($"{asmName}global::std/Int16", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_I2 };
-            Int32Class = new($"{asmName}global::std/Int32", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_I4 };
-            Int64Class = new($"{asmName}global::std/Int64", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_I8 };
-            UInt16Class = new($"{asmName}global::std/UInt16", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_U2 };
-            UInt32Class = new($"{asmName}global::std/UInt32", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_U4 };
-            UInt64Class = new($"{asmName}global::std/UInt64", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_U8 };
-            HalfClass = new($"{asmName}global::std/Half", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_R2 };
-            FloatClass = new($"{asmName}global::std/Float", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_R4 };
-            DoubleClass = new($"{asmName}global::std/Double", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_R8 };
-            DecimalClass = new($"{asmName}global::std/Decimal", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_R16 };
-            BoolClass = new($"{asmName}global::std/Boolean", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_BOOLEAN };
-            CharClass = new($"{asmName}global::std/Char", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_CHAR };
-            ArrayClass = new($"{asmName}global::std/Array", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_ARRAY };
-            ExceptionClass = new($"{asmName}global::std/Exception", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_CLASS };
-            RawClass = new($"{asmName}global::std/Raw", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_RAW };
-            AspectClass = new($"{asmName}global::std/Aspect", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_CLASS };
-            FunctionClass = new($"{asmName}global::std/Function", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_FUNCTION };
+            ObjectClass = new($"{asmName}std/Object", (VeinClass)null, coreModule) { TypeCode = VeinTypeCode.TYPE_OBJECT };
+            ValueTypeClass = new($"{asmName}std/ValueType", (VeinClass)null, coreModule) { TypeCode = VeinTypeCode.TYPE_OBJECT };
+            VoidClass = new($"{asmName}std/Void", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_VOID };
+            StringClass = new($"{asmName}std/String", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_STRING };
+            ByteClass = new($"{asmName}std/Byte", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_U1 };
+            SByteClass = new($"{asmName}std/SByte", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_I1 };
+            Int16Class = new($"{asmName}std/Int16", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_I2 };
+            Int32Class = new($"{asmName}std/Int32", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_I4 };
+            Int64Class = new($"{asmName}std/Int64", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_I8 };
+            UInt16Class = new($"{asmName}std/UInt16", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_U2 };
+            UInt32Class = new($"{asmName}std/UInt32", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_U4 };
+            UInt64Class = new($"{asmName}std/UInt64", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_U8 };
+            HalfClass = new($"{asmName}std/Half", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_R2 };
+            FloatClass = new($"{asmName}std/Float", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_R4 };
+            DoubleClass = new($"{asmName}std/Double", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_R8 };
+            DecimalClass = new($"{asmName}std/Decimal", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_R16 };
+            BoolClass = new($"{asmName}std/Boolean", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_BOOLEAN };
+            CharClass = new($"{asmName}std/Char", ValueTypeClass, coreModule) { TypeCode = VeinTypeCode.TYPE_CHAR };
+            ArrayClass = new($"{asmName}std/Array", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_ARRAY };
+            ExceptionClass = new($"{asmName}std/Exception", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_CLASS };
+            RawClass = new($"{asmName}std/Raw", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_RAW };
+            AspectClass = new($"{asmName}std/Aspect", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_CLASS };
+            FunctionClass = new($"{asmName}std/Function", ObjectClass, coreModule) { TypeCode = VeinTypeCode.TYPE_FUNCTION };
         }
     }
 }

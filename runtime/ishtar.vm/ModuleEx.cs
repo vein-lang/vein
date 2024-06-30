@@ -1,7 +1,7 @@
 //namespace vein.runtime
 //{
 //    using System.Linq;
-//    using global::ishtar;
+//    using ishtar;
 
 //    public static unsafe class ModuleEx
 //    {

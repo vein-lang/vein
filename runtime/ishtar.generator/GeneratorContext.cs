@@ -80,7 +80,7 @@ public class GeneratorContext(GeneratorContextConfig config)
     }
     public ClassBuilder CreateHiddenType(string name)
     {
-        QualityTypeName fullName = $"{Module.Name}%global::internal/{name}";
+        QualityTypeName fullName = $"{Module.Name}%internal/{name}";
 
         var currentType = Module.FindType(fullName, false, false);
 
@@ -98,7 +98,7 @@ public class GeneratorContext(GeneratorContextConfig config)
 
     public ClassBuilder CreateHiddenType(string name, VeinClass parent)
     {
-        QualityTypeName fullName = $"{Module.Name}%global::internal/{name}";
+        QualityTypeName fullName = $"{Module.Name}%internal/{name}";
 
         var currentType = Module.FindType(fullName, false, false);
 
@@ -169,7 +169,7 @@ public class GeneratorContext(GeneratorContextConfig config)
     public VeinClass CreateFunctionMulticastGroup(VeinMethodSignature sig)
     {
         var @base = CurrentScope.Context.Module
-            .FindType(new QualityTypeName("std", "FunctionMulticast", "global::std"),
+            .FindType(new QualityTypeName("std", "FunctionMulticast", "std"),
                 true, true);
 
         var hiddenClass = CurrentScope.Context
