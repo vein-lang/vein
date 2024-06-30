@@ -70,16 +70,17 @@ unsafe
 
     if (!frame->exception.IsDefault())
     {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
+        vm.trace.println($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
                           $"{frame->exception.GetStackTrace()}");
-        Console.ForegroundColor = ConsoleColor.White;
     }
 
     watcher.Stop();
-    Console.WriteLine($"Elapsed: {watcher.Elapsed}");
+    vm.trace.println($"Elapsed: {watcher.Elapsed}");
     frame->Dispose();
     vm.Dispose();
 
+    vm.trace.println($"Press ENTER to exit...");
+
+    Console.ReadKey();
     return 0;
 }

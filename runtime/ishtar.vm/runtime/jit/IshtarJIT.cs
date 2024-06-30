@@ -561,6 +561,8 @@ public unsafe class IshtarJIT(VirtualMachine vm)
         var formatter = new MasmFormatter();
         var output = new AssemblerFormatterOutputImpl();
 
+
+        throw null;
         foreach (var instr in decoder)
         {
             output.List.Clear();
@@ -588,6 +590,9 @@ public unsafe class IshtarJIT(VirtualMachine vm)
 
         var formatter = new MasmFormatter();
         var output = new AssemblerFormatterOutputImpl();
+
+
+        throw null; // coloring
 
         foreach (var instr in decoder)
         {

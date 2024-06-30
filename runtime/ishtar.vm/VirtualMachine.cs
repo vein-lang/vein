@@ -48,6 +48,9 @@ namespace ishtar
             vm.Config = new VMConfig();
             vm.Vault = new AppVault(vm, name);
             vm.trace = new IshtarTrace();
+
+            vm.trace.Setup();
+
             vm.Types = IshtarTypes.Create(vm.Vault);
             vm.GC = new IshtarGC(vm);
 
@@ -159,7 +162,15 @@ namespace ishtar
         [Conditional("DEBUG")]
         public void println(string str) => trace.println(str);
 
-        public void halt(int exitCode = -1) => Environment.Exit(exitCode);
+        public void halt(int exitCode = -1)
+        {
+#if DEBUG
+            trace.println($"exit code is {exitCode}");
+            trace.println("Press ENTER to exit...");
+            while (System.Console.ReadKey().Key != ConsoleKey.Enter) Thread.Sleep(1);
+#endif
+            Environment.Exit(exitCode);
+        }
 
 
         public void exec_method_external_native(CallFrame* frame)
@@ -324,7 +335,9 @@ namespace ishtar
                 sp->data.p = (nint)GC.AllocObject(clazz, invocation);
                 sp->type = TYPE_CLASS;
             }
-            
+
+            var stopwatch = new Stopwatch();
+
             while (true)
             {
                 vm_cycle_start:
@@ -340,6 +353,15 @@ namespace ishtar
                 if (!assert_violation_zone_writes(invocation, stack, STACK_VIOLATION_LEVEL_SIZE))
                     continue;
 
+                Thread.Sleep(1);
+
+                if (stopwatch.IsRunning)
+                {
+                    stopwatch.Stop();
+                    trace.signal_state(invocation->last_ip, *invocation, stopwatch.Elapsed, *sp);
+                }
+
+                stopwatch.Restart();
 
                 switch (invocation->last_ip)
                 {
