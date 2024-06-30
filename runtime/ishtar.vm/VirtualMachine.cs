@@ -254,6 +254,17 @@ namespace ishtar
 
         public void exec_method(CallFrame* invocation)
         {
+            if (!Config.DisableValidationInvocationArgs)
+            {
+                var argsLen = invocation->method->ArgLength;
+
+                for (int i = 0; i != argsLen; i++)
+                {
+                    if (invocation->args[i].type > TYPE_NULL)
+                        FastFail(STATE_CORRUPT, $"[arg validation] argument [{i}/{argsLen}] for [{invocation->method->Name}] has corrupted", invocation);
+                }
+            }
+
             println($"@.frame> {invocation->method->Owner->Name}::{invocation->method->Name}");
 
             var _module = invocation->method->Owner->Owner;

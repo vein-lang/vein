@@ -43,6 +43,8 @@ namespace ishtar
             public bool UseDebugAllocator => Has("has_debug_allocator");
             public bool DisabledFinalization => Has("has_disabled_finalization");
             public bool CallOpCodeSkipValidateArgs => Has("skip-validate-args"); //--sys::ishtar::skip-validate-args=1
+            public bool DisableValidationInvocationArgs => Has("has_disabled_validation_inv_args");
+
 
             #endregion
 
