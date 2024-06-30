@@ -385,13 +385,17 @@ namespace ishtar
                             $"Arguments in current function is empty, but trying access it.", invocation);
                         *sp = args[(*ip) - (short)LDARG_0];
                         println($"load from args ({sp->type})");
-                        ++sp;
+                        Assert(sp->type != TYPE_NONE, STATE_CORRUPT, "", invocation);
+                        Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, "", invocation);
+                    ++sp;
                         ++ip;
                         break;
                     case LDARG_S:
                         ++ip;
                         *sp = args[(*ip)];
                         println($"load from args ({sp->type})");
+                        Assert(sp->type != TYPE_NONE, STATE_CORRUPT, "", invocation);
+                        Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, "", invocation);
                         ++sp;
                         ++ip;
                         break;
@@ -623,12 +627,13 @@ namespace ishtar
                             var value = IshtarMarshal.UnBoxing(invocation, obj);
                             *sp = value;
                             ++ip;
+                            println($"@@@ LDF -> {sp->type} (from {field->Name})");
                             ++sp;
                         }
                         break;
                     case LDNULL:
-                        sp->type = TYPE_OBJECT;
-                        sp->data.p = (nint)0;
+                        sp->type = TYPE_NULL;
+                        sp->data.p = 0;
                         ++sp;
                         ++ip;
                         break;
@@ -705,6 +710,38 @@ namespace ishtar
                             ++sp;
                         }
                         break;
+                    case LDFN:
+                    {
+                        ++ip;
+                        var tokenIdx = *ip;
+                        var owner = readTypeName(*++ip, _module, invocation);
+                        var method = GetMethod(tokenIdx, owner, _module, invocation);
+                        ++ip;
+                        
+                        var raw = GC.AllocRawValue(invocation); // TODO destroy
+
+                        raw->type = VeinRawCode.ISHTAR_METHOD;
+                        raw->data.m = method;
+
+                        sp->type = TYPE_RAW; 
+                        sp->data.p = (nint)raw;
+                        ++sp;
+                    } break;
+                    case CALL_SP:
+                    {
+                        ++ip;
+                        sp--;
+
+                        if (sp->type == TYPE_NULL)
+                        {
+                            ForceThrow(KnowTypes.NullPointerException(invocation));
+                            goto exception_handle;
+                        }
+
+                        var method = *sp;
+                        var raw = (rawval*)method.data.p;
+                        var sw = raw->type;
+                    } break;
                     case CALL:
                         {
                             ++ip;
@@ -759,6 +796,12 @@ namespace ishtar
 //                                    }
 //                                }
 //#endif
+
+                                println($"@@@ {owner->NameWithNS}::{method->Name} (argument {y} is {sp->type} type)");
+
+                                if (sp->type > TYPE_NULL)
+                                    FastFail(STATE_CORRUPT, $"[call arg validation] trying fill corrupted argument [{y}/{method->ArgLength}] for [{method->Name}]", invocation);
+
                                 method_args[y] = *sp;
                             }
 
