@@ -287,6 +287,9 @@ namespace ishtar
             var sp = stack.Ref + STACK_VIOLATION_LEVEL_SIZE;
             var sp_start = sp;
             var start = ip;
+
+            long getStackLen() => sp - sp_start;
+
             var end = mh->code + mh->code_size;
             var end_stack = sp + mh->max_stack;
             uint* endfinally_ip = null;
@@ -315,21 +318,18 @@ namespace ishtar
                 return null;
             }
 
-            // maybe mutable il code is bad, need research
-            void ForceFail(RuntimeIshtarClass* clazz)
+            void ForceThrow(RuntimeIshtarClass* clazz)
             {
-                *ip = (uint)THROW;
+                CallFrame.FillStackTrace(invocation);
                 sp->data.p = (nint)GC.AllocObject(clazz, invocation);
                 sp->type = TYPE_CLASS;
-                sp++;
             }
-
-
+            
             while (true)
             {
                 vm_cycle_start:
                 invocation->last_ip = (OpCodeValue)(ushort)*ip;
-                println($"@@.{invocation->last_ip} 0x{(nint)ip:X} [sp: {(((nint)sp) - ((nint)sp))}]");
+                println($"@@.{invocation->last_ip} 0x{(nint)ip:X} [sp: {getStackLen()}]");
 
                 if (!invocation->exception.IsDefault() && invocation->level == 0)
                     return;
@@ -581,14 +581,17 @@ namespace ishtar
                             --sp;
                             if (@this->type == TYPE_NONE)
                             {
-                                ForceFail(KnowTypes.NullPointerException(invocation));
-                                break;
+                                ForceThrow(KnowTypes.NullPointerException(invocation));
+                                goto exception_handle;
                             }
                             //FFI.StaticValidate(invocation, @this, field.Owner);
                             var value = sp;
                             var this_obj = (IshtarObject*)@this->data.p;
                             var target_class = this_obj->clazz;
-                            this_obj->vtable[field->vtable_offset] = IshtarMarshal.Boxing(invocation, value);
+                            if (value->type == TYPE_NULL)
+                                this_obj->vtable[field->vtable_offset] = null;
+                            else
+                                this_obj->vtable[field->vtable_offset] = IshtarMarshal.Boxing(invocation, value);
                             ++ip;
                         }
                         break;
@@ -599,7 +602,14 @@ namespace ishtar
                             var @class = GetClass(*++ip, _module, invocation);
                             var field = GetField(fieldIdx, @class, _module, invocation);
                             var @this = sp;
+
                             if (@this->type == TYPE_NONE)
+                            {
+                                CallFrame.FillStackTrace(invocation);
+                                FastFail(STATE_CORRUPT, $"[LDF] invalid @this object loaded, TYPE_NONE, maybe corrupted IL code", invocation);
+                            }
+
+                            if (@this->type == TYPE_NULL)
                             {
                                 // TODO
                                 CallFrame.FillStackTrace(invocation);
@@ -631,12 +641,15 @@ namespace ishtar
                             var t1 = (IshtarObject*)sp->data.p;
                             if (t1 == null)
                             {
-                                ForceFail(KnowTypes.NullPointerException(invocation));
-                                continue;
+                                ForceThrow(KnowTypes.NullPointerException(invocation));
+                                goto exception_handle;
                             }
                             var r = IshtarObject.IsInstanceOf(invocation, t1, t2);
                             if (r == null)
-                                ForceFail(KnowTypes.IncorrectCastFault(invocation));
+                            {
+                                ForceThrow(KnowTypes.IncorrectCastFault(invocation));
+                                goto exception_handle;
+                            }
                             else ++sp;
                         }
                         break;
@@ -771,7 +784,8 @@ namespace ishtar
                             {
                                 sp->type = TYPE_CLASS;
                                 sp->data.p = (nint)child_frame->exception.value;
-
+                                invocation->exception = child_frame->exception;
+                                
                                 GC.FreeStack(child_frame, method_args, method->ArgLength);
                                 child_frame->Dispose();
                                 goto exception_handle;
@@ -1246,11 +1260,9 @@ namespace ishtar
 
                 void fill_frame_exception()
                 {
-                    invocation->exception = new CallFrameException
-                    {
-                        last_ip = ip,
-                        value = (IshtarObject*)sp->data.p
-                    };
+                    if (invocation->exception.last_ip is null)
+                        invocation->exception.last_ip = ip;
+                    invocation->exception.value = (IshtarObject*)sp->data.p;
                     CallFrame.FillStackTrace(invocation);
                     ip++;
                 }
