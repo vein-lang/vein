@@ -254,6 +254,17 @@ namespace ishtar
 
         public void exec_method(CallFrame* invocation)
         {
+            if (!Config.DisableValidationInvocationArgs)
+            {
+                var argsLen = invocation->method->ArgLength;
+
+                for (int i = 0; i != argsLen; i++)
+                {
+                    if (invocation->args[i].type > TYPE_NULL)
+                        FastFail(STATE_CORRUPT, $"[arg validation] argument [{i}/{argsLen}] for [{invocation->method->Name}] has corrupted", invocation);
+                }
+            }
+
             println($"@.frame> {invocation->method->Owner->Name}::{invocation->method->Name}");
 
             var _module = invocation->method->Owner->Owner;
@@ -276,6 +287,9 @@ namespace ishtar
             var sp = stack.Ref + STACK_VIOLATION_LEVEL_SIZE;
             var sp_start = sp;
             var start = ip;
+
+            long getStackLen() => sp - sp_start;
+
             var end = mh->code + mh->code_size;
             var end_stack = sp + mh->max_stack;
             uint* endfinally_ip = null;
@@ -304,22 +318,18 @@ namespace ishtar
                 return null;
             }
 
-            // maybe mutable il code is bad, need research
-            void ForceFail(RuntimeIshtarClass* clazz)
+            void ForceThrow(RuntimeIshtarClass* clazz)
             {
-                *ip = (uint)THROW;
+                CallFrame.FillStackTrace(invocation);
                 sp->data.p = (nint)GC.AllocObject(clazz, invocation);
                 sp->type = TYPE_CLASS;
-                sp++;
             }
-
-            GC.Collect();
-
+            
             while (true)
             {
                 vm_cycle_start:
                 invocation->last_ip = (OpCodeValue)(ushort)*ip;
-                println($"@@.{invocation->last_ip} 0x{(nint)ip:X} [sp: {(((nint)sp) - ((nint)sp))}]");
+                println($"@@.{invocation->last_ip} 0x{(nint)ip:X} [sp: {getStackLen()}]");
 
                 if (!invocation->exception.IsDefault() && invocation->level == 0)
                     return;
@@ -375,13 +385,17 @@ namespace ishtar
                             $"Arguments in current function is empty, but trying access it.", invocation);
                         *sp = args[(*ip) - (short)LDARG_0];
                         println($"load from args ({sp->type})");
-                        ++sp;
+                        Assert(sp->type != TYPE_NONE, STATE_CORRUPT, "", invocation);
+                        Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, "", invocation);
+                    ++sp;
                         ++ip;
                         break;
                     case LDARG_S:
                         ++ip;
                         *sp = args[(*ip)];
                         println($"load from args ({sp->type})");
+                        Assert(sp->type != TYPE_NONE, STATE_CORRUPT, "", invocation);
+                        Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, "", invocation);
                         ++sp;
                         ++ip;
                         break;
@@ -571,14 +585,17 @@ namespace ishtar
                             --sp;
                             if (@this->type == TYPE_NONE)
                             {
-                                ForceFail(KnowTypes.NullPointerException(invocation));
-                                break;
+                                ForceThrow(KnowTypes.NullPointerException(invocation));
+                                goto exception_handle;
                             }
                             //FFI.StaticValidate(invocation, @this, field.Owner);
                             var value = sp;
                             var this_obj = (IshtarObject*)@this->data.p;
                             var target_class = this_obj->clazz;
-                            this_obj->vtable[field->vtable_offset] = IshtarMarshal.Boxing(invocation, value);
+                            if (value->type == TYPE_NULL)
+                                this_obj->vtable[field->vtable_offset] = null;
+                            else
+                                this_obj->vtable[field->vtable_offset] = IshtarMarshal.Boxing(invocation, value);
                             ++ip;
                         }
                         break;
@@ -589,7 +606,14 @@ namespace ishtar
                             var @class = GetClass(*++ip, _module, invocation);
                             var field = GetField(fieldIdx, @class, _module, invocation);
                             var @this = sp;
+
                             if (@this->type == TYPE_NONE)
+                            {
+                                CallFrame.FillStackTrace(invocation);
+                                FastFail(STATE_CORRUPT, $"[LDF] invalid @this object loaded, TYPE_NONE, maybe corrupted IL code", invocation);
+                            }
+
+                            if (@this->type == TYPE_NULL)
                             {
                                 // TODO
                                 CallFrame.FillStackTrace(invocation);
@@ -603,12 +627,13 @@ namespace ishtar
                             var value = IshtarMarshal.UnBoxing(invocation, obj);
                             *sp = value;
                             ++ip;
+                            println($"@@@ LDF -> {sp->type} (from {field->Name})");
                             ++sp;
                         }
                         break;
                     case LDNULL:
-                        sp->type = TYPE_OBJECT;
-                        sp->data.p = (nint)0;
+                        sp->type = TYPE_NULL;
+                        sp->data.p = 0;
                         ++sp;
                         ++ip;
                         break;
@@ -621,12 +646,15 @@ namespace ishtar
                             var t1 = (IshtarObject*)sp->data.p;
                             if (t1 == null)
                             {
-                                ForceFail(KnowTypes.NullPointerException(invocation));
-                                continue;
+                                ForceThrow(KnowTypes.NullPointerException(invocation));
+                                goto exception_handle;
                             }
                             var r = IshtarObject.IsInstanceOf(invocation, t1, t2);
                             if (r == null)
-                                ForceFail(KnowTypes.IncorrectCastFault(invocation));
+                            {
+                                ForceThrow(KnowTypes.IncorrectCastFault(invocation));
+                                goto exception_handle;
+                            }
                             else ++sp;
                         }
                         break;
@@ -682,6 +710,38 @@ namespace ishtar
                             ++sp;
                         }
                         break;
+                    case LDFN:
+                    {
+                        ++ip;
+                        var tokenIdx = *ip;
+                        var owner = readTypeName(*++ip, _module, invocation);
+                        var method = GetMethod(tokenIdx, owner, _module, invocation);
+                        ++ip;
+                        
+                        var raw = GC.AllocRawValue(invocation); // TODO destroy
+
+                        raw->type = VeinRawCode.ISHTAR_METHOD;
+                        raw->data.m = method;
+
+                        sp->type = TYPE_RAW; 
+                        sp->data.p = (nint)raw;
+                        ++sp;
+                    } break;
+                    case CALL_SP:
+                    {
+                        ++ip;
+                        sp--;
+
+                        if (sp->type == TYPE_NULL)
+                        {
+                            ForceThrow(KnowTypes.NullPointerException(invocation));
+                            goto exception_handle;
+                        }
+
+                        var method = *sp;
+                        var raw = (rawval*)method.data.p;
+                        var sw = raw->type;
+                    } break;
                     case CALL:
                         {
                             ++ip;
@@ -736,6 +796,12 @@ namespace ishtar
 //                                    }
 //                                }
 //#endif
+
+                                println($"@@@ {owner->NameWithNS}::{method->Name} (argument {y} is {sp->type} type)");
+
+                                if (sp->type > TYPE_NULL)
+                                    FastFail(STATE_CORRUPT, $"[call arg validation] trying fill corrupted argument [{y}/{method->ArgLength}] for [{method->Name}]", invocation);
+
                                 method_args[y] = *sp;
                             }
 
@@ -761,7 +827,8 @@ namespace ishtar
                             {
                                 sp->type = TYPE_CLASS;
                                 sp->data.p = (nint)child_frame->exception.value;
-
+                                invocation->exception = child_frame->exception;
+                                
                                 GC.FreeStack(child_frame, method_args, method->ArgLength);
                                 child_frame->Dispose();
                                 goto exception_handle;
@@ -769,6 +836,7 @@ namespace ishtar
 
                             GC.FreeStack(child_frame, method_args, method->ArgLength);
                             child_frame->Dispose();
+                            GC.Collect();
                     } break;
                     case LOC_INIT:
                         {
@@ -1235,11 +1303,9 @@ namespace ishtar
 
                 void fill_frame_exception()
                 {
-                    invocation->exception = new CallFrameException
-                    {
-                        last_ip = ip,
-                        value = (IshtarObject*)sp->data.p
-                    };
+                    if (invocation->exception.last_ip is null)
+                        invocation->exception.last_ip = ip;
+                    invocation->exception.value = (IshtarObject*)sp->data.p;
                     CallFrame.FillStackTrace(invocation);
                     ip++;
                 }

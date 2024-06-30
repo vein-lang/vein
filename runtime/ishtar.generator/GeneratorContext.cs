@@ -186,7 +186,8 @@ public class GeneratorContext(GeneratorContextConfig config)
         var objType = TYPE_OBJECT.AsClass(types);
         var rawType = TYPE_RAW.AsClass(types);
 
-        var ctorMethod = hiddenClass.DefineMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, TYPE_VOID.AsClass(types), [
+        var ctorMethod = hiddenClass.DefineMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, hiddenClass, [
+            new (VeinArgumentRef.THIS_ARGUMENT, hiddenClass),
             new("fn", rawType),
             new("scope",objType)
         ]);
@@ -196,25 +197,32 @@ public class GeneratorContext(GeneratorContextConfig config)
 
         var ctorGen = ctorMethod.GetGenerator();
 
-        ctorGen.Emit(OpCodes.LDARG_0);
-        ctorGen.Emit(OpCodes.STF, ptrRef);
-        ctorGen.Emit(OpCodes.LDARG_1);
-        ctorGen.Emit(OpCodes.STF, scope);
-        ctorGen.Emit(OpCodes.RET);
+        ctorGen.Emit(OpCodes.LDARG_1); // load ref
+        ctorGen.Emit(OpCodes.LDARG_0); // load this
+        ctorGen.Emit(OpCodes.STF, ptrRef); // this.ptrRef = ref;
+        ctorGen.Emit(OpCodes.LDARG_2); // load scope
+        ctorGen.Emit(OpCodes.LDARG_0); // load this
+        ctorGen.Emit(OpCodes.STF, scope); // this.scope = scope;
+        ctorGen.Emit(OpCodes.LDARG_0); // load this
+        ctorGen.Emit(OpCodes.RET); // return this
 
 
         var method = hiddenClass.DefineMethod("invoke", Internal | Special,
             sig.ReturnType,sig.Arguments.Where(VeinMethodSignature.NotThis).ToArray());
 
-        var hasThis = sig.Arguments.All(VeinMethodSignature.NotThis);
+        var hasNotThis = sig.Arguments.All(VeinMethodSignature.NotThis);
 
         var generator = method.GetGenerator();
         
-        if (hasThis)
+        if (!hasNotThis)
+        {
+            generator.EmitThis();
             generator.Emit(OpCodes.LDF, scope);
+        }
         foreach (int i in ..method.Signature.ArgLength)
-            generator.Emit(OpCodes.LDARG_S, i); // TODO optimization for LDARG_X
+            generator.Emit(OpCodes.LDARG_S, i + 1); // TODO optimization for LDARG_X
 
+        generator.EmitThis();
         generator.Emit(OpCodes.LDF, ptrRef);
         generator.Emit(OpCodes.CALL_SP);
         generator.Emit(OpCodes.RET);

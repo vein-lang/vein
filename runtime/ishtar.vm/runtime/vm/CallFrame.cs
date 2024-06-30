@@ -1,5 +1,6 @@
 namespace ishtar
 {
+    using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Text;
     using runtime.gc;
@@ -113,11 +114,8 @@ namespace ishtar
 
                 r = r->parent;
             }
-
-            frame->exception = new CallFrameException
-            {
-                stack_trace = StringStorage.Intern(str.ToString())
-            };
+            if (frame->exception.stack_trace is null)
+                frame->exception.stack_trace = StringStorage.Intern(str.ToString());
         }
 
         public void Dispose() => Free(Self);

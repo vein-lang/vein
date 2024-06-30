@@ -305,7 +305,7 @@ namespace ishtar
         public static stackval UnBoxing(CallFrame* frame, IshtarObject* obj)
         {
             if (obj == null)
-                return new stackval();
+                return new stackval { type = TYPE_NULL };
             var @class = obj->clazz;
 
             var val = new stackval { type = @class->TypeCode };
@@ -367,7 +367,9 @@ namespace ishtar
                         "Currently is not support.\n" +
                         "Please report the problem into https://github.com/vein-lang/vein/issues",
                         frame);
-                    return default;
+                return default;
+                default:
+                    throw new NotImplementedException();
             }
 
             return val;

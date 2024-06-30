@@ -13,8 +13,11 @@ public static class G_Call
     {
         var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
-        if (ctx.IsCallingDelegate(invocation, out var argument))
+        if (ctx.IsCallingDelegate(invocation, out var argument, out var index))
         {
+            gen.EmitLoadArgument(index!.Value);
+
+
             foreach (var arg in invocation.Arguments)
                 gen.EmitExpression(arg);
             var internalMethod = argument!.Type.FindMethod("invoke") ;
@@ -40,11 +43,12 @@ public static class G_Call
         return gen;
     }
 
-    public static bool IsCallingDelegate(this GeneratorContext gen, InvocationExpression invocation, out VeinArgumentRef? arg)
+    public static bool IsCallingDelegate(this GeneratorContext gen, InvocationExpression invocation, out VeinArgumentRef? arg, out int? index)
     {
-        arg = gen.CurrentMethod.Signature.Arguments
-            .Where(x => !x.IsGeneric)
-            .FirstOrDefault(x => x.Name.Equals(invocation.Name.ExpressionString));
+        (arg, index) = gen.CurrentMethod.Signature.Arguments
+            .Select((x, y) => (x, y))
+            .Where((x) => !x.x.IsGeneric)
+            .SingleOrDefault(x => x.x.Name.Equals(invocation.Name.ExpressionString));
 
         if (arg is null)
             return false;

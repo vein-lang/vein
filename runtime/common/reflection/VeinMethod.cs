@@ -59,17 +59,20 @@ namespace vein.runtime
 
         public bool IsGeneric => Arguments.Any(x => x.IsGeneric);
 
-        public bool HasCompatibility(VeinMethodSignature otherSig)
+        public bool HasCompatibility(VeinMethodSignature otherSig, bool ignoreThis)
         {
-            if (ArgLength != otherSig.ArgLength)
+            var a1Args = ignoreThis ? Arguments.Where(NotThis).ToArray() : Arguments.ToArray();
+            var a2Args = ignoreThis ? otherSig.Arguments.Where(NotThis).ToArray() : otherSig.Arguments.ToArray();
+
+            if (a1Args.Length != a2Args.Length)
                 return false;
 
             var argumentsCompatibility = true;
-            for (int i = 0; i < Arguments.Count; i++)
+            for (int i = 0; i < a1Args.Length; i++)
             {
-                var a1 = Arguments[i];
-                var a2 = otherSig.Arguments[i];
-
+                var a1 = a1Args[i];
+                var a2 = a2Args[i];
+                
                 if (a1.IsGeneric != a2.IsGeneric)
                 {
                     argumentsCompatibility = false;
