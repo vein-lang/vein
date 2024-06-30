@@ -59,6 +59,9 @@
     <ProjectReference Include="..\ishtar.base\ishtar.base.csproj" />
     <ProjectReference Include="..\ishtar.vm.libuv\ishtar.vm.libuv.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)'=='Debug'">
+    <ProjectReference Include="..\..\lib\ishtar.debug.console\ishtar.debug.console.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="runtime\jit\%40llmv\*.ll" TargetPath="applets\%(Filename)%(Extension)">

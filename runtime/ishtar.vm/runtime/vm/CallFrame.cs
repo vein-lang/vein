@@ -89,7 +89,7 @@ namespace ishtar
 
             if (frame is null)
             {
-                Console.WriteLine($"<<DETECTED NULL FRAME>>");
+                throw new Exception($"<<DETECTED NULL FRAME>>");
                 return;
             }
 
