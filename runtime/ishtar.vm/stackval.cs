@@ -5,6 +5,52 @@ namespace ishtar
     using System.Runtime.InteropServices;
     using vein.runtime;
 
+    [StructLayout(LayoutKind.Explicit)]
+    public unsafe struct rawval_union
+    {
+        [FieldOffset(0)] public RuntimeIshtarMethod* m;
+        [FieldOffset(0)] public RuntimeIshtarClass* c;
+    }
+
+    public enum VeinRawCode
+    {
+        ISHTAR_METHOD,
+        ISHTAR_CLASS
+    }
+
+    public unsafe struct rawval
+    {
+        public rawval_union data;
+        public VeinRawCode type;
+
+        public static unsafe SmartPointer<rawval> Allocate(CallFrame* frame, short size)
+            => Allocate(frame, (ushort)size);
+
+        public static unsafe SmartPointer<rawval> Allocate(CallFrame* frame, ushort size)
+        {
+            if (size == 0)
+                throw new ArgumentException($"size is not allowed zero");
+
+            static rawval* allocArray(CallFrame* frame, int size)
+                => throw new NotSupportedException();
+            static void freeArray(CallFrame* frame, rawval* stack, int size)
+                => throw new NotSupportedException();
+
+            static rawval* alloc(CallFrame* frame, int size)
+                => frame->vm.GC.AllocRawValue(frame);
+            static void free(CallFrame* frame, rawval* stack, int size)
+                => frame->vm.GC.FreeRawValue(stack);
+
+
+            var p = new SmartPointer<rawval>(size, frame,
+                size == 1 ? &alloc : &allocArray,
+                size == 1 ? &free : &freeArray);
+
+            return p;
+        }
+    }
+
+
     [DebuggerDisplay("{ToString()}")]
     public unsafe struct stackval : IEq<stackval>, IDirectEq<stackval>, IEquatable<stackval>
     {
