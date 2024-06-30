@@ -273,9 +273,7 @@ public static class G_Operators
             var invokeMethod = fnType.FindMethod("invoke");
 
 
-
             gen.Emit(OpCodes.NEWOBJ, fnType);
-            gen.Emit(OpCodes.LDNULL);
 
             if (node.Operand is IdentifierExpression id)
             {
@@ -285,13 +283,14 @@ public static class G_Operators
             }
             else
                 throw new NotSupportedException("EmitLoadFunction");
-
+            gen.Emit(OpCodes.LDNULL);
 
             var ctor = fnType.FindMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR,
             [
+                fnType,
                 VeinTypeCode.TYPE_RAW.AsClass(ctx.Module.Types),
                 VeinTypeCode.TYPE_OBJECT.AsClass(ctx.Module.Types)
-            ]);
+            ], true);
 
 
 
