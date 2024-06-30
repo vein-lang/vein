@@ -324,7 +324,6 @@ namespace ishtar
                 sp++;
             }
 
-            GC.Collect();
 
             while (true)
             {
@@ -780,6 +779,7 @@ namespace ishtar
 
                             GC.FreeStack(child_frame, method_args, method->ArgLength);
                             child_frame->Dispose();
+                            GC.Collect();
                     } break;
                     case LOC_INIT:
                         {
