@@ -121,7 +121,7 @@ namespace vein.runtime
             if (userInvoke is null || methodInvoke is null)
                 return false;
 
-            return userInvoke.Signature.HasCompatibility(methodInvoke.Signature);
+            return userInvoke.Signature.HasCompatibility(methodInvoke.Signature, true);
         }
 
         private bool CheckCompatibility(List<VeinComplexType> userArgs, List<VeinComplexType> methodArgs)
