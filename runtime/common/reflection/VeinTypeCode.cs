@@ -28,7 +28,8 @@ public enum VeinTypeCode : int
     TYPE_ARRAY, /* Array<?> */
     TYPE_TOKEN, /* type token */
     TYPE_RAW, /* raw pointer */
-    TYPE_FUNCTION /* function class */
+    TYPE_FUNCTION, /* function class */
+    TYPE_NULL, /* null */
 }
 
 public static class VeinTypeCodeEx
