@@ -1,8 +1,8 @@
 namespace ishtar.emit
 {
     using System;
-    using global::ishtar;
-    using global::vein.runtime.emit;
+    using ishtar;
+    using vein.runtime.emit;
 
     public readonly struct OpCode : IEquatable<OpCode>
     {

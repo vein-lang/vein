@@ -4,7 +4,7 @@
 	.table const
 	{
 		.s 000000:'App'
-		.s 000001:'global::vein/lang'
+		.s 000001:'vein/lang'
 		.s 000002:'std'
 		.s 000003:'BitConvert'
 		.s 000004:'NullPointerException'
@@ -20,26 +20,26 @@
 		.s 000014:'Testable'
 		.s 000015:'TimeSpan'
 		.s 000016:'LineAspect'
-		.s 000017:'global::vein/lang/aspects'
+		.s 000017:'vein/lang/aspects'
 		.s 000018:'getUsages'
 		.s 000019:'getUsages()'
 		.s 000020:'IYieldable'
-		.s 000021:'global::vein/lang/collections'
+		.s 000021:'vein/lang/collections'
 		.s 000022:'IYield'
 		.s 000023:'Yieldable'
 		.s 000024:'IEEEConsts'
 		.s 000025:'NetworkStream'
-		.s 000026:'global::vein/lang/network'
+		.s 000026:'vein/lang/network'
 		.s 000027:'TcpListener'
 		.s 000028:'TcpSocket'
 		.s 000029:'BigInt'
-		.s 000030:'global::vein/lang/numeric'
+		.s 000030:'vein/lang/numeric'
 		.s 000031:'Quaternion'
 		.s 000032:'TypeNotFoundFault'
 		.s 000033:'MemberNotFoundFault'
 		.s 000034:'MultipleTypeFoundFault'
 		.s 000035:'DeprecatedAspect'
-		.s 000036:'global::vein/lang/workspace'
+		.s 000036:'vein/lang/workspace'
 		.s 000037:'MaybeNullableAspect'
 		.s 000038:'@_get_os_value'
 		.s 000039:'@_get_os_value()'
@@ -155,7 +155,7 @@
 		.s 000149:'type_ctor()'
 		.s 000150:'Array'
 		.s 000151:'StaticArray_INIT_object_0_0'
-		.s 000152:'global::internal'
+		.s 000152:'internal'
 		.s 000153:'$init'
 		.s 000154:'$init()'
 		.s 000155:'Null pointer detected'
@@ -213,57 +213,57 @@
 		.s 000207:'w'
 		.s 000208:'m'
 		.s 000209:'0.12.11.0'
-		.t 000000:'std%global::vein/lang/App'
-		.t 000001:'std%global::vein/lang/Object'
-		.t 000002:'std%global::internal/StaticArray_INIT_object_0_0'
-		.t 000003:'std%global::vein/lang/Array'
-		.t 000004:'std%global::vein/lang/ValueType'
-		.t 000005:'std%global::vein/lang/Exception'
-		.t 000006:'std%global::vein/lang/GC'
-		.t 000007:'std%global::vein/lang/Guid'
-		.t 000008:'std%global::vein/lang/IEEEConsts'
-		.t 000009:'std%global::vein/lang/Out'
-		.t 000010:'std%global::vein/lang/Range'
-		.t 000011:'std%global::vein/lang/String'
-		.t 000012:'std%global::vein/lang/TimeSpan'
-		.t 000013:'std%global::vein/lang/Aspect'
-		.t 000014:'std%global::vein/lang/collections/Yieldable'
-		.t 000015:'std%global::vein/lang/network/TcpListener'
-		.t 000016:'std%global::vein/lang/network/TcpSocket'
-		.t 000017:'std%global::vein/lang/numeric/Quaternion'
-		.t 000018:'std%global::vein/lang/Int32'
-		.t 000019:'std%global::vein/lang/Void'
-		.t 000020:'std%global::vein/lang/Boolean'
-		.t 000021:'std%global::vein/lang/Int64'
-		.t 000022:'std%global::vein/lang/BitConvert'
-		.t 000023:'std%global::vein/lang/Byte'
-		.t 000024:'std%global::vein/lang/Char'
-		.t 000025:'std%global::vein/lang/Decimal'
-		.t 000026:'std%global::vein/lang/Double'
-		.t 000027:'std%global::vein/lang/NullPointerException'
-		.t 000028:'std%global::vein/lang/TypeLoadFault'
-		.t 000029:'std%global::vein/lang/IncorrectCastFault'
-		.t 000030:'std%global::vein/lang/FreeImmortalObjectFault'
-		.t 000031:'std%global::vein/lang/PlatformIsNotSupportFault'
-		.t 000032:'std%global::vein/lang/Float'
-		.t 000033:'std%global::vein/lang/UInt64'
-		.t 000034:'std%global::vein/lang/Int16'
-		.t 000035:'std%global::vein/lang/Half'
-		.t 000036:'std%global::vein/lang/Mathf'
-		.t 000037:'std%global::vein/lang/UInt32'
-		.t 000038:'std%global::vein/lang/Raw'
-		.t 000039:'std%global::vein/lang/Testable'
-		.t 000040:'std%global::vein/lang/UInt16'
-		.t 000041:'std%global::vein/lang/aspects/LineAspect'
-		.t 000042:'std%global::vein/lang/collections/IYieldable'
-		.t 000043:'std%global::vein/lang/collections/IYield'
-		.t 000044:'std%global::vein/lang/network/NetworkStream'
-		.t 000045:'std%global::vein/lang/numeric/BigInt'
-		.t 000046:'std%global::vein/lang/TypeNotFoundFault'
-		.t 000047:'std%global::vein/lang/MemberNotFoundFault'
-		.t 000048:'std%global::vein/lang/MultipleTypeFoundFault'
-		.t 000049:'std%global::vein/lang/workspace/DeprecatedAspect'
-		.t 000050:'std%global::vein/lang/workspace/MaybeNullableAspect'
+		.t 000000:'std%vein/lang/App'
+		.t 000001:'std%vein/lang/Object'
+		.t 000002:'std%internal/StaticArray_INIT_object_0_0'
+		.t 000003:'std%vein/lang/Array'
+		.t 000004:'std%vein/lang/ValueType'
+		.t 000005:'std%vein/lang/Exception'
+		.t 000006:'std%vein/lang/GC'
+		.t 000007:'std%vein/lang/Guid'
+		.t 000008:'std%vein/lang/IEEEConsts'
+		.t 000009:'std%vein/lang/Out'
+		.t 000010:'std%vein/lang/Range'
+		.t 000011:'std%vein/lang/String'
+		.t 000012:'std%vein/lang/TimeSpan'
+		.t 000013:'std%vein/lang/Aspect'
+		.t 000014:'std%vein/lang/collections/Yieldable'
+		.t 000015:'std%vein/lang/network/TcpListener'
+		.t 000016:'std%vein/lang/network/TcpSocket'
+		.t 000017:'std%vein/lang/numeric/Quaternion'
+		.t 000018:'std%vein/lang/Int32'
+		.t 000019:'std%vein/lang/Void'
+		.t 000020:'std%vein/lang/Boolean'
+		.t 000021:'std%vein/lang/Int64'
+		.t 000022:'std%vein/lang/BitConvert'
+		.t 000023:'std%vein/lang/Byte'
+		.t 000024:'std%vein/lang/Char'
+		.t 000025:'std%vein/lang/Decimal'
+		.t 000026:'std%vein/lang/Double'
+		.t 000027:'std%vein/lang/NullPointerException'
+		.t 000028:'std%vein/lang/TypeLoadFault'
+		.t 000029:'std%vein/lang/IncorrectCastFault'
+		.t 000030:'std%vein/lang/FreeImmortalObjectFault'
+		.t 000031:'std%vein/lang/PlatformIsNotSupportFault'
+		.t 000032:'std%vein/lang/Float'
+		.t 000033:'std%vein/lang/UInt64'
+		.t 000034:'std%vein/lang/Int16'
+		.t 000035:'std%vein/lang/Half'
+		.t 000036:'std%vein/lang/Mathf'
+		.t 000037:'std%vein/lang/UInt32'
+		.t 000038:'std%vein/lang/Raw'
+		.t 000039:'std%vein/lang/Testable'
+		.t 000040:'std%vein/lang/UInt16'
+		.t 000041:'std%vein/lang/aspects/LineAspect'
+		.t 000042:'std%vein/lang/collections/IYieldable'
+		.t 000043:'std%vein/lang/collections/IYield'
+		.t 000044:'std%vein/lang/network/NetworkStream'
+		.t 000045:'std%vein/lang/numeric/BigInt'
+		.t 000046:'std%vein/lang/TypeNotFoundFault'
+		.t 000047:'std%vein/lang/MemberNotFoundFault'
+		.t 000048:'std%vein/lang/MultipleTypeFoundFault'
+		.t 000049:'std%vein/lang/workspace/DeprecatedAspect'
+		.t 000050:'std%vein/lang/workspace/MaybeNullableAspect'
 		.f 000000:'Array.!!value'
 		.f 000001:'Array.!!block'
 		.f 000002:'Array.!!size'
@@ -446,7 +446,7 @@
 	@'UInt64.MaxValue' = '18446744073709551615'
 	@'UInt64.MinValue' = '0'
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'App' public static extends 'Object'
 	{
 		.method extern @_get_os_value () static private -> Int32;
@@ -519,7 +519,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Array' public special extends 'Object'
 	{
 		.field '!!value' as 'ValueType' special
@@ -561,14 +561,14 @@
 			
 			.locals { }
 			/* ::0010 */ .call StaticArray_INIT_object_0_0::$init()
-			/* ::0020 */ .stsf empty std%global::vein/lang/Array, Public, Special
+			/* ::0020 */ .stsf empty std%vein/lang/Array, Public, Special
 			/* ::0022 */ .ret
 			
 		}
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'BitConvert' public extends 'Object'
 	{
 		.method special 'ctor' (<this>: BitConvert) public special -> BitConvert
@@ -598,7 +598,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Boolean' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -633,7 +633,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Byte' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -664,7 +664,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Char' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -695,7 +695,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Decimal' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -726,7 +726,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Double' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -757,7 +757,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'Exception' public special extends 'Object'
 	{
 		.field 'message' as 'String' public
@@ -769,7 +769,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf message std%global::vein/lang/String, Public, Special
+			/* ::0012 */ .ldf message std%vein/lang/String, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -785,7 +785,7 @@
 			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
 			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0026 */ .stf message std%vein/lang/String, Public, Special
 			/* ::0028 */ .ldarg.0
 			/* ::0030 */ .ret
 			
@@ -804,7 +804,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'NullPointerException' public extends 'Exception'
 	{
 		.method 'ctor' (<this>: NullPointerException) public -> NullPointerException
@@ -817,7 +817,7 @@
 			/* ::0006 */ .ldc.str .0x0000009B
 			/* ::0008 */ .ldarg.0
 			/* ::0010 */ .ldarg.0
-			/* ::0020 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0020 */ .stf message std%vein/lang/String, Public, Special
 			/* ::0022 */ .ldarg.0
 			/* ::0032 */ .call Exception::ctor(<this>: Exception)
 			/* ::0034 */ .ldarg.0
@@ -838,7 +838,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'TypeLoadFault' public extends 'Exception'
 	{
 		.method 'ctor' (<this>: TypeLoadFault, msg: String) public -> TypeLoadFault
@@ -851,7 +851,7 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0016 */ .stf message std%vein/lang/String, Public, Special
 			/* ::0018 */ .ldarg.0
 			/* ::0028 */ .call Exception::ctor(<this>: Exception)
 			/* ::0030 */ .ldarg.0
@@ -872,7 +872,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'IncorrectCastFault' public extends 'Exception'
 	{
 		.method 'ctor' (<this>: IncorrectCastFault) public -> IncorrectCastFault
@@ -899,7 +899,7 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0016 */ .stf message std%vein/lang/String, Public, Special
 			
 		}
 		
@@ -916,7 +916,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'FreeImmortalObjectFault' public extends 'Exception'
 	{
 		.method 'ctor' (<this>: FreeImmortalObjectFault) public -> FreeImmortalObjectFault
@@ -943,7 +943,7 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0016 */ .stf message std%vein/lang/String, Public, Special
 			
 		}
 		
@@ -960,7 +960,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'PlatformIsNotSupportFault' public extends 'Exception'
 	{
 		.method 'ctor' (<this>: PlatformIsNotSupportFault) public -> PlatformIsNotSupportFault
@@ -987,7 +987,7 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0016 */ .stf message std%vein/lang/String, Public, Special
 			
 		}
 		
@@ -1004,7 +1004,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Float' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -1035,7 +1035,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'GC' public static extends 'Object'
 	{
 		.method extern _get_allocated () static private -> UInt64;
@@ -1093,7 +1093,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Guid' public extends 'ValueType', 'Object'
 	{
 		.field 'Empty' as 'Guid' public static readonly
@@ -1121,37 +1121,37 @@
 			/* ::0024 */ .call Object::ctor(<this>: Object)
 			/* ::0026 */ .ldnull
 			/* ::0028 */ .ldarg.0
-			/* ::0038 */ .stf _a std%global::vein/lang/Int32, Public, Special
+			/* ::0038 */ .stf _a std%vein/lang/Int32, Public, Special
 			/* ::0040 */ .ldnull
 			/* ::0042 */ .ldarg.0
-			/* ::0052 */ .stf _b std%global::vein/lang/Int16, Public, Special
+			/* ::0052 */ .stf _b std%vein/lang/Int16, Public, Special
 			/* ::0054 */ .ldnull
 			/* ::0056 */ .ldarg.0
-			/* ::0066 */ .stf _c std%global::vein/lang/Int16, Public, Special
+			/* ::0066 */ .stf _c std%vein/lang/Int16, Public, Special
 			/* ::0068 */ .ldnull
 			/* ::0070 */ .ldarg.0
-			/* ::0080 */ .stf _d std%global::vein/lang/Byte, Public, Special
+			/* ::0080 */ .stf _d std%vein/lang/Byte, Public, Special
 			/* ::0082 */ .ldnull
 			/* ::0084 */ .ldarg.0
-			/* ::0094 */ .stf _e std%global::vein/lang/Byte, Public, Special
+			/* ::0094 */ .stf _e std%vein/lang/Byte, Public, Special
 			/* ::0096 */ .ldnull
 			/* ::0098 */ .ldarg.0
-			/* ::0108 */ .stf _f std%global::vein/lang/Byte, Public, Special
+			/* ::0108 */ .stf _f std%vein/lang/Byte, Public, Special
 			/* ::0110 */ .ldnull
 			/* ::0112 */ .ldarg.0
-			/* ::0122 */ .stf _g std%global::vein/lang/Byte, Public, Special
+			/* ::0122 */ .stf _g std%vein/lang/Byte, Public, Special
 			/* ::0124 */ .ldnull
 			/* ::0126 */ .ldarg.0
-			/* ::0136 */ .stf _h std%global::vein/lang/Byte, Public, Special
+			/* ::0136 */ .stf _h std%vein/lang/Byte, Public, Special
 			/* ::0138 */ .ldnull
 			/* ::0140 */ .ldarg.0
-			/* ::0150 */ .stf _i std%global::vein/lang/Byte, Public, Special
+			/* ::0150 */ .stf _i std%vein/lang/Byte, Public, Special
 			/* ::0152 */ .ldnull
 			/* ::0154 */ .ldarg.0
-			/* ::0164 */ .stf _j std%global::vein/lang/Byte, Public, Special
+			/* ::0164 */ .stf _j std%vein/lang/Byte, Public, Special
 			/* ::0166 */ .ldnull
 			/* ::0168 */ .ldarg.0
-			/* ::0178 */ .stf _k std%global::vein/lang/Byte, Public, Special
+			/* ::0178 */ .stf _k std%vein/lang/Byte, Public, Special
 			/* ::0180 */ .ldarg.0
 			/* ::0182 */ .ret
 			
@@ -1164,16 +1164,16 @@
 			.locals 0x00000000
 			
 			.locals { }
-			/* ::0006 */ .newobj [std%global::vein/lang/Guid] 
+			/* ::0006 */ .newobj [std%vein/lang/Guid] 
 			/* ::0016 */ .call Guid::ctor(<this>: Guid)
-			/* ::0026 */ .stsf Empty std%global::vein/lang/Guid, Public
+			/* ::0026 */ .stsf Empty std%vein/lang/Guid, Public
 			/* ::0028 */ .ret
 			
 		}
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Half' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -1252,7 +1252,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Int16' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -1285,7 +1285,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Int32' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -1318,7 +1318,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Int64' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -1351,7 +1351,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'Mathf' public static extends 'Object'
 	{
 		.field 'E' as 'Float' literal public
@@ -1397,7 +1397,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Object' public special extends 
 	{
 		.method 'toString' (<this>: Object) public virtual -> String
@@ -1437,7 +1437,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'Out' public static extends 'Object'
 	{
 		.method extern @_println (value: String) public static -> Void;
@@ -1482,7 +1482,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'Range' public special extends 'Object', 'ValueType'
 	{
 		.field 'Start' as 'UInt32' public
@@ -1497,11 +1497,11 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf Start std%global::vein/lang/UInt32, Public, Special
+			/* ::0016 */ .stf Start std%vein/lang/UInt32, Public, Special
 			/* ::0018 */ .ldarg.2
 			/* ::0020 */ .ldarg.0
 			/* ::0022 */ .ldarg.0
-			/* ::0032 */ .stf End std%global::vein/lang/UInt32, Public, Special
+			/* ::0032 */ .stf End std%vein/lang/UInt32, Public, Special
 			/* ::0034 */ .ldarg.0
 			/* ::0044 */ .call Object::ctor(<this>: Object)
 			/* ::0046 */ .ldarg.0
@@ -1524,7 +1524,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Raw' internal special extends 'Object'
 	{
 		.method special 'ctor' (<this>: Raw) public special -> Raw
@@ -1554,7 +1554,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'String' public special extends 'Object'
 	{
 		.field '!!value' as 'Raw' special
@@ -1597,7 +1597,7 @@
 			/* ::0012 */ .call ValueType::toString(<this>: ValueType)
 			/* ::0018 */ .stloc.s 0x00000000.int
 			/* ::0020 */ .ldarg.0
-			/* ::0020 */ /* access local, var: 't', index: '0', type: 'global::vein/lang/String' */
+			/* ::0020 */ /* access local, var: 't', index: '0', type: 'vein/lang/String' */
 			/* ::0026 */ .ldloc.s 0x00000000.int
 			/* ::0036 */ .call String::Concat(v1: String,v2: String)
 			/* ::0038 */ .ret
@@ -1647,14 +1647,14 @@
 			.locals { 
 				[0]: Array, {'a'}
 			};
-			/* ::0006 */ .ld.type [std%global::vein/lang/String] 
+			/* ::0006 */ .ld.type [std%vein/lang/String] 
 			/* ::0008 */ .ldc.i4.1
 			/* ::0010 */ .newarr
 			/* ::0012 */ .ldarg.1
 			/* ::0018 */ .stelem.s 0x00000000.int
 			/* ::0024 */ .stloc.s 0x00000000.int
 			/* ::0026 */ .ldarg.0
-			/* ::0026 */ /* access local, var: 'a', index: '0', type: 'global::vein/lang/Array' */
+			/* ::0026 */ /* access local, var: 'a', index: '0', type: 'vein/lang/Array' */
 			/* ::0032 */ .ldloc.s 0x00000000.int
 			/* ::0042 */ .call String::_fmt(t: String,arr: Array)
 			/* ::0044 */ .ret
@@ -1670,7 +1670,7 @@
 			.locals { 
 				[0]: Array, {'a'}
 			};
-			/* ::0006 */ .ld.type [std%global::vein/lang/String] 
+			/* ::0006 */ .ld.type [std%vein/lang/String] 
 			/* ::0008 */ .ldc.i4.2
 			/* ::0010 */ .newarr
 			/* ::0012 */ .ldarg.1
@@ -1679,7 +1679,7 @@
 			/* ::0026 */ .stelem.s 0x00000001.int
 			/* ::0032 */ .stloc.s 0x00000000.int
 			/* ::0034 */ .ldarg.0
-			/* ::0034 */ /* access local, var: 'a', index: '0', type: 'global::vein/lang/Array' */
+			/* ::0034 */ /* access local, var: 'a', index: '0', type: 'vein/lang/Array' */
 			/* ::0040 */ .ldloc.s 0x00000000.int
 			/* ::0050 */ .call String::_fmt(t: String,arr: Array)
 			/* ::0052 */ .ret
@@ -1695,7 +1695,7 @@
 			.locals { 
 				[0]: Array, {'a'}
 			};
-			/* ::0006 */ .ld.type [std%global::vein/lang/String] 
+			/* ::0006 */ .ld.type [std%vein/lang/String] 
 			/* ::0008 */ .ldc.i4.3
 			/* ::0010 */ .newarr
 			/* ::0012 */ .ldarg.1
@@ -1706,7 +1706,7 @@
 			/* ::0034 */ .stelem.s 0x00000002.int
 			/* ::0040 */ .stloc.s 0x00000000.int
 			/* ::0042 */ .ldarg.0
-			/* ::0042 */ /* access local, var: 'a', index: '0', type: 'global::vein/lang/Array' */
+			/* ::0042 */ /* access local, var: 'a', index: '0', type: 'vein/lang/Array' */
 			/* ::0048 */ .ldloc.s 0x00000000.int
 			/* ::0058 */ .call String::_fmt(t: String,arr: Array)
 			/* ::0060 */ .ret
@@ -1740,7 +1740,7 @@
 			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
 			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .stf Length std%global::vein/lang/Int32, Public, Special
+			/* ::0026 */ .stf Length std%vein/lang/Int32, Public, Special
 			/* ::0028 */ .ldarg.0
 			/* ::0030 */ .ret
 			
@@ -1759,7 +1759,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'Testable' public extends 'Object'
 	{
 		.method 'master' () public static -> Void
@@ -1802,7 +1802,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'TimeSpan' public extends 'Object'
 	{
 		.field 'TicksPerDay' as 'Int64' public
@@ -1822,27 +1822,27 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf _ticks std%global::vein/lang/Int64, Public, Special
+			/* ::0016 */ .stf _ticks std%vein/lang/Int64, Public, Special
 			/* ::0018 */ .ldarg.0
 			/* ::0028 */ .call Object::ctor(<this>: Object)
 			/* ::0038 */ .ldc.i8.s 0xC92A69C000.long
 			/* ::0040 */ .ldarg.0
-			/* ::0050 */ .stf TicksPerDay std%global::vein/lang/Int64, Public, Special
+			/* ::0050 */ .stf TicksPerDay std%vein/lang/Int64, Public, Special
 			/* ::0060 */ .ldc.i8.s 0x861C46800.long
 			/* ::0062 */ .ldarg.0
-			/* ::0072 */ .stf TicksPerHour std%global::vein/lang/Int64, Public, Special
+			/* ::0072 */ .stf TicksPerHour std%vein/lang/Int64, Public, Special
 			/* ::0082 */ .ldc.i8.s 0x23C34600.long
 			/* ::0084 */ .ldarg.0
-			/* ::0094 */ .stf TicksPerMinute std%global::vein/lang/Int64, Public, Special
+			/* ::0094 */ .stf TicksPerMinute std%vein/lang/Int64, Public, Special
 			/* ::0104 */ .ldc.i8.s 0x00989680.long
 			/* ::0106 */ .ldarg.0
-			/* ::0116 */ .stf TicksPerSecond std%global::vein/lang/Int64, Public, Special
+			/* ::0116 */ .stf TicksPerSecond std%vein/lang/Int64, Public, Special
 			/* ::0126 */ .ldc.i8.s 0x00002710.long
 			/* ::0128 */ .ldarg.0
-			/* ::0138 */ .stf TicksPerMillisecond std%global::vein/lang/Int64, Public, Special
+			/* ::0138 */ .stf TicksPerMillisecond std%vein/lang/Int64, Public, Special
 			/* ::0144 */ .ldc.f4 1E-07.float
 			/* ::0146 */ .ldarg.0
-			/* ::0156 */ .stf SecondsPerTick std%global::vein/lang/Float, Public, Special
+			/* ::0156 */ .stf SecondsPerTick std%vein/lang/Float, Public, Special
 			/* ::0158 */ .ldarg.0
 			/* ::0160 */ .ret
 			
@@ -1868,7 +1868,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%vein/lang/Int64, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -1881,9 +1881,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf TicksPerDay std%global::vein/lang/Int64, Public, Special
+			/* ::0024 */ .ldf TicksPerDay std%vein/lang/Int64, Public, Special
 			/* ::0026 */ .div
 			/* ::0028 */ .ret
 			
@@ -1897,9 +1897,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf TicksPerHour std%global::vein/lang/Int64, Public, Special
+			/* ::0024 */ .ldf TicksPerHour std%vein/lang/Int64, Public, Special
 			/* ::0026 */ .div
 			/* ::0036 */ .ldc.i8.s 0x00000018.long
 			/* ::0038 */ .mod
@@ -1915,9 +1915,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf TicksPerMillisecond std%global::vein/lang/Int64, Public, Special
+			/* ::0024 */ .ldf TicksPerMillisecond std%vein/lang/Int64, Public, Special
 			/* ::0026 */ .div
 			/* ::0036 */ .ldc.i8.s 0x000003E8.long
 			/* ::0038 */ .mod
@@ -1933,9 +1933,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf TicksPerMinute std%global::vein/lang/Int64, Public, Special
+			/* ::0024 */ .ldf TicksPerMinute std%vein/lang/Int64, Public, Special
 			/* ::0026 */ .div
 			/* ::0036 */ .ldc.i8.s 0x0000003C.long
 			/* ::0038 */ .mod
@@ -1951,9 +1951,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf TicksPerSecond std%global::vein/lang/Int64, Public, Special
+			/* ::0024 */ .ldf TicksPerSecond std%vein/lang/Int64, Public, Special
 			/* ::0026 */ .div
 			/* ::0036 */ .ldc.i8.s 0x0000003C.long
 			/* ::0038 */ .mod
@@ -1969,9 +1969,9 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _ticks std%global::vein/lang/Int64, Public, Special
+			/* ::0012 */ .ldf _ticks std%vein/lang/Int64, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf SecondsPerTick std%global::vein/lang/Float, Public, Special
+			/* ::0024 */ .ldf SecondsPerTick std%vein/lang/Float, Public, Special
 			/* ::0026 */ .mul
 			/* ::0028 */ .ret
 			
@@ -1990,7 +1990,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'UInt16' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -2023,7 +2023,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'UInt32' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -2056,7 +2056,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'UInt64' public special extends 'ValueType'
 	{
 		.field '!!value' as 'ValueType' special
@@ -2089,7 +2089,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'ValueType' public special extends 
 	{
 		.field '!!value' as 'Raw' special
@@ -2129,7 +2129,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.struct 'Void' public special extends 'ValueType'
 	{
 		.method special 'ctor' (<this>: Void) public special -> Void
@@ -2159,7 +2159,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'Aspect' public special extends 'Object'
 	{
 		.field 'USAGE_METHOD' as 'Int32' public static
@@ -2197,26 +2197,26 @@
 			/* ::0002 */ .ldc.i4.1
 			/* ::0004 */ .ldc.i4.1
 			/* ::0006 */ .shl
-			/* ::0016 */ .stsf USAGE_METHOD std%global::vein/lang/Int32, Public, Special
+			/* ::0016 */ .stsf USAGE_METHOD std%vein/lang/Int32, Public, Special
 			/* ::0018 */ .ldc.i4.1
 			/* ::0020 */ .ldc.i4.2
 			/* ::0022 */ .shl
-			/* ::0032 */ .stsf USAGE_CLASS std%global::vein/lang/Int32, Public, Special
+			/* ::0032 */ .stsf USAGE_CLASS std%vein/lang/Int32, Public, Special
 			/* ::0034 */ .ldc.i4.1
 			/* ::0036 */ .ldc.i4.3
 			/* ::0038 */ .shl
-			/* ::0048 */ .stsf USAGE_FIELD std%global::vein/lang/Int32, Public, Special
+			/* ::0048 */ .stsf USAGE_FIELD std%vein/lang/Int32, Public, Special
 			/* ::0050 */ .ldc.i4.1
 			/* ::0052 */ .ldc.i4.4
 			/* ::0054 */ .shl
-			/* ::0064 */ .stsf USAGE_PROPERTY std%global::vein/lang/Int32, Public, Special
+			/* ::0064 */ .stsf USAGE_PROPERTY std%vein/lang/Int32, Public, Special
 			/* ::0066 */ .ret
 			
 		}
 		
 	}
 	
-	.namespace 'global::vein/lang/aspects'
+	.namespace 'vein/lang/aspects'
 	.class 'LineAspect' public aspect extends 'Aspect'
 	{
 		.method 'getUsages' () public override -> Int32
@@ -2233,7 +2233,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang/collections'
+	.namespace 'vein/lang/collections'
 	.interface 'IYieldable' public abstract extends 'Object'
 	{
 		.method 'get_Current' (<this>: IYieldable) abstract -> Object
@@ -2271,7 +2271,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang/collections'
+	.namespace 'vein/lang/collections'
 	.interface 'IYield' public abstract extends 'Object'
 	{
 		.method 'get_Yield' (<this>: IYield) public abstract -> IYieldable
@@ -2305,7 +2305,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang/collections'
+	.namespace 'vein/lang/collections'
 	.class 'Yieldable' public extends 'Object'
 	{
 		.field '_current' as 'Object' 
@@ -2319,7 +2319,7 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf _current std%global::vein/lang/Object, Public, Special
+			/* ::0016 */ .stf _current std%vein/lang/Object, Public, Special
 			
 		}
 		
@@ -2331,7 +2331,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _current std%global::vein/lang/Object, Public, Special
+			/* ::0012 */ .ldf _current std%vein/lang/Object, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -2347,7 +2347,7 @@
 			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
 			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .stf _current std%global::vein/lang/Object, Public, Special
+			/* ::0026 */ .stf _current std%vein/lang/Object, Public, Special
 			/* ::0028 */ .ldarg.0
 			/* ::0030 */ .ret
 			
@@ -2366,7 +2366,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'IEEEConsts' static internal extends 'Object'
 	{
 		.method extern getHalfNaN () public static -> Half;
@@ -2420,7 +2420,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang/network'
+	.namespace 'vein/lang/network'
 	.class 'NetworkStream' public extends 'Object'
 	{
 		.method special 'ctor' (<this>: NetworkStream) public special -> NetworkStream
@@ -2450,7 +2450,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang/network'
+	.namespace 'vein/lang/network'
 	.class 'TcpListener' public extends 'Object'
 	{
 		.field '_port' as 'UInt16' 
@@ -2478,7 +2478,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _active std%global::vein/lang/Boolean, Public, Special
+			/* ::0012 */ .ldf _active std%vein/lang/Boolean, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -2505,19 +2505,19 @@
 			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
 			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .stf _port std%global::vein/lang/UInt16, Public, Special
+			/* ::0026 */ .stf _port std%vein/lang/UInt16, Public, Special
 			/* ::0028 */ .ldnull
 			/* ::0030 */ .ldarg.0
-			/* ::0040 */ .stf _dualMode std%global::vein/lang/Boolean, Public, Special
+			/* ::0040 */ .stf _dualMode std%vein/lang/Boolean, Public, Special
 			/* ::0042 */ .ldnull
 			/* ::0044 */ .ldarg.0
-			/* ::0054 */ .stf _active std%global::vein/lang/Boolean, Public, Special
+			/* ::0054 */ .stf _active std%vein/lang/Boolean, Public, Special
 			/* ::0056 */ .ldnull
 			/* ::0058 */ .ldarg.0
-			/* ::0068 */ .stf _socket std%global::vein/lang/network/TcpSocket, Public
+			/* ::0068 */ .stf _socket std%vein/lang/network/TcpSocket, Public
 			/* ::0070 */ .ldnull
 			/* ::0072 */ .ldarg.0
-			/* ::0082 */ .stf ExclusiveAddressUse std%global::vein/lang/Boolean, Public, Special
+			/* ::0082 */ .stf ExclusiveAddressUse std%vein/lang/Boolean, Public, Special
 			/* ::0084 */ .ldarg.0
 			/* ::0086 */ .ret
 			
@@ -2536,7 +2536,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang/network'
+	.namespace 'vein/lang/network'
 	.class 'TcpSocket' public extends 'Object'
 	{
 		.field '_port' as 'UInt16' 
@@ -2552,7 +2552,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _blocked std%global::vein/lang/Boolean, Public, Special
+			/* ::0012 */ .ldf _blocked std%vein/lang/Boolean, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -2565,7 +2565,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _is_listing std%global::vein/lang/Boolean, Public, Special
+			/* ::0012 */ .ldf _is_listing std%vein/lang/Boolean, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -2578,7 +2578,7 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf _connected std%global::vein/lang/Boolean, Public, Special
+			/* ::0012 */ .ldf _connected std%vein/lang/Boolean, Public, Special
 			/* ::0014 */ .ret
 			
 		}
@@ -2635,19 +2635,19 @@
 			/* ::0012 */ .call Object::ctor(<this>: Object)
 			/* ::0014 */ .ldnull
 			/* ::0016 */ .ldarg.0
-			/* ::0026 */ .stf _port std%global::vein/lang/UInt16, Public, Special
+			/* ::0026 */ .stf _port std%vein/lang/UInt16, Public, Special
 			/* ::0028 */ .ldnull
 			/* ::0030 */ .ldarg.0
-			/* ::0040 */ .stf _is_listing std%global::vein/lang/Boolean, Public, Special
+			/* ::0040 */ .stf _is_listing std%vein/lang/Boolean, Public, Special
 			/* ::0042 */ .ldnull
 			/* ::0044 */ .ldarg.0
-			/* ::0054 */ .stf _handle std%global::vein/lang/ValueType, Public, Special
+			/* ::0054 */ .stf _handle std%vein/lang/ValueType, Public, Special
 			/* ::0056 */ .ldnull
 			/* ::0058 */ .ldarg.0
-			/* ::0068 */ .stf _blocked std%global::vein/lang/Boolean, Public, Special
+			/* ::0068 */ .stf _blocked std%vein/lang/Boolean, Public, Special
 			/* ::0070 */ .ldnull
 			/* ::0072 */ .ldarg.0
-			/* ::0082 */ .stf _connected std%global::vein/lang/Boolean, Public, Special
+			/* ::0082 */ .stf _connected std%vein/lang/Boolean, Public, Special
 			/* ::0084 */ .ldarg.0
 			/* ::0086 */ .ret
 			
@@ -2666,7 +2666,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang/numeric'
+	.namespace 'vein/lang/numeric'
 	.class 'BigInt' public extends 'Object', 'ValueType'
 	{
 		.method special 'ctor' (<this>: BigInt) public special -> BigInt
@@ -2698,7 +2698,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang/numeric'
+	.namespace 'vein/lang/numeric'
 	.class 'Quaternion' public extends 'Object', 'ValueType'
 	{
 		.field 'X' as 'Float' public
@@ -2713,15 +2713,15 @@
 			
 			.locals { }
 			/* ::0002 */ .ldarg.0
-			/* ::0012 */ .ldf X std%global::vein/lang/Float, Public, Special
+			/* ::0012 */ .ldf X std%vein/lang/Float, Public, Special
 			/* ::0014 */ .ldarg.0
-			/* ::0024 */ .ldf Y std%global::vein/lang/Float, Public, Special
+			/* ::0024 */ .ldf Y std%vein/lang/Float, Public, Special
 			/* ::0026 */ .add
 			/* ::0028 */ .ldarg.0
-			/* ::0038 */ .ldf Z std%global::vein/lang/Float, Public, Special
+			/* ::0038 */ .ldf Z std%vein/lang/Float, Public, Special
 			/* ::0040 */ .add
 			/* ::0042 */ .ldarg.0
-			/* ::0052 */ .ldf W std%global::vein/lang/Float, Public, Special
+			/* ::0052 */ .ldf W std%vein/lang/Float, Public, Special
 			/* ::0054 */ .add
 			/* ::0056 */ .ldc.i4.0
 			/* ::0058 */ .eql.t
@@ -2739,19 +2739,19 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf X std%global::vein/lang/Float, Public, Special
+			/* ::0016 */ .stf X std%vein/lang/Float, Public, Special
 			/* ::0018 */ .ldarg.2
 			/* ::0020 */ .ldarg.0
 			/* ::0022 */ .ldarg.0
-			/* ::0032 */ .stf Y std%global::vein/lang/Float, Public, Special
+			/* ::0032 */ .stf Y std%vein/lang/Float, Public, Special
 			/* ::0034 */ .ldarg.3
 			/* ::0036 */ .ldarg.0
 			/* ::0038 */ .ldarg.0
-			/* ::0048 */ .stf Z std%global::vein/lang/Float, Public, Special
+			/* ::0048 */ .stf Z std%vein/lang/Float, Public, Special
 			/* ::0050 */ .ldarg.4
 			/* ::0052 */ .ldarg.0
 			/* ::0054 */ .ldarg.0
-			/* ::0064 */ .stf W std%global::vein/lang/Float, Public, Special
+			/* ::0064 */ .stf W std%vein/lang/Float, Public, Special
 			/* ::0066 */ .ldarg.0
 			/* ::0076 */ .call Object::ctor(<this>: Object)
 			/* ::0078 */ .ldarg.0
@@ -2774,7 +2774,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'TypeNotFoundFault' public extends 'Exception'
 	{
 		.method 'ctor' (<this>: TypeNotFoundFault, m: String) public -> TypeNotFoundFault
@@ -2787,7 +2787,7 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0016 */ .stf message std%vein/lang/String, Public, Special
 			/* ::0018 */ .ldarg.0
 			/* ::0028 */ .call Exception::ctor(<this>: Exception)
 			/* ::0030 */ .ldarg.0
@@ -2808,7 +2808,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'MemberNotFoundFault' public extends 'Exception'
 	{
 		.method 'ctor' (<this>: MemberNotFoundFault, m: String) public -> MemberNotFoundFault
@@ -2821,7 +2821,7 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0016 */ .stf message std%vein/lang/String, Public, Special
 			/* ::0018 */ .ldarg.0
 			/* ::0028 */ .call Exception::ctor(<this>: Exception)
 			/* ::0030 */ .ldarg.0
@@ -2842,7 +2842,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang'
+	.namespace 'vein/lang'
 	.class 'MultipleTypeFoundFault' public extends 'Exception'
 	{
 		.method 'ctor' (<this>: MultipleTypeFoundFault, m: String) public -> MultipleTypeFoundFault
@@ -2855,7 +2855,7 @@
 			/* ::0002 */ .ldarg.1
 			/* ::0004 */ .ldarg.0
 			/* ::0006 */ .ldarg.0
-			/* ::0016 */ .stf message std%global::vein/lang/String, Public, Special
+			/* ::0016 */ .stf message std%vein/lang/String, Public, Special
 			/* ::0018 */ .ldarg.0
 			/* ::0028 */ .call Exception::ctor(<this>: Exception)
 			/* ::0030 */ .ldarg.0
@@ -2876,7 +2876,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang/workspace'
+	.namespace 'vein/lang/workspace'
 	.class 'DeprecatedAspect' public aspect extends 'Aspect'
 	{
 		.method 'getUsages' () public override -> Int32
@@ -2893,7 +2893,7 @@
 		
 	}
 	
-	.namespace 'global::vein/lang/workspace'
+	.namespace 'vein/lang/workspace'
 	.class 'MaybeNullableAspect' public aspect extends 'Aspect'
 	{
 		.method 'getUsages' () public override -> Int32
@@ -2910,7 +2910,7 @@
 		
 	}
 	
-	.namespace 'global::internal'
+	.namespace 'internal'
 	.class 'StaticArray_INIT_object_0_0' internal special extends 'Object'
 	{
 		.method '$init' () public static -> Array
@@ -2921,7 +2921,7 @@
 			
 			.locals { }
 			/* ::0002 */ .nop
-			/* ::0008 */ .ld.type [std%global::vein/lang/Object] 
+			/* ::0008 */ .ld.type [std%vein/lang/Object] 
 			/* ::0018 */ .ldc.i8.s 0x00000000.long
 			/* ::0020 */ .newarr
 			/* ::0022 */ .ret

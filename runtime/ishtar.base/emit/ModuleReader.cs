@@ -8,7 +8,7 @@ namespace ishtar.emit
     using System.Runtime.CompilerServices;
     using System.Text;
     using extensions;
-    using global::ishtar;
+    using ishtar;
     using vein.exceptions;
     using vein.reflection;
     using vein.extensions;

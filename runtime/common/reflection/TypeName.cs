@@ -67,7 +67,7 @@ public class QualityTypeName(string fullName) : IEquatable<QualityTypeName>
 
     public static implicit operator QualityTypeName(string name)
     {
-        if (!Regex.IsMatch(name, @"(.+)\%global::(.+)\/(.+)"))
+        if (!Regex.IsMatch(name, @"(.+)\%(.+)\/(.+)"))
             throw new InvalidTypeNameException($"'{name}' is not valid type name.");
         return new QualityTypeName(name);
     }

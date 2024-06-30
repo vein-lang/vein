@@ -193,7 +193,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
                 result.FileEntity = key;
                 result.SourceText = value;
                 // apply root namespace into includes
-                result.Includes.Add($"global::{result.Name}");
+                result.Includes.Add($"{result.Name}");
                 Target.AST.Add(key, result);
             }
             catch (VeinParseException e)

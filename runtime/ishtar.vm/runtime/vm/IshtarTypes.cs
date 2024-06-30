@@ -89,34 +89,34 @@ public readonly unsafe struct IshtarTypes(
         *module = new RuntimeIshtarModule(vault, "unnamed_types", module, new IshtarVersion(0, 0));
         
 
-        var objectClass = r->create($"std%global::std/Object".L(), null, module, TYPE_OBJECT);
-        var valueTypeClass = r->create($"std%global::std/ValueType".L(), null, module, TYPE_OBJECT);
+        var objectClass = r->create($"std%std/Object".L(), null, module, TYPE_OBJECT);
+        var valueTypeClass = r->create($"std%std/ValueType".L(), null, module, TYPE_OBJECT);
 
         *r = new IshtarTypes(
             objectClass,
             valueTypeClass,
-            r->create($"std%global::std/Void".L(), valueTypeClass, module, TYPE_VOID),
-            r->create($"std%global::std/String".L(), objectClass, module, TYPE_STRING),
-            r->create($"std%global::std/Byte".L(), valueTypeClass, module, TYPE_U1),
-            r->create($"std%global::std/SByte".L(), valueTypeClass, module, TYPE_I1),
-            r->create($"std%global::std/Int16".L(), valueTypeClass, module, TYPE_I2),
-            r->create($"std%global::std/Int32".L(), valueTypeClass, module, TYPE_I4),
-            r->create($"std%global::std/Int64".L(), valueTypeClass, module, TYPE_I8),
-            r->create($"std%global::std/UInt16".L(), valueTypeClass, module, TYPE_U2),
-            r->create($"std%global::std/UInt32".L(), valueTypeClass, module, TYPE_U4),
-            r->create($"std%global::std/UInt64".L(), valueTypeClass,module, TYPE_U8),
-            r->create($"std%global::std/Half".L(), valueTypeClass, module, TYPE_R2),
-            r->create($"std%global::std/Float".L(), valueTypeClass, module, TYPE_R4),
-            r->create($"std%global::std/Double".L(), valueTypeClass, module, TYPE_R8),
-            r->create($"std%global::std/Decimal".L(), valueTypeClass, module, TYPE_R16),
-            r->create($"std%global::std/Boolean".L(), valueTypeClass, module, TYPE_BOOLEAN),
-            r->create($"std%global::std/Char".L(), valueTypeClass, module, TYPE_CHAR),
-            r->create($"std%global::std/Array".L(), objectClass, module, TYPE_ARRAY),
-            r->create($"std%global::std/Exception".L(), objectClass, module, TYPE_CLASS),
-            r->create($"std%global::std/Raw".L(), valueTypeClass, module, TYPE_RAW),
-            r->create($"std%global::std/Aspect".L(), objectClass, module, TYPE_CLASS),
-            r->create($"std%global::std/Function".L(), objectClass, module, TYPE_FUNCTION),
-            r->create($"std%global::std/Range".L(), objectClass, module, TYPE_CLASS)
+            r->create($"std%std/Void".L(), valueTypeClass, module, TYPE_VOID),
+            r->create($"std%std/String".L(), objectClass, module, TYPE_STRING),
+            r->create($"std%std/Byte".L(), valueTypeClass, module, TYPE_U1),
+            r->create($"std%std/SByte".L(), valueTypeClass, module, TYPE_I1),
+            r->create($"std%std/Int16".L(), valueTypeClass, module, TYPE_I2),
+            r->create($"std%std/Int32".L(), valueTypeClass, module, TYPE_I4),
+            r->create($"std%std/Int64".L(), valueTypeClass, module, TYPE_I8),
+            r->create($"std%std/UInt16".L(), valueTypeClass, module, TYPE_U2),
+            r->create($"std%std/UInt32".L(), valueTypeClass, module, TYPE_U4),
+            r->create($"std%std/UInt64".L(), valueTypeClass,module, TYPE_U8),
+            r->create($"std%std/Half".L(), valueTypeClass, module, TYPE_R2),
+            r->create($"std%std/Float".L(), valueTypeClass, module, TYPE_R4),
+            r->create($"std%std/Double".L(), valueTypeClass, module, TYPE_R8),
+            r->create($"std%std/Decimal".L(), valueTypeClass, module, TYPE_R16),
+            r->create($"std%std/Boolean".L(), valueTypeClass, module, TYPE_BOOLEAN),
+            r->create($"std%std/Char".L(), valueTypeClass, module, TYPE_CHAR),
+            r->create($"std%std/Array".L(), objectClass, module, TYPE_ARRAY),
+            r->create($"std%std/Exception".L(), objectClass, module, TYPE_CLASS),
+            r->create($"std%std/Raw".L(), valueTypeClass, module, TYPE_RAW),
+            r->create($"std%std/Aspect".L(), objectClass, module, TYPE_CLASS),
+            r->create($"std%std/Function".L(), objectClass, module, TYPE_FUNCTION),
+            r->create($"std%std/Range".L(), objectClass, module, TYPE_CLASS)
         );
         r->Add(objectClass, false);
         r->Add(r->VoidClass, false);

@@ -5,7 +5,7 @@
 	.table const
 	{
 		.s 000000:'Testable'
-		.s 000001:'global::test'
+		.s 000001:'test'
 		.s 000002:'test.std'
 		.s 000003:'master'
 		.s 000004:'master()'
@@ -17,14 +17,14 @@
 		.s 000010:'type_ctor()'
 		.s 000011:'<this>'
 		.s 000012:'1.0.0.0'
-		.t 000000:'std%global::vein/lang/Out'
-		.t 000001:'test.std%global::test/Testable'
-		.t 000002:'std%global::vein/lang/Object'
-		.t 000003:'std%global::vein/lang/Void'
+		.t 000000:'std%vein/lang/Out'
+		.t 000001:'test.std%test/Testable'
+		.t 000002:'std%vein/lang/Object'
+		.t 000003:'std%vein/lang/Void'
 	}
 
 	
-	.namespace 'global::test'
+	.namespace 'test'
 	.class 'Testable' public extends 'Object'
 	{
 		.method 'master' () public static -> Void

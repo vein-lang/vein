@@ -66,7 +66,7 @@ namespace vein.syntax
 
         public string GetFullName()
         {
-            var result = $"global::";
+            var result = $"";
             if (Namespaces.Any())
                 result = $"{result}{Namespaces.Select(x => x.ExpressionString).Join("/")}/";
             result = $"{result}{Identifier}";

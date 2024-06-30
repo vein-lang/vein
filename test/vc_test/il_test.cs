@@ -97,7 +97,7 @@ public class il_test
     public static ILGenerator CreateGenerator(params VeinArgumentRef[] args)
     {
         var module = new VeinModuleBuilder(Guid.NewGuid().ToString(), (Types.Storage));
-        var @class = new ClassBuilder(module, $"{module.Name}%global::foo/bar");
+        var @class = new ClassBuilder(module, $"{module.Name}%foo/bar");
         var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage), args);
         return method.GetGenerator();
     }

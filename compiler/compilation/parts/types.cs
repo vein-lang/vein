@@ -30,7 +30,7 @@ public partial class CompilationTask
         if (retType is null)
         {
             Log.Defer.Error($"[red bold]Cannot resolve type[/] '[purple underline]{typename}[/]'", typename, doc);
-            return new UnresolvedVeinClass($"{this.module.Name}%global::{doc.Name}/{typename}");
+            return new UnresolvedVeinClass($"{this.module.Name}%{doc.Name}/{typename}");
         }
 
         return KnowClasses[typename] = retType;

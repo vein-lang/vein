@@ -15,8 +15,8 @@ namespace ishtar_test
         //{
         //    var module = new RuntimeIshtarModule(GetVM().Vault, _module.Name);
 
-        //    var IFoo1 = new RuntimeIshtarClass("tst%global::foo/IFoo1", T.OBJECT, module);
-        //    var IFoo2 = new RuntimeIshtarClass("tst%global::foo/IFoo2", T.OBJECT, module);
+        //    var IFoo1 = new RuntimeIshtarClass("tst%foo/IFoo1", T.OBJECT, module);
+        //    var IFoo2 = new RuntimeIshtarClass("tst%foo/IFoo2", T.OBJECT, module);
 
 
         //    IFoo1.Flags = ClassFlags.Interface | ClassFlags.Public | ClassFlags.Abstract;
@@ -28,7 +28,7 @@ namespace ishtar_test
         //    IFoo2.DefineMethod("moomoo", T.VOID,
         //        MethodFlags.Abstract | MethodFlags.Public);
 
-        //    var Zoo1 = new RuntimeIshtarClass("tst%global::foo/Zoo1", new []
+        //    var Zoo1 = new RuntimeIshtarClass("tst%foo/Zoo1", new []
         //    {
         //        T.OBJECT,
         //        IFoo1,
