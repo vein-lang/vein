@@ -5,13 +5,11 @@ namespace ishtar.runtime.gc
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using collections;
     using vein.runtime;
     using static vein.runtime.VeinTypeCode;
-    using LLVMSharp;
-    using ishtar.vm.libuv;
+    using vm.libuv;
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void IshtarFinalizationProc(nint p, nint i);
@@ -161,6 +159,21 @@ namespace ishtar.runtime.gc
             return p;
         }
 
+        /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
+        public rawval* AllocRawValue(CallFrame* frame)
+        {
+            var allocator = allocatorPool.Rent<rawval>(out var p, AllocationKind.reference, frame);
+
+            Stats.total_allocations++;
+            Stats.total_bytes_requested += allocator.TotalSize;
+
+            TemporaryHeap.AddLast((nint)p);
+            InsertDebugData(new((ulong)sizeof(rawval),
+                nameof(AllocValue), (nint)p));
+
+            return p;
+        }
+
 
         public stackval* AllocateStack(CallFrame* frame, int size)
         {
@@ -203,6 +216,14 @@ namespace ishtar.runtime.gc
             p->type = @class.TypeCode;
             p->data.l = 0;
             return p;
+        }
+
+        public void FreeRawValue(rawval* value)
+        {
+            TemporaryHeap.Remove((nint)value);
+            DeleteDebugData((nint)value);
+            Stats.total_allocations--;
+            Stats.total_bytes_requested -= allocatorPool.Return(value);
         }
 
         public void FreeValue(stackval* value)
