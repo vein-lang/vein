@@ -6,29 +6,6 @@ using vein.runtime;
 
 public static unsafe partial class KnowTypes
 {
-    public static class VeinLang
-    {
-        public static class Reflection
-        {}
-
-        public static class Native
-        {
-            public static QualityTypeName NativeHandleTypeName =
-                new("std", nameof(NativeHandle), "std/native");
-
-            public static RuntimeIshtarClass* NativeHandle(CallFrame* frame)
-                => findType(NativeHandleTypeName, frame);
-        }
-
-
-        public static QualityTypeName FileNotFoundFaultTypeName =
-            new("std", nameof(FileNotFoundFault), "std");
-
-        public static RuntimeIshtarClass* FileNotFoundFault(CallFrame* frame)
-            => findType(FileNotFoundFaultTypeName, frame);
-    }
-
-
     public static QualityTypeName TypeInfoTypeName = new("std", nameof(Type), "std");
     public static QualityTypeName FieldInfoTypeName = new("std", nameof(Field), "std");
     public static QualityTypeName FunctionInfoTypeName = new("std", nameof(Function), "std");
@@ -43,7 +20,7 @@ public static unsafe partial class KnowTypes
         new("std", nameof(MultipleTypeFoundFault), "std/reflection");
     public static QualityTypeName PlatformIsNotSupportFaultTypeName =
         new("std", nameof(PlatformIsNotSupportFault), "std");
-    public static QualityTypeName IshatFault = new("std", nameof(IshatFault), "std");
+    public static QualityTypeName IshtarFault = new("std", nameof(IshtarFault), "std");
 
     public static RuntimeIshtarClass* NullPointerException(CallFrame* frame)
         => findType(NullPointerExceptionTypeName, frame);
@@ -64,7 +41,7 @@ public static unsafe partial class KnowTypes
         => findType(PlatformIsNotSupportFaultTypeName, frame);
 
     public static RuntimeIshtarClass* NativeFault(CallFrame* frame)
-        => findType(IshatFault, frame);
+        => findType(IshtarFault, frame);
 
     public static RuntimeIshtarClass* Type(CallFrame* frame)
         => findType(TypeInfoTypeName, frame);
@@ -77,15 +54,12 @@ public static unsafe partial class KnowTypes
     private static readonly Dictionary<nint, nint> _cache = new();
 
 
-
-    public static RuntimeIshtarClass* FromCache(QualityTypeName q, CallFrame* frame)
-        => findType(q.T(), frame);
-
+    
     public static RuntimeIshtarClass* FromCache(RuntimeQualityTypeName* q, CallFrame* frame)
         => findType(q, frame);
 
     private static RuntimeIshtarClass* findType(QualityTypeName q, CallFrame* frame)
-        => findType(q.T(), frame);
+        => findType(q.T(frame), frame);
 
     private static RuntimeIshtarClass* findType(RuntimeQualityTypeName* q, CallFrame* frame)
     {

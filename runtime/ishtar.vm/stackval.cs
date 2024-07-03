@@ -14,6 +14,7 @@ namespace ishtar
 
     public enum VeinRawCode
     {
+        ISHTAR_ERROR,
         ISHTAR_METHOD,
         ISHTAR_CLASS
     }

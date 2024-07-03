@@ -59,10 +59,10 @@ public readonly unsafe struct IshtarTypes(
     public readonly RuntimeIshtarClass* FunctionClass = functionClass;
     public readonly RuntimeIshtarClass* RangeClass = rangeClass;
 
-    public readonly NativeList<RuntimeIshtarClass>* All = IshtarGC.AllocateList<RuntimeIshtarClass>();
+    public readonly NativeList<RuntimeIshtarClass>* All = IshtarGC.AllocateList<RuntimeIshtarClass>(objectClass);
 
     private readonly NativeDictionary<int, RuntimeIshtarClass>* Mapping =
-        IshtarGC.AllocateDictionary<int, RuntimeIshtarClass>();
+        IshtarGC.AllocateDictionary<int, RuntimeIshtarClass>(objectClass);
 
 
     public RuntimeIshtarClass* ByTypeCode(VeinTypeCode code)
@@ -82,41 +82,41 @@ public readonly unsafe struct IshtarTypes(
 
     public static IshtarTypes* Create(AppVault vault)
     {
-        var r = IshtarGC.AllocateImmortal<IshtarTypes>();
-        var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>();
+        var r = IshtarGC.AllocateImmortal<IshtarTypes>(vault.vm.InternalModule);
+        var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>(vault.vm.InternalModule);
 
 
         *module = new RuntimeIshtarModule(vault, "unnamed_types", module, new IshtarVersion(0, 0));
         
 
-        var objectClass = r->create($"std%std/Object".L(), null, module, TYPE_OBJECT);
-        var valueTypeClass = r->create($"std%std/ValueType".L(), null, module, TYPE_OBJECT);
+        var objectClass = r->create($"std%std/Object".L(module), null, module, TYPE_OBJECT);
+        var valueTypeClass = r->create($"std%std/ValueType".L(module), null, module, TYPE_OBJECT);
 
         *r = new IshtarTypes(
             objectClass,
             valueTypeClass,
-            r->create($"std%std/Void".L(), valueTypeClass, module, TYPE_VOID),
-            r->create($"std%std/String".L(), objectClass, module, TYPE_STRING),
-            r->create($"std%std/Byte".L(), valueTypeClass, module, TYPE_U1),
-            r->create($"std%std/SByte".L(), valueTypeClass, module, TYPE_I1),
-            r->create($"std%std/Int16".L(), valueTypeClass, module, TYPE_I2),
-            r->create($"std%std/Int32".L(), valueTypeClass, module, TYPE_I4),
-            r->create($"std%std/Int64".L(), valueTypeClass, module, TYPE_I8),
-            r->create($"std%std/UInt16".L(), valueTypeClass, module, TYPE_U2),
-            r->create($"std%std/UInt32".L(), valueTypeClass, module, TYPE_U4),
-            r->create($"std%std/UInt64".L(), valueTypeClass,module, TYPE_U8),
-            r->create($"std%std/Half".L(), valueTypeClass, module, TYPE_R2),
-            r->create($"std%std/Float".L(), valueTypeClass, module, TYPE_R4),
-            r->create($"std%std/Double".L(), valueTypeClass, module, TYPE_R8),
-            r->create($"std%std/Decimal".L(), valueTypeClass, module, TYPE_R16),
-            r->create($"std%std/Boolean".L(), valueTypeClass, module, TYPE_BOOLEAN),
-            r->create($"std%std/Char".L(), valueTypeClass, module, TYPE_CHAR),
-            r->create($"std%std/Array".L(), objectClass, module, TYPE_ARRAY),
-            r->create($"std%std/Exception".L(), objectClass, module, TYPE_CLASS),
-            r->create($"std%std/Raw".L(), valueTypeClass, module, TYPE_RAW),
-            r->create($"std%std/Aspect".L(), objectClass, module, TYPE_CLASS),
-            r->create($"std%std/Function".L(), objectClass, module, TYPE_FUNCTION),
-            r->create($"std%std/Range".L(), objectClass, module, TYPE_CLASS)
+            r->create($"std%std/Void".L(module), valueTypeClass, module, TYPE_VOID),
+            r->create($"std%std/String".L(module), objectClass, module, TYPE_STRING),
+            r->create($"std%std/Byte".L(module), valueTypeClass, module, TYPE_U1),
+            r->create($"std%std/SByte".L(module), valueTypeClass, module, TYPE_I1),
+            r->create($"std%std/Int16".L(module), valueTypeClass, module, TYPE_I2),
+            r->create($"std%std/Int32".L(module), valueTypeClass, module, TYPE_I4),
+            r->create($"std%std/Int64".L(module), valueTypeClass, module, TYPE_I8),
+            r->create($"std%std/UInt16".L(module), valueTypeClass, module, TYPE_U2),
+            r->create($"std%std/UInt32".L(module), valueTypeClass, module, TYPE_U4),
+            r->create($"std%std/UInt64".L(module), valueTypeClass,module, TYPE_U8),
+            r->create($"std%std/Half".L(module), valueTypeClass, module, TYPE_R2),
+            r->create($"std%std/Float".L(module), valueTypeClass, module, TYPE_R4),
+            r->create($"std%std/Double".L(module), valueTypeClass, module, TYPE_R8),
+            r->create($"std%std/Decimal".L(module), valueTypeClass, module, TYPE_R16),
+            r->create($"std%std/Boolean".L(module), valueTypeClass, module, TYPE_BOOLEAN),
+            r->create($"std%std/Char".L(module), valueTypeClass, module, TYPE_CHAR),
+            r->create($"std%std/Array".L(module), objectClass, module, TYPE_ARRAY),
+            r->create($"std%std/Exception".L(module), objectClass, module, TYPE_CLASS),
+            r->create($"std%std/Raw".L(module), valueTypeClass, module, TYPE_RAW),
+            r->create($"std%std/Aspect".L(module), objectClass, module, TYPE_CLASS),
+            r->create($"std%std/Function".L(module), objectClass, module, TYPE_FUNCTION),
+            r->create($"std%std/Range".L(module), objectClass, module, TYPE_CLASS)
         );
         r->Add(objectClass, false);
         r->Add(r->VoidClass, false);
@@ -182,7 +182,7 @@ public readonly unsafe struct IshtarTypes(
 
     private RuntimeIshtarClass* create(RuntimeQualityTypeName* name, RuntimeIshtarClass* parent, RuntimeIshtarModule* module, VeinTypeCode typeCode, bool autoAdd = true)
     {
-        var clazz = IshtarGC.AllocateImmortal<RuntimeIshtarClass>();
+        var clazz = IshtarGC.AllocateImmortal<RuntimeIshtarClass>(module);
         *clazz = new RuntimeIshtarClass(name, parent, module, clazz);
         clazz->TypeCode = typeCode;
         clazz->Flags |= ClassFlags.Predefined;

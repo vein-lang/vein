@@ -11,7 +11,7 @@ namespace ishtar
         {
             var arg = gc.AllocObject(TYPE_STRING.AsRuntimeClass(gc.VM.Types), frame);
             var clazz = arg->clazz;
-            arg->vtable[clazz->Field["!!value"]->vtable_offset] = StringStorage.Intern(str);
+            arg->vtable[clazz->Field["!!value"]->vtable_offset] = StringStorage.Intern(str, frame);
             return arg;
         }
         public static IshtarObject* ToIshtarObject(this IshtarGC gc, int dotnet_value, CallFrame* frame)
@@ -425,7 +425,7 @@ namespace ishtar
                 val.data.f_r4 = float.Parse(value);
                 break;
                 case TYPE_STRING:
-                val.data.p = (nint)StringStorage.Intern(value);
+                val.data.p = (nint)StringStorage.Intern(value, frame);
                 break;
                 case TYPE_R8 or TYPE_R2 or TYPE_R16:
                 frame->vm.FastFail(WNE.ACCESS_VIOLATION,
@@ -456,8 +456,18 @@ namespace ishtar
                     frame);
                 return default;
             }
+            if (p->type == TYPE_RAW)
+            {
+                frame->vm.FastFail(WNE.ACCESS_VIOLATION,
+                    "Boxing operation error.\n" +
+                    $"p->type is RAW [{p->type}]\n" +
+                    "Cannot boxing pointer type.\n" +
+                    "Please report the problem into https://github.com/vein-lang/vein/issues",
+                    frame);
+                return default;
+            }
 
-            if (p->type is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_RAW or TYPE_FUNCTION)
+            if (p->type is TYPE_OBJECT or TYPE_CLASS or TYPE_STRING or TYPE_ARRAY or TYPE_FUNCTION)
                 return (IshtarObject*)p->data.p;
             if (p->type is TYPE_NONE or > TYPE_ARRAY or < TYPE_NONE)
             {

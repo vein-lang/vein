@@ -8,7 +8,7 @@ public unsafe struct IshtarThreading
 {
     public IshtarRawThread* CreateRawThread(RuntimeIshtarModule* mainModule, delegate*<IshtarRawThread*, void> frame)
     {
-        var thread = IshtarGC.AllocateImmortal<IshtarRawThread>();
+        var thread = IshtarGC.AllocateImmortal<IshtarRawThread>(mainModule);
         LibUV.uv_thread_create(out var threadId, executeRaw, (IntPtr)thread);
         *thread = new IshtarRawThread(threadId, frame, mainModule);
         return thread;
@@ -16,8 +16,8 @@ public unsafe struct IshtarThreading
 
     public IshtarThread* CreateThread(CallFrame* frame)
     {
-        var thread = IshtarGC.AllocateImmortal<IshtarThread>();
-        var threadContext = IshtarGC.AllocateImmortal<IshtarThreadContext>();
+        var thread = IshtarGC.AllocateImmortal<IshtarThread>(frame);
+        var threadContext = IshtarGC.AllocateImmortal<IshtarThreadContext>(thread);
         LibUV.uv_thread_create(out var threadId, execute, (IntPtr)thread);
         LibUV.uv_sem_init(out var locker, 0);
         *threadContext = new IshtarThreadContext(threadId, locker);
@@ -26,7 +26,7 @@ public unsafe struct IshtarThreading
         return thread;
     }
 
-    public TaskScheduler* CreateScheduler() => TaskScheduler.Create();
+    public TaskScheduler* CreateScheduler(VirtualMachine vm) => TaskScheduler.Create(vm);
     public void FreeScheduler(TaskScheduler* scheduler) => TaskScheduler.Free(scheduler);
 
     public void Join(IshtarThread* thread)

@@ -17,7 +17,7 @@ public unsafe struct RuntimeIshtarAlias : IEq<RuntimeIshtarAlias>
 
     public static RuntimeIshtarAlias* CreateTypeAlias(RuntimeQualityTypeName* name, RuntimeIshtarClass* type)
     {
-        var alias = IshtarGC.AllocateImmortal<RuntimeIshtarAlias>();
+        var alias = IshtarGC.AllocateImmortal<RuntimeIshtarAlias>(type);
 
         *alias = new RuntimeIshtarAlias();
 
@@ -30,7 +30,7 @@ public unsafe struct RuntimeIshtarAlias : IEq<RuntimeIshtarAlias>
 
     public static RuntimeIshtarAlias* CreateMethodAlias(RuntimeQualityTypeName* name, RuntimeIshtarSignature* type)
     {
-        var alias = IshtarGC.AllocateImmortal<RuntimeIshtarAlias>();
+        var alias = IshtarGC.AllocateImmortal<RuntimeIshtarAlias>(type);
 
         *alias = new RuntimeIshtarAlias();
 

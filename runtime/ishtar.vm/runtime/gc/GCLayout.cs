@@ -30,7 +30,7 @@ public unsafe interface GCLayout
     public void register_thread(GC_stack_base* attr);
     public void unregister_thread();
 
-    public void register_finalizer_no_order(IshtarObject* obj, delegate*<nint, nint, void> proc, CallFrame* frame);
+    public void register_finalizer_no_order(void* obj, delegate*<nint, nint, void> proc, CallFrame* frame);
     public void collect();
     bool is_marked(void* obj);
 }

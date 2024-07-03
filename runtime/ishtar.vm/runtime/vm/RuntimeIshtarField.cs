@@ -9,9 +9,9 @@ namespace ishtar
     {
         public T Value => IshtarUnsafe.AsRef<T>(ptr);
 
-        public static WeakRef<T>* Create(T value)
+        public static WeakRef<T>* Create(T value, void* @ref)
         {
-            var r = IshtarGC.AllocateImmortal<WeakRef<T>>();
+            var r = IshtarGC.AllocateImmortal<WeakRef<T>>(@ref);
             *r = new WeakRef<T>(IshtarUnsafe.AsPointer(ref value));
             return r;
         }
@@ -30,7 +30,7 @@ namespace ishtar
 
         public RuntimeFieldName* FullName { get; set; }
 
-        public NativeList<RuntimeAspect>* Aspects { get; private set; } = IshtarGC.AllocateList<RuntimeAspect>();
+        public NativeList<RuntimeAspect>* Aspects { get; private set; }
 
 
         public void Dispose()
@@ -60,6 +60,7 @@ namespace ishtar
             RuntimeComplexType fieldType,
             RuntimeIshtarField* selfRef)
         {
+            Aspects = IshtarGC.AllocateList<RuntimeAspect>(selfRef);
             Owner = owner;
             FieldType = fieldType;
             Flags = flags;

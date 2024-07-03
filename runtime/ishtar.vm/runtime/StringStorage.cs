@@ -18,12 +18,12 @@ namespace ishtar
 
         internal static ulong _indexer;
 
-        public static InternedString* Intern(string value)
+        public static InternedString* Intern(string value, void* parentRef)
         {
             if (storage_r.TryGetValue(value, out var value1))
                 return (InternedString*)value1;
 
-            var str = IshtarGC.AllocateImmortal<InternedString>();
+            var str = IshtarGC.AllocateImmortal<InternedString>(parentRef);
 
             *str = new InternedString(Interlocked.Increment(ref _indexer));
 

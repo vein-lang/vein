@@ -40,12 +40,13 @@ public unsafe struct NativeConcurrentDictionary<TKey, TValue> where TKey : unman
         public void Dispose() => uv_sem_post(ref _dict->semaphore);
     }
 
-    public static void Free(NativeConcurrentDictionary<TKey, TValue>* dict, AllocatorBlock allocator)
+    public static void Free(NativeConcurrentDictionary<TKey, TValue>* dict)
     {
+        var allocator = dict->_allocator;
         allocator.free(dict->keys);
         allocator.free(dict->values);
-        allocator.free(dict);
         uv_sem_destroy(ref dict->semaphore);
+        allocator.free(dict);
     }
 
     public NativeConcurrentDictionary(int initialCapacity, NativeConcurrentDictionary<TKey, TValue>* self, AllocatorBlock allocator)

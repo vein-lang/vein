@@ -1,6 +1,5 @@
 namespace ishtar
 {
-    using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Text;
     using runtime.gc;
@@ -38,7 +37,7 @@ namespace ishtar
 
         public static CallFrame* Create(RuntimeIshtarMethod* method, CallFrame* parent)
         {
-            var frame = IshtarGC.AllocateImmortal<CallFrame>();
+            var frame = IshtarGC.AllocateImmortal<CallFrame>(parent);
 
             *frame = new CallFrame(method, parent, frame);
 
@@ -115,7 +114,7 @@ namespace ishtar
                 r = r->parent;
             }
             if (frame->exception.stack_trace is null)
-                frame->exception.stack_trace = StringStorage.Intern(str.ToString());
+                frame->exception.stack_trace = StringStorage.Intern(str.ToString(), frame);
         }
 
         public void Dispose() => Free(Self);

@@ -20,8 +20,9 @@ public unsafe struct NativeDictionary<TKey, TValue> where TKey : unmanaged, IEqu
         return p;
     }
 
-    public static void Free(NativeDictionary<TKey, TValue>* dict, AllocatorBlock allocator)
+    public static void Free(NativeDictionary<TKey, TValue>* dict)
     {
+        var allocator = dict->_allocator;
         allocator.free(dict->keys);
         allocator.free(dict->values);
         allocator.free(dict);

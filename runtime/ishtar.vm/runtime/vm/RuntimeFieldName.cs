@@ -16,13 +16,13 @@ public unsafe struct RuntimeFieldName(InternedString* fullName)
     private static InternedString* CreateName(InternedString* full)
     {
         var fn = StringStorage.GetStringUnsafe(full);
-        return StringStorage.Intern(fn.Split('.').Last());
+        return StringStorage.Intern(fn.Split('.').Last(), full);
     }
 
     private static InternedString* CreateClassName(InternedString* full)
     {
         var fn = StringStorage.GetStringUnsafe(full);
-        return StringStorage.Intern(fn.Split('.').SkipLast(1).Join());
+        return StringStorage.Intern(fn.Split('.').SkipLast(1).Join(), full);
     }
 
     public string Name => StringStorage.GetStringUnsafe(_name);
@@ -30,7 +30,7 @@ public unsafe struct RuntimeFieldName(InternedString* fullName)
     public string Class => StringStorage.GetStringUnsafe(_className);
     public string Fullname => StringStorage.GetStringUnsafe(_fullName);
 
-    public RuntimeFieldName(string name, string className) : this(StringStorage.Intern($"{className}.{name}")) { }
+    public RuntimeFieldName(string name, string className, void* parent) : this(StringStorage.Intern($"{className}.{name}", parent)) { }
         
     public static RuntimeFieldName* Resolve(int index, RuntimeIshtarModule* module)
     {

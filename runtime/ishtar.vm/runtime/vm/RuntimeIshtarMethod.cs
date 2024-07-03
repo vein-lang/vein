@@ -28,29 +28,18 @@ namespace ishtar
             Self = null;
         }
 
-
-        public static RuntimeMethodArgument* Create(IshtarTypes* types, (string name, VeinTypeCode code) data)
+        public static NativeList<RuntimeMethodArgument>* Create(IshtarTypes* types, (string name, VeinTypeCode code)[] data, void* parent)
         {
-            var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>();
-            var (name, code) = data;
-            
-            *a = new RuntimeMethodArgument(types->ByTypeCode(code), StringStorage.Intern(name), a);
-
-            return a;
-        }
-
-        public static NativeList<RuntimeMethodArgument>* Create(IshtarTypes* types, (string name, VeinTypeCode code)[] data)
-        {
-            var lst = IshtarGC.AllocateList<RuntimeMethodArgument>(data.Length);
+            var lst = IshtarGC.AllocateList<RuntimeMethodArgument>(parent, data.Length);
 
             foreach (var tuple in data)
             {
                 var (name, code) = tuple;
 
-                var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>();
+                var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>(parent);
 
 
-                *a = new RuntimeMethodArgument(types->ByTypeCode(code), StringStorage.Intern(name), a);
+                *a = new RuntimeMethodArgument(types->ByTypeCode(code), StringStorage.Intern(name, a), a);
 
 
                 lst->Add(a);
@@ -59,18 +48,18 @@ namespace ishtar
             return lst;
         }
 
-        public static NativeList<RuntimeMethodArgument>* Create(VirtualMachine vm, VeinArgumentRef[] data)
+        public static NativeList<RuntimeMethodArgument>* Create(VirtualMachine vm, VeinArgumentRef[] data, void* parent)
         {
             if (data.Length == 0)
-                return IshtarGC.AllocateList<RuntimeMethodArgument>();
+                return IshtarGC.AllocateList<RuntimeMethodArgument>(parent);
             
-            var lst = IshtarGC.AllocateList<RuntimeMethodArgument>(data.Length);
+            var lst = IshtarGC.AllocateList<RuntimeMethodArgument>(parent, data.Length);
 
             foreach (var tuple in data)
             {
-                var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>();
+                var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>(parent);
                 
-                *a = new RuntimeMethodArgument(vm.Vault.GlobalFindType(tuple.Type.FullName.T()), StringStorage.Intern(tuple.Name), a);
+                *a = new RuntimeMethodArgument(vm.Vault.GlobalFindType(tuple.Type.FullName.T(a)), StringStorage.Intern(tuple.Name, a), a);
 
                 lst->Add(a);
             }
@@ -78,11 +67,11 @@ namespace ishtar
             return lst;
         }
 
-        public static RuntimeMethodArgument* Create(IshtarTypes* types, string name, RuntimeComplexType type)
+        public static RuntimeMethodArgument* Create(IshtarTypes* types, string name, RuntimeComplexType type, void* parent)
         {
-            var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>();
+            var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>(parent);
 
-            *a = new RuntimeMethodArgument(type, StringStorage.Intern(name), a);
+            *a = new RuntimeMethodArgument(type, StringStorage.Intern(name, a), a);
 
             return a;
         }
@@ -117,11 +106,11 @@ namespace ishtar
         }
 
         public static RuntimeIshtarTypeArg* Allocate(InternedString* Name,
-            NativeList<IshtarParameterConstraint>* constraints)
+            NativeList<IshtarParameterConstraint>* constraints, void* parent)
         {
-            var type = IshtarGC.AllocateImmortal<RuntimeIshtarTypeArg>();
+            var type = IshtarGC.AllocateImmortal<RuntimeIshtarTypeArg>(parent);
 
-            *type = new RuntimeIshtarTypeArg(CreateId(Name, constraints), Name, constraints);
+            *type = new RuntimeIshtarTypeArg(CreateId(Name, constraints, type), Name, constraints);
 
             return type;
         }
@@ -132,7 +121,7 @@ namespace ishtar
 
         // TODO
         private static InternedString* CreateId(InternedString* Name,
-            NativeList<IshtarParameterConstraint>* constraints)
+            NativeList<IshtarParameterConstraint>* constraints, RuntimeIshtarTypeArg* typeArg)
         {
             var rawName = StringStorage.GetStringUnsafe(Name);
             constraints->ForEach(x =>
@@ -145,7 +134,7 @@ namespace ishtar
                     rawName += $"[{x->Type->FullName->NameWithNS}]";
             });
 
-            return StringStorage.Intern(rawName);
+            return StringStorage.Intern(rawName, typeArg);
         }
     }
 
@@ -163,32 +152,32 @@ namespace ishtar
             return p1->Kind == p2->Kind && RuntimeIshtarClass.Eq(p1->Type, p2->Type);
         }
 
-        public static IshtarParameterConstraint* CreateBittable()
+        public static IshtarParameterConstraint* CreateBittable(RuntimeIshtarModule* module)
         {
-            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>();
+            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>(module);
             *e = new IshtarParameterConstraint();
             e->Kind = VeinTypeParameterConstraint.BITTABLE;
             return e;
         }
-        public static IshtarParameterConstraint* CreateClass()
+        public static IshtarParameterConstraint* CreateClass(RuntimeIshtarModule* module)
         {
-            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>();
+            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>(module);
             *e = new IshtarParameterConstraint();
             e->Kind = VeinTypeParameterConstraint.CLASS;
             return e;
         }
-        public static IshtarParameterConstraint* CreateSignature(RuntimeIshtarClass* @interface)
+        public static IshtarParameterConstraint* CreateSignature(RuntimeIshtarClass* @interface, RuntimeIshtarModule* module)
         {
-            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>();
+            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>(module);
             *e = new IshtarParameterConstraint();
             e->Kind = VeinTypeParameterConstraint.SIGNATURE;
             e->Type = @interface;
             return e;
         }
 
-        public static IshtarParameterConstraint* CreateType(RuntimeIshtarClass* type)
+        public static IshtarParameterConstraint* CreateType(RuntimeIshtarClass* type, RuntimeIshtarModule* module)
         {
-            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>();
+            var e = IshtarGC.AllocateImmortal<IshtarParameterConstraint>(module);
             *e = new IshtarParameterConstraint();
             e->Kind = VeinTypeParameterConstraint.TYPE;
             e->Type = type;
@@ -241,9 +230,9 @@ namespace ishtar
 
 
         public static RuntimeIshtarSignature* Allocate(RuntimeComplexType returnType,
-            NativeList<RuntimeMethodArgument>* arguments)
+            NativeList<RuntimeMethodArgument>* arguments, void* parent)
         {
-            var sig = IshtarGC.AllocateImmortal<RuntimeIshtarSignature>();
+            var sig = IshtarGC.AllocateImmortal<RuntimeIshtarSignature>(parent);
 
             *sig = new RuntimeIshtarSignature(returnType, arguments);
 
@@ -349,17 +338,17 @@ namespace ishtar
         {
             this = default;
             _self = self;
-            var arguments = IshtarGC.AllocateList<RuntimeMethodArgument>();
-            Aspects = IshtarGC.AllocateList<RuntimeAspect>();
-            _name = StringStorage.Intern(name);
-            _rawName = StringStorage.Intern(name.Split('(').First());
+            var arguments = IshtarGC.AllocateList<RuntimeMethodArgument>(self);
+            Aspects = IshtarGC.AllocateList<RuntimeAspect>(self);
+            _name = StringStorage.Intern(name, _self);
+            _rawName = StringStorage.Intern(name.Split('(').First(), _self);
             Flags = flags;
             Owner = owner;
             foreach (var argument in args)
                 arguments->Add(argument);
             _ctor_called = true;
             DiagnosticCtorTraces[(nint)self] = Environment.StackTrace;
-            Signature = RuntimeIshtarSignature.Allocate(returnType, arguments);
+            Signature = RuntimeIshtarSignature.Allocate(returnType, arguments, _self);
         }
 
         internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
@@ -367,17 +356,17 @@ namespace ishtar
         {
             this = default;
             _self = self;
-            var arguments = IshtarGC.AllocateList<RuntimeMethodArgument>();
-            Aspects = IshtarGC.AllocateList<RuntimeAspect>();
-            _name = StringStorage.Intern(name);
-            _rawName = StringStorage.Intern(name.Split('(').First());
+            var arguments = IshtarGC.AllocateList<RuntimeMethodArgument>(self);
+            Aspects = IshtarGC.AllocateList<RuntimeAspect>(self);
+            _name = StringStorage.Intern(name, _self);
+            _rawName = StringStorage.Intern(name.Split('(').First(), _self);
             Flags = flags;
             Owner = owner;
             if (args->Count != 0)
                 arguments->AddRange(args);
             _ctor_called = true;
             DiagnosticCtorTraces[(nint)self] = Environment.StackTrace;
-            Signature = RuntimeIshtarSignature.Allocate(returnType, arguments);
+            Signature = RuntimeIshtarSignature.Allocate(returnType, arguments, _self);
         }
 
         public void SetILCode(uint* code, uint size)
@@ -387,7 +376,7 @@ namespace ishtar
             if ((Flags & MethodFlags.Abstract) != 0)
                 throw new MethodHasAbstractException();
 
-            Header = IshtarGC.AllocateImmortal<MetaMethodHeader>();
+            Header = IshtarGC.AllocateImmortal<MetaMethodHeader>(_self);
             Header->code = code;
             Header->code_size = size;
         }

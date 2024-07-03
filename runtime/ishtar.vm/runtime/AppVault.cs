@@ -21,7 +21,7 @@ namespace ishtar
         public TokenInterlocker TokenGranted { get; }
         public int ThreadID { get; }
 
-        internal readonly NativeList<RuntimeIshtarModule>* Modules = IshtarGC.AllocateList<RuntimeIshtarModule>();
+        internal readonly NativeList<RuntimeIshtarModule>* Modules;
 
         public AppVault(VirtualMachine vm, string name)
         {
@@ -29,6 +29,7 @@ namespace ishtar
             Name = name;
             TokenGranted = new TokenInterlocker(this, this);
             ThreadID = Thread.CurrentThread.ManagedThreadId;
+            Modules = IshtarGC.AllocateList<RuntimeIshtarModule>(vm.@ref);
         }
 
         public RuntimeIshtarClass* GlobalFindType(RuntimeQualityTypeName* typeName)

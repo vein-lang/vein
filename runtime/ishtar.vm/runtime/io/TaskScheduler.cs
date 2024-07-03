@@ -15,13 +15,13 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
     private readonly NativeQueue<IshtarTask>* _queue = queue;
 
 
-    public static TaskScheduler* Create()
+    public static TaskScheduler* Create(VirtualMachine vm)
     {
-        var scheduler = IshtarGC.AllocateImmortal<TaskScheduler>();
-        var queue = IshtarGC.AllocateQueue<IshtarTask>();
+        var scheduler = IshtarGC.AllocateImmortal<TaskScheduler>(vm.@ref);
+        var queue = IshtarGC.AllocateQueue<IshtarTask>(scheduler);
         *scheduler = new TaskScheduler(queue);
 
-        var asyncHeader = IshtarGC.AllocateImmortal<nint>();
+        var asyncHeader = IshtarGC.AllocateImmortal<nint>(vm.@ref);
         scheduler->loop = uv_default_loop();
         Assert(uv_async_init(scheduler->loop, (nint)asyncHeader, on_async) == 0,
             WNE.THREAD_STATE_CORRUPTED, "scheduler has failed create async io");
@@ -63,7 +63,7 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
     {
         // TODO remove using interlocked
         var taskIdx = Interlocked.Increment(ref task_index);
-        var task = IshtarGC.AllocateImmortal<IshtarTask>();
+        var task = IshtarGC.AllocateImmortal<IshtarTask>(frame);
 
         *task = new IshtarTask(frame, taskIdx);
 

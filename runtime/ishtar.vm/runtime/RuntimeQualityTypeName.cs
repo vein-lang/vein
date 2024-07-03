@@ -23,7 +23,7 @@ public unsafe struct RuntimeQualityTypeName(InternedString* fullName) : IEq<Runt
 
             if (_name is not null)
                 return StringStorage.GetStringUnsafe(_name);
-            _name = StringStorage.Intern(fn.Split('/').Last());
+            _name = StringStorage.Intern(fn.Split('/').Last(), fullName);
             return StringStorage.GetStringUnsafe(_name);
         }
     }
@@ -40,7 +40,7 @@ public unsafe struct RuntimeQualityTypeName(InternedString* fullName) : IEq<Runt
                 .Split('/')
                 .SkipLast(1).Join("/")
                 .Split("%").Skip(1)
-                .Join("/"));
+                .Join("/"), fullName);
             return StringStorage.GetStringUnsafe(_namespace);
         }
     }
@@ -53,7 +53,7 @@ public unsafe struct RuntimeQualityTypeName(InternedString* fullName) : IEq<Runt
                 return StringStorage.GetStringUnsafe(_asmName);
             var fn = StringStorage.GetStringUnsafe(fullName);
 
-            _asmName = StringStorage.Intern(fn.Split("%").SkipLast(1).Join());
+            _asmName = StringStorage.Intern(fn.Split("%").SkipLast(1).Join(), fullName);
             return StringStorage.GetStringUnsafe(_asmName);
         }
     }
@@ -66,7 +66,7 @@ public unsafe struct RuntimeQualityTypeName(InternedString* fullName) : IEq<Runt
                 return StringStorage.GetStringUnsafe(_nameWithNS);
             var fn = StringStorage.GetStringUnsafe(fullName);
 
-            _nameWithNS = StringStorage.Intern(fn.Split("%").Skip(1).Join());
+            _nameWithNS = StringStorage.Intern(fn.Split("%").Skip(1).Join(), fullName);
             return StringStorage.GetStringUnsafe(_nameWithNS);
         }
     }
@@ -80,11 +80,11 @@ public unsafe struct RuntimeQualityTypeName(InternedString* fullName) : IEq<Runt
 
 public static unsafe class RuntimeQualityTypeNameEx
 {
-    public static RuntimeQualityTypeName* L(this string str)
+    public static RuntimeQualityTypeName* L(this string str, void* parent)
     {
-        var tp = IshtarGC.AllocateImmortal<RuntimeQualityTypeName>();
+        var tp = IshtarGC.AllocateImmortal<RuntimeQualityTypeName>(parent);
 
-        var raw = StringStorage.Intern(str);
+        var raw = StringStorage.Intern(str, tp);
 
         *tp = new RuntimeQualityTypeName(raw);
 
@@ -94,11 +94,11 @@ public static unsafe class RuntimeQualityTypeNameEx
     public static QualityTypeName T(this RuntimeQualityTypeName t)
         => new(t.AssemblyName, t.Name, t.Namespace);
 
-    public static RuntimeQualityTypeName* T(this QualityTypeName t)
+    public static RuntimeQualityTypeName* T(this QualityTypeName t, void* parent)
     {
-        var name = IshtarGC.AllocateImmortal<RuntimeQualityTypeName>();
+        var name = IshtarGC.AllocateImmortal<RuntimeQualityTypeName>(parent);
 
-        *name = new RuntimeQualityTypeName(StringStorage.Intern(t.FullName));
+        *name = new RuntimeQualityTypeName(StringStorage.Intern(t.FullName, name));
 
         return name;
     }

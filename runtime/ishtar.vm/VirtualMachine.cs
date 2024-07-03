@@ -10,6 +10,7 @@ namespace ishtar
     using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
+    using debug;
     using vein.extensions;
     using vein.runtime;
     using static OpCodeValue;
@@ -27,11 +28,22 @@ namespace ishtar
         public readonly Architecture Architecture = RuntimeInformation.OSArchitecture;
     }
 
+    public unsafe struct VirtualMachineRef
+    {
+        public InternedString* Name;
+
+        public IshtarFrames* Frames;
+        internal IshtarTrace trace;
+        internal LLVMContext Jitter;
+        public IshtarTypes* Types;
+        public IshtarThreading threading;
+        public TaskScheduler* task_scheduler;
+        internal RuntimeIshtarModule* InternalModule;
+        internal RuntimeIshtarClass* InternalClass;
+    }
+
     public unsafe partial class VirtualMachine : IDisposable
     {
-        VirtualMachine() {}
-
-
         public readonly RuntimeInfo runtimeInfo = new RuntimeInfo(); 
 
         /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
@@ -44,22 +56,24 @@ namespace ishtar
             BoehmGCLayout.Native.GC_init();
             BoehmGCLayout.Native.GC_allow_register_threads();
 
+            vm.@ref = IshtarGC.AllocateImmortal<VirtualMachineRef>(null);
+
             vm.Jit = new IshtarJIT(vm);
             vm.Config = new VMConfig();
             vm.Vault = new AppVault(vm, name);
-            vm.trace = new IshtarTrace();
+            vm.@ref->trace = new IshtarTrace();
 
             vm.trace.Setup();
 
-            vm.Types = IshtarTypes.Create(vm.Vault);
+            vm.@ref->Types = IshtarTypes.Create(vm.Vault);
             vm.GC = new IshtarGC(vm);
 
-            vm.InternalModule = vm.Vault.DefineModule("$ishtar$");
+            vm.@ref->InternalModule = vm.Vault.DefineModule("$ishtar$");
 
-            vm.InternalClass = vm.InternalModule->DefineClass("sys%$ishtar$/global".L(),
+            vm.@ref->InternalClass = vm.InternalModule->DefineClass("sys%$ishtar$/global".L(vm.@ref->InternalModule),
                 vm.Types->ObjectClass);
 
-            vm.Frames = new IshtarFrames(vm);
+            vm.@ref->Frames = IshtarFrames.Create(vm);
             vm.watcher = new DefaultWatchDog(vm);
             
             vm.Config = new VMConfig();
@@ -67,11 +81,11 @@ namespace ishtar
             vm.GC.init();
             
             vm.FFI = new ForeignFunctionInterface(vm);
-            vm.Jitter = new LLVMContext();
+            vm.@ref->Jitter = new LLVMContext();
 
-            vm.threading = new IshtarThreading();
+            vm.@ref->threading = new IshtarThreading();
 
-            vm.task_scheduler = vm.threading.CreateScheduler();
+            vm.@ref->task_scheduler = vm.threading.CreateScheduler(vm);
             
             return vm;
         }
@@ -88,12 +102,9 @@ namespace ishtar
         }
 
 
-        private RuntimeIshtarModule* InternalModule;
-        private RuntimeIshtarClass* InternalClass;
-
         public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, params (string name, VeinTypeCode code)[] args)
         {
-            var converter_args = RuntimeMethodArgument.Create(Types, args);
+            var converter_args = RuntimeMethodArgument.Create(Types, args, @ref);
             return InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, converter_args);
         }
 
@@ -109,7 +120,7 @@ namespace ishtar
 
         public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, params (string name, VeinTypeCode code)[] args)
         {
-            var converter_args = RuntimeMethodArgument.Create(Types, args);
+            var converter_args = RuntimeMethodArgument.Create(Types, args, @ref);
             return InternalClass->DefineMethod(name, returnType, flags, converter_args);
         }
 
@@ -117,14 +128,15 @@ namespace ishtar
             => InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags);
 
         public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
-            => InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, RuntimeMethodArgument.Create(this, args));
+            => InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, RuntimeMethodArgument.Create(this, args, @ref));
 
         public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, params VeinArgumentRef[] args)
-            => InternalClass->DefineMethod(name, returnType, flags, RuntimeMethodArgument.Create(this, args));
+            => InternalClass->DefineMethod(name, returnType, flags, RuntimeMethodArgument.Create(this, args, @ref));
 
         public RuntimeIshtarMethod* DefineEmptySystemMethod(string name)
             => CreateInternalMethod(name, MethodFlags.Extern, TYPE_VOID.AsRuntimeClass(Types), Array.Empty<VeinArgumentRef>());
 
+        public VirtualMachineRef* @ref;
 
         public volatile NativeException CurrentException;
         public volatile IWatchDog watcher;
@@ -132,14 +144,17 @@ namespace ishtar
         public volatile IshtarGC GC;
         public volatile ForeignFunctionInterface FFI;
         public volatile VMConfig Config;
-        public IshtarFrames Frames;
         public volatile IshtarJIT Jit;
         public volatile NativeStorage NativeStorage;
-        internal IshtarTrace trace;
-        internal LLVMContext Jitter;
-        public IshtarTypes* Types;
-        public IshtarThreading threading;
-        public TaskScheduler* task_scheduler;
+
+        public IshtarFrames* Frames => @ref->Frames;
+        internal IshtarTrace trace => @ref->trace;
+        internal LLVMContext Jitter => @ref->Jitter;
+        public IshtarTypes* Types => @ref->Types;
+        public IshtarThreading threading => @ref->threading;
+        public TaskScheduler* task_scheduler => @ref->task_scheduler;
+        internal RuntimeIshtarModule* InternalModule => @ref->InternalModule;
+        internal RuntimeIshtarClass* InternalClass => @ref->InternalClass;
 
 
         public bool HasFaulted() => CurrentException is not null;
@@ -614,10 +629,19 @@ namespace ishtar
                             var value = sp;
                             var this_obj = (IshtarObject*)@this->data.p;
                             var target_class = this_obj->clazz;
+
+                            println($"@@@ STF -> {value->type} (to {field->Name})");
+
                             if (value->type == TYPE_NULL)
                                 this_obj->vtable[field->vtable_offset] = null;
+                            else if (value->type == TYPE_RAW)
+                                this_obj->vtable[field->vtable_offset] = (void*)value->data.p;
                             else
-                                this_obj->vtable[field->vtable_offset] = IshtarMarshal.Boxing(invocation, value);
+                            {
+                                var o = IshtarMarshal.Boxing(invocation, value);
+
+                                this_obj->vtable[field->vtable_offset] = o;
+                            }
                             ++ip;
                         }
                         break;
@@ -637,17 +661,29 @@ namespace ishtar
 
                             if (@this->type == TYPE_NULL)
                             {
-                                // TODO
                                 CallFrame.FillStackTrace(invocation);
-                                FastFail(NONE, $"NullReferenceError", invocation);
+                                ForceThrow(KnowTypes.NullPointerException(invocation));
+                                goto exception_handle;
                             }
                             //FFI.StaticValidate(invocation, @this, field.Owner);
                             var this_obj = (IshtarObject*)@this->data.p;
                             var target_class = this_obj->clazz;
                             var pt = target_class->Parent;
                             var obj = (IshtarObject*)this_obj->vtable[field->vtable_offset];
-                            var value = IshtarMarshal.UnBoxing(invocation, obj);
-                            *sp = value;
+                            if (field->FieldType.IsGeneric)
+                                throw new NotImplementedException();
+                            if (field->FieldType.Class->TypeCode is TYPE_RAW)
+                            {
+                                sp->type = TYPE_RAW;
+                                sp->data.p = (nint)obj;
+                            }
+                            else
+                            {
+                                var value = IshtarMarshal.UnBoxing(invocation, obj);
+                                *sp = value;
+                            }
+
+                            
                             ++ip;
                             println($"@@@ LDF -> {sp->type} (from {field->Name})");
                             ++sp;
@@ -739,7 +775,7 @@ namespace ishtar
                         var owner = readTypeName(*++ip, _module, invocation);
                         var method = GetMethod(tokenIdx, owner, _module, invocation);
                         ++ip;
-                        
+
                         var raw = GC.AllocRawValue(invocation); // TODO destroy
 
                         raw->type = VeinRawCode.ISHTAR_METHOD;
@@ -750,43 +786,55 @@ namespace ishtar
                         ++sp;
                     } break;
                     case CALL_SP:
-                    {
-                        ++ip;
-                        sp--;
-
-                        if (sp->type == TYPE_NULL)
-                        {
-                            ForceThrow(KnowTypes.NullPointerException(invocation));
-                            goto exception_handle;
-                        }
-
-                        var method = *sp;
-                        var raw = (rawval*)method.data.p;
-                        var sw = raw->type;
-                    } break;
                     case CALL:
+                    {
+                        var method = default(RuntimeIshtarMethod*);
+                        if (invocation->last_ip == CALL)
                         {
                             ++ip;
                             var tokenIdx = *ip;
                             var owner = readTypeName(*++ip, _module, invocation);
 
-
-                            var method = GetMethod(tokenIdx, owner, _module, invocation);
-
-                            var child_frame = invocation->CreateChild(method);
+                            method = GetMethod(tokenIdx, owner, _module, invocation);
                             ++ip;
-                            println($"@@@ {owner->NameWithNS}::{method->Name}");
-                            var method_args = GC.AllocateStack(child_frame, method->ArgLength);
-                            for (int i = 0, y = method->ArgLength - 1; i != method->ArgLength; i++, y--)
+                        }
+
+                        if (invocation->last_ip == CALL_SP)
+                        {
+                            ++ip;
+                            sp--;
+
+                            if (sp->type == TYPE_NULL)
                             {
-                                var _a = method->Arguments->Get(i); // TODO, type eq validate
-                                --sp;
+                                ForceThrow(KnowTypes.NullPointerException(invocation));
+                                goto exception_handle;
+                            }
+
+                            var raw = (rawval*)sp->data.p;
+
+                            if (raw->type == VeinRawCode.ISHTAR_ERROR)
+                            {
+                                ForceThrow(KnowTypes.IncorrectCastFault(invocation));
+                                goto exception_handle;
+                            }
+                            Assert(raw->type == VeinRawCode.ISHTAR_METHOD, MISSING_TYPE, "", invocation);
+                            method = raw->data.m;
+                        }
+                        
+
+                        var child_frame = invocation->CreateChild(method);
+                        println($"@@@ {method->Owner->Name}::{method->Name}");
+                        var method_args = GC.AllocateStack(child_frame, method->ArgLength);
+                        for (int i = 0, y = method->ArgLength - 1; i != method->ArgLength; i++, y--)
+                        {
+                            var _a = method->Arguments->Get(i); // TODO, type eq validate
+                            --sp;
 //#if DEBUG
 //                                if (_a->Type.IsGeneric)
 //                                    println($"@@@@<< {StringStorage.GetString(_a->Name, invocation)}: {StringStorage.GetString(_a->Type.TypeArg->Name, invocation)}");
 //                                else
 //                                    println($"@@@@<< {StringStorage.GetString(_a->Name, invocation)}: {_a->Type.Class->FullName->NameWithNS}");
-                                
+                            
 //                                if (Config.CallOpCodeSkipValidateArgs)
 //                                {
 //                                    method_args[y] = *sp;
@@ -819,46 +867,46 @@ namespace ishtar
 //                                }
 //#endif
 
-                                println($"@@@ {owner->NameWithNS}::{method->Name} (argument {y} is {sp->type} type)");
+                            println($"@@@ {method->Owner->Name}::{method->Name} (argument {y} is {sp->type} type)");
 
-                                if (sp->type > TYPE_NULL)
-                                    FastFail(STATE_CORRUPT, $"[call arg validation] trying fill corrupted argument [{y}/{method->ArgLength}] for [{method->Name}]", invocation);
+                            if (sp->type > TYPE_NULL)
+                                FastFail(STATE_CORRUPT, $"[call arg validation] trying fill corrupted argument [{y}/{method->ArgLength}] for [{method->Name}]", invocation);
 
-                                method_args[y] = *sp;
-                            }
+                            method_args[y] = *sp;
+                        }
 
-                            child_frame->args = method_args;
+                        child_frame->args = method_args;
 
 
-                            if (method->IsExtern)
-                                exec_method_native(child_frame);
-                            else
-                                task_scheduler->execute_method(child_frame);
+                        if (method->IsExtern)
+                            exec_method_native(child_frame);
+                        else
+                            task_scheduler->execute_method(child_frame);
 
-                            if (method->ReturnType->TypeCode != TYPE_VOID)
-                            {
-                                invocation->assert(!child_frame->returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
-                                *sp = child_frame->returnValue[0];
+                        if (method->ReturnType->TypeCode != TYPE_VOID)
+                        {
+                            invocation->assert(!child_frame->returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
+                            *sp = child_frame->returnValue[0];
 
-                                child_frame->returnValue.Dispose();
+                            child_frame->returnValue.Dispose();
 
-                                sp++;
-                            }
+                            sp++;
+                        }
 
-                            if (!child_frame->exception.IsDefault())
-                            {
-                                sp->type = TYPE_CLASS;
-                                sp->data.p = (nint)child_frame->exception.value;
-                                invocation->exception = child_frame->exception;
-                                
-                                GC.FreeStack(child_frame, method_args, method->ArgLength);
-                                child_frame->Dispose();
-                                goto exception_handle;
-                            }
-
+                        if (!child_frame->exception.IsDefault())
+                        {
+                            sp->type = TYPE_CLASS;
+                            sp->data.p = (nint)child_frame->exception.value;
+                            invocation->exception = child_frame->exception;
+                            
                             GC.FreeStack(child_frame, method_args, method->ArgLength);
                             child_frame->Dispose();
-                            GC.Collect();
+                            goto exception_handle;
+                        }
+                        
+                        GC.FreeStack(child_frame, method_args, method->ArgLength);
+                        child_frame->Dispose();
+                        GC.Collect();
                     } break;
                     case LOC_INIT:
                         {

@@ -3,14 +3,10 @@ namespace ishtar.runtime;
 using collections;
 using gc;
 
-public readonly unsafe struct RuntimeConstStorage : IDisposable
+public readonly unsafe struct RuntimeConstStorage(RuntimeIshtarModule* module) : IDisposable
 {
-    private readonly AtomicNativeDictionary<nint, stackval>* storage =
-        IshtarGC.AllocateAtomicDictionary<IntPtr, stackval>();
-
-    public RuntimeConstStorage()
-    {
-    }
+    private readonly RuntimeIshtarModule* _module = module;
+    private readonly AtomicNativeDictionary<nint, stackval>* storage = IshtarGC.AllocateAtomicDictionary<IntPtr, stackval>(module);
 
     public void Dispose() => storage->Clear();
 

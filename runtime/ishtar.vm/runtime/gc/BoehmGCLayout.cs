@@ -438,7 +438,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
     public void find_leak() => throw new NotImplementedException();
 
 
-    public void register_finalizer_no_order(IshtarObject* obj, delegate*<nint, nint, void> proc, CallFrame* frame)
+    public void register_finalizer_no_order(void* obj, delegate*<nint, nint, void> proc, CallFrame* frame)
         => Native.GC_register_finalizer_no_order(obj, proc, null, null, null);
 
 

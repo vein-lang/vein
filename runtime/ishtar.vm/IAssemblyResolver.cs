@@ -56,8 +56,10 @@ namespace vein.runtime
         public RuntimeIshtarModule* Resolve(IshtarAssembly assembly)
         {
             var (_, code) = assembly.Sections.First();
-            var module = RuntimeIshtarModule.Read(Vault, code, IshtarGC.AllocateList<RuntimeIshtarModule>(), (s, version) =>
-                this.ResolveDep(s, version, IshtarGC.AllocateList<RuntimeIshtarModule>()));
+            var deps = IshtarGC.AllocateList<RuntimeIshtarModule>(Vault.vm.@ref);
+
+            var module = RuntimeIshtarModule.Read(Vault, code, deps, (s, version) =>
+                this.ResolveDep(s, version, deps));
 
             Resolved?.Invoke(module);
 
@@ -113,6 +115,6 @@ namespace vein.runtime
         protected override void debug(string s) { }
 
 
-        public CallFrame* sys_frame => Vault.vm.Frames.ModuleLoaderFrame;
+        public CallFrame* sys_frame => Vault.vm.Frames->ModuleLoaderFrame;
     }
 }

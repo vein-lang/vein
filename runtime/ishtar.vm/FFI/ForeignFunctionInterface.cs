@@ -11,7 +11,7 @@ using vein.runtime;
 public unsafe class ForeignFunctionInterface
 {
     public readonly VirtualMachine vm;
-    public NativeDictionary<ulong, RuntimeIshtarMethod>* methods { get; } = IshtarGC.AllocateDictionary<ulong, RuntimeIshtarMethod>();
+    public NativeDictionary<ulong, RuntimeIshtarMethod>* methods { get; } 
     public Dictionary<string, ulong> method_table { get; } = new();
 
     private ulong _index;
@@ -19,6 +19,7 @@ public unsafe class ForeignFunctionInterface
     public ForeignFunctionInterface(VirtualMachine vm)
     {
         this.vm = vm;
+        methods = IshtarGC.AllocateDictionary<ulong, RuntimeIshtarMethod>(vm.@ref);
         INIT();
     }
 

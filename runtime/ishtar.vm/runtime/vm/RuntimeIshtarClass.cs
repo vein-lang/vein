@@ -32,9 +32,9 @@ namespace ishtar
     {
         private RuntimeIshtarClass* _selfReference;
 
-        public NativeList<RuntimeIshtarMethod>* Methods { get; private set; } = IshtarGC.AllocateList<RuntimeIshtarMethod>();
-        public NativeList<RuntimeIshtarField>* Fields { get; private set; } = IshtarGC.AllocateList<RuntimeIshtarField>();
-        public NativeList<RuntimeAspect>* Aspects { get; private set; } = IshtarGC.AllocateList<RuntimeAspect>();
+        public NativeList<RuntimeIshtarMethod>* Methods { get; private set; }
+        public NativeList<RuntimeIshtarField>* Fields { get; private set; }
+        public NativeList<RuntimeAspect>* Aspects { get; private set; } 
         
         public RuntimeIshtarModule* Owner { get; private set; }
         public RuntimeIshtarClass* Parent { get; private set; }
@@ -119,6 +119,9 @@ namespace ishtar
 
         internal RuntimeIshtarClass(RuntimeQualityTypeName* name, RuntimeIshtarClass* parent, RuntimeIshtarModule* module, RuntimeIshtarClass* self)
         {
+            Methods = IshtarGC.AllocateList<RuntimeIshtarMethod>(_selfReference);
+            Fields = IshtarGC.AllocateList<RuntimeIshtarField>(_selfReference);
+            Aspects = IshtarGC.AllocateList<RuntimeAspect>(_selfReference);
             Magic1 = 45;
             Magic2 = 75;
             _selfReference = self;
@@ -144,10 +147,10 @@ namespace ishtar
             if (exist is not null)
                 return exist;
 
-            var f = IshtarGC.AllocateImmortal<RuntimeIshtarField>();
-            var fieldName = IshtarGC.AllocateImmortal<RuntimeFieldName>();
+            var f = IshtarGC.AllocateImmortal<RuntimeIshtarField>(_selfReference);
+            var fieldName = IshtarGC.AllocateImmortal<RuntimeFieldName>(_selfReference);
 
-            *fieldName = new RuntimeFieldName(StringStorage.Intern(name));
+            *fieldName = new RuntimeFieldName(StringStorage.Intern(name, f));
             *f = new RuntimeIshtarField(_selfReference, fieldName, flags, type, f);
             Fields->Add(f);
             return f;
@@ -160,7 +163,7 @@ namespace ishtar
             if (exist is not null)
                 return exist;
 
-            var f = IshtarGC.AllocateImmortal<RuntimeIshtarField>();
+            var f = IshtarGC.AllocateImmortal<RuntimeIshtarField>(_selfReference);
             *f = new RuntimeIshtarField(_selfReference, name, flags, type, f);
             Fields->Add(f);
             return f;
@@ -168,7 +171,7 @@ namespace ishtar
 
         internal RuntimeIshtarMethod* DefineMethod(string name, RuntimeIshtarClass* returnType, MethodFlags flags, NativeList<RuntimeMethodArgument>* args)
         {
-            var method = IshtarGC.AllocateImmortal<RuntimeIshtarMethod>();
+            var method = IshtarGC.AllocateImmortal<RuntimeIshtarMethod>(_selfReference);
             *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, method, args);
             method->Assert(method);
             var exist = Methods->FirstOrNull(x =>
@@ -198,9 +201,9 @@ namespace ishtar
 
         internal RuntimeIshtarMethod* DefineMethod(string name, RuntimeIshtarClass* returnType, MethodFlags flags)
         {
-            var method = IshtarGC.AllocateImmortal<RuntimeIshtarMethod>();
+            var method = IshtarGC.AllocateImmortal<RuntimeIshtarMethod>(_selfReference);
 
-            *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, method, IshtarGC.AllocateList<RuntimeMethodArgument>());
+            *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, method, IshtarGC.AllocateList<RuntimeMethodArgument>(_selfReference));
 
             Methods->Add(method);
             return method;
@@ -241,7 +244,7 @@ namespace ishtar
         {
             if (is_inited) return;
 
-            var typeCtor = FindMethod("#type()");
+            var typeCtor = FindMethod("#type()", false);
             if (typeCtor is null)
                 typeCtor = DefineMethod("#type()", _selfReference, MethodFlags.Special | MethodFlags.Static);
             CallFrame* frame;
@@ -528,7 +531,7 @@ namespace ishtar
                 return true;
             });
 
-        public RuntimeIshtarMethod* FindMethod(string fullyName)
+        public RuntimeIshtarMethod* FindMethod(string fullyName, bool searchInParent = true)
         {
             var method = Methods
                 ->FirstOrNull(x => x->RawName.Equals(fullyName) || x->Name.Equals(fullyName));
@@ -537,6 +540,9 @@ namespace ishtar
                 return method;
 
             if (Parent is null)
+                return null;
+
+            if (!searchInParent)
                 return null;
 
             return Parent->FindMethod(fullyName);

@@ -109,13 +109,13 @@ namespace ishtar.runtime.gc
 
             foreach (var p in RefsHeap.ToArray())
             {
-                FreeObject((IshtarObject*)p, VM.Frames.GarbageCollector);
+                FreeObject((IshtarObject*)p, VM.Frames->GarbageCollector);
             }
             RefsHeap.Clear();
 
             foreach (var p in ArrayRefsHeap.ToArray())
             {
-                FreeArray((IshtarArray*)p, VM.Frames.GarbageCollector);
+                FreeArray((IshtarArray*)p, VM.Frames->GarbageCollector);
             }
             ArrayRefsHeap.Clear();
 
@@ -129,7 +129,7 @@ namespace ishtar.runtime.gc
 
             if (gcHeapUsage.pbytes_since_gc != 0)
             {
-                vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_bytes_requested is not zero ({Stats.total_bytes_requested})", VM.Frames.GarbageCollector);
+                vm.FastFail(WNE.MEMORY_LEAK, $"After clear all allocated memory, total_bytes_requested is not zero ({Stats.total_bytes_requested})", VM.Frames->GarbageCollector);
                 return;
             }
         }
@@ -163,7 +163,7 @@ namespace ishtar.runtime.gc
         public rawval* AllocRawValue(CallFrame* frame)
         {
             var allocator = allocatorPool.Rent<rawval>(out var p, AllocationKind.reference, frame);
-
+            
             Stats.total_allocations++;
             Stats.total_bytes_requested += allocator.TotalSize;
 
@@ -337,7 +337,7 @@ namespace ishtar.runtime.gc
             var p = (void**)gcLayout.alloc((uint)(size * sizeof(void*)));
 
             if (p is null)
-                vm.FastFail(WNE.TYPE_LOAD, "Out of memory.", vm.Frames.GarbageCollector);
+                vm.FastFail(WNE.TYPE_LOAD, "Out of memory.", vm.Frames->GarbageCollector);
             return p;
         }
 
@@ -490,7 +490,7 @@ namespace ishtar.runtime.gc
             var vm = o->clazz->Owner->vm;
             var gc = vm.GC;
 
-            var frame = vm.Frames.GarbageCollector;
+            var frame = vm.Frames->GarbageCollector;
 
             gc.ObjectRegisterFinalizer(o, null, frame);
 
@@ -577,24 +577,8 @@ namespace ishtar.runtime.gc
 
         #region internal
 
-#if BOEHM_GC
-        private static readonly AllocatorBlock _allocator = new()
-        {
-            alloc = &AllocateImmortal,
-            alloc_primitives = &AllocateImmortal,
-            free = &IshtarGC_Free,
-            realloc = &IshtarGC_Realloc
-        };
-#else
-        private static readonly AllocatorBlock _allocator = new()
-        {
-            alloc = &NativeMemory_AllocZeroed,
-            alloc_primitives = &NativeMemory_AllocZeroed,
-            free = &NativeMemory_Free,
-            realloc = &NativeMemory_Realloc
-        };
-#endif
-
+        private static AllocatorBlock CreateAllocatorWithParent(void* parent)  =>
+            new(parent, &IshtarGC_Free, &IshtarGC_Realloc, &AllocateImmortal, &AllocateImmortal);
 
         private static void* NativeMemory_AllocZeroed(uint size)
             => NativeMemory.AllocZeroed(size);
@@ -617,45 +601,45 @@ namespace ishtar.runtime.gc
             => (void*)BoehmGCLayout.Native.GC_realloc((nint)ptr, newBytes);
 
 
-        public static NativeList<T>* AllocateList<T>(int initialCapacity = 16) where T : unmanaged, IEq<T>
-            => NativeList<T>.Create(initialCapacity, _allocator);
+        public static NativeList<T>* AllocateList<T>(void* parent, int initialCapacity = 16) where T : unmanaged, IEq<T> 
+            => NativeList<T>.Create(initialCapacity, CreateAllocatorWithParent(parent));
 
 
         public static void FreeList<T>(NativeList<T>* list) where T : unmanaged, IEq<T>
-            => NativeList<T>.Free(list, _allocator);
+            => NativeList<T>.Free(list);
 
 
-        public static AtomicNativeList<T>* AllocateAtomicList<T>(int initialCapacity = 16)
+        public static AtomicNativeList<T>* AllocateAtomicList<T>(void* parent, int initialCapacity = 16) 
             where T : unmanaged, IEquatable<T>
-            => AtomicNativeList<T>.Create(initialCapacity, _allocator);
+            => AtomicNativeList<T>.Create(initialCapacity, CreateAllocatorWithParent(parent));
 
-        public static NativeDictionary<TKey, TValue>* AllocateDictionary<TKey, TValue>(int initialCapacity = 16)
+        public static NativeDictionary<TKey, TValue>* AllocateDictionary<TKey, TValue>(void* parent, int initialCapacity = 16) 
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
-            => NativeDictionary<TKey, TValue>.Create(initialCapacity, _allocator);
+            => NativeDictionary<TKey, TValue>.Create(initialCapacity, CreateAllocatorWithParent(parent));
 
-        public static AtomicNativeDictionary<TKey, TValue>* AllocateAtomicDictionary<TKey, TValue>(int initialCapacity = 16)
+        public static AtomicNativeDictionary<TKey, TValue>* AllocateAtomicDictionary<TKey, TValue>(void* parent, int initialCapacity = 16)
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged, IEquatable<TValue>
-            => AtomicNativeDictionary<TKey, TValue>.Create(initialCapacity, _allocator);
+            => AtomicNativeDictionary<TKey, TValue>.Create(initialCapacity, CreateAllocatorWithParent(parent));
 
         public static void FreeDictionary<TKey, TValue>(NativeDictionary<TKey, TValue>* list)
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
-            => NativeDictionary<TKey, TValue>.Free(list, _allocator);
+            => NativeDictionary<TKey, TValue>.Free(list);
 
-        public static NativeQueue<T>* AllocateQueue<T>(int initialCapacity = 16)
+        public static NativeQueue<T>* AllocateQueue<T>(void* parent, int initialCapacity = 16) 
             where T : unmanaged, IEq<T>
-            => NativeQueue<T>.Create(initialCapacity, _allocator);
+            => NativeQueue<T>.Create(initialCapacity, CreateAllocatorWithParent(parent));
 
         public static void FreeQueue<T>(NativeQueue<T>* queue) where T : unmanaged, IEq<T>
-            => NativeQueue<T>.Free(queue, _allocator);
+            => NativeQueue<T>.Free(queue);
 
 
-        public static NativeConcurrentDictionary<TKey, TValue>* AllocateConcurrentDictionary<TKey, TValue>(int initialCapacity = 16)
+        public static NativeConcurrentDictionary<TKey, TValue>* AllocateConcurrentDictionary<TKey, TValue>(void* parent, int initialCapacity = 16) 
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
-            => NativeConcurrentDictionary<TKey, TValue>.Create(initialCapacity, _allocator);
+            => NativeConcurrentDictionary<TKey, TValue>.Create(initialCapacity, CreateAllocatorWithParent(parent));
 
         public static void FreeConcurrentDictionary<TKey, TValue>(NativeConcurrentDictionary<TKey, TValue>* list)
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
-            => NativeConcurrentDictionary<TKey, TValue>.Free(list, _allocator);
+            => NativeConcurrentDictionary<TKey, TValue>.Free(list);
 
         public static void uv_replace_allocators()
         {
@@ -671,7 +655,7 @@ namespace ishtar.runtime.gc
             gcLayout.free(&p);
         }
 
-        public static T* AllocateImmortal<T>() where T : unmanaged
+        public static T* AllocateImmortal<T>(void* parent) where T : unmanaged 
         {
             //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
             var p = (T*)gcLayout.alloc_immortal((uint)sizeof(T));
@@ -679,7 +663,7 @@ namespace ishtar.runtime.gc
             return p;
         }
 
-        public static void* AllocateImmortal(uint size)
+        public static void* AllocateImmortal(uint size, void* parent)
         {
             //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
             var p = gcLayout.alloc_immortal(size);
@@ -689,7 +673,6 @@ namespace ishtar.runtime.gc
 
         public static T* AllocateImmortalRoot<T>() where T : unmanaged
         {
-            //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
             var t = (T*)gcLayout.alloc_immortal((uint)sizeof(T));
             gcLayout.add_roots(t, sizeof(T));
             return t;
@@ -701,7 +684,7 @@ namespace ishtar.runtime.gc
             gcLayout.free((void**)&ptr);
         }
 
-        public static T* AllocateImmortal<T>(int size) where T : unmanaged
+        public static T* AllocateImmortal<T>(int size, void* parent) where T : unmanaged
         {
             //return (T*)NativeMemory.AllocZeroed((uint)(sizeof(T) * size));
             var p = (T*)gcLayout.alloc_immortal((uint)(sizeof(T) * size));

@@ -27,13 +27,13 @@ unsafe
     {
         if (args.Length < 1)
         {
-            vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, "0x1 [module path is not passed]", vm.Frames.EntryPoint);
+            vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, "0x1 [module path is not passed]", vm.Frames->EntryPoint);
             return -1;
         }
         var entry = new FileInfo(args.First());
         if (!entry.Exists)
         {
-            vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"0x2 [{entry.FullName} is not found]", vm.Frames.EntryPoint);
+            vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"0x2 [{entry.FullName} is not found]", vm.Frames->EntryPoint);
             return -2;
         }
         vault.WorkDirectory = entry.Directory;
@@ -51,7 +51,7 @@ unsafe
 
     if (entry_point is null)
     {
-        vm.FastFail(WNE.MISSING_METHOD, $"Entry point in '{module->Name}' module is not defined.", vm.Frames.EntryPoint);
+        vm.FastFail(WNE.MISSING_METHOD, $"Entry point in '{module->Name}' module is not defined.", vm.Frames->EntryPoint);
         return -280;
     }
 

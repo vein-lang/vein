@@ -28,8 +28,9 @@ public unsafe struct NativeQueue<T> : IDisposable where T : unmanaged, IEq<T>
         return r;
     }
 
-    public static void Free(NativeQueue<T>* queue, AllocatorBlock allocator)
+    public static void Free(NativeQueue<T>* queue)
     {
+        var allocator = queue->_allocator;
         queue->Dispose();
         allocator.free(queue);
     }

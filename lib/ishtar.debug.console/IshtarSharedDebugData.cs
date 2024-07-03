@@ -180,7 +180,7 @@ public static class IshtarSharedDebugData
 
                 if (!isSignalled)
                 {
-                    Thread.Sleep(10);
+                    Thread.Yield();
                     continue;
                 }
 

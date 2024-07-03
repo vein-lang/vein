@@ -43,8 +43,9 @@ public unsafe struct NativeList<T> : IDisposable where T : unmanaged, IEq<T>
         return r;
     }
 
-    public static void Free(NativeList<T>* list, AllocatorBlock allocator)
+    public static void Free(NativeList<T>* list)
     {
+        var allocator = list->_allocator;
         list->Dispose();
         allocator.free(list);
     }

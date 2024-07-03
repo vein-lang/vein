@@ -60,7 +60,7 @@
     <ProjectReference Include="..\ishtar.vm.libuv\ishtar.vm.libuv.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
-    <ProjectReference Include="..\..\lib\ishtar.debug.console\ishtar.debug.console.csproj" />
+    <ProjectReference Include="..\..\lib\ishtar.debug.console\ishtar.debug.csproj" />
   </ItemGroup>
 
   <ItemGroup>
