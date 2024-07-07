@@ -13,6 +13,7 @@ public unsafe class ForeignFunctionInterface
     public readonly VirtualMachine vm;
     public NativeDictionary<ulong, RuntimeIshtarMethod>* methods { get; } 
     public Dictionary<string, ulong> method_table { get; } = new();
+    public AtomicNativeDictionary<ulong, PInvokeInfo>* deferMethods { get; }
 
     private ulong _index;
 
@@ -20,7 +21,17 @@ public unsafe class ForeignFunctionInterface
     {
         this.vm = vm;
         methods = IshtarGC.AllocateDictionary<ulong, RuntimeIshtarMethod>(vm.@ref);
+        deferMethods = IshtarGC.AllocateAtomicDictionary<ulong, PInvokeInfo>(vm.@ref);
         INIT();
+    }
+    public PInvokeInfo AsNative(delegate*<CallFrame*, IshtarObject**, IshtarObject*> p)
+    {
+        var result = new PInvokeInfo
+        {
+            isInternal = true,
+            compiled_func_ref = (nint)p,
+        };
+        return result;
     }
 
     private void INIT()
@@ -38,6 +49,7 @@ public unsafe class ForeignFunctionInterface
         //B_Field.InitTable(this);
         //B_Function.InitTable(this);
         //B_NAPI.InitTable(this);
+        B_Threading.InitTable(this);
     }
 
     public RuntimeIshtarMethod* Add(string name, MethodFlags flags, VeinTypeCode returnType, params (string name, VeinTypeCode type)[] args)
@@ -60,6 +72,13 @@ public unsafe class ForeignFunctionInterface
         method_table.Add(method->Name, _index);
         methods->Add(_index, method);
         return method;
+    }
+
+    public void Add(string fullName, PInvokeInfo nativeInfo)
+    {
+        _index++;
+        method_table.Add(fullName, _index);
+        deferMethods->Add(_index, nativeInfo);
     }
 
     [Conditional("STATIC_VALIDATE_IL")]
@@ -106,10 +125,22 @@ public unsafe class ForeignFunctionInterface
         VirtualMachine.Assert(@class->TypeCode == code, WNE.TYPE_MISMATCH, $"@class.{@class->TypeCode} == {code}", current);
     }
 
-    public RuntimeIshtarMethod* GetMethod(string FullName)
+    public void GetMethod(string FullName, out PInvokeInfo nativeHeader)
     {
         if (method_table.TryGetValue(FullName, out var idx))
-            return methods->Get(idx);
+        {
+            if (methods->ContainsKey(idx))
+            {
+                nativeHeader = methods->Get(idx)->PIInfo;
+                return;
+            }
+            else if (deferMethods->ContainsKey(idx))
+            {
+                nativeHeader = deferMethods->Get(idx);
+                return;
+            }
+        }
+        vm.FastFail(WNE.MISSING_METHOD, $"method '{FullName}' is not found", vm.Frames->NativeLoader);
         throw new EntryPointNotFoundException(FullName);
     }
 
@@ -127,9 +158,11 @@ public unsafe class ForeignFunctionInterface
 
     public void DisplayDefinedMapping()
     {
-        if (vm.Config.HasFlag(SysFlag.DISPLAY_FFI_MAPPING)) return;
+        if (vm.Config.HasFlag(SysFlag.DISPLAY_FFI_MAPPING))
+            return;
 
-        foreach (var (key, value) in method_table) vm.trace.println($"ffi map '{key}' -> 'sys::FFI/{(GetMethod(value))->Name}'");
+        foreach (var (key, value) in method_table)
+            vm.trace.println($"ffi map '{key}' -> 'sys::FFI/{(GetMethod(value))->Name}'");
     }
 }
 
