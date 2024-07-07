@@ -11,6 +11,28 @@ namespace ishtar.runtime.gc
     using static vein.runtime.VeinTypeCode;
     using vm.libuv;
 
+    // todo replace to libuv mutex
+    public struct GCSync(object guarder) : IDisposable
+    {
+        private bool lockTaken;
+
+        public static IDisposable Begin(object g) => new GCSync(g).begin();
+
+        private IDisposable begin()
+        {
+            Monitor.Enter(guarder, ref lockTaken);
+            return this;
+        }
+
+        public void Dispose()
+        {
+            if (lockTaken)
+            {
+                Monitor.Exit(guarder);
+            }
+        }
+    }
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void IshtarFinalizationProc(nint p, nint i);
 
@@ -136,17 +158,23 @@ namespace ishtar.runtime.gc
 
         private void InsertDebugData(AllocationDebugInfo info)
         {
+            using var _ = GCSync.Begin(this);
             allocationTreeDebugInfos.AddLast(info);
             allocationDebugInfos[info.pointer] = info;
             info.Bump();
         }
 
         private void DeleteDebugData(nint pointer)
-            => allocationTreeDebugInfos.Remove(allocationDebugInfos[pointer]);
+        {
+            using var _ = GCSync.Begin(this);
+            allocationTreeDebugInfos.Remove(allocationDebugInfos[pointer]);
+        }
 
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
         public stackval* AllocValue(CallFrame* frame)
         {
+            using var _ = GCSync.Begin(this);
+
             var allocator = allocatorPool.Rent<stackval>(out var p, AllocationKind.no_reference, frame);
 
             Stats.total_allocations++;
@@ -162,6 +190,8 @@ namespace ishtar.runtime.gc
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
         public rawval* AllocRawValue(CallFrame* frame)
         {
+            using var _ = GCSync.Begin(this);
+
             var allocator = allocatorPool.Rent<rawval>(out var p, AllocationKind.reference, frame);
             
             Stats.total_allocations++;
@@ -177,6 +207,8 @@ namespace ishtar.runtime.gc
 
         public stackval* AllocateStack(CallFrame* frame, int size)
         {
+            using var _ = GCSync.Begin(this);
+
             var allocator = allocatorPool.RentArray<stackval>(out var p, size, frame);
             vm.println($"Allocated stack '{size}' for '{frame->method->Name}'");
 
@@ -193,6 +225,8 @@ namespace ishtar.runtime.gc
 
         public void FreeStack(CallFrame* frame, stackval* stack, int size)
         {
+            using var _ = GCSync.Begin(this);
+
             ImmortalHeap.Remove((nint)stack);
             DeleteDebugData((nint)stack);
             Stats.total_allocations--;
@@ -201,6 +235,8 @@ namespace ishtar.runtime.gc
 
         public void UnsafeAllocValueInto(RuntimeIshtarClass* @class, stackval* pointer)
         {
+            using var _ = GCSync.Begin(this);
+
             if (!@class->IsPrimitive)
                 return;
             pointer->type = @class->TypeCode;
@@ -210,6 +246,8 @@ namespace ishtar.runtime.gc
         /// <exception cref="OutOfMemoryException">Allocating stackval of memory failed.</exception>
         public stackval* AllocValue(VeinClass @class, CallFrame* frame)
         {
+            using var _ = GCSync.Begin(this);
+
             if (!@class.IsPrimitive)
                 return null;
             var p = AllocValue(frame);
@@ -220,6 +258,8 @@ namespace ishtar.runtime.gc
 
         public void FreeRawValue(rawval* value)
         {
+            using var _ = GCSync.Begin(this);
+
             TemporaryHeap.Remove((nint)value);
             DeleteDebugData((nint)value);
             Stats.total_allocations--;
@@ -228,6 +268,8 @@ namespace ishtar.runtime.gc
 
         public void FreeValue(stackval* value)
         {
+            using var _ = GCSync.Begin(this);
+
             TemporaryHeap.Remove((nint)value);
             DeleteDebugData((nint)value);
             Stats.total_allocations--;
@@ -236,6 +278,8 @@ namespace ishtar.runtime.gc
 
         public void FreeArray(IshtarArray* array, CallFrame* frame)
         {
+            using var _ = GCSync.Begin(this);
+
             DeleteDebugData((nint)array);
             ArrayRefsHeap.Remove((nint)array);
             Stats.total_bytes_requested -= allocatorPool.Return(array);
@@ -245,6 +289,8 @@ namespace ishtar.runtime.gc
 
         public IshtarArray* AllocArray(RuntimeIshtarClass* @class, ulong size, byte rank, CallFrame* frame)
         {
+            using var _ = GCSync.Begin(this);
+
             if (!@class->is_inited)
                 throw new NotImplementedException();
 
@@ -343,6 +389,8 @@ namespace ishtar.runtime.gc
 
         public IshtarObject* AllocTypeInfoObject(RuntimeIshtarClass* @class, CallFrame* frame)
         {
+            using var _ = GCSync.Begin(this);
+
             if (!@class->is_inited)
                 throw new NotImplementedException();
 
@@ -372,6 +420,8 @@ namespace ishtar.runtime.gc
 
         public IshtarObject* AllocFieldInfoObject(RuntimeIshtarField* field, CallFrame* frame)
         {
+            using var _ = GCSync.Begin(this);
+
             var @class = field->Owner;
             if (!@class->is_inited)
                 throw new NotImplementedException();
@@ -407,6 +457,8 @@ namespace ishtar.runtime.gc
 
         public IshtarObject* AllocMethodInfoObject(RuntimeIshtarMethod* method, CallFrame* frame)
         {
+            using var _ = GCSync.Begin(this);
+
             var @class = method->Owner;
             if (!@class->is_inited)
                 throw new NotImplementedException();
@@ -442,6 +494,8 @@ namespace ishtar.runtime.gc
 
         public IshtarObject* AllocObject(RuntimeIshtarClass* @class, CallFrame* frame)
         {
+            using var _ = GCSync.Begin(this);
+
             var allocator = allocatorPool.Rent<IshtarObject>(out var p, AllocationKind.reference, frame);
 
             if (!@class->is_inited)
@@ -474,7 +528,7 @@ namespace ishtar.runtime.gc
         }
 
 
-        private static void _direct_finalizer(nint obj, nint _)
+        private static void _direct_finalizer(nint obj, nint __)
         {
             var o = (IshtarObject*)obj;
 
@@ -489,6 +543,8 @@ namespace ishtar.runtime.gc
 
             var vm = o->clazz->Owner->vm;
             var gc = vm.GC;
+
+            using var _ = GCSync.Begin(gc);
 
             var frame = vm.Frames->GarbageCollector;
 
@@ -521,6 +577,8 @@ namespace ishtar.runtime.gc
 
         public void FreeObject(IshtarObject* obj, CallFrame* frame)
         {
+            using var _ = GCSync.Begin(this);
+
             if (!obj->IsValidObject())
             {
                 VM.FastFail(WNE.STATE_CORRUPT, "trying free memory of invalid object", frame);
@@ -545,7 +603,11 @@ namespace ishtar.runtime.gc
         }
 
         public bool IsAlive(IshtarObject* obj)
-            => obj->IsValidObject() && gcLayout.is_marked(obj);
+        {
+            using var _ = GCSync.Begin(this);
+
+            return obj->IsValidObject() && gcLayout.is_marked(obj);
+        }
 
         public void ObjectRegisterFinalizer(IshtarObject* obj, delegate*<nint, nint, void> proc, CallFrame* frame)
         {
