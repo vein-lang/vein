@@ -291,7 +291,7 @@ namespace ishtar
                 }
             }
 
-            println($"@.frame> {invocation->method->Owner->Name}::{invocation->method->Name}");
+            println($".frame> {invocation->method->Owner->Name}::{invocation->method->Name}");
 
             var _module = invocation->method->Owner->Owner;
             var mh = invocation->method->Header;
@@ -357,7 +357,7 @@ namespace ishtar
             {
                 vm_cycle_start:
                 invocation->last_ip = (OpCodeValue)(ushort)*ip;
-                println($"@@.{invocation->last_ip} 0x{(nint)ip:X} [sp: {getStackLen()}]");
+                println($".{invocation->last_ip} 0x{(nint)ip:X} [sp: {getStackLen()}]");
 
                 if (!invocation->exception.IsDefault() && invocation->level == 0)
                     return;
@@ -630,7 +630,7 @@ namespace ishtar
                             var this_obj = (IshtarObject*)@this->data.p;
                             var target_class = this_obj->clazz;
 
-                            println($"@@@ STF -> {value->type} (to {field->Name})");
+                            println($".STF -> {value->type} (to {field->Name})");
 
                             if (value->type == TYPE_NULL)
                                 this_obj->vtable[field->vtable_offset] = null;
@@ -656,7 +656,7 @@ namespace ishtar
                             if (@this->type == TYPE_NONE)
                             {
                                 CallFrame.FillStackTrace(invocation);
-                                FastFail(STATE_CORRUPT, $"[LDF] invalid @this object loaded, TYPE_NONE, maybe corrupted IL code", invocation);
+                                FastFail(STATE_CORRUPT, $".LDF invalid @this object loaded, TYPE_NONE, maybe corrupted IL code", invocation);
                             }
 
                             if (@this->type == TYPE_NULL)
@@ -685,7 +685,7 @@ namespace ishtar
 
                             
                             ++ip;
-                            println($"@@@ LDF -> {sp->type} (from {field->Name})");
+                            println($".LDF -> {sp->type} (from {field->Name})");
                             ++sp;
                         }
                         break;
@@ -823,7 +823,7 @@ namespace ishtar
                         
 
                         var child_frame = invocation->CreateChild(method);
-                        println($"@@@ {method->Owner->Name}::{method->Name}");
+                        println($".call {method->Owner->Name}::{method->Name}");
                         var method_args = GC.AllocateStack(child_frame, method->ArgLength);
                         for (int i = 0, y = method->ArgLength - 1; i != method->ArgLength; i++, y--)
                         {
@@ -831,9 +831,9 @@ namespace ishtar
                             --sp;
 //#if DEBUG
 //                                if (_a->Type.IsGeneric)
-//                                    println($"@@@@<< {StringStorage.GetString(_a->Name, invocation)}: {StringStorage.GetString(_a->Type.TypeArg->Name, invocation)}");
+//                                    println($"@@@<< {StringStorage.GetString(_a->Name, invocation)}: {StringStorage.GetString(_a->Type.TypeArg->Name, invocation)}");
 //                                else
-//                                    println($"@@@@<< {StringStorage.GetString(_a->Name, invocation)}: {_a->Type.Class->FullName->NameWithNS}");
+//                                    println($"@@@<< {StringStorage.GetString(_a->Name, invocation)}: {_a->Type.Class->FullName->NameWithNS}");
                             
 //                                if (Config.CallOpCodeSkipValidateArgs)
 //                                {
@@ -867,7 +867,7 @@ namespace ishtar
 //                                }
 //#endif
 
-                            println($"@@@ {method->Owner->Name}::{method->Name} (argument {y} is {sp->type} type)");
+                            println($".arg {method->Owner->Name}::{method->Name} (argument {y} is {sp->type} type) sp: {getStackLen()}");
 
                             if (sp->type > TYPE_NULL)
                                 FastFail(STATE_CORRUPT, $"[call arg validation] trying fill corrupted argument [{y}/{method->ArgLength}] for [{method->Name}]", invocation);
@@ -903,7 +903,7 @@ namespace ishtar
                             child_frame->Dispose();
                             goto exception_handle;
                         }
-                        
+                        println($".call after {method->Owner->Name}::{method->Name}, sp: {getStackLen()}");
                         GC.FreeStack(child_frame, method_args, method->ArgLength);
                         child_frame->Dispose();
                         GC.Collect();
