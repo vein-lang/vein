@@ -2,7 +2,7 @@ namespace ishtar
 {
     using LLVMSharp.Interop;
 
-    public unsafe struct PInvokeInfo : IEqualityComparer<PInvokeInfo>
+    public unsafe struct PInvokeInfo : IEqualityComparer<PInvokeInfo>, IEquatable<PInvokeInfo>
     {
         public static PInvokeInfo Zero = default;
 
@@ -29,5 +29,11 @@ namespace ishtar
 
         public int GetHashCode(PInvokeInfo obj)
             => HashCode.Combine(obj.module_handle, obj.symbol_handle, obj.extern_function_declaration, obj.jitted_wrapper, obj.compiled_func_ref, obj.isInternal);
+
+        public bool Equals(PInvokeInfo other) => module_handle == other.module_handle && symbol_handle == other.symbol_handle && extern_function_declaration.Equals(other.extern_function_declaration) && jitted_wrapper.Equals(other.jitted_wrapper) && compiled_func_ref == other.compiled_func_ref && isInternal == other.isInternal;
+
+        public override bool Equals(object obj) => obj is PInvokeInfo other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(module_handle, symbol_handle, extern_function_declaration, jitted_wrapper, compiled_func_ref, isInternal);
     }
 }

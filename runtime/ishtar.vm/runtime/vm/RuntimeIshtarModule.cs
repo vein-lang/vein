@@ -826,26 +826,8 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     }
     private void LinkInternalNative(string name, RuntimeIshtarMethod* method)
     {
-        var m = vm.FFI.GetMethod(name);
-
-        if (m is null)
-        {
-            vm.FFI.DisplayDefinedMapping();
-            vm.FastFail(WNE.TYPE_LOAD,
-                method->RawName != name
-                    ? $"Extern '{method->Name} -> {name}' method not found in native mapping."
-                    : $"Extern '{method->Name}' method not found in native mapping.", sys_frame);
-            return;
-        }
-
-        //if (m->PIInfo is { Addr: null, iflags: 0 })
-        //{
-        //    vm.FastFail(WNE.TYPE_LOAD, $"Extern '{method->Name}' method has nul PIInfo", sys_frame);
-        //    vm.FFI.DisplayDefinedMapping();
-        //    return;
-        //}
-
-        method->PIInfo = m->PIInfo;
+        vm.FFI.GetMethod(name, out var header);
+        method->PIInfo = header;
     }
 
 
