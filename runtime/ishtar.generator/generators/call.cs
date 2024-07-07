@@ -40,6 +40,18 @@ public static class G_Call
             gen.EmitExpression(arg);
 
         gen.Emit(OpCodes.CALL, method);
+
+        if (method.ReturnType.IsGeneric)
+        {
+            if (invocation.NoReturn)
+                gen.Emit(OpCodes.POP);
+        }
+        else if (method.ReturnType.Class.TypeCode != VeinTypeCode.TYPE_VOID)
+        {
+            if (invocation.NoReturn)
+                gen.Emit(OpCodes.POP);
+        }
+
         return gen;
     }
 

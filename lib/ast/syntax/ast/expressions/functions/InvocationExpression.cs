@@ -9,6 +9,7 @@ public class InvocationExpression : ExpressionSyntax, IPositionAware<InvocationE
 {
     public ExpressionSyntax Name { get; set; }
     public ExpressionSyntax[] Arguments { get; set; }
+    public bool NoReturn { get; private set; }
 
     public InvocationExpression(ExpressionSyntax name, IOption<ExpressionSyntax[]> args)
         => (Name, this.Arguments) = (name, args?.GetOrEmpty()?.ToArray());
@@ -16,6 +17,12 @@ public class InvocationExpression : ExpressionSyntax, IPositionAware<InvocationE
     public new InvocationExpression SetPos(Position startPos, int length)
     {
         base.SetPos(startPos, length);
+        return this;
+    }
+
+    public InvocationExpression WithNoReturn()
+    {
+        NoReturn = true;
         return this;
     }
 

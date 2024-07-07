@@ -1,5 +1,6 @@
 namespace vein.syntax
 {
+    using System.Diagnostics;
     using Sprache;
     using stl;
 
@@ -8,10 +9,32 @@ namespace vein.syntax
         protected internal virtual Parser<StatementSyntax> Statement =>
             from statement in
                 declarationStatement.OrPreview(embedded_statement)
+                    .Select(UpdateInvocations)
                 .Commented(this)
             select statement.Value
                 .WithLeadingComments(statement.LeadingComments)
                 .WithTrailingComments(statement.TrailingComments);
+
+        // mark calling function no return
+        // even if the function returns something
+        // it is necessary that the stack is not trashed and there is a POP instruction in emitter
+        private StatementSyntax UpdateInvocations(StatementSyntax x)
+        {
+            if (x is not QualifiedExpressionStatement { Value: AccessExpressionSyntax access })
+                return x;
+            var invocation = DeepCollect(access);
+            invocation?.WithNoReturn();
+            return x;
+        }
+
+        private InvocationExpression? DeepCollect(AccessExpressionSyntax access)
+        {
+            if (access.Right is InvocationExpression inv)
+                return inv;
+            if (access.Right is AccessExpressionSyntax acc)
+                return DeepCollect(acc);
+            return null;
+        }
 
         protected internal virtual Parser<ExpressionSyntax> local_variable_initializer =>
             QualifiedExpression; // TODO array init
