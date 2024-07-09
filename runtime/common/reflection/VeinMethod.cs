@@ -53,6 +53,7 @@ namespace vein.runtime
         public int ArgLength => Arguments.Count;
 
         public override string ToString() => $"({Arguments.Where(NotThis).Select(x => $"{x.ToTemplateString()}").Join(',')}) -> {ReturnType.ToTemplateString()}";
+        public string ToFullString() => $"({Arguments.Select(x => $"{x.ToTemplateString()}").Join(',')}) -> {ReturnType.ToTemplateString()}";
 
 
         public static bool NotThis(VeinArgumentRef @ref) => !@ref.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
@@ -88,7 +89,12 @@ namespace vein.runtime
         }
 
 
-        public string ToTemplateString() => ToString();
+        public string ToTemplateString(bool hasThis = false)
+        {
+            if (hasThis)
+                return ToFullString();
+            return ToString();
+        }
     }
 
     public class VeinMethod : VeinMember, IAspectable
