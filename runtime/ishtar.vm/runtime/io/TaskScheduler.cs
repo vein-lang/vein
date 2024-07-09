@@ -37,6 +37,12 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
         // TODO
     }
 
+    public static void enqueue(CallFrame* method)
+    {
+        //uv_work_t t;
+        //uv_queue_work((nint)async_header, ref t)
+    }
+
     public static void on_async(nint handler)
     {
         var bw = (uv_async_t*)handler;
@@ -110,6 +116,6 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
         }
 
         entryModule->vm.threading
-            .CreateRawThread(entryModule, &execute_scheduler);
+            .CreateRawThread(entryModule, &execute_scheduler, "IshtarScheduler::&execute");
     }
 }
