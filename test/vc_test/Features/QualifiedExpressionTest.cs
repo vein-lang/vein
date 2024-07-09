@@ -26,6 +26,13 @@ public class QualifiedExpressionTest
     }
 
     [Test]
+    public void ReturnExp()
+    {
+        var result1 = VeinAst.Statement.ParseVein("return;");
+        var result2 = VeinAst.Statement.ParseVein("return 1;");
+    }
+
+    [Test]
     public void AccessMemberTest() => VeinAst.QualifiedExpression.End().ParseVein(@"44.foo");
 
     [Test]

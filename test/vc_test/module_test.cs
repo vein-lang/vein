@@ -35,7 +35,7 @@ namespace veinc_test
                 foreach (var method in type.Methods)
                 {
                     stl.InternString(method.Name);
-                    foreach (var argument in method.Arguments)
+                    foreach (var argument in method.Signature.Arguments)
                     {
                         stl.InternString(argument.Name);
                     }

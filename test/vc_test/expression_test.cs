@@ -28,7 +28,7 @@ namespace veinc_test
 
             var type = result.DetermineType(null);
 
-            Assert.AreEqual(VeinTypeCode.TYPE_I4, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_I4, type.Class.TypeCode);
         }
         [Test(Description = "((40 + 50) - 50)")]
         public void F01()
@@ -46,7 +46,7 @@ namespace veinc_test
 
             Console.WriteLine($"result: {result.ForceOptimization().ExpressionString}");
 
-            Assert.AreEqual(VeinTypeCode.TYPE_I4, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_I4, type.Class.TypeCode);
         }
         [Test(Description = "(((40 - (40 + 50)) / (40 + 50)) - ((40 - (40 + 50)) / (40 + 50)))")]
         public void F02()
@@ -64,7 +64,7 @@ namespace veinc_test
 
             var type = result.DetermineType(null);
 
-            Assert.AreEqual(VeinTypeCode.TYPE_I4, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_I4, type.Class.TypeCode);
         }
 
         [Test(Description = "(((40 - (40 + 50)) / (40 + 50)) && ((40 - (40 + 50)) / (40 + 50)))")]
@@ -83,7 +83,7 @@ namespace veinc_test
 
             var type = result.DetermineType(null);
 
-            Assert.AreEqual(VeinTypeCode.TYPE_BOOLEAN, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_BOOLEAN, type.Class.TypeCode);
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace veinc_test
 
             var type = result.DetermineType(null);
 
-            Assert.AreEqual(VeinTypeCode.TYPE_BOOLEAN, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_BOOLEAN, type.Class.TypeCode);
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace veinc_test
 
             var type = result.DetermineType(null);
 
-            Assert.AreEqual(VeinTypeCode.TYPE_I8, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_I8, type.Class.TypeCode);
         }
 
         [Test]
@@ -149,7 +149,7 @@ namespace veinc_test
 
             Assert.IsEmpty(genCtx.Errors);
 
-            Assert.AreEqual(VeinTypeCode.TYPE_VOID, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_VOID, type.Class.TypeCode);
         }
 
         [Test]
@@ -185,7 +185,7 @@ namespace veinc_test
 
             Assert.IsEmpty(genCtx.Errors);
 
-            Assert.AreEqual(VeinTypeCode.TYPE_I1, type.TypeCode);
+            Assert.AreEqual(VeinTypeCode.TYPE_I1, type.Class.TypeCode);
         }
     }
 }
