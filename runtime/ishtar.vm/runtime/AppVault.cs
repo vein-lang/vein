@@ -32,14 +32,15 @@ namespace ishtar
             Modules = IshtarGC.AllocateList<RuntimeIshtarModule>(vm.@ref);
         }
 
-        public RuntimeIshtarClass* GlobalFindType(RuntimeQualityTypeName* typeName)
+        // TODO optimization for module search (TypeName already contain module name)
+        public RuntimeIshtarClass* GlobalFindType(RuntimeQualityTypeName* typeName, bool findExternally = false, bool dropUnresolved = false)
         {
             using var enumerator = Modules->GetEnumerator();
 
             while (enumerator.MoveNext())
             {
                 var module = (RuntimeIshtarModule*)enumerator.Current;
-                var r = module->FindType(typeName, false, false);
+                var r = module->FindType(typeName, findExternally, dropUnresolved);
                 if (r->IsUnresolved)
                     continue;
                 return r;
@@ -48,6 +49,31 @@ namespace ishtar
             return null;
         }
 
+
+        public RuntimeQualityTypeName* GlobalFindTypeName(string name)
+        {
+            using var enumerator = Modules->GetEnumerator();
+
+            RuntimeQualityTypeName* target = null;
+
+            while (enumerator.MoveNext())
+            {
+                var module = (RuntimeIshtarModule*)enumerator.Current;
+
+                module->types_table->ForEach((x, y) =>
+                {
+                    if (target is not null)
+                        return;
+
+                    if (y->ToString().Equals(name)) target = y;
+                });
+
+                if (target is not null)
+                    return target;
+            }
+
+            return null;
+        }
 
         public RuntimeIshtarClass*[] GlobalFindType(string name)
             => throw new NotImplementedException();
