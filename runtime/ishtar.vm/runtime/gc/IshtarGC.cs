@@ -639,22 +639,8 @@ namespace ishtar.runtime.gc
         private static AllocatorBlock CreateAllocatorWithParent(void* parent)  =>
             new(parent, &IshtarGC_Free, &IshtarGC_Realloc, &AllocateImmortal, &AllocateImmortal);
 
-        private static void* NativeMemory_AllocZeroed(uint size)
-            => NativeMemory.AllocZeroed(size);
-
-        private static void* IshtarGC_Alloc(uint size)
-            => BoehmGCLayout.Native.GC_malloc(size);
-        private static void* IshtarGC_AtomicAlloc(uint size)
-            => BoehmGCLayout.Native.GC_malloc_atomic(size);
-
-        private static void NativeMemory_Free(void* ptr)
-            => NativeMemory.Free(ptr);
-
         private static void IshtarGC_Free(void* ptr)
             => BoehmGCLayout.Native.GC_free(ptr);
-
-        private static void* NativeMemory_Realloc(void* ptr, uint newBytes)
-            => NativeMemory.Realloc(ptr, newBytes);
 
         private static void* IshtarGC_Realloc(void* ptr, uint newBytes)
             => (void*)BoehmGCLayout.Native.GC_realloc((nint)ptr, newBytes);
@@ -716,7 +702,6 @@ namespace ishtar.runtime.gc
 
         public static T* AllocateImmortal<T>(void* parent) where T : unmanaged 
         {
-            //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
             var p = (T*)gcLayout.alloc_immortal((uint)sizeof(T));
             allocatedImmortals.Add((nint)p);
             return p;
@@ -724,7 +709,6 @@ namespace ishtar.runtime.gc
 
         public static void* AllocateImmortal(uint size, void* parent)
         {
-            //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
             var p = gcLayout.alloc_immortal(size);
             allocatedImmortals.Add((nint)p);
             return p;
@@ -745,7 +729,6 @@ namespace ishtar.runtime.gc
 
         public static T* AllocateImmortal<T>(int size, void* parent) where T : unmanaged
         {
-            //return (T*)NativeMemory.AllocZeroed((uint)(sizeof(T) * size));
             var p = (T*)gcLayout.alloc_immortal((uint)(sizeof(T) * size));
 
             allocatedImmortals.Add((nint)p);
@@ -755,7 +738,6 @@ namespace ishtar.runtime.gc
 
         public static T* AllocateImmortalRoot<T>(int size) where T : unmanaged
         {
-            //return (T*)NativeMemory.AllocZeroed((uint)sizeof(T));
             var t = (T*)gcLayout.alloc_immortal((uint)(sizeof(T) * size));
             gcLayout.add_roots(t, sizeof(T) * size);
             return t;
@@ -772,6 +754,7 @@ namespace ishtar.runtime.gc
         private static readonly Dictionary<nint, string> disposedImmortals = new();
         public static void FreeImmortal<T>(T* t) where T : unmanaged
         {
+            using var _ = GCSync.Begin(typeof(T));
             if (!gcLayout.isOwnerShip((void**)&t))
             {
                 Debug.WriteLine($"Trying free pointer without access");
