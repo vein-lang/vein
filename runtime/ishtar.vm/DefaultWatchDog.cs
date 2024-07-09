@@ -1,7 +1,5 @@
 namespace ishtar;
 
-
-using System;
 using System.Threading;
 
 [ExcludeFromCodeCoverage]

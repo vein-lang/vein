@@ -1,7 +1,5 @@
 namespace ishtar
 {
-    using System;
-
     [Flags]
     public enum GCFlags
     {

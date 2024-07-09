@@ -1,6 +1,6 @@
 namespace ishtar.collections;
 
-using static vm.libuv.LibUV;
+using static libuv.LibUV;
 
 public unsafe struct NativeConcurrentDictionary<TKey, TValue> where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
 {

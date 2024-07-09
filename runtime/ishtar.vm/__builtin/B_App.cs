@@ -1,6 +1,5 @@
 namespace ishtar
 {
-    using System.Runtime.InteropServices;
     using static vein.runtime.MethodFlags;
     using static vein.runtime.VeinTypeCode;
 

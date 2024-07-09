@@ -1,8 +1,5 @@
 namespace ishtar
 {
-    using System;
-    using System.Runtime.InteropServices;
-
     [StructLayout(LayoutKind.Explicit)]
     public unsafe struct stack_union
     {

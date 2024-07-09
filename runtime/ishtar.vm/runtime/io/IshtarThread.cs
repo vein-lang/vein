@@ -1,6 +1,7 @@
 namespace ishtar.io;
 
-using static vm.libuv.LibUV;
+using collections;
+using static libuv.LibUV;
 
 public readonly unsafe struct IshtarThread(
     uv_thread_t threadId,

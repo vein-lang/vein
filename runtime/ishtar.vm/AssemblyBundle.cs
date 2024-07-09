@@ -1,6 +1,5 @@
 namespace vein.runtime;
 
-using System.Diagnostics;
 using fs;
 
 public class AssemblyBundle

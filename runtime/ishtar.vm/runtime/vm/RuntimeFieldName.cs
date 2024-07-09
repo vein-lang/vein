@@ -1,6 +1,5 @@
 namespace ishtar.runtime;
 
-using System.Diagnostics;
 using vein.extensions;
 
 [DebuggerDisplay("{Class}.{Name}")]

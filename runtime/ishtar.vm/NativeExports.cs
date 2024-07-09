@@ -1,6 +1,5 @@
 namespace ishtar;
 
-using System.Runtime.InteropServices;
 using LLVMSharp.Interop;
 using vein.runtime;
 

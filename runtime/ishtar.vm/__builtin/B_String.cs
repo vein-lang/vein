@@ -1,6 +1,5 @@
 namespace ishtar
 {
-    using System;
     using static vein.runtime.MethodFlags;
     using static vein.runtime.VeinTypeCode;
 

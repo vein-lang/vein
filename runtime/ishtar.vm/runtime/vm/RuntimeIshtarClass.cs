@@ -1,7 +1,6 @@
 namespace ishtar
 {
     using runtime;
-    using System.Diagnostics;
     using System.Runtime.CompilerServices;
     using vein.collections;
     using vein.runtime;

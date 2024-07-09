@@ -1,6 +1,5 @@
 namespace ishtar;
 
-using System.Runtime.InteropServices;
 using collections;
 using runtime;
 using runtime.gc;

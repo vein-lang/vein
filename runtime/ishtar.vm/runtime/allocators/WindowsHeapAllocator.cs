@@ -1,7 +1,5 @@
 namespace ishtar.allocators;
 
-using System.Runtime.InteropServices;
-
 public sealed unsafe class WindowsHeapAllocator : IIshtarAllocator
 {
     public long TotalSize { get; private set; }

@@ -2,14 +2,11 @@ namespace ishtar
 {
     using emit;
     using io;
-    using ishtar.llmv;
+    using llmv;
     using ishtar.runtime.vin;
     using runtime;
     using runtime.gc;
-    using System;
-    using System.Diagnostics;
     using System.Runtime.CompilerServices;
-    using System.Runtime.InteropServices;
     using debug;
     using vein.extensions;
     using vein.runtime;

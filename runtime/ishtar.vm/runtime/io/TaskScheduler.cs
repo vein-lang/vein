@@ -5,7 +5,7 @@ using runtime.gc;
 using System.Threading;
 using vein.runtime;
 using static VirtualMachine;
-using static vm.libuv.LibUV;
+using static libuv.LibUV;
 
 public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
 {

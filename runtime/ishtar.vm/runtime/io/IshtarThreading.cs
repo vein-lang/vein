@@ -1,8 +1,9 @@
 namespace ishtar.io;
 
+using collections;
 using runtime;
 using runtime.gc;
-using vm.libuv;
+using libuv;
 
 public unsafe struct IshtarThreading
 {

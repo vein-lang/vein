@@ -1,8 +1,6 @@
 namespace ishtar
 {
-    using System.Diagnostics;
     using collections;
-    using System.Runtime.InteropServices;
     using vein.runtime;
 
     [StructLayout(LayoutKind.Explicit)]

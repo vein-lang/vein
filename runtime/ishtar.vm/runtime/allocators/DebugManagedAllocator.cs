@@ -1,7 +1,6 @@
 namespace ishtar.allocators;
 
 using System.Reflection.Metadata;
-using System.Runtime.InteropServices;
 
 public sealed unsafe class DebugManagedAllocator : IIshtarAllocator
 {

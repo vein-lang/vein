@@ -1,6 +1,5 @@
 namespace ishtar
 {
-    using System;
     using runtime.gc;
     using runtime;
     using vein.runtime;
@@ -439,9 +438,6 @@ namespace ishtar
 
             return val;
         }
-
-
-
 
 
         public static IshtarObject* Boxing(CallFrame* frame, stackval* p)

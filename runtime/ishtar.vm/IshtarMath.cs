@@ -5,7 +5,6 @@
 namespace ishtar;
 
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 public static class IshtarMath
 {

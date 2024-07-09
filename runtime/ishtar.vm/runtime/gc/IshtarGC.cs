@@ -2,14 +2,11 @@ namespace ishtar.runtime.gc
 {
     using allocators;
     using ishtar;
-    using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Runtime.InteropServices;
     using collections;
     using vein.runtime;
     using static vein.runtime.VeinTypeCode;
-    using vm.libuv;
+    using libuv;
 
     // todo replace to libuv mutex
     public struct GCSync(object guarder) : IDisposable

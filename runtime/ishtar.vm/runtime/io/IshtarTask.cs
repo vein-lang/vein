@@ -2,7 +2,7 @@ namespace ishtar.io;
 
 using collections;
 using runtime.gc;
-using vm.libuv;
+using libuv;
 
 public readonly unsafe struct IshtarTask(CallFrame* frame, ulong index) : IEq<IshtarTask>, IDisposable
 {

@@ -1,6 +1,7 @@
 namespace ishtar;
 
-using System.Diagnostics;
+using System.Text;
+using runtime;
 
 internal struct IshtarTrace()
 {

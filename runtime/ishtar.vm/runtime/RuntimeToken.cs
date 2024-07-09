@@ -1,7 +1,5 @@
 namespace ishtar
 {
-    using System.Runtime.InteropServices;
-
     /// <summary>
     ///  RuntimeToken:
     ///     0xFFFF_____FFFF

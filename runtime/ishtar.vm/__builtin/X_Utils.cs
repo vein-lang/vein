@@ -1,6 +1,5 @@
 namespace ishtar;
 
-using System.Diagnostics;
 using static vein.runtime.MethodFlags;
 public static unsafe class X_Utils
 {

@@ -1,7 +1,5 @@
 namespace ishtar
 {
-    using System;
-
     public unsafe struct IshtarArray : IEquatable<IshtarArray>
     {
         public IshtarArray() {  }

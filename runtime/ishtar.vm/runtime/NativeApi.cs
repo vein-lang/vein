@@ -1,7 +1,5 @@
 namespace ishtar;
 
-using System.Runtime.InteropServices;
-
 internal unsafe static class NativeApi
 {
     #if LINUX

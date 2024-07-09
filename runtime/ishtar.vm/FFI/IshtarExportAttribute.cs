@@ -1,7 +1,5 @@
 namespace ishtar
 {
-    using System;
-
     [AttributeUsage(AttributeTargets.Method)]
     [ExcludeFromCodeCoverage]
     public class IshtarExportAttribute : Attribute
