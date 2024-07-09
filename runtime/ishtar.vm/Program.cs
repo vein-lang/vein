@@ -11,7 +11,11 @@ unsafe
 
     var vm = VirtualMachine.Create("app");
     var vault = vm.Vault;
-    
+
+#if DEBUG
+    Thread.CurrentThread.Name = $"ishtar::entry";
+#endif
+
     var masterModule = default(IshtarAssembly);
     var resolver = default(AssemblyResolver);
 
@@ -58,10 +62,19 @@ unsafe
     var frame = CallFrame.Create(entry_point, null);
     frame->args = args_;
 
-
     var watcher = Stopwatch.StartNew();
 
-    entry_point->ForceSetAsAsync();
+    //var debugModules = new DirectoryInfo("./modules");
+
+    //if (!debugModules.Exists)
+    //    debugModules.Create();
+
+    //IshtarSharedDebugData.DumpToFile(new FileInfo($"./modules/{module->Name}.module"), IshtarTrace.Dump(module));
+
+    //module->deps_table->ForEach(x =>
+    //{
+    //    IshtarSharedDebugData.DumpToFile(new FileInfo($"./modules/{x->Name}.module"), IshtarTrace.Dump(x));
+    //});
 
     vm.task_scheduler->start_threading(module);
     vm.task_scheduler->execute_method(frame);

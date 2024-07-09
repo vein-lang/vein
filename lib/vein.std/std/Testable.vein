@@ -4,15 +4,51 @@
 public class Testable
 {
     public static master(): Void
-        |> abobus(&delMethod);
-
-    public static delMethod(i: i32): Void {
-        Out.print("calling delegate delMethod");
-        Out.print(i);
+    {
+        auto c1 = Thread.Create(&cycle1);
+        auto c2 = Thread.Create(&cycle2);
+        auto c3 = Thread.Create(&cycle3);
+        while(true) {
+            Thread.Sleep(5000);
+            c1.Start();
+            Thread.Sleep(6000);
+            c2.Start();
+            c2.Join();
+            Out.print("FAILED JOIN");
+            Thread.Sleep(6000);
+            return;
+        }
+    }
+    public static cycle1(): void {
+        while(true) {
+            Out.print("cycle1");
+            Thread.Sleep(5000);
+        }
     }
 
-    public static abobus(fn: testMethod): Void 
-        |> fn(255);
-}
+    public static test(): void {
+        return;
+    }
 
-global alias testMethod <| (i: i32): Void;
+    public static cycle2(): void {
+        auto i = 0;
+        while(true) {
+            i = i + 1;
+
+            if (i > 3)
+            {
+                return;
+            }
+            Out.print("cycle2");
+            Thread.Sleep(5000);
+        }
+    }
+
+    public static cycle3(): void {
+        while(true) {
+            Out.print("cycle3");
+            Thread.Sleep(2000);
+        }
+    }
+
+}

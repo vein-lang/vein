@@ -61,7 +61,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar.vm.libuv", "runtime\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.std", "lib\vein.std\vein.std.csproj", "{4630487E-D9EA-4B62-A677-B8F0CDB3831F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ishtar.debug", "lib\ishtar.debug.console\ishtar.debug.csproj", "{17D286DB-1DF3-4280-8852-CED37FF50006}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar.debug", "lib\ishtar.debug.console\ishtar.debug.csproj", "{17D286DB-1DF3-4280-8852-CED37FF50006}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
