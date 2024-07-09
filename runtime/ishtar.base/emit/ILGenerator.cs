@@ -476,7 +476,7 @@ namespace ishtar.emit
             if (_labels[loc.Value] != -1)
                 throw new UndefinedLabelException();
             _labels[loc.Value] = _position;
-            DebugAppendLine($"/* defined-label id: 0x{loc.Value:X}, offset: 0x{_position:X} [{loc.Name}] */");
+            DebugAppendLine($"/* ::{_position:0000}  defined-label id: 0x{loc.Value:X}, offset: 0x{_position:X} [{loc.Name}] */");
         }
         /// <summary>
         /// Get labels positions.

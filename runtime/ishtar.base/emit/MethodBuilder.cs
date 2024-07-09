@@ -70,7 +70,7 @@ public class MethodBuilder : VeinMethod, IBaker
     public string BakeDebugString()
     {
         var str = new StringBuilder();
-        var args = Signature.ToTemplateString();
+        var args = Signature.ToTemplateString(true);
         if (Flags.HasFlag(Extern))
         {
             if (Signature.IsGeneric)
