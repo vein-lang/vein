@@ -670,6 +670,8 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         @class->Flags |= flags;
 
+        if (@class->TypeCode == VeinTypeCode.TYPE_NONE)
+            @class->TypeCode = VeinTypeCode.TYPE_CLASS;
 
         var len = binary.ReadInt32();
         var methods = new List<byte[]>();
