@@ -93,7 +93,6 @@ namespace vein.syntax
 
         protected internal virtual Parser<StatementSyntax> simple_embedded_statement =>
             Parse.Char(';').Token().Return((StatementSyntax)new EmptyStatementSyntax())
-            .Or(QualifiedExpression.Then(x => Parse.Char(';').Token().Return(new QualifiedExpressionStatement(x))).Positioned())
             .Or(IfStatement.Positioned())
             .Or(WhileStatement.Positioned())
             .Or(TryStatement.Positioned())
@@ -101,7 +100,9 @@ namespace vein.syntax
             .Or(for_statement.Positioned())
             .Or(foreach_statement.Positioned())
             .Or(FailStatement.Positioned())
-            .Or(DeleteStatement.Positioned());
+            .Or(DeleteStatement.Positioned())
+            .Or(QualifiedExpression.Then(x => Parse.Char(';').Token()
+                .Return(new QualifiedExpressionStatement(x))).Positioned());
 
 
         /// <example>
@@ -110,6 +111,11 @@ namespace vein.syntax
         protected internal virtual Parser<ReturnStatementSyntax> ReturnStatement =>
             from expression in KeywordExpressionStatement("return")
             select new ReturnStatementSyntax(expression.GetOrDefault());
+
+        protected internal virtual Parser<ReturnStatementSyntax> ReturnEmptyStatement =>
+            from _ in KeywordExpression("return").Token()
+                .Then(x => Parse.Char(';').Token().Return(x))
+            select new ReturnStatementSyntax(null);
 
         /// <example>
         /// fail new Exception(); fail;
