@@ -80,7 +80,7 @@ namespace ishtar
             vm.FFI = new ForeignFunctionInterface(vm);
             vm.@ref->Jitter = new LLVMContext();
 
-            vm.@ref->threading = new IshtarThreading();
+            vm.@ref->threading = new IshtarThreading(vm);
 
             vm.@ref->task_scheduler = vm.threading.CreateScheduler(vm);
             
@@ -107,7 +107,8 @@ namespace ishtar
 
         public RuntimeIshtarMethod* GetOrCreateSpecialMethod(string name)
         {
-            var exist = InternalClass->FindMethod(name, x => x->Name.Contains(name));
+            var exist = InternalClass->FindMethod(name,
+                x => x->Name.Contains(name));
 
             if (exist is not null)
                 return exist;
@@ -234,6 +235,11 @@ namespace ishtar
 
             if (frame->method->ReturnType->TypeCode == TYPE_VOID)
                 return;
+            if (frame->method->ReturnType->TypeCode == TYPE_NONE)
+            {
+                FastFail(STATE_CORRUPT, $"[exec_method_internal_native] ReturnValue from {frame->method->Name} has incorrect", frame);
+                return;
+            }
             frame->returnValue = stackval.Allocate(frame, 1);
             frame->returnValue.Ref->type = frame->method->ReturnType->TypeCode;
             frame->returnValue.Ref->data.p = (nint)result;
@@ -263,13 +269,10 @@ namespace ishtar
         }
         private bool assert_violation_zone_writes(CallFrame* frame, SmartPointer<stackval> stack, int size)
         {
-            for (int i = 0; i < size; i++)
+            for (int i = 0; i < size; i++) if (stack[i].type != (VeinTypeCode)int.MaxValue || stack[i].data.l != long.MaxValue)
             {
-                if (stack[i].type != (VeinTypeCode)int.MaxValue || stack[i].data.l != long.MaxValue)
-                {
-                    FastFail(STATE_CORRUPT, "stack write to an violation zone has been detected, ", frame);
-                    return false;
-                }
+                FastFail(STATE_CORRUPT, "stack write to an violation zone has been detected, ", frame);
+                return false;
             }
             return true;
         }
@@ -884,7 +887,8 @@ namespace ishtar
                         {
                             invocation->assert(!child_frame->returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
                             *sp = child_frame->returnValue[0];
-
+                            Assert(sp->type != TYPE_NONE, STATE_CORRUPT, "returnValue from child frame is bad", child_frame);
+                            Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, "returnValue from child frame is bad", child_frame);
                             child_frame->returnValue.Dispose();
 
                             sp++;
@@ -1309,6 +1313,8 @@ namespace ishtar
                     case STLOC_3:
                     case STLOC_4:
                         --sp;
+                        Assert(sp->type != TYPE_NONE, STATE_CORRUPT, $"{invocation->last_ip}", invocation);
+                        Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, $"{invocation->last_ip}", invocation);
                         locals[(*ip) - (int)STLOC_0] = *sp;
                         println($"stage to locals ({sp->type})");
                         ++ip;
@@ -1316,6 +1322,8 @@ namespace ishtar
                     case STLOC_S:
                         ++ip;
                         --sp;
+                        Assert(sp->type != TYPE_NONE, STATE_CORRUPT, "STLOC_S", invocation);
+                        Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, "STLOC_S", invocation);
                         locals[(*ip)] = *sp;
                         ++ip;
                         break;
@@ -1363,11 +1371,7 @@ namespace ishtar
 
 
                 continue;
-
-
             exception_handle:
-
-
                 void fill_frame_exception()
                 {
                     if (invocation->exception.last_ip is null)
@@ -1451,7 +1455,7 @@ namespace ishtar
                 return;
             if (frame is null)
                 return;
-            frame->vm.FastFail(type, $"static assert failed: '{msg}'", frame);
+            frame->vm.FastFail(type, $"static assert failed: {msg}", frame);
         }
 
         public static void GlobalPrintln(string empty) {}
