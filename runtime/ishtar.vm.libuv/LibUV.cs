@@ -1,6 +1,7 @@
-namespace ishtar.vm.libuv;
+namespace ishtar.libuv;
 
 using System.Runtime.InteropServices;
+using static ishtar.libuv.LibUV;
 
 
 public static unsafe class LibUV
@@ -10,8 +11,10 @@ public static unsafe class LibUV
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern int uv_thread_create(out uv_thread_t tid, uv_thread_cb entry, IntPtr arg);
 
-    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int uv_thread_join(uv_thread_t tid);
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl, PreserveSig = true)]
+    public static extern int uv_thread_join([In]in uv_thread_t tid);
+
+    //
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern nint uv_loop_new();
@@ -75,6 +78,9 @@ public static unsafe class LibUV
     public static extern int uv_sem_init(out uv_sem_t sem, int value);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_sleep(uint msec);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern void uv_sem_post(ref uv_sem_t sem);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
@@ -98,12 +104,15 @@ public static unsafe class LibUV
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern int uv_replace_allocator(uv_alloc_cb alloc, uv_free_cb free);
 
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int uv_cancel(uv_work_t* req);
+
     public delegate void uv_async_cb(nint handle);
     public delegate void uv_close_cb(nint handle);
     public delegate void uv_timer_cb(nint handle);
     public delegate void uv_thread_cb(nint arg);
-    public delegate void uv_after_work_cb(nint req, int status);
-    public delegate void uv_work_cb(nint req);
+    public delegate void uv_after_work_cb(uv_work_t* req, int status);
+    public delegate void uv_work_cb(uv_work_t* req);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate nint uv_alloc_cb(nint size, nint align, nint zero_fill);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -125,27 +134,32 @@ public static unsafe class LibUV
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_thread_t
     {
-        private nint handle;
+        public nint handle;
+
+        public override string ToString() => $"[threadId 0x{handle:X}]";
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_sem_t
     {
-        private nint handle;
+        public nint handle;
+        public override string ToString() => $"[semId 0x{handle:X}]";
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_work_t
     {
-        private nint handle;
+        public nint handle;
+        public override string ToString() => $"[workId 0x{handle:X}]";
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_mutex_t
     {
         private nint handle;
+        public override string ToString() => $"[mutexId 0x{handle:X}]";
     }
-    
+
     public struct uv_buf_t
     {
         private readonly IntPtr _field0;
