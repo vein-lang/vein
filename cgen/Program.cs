@@ -55,7 +55,7 @@ writer.WriteLine("#ifndef ISHTAR_H");
 writer.WriteLine("#define ISHTAR_H");
 
 writer.WriteLine("");
-writer.WriteLine($"#define ISHTAR_VERSION \"{GlobalVersion.FullSemVer}\"");
+writer.WriteLine($"#define ISHTAR_VERSION \"{GlobalVersion.InformationalVersion}\"");
 writer.WriteLine($"#define ISHTAR_VERSION_MAJOR {GlobalVersion.Major}");
 writer.WriteLine($"#define ISHTAR_VERSION_MINOR {GlobalVersion.Minor}");
 writer.WriteLine($"#define ISHTAR_VERSION_PATH {GlobalVersion.Patch}");
