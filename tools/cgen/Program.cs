@@ -2,13 +2,14 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using ishtar;
+using ishtar.io;
 using lang.c;
 using LLVMSharp.Interop;
 using vein;
 using vein.runtime;
 using static ishtar.libuv.LibUV;
 
-using var writer = new StreamWriter("../../../../include/ishtar.h");
+using var writer = new StreamWriter("../../../../../include/ishtar.h");
 
 var asm = typeof(VirtualMachine).Assembly;
 
@@ -73,7 +74,7 @@ writer.WriteLine("#include <stdint.h>");
 writer.WriteLine("");
 
 
-writer.WriteLine("typedef struct decimal_t { uint64_t h; uint64_t l; };");
+writer.WriteLine("typedef struct decimal_t { uint64_t h; uint64_t l; } decimal_t;");
 writer.WriteLine("typedef uint16_t half_t;");
 
 GenerateEnumDeclarations(asm, writer);
@@ -182,15 +183,20 @@ static void GenerateEnum(Type enumType, StreamWriter streamWriter)
     var underlyingType = enumType.ToCType(false);
     streamWriter.WriteLine($"typedef enum {underlyingType} {{");
 
+    var prefix = "";
+    if (enumType.GetCustomAttributes(typeof(CEnumPrefix), false).FirstOrDefault() is CEnumPrefix exportType)
+        prefix = exportType.Name;
+
     var enumValues = Enum.GetValues(enumType).Cast<Enum>();
     foreach (var value in enumValues)
     {
         var name = value.ToString();
+
         var intValue = Convert.ChangeType(value, Enum.GetUnderlyingType(enumType));
-        streamWriter.WriteLine($"    {ToSnakeCase(name.ToLowerInvariant()).ToUpperInvariant()} = {intValue},");
+        streamWriter.WriteLine($"    {prefix}{ToSnakeCase(name.ToLowerInvariant()).ToUpperInvariant()} = {intValue},");
     }
 
-    streamWriter.WriteLine($"}};");
+    streamWriter.WriteLine($"}} {underlyingType};");
     streamWriter.WriteLine("");
 }
 static void GenerateStruct(Type type, StreamWriter streamWriter)

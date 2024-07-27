@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,9 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\lib\capi\capi.csproj" />
-    <ProjectReference Include="..\lib\version\version.csproj" />
-    <ProjectReference Include="..\runtime\ishtar.vm\ishtar.vm.csproj" />
+    <ProjectReference Include="..\..\lib\capi\capi.csproj" />
+    <ProjectReference Include="..\..\lib\version\version.csproj" />
+    <ProjectReference Include="..\..\runtime\ishtar.vm\ishtar.vm.csproj" />
   </ItemGroup>
-
 </Project>

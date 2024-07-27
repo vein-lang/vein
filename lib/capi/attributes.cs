@@ -14,6 +14,12 @@ public class CHeaderExport(string name) : Attribute
 }
 
 
+[AttributeUsage(AttributeTargets.Enum)]
+public class CEnumPrefix(string name) : Attribute
+{
+    public string Name { get; } = name;
+}
+
 [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Enum)]
 public class CTypeExport(string name) : Attribute
 {
