@@ -10,37 +10,33 @@ using MoreLinq;
 using syntax;
 using static Spectre.Console.AnsiConsole;
 
+public class CompilationState
+{
+    public Queue<CompilationEventData> warnings { get; } = new();
+    public Queue<CompilationEventData> errors { get; } = new();
+    public Queue<CompilationEventData> infos { get; } = new();
+}
+
+
 [ExcludeFromCodeCoverage]
 public static class Log
 {
-    public static Queue<string> warnings { get; } = new();
-    public static Queue<string> errors { get; } = new();
-    public static Queue<string> infos { get; } = new();
+    public static CompilationState State = new CompilationState();
 
     public static class Defer
     {
-        public static void Warn(string text) => _print(text, null, null, warnings);
-        public static void Warn(string text, BaseSyntax posed) => _print(text, posed, null, warnings);
         public static void Warn(string text, BaseSyntax posed, DocumentDeclaration doc)
-            => _print(text, posed, doc.FileEntity, warnings);
-
-        public static void Error(string text) => _print(text, null, null, errors);
-        public static void Error(string text, BaseSyntax posed) => _print(text, posed, null, errors);
+            => _print(text, posed, doc, State.warnings);
         public static void Error(string text, BaseSyntax posed, DocumentDeclaration doc)
-            => _print(text, posed, doc.FileEntity, errors);
-        public static void Error(string text, BaseSyntax posed, FileInfo doc)
-            => _print(text, posed, doc, errors);
-
-        public static void Info(string text) => _print(text, null, null, infos);
-        public static void Info(string text, BaseSyntax posed) => _print(text, posed, null, infos);
+            => _print(text, posed, doc, State.errors);
         public static void Info(string text, BaseSyntax posed, DocumentDeclaration doc)
-            => _print(text, posed, doc.FileEntity, infos);
+            => _print(text, posed, doc, State.infos);
 
     }
 
-    public static void EnqueueErrorsRange(IEnumerable<string> s) => s.Pipe(x => errors.Enqueue(x)).Consume();
-    public static void EnqueueInfosRange(IEnumerable<string> s) => s.Pipe(x => infos.Enqueue(x)).Consume();
-    public static void EnqueueWarnsRange(IEnumerable<string> s) => s.Pipe(x => warnings.Enqueue(x)).Consume();
+    public static void EnqueueErrorsRange(IEnumerable<CompilationEventData> s) => s.Pipe(x => State.errors.Enqueue(x)).Consume();
+    public static void EnqueueInfosRange(IEnumerable<CompilationEventData> s) => s.Pipe(x => State.infos.Enqueue(x)).Consume();
+    public static void EnqueueWarnsRange(IEnumerable<CompilationEventData> s) => s.Pipe(x => State.warnings.Enqueue(x)).Consume();
 
 
     public static void Info(string s) => MarkupLine($"[aqua]INFO[/]: {s}");
@@ -52,11 +48,11 @@ public static class Log
     public static void Warn(string s, CompilationTarget t) => t.Logs.Warn.Enqueue($"[orange]WARN[/]: {s}");
     public static void Error(string s, CompilationTarget t) => t.Logs.Error.Enqueue($"[red]ERROR[/]: {s}");
 
-    private static void _print(string text, BaseSyntax posed, FileInfo doc, Queue<string> queue)
+    private static void _print(string text, BaseSyntax posed, DocumentDeclaration doc, Queue<CompilationEventData> queue)
     {
         if (posed is { Transform: null })
         {
-            errors.Enqueue($"INTERNAL ERROR: TOKEN '{posed.GetType().Name}' HAS INCORRECT TRANSFORM POSITION.");
+            State.errors.Enqueue(new CompilationEventData(doc, posed, text));
             return;
         }
 
@@ -84,6 +80,6 @@ public static class Log
             strBuilder.Append($"\t\t{diff_err}");
         }
 
-        queue.Enqueue(strBuilder.ToString());
+        queue.Enqueue(new CompilationEventData(doc, posed, strBuilder.ToString()));
     }
 }

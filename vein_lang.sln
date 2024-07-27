@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31808.319
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "veinc", "compiler\veinc.csproj", "{19465565-2DA2-44B1-B150-5A4BBFF575D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "veinc", "tools\compiler\veinc.csproj", "{19465565-2DA2-44B1-B150-5A4BBFF575D5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "veinc_test", "test\vc_test\veinc_test.csproj", "{8759A35D-DA78-4577-ACE0-E575CC744652}"
 EndProject
@@ -25,8 +25,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{2A92D5A1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar_test", "test\ishtar_test\ishtar_test.csproj", "{6394F865-DD02-4610-B817-5A243862D20A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5AF546C3-347F-4595-9CA9-3DE286DBC585}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{95745037-9902-4EFA-83A6-0E43669EF927}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -45,13 +43,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.ast.v2", "lib\vein.ast
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spectre.Console", "lib\spectre.console\src\Spectre.Console\Spectre.Console.csproj", "{EB9D2288-BF49-4A04-844C-8876AB8C1169}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "installer", "installer\installer.csproj", "{FC4BE8B9-A2F1-4946-932D-7D950C933383}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "installer", "tools\installer\installer.csproj", "{FC4BE8B9-A2F1-4946-932D-7D950C933383}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "version", "lib\version\version.csproj", "{36BF3DCA-0A2B-438B-A3B2-FE5321A07EC7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "metadata", "metadata\metadata.csproj", "{080A5AF3-60E2-449A-A080-CCB650012CCE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sample_native_library", "tests\sample_native_library\sample_native_library.csproj", "{B0FFFF8B-7C90-4427-8A1A-5F34E4D61F57}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sample_native_library", "test\sample_native_library\sample_native_library.csproj", "{B0FFFF8B-7C90-4427-8A1A-5F34E4D61F57}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spectre.Console.Cli", "lib\spectre.console\src\Spectre.Console.Cli\Spectre.Console.Cli.csproj", "{B929FCEA-CC44-4673-A1E0-90522693F42A}"
 EndProject
@@ -62,6 +60,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.std", "lib\vein.std\vein.std.csproj", "{4630487E-D9EA-4B62-A677-B8F0CDB3831F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ishtar.debug", "lib\ishtar.debug.console\ishtar.debug.csproj", "{17D286DB-1DF3-4280-8852-CED37FF50006}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "lsp", "tools\lsp\lsp.csproj", "{B613E22C-F0BC-45AC-8794-ADB3A21A1147}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "capi", "lib\capi\capi.csproj", "{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "cgen", "tools\cgen\cgen.csproj", "{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -313,6 +317,42 @@ Global
 		{17D286DB-1DF3-4280-8852-CED37FF50006}.Release|x64.Build.0 = Release|Any CPU
 		{17D286DB-1DF3-4280-8852-CED37FF50006}.Release|x86.ActiveCfg = Release|Any CPU
 		{17D286DB-1DF3-4280-8852-CED37FF50006}.Release|x86.Build.0 = Release|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Debug|x64.Build.0 = Debug|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Debug|x86.Build.0 = Debug|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Release|x64.ActiveCfg = Release|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Release|x64.Build.0 = Release|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Release|x86.ActiveCfg = Release|Any CPU
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147}.Release|x86.Build.0 = Release|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Debug|x64.Build.0 = Debug|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Debug|x86.Build.0 = Debug|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Release|x64.ActiveCfg = Release|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Release|x64.Build.0 = Release|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Release|x86.ActiveCfg = Release|Any CPU
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F}.Release|x86.Build.0 = Release|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Debug|x64.Build.0 = Debug|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Debug|x86.Build.0 = Debug|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Release|x64.ActiveCfg = Release|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Release|x64.Build.0 = Release|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Release|x86.ActiveCfg = Release|Any CPU
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -338,6 +378,9 @@ Global
 		{3E9D576A-C96E-407F-8112-E0D15F11322A} = {F1A3DE9B-263D-4F44-9A88-9ED37E9A9330}
 		{4630487E-D9EA-4B62-A677-B8F0CDB3831F} = {B79D9C1A-8074-4105-8447-93A5A059A2CB}
 		{17D286DB-1DF3-4280-8852-CED37FF50006} = {B79D9C1A-8074-4105-8447-93A5A059A2CB}
+		{B613E22C-F0BC-45AC-8794-ADB3A21A1147} = {2A92D5A1-53AF-4E15-816C-3E64E2FAC9E4}
+		{26BCC2BB-2DF2-40C4-ADE2-E4720FB5AB3F} = {B79D9C1A-8074-4105-8447-93A5A059A2CB}
+		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8} = {2A92D5A1-53AF-4E15-816C-3E64E2FAC9E4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2BB3994-6F65-4E41-BA44-6258F00A3A28}

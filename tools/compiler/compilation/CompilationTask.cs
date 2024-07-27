@@ -30,13 +30,13 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
     internal readonly CompileSettings _flags = flags;
     internal readonly VeinSyntax syntax = new();
     internal readonly Dictionary<FileInfo, string> Sources = new ();
-    internal ProgressTask Status;
+    internal IProgressionTask Status;
     internal ProgressContext StatusCtx;
     internal VeinModuleBuilder module;
     internal GeneratorContext Context;
     internal List<VeinArtifact> artifacts { get; } = new();
 
-    private readonly Dictionary<IdentifierExpression, VeinClass> KnowClasses = new ();
+    private readonly Dictionary<QualityTypeName, VeinClass> KnowClasses = new ();
 
     private static string PleaseReportProblemInto()
         => $"Please report the problem into 'https://github.com/vein-lang/vein/issues'.";
@@ -55,8 +55,10 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
     
     public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info, ProgressContext context, CompileSettings settings)
     {
+        var progression = new ClassicCompilationProgressionTask(context, context.AddTask("Collect projects"));
+
         var collection =
-            Collect(info, context.AddTask("Collect projects"), context, settings);
+            Collect(info, progression, settings);
         var list = new List<VeinModule>();
         var shardStorage = new ShardStorage();
 
@@ -104,18 +106,10 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
             task.StopTask();
         });
 
-        Parallel.ForEachAsync(collection, async (target, token) =>
+        foreach (var target in collection)
         {
-            while (!token.IsCancellationRequested)
-            {
-                if (target.Dependencies.Any(x => x.Status == CompilationStatus.NotStarted))
-                    await Task.Delay(200, token);
-                else
-                    break;
-            }
-
             if (target.Dependencies.Any(x => x.Status == CompilationStatus.Failed))
-                return;
+                continue;
             target.Dependencies
                 .SelectMany(x => x.Artifacts)
                 .OfType<BinaryArtifact>()
@@ -139,7 +133,44 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
             if (status is CompilationStatus.Success)
                 target.AcceptArtifacts(c.artifacts.AsReadOnly());
             target.Status = status;
-        }).Wait();
+        }
+
+        //Parallel.ForEachAsync(collection, async (target, token) =>
+        //{
+        //    while (!token.IsCancellationRequested)
+        //    {
+        //        if (target.Dependencies.Any(x => x.Status == CompilationStatus.NotStarted))
+        //            await Task.Delay(200, token);
+        //        else
+        //            break;
+        //    }
+
+        //    if (target.Dependencies.Any(x => x.Status == CompilationStatus.Failed))
+        //        return;
+        //    target.Dependencies
+        //        .SelectMany(x => x.Artifacts)
+        //        .OfType<BinaryArtifact>()
+        //        .Select(x => target.Resolver.ResolveDep(x, list))
+        //        .Pipe(list.Add)
+        //        .Consume();
+
+        //    target.LoadedModules.AddRange(list);
+
+        //    var c = new CompilationTask(target, settings)
+        //    {
+        //        StatusCtx = context,
+        //        Status = target.Task
+        //    };
+
+        //    var status = c.ProcessFiles(target.Project.Sources, target.LoadedModules)
+        //        ? CompilationStatus.Success
+        //        : CompilationStatus.Failed;
+        //    if (status is CompilationStatus.Success)
+        //        PipelineRunner.Run(c, target);
+        //    if (status is CompilationStatus.Success)
+        //        target.AcceptArtifacts(c.artifacts.AsReadOnly());
+        //    target.Status = status;
+        //}).Wait();
 
         return collection;
     }
@@ -193,12 +224,22 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
                 result.FileEntity = key;
                 result.SourceText = value;
                 // apply root namespace into includes
-                result.Includes.Add($"{result.Name}");
+                result.Includes.Add(new NamespaceSymbol(result.Name));
                 Target.AST.Add(key, result);
             }
             catch (VeinParseException e)
             {
-                Log.Defer.Error($"[red bold]{e.Message.Trim().EscapeMarkup()}[/]", e.AstItem, key);
+                Log.Defer.Error($"[red bold]{e.Message.Trim().EscapeMarkup()}[/]", e.AstItem, new DocumentDeclaration()
+                {
+                    Aspects = new List<AspectDeclarationSyntax>(),
+                    Members = new List<MemberDeclarationSyntax>(),
+                    Aliases = new List<AliasSyntax>(),
+                    Directives = new List<DirectiveSyntax>(),
+                    FileEntity = key,
+                    Includes = { },
+                    SourceText = value,
+                    _line_offsets = Array.Empty<int>(),
+                });
                 read_task.FailTask();
                 return false;
             }
@@ -208,12 +249,12 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
 
         Context = new(new(_flags.DisableOptimization));
 
-        module = new(Project.Name, Project.Version.Version, Types.Storage);
+        module = new(new ModuleNameSymbol(Project.Name), Project.Version.Version, Types.Storage);
 
         Context.Module = module;
         Context.Module.Deps.AddRange(deps);
 
-        Status.IsIndeterminate();
+        Status.IsIndeterminate(true);
 
         try
         {
@@ -244,8 +285,10 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
         }
         catch (SkipStatementException) { }
 
+        
+
         Log.EnqueueErrorsRange(Context.Errors);
-        if (Log.errors.Count == 0)
+        if (Log.State.errors.Count == 0)
             Status.VeinStatus($"Result assembly [orange]'{module.Name}, {module.Version}'[/].");
         if (_flags.PrintResultType)
         {
@@ -257,8 +300,8 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
             AnsiConsole.Write(table);
         }
         Status.Increment(100);
-        if (Log.errors.Count == 0)
+        if (Log.State.errors.Count == 0)
             Cache.SaveAssets(asset);
-        return Log.errors.Count == 0;
+        return Log.State.errors.Count == 0;
     }
 }

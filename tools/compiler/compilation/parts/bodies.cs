@@ -4,6 +4,7 @@ using ishtar;
 using System;
 using System.Linq;
 using ishtar.emit;
+using runtime;
 using Spectre.Console;
 using vein.syntax;
 using static runtime.VeinTypeCode;
@@ -37,7 +38,7 @@ public partial class CompilationTask
     {
         if (block is null)
             return;
-        Status.VeinStatus($"Emitting [gray]'{method.Owner.FullName}:{method.Name}'[/]");
+        Status.VeinStatus($"Emitting [gray]'{method.Owner.FullName.ToString().EscapeMarkup()}:{method.Name.EscapeMarkup()}'[/]");
         foreach (var pr in block.Statements.SelectMany(x => x.ChildNodes.Concat(new[] { x })))
             AnalyzeStatement(pr, doc);
 

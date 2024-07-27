@@ -4,9 +4,8 @@ using ishtar.emit;
 using System.Collections.Generic;
 using ishtar;
 using Spectre.Console;
-using vein.runtime;
-using vein.syntax;
-using static runtime.VeinTypeCode;
+using runtime;
+using syntax;
 
 public partial class CompilationTask
 {
@@ -163,19 +162,24 @@ public partial class CompilationTask
     public (MethodBuilder method, MethodDeclarationSyntax syntax)
         CompileMethod(MethodDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
     {
-        var retType = member.ReturnType.IsSelf ? clazz :
-             FetchType(member.ReturnType, doc);
+        VeinComplexType retType = member.ReturnType.IsSelf ? clazz :
+            FetchType(clazz, member.ReturnType, doc);
         member.OwnerDocument = doc;
+
         if (retType is null)
             return default;
 
-        var args = GenerateArgument(member, doc);
+        var args = GenerateArgument(clazz, member, doc);
 
         if (member.IsConstructor())
         {
             member.Identifier = new IdentifierExpression(VeinMethod.METHOD_NAME_CONSTRUCTOR);
             if (args.Length == 0)
-                return (clazz.GetDefaultCtor() as MethodBuilder, member);
+            {
+                if (clazz.GetDefaultCtor() is MethodBuilder ctorBuilder)
+                    return (ctorBuilder, member);
+                throw new InvalidOperationException();
+            }
             var ctor = clazz.DefineMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, GenerateMethodFlags(member), clazz, args);
             CompileAspectFor(member, doc, ctor);
             return (ctor, member);
@@ -184,10 +188,10 @@ public partial class CompilationTask
         var method = clazz.DefineMethod(member.Identifier.ExpressionString, GenerateMethodFlags(member), retType, args);
         
         if (clazz.IsInterface)
-        {
-            method.Flags |= MethodFlags.Abstract;
-            method.Flags |= MethodFlags.Public;
-        }
+            method.Flags |= MethodFlags.Abstract | MethodFlags.Public;
+
+        if (retType.IsGeneric || args.Any(x => x.IsGeneric))
+            method.Flags |= MethodFlags.Generic;
 
         CompileAspectFor(member, doc, method);
 

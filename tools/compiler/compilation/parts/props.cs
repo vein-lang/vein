@@ -12,7 +12,7 @@ public partial class CompilationTask
     {
         var propType = member.Type.IsSelf ?
             clazz :
-            FetchType(member.Type, doc);
+            FetchType(clazz, member.Type, doc);
 
         if (propType is null)
         {

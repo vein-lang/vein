@@ -1,6 +1,0 @@
-<project sdk="default">
-    <target>helloworld</target>
-    <packages>
-        <ref name="corlib, 1.0.0.0"/>
-    </packages>
-</project>

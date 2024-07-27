@@ -130,7 +130,8 @@ public partial class CompilationTask
     {
         var fieldType = member.Type.IsSelf ?
             clazz :
-            FetchType(member.Type, doc);
+            FetchType(clazz, member.Type, doc);
+
 
         if (fieldType is null)
             return default;
@@ -144,7 +145,7 @@ public partial class CompilationTask
                 name = value.Value;
             else
             {
-                Log.Defer.Error($"Invalid argument expression", exp);
+                Log.Defer.Error($"Invalid argument expression", exp, doc);
                 throw new SkipStatementException();
             }
         }
@@ -173,12 +174,12 @@ public partial class CompilationTask
         {
             if (field.FieldType.IsGeneric)
             {
-                Log.errors.Enqueue(
-                    $"[red bold]Cannot implicitly convert generic type[/] " +
-                    $"'[purple underline]{literal.GetTypeCode().AsClass()(Types.Storage).Name}[/]' to " +
-                    $"'[purple underline]{field.FieldType.ToTemplateString()}[/]'.\n\t" +
-                    $"at '[orange bold]{literal.Transform.pos.Line} line, {literal.Transform.pos.Column} column[/]' \n\t" +
-                    $"in '[orange bold]{doc.FileEntity}[/]'.");
+                Log.State.errors.Enqueue(new CompilationEventData(t.member.OwnerDocument, t.member,
+                    $"""
+                     [red bold]Cannot implicitly convert generic type[/] '[purple underline]{literal.GetTypeCode().AsClass()(Types.Storage).Name}[/]' to '[purple underline]{field.FieldType.ToTemplateString()}[/]'.
+                     	at '[orange bold]{literal.Transform.pos.Line} line, {literal.Transform.pos.Column} column[/]'
+                     	in '[orange bold]{doc.FileEntity}[/]'.
+                     """));
                 return;
             }
 
@@ -192,25 +193,23 @@ public partial class CompilationTask
                     //var variable = member.Type.Identifier;
                     //var variable1 = field.FieldType.TypeCode;
 
-                    Log.errors.Enqueue(
-                        $"[red bold]Cannot implicitly convert type[/] " +
-                        $"'[purple underline]{numeric.GetTypeCode().AsClass()(Types.Storage).Name}[/]' to " +
-                        $"'[purple underline]{field.FieldType.ToTemplateString()}[/]'.\n\t" +
-                        $"at '[orange bold]{numeric.Transform.pos.Line} line, {numeric.Transform.pos.Column} column[/]' \n\t" +
-                        $"in '[orange bold]{doc.FileEntity}[/]'." +
-                        $"{diff_err}");
+                    Log.State.errors.Enqueue(new CompilationEventData(t.member.OwnerDocument, numeric,
+                        $"""
+                         [red bold]Cannot implicitly convert type[/] '[purple underline]{numeric.GetTypeCode().AsClass()(Types.Storage).Name}[/]' to '[purple underline]{field.FieldType.ToTemplateString()}[/]'.
+                         	at '[orange bold]{numeric.Transform.pos.Line} line, {numeric.Transform.pos.Column} column[/]'
+                         	in '[orange bold]{doc.FileEntity}[/]'.{diff_err}
+                         """));
                 }
             }
             else if (literal.GetTypeCode() != field.FieldType.Class.TypeCode)
             {
                 var diff_err = literal.Transform.DiffErrorFull(doc);
-                Log.errors.Enqueue(
-                    $"[red bold]Cannot implicitly convert type[/] " +
-                    $"'[purple underline]{literal.GetTypeCode().AsClass()(Types.Storage).Name}[/]' to " +
-                    $"'[purple underline]{member.Type.Identifier}[/]'.\n\t" +
-                    $"at '[orange bold]{literal.Transform.pos.Line} line, {literal.Transform.pos.Column} column[/]' \n\t" +
-                    $"in '[orange bold]{doc.FileEntity}[/]'." +
-                    $"{diff_err}");
+                Log.State.errors.Enqueue(new CompilationEventData(t.member.OwnerDocument, literal,
+                    $"""
+                     [red bold]Cannot implicitly convert type[/] '[purple underline]{literal.GetTypeCode().AsClass()(Types.Storage).Name}[/]' to '[purple underline]{member.Type.Identifier}[/]'.
+                     	at '[orange bold]{literal.Transform.pos.Line} line, {literal.Transform.pos.Column} column[/]'
+                     	in '[orange bold]{doc.FileEntity}[/]'.{diff_err}
+                     """));
             }
         }
 
@@ -218,14 +217,15 @@ public partial class CompilationTask
         {
             var assigner = member.Field.Expression;
 
-            if (assigner is NewExpressionSyntax)
+            if (assigner is NewExpressionSyntax @new)
             {
                 var diff_err = assigner.Transform.DiffErrorFull(doc);
-                Log.errors.Enqueue(
-                    $"[red bold]The expression being assigned to[/] '[purple underline]{member.Field.Identifier}[/]' [red bold]must be constant[/]. \n\t" +
-                    $"at '[orange bold]{assigner.Transform.pos.Line} line, {assigner.Transform.pos.Column} column[/]' \n\t" +
-                    $"in '[orange bold]{doc.FileEntity}[/]'." +
-                    $"{diff_err}");
+                Log.State.errors.Enqueue(new CompilationEventData(t.member.OwnerDocument, @new,
+                    $"""
+                     [red bold]The expression being assigned to[/] '[purple underline]{member.Field.Identifier}[/]' [red bold]must be constant[/].
+                     	at '[orange bold]{assigner.Transform.pos.Line} line, {assigner.Transform.pos.Column} column[/]'
+                     	in '[orange bold]{doc.FileEntity}[/]'.{diff_err}
+                     """));
                 return;
             }
 

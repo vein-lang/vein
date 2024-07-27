@@ -21,24 +21,24 @@ public partial class CompilationTask
             $"{syntax.Name}Aspect";
         var includes = doc.Includes;
 
-        var aspect = this.module.FindType(name, includes, false);
+        var aspect = this.module.FindType(new NameSymbol(name), includes, false);
 
         if (aspect is null)
             return null;
 
-        return new Aspect(aspect.Name, AspectTarget.Class);
+        return new Aspect(aspect.Name.name, AspectTarget.Class);
     }
     public ClassBuilder CompileAspect(AspectDeclarationSyntax member, DocumentDeclaration doc)
     {
         var name = member.Identifier.ExpressionString.EndsWith("Aspect")
-            ? $"{doc.Name}/{member.Identifier.ExpressionString}"
-            : $"{doc.Name}/{member.Identifier.ExpressionString}Aspect";
+            ? $"{member.Identifier.ExpressionString}"
+            : $"{member.Identifier.ExpressionString}Aspect";
 
-        var clazz = module.DefineClass(name)
+        var clazz = module.DefineClass(new NameSymbol(name), new NamespaceSymbol(doc.Name))
             .WithIncludes(doc.Includes);
 
         clazz.Flags |= ClassFlags.Public; // temporary all aspect has public
-        clazz.Flags |= ClassFlags.Aspect; // indicate when it class is a aspect
+        clazz.Flags |= ClassFlags.Aspect; // indicate when its class is an aspect
 
         clazz.Parents.Clear(); // remove Object ref
         clazz.Parents.Add(Types.Storage.AspectClass);

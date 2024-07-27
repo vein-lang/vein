@@ -3,12 +3,13 @@ namespace vein.compilation;
 using System.Collections.Generic;
 using System.Linq;
 using ishtar;
+using ishtar.emit;
 using runtime;
 using syntax;
 
 public partial class CompilationTask
 {
-    private VeinArgumentRef[] GenerateArgument(MethodDeclarationSyntax method, DocumentDeclaration doc)
+    private VeinArgumentRef[] GenerateArgument(ClassBuilder clazz, MethodDeclarationSyntax method, DocumentDeclaration doc)
     {
         var args = new List<VeinArgumentRef>();
         var reserved = method.Parameters.FirstOrDefault(x => $"{x.Identifier}".Equals(VeinArgumentRef.THIS_ARGUMENT));
@@ -22,19 +23,19 @@ public partial class CompilationTask
         if (!method.IsMethodType) // check method has linked to class, otherwise it is an anonymous method type
         {
             if (method.Modifiers.All(x => x.ModificatorKind != ModificatorKind.Static))
-                args.Add(new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, FetchType(method.OwnerClass.Identifier, doc)));
+                args.Add(new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, module.FindType(new NameSymbol(method.OwnerClass!.Identifier), doc.Includes)));
         }
         
 
         if (method.Parameters.Count == 0)
             return args.ToArray();
         
-        return args.Concat(Convert(method.Parameters, method)).ToArray();
+        return args.Concat(Convert(clazz, method.Parameters, method)).ToArray();
     }
 
-    private IEnumerable<VeinArgumentRef> Convert(List<ParameterSyntax> args, MethodDeclarationSyntax method)
+    private IEnumerable<VeinArgumentRef> Convert(ClassBuilder clazz, List<ParameterSyntax> args, MethodDeclarationSyntax method)
     {
-        VeinClass selector(TypeExpression exp) => FetchType(exp.Typeword, method.OwnerDocument);
+        VeinClass selector(TypeExpression exp) => FetchType(clazz, exp.Typeword, method.OwnerDocument);
 
         foreach (var parameter in args)
         {
@@ -65,9 +66,9 @@ public partial class CompilationTask
                 else if (classGeneric is not null)
                     yield return new VeinArgumentRef(name, classGeneric.Typeword.ToTypeArg([]));
                 else if (parameter.Type.IsSelf)
-                    yield return new VeinArgumentRef(name, FetchType(method.OwnerClass.Identifier, method.OwnerDocument));
+                    yield return new VeinArgumentRef(name, module.FindType(new NameSymbol(method.OwnerClass.Identifier), method.OwnerDocument.Includes));
                 else
-                    yield return new VeinArgumentRef(name, FetchType(parameter.Type, method.OwnerDocument));
+                    yield return new VeinArgumentRef(name, FetchType(clazz, parameter.Type, method.OwnerDocument));
             }
             else
             {
@@ -82,7 +83,7 @@ public partial class CompilationTask
                     throw new SkipStatementException();
                 }
                 else
-                    yield return new VeinArgumentRef(name, FetchType(parameter.Type, method.OwnerDocument));
+                    yield return new VeinArgumentRef(name, FetchType(clazz, parameter.Type, method.OwnerDocument));
             }
         }
     }
