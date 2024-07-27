@@ -14,6 +14,9 @@ using static Spectre.Console.AnsiConsole;
 using vein.json;
 using vein.resources;
 using static vein.GlobalVersion;
+
+
+
 [assembly: InternalsVisibleTo("veinc_test")]
 
 if (Environment.GetEnvironmentVariable("NO_CONSOLE") is not null)
@@ -88,23 +91,27 @@ app.Configure(config =>
         .WithDescription("Restore dependencies in project.");
     config.AddCommand<AddCommand>("add")
         .WithDescription("Find and add package into project from registry")
-        .WithExample(new string[] { "add std@0.12.1" });
+        .WithExample(["add std@0.12.1"]);
     config.AddCommand<PublishCommand>("publish")
-        .WithDescription("Publish shard package into vein gallery. (need set 'packable: true' in project or call 'veinc package')")
-        .WithExample(new string[] { "--project ./foo.vproj" });
+        .WithDescription("Publish shard package into vein gallery. (need set 'packable: true' in project or call 'vein package')")
+        .WithExample(["--project ./foo.vproj"]);
     config.AddBranch("config", x =>
     {
         x.AddCommand<SetConfigCommand>("set")
-            .WithExample(new string[] { "set foo:bar value" })
-            .WithExample(new string[] { "set foo:zoo 'a sample value'" })
+            .WithExample(["set foo:bar value"])
+            .WithExample(["set foo:zoo 'a sample value'"])
             .WithDescription("Set value config by key in global storage.");
         x.AddCommand<GetConfigCommand>("get")
-            .WithExample(new string[1] { "get foo:bar" })
+            .WithExample(["get foo:bar"])
             .WithDescription("Get value config by key from global storage.");
         x.AddCommand<ListConfigCommand>("list")
             .WithDescription("Get all keys.");
         x.AddCommand<RemoveConfigCommand>("remove")
             .WithDescription("Remove key from global config.");
+    });
+
+    config.SetExceptionHandler((ex) => {
+        WriteException(ex);
     });
 });
 

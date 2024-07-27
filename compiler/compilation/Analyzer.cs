@@ -14,9 +14,12 @@ public partial class CompilationTask
         var pos = statement.Transform.pos;
         var e = transition.Error;
         var diff_err = statement.Transform.DiffErrorFull(doc);
-        Log.errors.Enqueue($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
-                           $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
-                           $"in '[orange bold]{doc.FileEntity}[/]'." +
-                           $"{diff_err}");
+
+        Log.State.errors.Enqueue(new CompilationEventData(doc, statement,
+            $"""
+             [red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/]
+             	at '[orange bold]{pos.Line} line, {pos.Column} column[/]'
+             	in '[orange bold]{doc.FileEntity}[/]'.{diff_err}
+             """));
     }
 }

@@ -131,36 +131,41 @@ namespace vein.cmd
 
             foreach (var info in targets.SelectMany(x => x.Logs.Info))
                 MarkupLine(info.TrimEnd('\n'));
-            foreach (var info in Log.infos.Reverse())
-                MarkupLine(info.TrimEnd('\n'));
+            foreach (var info in Log.State.infos.Reverse())
+                MarkupLine(info.Markup().TrimEnd('\n'));
 
-            if (new[] { Log.errors.Count, targets.Sum(x => x.Logs.Error.Count) }.Sum() > 0)
+            if (new[] { Log.State.errors.Count, targets.Sum(x => x.Logs.Error.Count) }.Sum() > 0)
             {
-                var rule1 = new Rule($"[yellow]{Log.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
+                var rule1 = new Rule($"[yellow]{Log.State.errors.Count} error found[/]") {Style = Style.Parse("red rapidblink")};
                 Write(rule1);
             }
 
             foreach (var target in targets.SelectMany(x => x.Logs.Error))
                 MarkupLine(target);
 
-            foreach (var error in Log.errors.Reverse())
-                MarkupLine(error);
-
-            if (new[] { Log.warnings.Count, targets.Sum(x => x.Logs.Warn.Count) }.Sum() > 0)
+            foreach (var error in Log.State.errors.Reverse())
             {
-                var rule2 = new Rule($"[yellow]{Log.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
+                MarkupLine(error.Markup());
+                #if DEBUG
+                WriteException(error.DebugStackTrace);
+                #endif
+            }
+
+            if (new[] { Log.State.warnings.Count, targets.Sum(x => x.Logs.Warn.Count) }.Sum() > 0)
+            {
+                var rule2 = new Rule($"[yellow]{Log.State.warnings.Count} warning found[/]") {Style = Style.Parse("orange rapidblink")};
                 Write(rule2);
             }
 
             foreach (var warn in targets.SelectMany(x => x.Logs.Warn))
                 MarkupLine(warn);
-            foreach (var warn in Log.warnings.Reverse())
-                MarkupLine(warn);
+            foreach (var warn in Log.State.warnings.Reverse())
+                MarkupLine(warn.Markup());
 
-            if (!Log.warnings.Any() && !Log.errors.Any())
+            if (!Log.State.warnings.Any() && !Log.State.errors.Any())
                 MarkupLine($"\n");
 
-            if (new[] { Log.errors.Count, targets.Sum(x => x.Logs.Error.Count) }.Sum() > 0)
+            if (new[] { Log.State.errors.Count, targets.Sum(x => x.Logs.Error.Count) }.Sum() > 0)
             {
                 var rule3 = new Rule($"[red bold]COMPILATION FAILED[/]") {Style = Style.Parse("lime rapidblink")};
                 Write(rule3);
