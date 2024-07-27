@@ -271,19 +271,18 @@ A:
 
 
 ```
-## Special Thanks
 
-<!-- <p align="center">
+<!-- ## Special Thanks <p align="center">
   <a href="https://www.jetbrains.com/?from=vein_lang">
     <img height="128" wight="128" src="https://raw.githubusercontent.com/vein-lang/vein/master/.github/images/jetbrains-variant-3.png">
   </a>
 </p> -->
 
-<p align="center">
+<!-- <p align="center">
   <a href="https://vercel.com/?utm_source=[team-name]&utm_campaign=oss">
     <img src="https://raw.githubusercontent.com/vein-lang/vein/master/.github/powered-by-vercel.svg">
   </a>
-</p>
+</p>-->
 
 ## License
 
@@ -291,12 +290,3 @@ Vein Lang is primarily distributed under the terms of both the MIT license and t
 with portions covered by various BSD-like licenses.
 
 Check LICENSE files for more information.
-
-## Support
-<p align="center">
-   <a href="https://ko-fi.com/P5P7YFY5">
-    <img src="https://www.ko-fi.com/img/githubbutton_sm.svg">
-  </a>
-</p>
-
-
