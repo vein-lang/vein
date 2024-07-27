@@ -116,7 +116,7 @@ namespace ishtar_test
             _veinModule = veinModule;
             _testCase = testCase;
             _uid = uid;
-            _deps = IshtarGC.AllocateList<RuntimeIshtarModule>();
+            _deps = IshtarGC.AllocateList<RuntimeIshtarModule>(null);
             VM = VirtualMachine.Create($"test-app-{uid}-{testCase}");
 
             if (VM.watcher is DefaultWatchDog)

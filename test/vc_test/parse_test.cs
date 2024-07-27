@@ -165,7 +165,7 @@ namespace veinc_test
             var expr = default(LiteralExpressionSyntax);
             if (needFail)
             {
-                Assert.Throws<VeinParseException>(() => expr = VeinAst.LiteralExpression.End().ParseVein(parseStr));
+                Assert.Throws<VeinParseException>(() => expr = VeinAst.LiteralExpression.Positioned().End().ParseVein(parseStr));
             }
             else
             {

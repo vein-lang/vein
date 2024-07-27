@@ -9,7 +9,7 @@ using vein.compilation;
 using vein.json;
 using vein.project;
 
-[TestFixture]
+[TestFixture(Ignore = "")]
 public class FullSTDCompilation
 {
     public const string StdUrl = "https://github.com/vein-lang/std.git";

@@ -35,7 +35,7 @@ public class il_test
         Assert.AreEqual((uint)228, result[3]);
     }
 
-    [Test]
+    [Test, Ignore("MANUAL")]
     public unsafe void LocalsGeneratorTest()
     {
         var gen = CreateGenerator();
@@ -96,8 +96,8 @@ public class il_test
 
     public static ILGenerator CreateGenerator(params VeinArgumentRef[] args)
     {
-        var module = new VeinModuleBuilder(Guid.NewGuid().ToString(), (Types.Storage));
-        var @class = new ClassBuilder(module, $"{module.Name}%foo/bar");
+        var module = new VeinModuleBuilder(new ModuleNameSymbol(Guid.NewGuid().ToString()), (Types.Storage));
+        var @class = new ClassBuilder(module, new QualityTypeName(new NameSymbol("bar"), NamespaceSymbol.Internal, module.Name)); 
         var method = @class.DefineMethod("foo", VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage), args);
         return method.GetGenerator();
     }

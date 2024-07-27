@@ -97,8 +97,8 @@ public class QualifiedExpressionTest
     [TestCase("true ? 22 : 32")] // conditional exp
     [TestCase("a ? fail new foo() : 2")] // fail exp
     [TestCase("foo ?? 22")] // coalescing exp
-    [TestCase("as Type")] // as exp
-    [TestCase("is Type")] // is exp
+    [TestCase("as<Type>(b)")] // as exp
+    [TestCase("is<Type>(b)")] // is exp
     [TestCase("this.call()")] // this based call
     [TestCase("(1..i < 1 ? 1 : i)")]
     [TestCase("v1.x * v2.x + v1.y * v2.y + v1.z * v2.z")]
@@ -113,9 +113,10 @@ public class QualifiedExpressionTest
     [TestCase("x = ((x >> 1) & 055555555) | ((x & 055555555) << 1)")]
     [TestCase("uf = select(uf, asuint(asfloat(uf + (1 << 23)) - 6.10351563e-05f), e == 0)")]
     [TestCase("uf += select(0, (128u - 16u) << 23, e == shifted_exp)")]
-    //[TestCase("hx = ((asuint(min(asfloat(uux) * 1.92592994e-34f, 260042752.0f)) + 0x1000) >> 13)")]
+    [TestCase("hx = (asuint(min(asfloat(uux) * 1.92592994f, 260042752.0f)) + 1000)")]
     [TestCase("basis1.x = 1.0f + sign * normal.x * normal.x * a")]
     [TestCase("hash = rol(state.x, 1) + rol(state.y, 7) + rol(state.z, 12) + rol(state.w, 18)")]
+    [TestCase("f1 == as<f32>(f2)")]
     public void AllExpressionTest(string exp) => VeinAst.QualifiedExpression.End().ParseVein(exp);
 
     [Theory]

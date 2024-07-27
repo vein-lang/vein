@@ -20,13 +20,13 @@ namespace veinc_test
             var list = new List<VeinModule>();
 
 
-            var stl = new VeinModuleBuilder("stl", new Version(2,3), (Types.Storage));
+            var stl = new VeinModuleBuilder(new ModuleNameSymbol("stl"), new Version(2,3), (Types.Storage));
 
             foreach (var type in (Types.Storage).All)
             {
                 stl.InternTypeName(type.FullName);
-                stl.InternString(type.Name);
-                stl.InternString(type.Path);
+                stl.InternString(type.Name.name);
+                stl.InternString(type.Namespace.@namespace);
                 foreach (var field in type.Fields)
                 {
                     stl.InternFieldName(field.FullName);
@@ -48,60 +48,60 @@ namespace veinc_test
         [Test, Ignore("MANUAL")]
         public void WriteTest()
         {
-            var verSR = new Version(2, 2, 2, 2);
-            var moduleSR = new VeinModuleBuilder("set1", verSR, (Types.Storage));
-            {
-                moduleSR.Deps.AddRange(GetDeps());
+            //var verSR = new Version(2, 2, 2, 2);
+            //var moduleSR = new VeinModuleBuilder(new ModuleNameSymbol("set1"), verSR, (Types.Storage));
+            //{
+            //    moduleSR.Deps.AddRange(GetDeps());
 
 
-                var @class = moduleSR.DefineClass("set1%wave/lang/SR");
+            //    var @class = moduleSR.DefineClass("set1%wave/lang/SR");
 
 
-                @class.Flags = ClassFlags.Public | ClassFlags.Static;
-                var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                    VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
+            //    @class.Flags = ClassFlags.Public | ClassFlags.Static;
+            //    var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
+            //        VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
 
-                var gen = method.GetGenerator();
+            //    var gen = method.GetGenerator();
 
-                gen.Emit(OpCodes.NOP);
+            //    gen.Emit(OpCodes.NOP);
 
-                moduleSR.BakeByteArray();
-                moduleSR.BakeDebugString();
+            //    moduleSR.BakeByteArray();
+            //    moduleSR.BakeDebugString();
 
-                var blank = new IshtarAssembly (moduleSR) { Name = "set1", Version = verSR};
-
-
-                IshtarAssembly.WriteTo(blank, new DirectoryInfo("C:/wavelib"));
-            }
+            //    var blank = new IshtarAssembly (moduleSR) { Name = "set1", Version = verSR};
 
 
-            {
-                var ver = new Version(2, 2, 2, 2);
-                var module = new VeinModuleBuilder("set2", ver, (Types.Storage));
-                module.Deps.AddRange(GetDeps());
+            //    IshtarAssembly.WriteTo(blank, new DirectoryInfo("C:/wavelib"));
+            //}
 
 
-                var @class = module.DefineClass("set2%wave/lang/DR");
+            //{
+            //    var ver = new Version(2, 2, 2, 2);
+            //    var module = new VeinModuleBuilder("set2", ver, (Types.Storage));
+            //    module.Deps.AddRange(GetDeps());
 
 
-                @class.Flags = ClassFlags.Public | ClassFlags.Static;
-                var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
-                    VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
-
-                var gen = method.GetGenerator();
-
-                gen.Emit(OpCodes.NOP);
-
-                module.BakeByteArray();
-                module.BakeDebugString();
-
-                module.Deps.Add(moduleSR);
-
-                var blank = new IshtarAssembly (module) { Name = "set2", Version = ver};
+            //    var @class = module.DefineClass("set2%wave/lang/DR");
 
 
-                IshtarAssembly.WriteTo(blank, new DirectoryInfo("C:/wavelib"));
-            }
+            //    @class.Flags = ClassFlags.Public | ClassFlags.Static;
+            //    var method = @class.DefineMethod("blank", MethodFlags.Public | MethodFlags.Static,
+            //        VeinTypeCode.TYPE_VOID.AsClass()(Types.Storage));
+
+            //    var gen = method.GetGenerator();
+
+            //    gen.Emit(OpCodes.NOP);
+
+            //    module.BakeByteArray();
+            //    module.BakeDebugString();
+
+            //    module.Deps.Add(moduleSR);
+
+            //    var blank = new IshtarAssembly (module) { Name = "set2", Version = ver};
+
+
+            //    IshtarAssembly.WriteTo(blank, new DirectoryInfo("C:/wavelib"));
+            //}
         }
 
         [Test, Ignore("MANUAL")]

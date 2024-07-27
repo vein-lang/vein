@@ -11,7 +11,7 @@ public class GenericFeatureTest : TestContext
     {
         var cd = Syntax.ClassDeclaration.Parse($"[special] {keyword} Program{generics} {extended} {{ [special] main(): void {{}} }}");
         Assert.True(cd.Methods.Any());
-        Assert.AreEqual("Program", cd.Identifier.ToString());
+        Assert.True(cd.Identifier.ToString().StartsWith("Program<T"));
         Assert.IsTrue(cd.Aspects.Single().IsSpecial);
 
         var md = cd.Methods.Single();
