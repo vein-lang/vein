@@ -123,27 +123,28 @@ void AddRange(IEnumerable<OpCode> enumerable)
 void gen_cs_def(StringBuilder builder)
 {
     builder.AppendLine(header);
-    builder.AppendLine("namespace ishtar \n{");
-    builder.AppendLine("\tpublic enum OpCodeValue : ushort \n\t{");
+    builder.AppendLine("namespace ishtar;\n");
+    builder.AppendLine("[lang.c.CTypeExport(\"ishtar_opcode_e\")]");
+    builder.AppendLine("public enum OpCodeValue : ushort \n\t{");
 
     foreach(var i in ops.Select((x, y) => (x.name, y, x)))
     {
         var desc = i.x.description;
         var note = i.x.note;
-        builder.AppendLine($"\t\t/// <summary>");
-        builder.AppendLine($"\t\t/// {desc}");
-        builder.AppendLine($"\t\t/// </summary>");
+        builder.AppendLine($"\t/// <summary>");
+        builder.AppendLine($"\t/// {desc}");
+        builder.AppendLine($"\t/// </summary>");
         if (note is not null)
         {
-            builder.AppendLine($"\t\t/// <remarks>");
-            builder.AppendLine($"\t\t/// {note}");
-            builder.AppendLine($"\t\t/// </remarks>");
+            builder.AppendLine($"\t/// <remarks>");
+            builder.AppendLine($"\t/// {note}");
+            builder.AppendLine($"\t/// </remarks>");
         }
-        builder.AppendLine($"\t\t{i.name.Replace(".", "_")} = 0x{ops_values[i.name]:X2},");
+        builder.AppendLine($"\t{i.name.Replace(".", "_")} = 0x{ops_values[i.name]:X2},");
     }
 
 
-    builder.AppendLine("\t}\n}");
+    builder.AppendLine("\n}");
 }
 
 void load_db()
