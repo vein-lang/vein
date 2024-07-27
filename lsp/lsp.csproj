@@ -9,9 +9,16 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.7" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="StreamJsonRpc" Version="2.18.48" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\compiler\veinc.csproj" />
+    <ProjectReference Include="..\lib\ast\vein.ast.csproj" />
+    <ProjectReference Include="..\runtime\ishtar.generator\ishtar.generator.csproj" />
   </ItemGroup>
 
 </Project>
