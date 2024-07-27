@@ -17,5 +17,5 @@ jobs:
           PERSONAL_ACCESS_TOKEN : ${{ secrets.CODE_MAID_PAT }}
         with:
           path-to-signatures: '.github/signs/v1/cla.json'
-          path-to-document: 'https://github.com/0xF6/mana_lang/blob/master/.github/CLA.md'
+          path-to-document: 'https://github.com/vein-lang/vein/blob/master/.github/CLA.md'
           branch: 'master'
