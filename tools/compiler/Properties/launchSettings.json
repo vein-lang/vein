@@ -8,50 +8,6 @@
       "commandName": "Project",
       "commandLineArgs": "add std"
     },
-    "compile vein std": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\std\\src\\std.vproj --ignore-cache --EF:+exp_simplify_optimize --EF:+use_predef_array_type_initer"
-    },
-    "compile vein std - test": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\std\\test\\test.std.vproj"
-    },
-    "compile hello world": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\vein-lang\\samples\\hello_world\\hello_world.vproj"
-    },
-    "compile flowbranch": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\vein-lang\\samples\\flowbranch\\flowbranch.vproj"
-    },
-    "compile test_case 00": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\vein-lang\\test\\vein_test\\00\\00.vproj"
-    },
-    "compile test_case 01": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\vein-lang\\test\\vein_test\\01\\01.vproj"
-    },
-    "compile bump": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\bump.vein\\bump.vproj"
-    },
-    "compile fs": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\vein.fs\\fs\\fs.vproj"
-    },
-    "compile vein unit": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\vein.unit\\vein.unit\\vein.unit.vproj"
-    },
-    "restore vein unit": {
-      "commandName": "Project",
-      "commandLineArgs": "restore --project C:\\git\\vein.unit\\vein.unit\\vein.unit.vproj"
-    },
-    "add std": {
-      "commandName": "Project",
-      "commandLineArgs": "add std --version 0.12.1 --project C:\\git\\vein-std\\foobar\\foobar.vproj"
-    },
     "set config value": {
       "commandName": "Project",
       "commandLineArgs": "config set foo:bar value"
@@ -60,14 +16,9 @@
       "commandName": "Project",
       "commandLineArgs": "config get foo:bar"
     },
-    "compile vein test 5": {
-      "commandName": "Project",
-      "commandLineArgs": "build C:\\git\\std\\asd\\asd.vproj"
-    },
-
     "compile std library": {
       "commandName": "Project",
-      "commandLineArgs": "build ..\\..\\..\\..\\lib\\vein.std\\std\\std.vproj --ignore-cache"
+      "commandLineArgs": "build ..\\..\\..\\..\\..\\lib\\vein.std\\std\\std.vproj --ignore-cache"
     }
   }
 }

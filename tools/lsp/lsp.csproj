@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -17,8 +17,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\compiler\veinc.csproj" />
-    <ProjectReference Include="..\lib\ast\vein.ast.csproj" />
-    <ProjectReference Include="..\runtime\ishtar.generator\ishtar.generator.csproj" />
+    <ProjectReference Include="..\..\lib\ast\vein.ast.csproj" />
+    <ProjectReference Include="..\..\runtime\ishtar.generator\ishtar.generator.csproj" />
   </ItemGroup>
 
 </Project>
