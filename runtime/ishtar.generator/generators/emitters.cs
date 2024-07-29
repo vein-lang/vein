@@ -5,11 +5,16 @@ using emit;
 using vein.runtime;
 using vein.syntax;
 using System.Linq;
+using Expressive;
+using System.Data;
 
 public static class G_Emitters
 {
     public static ILGenerator EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
     {
+        if (expr is EtherealFunctionExpression ethereal)
+            return gen.EmitEtherealMacro(ethereal);
+
         if (expr is AccessExpressionSyntax access)
             return gen.EmitAccess(access); ;
 
@@ -50,19 +55,74 @@ public static class G_Emitters
             return gen;
         }
 
-        if (expr is NameOfExpressionSyntax @nameof)
+        throw new NotImplementedException();
+    }
+
+
+    public static ILGenerator EmitEtherealMacro(this ILGenerator gen, EtherealFunctionExpression fn)
+    {
+        if (fn is TypeAsFunctionExpression typeAs)
+            return gen.EmitTypeAsMacro(typeAs);
+        if (fn is NameOfFunctionExpression nameOf)
+            return gen.EmitNameOf(nameOf);
+        if (fn is TypeIsFunctionExpression typeIs)
+            return gen.EmitTypeIs(typeIs);
+        if (fn is TypeOfFunctionExpression typeOf)
+            return gen.EmitTypeOf(typeOf);
+        throw new NotImplementedException();
+    }
+
+    public static ILGenerator EmitTypeOf(this ILGenerator gen, TypeOfFunctionExpression nameOf)
+    {
+        var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
+        if (nameOf.Expression is IdentifierExpression id)
+            return gen.Emit(OpCodes.LD_TYPE, context.ResolveType(id));
+        return gen.EmitExpression(nameOf.Expression).Emit(OpCodes.LD_TYPE_E);
+    }
+
+    public static ILGenerator EmitNameOf(this ILGenerator gen, NameOfFunctionExpression nameOf)
+    {
+        // TODO, validate exist variable\field\method\class\etc
+        if (nameOf.Expression is AccessExpressionSyntax nameof_exp1)
+            return gen.Emit(OpCodes.LDC_STR, nameof_exp1.Right.ToString());
+        if (nameOf.Expression is IdentifierExpression nameof_exp2)
+            return gen.Emit(OpCodes.LDC_STR, nameof_exp2.ToString());
+        var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+        ctx.LogError($"Target expression is not valid named expression.", nameOf);
+        throw new SkipStatementException();
+    }
+
+    public static ILGenerator EmitTypeIs(this ILGenerator gen, TypeIsFunctionExpression nameOf)
+    {
+        var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+        gen.EmitExpression(nameOf.Expression).Emit(OpCodes.LD_TYPE_E);
+        var t = context.ResolveType(nameOf.Generics.Single());
+
+        gen.Emit(t.IsGeneric ? OpCodes.LD_TYPE_G : OpCodes.LD_TYPE, t);
+
+        gen.Emit(OpCodes.EQL_T);
+
+        return gen;
+    }
+
+    public static ILGenerator EmitTypeAsMacro(this ILGenerator gen, TypeAsFunctionExpression typeAs)
+    {
+        var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+        if (typeAs.Generics.Count == 0)
         {
-            // TODO, validate exist variable\field\method\class\etc
-            if (@nameof.Expression is AccessExpressionSyntax nameof_exp1)
-                return gen.Emit(OpCodes.LDC_STR, nameof_exp1.Right.ToString());
-            if (@nameof.Expression is IdentifierExpression nameof_exp2)
-                return gen.Emit(OpCodes.LDC_STR, nameof_exp2.ToString());
-            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
-            ctx.LogError($"Target expression is not valid named expression.", expr);
+            context.LogError($"as type required type argument", typeAs);
             throw new SkipStatementException();
         }
+        if (typeAs.Generics.Count != 1)
+        {
+            context.LogError($"as type required single type argument", typeAs);
+            throw new SkipStatementException();
+        }
+        var type = context.ResolveType(typeAs.Generics.Single());
+        var fromType = typeAs.Expression.DetermineType(context);
 
-        throw new NotImplementedException();
+        return gen.EmitExpression(typeAs.Expression).Emit(OpCodes.CAST_G, fromType, type);
     }
 
     public static ILGenerator EmitThis(this ILGenerator gen, bool rly = true)
@@ -72,10 +132,38 @@ public static class G_Emitters
         return gen;
     }
 
+
+    public static void EmitGenericsLoad(this ILGenerator gen, VeinClass @for, TypeExpression declaration)
+    {
+        var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
+
+        if (@for.TypeArgs.Count != declaration.Typeword.TypeParameters.Count)
+        {
+            context.LogError($"Generics error", declaration);
+            throw new SkipStatementException();
+        }
+
+        var resolvedTypes = declaration.Typeword.TypeParameters.DetermineTypes(context).ToList();
+
+        // TODO check constraints
+
+        foreach (var type in resolvedTypes)
+            gen.Emit(type.IsGeneric ? OpCodes.LD_TYPE_G : OpCodes.LD_TYPE, type);
+    }
+
     public static void EmitCreateObject(this ILGenerator gen, NewExpressionSyntax @new)
     {
         var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
-        var type = context.ResolveType(@new.TargetType.Typeword);
+        var complexType = context.ResolveType(@new.TargetType.Typeword);
+
+        if (complexType.IsGeneric)
+        {
+            context.LogError($"Cannot create an instance of the generic class '{complexType}', currently is not support empty ctor constraint", @new.TargetType);
+            throw new SkipStatementException();
+        }
+
+        var type = complexType.Class;
 
         if (type.IsStatic)
         {
@@ -85,7 +173,12 @@ public static class G_Emitters
 
         if (@new.IsObject)
         {
-            var args = ((ObjectCreationExpression)@new.CtorArgs).Args.ToArray();
+            var args = ((ObjectCreationExpression)@new.CtorArgs).Args.Arguments.ToArray();
+
+            if (type.IsGenericType)
+                gen.EmitGenericsLoad(type, @new.TargetType);
+
+
             gen.Emit(OpCodes.NEWOBJ, type);
             foreach (var arg in args)
                 gen.EmitExpression(arg);

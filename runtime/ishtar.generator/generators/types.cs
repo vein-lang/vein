@@ -169,7 +169,7 @@ public static class G_Types
             return arg.Value.DetermineType(context);
         if (exp is TypeExpression t)
             return context.ResolveType(t.Typeword);
-        if (exp is NameOfExpressionSyntax)
+        if (exp is NameOfFunctionExpression)
             return VeinTypeCode.TYPE_STRING.AsClass()(Types.Storage);
         if (exp is BinaryExpressionSyntax bin)
         {
@@ -179,8 +179,17 @@ public static class G_Types
 
             return lt == rt ? lt : ExplicitConversion(lt, rt);
         }
+
+        if (exp is TypeAsFunctionExpression typeAs)
+            return typeAs.Generics.Single().DetermineType(context);
+        if (exp is TypeIsFunctionExpression)
+            return VeinTypeCode.TYPE_BOOLEAN.AsClass()(Types.Storage);
+
         if (exp is UnaryExpressionSyntax unary)
         {
+            if (unary.Kind == SyntaxType.PostfixUnaryExpression && unary.OperatorType == ExpressionType.Negate)
+                return unary.Operand.DetermineType(context);
+
             if (unary.Kind == SyntaxType.PostfixUnaryExpression)
             {
                 if (unary.Operand is not IdentifierExpression name)
