@@ -302,7 +302,7 @@ namespace vein.syntax
         protected internal virtual Parser<ExpressionSyntax> new_expression =>
             KeywordExpression("new").Token().Then(_ =>
                 from type in TypeExpression.Token().Positioned()
-                from creation_expression in object_creation_expression.Positioned().Or(array_initializer.Positioned())
+                from creation_expression in object_creation_expression.Positioned().Or<ExpressionSyntax>(array_initializer.Positioned())
                 select new NewExpressionSyntax(type, creation_expression)
                 ).Positioned().Token();
 
@@ -314,14 +314,14 @@ namespace vein.syntax
 
         protected internal virtual Parser<ArrayInitializerExpression> array_initializer =>
             from opb in Parse.Char('[')
-            from sizes in variable_initializer.DelimitedBy(Parse.Char(',').Token())
+            from sizes in variable_initializer.Positioned().DelimitedBy(Parse.Char(',').Token())
             from clb in Parse.Char(']')
             from args in parameters_array.Positioned().Token().Optional()
             select new ArrayInitializerExpression(sizes, args);
 
 
         protected internal virtual Parser<ExpressionSyntax> variable_initializer =>
-            QualifiedExpression.Or(array_initializer);
+            QualifiedExpression.Or(array_initializer.Positioned());
 
         protected internal virtual Parser<ExpressionSyntax> primary_expression =>
             Parse.ChainRightOperator(dot_access, for_chain_expression.Select(x => x.Downlevel()),
@@ -339,13 +339,14 @@ namespace vein.syntax
             from oo in
                 post_increment_expression.Select(x => x.Downlevel()).Positioned()
                 .Or(post_decrement_expression.Positioned())
-                .Or("nameof".Keyword().Then(QualifiedExpression.Parenthesis().Select(x => new NameOfExpressionSyntax(x))))
+                .Or(ethereal_function_expression("nameof").Positioned())
+                .Or(ethereal_function_expression("typeof").Positioned())
+                .Or(ethereal_function_expression("is").Positioned())
+                .Or(ethereal_function_expression("as").Positioned())
                 .Or(element_access_expression.Positioned())
                 .Or(invocation_expression.Positioned())
-                .Or(array_creation_expression)
-                .Or(new_expression)
-                .Or(AsTypePattern)
-                .Or(IsTypePattern)
+                .Or(array_creation_expression.Positioned())
+                .Or(new_expression.Positioned())
                 .Or("true".Literal().Exchange().Return<TrueLiteralExpressionSyntax>().Positioned())
                 .Or("false".Literal().Exchange().Return<FalseLiteralExpressionSyntax>().Positioned())
                 .Or("-Infinity".Literal().Exchange().Return<NegativeInfinityLiteralExpressionSyntax>().Positioned())
@@ -355,20 +356,18 @@ namespace vein.syntax
                 .Or("this".Keyword().Exchange().Return<ThisAccessExpression>().Positioned())
                 .Or("self".Keyword().Exchange().Return<SelfAccessExpression>().Positioned())
                 .Or("base".Keyword().Exchange().Return<BaseAccessExpression>().Positioned())
-                .Or(QualifiedExpression.Contained(OPENING_PARENTHESIS, CLOSING_PARENTHESIS).Positioned())
+                .Or(QualifiedExpression.Parenthesis().Positioned())
                 .Or(IdentifierExpression.Positioned())
                 .Or(LiteralExpression.Positioned())
             select oo;
 
-        protected internal virtual Parser<ExpressionSyntax> AsTypePattern =>
-            from key in Keyword("as").Token()
-            from ty in TypeExpression.Token().Positioned()
-            select new AsTypePatternExpression(ty);
 
-        protected internal virtual Parser<ExpressionSyntax> IsTypePattern =>
-            from key in Keyword("is").Token()
-            from ty in TypeExpression.Token().Positioned()
-            select new IsTypePatternExpression(ty);
+        protected internal virtual Parser<EtherealFunctionExpression> ethereal_function_expression(string keyword) =>
+            from kv in KeywordExpression(keyword)
+            from generics in GenericsDeclarationParser.Optional()
+            from exp in QualifiedExpression.Parenthesis()
+            select EtherealFunctionExpression.Select(kv.ExpressionString, generics.GetOrEmpty(), exp);
+
         protected internal virtual Parser<ExpressionSyntax> array_creation_expression =>
             from keyword in KeywordExpression("new")
             from type in TypeExpression.Token().Positioned()
@@ -377,13 +376,13 @@ namespace vein.syntax
 
         protected internal virtual Parser<IndexerAccessExpressionSyntax> element_access_expression =>
             from p in invocation_expression.Downlevel().Or(IdentifierExpression)
-            from exc in argument_list.Contained(OPENING_SQUARE_BRACKET, CLOSING_SQUARE_BRACKET)
-            select new IndexerAccessExpressionSyntax(p, new ArgumentListExpression(exc));
+            from exc in argument_list.Positioned().Contained(OPENING_SQUARE_BRACKET, CLOSING_SQUARE_BRACKET)
+            select new IndexerAccessExpressionSyntax(p, exc);
 
 
         protected internal virtual Parser<InvocationExpression> invocation_expression =>
             from p in Parse.Ref(() => IdentifierExpression)
-            from exc in argument_list.Optional().Contained(OPENING_PARENTHESIS, CLOSING_PARENTHESIS)
+            from exc in argument_list.Positioned().Optional().Contained(OPENING_PARENTHESIS, CLOSING_PARENTHESIS)
             select new InvocationExpression(p, exc);
         protected internal virtual Parser<PostDecrementExpression> post_decrement_expression =>
             from p in Parse.Ref(() => IdentifierExpression).Positioned()

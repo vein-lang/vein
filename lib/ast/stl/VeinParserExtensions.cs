@@ -2,6 +2,7 @@ namespace vein.stl
 {
     using System;
     using System.Collections.Generic;
+    using System.Net;
     using System.Threading;
     using Sprache;
     using syntax;
@@ -53,6 +54,9 @@ namespace vein.stl
         public static IEnumerable<T> GetOrEmpty<T>(this IOption<IEnumerable<T>> option)
             => option.GetOrElse(Array.Empty<T>());
 
+        public static List<T> GetOrEmpty<T>(this IOption<List<T>> option)
+            => option.GetOrElse(Array.Empty<T>().ToList());
+
         public static T ParseVein<T>(this Parser<T> parser, string input)
         {
             var result = parser.End().TryParse(input);
@@ -63,6 +67,7 @@ namespace vein.stl
             throw new VeinParseException(result.Message,
                 new Position(result.Remainder.Position, result.Remainder.Line, result.Remainder.Column), null);
         }
+
 
         /// <summary>
         /// Constructs a parser that consumes a whitespace and all comments

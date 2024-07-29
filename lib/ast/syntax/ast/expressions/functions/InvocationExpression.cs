@@ -5,14 +5,12 @@ using Sprache;
 using stl;
 using extensions;
 
-public class InvocationExpression : ExpressionSyntax, IPositionAware<InvocationExpression>
+public class InvocationExpression(ExpressionSyntax name, IOption<ArgumentListExpression> args)
+    : ExpressionSyntax, IPositionAware<InvocationExpression>
 {
-    public ExpressionSyntax Name { get; set; }
-    public ExpressionSyntax[] Arguments { get; set; }
+    public ExpressionSyntax Name { get; set; } = name;
+    public ArgumentListExpression Arguments { get; set; } = args.GetOrDefault() ?? new ArgumentListExpression(Array.Empty<ExpressionSyntax>());
     public bool NoReturn { get; private set; }
-
-    public InvocationExpression(ExpressionSyntax name, IOption<ExpressionSyntax[]> args)
-        => (Name, this.Arguments) = (name, args?.GetOrEmpty()?.ToArray());
 
     public new InvocationExpression SetPos(Position startPos, int length)
     {
@@ -26,5 +24,5 @@ public class InvocationExpression : ExpressionSyntax, IPositionAware<InvocationE
         return this;
     }
 
-    public override string ToString() => $"{Name}({Arguments.Select(x => x.ToString()).Join(", ")})";
+    public override string ToString() => $"{Name}({Arguments.Arguments.Select(x => x.ToString()).Join(", ")})";
 }
