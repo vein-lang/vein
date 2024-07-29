@@ -125,6 +125,7 @@ void gen_cs_def(StringBuilder builder)
     builder.AppendLine(header);
     builder.AppendLine("namespace ishtar;\n");
     builder.AppendLine("[lang.c.CTypeExport(\"ishtar_opcode_e\")]");
+    builder.AppendLine("[lang.c.CEnumPrefix(\"OPCODE_\")]");
     builder.AppendLine("public enum OpCodeValue : ushort \n\t{");
 
     foreach(var i in ops.Select((x, y) => (x.name, y, x)))

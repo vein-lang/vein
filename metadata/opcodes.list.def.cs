@@ -6,7 +6,7 @@ namespace ishtar
 	using System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 20;
+		internal static int SetVersion = 25;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -659,12 +659,19 @@ namespace ishtar
 		/// </summary>
 		public static readonly OpCode NEWOBJ = new (0x52, 0x0100001F);
 		/// <summary>
-		/// Cast T1 to T2
-		/// size: 0
+		/// Cast to T
+		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CAST = new (0x71, 0x0000001F);
+		public static readonly OpCode CAST = new (0x71, 0x0100001F);
+		/// <summary>
+		/// Cast from T1 to T2
+		/// size: 10
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode CAST_G = new (0x75, 0x0280001F);
 		/// <summary>
 		/// Allocate array onto evaluation stack by specified size and type.
 		/// size: 0
@@ -700,6 +707,20 @@ namespace ishtar
 		/// chain: 0
 		/// </summary>
 		public static readonly OpCode LD_TYPE = new (0x57, 0x0100001F);
+		/// <summary>
+		/// Load generic type argument token.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LD_TYPE_G = new (0x74, 0x0100001F);
+		/// <summary>
+		/// Take value from stack and load type.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LD_TYPE_E = new (0x76, 0x0000001F);
 		/// <summary>
 		/// Compare two value, when first value is less than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a <= b)
 		/// size: 0
@@ -916,11 +937,14 @@ namespace ishtar
 			{OpCodeValue.THROW, THROW},
 			{OpCodeValue.NEWOBJ, NEWOBJ},
 			{OpCodeValue.CAST, CAST},
+			{OpCodeValue.CAST_G, CAST_G},
 			{OpCodeValue.NEWARR, NEWARR},
 			{OpCodeValue.LDLEN, LDLEN},
 			{OpCodeValue.LDELEM_S, LDELEM_S},
 			{OpCodeValue.STELEM_S, STELEM_S},
 			{OpCodeValue.LD_TYPE, LD_TYPE},
+			{OpCodeValue.LD_TYPE_G, LD_TYPE_G},
+			{OpCodeValue.LD_TYPE_E, LD_TYPE_E},
 			{OpCodeValue.EQL_LQ, EQL_LQ},
 			{OpCodeValue.EQL_L, EQL_L},
 			{OpCodeValue.EQL_HQ, EQL_HQ},

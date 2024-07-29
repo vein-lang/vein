@@ -131,7 +131,12 @@
     description: New object Operation.
     override-size: 4
 - CAST:
-    description: Cast T1 to T2
+    description: Cast to T
+    use-root: true
+    override-size: 4
+    G:
+      override-size: 10
+      description: Cast from T1 to T2
 - NEWARR:
     description: Allocate array onto evaluation stack by specified size and type.
 - LDLEN:
@@ -148,7 +153,14 @@
       override-size: 4
 - LD_TYPE:
     description: Load type token.
+    use-root: true
     override-size: 4
+    G:
+      override-size: 4
+      description: Load generic type argument token.
+    E:
+      override-size: 0
+      description: Take value from stack and load type.
 - EQL:
     description: Compare two value, when values are equal 1 (int32) stage into stack, otherwise 0 (int32).
     LQ:
