@@ -12,20 +12,6 @@ public class BaseAccessExpression : ExpressionSyntax, IPositionAware<BaseAccessE
     }
 }
 
-public class NameOfExpressionSyntax : ExpressionSyntax, IPositionAware<NameOfExpressionSyntax>
-{
-    public readonly ExpressionSyntax Expression;
-
-    public NameOfExpressionSyntax(ExpressionSyntax exp) => Expression = exp;
-
-    public new NameOfExpressionSyntax SetPos(Position startPos, int length)
-    {
-        base.SetPos(startPos, length);
-        return this;
-    }
-}
-
-
 public class PostDecrementExpression : UnaryExpressionSyntax, IPositionAware<PostDecrementExpression>
 {
     public PostDecrementExpression(ExpressionSyntax exp)
