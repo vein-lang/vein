@@ -30,6 +30,7 @@ namespace vein.syntax
 
         public static string GetSymbol(this ExpressionType exp, bool isBinary = true) => exp switch
         {
+            ExpressionType.TypeAs => "as",
             ExpressionType.Equal => "==",
             ExpressionType.NotEqual => "!=",
             ExpressionType.Power => "^^",

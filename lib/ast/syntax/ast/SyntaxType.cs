@@ -54,6 +54,7 @@ namespace vein.syntax
         FailStatement,
         TryStatement,
         Type,
+        TypeAs,
         UpdateStatement,
         UpsertStatement,
         VariableDeclaration,
