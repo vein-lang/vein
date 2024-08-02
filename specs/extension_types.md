@@ -183,20 +183,20 @@ internal virtual Parser<ExtensionSyntax> ExtensionDeclaration =>
 
 ### Explicit Extension
 
-```
+```vein
 explicit extension R for U {
-    public void M2() { } // warning: needs `new`
+    void M2(): Void { } 
     void M() {
-        M2(); // find `R.M2()`, no ambiguity
+        M2();
     }
 }
 ```
 
 ### Implicit Extension
 
-```
+```vein
 implicit extension V for W {
-    public void M3() { }
+    public M3(): Void { }
 }
 ```
 
