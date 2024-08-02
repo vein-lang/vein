@@ -174,7 +174,7 @@ internal virtual Parser<ExtensionSyntax> ExtensionDeclaration =>
     from typeParams in TypeParameterList.Token().Optional()
     from forKeyword in Parse.String("for").Token().Optional()
     from type in TypeExpression.Token()
-    from constraints in TypeParameterConstraintsClause.Token().Many().Optional()
+    from constraints in GenericConstraintParser.Token().Many().Optional()
     from body in ClassMemberDeclaration.Token()
     select new ExtensionSyntax(modifiers, identifier, typeParams, type, constraints, body);
 ```
