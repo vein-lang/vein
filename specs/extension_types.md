@@ -172,7 +172,7 @@ internal virtual Parser<ExtensionSyntax> ExtensionDeclaration =>
     from keyword in KeyworkExpression("extension").Token()
     from identifier in IdentifierExpression.Token()
     from typeParams in TypeParameterList.Token().Optional()
-    from forKeyword in Parse.String("for").Token().Optional()
+    from forKeyword in KeyworkExpression("for").Token().Optional()
     from type in TypeExpression.Token()
     from constraints in GenericConstraintParser.Token().Many().Optional()
     from body in ClassMemberDeclaration.Token()
