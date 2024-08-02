@@ -168,7 +168,7 @@ The parser rule for extension declarations is structured as follows:
 
 ```csharp
 internal virtual Parser<ExtensionSyntax> ExtensionDeclaration =>
-    from modifiers in ExtensionModifiers.Token().Many()
+    from modifiers in Modifier.Token().Many()
     from keyword in KeyworkExpression("extension").Token()
     from identifier in IdentifierExpression.Token()
     from typeParams in GenericsDeclarationParser.Token().Optional()
