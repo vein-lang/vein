@@ -133,7 +133,7 @@ extension ExtensionName<T> for Type {
 Defines constraints on type parameters.
 
 ```
-extension ExtensionName<T> for Type where T : Constraint {
+extension ExtensionName<T> for Type when T : Constraint {
     // Extension members
 }
 ```
