@@ -183,7 +183,7 @@ internal virtual Parser<ExtensionSyntax> ExtensionDeclaration =>
 
 ### Explicit Extension
 
-```csharp
+```
 explicit extension R for U {
     public void M2() { } // warning: needs `new`
     void M() {
@@ -194,7 +194,7 @@ explicit extension R for U {
 
 ### Implicit Extension
 
-```csharp
+```
 implicit extension V for W {
     public void M3() { }
 }
