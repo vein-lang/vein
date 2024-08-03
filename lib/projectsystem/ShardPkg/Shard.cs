@@ -137,10 +137,10 @@ public class Shard : IDisposable, IAsyncDisposable
     {
         try
         {
-            using var stream = _archive.GetStream(_archive.GetFile(name));
+            await using var stream = _archive.GetStream(_archive.GetFile(name));
             using TextReader txt = new StreamReader(stream);
 
-            var text = await txt.ReadToEndAsync(); // why ReadToEndAsync not pass CancellationToken? :(
+            var text = await txt.ReadToEndAsync(token); 
 
             return JsonConvert.DeserializeObject<T>(text);
         }

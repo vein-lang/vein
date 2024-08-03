@@ -22,8 +22,10 @@ public static class YAML
         public string License { get; set; }
         [YamlMember(Alias = "urls", Order = 5)]
         public PackageUrls Urls { get; set; }
-        [YamlMember(Alias = "packable", Order = 998)]
+        [YamlMember(Alias = "packable", Order = 997)]
         public bool? Packable { get; set; }
+        [YamlMember(Alias = "hasWorkload", Order = 998)]
+        public bool? HasWorkload { get; set; }
         [YamlMember(Alias = "packages", Order = 999)]
         public List<string> Packages { get; set; }
 
