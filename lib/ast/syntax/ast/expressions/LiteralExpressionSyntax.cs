@@ -1,26 +1,20 @@
 namespace vein.syntax
 {
+    using Sprache;
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Text;
-    using Sprache;
 
-    public abstract class LiteralExpressionSyntax : ExpressionSyntax, IPositionAware<LiteralExpressionSyntax>
+    public abstract class LiteralExpressionSyntax(string token = null, LiteralType type = LiteralType.Null)
+        : ExpressionSyntax, IPositionAware<LiteralExpressionSyntax>
     {
-        protected LiteralExpressionSyntax(string token = null, LiteralType type = LiteralType.Null)
-        {
-            Token = token;
-            LiteralType = type;
-        }
-
         public override SyntaxType Kind => SyntaxType.LiteralExpression;
 
         public override IEnumerable<BaseSyntax> ChildNodes => NoChildren;
 
-        public string Token { get; set; }
+        public string Token { get; set; } = token;
 
-        public LiteralType LiteralType { get; set; }
+        public LiteralType LiteralType { get; set; } = type;
 
         public override string ExpressionString => Token;
         public new LiteralExpressionSyntax SetPos(Position startPos, int length)
@@ -65,9 +59,9 @@ namespace vein.syntax
         }
     }
 
-    public sealed class TrueLiteralExpressionSyntax : BoolLiteralExpressionSyntax, IPositionAware<TrueLiteralExpressionSyntax>
+    public sealed class TrueLiteralExpressionSyntax()
+        : BoolLiteralExpressionSyntax("true"), IPositionAware<TrueLiteralExpressionSyntax>
     {
-        public TrueLiteralExpressionSyntax() : base("true") { }
         public new TrueLiteralExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
@@ -77,9 +71,9 @@ namespace vein.syntax
         public override string ToString() => this.Token;
     }
 
-    public sealed class FalseLiteralExpressionSyntax : BoolLiteralExpressionSyntax, IPositionAware<FalseLiteralExpressionSyntax>
+    public sealed class FalseLiteralExpressionSyntax()
+        : BoolLiteralExpressionSyntax("false"), IPositionAware<FalseLiteralExpressionSyntax>
     {
-        public FalseLiteralExpressionSyntax() : base("false") { }
         public new FalseLiteralExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
@@ -110,7 +104,7 @@ namespace vein.syntax
         }
     }
 
-    public class UndefinedIntegerNumericLiteral : NumericLiteralExpressionSyntax, IPassiveParseTransition
+    public class UndefinedIntegerNumericLiteral : NumericLiteralExpressionSyntax
     {
         public string Value { get; set; }
 
@@ -127,79 +121,43 @@ namespace vein.syntax
 
         public T Value { get; private set; }
     }
-    public sealed class DoubleLiteralExpressionSyntax : NumericLiteralExpressionSyntax<double>
-    {
-        public DoubleLiteralExpressionSyntax(double value) : base(value) { }
-    }
-    public sealed class SingleLiteralExpressionSyntax : NumericLiteralExpressionSyntax<float>
-    {
-        public SingleLiteralExpressionSyntax(float value) : base(value) { }
-    }
-    public sealed class DecimalLiteralExpressionSyntax : NumericLiteralExpressionSyntax<decimal>
-    {
-        public DecimalLiteralExpressionSyntax(decimal value) : base(value) { }
-    }
+    public sealed class DoubleLiteralExpressionSyntax(double value) : NumericLiteralExpressionSyntax<double>(value);
+    public sealed class SingleLiteralExpressionSyntax(float value) : NumericLiteralExpressionSyntax<float>(value);
+    public sealed class DecimalLiteralExpressionSyntax(decimal value) : NumericLiteralExpressionSyntax<decimal>(value);
 
-    public sealed class HalfLiteralExpressionSyntax : NumericLiteralExpressionSyntax<float>
-    {
-        public HalfLiteralExpressionSyntax(float value) : base(value) { }
-    }
-    public sealed class ByteLiteralExpressionSyntax : NumericLiteralExpressionSyntax<byte>
-    {
-        public ByteLiteralExpressionSyntax(byte value) : base(value) { }
-    }
-    public sealed class SByteLiteralExpressionSyntax : NumericLiteralExpressionSyntax<sbyte>
-    {
-        public SByteLiteralExpressionSyntax(sbyte value) : base(value) { }
-    }
+    public sealed class HalfLiteralExpressionSyntax(float value) : NumericLiteralExpressionSyntax<float>(value);
+    public sealed class ByteLiteralExpressionSyntax(byte value) : NumericLiteralExpressionSyntax<byte>(value);
+    public sealed class SByteLiteralExpressionSyntax(sbyte value) : NumericLiteralExpressionSyntax<sbyte>(value);
 
-    public sealed class Int16LiteralExpressionSyntax : NumericLiteralExpressionSyntax<short>
-    {
-        public Int16LiteralExpressionSyntax(short value) : base(value) { }
-    }
-    public sealed class UInt16LiteralExpressionSyntax : NumericLiteralExpressionSyntax<ushort>
-    {
-        public UInt16LiteralExpressionSyntax(ushort value) : base(value) { }
-    }
-    public sealed class Int32LiteralExpressionSyntax : NumericLiteralExpressionSyntax<int>
-    {
-        public Int32LiteralExpressionSyntax(int value) : base(value) { }
-    }
-    public sealed class UInt32LiteralExpressionSyntax : NumericLiteralExpressionSyntax<uint>
-    {
-        public UInt32LiteralExpressionSyntax(uint value) : base(value) { }
-    }
-    public sealed class Int64LiteralExpressionSyntax : NumericLiteralExpressionSyntax<long>
-    {
-        public Int64LiteralExpressionSyntax(long value) : base(value) { }
-    }
-    public sealed class UInt64LiteralExpressionSyntax : NumericLiteralExpressionSyntax<ulong>
-    {
-        public UInt64LiteralExpressionSyntax(ulong value) : base(value) { }
-    }
+    public sealed class Int16LiteralExpressionSyntax(short value) : NumericLiteralExpressionSyntax<short>(value);
+    public sealed class UInt16LiteralExpressionSyntax(ushort value) : NumericLiteralExpressionSyntax<ushort>(value);
+    public sealed class Int32LiteralExpressionSyntax(int value) : NumericLiteralExpressionSyntax<int>(value);
+    public sealed class UInt32LiteralExpressionSyntax(uint value) : NumericLiteralExpressionSyntax<uint>(value);
+    public sealed class Int64LiteralExpressionSyntax(long value) : NumericLiteralExpressionSyntax<long>(value);
+    public sealed class UInt64LiteralExpressionSyntax(ulong value) : NumericLiteralExpressionSyntax<ulong>(value);
 
-    public sealed class InfinityLiteralExpressionSyntax : NumericLiteralExpressionSyntax<float>, IPositionAware<InfinityLiteralExpressionSyntax>
+    public sealed class InfinityLiteralExpressionSyntax()
+        : NumericLiteralExpressionSyntax<float>(float.PositiveInfinity), IPositionAware<InfinityLiteralExpressionSyntax>
     {
-        public InfinityLiteralExpressionSyntax() : base(float.PositiveInfinity) { }
         public new InfinityLiteralExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
             return this;
         }
     }
-    public sealed class NegativeInfinityLiteralExpressionSyntax : NumericLiteralExpressionSyntax<float>, IPositionAware<NegativeInfinityLiteralExpressionSyntax>
+    public sealed class NegativeInfinityLiteralExpressionSyntax()
+        : NumericLiteralExpressionSyntax<float>(float.NegativeInfinity),
+            IPositionAware<NegativeInfinityLiteralExpressionSyntax>
     {
-        public NegativeInfinityLiteralExpressionSyntax() : base(float.NegativeInfinity) { }
         public new NegativeInfinityLiteralExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);
             return this;
         }
     }
-    public sealed class NaNLiteralExpressionSyntax : NumericLiteralExpressionSyntax<float>, IPositionAware<NaNLiteralExpressionSyntax>
+    public sealed class NaNLiteralExpressionSyntax() : NumericLiteralExpressionSyntax<float>(float.NaN),
+        IPositionAware<NaNLiteralExpressionSyntax>
     {
-        public NaNLiteralExpressionSyntax() : base(float.NaN) { }
-
         public new NaNLiteralExpressionSyntax SetPos(Position startPos, int length)
         {
             base.SetPos(startPos, length);

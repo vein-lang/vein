@@ -1,6 +1,7 @@
 namespace vein.syntax;
 
 using Sprache;
+using stl;
 
 public partial class VeinSyntax
 {
@@ -8,8 +9,9 @@ public partial class VeinSyntax
         from global in KeywordExpression("global").Token().Optional()
         from keyword in KeywordExpression("alias").Token()
         from aliasName in IdentifierExpression.Token()
+        from generics in GenericsDeclarationParser.Optional()
         from s in Parse.String("<|").Token()
         from body in MethodParametersAndBody.Token().Select(x => new TypeOrMethod(null, x))
             .Or(TypeExpression.Token().Then(_ => Parse.Char(';').Token().Return(_)).Select(x => new TypeOrMethod(x, null)))
-        select new AliasSyntax(global.IsDefined, aliasName, body);
+        select new AliasSyntax(global.IsDefined, aliasName, generics.GetOrEmpty(), body);
 }

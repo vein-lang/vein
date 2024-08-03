@@ -84,13 +84,13 @@ namespace vein.syntax
                 .Or(Parse.String("+="))
                 .Or(Parse.String("=")).Token().Text();
         protected internal virtual Parser<ExpressionSyntax> non_assignment_expression =>
-            conditional_expression.Or(lambda_expression);
+            conditional_expression.Or(lambda_expression).Positioned();
 
 
         protected internal virtual Parser<ExpressionSyntax> lambda_expression =>
-            from dec in lfunction_signature
+            from dec in lfunction_signature.Positioned()
             from op in Parse.String("|>").Token()
-            from body in lfunction_body
+            from body in lfunction_body.Positioned()
             select new AnonymousFunctionExpressionSyntax(dec, body);
 
         #region anon_func
@@ -126,11 +126,13 @@ namespace vein.syntax
 
         protected internal virtual Parser<ExpressionSyntax> range_expression =>
             (
-                from s1 in unary_expression
+                from s1 in unary_expression.Positioned()
                 from op in Parse.String("..").Token()
-                from s2 in unary_expression
+                from s2 in unary_expression.Positioned()
                 select new RangeExpressionSyntax(s1, s2)
-            ).Or(unary_expression);
+            ).Or(unary_expression.Positioned());
+
+        
 
         protected internal virtual Parser<IOption<BlockSyntax>> block =>
             WrappedExpression('{', '}', statement_list.Token().Select(x => new BlockSyntax(x)).Optional());
@@ -155,7 +157,7 @@ namespace vein.syntax
 
 
         protected internal virtual Parser<ExpressionSyntax> failable_expression =>
-            fail_expression.Or(QualifiedExpression);
+            fail_expression.Or(QualifiedExpression).Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> fail_expression =>
             Keyword("fail")
@@ -206,7 +208,7 @@ namespace vein.syntax
 
         // TODO
         protected internal virtual Parser<BinaryExpressionSyntax> switch_expression =>
-            from key in Keyword("switch").Token()
+            from key in KeywordExpression("switch").Positioned().Token()
             from ob in Parse.Char('{').Token()
             from cb in Parse.Char('}').Token()
             select new InvalidBinaryExpressionSyntax();
@@ -219,6 +221,14 @@ namespace vein.syntax
                  select (_op, a)).Many()
             select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
 
+        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, Parser<T> exclusive, string op) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> =>
+            from c in t.Token()
+            from data in
+                (from _op in Parse.String(op).Text().Token()
+                    from a in exclusive.Token()
+                    select (_op, a)).Many()
+            select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
+
         private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, params string[] ops) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> =>
             from c in t.Token()
             from data in
@@ -228,8 +238,8 @@ namespace vein.syntax
             select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
 
         protected internal virtual Parser<IEnumerable<ExpressionSyntax>> expression_list =>
-            from exp in QualifiedExpression
-            from exps in Parse.Ref(() => QualifiedExpression).DelimitedBy(Parse.Char(',')).Token()
+            from exp in QualifiedExpression.Positioned()
+            from exps in Parse.Ref(() => QualifiedExpression.Positioned()).DelimitedBy(Parse.Char(',')).Token()
             select exps;
         internal virtual Parser<IdentifierExpression> KeywordExpression(string text) =>
             Parse.IgnoreCase(text).Then(_ => Parse.LetterOrDigit.Or(Parse.Char('_')).Not()).Return(new IdentifierExpression(text)).Positioned();
@@ -244,25 +254,25 @@ namespace vein.syntax
             //from type in KeywordExpression("auto")
             //    .Or(TypeExpression.Select(x => x.Downlevel()))
             //    .Positioned().Token().Optional()
-            from exp in QualifiedExpression
+            from exp in QualifiedExpression.Positioned()
             select new ArgumentExpression(exp);
 
         protected internal virtual Parser<IndexerArgument> indexer_argument =>
-            from id in IdentifierExpression
+            from id in IdentifierExpression.Positioned()
                 .Then(x => Parse.Char(':').Token().Return(x))
                 .Positioned()
                 .Token().Optional()
-            from exp in QualifiedExpression
+            from exp in QualifiedExpression.Positioned()
             select new IndexerArgument(id, exp);
 
-        protected internal virtual Parser<ArgumentExpression[]> argument_list =>
+        protected internal virtual Parser<ArgumentListExpression> argument_list =>
             from args in argument.Positioned().ChainForward(Parse.Char(',').Token())
-            select args.ToArray();
+            select new ArgumentListExpression(args.ToArray());
 
 
-        protected internal virtual Parser<ExpressionSyntax> object_creation_expression =>
-            from arg_list in WrappedExpression('(', ')', argument_list.Optional())
-            select new ObjectCreationExpression(arg_list.GetOrEmpty());
+        protected internal virtual Parser<ObjectCreationExpression> object_creation_expression =>
+            from arg_list in WrappedExpression('(', ')', argument_list.Positioned().Optional())
+            select new ObjectCreationExpression(arg_list.GetOrDefault() ?? new ArgumentListExpression(Array.Empty<ExpressionSyntax>()));
 
         protected internal virtual Parser<TypeSyntax> BaseType =>
             SystemType.Or(
@@ -281,12 +291,15 @@ namespace vein.syntax
 
         // type
         protected internal virtual Parser<TypeExpression> TypeExpression =>
-            from type in BaseType.Or(namespace_or_type_name.Token()).Positioned()
-            from meta in nullable_specifier
-                .Or(rank_specifier)
-                .Or(pointer_specifier)
+            from type in BaseType.Or(namespace_or_type_name.Token().Positioned()).Positioned()
+            from typeArgs in GenericsDeclarationParser.Optional()
+            from meta in nullable_specifier.Positioned()
+                .Or(rank_specifier.Positioned())
+                .Or(pointer_specifier.Positioned())
                 .Token().Positioned().Many()
-            select new TypeExpression(type).WithMetadata(meta.EmptyIfNull().ToArray());
+            select new TypeExpression(type)
+                .WithMetadata(meta.EmptyIfNull().ToArray())
+                .WithGenerics(typeArgs);
 
 
         protected internal virtual Parser<TypeSyntax> namespace_or_type_name =>

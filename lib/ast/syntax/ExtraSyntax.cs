@@ -79,10 +79,10 @@ namespace vein.syntax
                     {
                         case ExpressionType.Add:
                         case ExpressionType.AddChecked:
-                            return new UndefinedIntegerNumericLiteral($"{v1 + v2}");
+                            return new UndefinedIntegerNumericLiteral($"{v1 + v2}").SetPos<UndefinedIntegerNumericLiteral>(n1.Transform);
                         case ExpressionType.Subtract:
                         case ExpressionType.SubtractChecked:
-                            return new UndefinedIntegerNumericLiteral($"{v1 - v2}");
+                            return new UndefinedIntegerNumericLiteral($"{v1 - v2}").SetPos<UndefinedIntegerNumericLiteral>(n1.Transform);
                     }
                 }
             }

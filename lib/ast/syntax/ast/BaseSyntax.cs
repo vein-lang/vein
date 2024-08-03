@@ -53,9 +53,9 @@ namespace vein.syntax
 
         public bool IsBrokenToken => (this as IPassiveParseTransition).Error != null;
 
-        internal Transform Transform { get; set; }
+        public Transform Transform { get; internal set; }
 
-        PassiveParseError IPassiveParseTransition.Error { get; set; }
+        PassiveParseError? IPassiveParseTransition.Error { get; set; }
 
         public T MarkAsErrorWhen<T>(string error, bool mark) where T : BaseSyntax
         {
@@ -65,14 +65,14 @@ namespace vein.syntax
         }
         public T MarkAsError<T>(string error) where T : BaseSyntax
         {
-            (this as IPassiveParseTransition).Error = new PassiveParseError(error, new string[0]);
+            (this as IPassiveParseTransition).Error = new PassiveParseError(error, Array.Empty<string>());
             return (T)this;
         }
     }
 
     public interface IPassiveParseTransition
     {
-        PassiveParseError Error { get; set; }
+        PassiveParseError? Error { get; set; }
         bool IsBrokenToken { get; }
     }
 

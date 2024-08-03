@@ -4,6 +4,7 @@ namespace vein.syntax
     using System.Linq;
     using extensions;
     using Sprache;
+    using stl;
 
     public class TypeExpression(TypeSyntax typeword)
         : ExpressionSyntax(typeword.Identifier.ExpressionString), IPositionAware<TypeExpression>
@@ -25,6 +26,12 @@ namespace vein.syntax
             Typeword.ArrayRank = settings.OfExactType<RankSpecifierValue>().Sum(x => x.Rank);
             Typeword.IsArray = settings.Any(x => x is RankSpecifierValue);
             Typeword.IsPointer = settings.Any(x => x is PointerSpecifierValue);
+            return this;
+        }
+
+        public TypeExpression WithGenerics(IOption<List<TypeExpression>> generics)
+        {
+            Typeword.TypeParameters = generics.GetOrEmpty().Select(x => x.Typeword).ToList();
             return this;
         }
 

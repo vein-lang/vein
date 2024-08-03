@@ -39,29 +39,31 @@ namespace vein.syntax
             }
         }
 
-        private static (string line, string arrow_line) NewDiffError(Transform t, string[] sourceLines)
+        private static (string line, string arrow_line) NewDiffError(Transform transform, string[] sourceLines)
         {
+            if (transform is null)
+                throw new ArgumentNullException(nameof(transform));
             if (sourceLines is null)
-                return default;
+                throw new ArgumentNullException(nameof(sourceLines));
             if (sourceLines.Length == 0)
-                return default;
-            var line = sourceLines[t.pos.Line - 1].Length < t.len ?
-                t.pos.Line :
-                t.pos.Line - 1;
+                throw new ArgumentOutOfRangeException(nameof(sourceLines));
+            var line = sourceLines[transform.pos.Line - 1].Length < transform.len ?
+                transform.pos.Line :
+                transform.pos.Line - 1;
 
             var original = sourceLines[line - 1];
 
             int takeLen()
             {
-                var r = original.Skip(t.pos.Column - 1).Take(t.len).ToArray().Last();
+                var r = original.Skip(transform.pos.Column - 1).Take(transform.len).ToArray().Last();
                 if (r is ' ' or ';' or ',')
-                    return t.len - 1;
-                return t.len;
+                    return transform.len - 1;
+                return transform.len;
             }
 
-            var err_line = original.Skip(t.pos.Column-1).Take(takeLen()).ToArray();
-            var space1 = original[..(t.pos.Column - 1)];
-            var space2 = (t.pos.Column - 1) + t.len > original.Length ? "" : original[((t.pos.Column - 1) + t.len)..];
+            var err_line = original.Skip(transform.pos.Column-1).Take(takeLen()).ToArray();
+            var space1 = original[..(transform.pos.Column - 1)];
+            var space2 = (transform.pos.Column - 1) + transform.len > original.Length ? "" : original[((transform.pos.Column - 1) + transform.len)..];
 
             return (original,
                 $"{new string(' ', space1.Length)}{new string('^', err_line.Length)}{new string(' ', space2.Length)}");

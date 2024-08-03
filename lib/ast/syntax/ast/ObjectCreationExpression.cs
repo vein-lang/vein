@@ -4,13 +4,12 @@ namespace vein.syntax
     using extensions;
     using Sprache;
 
-    public class ObjectCreationExpression : ExpressionSyntax, IPositionAware<ObjectCreationExpression>
+    public class ObjectCreationExpression(ArgumentListExpression args)
+        : ExpressionSyntax, IPositionAware<ObjectCreationExpression>
     {
-        public readonly IEnumerable<ArgumentExpression> Args;
+        public readonly ArgumentListExpression Args = args;
 
-        public ObjectCreationExpression(IEnumerable<ArgumentExpression> args) => Args = args;
-
-        public override IEnumerable<BaseSyntax> ChildNodes => Args.EmptyIfNull();
+        public override IEnumerable<BaseSyntax> ChildNodes => [Args];
 
         public new ObjectCreationExpression SetPos(Position startPos, int length)
         {

@@ -4,6 +4,7 @@ namespace vein.syntax
     using System.Collections.Generic;
     using System.Linq;
     using extensions;
+    using runtime;
     using Sprache;
     using stl;
 
@@ -92,13 +93,16 @@ namespace vein.syntax
                 .Concat(Fields)
                 .Concat(Properties)
                 .Concat(Members)
-                .Concat(new[] { Identifier })
-                .Where(n => n != null);
+                .Concat([Identifier])
+                .Where(n => n is not null);
 
         public IdentifierExpression Identifier { get; set; }
 
+        public NameSymbol ClassName => new(Identifier.ExpressionString);
+
         public virtual bool IsInterface { get; set; }
         public virtual bool IsStruct { get; set; }
+        public bool IsGeneric => GenericTypes.Any();
 
         public bool IsForwardedType => Aspects.Any(x => $"{x.Name}".Equals("forwarded"));
 

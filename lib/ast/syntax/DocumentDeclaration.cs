@@ -6,6 +6,8 @@ namespace vein.syntax
     using System.Linq;
     using extensions;
     using Newtonsoft.Json;
+    using runtime;
+    using Spectre.Console;
 
     public class DocumentDeclaration
     {
@@ -22,6 +24,8 @@ namespace vein.syntax
             }
         }
 
+        public NamespaceSymbol Namespace => new(Name);
+
         public IEnumerable<DirectiveSyntax> Directives { get; set; }
         public IEnumerable<MemberDeclarationSyntax> Members { get; set; }
         public IEnumerable<AspectDeclarationSyntax> Aspects { get; set; }
@@ -30,17 +34,17 @@ namespace vein.syntax
         public string SourceText { get; set; }
         public string[] SourceLines => SourceText.Replace("\r", "").Split("\n");
 
-        private List<string>? _includes;
+        private List<NamespaceSymbol>? _includes;
 
         public int[]? _line_offsets;
 
-        public List<string> Includes => _includes ??= Directives.OfExactType<UseSyntax>().Select(x =>
+        public List<NamespaceSymbol> Includes => _includes ??= Directives.OfExactType<UseSyntax>().Select(x =>
         {
             var result = x.Value.Token;
-
-            if (!result.StartsWith(""))
-                return $"{result}";
-            return result;
+            return new NamespaceSymbol(result);
         }).ToList();
+
+
+        public override string ToString() => $"Document [{FileEntity.FullName}]".EscapeMarkup();
     }
 }
