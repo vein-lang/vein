@@ -126,6 +126,17 @@ namespace ishtar.emit
                         list.Add((uint)bin.ReadInt32()); // name_index
                         list.Add((uint)bin.ReadInt32()); // type_index
                         break;
+                    case var _ when value is
+                        { Value: (ushort)OpCodeValue.CAST }:
+                        list.Add((uint)bin.ReadInt32()); // to
+                        break;
+                    case 10 when value is
+                        { Value: (ushort)OpCodeValue.CAST_G }:
+                        list.Add((uint)bin.ReadByte());
+                        list.Add((uint)bin.ReadInt32());
+                        list.Add((uint)bin.ReadByte());
+                        list.Add((uint)bin.ReadInt32());
+                        break;
                     case 0:
                         continue;
                     case sizeof(byte):

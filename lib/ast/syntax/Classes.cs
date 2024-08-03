@@ -2,6 +2,8 @@ namespace vein.syntax
 {
     using System.Collections.Generic;
     using System.Linq;
+    using extensions;
+    using runtime;
     using Sprache;
     using stl;
 
@@ -127,13 +129,13 @@ namespace vein.syntax
             from openBrace in Parse.Char('{').Token().Commented(this)
             from members in ClassMemberDeclaration.Positioned().Token().Many()
             from closeBrace in Parse.Char('}').Token().Commented(this)
-            let classBody = new ClassDeclarationSyntax
+            let classBody = new ClassDeclarationSyntax()
             {
-                Identifier = className,
+                Identifier = TypeSyntax.MutateClassNameWithGenerics(className, generics.GetOrEmpty().ToList()),
                 IsInterface = @class.Value == Keywords.INTERFACE,
                 IsStruct = @class.Value == Keywords.STRUCT,
                 Inheritances = interfaces.GetOrEmpty().ToList(),
-                Members = ConvertConstructors(members, className).ToList(),
+                Members = ConvertConstructors(members, TypeSyntax.MutateClassNameWithGenerics(className, generics.GetOrEmpty().ToList())).ToList(),
                 InnerComments = closeBrace.LeadingComments.ToList(),
                 TrailingComments = closeBrace.TrailingComments.ToList(),
                 TypeParameterConstraints = constraints.GetOrEmpty().ToList(),
@@ -143,7 +145,8 @@ namespace vein.syntax
                 .SetStart(@class.Transform.pos)
                 .SetEnd(closeBrace.Transform.pos)
                 .As<ClassDeclarationSyntax>();
-        
+
+
         protected internal virtual Parser<List<TypeParameterConstraintSyntax>> GenericConstraintParser =>
             from keyword in Parse.IgnoreCase("when").Token()
             from data in GenericConstraintUnitParser.Positioned().DelimitedBy(Parse.Char(',').Token())

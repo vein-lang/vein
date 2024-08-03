@@ -1,6 +1,7 @@
 namespace ishtar.emit;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -17,8 +18,8 @@ public class MethodBuilder : VeinMethod, IBaker
     private readonly ILGenerator _generator;
 
 
-    internal MethodBuilder(ClassBuilder clazz, string name, VeinComplexType returnType, params VeinArgumentRef[] args)
-        : base(name, 0, returnType, clazz, args)
+    internal MethodBuilder(ClassBuilder clazz, string name, VeinComplexType returnType, List<VeinTypeArg> generics, params VeinArgumentRef[] args)
+        : base(name, 0, returnType, clazz, generics, args)
     {
         classBuilder = clazz;
         Owner = clazz;
@@ -46,6 +47,7 @@ public class MethodBuilder : VeinMethod, IBaker
             binary.Write((byte)0); // locals size
             binary.WriteComplexType(ReturnType, moduleBuilder);
             binary.WriteArguments(Signature, moduleBuilder);
+            binary.WriteGenericsTypeName(Signature.Generics.ToList(), moduleBuilder);
             binary.Write(Array.Empty<byte>()); // IL Body
             return mem.ToArray();
         }
@@ -59,6 +61,7 @@ public class MethodBuilder : VeinMethod, IBaker
         binary.Write((byte)_generator.LocalsSize); // locals size
         binary.WriteComplexType(ReturnType, moduleBuilder);
         binary.WriteArguments(Signature, moduleBuilder);
+        binary.WriteGenericsTypeName(Signature.Generics.ToList(), moduleBuilder);
         binary.Write(body); // IL Body
 
         return mem.ToArray();

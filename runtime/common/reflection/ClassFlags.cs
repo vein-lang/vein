@@ -1,8 +1,11 @@
 namespace vein.runtime
 {
     using System;
+    using lang.c;
 
     [Flags]
+    [CTypeExport("class_flag_t")]
+    [CEnumPrefix("CLASS_")]
     public enum ClassFlags : short
     {
         None        = 0,
@@ -18,6 +21,7 @@ namespace vein.runtime
         Undefined   = 1 << 10,
         Unresolved  = 1 << 11,
         Predefined  = 1 << 12,
-        NotCompleted= 1 << 13
+        NotCompleted= 1 << 13,
+        Amorphous   = 1 << 14,
     }
 }

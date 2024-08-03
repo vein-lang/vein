@@ -2,6 +2,7 @@ namespace vein.runtime;
 
 
 using System;
+using reflection;
 using static VeinTypeCode;
 
 public enum VeinTypeCode : int
@@ -219,6 +220,9 @@ public static class VeinTypeCodeEx
         _ => false
     };
 
+    public static bool HasBoolean(this VeinTypeCode code) =>
+        code == TYPE_BOOLEAN;
+
     public static bool HasInteger(this VeinTypeCode code) =>
         HasSigned(code) || HasUnsigned(code);
 
@@ -236,7 +240,6 @@ public static class VeinTypeCodeEx
         TYPE_R8 => (x) => x.DoubleClass,
         TYPE_R4 => (x) => x.FloatClass,
         TYPE_R2 => (x) => x.HalfClass,
-        TYPE_ARRAY => (x) => x.ArrayClass,
         TYPE_BOOLEAN => (x) => x.BoolClass,
         TYPE_VOID => (x) => x.VoidClass,
         TYPE_OBJECT => (x) => x.ObjectClass,
@@ -246,6 +249,7 @@ public static class VeinTypeCodeEx
         TYPE_STRING => (x) => x.StringClass,
         TYPE_FUNCTION => (x) => x.FunctionClass,
         TYPE_RAW => (x) => x.RawClass,
+        TYPE_NULL => (x) => new NullClass(),
         _ => throw new ArgumentOutOfRangeException(nameof(code), code, null)
     };
 
@@ -253,4 +257,11 @@ public static class VeinTypeCodeEx
     public static VeinClass AsClass(this VeinTypeCode code, VeinModule method) => code.AsClass()(method.Types);
     public static VeinClass AsClass(this VeinTypeCode code, VeinClass clazz) => code.AsClass()(clazz.Owner.Types);
     public static VeinClass AsClass(this VeinTypeCode code, VeinMethod method) => code.AsClass()(method.Owner.Owner.Types);
+}
+
+public sealed record NullClass : VeinClass
+{
+    public override QualityTypeName FullName { get => throw new NotSupportedException(); set {} }
+
+    public NullClass() => TypeCode = TYPE_NULL;
 }

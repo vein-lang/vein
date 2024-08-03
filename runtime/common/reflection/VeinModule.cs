@@ -2,7 +2,9 @@ namespace vein.runtime
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Threading;
     using extensions;
     using reflection;
@@ -10,12 +12,12 @@ namespace vein.runtime
     public class VeinModule
     {
         public VeinCore Types { get; }
-        public string Name { get; protected set; }
+        public ModuleNameSymbol Name { get; protected set; }
         public Version Version { get; internal set; } = new(1, 0, 0, 0);
         protected internal List<VeinModule> Deps { get; set; } = new();
 
-        internal VeinModule(string name, VeinCore types) => (Name, Types) = (name.AssertNotNull(), types);
-        internal VeinModule(string name, Version ver, VeinCore types) => (Name, Version, Types) = (name.AssertNotNull(), ver, types);
+        internal VeinModule(ModuleNameSymbol name, VeinCore types) => (Name, Types) = (name, types);
+        internal VeinModule(ModuleNameSymbol name, Version ver, VeinCore types) => (Name, Version, Types) = (name, ver, types);
 
         protected internal List<Aspect> aspects { get; } = new();
         protected internal ConstStorage const_table { get; set; } = new();
@@ -25,9 +27,7 @@ namespace vein.runtime
         protected internal readonly Dictionary<int, QualityTypeName> types_table = new();
         protected internal readonly Dictionary<int, VeinTypeArg> generics_table = new();
         protected internal readonly Dictionary<int, FieldName> fields_table = new();
-
-        protected internal readonly MutexStorage Interlocker = new ();
-
+        
         public string GetConstStringByIndex(int index) =>
             strings_table.GetValueOrDefault(index) ??
             throw new AggregateException($"String by index  '{index}' not found in module '{Name}'.");
@@ -44,7 +44,7 @@ namespace vein.runtime
         /// <summary>
         /// Try find type by name (without namespace) with namespace includes.
         /// </summary>
-        public VeinClass TryFindType(string typename, List<string> includes)
+        public VeinClass TryFindType(NameSymbol typename, List<NamespaceSymbol> includes)
         {
             try
             {
@@ -57,13 +57,44 @@ namespace vein.runtime
         }
 
         /// <summary>
+        /// Find type by pattern (without namespace) with namespace includes.
+        /// </summary>
+        /// <exception cref="TypeNotFoundException"></exception>
+        public VeinClass FindType(Regex pattern, List<NamespaceSymbol> includes, bool throwWhenNotFound = true)
+        {
+            var result = class_table.Where(x => includes.Contains(x.FullName.Namespace)).
+                FirstOrDefault(x => pattern.IsMatch(x.Name.name));
+            if (result is not null)
+                return result;
+            foreach (var module in Deps)
+            {
+                result = module.FindType(pattern, includes, throwWhenNotFound);
+                if (result is not null)
+                    return result;
+            }
+
+            if (alias_table.Any(x => pattern.IsMatch(x.aliasName.Name.name) && includes.Contains(x.aliasName.Namespace)))
+            {
+                var alias = alias_table.First(x => pattern.IsMatch(x.aliasName.Name.name) && includes.Contains(x.aliasName.Namespace));
+
+                if (alias is VeinAliasType type)
+                    return type.type;
+            }
+
+
+            if (!throwWhenNotFound)
+                return null;
+            throw new TypeNotFoundException($"Type with pattern '{pattern}' not found in modules and dependency assemblies.");
+        }
+
+        /// <summary>
         /// Find type by name (without namespace) with namespace includes.
         /// </summary>
         /// <exception cref="TypeNotFoundException"></exception>
-        public VeinClass FindType(string typename, List<string> includes, bool throwWhenNotFound = true)
+        public VeinClass FindType(NameSymbol typename, List<NamespaceSymbol> includes, bool throwWhenNotFound = true)
         {
             var result = class_table.Where(x => includes.Contains(x.FullName.Namespace)).
-                FirstOrDefault(x => x.Name.Equals(typename) || x.Alias.Equals(typename));
+                FirstOrDefault(x => x.Name == typename);
             if (result is not null)
                 return result;
             foreach (var module in Deps)
@@ -73,10 +104,19 @@ namespace vein.runtime
                     return result;
             }
 
+            if (alias_table.Any(x => x.aliasName.Name.Equals(typename) && includes.Contains(x.aliasName.Namespace)))
+            {
+                var alias = alias_table.First(x => x.aliasName.Name.Equals(typename) && includes.Contains(x.aliasName.Namespace));
+
+                if (alias is VeinAliasType type)
+                    return type.type;
+            }
+
             if (!throwWhenNotFound)
                 return null;
-            throw new TypeNotFoundException($"'{typename}' not found in modules and dependency assemblies.");
+            throw new TypeNotFoundException($"'{typename}' not found in '{includes.Select(x => x.@namespace).Join(',')}' namespaces,\nmaybe you missing use directive?");
         }
+
 
         /// <summary>
         /// Find type by typename.
@@ -88,7 +128,7 @@ namespace vein.runtime
         public VeinClass FindType(QualityTypeName type, bool findExternally = false, bool dropUnresolvedException = true)
         {
             if (!findExternally)
-                findExternally = Name != type.AssemblyName;
+                findExternally = Name != type.ModuleName;
             var result = class_table.FirstOrDefault(filter);
 
             if (result is not null)
@@ -121,16 +161,5 @@ namespace vein.runtime
 
         public T ReadFromConstStorage<T>(FieldName field)
             => (T)const_table.Get(field);
-
-
-
-        public class MutexStorage
-        {
-            public object INIT_ARRAY_BARRIER = new ();
-            public object INIT_TYPE_BARRIER = new ();
-            public object INIT_FIELD_BARRIER = new ();
-            public object INIT_METHOD_BARRIER = new ();
-            public object GC_FINALIZER_BARRIER = new ();
-        }
     }
 }

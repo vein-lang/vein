@@ -6,48 +6,33 @@ namespace vein.reflection
     using System.Linq;
     using runtime;
 
-    public class AspectArgument
+    public class AspectArgument(Aspect aspect, object value, int index)
     {
-        public Aspect Owner { get; }
-        public object Value { get; }
-        public int Index { get; }
-
-        public AspectArgument(Aspect aspect, object value, int index)
-        {
-            Owner = aspect;
-            Value = value;
-            Index = index;
-        }
+        public Aspect Owner { get; } = aspect;
+        public object Value { get; } = value;
+        public int Index { get; } = index;
     }
 
-    public class AspectOfClass : Aspect
+    public class AspectOfClass(string name, NameSymbol className) : Aspect(name, AspectTarget.Class)
     {
-        public string ClassName { get; }
-        public AspectOfClass(string name, string className) : base(name, AspectTarget.Class)
-            => ClassName = className;
+        public NameSymbol ClassName { get; } = className;
+
         public override string ToString() => $"Aspect '{Name}' for '{ClassName}' class";
     }
 
-    public class AspectOfMethod : Aspect
+    public class AspectOfMethod(string name, NameSymbol className, string methodName)
+        : Aspect(name, AspectTarget.Method)
     {
-        public string ClassName { get; }
-        public string MethodName { get; }
-        public AspectOfMethod(string name, string className, string methodName) : base(name, AspectTarget.Method)
-        {
-            ClassName = className;
-            MethodName = methodName;
-        }
+        public NameSymbol ClassName { get; } = className;
+        public string MethodName { get; } = methodName;
+
         public override string ToString() => $"Aspect '{Name}' for '{ClassName}/{MethodName}(..)' method";
     }
-    public class AspectOfField : Aspect
+    public class AspectOfField(string name, NameSymbol className, string fieldName) : Aspect(name, AspectTarget.Field)
     {
-        public string ClassName { get; }
-        public string FieldName { get; }
-        public AspectOfField(string name, string className, string fieldName) : base(name, AspectTarget.Field)
-        {
-            ClassName = className;
-            FieldName = fieldName;
-        }
+        public NameSymbol ClassName { get; } = className;
+        public string FieldName { get; } = fieldName;
+
         public override string ToString() => $"Aspect '{Name}' for '{ClassName}/{FieldName}' field";
     }
 
@@ -55,7 +40,6 @@ namespace vein.reflection
     {
         public AliasAspect(Aspect aspect)
         {
-            Debug.Assert(aspect.IsAlias());
             Debug.Assert(aspect.Arguments.Count == 1);
             Name = (string)aspect.Arguments.Single().Value;
         }
@@ -65,7 +49,7 @@ namespace vein.reflection
 
     public static class AspectExtensions
     {
-        public static AliasAspect AsAlias(this Aspect aspect) => new AliasAspect(aspect);
+        public static AliasAspect AsAlias(this Aspect aspect) => new(aspect);
     }
 
     public class Aspect
@@ -85,10 +69,9 @@ namespace vein.reflection
         internal void DefineArgument(int index, object value)
             => Arguments.Add(new AspectArgument(this, value, index));
 
-        public AliasAspect AsAlias() => new AliasAspect(this);
+        public AliasAspect AsAlias() => new(this);
 
 
-        public bool IsAlias() => Name.Equals("alias", StringComparison.InvariantCultureIgnoreCase);
         public bool IsNative() => Name.Equals("native", StringComparison.InvariantCultureIgnoreCase);
         public bool IsSpecial() => Name.Equals("special", StringComparison.InvariantCultureIgnoreCase);
 
@@ -163,7 +146,7 @@ namespace vein.reflection
             {
                 var aspectName = groupClass.Key.Split(ASPECT_METADATA_DIVIDER).First();
                 var aspectClass = groupClass.Key.Split(ASPECT_METADATA_DIVIDER).Last();
-                var aspect = new AspectOfClass(aspectName, aspectClass);
+                var aspect = new AspectOfClass(aspectName, new NameSymbol(aspectClass));
                 foreach (var (key, value) in groupClass)
                 {
                     var index = key.fullName.Split("._").Last();
@@ -176,7 +159,7 @@ namespace vein.reflection
                 var aspectName = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[0];
                 var aspectClass = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[1];
                 var aspectMethod = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[2];
-                var aspect = new AspectOfMethod(aspectName, aspectClass, aspectMethod);
+                var aspect = new AspectOfMethod(aspectName, new NameSymbol(aspectClass), aspectMethod);
                 foreach (var (key, value) in groupMethod)
                 {
                     var index = key.fullName.Split("._").Last();
@@ -189,7 +172,7 @@ namespace vein.reflection
                 var aspectName = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[0];
                 var aspectClass = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[1];
                 var aspectField = groupMethod.Key.Split(ASPECT_METADATA_DIVIDER)[2];
-                var aspect = new AspectOfField(aspectName, aspectClass, aspectField);
+                var aspect = new AspectOfField(aspectName, new NameSymbol(aspectClass), aspectField);
                 foreach (var (key, value) in groupMethod)
                 {
                     var index = key.fullName.Split("._").Last();

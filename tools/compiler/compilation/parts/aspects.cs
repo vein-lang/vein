@@ -69,17 +69,17 @@ public partial class CompilationTask
 
     public void CompileAspectFor(FieldDeclarationSyntax dec, DocumentDeclaration doc, VeinField field) =>
            CompileAspectFor(dec.Aspects, x =>
-               $"aspect{Aspect.ASPECT_METADATA_DIVIDER}{x.Name}{Aspect.ASPECT_METADATA_DIVIDER}class{Aspect.ASPECT_METADATA_DIVIDER}{field.Owner.Name}{Aspect.ASPECT_METADATA_DIVIDER}field{Aspect.ASPECT_METADATA_DIVIDER}{dec.Field.Identifier}.",
+               $"aspect{Aspect.ASPECT_METADATA_DIVIDER}{x.Name}{Aspect.ASPECT_METADATA_DIVIDER}class{Aspect.ASPECT_METADATA_DIVIDER}{field.Owner.Name.name}{Aspect.ASPECT_METADATA_DIVIDER}field{Aspect.ASPECT_METADATA_DIVIDER}{dec.Field.Identifier}.",
                doc, field, AspectTarget.Field);
 
     public void CompileAspectFor(MethodDeclarationSyntax dec, DocumentDeclaration doc, VeinMethod method) =>
         CompileAspectFor(dec.Aspects, x =>
-            $"aspect{Aspect.ASPECT_METADATA_DIVIDER}{x.Name}{Aspect.ASPECT_METADATA_DIVIDER}class{Aspect.ASPECT_METADATA_DIVIDER}{method.Owner.Name}{Aspect.ASPECT_METADATA_DIVIDER}method{Aspect.ASPECT_METADATA_DIVIDER}{method.Name}.",
+            $"aspect{Aspect.ASPECT_METADATA_DIVIDER}{x.Name}{Aspect.ASPECT_METADATA_DIVIDER}class{Aspect.ASPECT_METADATA_DIVIDER}{method.Owner.Name.name}{Aspect.ASPECT_METADATA_DIVIDER}method{Aspect.ASPECT_METADATA_DIVIDER}{method.Name}.",
             doc, method, AspectTarget.Method);
 
     public void CompileAspectFor(ClassDeclarationSyntax dec, DocumentDeclaration doc, VeinClass clazz) =>
         CompileAspectFor(dec.Aspects, x =>
-            $"aspect{Aspect.ASPECT_METADATA_DIVIDER}{x.Name}{Aspect.ASPECT_METADATA_DIVIDER}class{Aspect.ASPECT_METADATA_DIVIDER}{clazz.Name}.", doc, clazz, AspectTarget.Class);
+            $"aspect{Aspect.ASPECT_METADATA_DIVIDER}{x.Name}{Aspect.ASPECT_METADATA_DIVIDER}class{Aspect.ASPECT_METADATA_DIVIDER}{clazz.Name.name}.", doc, clazz, AspectTarget.Class);
 
     private void CompileAspectFor(
         List<AspectSyntax> aspects,

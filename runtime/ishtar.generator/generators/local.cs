@@ -81,6 +81,10 @@ public static class G_Local
         var exp = localVar.Body.Get();
         var type = exp.DetermineType(scope.Context);
 
+        if (type.IsGeneric)
+        {
+
+        }
 
         var locIndex = generator.EnsureLocal(localVar.Identifier.ExpressionString, type);
 

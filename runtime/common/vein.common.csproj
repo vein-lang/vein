@@ -11,4 +11,7 @@
     </PackageReference>
     <PackageReference Include="morelinq" Version="3.4.2" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\lib\capi\capi.csproj" />
+  </ItemGroup>
 </Project>

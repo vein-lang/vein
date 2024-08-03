@@ -58,7 +58,10 @@ public static class B_Array
 
         var type = context.ResolveType(expression.Typeword);
 
-        if (!type.IsValueType)
+        if (type.IsGeneric)
+            throw new NotSupportedException();
+
+        if (!type.Class.IsValueType)
             return null;
 
         var sizes = arrayInitializer.Sizes;

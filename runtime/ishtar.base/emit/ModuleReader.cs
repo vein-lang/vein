@@ -143,7 +143,7 @@ namespace ishtar.emit
         }
     }
 
-    internal class ModuleReader(VeinCore types) : VeinModule(".unnamed", types)
+    internal class ModuleReader(VeinCore types) : VeinModule(new ModuleNameSymbol(".unnamed"), types)
     {
         public static ModuleReader Read(byte[] arr, IReadOnlyList<VeinModule> deps, Func<string, Version, VeinModule> resolver)
         {
@@ -180,7 +180,7 @@ namespace ishtar.emit
                 var asmName = reader.ReadIshtarString();
                 var ns = reader.ReadIshtarString();
                 var name = reader.ReadIshtarString();
-                module.types_table.Add(key, new QualityTypeName(asmName, name, ns));
+                module.types_table.Add(key, new QualityTypeName(new NameSymbol(name), new NamespaceSymbol(ns), new ModuleNameSymbol(asmName)));
             }
             // read fields table
             foreach (var _ in ..reader.ReadInt32())
@@ -219,7 +219,7 @@ namespace ishtar.emit
             foreach (var _ in ..reader.ReadInt32())
             {
                 var key = reader.ReadInt32();
-                var name = reader.ReadIshtarString();
+                var name = reader.ReadTypeName(module);
                 var isType = reader.ReadBoolean();
 
                 if (isType)
@@ -231,7 +231,7 @@ namespace ishtar.emit
                 {
                     var retType = reader.ReadComplexType(module);
                     var args = ReadArguments(reader, module);
-                    module.alias_table.Add(new VeinAliasMethod(name, new VeinMethodSignature(retType, args)));
+                    module.alias_table.Add(new VeinAliasMethod(name, new VeinMethodSignature(retType, args, new List<VeinTypeArg>() /* todo */)));
                 }
             }
 
@@ -319,7 +319,7 @@ namespace ishtar.emit
 
             module.const_table = const_body.ToConstStorage();
 
-            module.Name = module.GetConstStringByIndex(idx);
+            module.Name = new ModuleNameSymbol(module.GetConstStringByIndex(idx));
             module.Version = Version.Parse(module.GetConstStringByIndex(vdx));
             module.aspects.AddRange(Aspect.Deconstruct(module.const_table.storage));
             DistributionAspects(module);
@@ -385,6 +385,8 @@ namespace ishtar.emit
             {
                 Flags = flags
             };
+            
+            Debug.Assert(binary.ReadInt32() == 1923);
 
             foreach (var _ in ..len)
             {
@@ -393,6 +395,8 @@ namespace ishtar.emit
                 var method = DecodeMethod(body, @class, module);
                 @class.Methods.Add(method);
             }
+
+            Debug.Assert(binary.ReadInt32() == 8712);
 
             DecodeField(binary, @class, module);
 
@@ -422,10 +426,11 @@ namespace ishtar.emit
             var locals = binary.ReadByte();
             var retType = binary.ReadComplexType(module);
             var args = ReadArguments(binary, module);
+            var typeArgs = binary.ReadGenericsTypeName(module);
             var _ = binary.ReadBytes(bodysize);
             return new VeinMethod(module.GetConstStringByIndex(idx), flags,
                 retType,
-                @class, args.ToArray());
+                @class, typeArgs, args.ToArray());
         }
 
 

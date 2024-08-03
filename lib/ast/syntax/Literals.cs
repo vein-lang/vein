@@ -202,12 +202,12 @@ namespace vein.syntax
         /// </example>
         protected internal virtual Parser<LiteralExpressionSyntax> LiteralExpression =>
             from expr in
-                FloatLiteralExpression.Log("FloatLiteralExpression").Or(
-                        IntLiteralExpression.Log("IntLiteralExpression")).XOr(
-                    StringLiteralExpression.Log("StringLiteralExpression")).XOr(
-                    BinaryLiteralExpression.Log("BinaryLiteralExpression")).XOr(
-                    BooleanLiteralExpression.Log("BooleanLiteralExpression")).XOr(
-                    NullLiteralExpression.Log("NullLiteralExpression"))
+                FloatLiteralExpression.Positioned().Log("FloatLiteralExpression").Or(
+                        IntLiteralExpression.Positioned().Log("IntLiteralExpression")).XOr(
+                    StringLiteralExpression.Positioned().Log("StringLiteralExpression")).XOr(
+                    BinaryLiteralExpression.Positioned().Log("BinaryLiteralExpression")).XOr(
+                    BooleanLiteralExpression.Positioned().Log("BooleanLiteralExpression")).XOr(
+                    NullLiteralExpression.Positioned().Log("NullLiteralExpression"))
                     .Positioned().Commented(this)
             select expr.Value
                 .WithLeadingComments(expr.LeadingComments)

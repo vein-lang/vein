@@ -60,8 +60,8 @@ namespace vein.syntax
                 .ToList();
             if (@this.Parameters.Count != args.Count)
                 return false;
-            return @this.Parameters.Select(x => $"{x.Type.Identifier}".ToLowerInvariant())
-                .SequenceEqual(args.Select(x => x.Type.Name.ToLowerInvariant()));
+            return @this.Parameters.Select(x => new NameSymbol(x.Type.Identifier))
+                .SequenceEqual(args.Select(x => x.Type.Name));
         }
     }
 }

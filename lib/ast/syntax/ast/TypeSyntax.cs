@@ -1,7 +1,9 @@
 namespace vein.syntax
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using extensions;
     using runtime;
     using Sprache;
@@ -54,6 +56,8 @@ namespace vein.syntax
         public IdentifierExpression Identifier { get; set; }
 
         public List<TypeSyntax> TypeParameters { get; set; } = new();
+
+        public bool IsGeneric => TypeParameters.Any();
         public bool IsArray { get; set; }
         public bool IsPointer { get; set; }
         public bool IsAsyncJob => Identifier.ExpressionString.Equals("Job");
@@ -62,6 +66,30 @@ namespace vein.syntax
         public int ArrayRank { get; set; }
         public int PointerRank { get; set; }
         public bool IsSelf => Identifier.ToString().Equals("self");
+
+        public static IdentifierExpression MutateClassNameWithGenerics(IdentifierExpression id, List<TypeExpression> generics)
+        {
+            if (!generics.Any())
+                return id;
+            var newName = $"{id}<{generics.Select(x => $"{new VeinTypeArg(x.Typeword.Identifier)}").Join(",")}>";
+            return new IdentifierExpression(newName).SetPos<IdentifierExpression>(id.Transform);
+        }
+
+        public static string MutateClassNameWithGenerics(TypeSyntax typeName)
+        {
+            if (!typeName.IsGeneric)
+                return typeName.Identifier;
+            var newName = $"{typeName.Identifier}<{typeName.TypeParameters.Select(x => $"{new VeinTypeArg(x.Identifier)}").Join(",")}>";
+            return new IdentifierExpression(newName);
+        }
+
+        public static Regex ToGlobPattern(TypeSyntax typeName)
+        {
+            if (!typeName.IsGeneric)
+                throw new NotSupportedException();
+            var newName = $@"^{typeName.Identifier}\<{typeName.TypeParameters.Select(x => $"{new VeinTypeArg(@"[^\W+]+")}").Join(@"\,")}\>";
+            return new Regex(newName);
+        }
 
 
         public string GetFullName()

@@ -10,11 +10,10 @@ namespace vein.syntax
     {
         public AspectSyntax(IdentifierExpression kind)
             => this.Name = kind;
-        public AspectSyntax(IdentifierExpression kind, IOption<ExpressionSyntax> args)
+        public AspectSyntax(IdentifierExpression kind, IOption<ObjectCreationExpression> args)
         {
             (Name, Args) = (kind,
-                ((ObjectCreationExpression)args.GetOrDefault())?.Args?.EmptyIfNull().ToArray());
-            Args ??= Array.Empty<ArgumentExpression>(); // the fuck
+                (args.GetOrDefault() ?? new ObjectCreationExpression(new ArgumentListExpression(Array.Empty<ExpressionSyntax>()))).Args.Arguments.OfType<ArgumentExpression>().ToArray());
         }
 
         public IdentifierExpression Name { get; }

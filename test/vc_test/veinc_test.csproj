@@ -6,7 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.DotMemoryUnit" Version="3.2.20220510" />
-    <ProjectReference Include="..\..\compiler\veinc.csproj" />
     <PackageReference Include="LibGit2Sharp" Version="0.27.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="NUnit" Version="3.13.2" />
@@ -31,5 +30,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Project\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\tools\compiler\veinc.csproj" />
   </ItemGroup>
 </Project>

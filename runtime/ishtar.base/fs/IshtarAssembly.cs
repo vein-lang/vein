@@ -47,7 +47,7 @@ namespace vein.fs
         {
             if (module is null)
                 throw new ArgumentNullException(nameof(module));
-            if (string.IsNullOrEmpty(module.Name))
+            if (string.IsNullOrEmpty(module.Name.moduleName))
                 throw new ArgumentNullException($"module.Name");
             Version = module.Version;
             this.AddSegment((".code", module.BakeByteArray()));

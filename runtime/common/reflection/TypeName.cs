@@ -1,112 +1,90 @@
 namespace vein.runtime;
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using extensions;
 
 public class InvalidTypeNameException(string msg) : Exception(msg);
-public class QualityTypeName(string fullName) : IEquatable<QualityTypeName>
+
+public record struct NameSymbol(string name)
 {
-    private string _name, _namespace, _asmName, _nameWithNS;
-    private readonly string _fullName = fullName;
+    public static NameSymbol FunctionMulticast = new("FunctionMulticast");
+    public static NameSymbol ValueType = new("ValueType");
 
-    public string Name
+    public bool HasGenerics => name.ContainsAll("<", ">");
+    public bool HasUnderlying { get; private init; }
+
+
+    public NameSymbol ToUnderlying()
     {
-        get
+        if (!HasGenerics)
+            throw new InvalidOperationException();
+        var rex = new Regex(@"(\w+)");
+        var all = new Regex(@"\<(.+)\>");
+
+        return new NameSymbol($"{all.Replace(name, "")}<{new string(',', rex.Matches(name).Count - 2)}>")
         {
-            if (_name is not null)
-                return _name;
-            return _name = _fullName.Split('/').Last();
-        }
+            HasUnderlying = true
+        };
     }
 
-    public string Namespace
+    public bool Equals(NameSymbol other)
+        => Equals((NameSymbol?)other);
+    
+    public override int GetHashCode() => HashCode.Combine(name);
+
+    public bool Equals(NameSymbol? other)
     {
-        get
-        {
-            if (_namespace is not null)
-                return _namespace;
-            return _namespace = _fullName
-                .Split('/')
-                .SkipLast(1).Join("/")
-                .Split("%").Skip(1)
-                .Join("/");
-        }
+        if (other is null)
+            return false;
+        if (other.Value.HasGenerics != HasGenerics)
+            return false;
+        if (HasGenerics)
+            return ToUnderlying().name.Equals(other.Value.ToUnderlying().name);
+        return other.Value.name.Equals(this.name);
     }
 
-    public string AssemblyName
+    public static bool operator ==(NameSymbol? n1, NameSymbol? n2)
     {
-        get
-        {
-            if (_asmName is not null)
-                return _asmName;
-            return _asmName = _fullName.Split("%").SkipLast(1).Join();
-        }
+        if (n1 is null || n2 is null)
+            return false;
+        return n1.Value.Equals(n2);
     }
-
-    public string NameWithNS
+    public static bool operator !=(NameSymbol? one, NameSymbol? other)
+        => !(one == other);
+    public static NameSymbol WithGenerics(string name, List<NameSymbol> generics)
     {
-        get
-        {
-            if (_nameWithNS is not null)
-                return _nameWithNS;
-            return _nameWithNS = _fullName.Split("%").Skip(1).Join();
-        }
+        if (generics.Count == 0)
+            return new NameSymbol(name);
+        return new NameSymbol($"{name}<{generics.Select(x => new VeinTypeArg(x.name).ToString()).Join(',')}>");
     }
+}
 
-    public string FullName => _fullName;
+public record struct NamespaceSymbol(string @namespace)
+{
+    public static NamespaceSymbol Std = new("std");
+    public static NamespaceSymbol Internal = new("@internal");
+}
 
-    public QualityTypeName(string asmName, string name, string ns) : this($"{asmName}%{ns}/{name}")
-    {
-        _namespace = ns;
-        _name = name;
-        _asmName = asmName;
-        _nameWithNS = $"{ns}/{name}";
-    }
+public record struct ModuleNameSymbol(string moduleName)
+{
+    public static ModuleNameSymbol Std = new("std");
+}
 
-    public static implicit operator QualityTypeName(string name)
-    {
-        if (!Regex.IsMatch(name, @"(.+)\%(.+)\/(.+)"))
-            throw new InvalidTypeNameException($"'{name}' is not valid type name.");
-        return new QualityTypeName(name);
-    }
+public sealed record QualityTypeName(NameSymbol Name, NamespaceSymbol Namespace, ModuleNameSymbol ModuleName)
+{
 
-    public override string ToString() => _fullName;
+    public const string NAME_DIVIDER = "::";
 
+    public string NameWithNS => $"{Namespace.@namespace}{NAME_DIVIDER}{Name.name}";
 
+    public string FullName =>
+        $"[{ModuleName.moduleName}]{NAME_DIVIDER}{Namespace.@namespace}{NAME_DIVIDER}{Name.name}";
+
+    public override string ToString() => FullName;
 
 
-    internal T TryGet<T>(Func<QualityTypeName, T> t) where T : class
-    {
-        try
-        {
-            return t(this);
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    public static bool operator ==(QualityTypeName q1, QualityTypeName q2)
-    {
-        if (q1 is null or { _fullName: null }) return false;
-        if (q2 is null or { _fullName: null }) return false;
-        return q1._fullName.Equals(q2._fullName, StringComparison.InvariantCultureIgnoreCase);
-    }
-
-    public static bool operator !=(QualityTypeName q1, QualityTypeName q2) => !(q1 == q2);
-    protected bool Equals(QualityTypeName other) => _fullName == other._fullName;
-
-    public override bool Equals(object obj)
-    {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
-        return Equals((QualityTypeName)obj);
-    }
-
-    public override int GetHashCode() => (_fullName != null ? _fullName.GetHashCode() : 0);
-    bool IEquatable<QualityTypeName>.Equals(QualityTypeName other) => Equals(other);
+    public QualityTypeName OverrideName(NameSymbol name) => this with { Name = name };
 }
