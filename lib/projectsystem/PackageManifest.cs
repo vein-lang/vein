@@ -22,6 +22,8 @@ public record PackageManifest
     public string License { get; set; }
     [JsonProperty("preview")]
     public bool IsPreview { get; set; }
+    [JsonProperty("isWorkload")]
+    public bool IsWorkload { get; set; }
     [JsonProperty("urls")]
     public PackageUrls Urls { get; set; }
     [JsonProperty("keywords")]
