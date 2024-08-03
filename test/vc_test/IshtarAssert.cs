@@ -1,5 +1,7 @@
 namespace veinc_test;
 
+using System.Text.RegularExpressions;
+
 public class TestContext
 {
     public static VeinSyntax Syntax => new();
