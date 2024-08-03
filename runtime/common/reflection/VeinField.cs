@@ -30,7 +30,7 @@ namespace vein.runtime
         public FieldName(string name, string className) : this($"{className}.{name}") { }
 
         public static FieldName Construct(VeinClass owner, string name)
-            => new(name, owner.FullName.Name);
+            => new(name, owner.FullName.Name.name);
 
         public static FieldName Resolve(int index, VeinModule module)
         {
@@ -107,7 +107,7 @@ namespace vein.runtime
 
             if (shadowField is null)
                 return null;
-            var prop = new VeinProperty(clazz, new FieldName(name, clazz.Name), shadowField.Flags,
+            var prop = new VeinProperty(clazz, FieldName.Construct(clazz, name), shadowField.Flags,
                 shadowField.FieldType)
             {
                 ShadowField = shadowField

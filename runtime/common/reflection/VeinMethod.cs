@@ -23,12 +23,22 @@ namespace vein.runtime
         public VeinClass Class => _class;
 
 
-        public static implicit operator VeinComplexType(VeinClass cpx) => new(cpx);
-        public static implicit operator VeinComplexType(VeinTypeArg cpx) => new(cpx);
+        public static implicit operator VeinComplexType(VeinClass cpx)
+        {
+            if (cpx is null) return null;
+            return new VeinComplexType(cpx);
+        }
+
+        public static implicit operator VeinComplexType(VeinTypeArg cpx)
+        {
+            if (cpx is null) return null;
+            return new VeinComplexType(cpx);
+        }
 
 
         public static implicit operator VeinClass(VeinComplexType cpx)
         {
+            if (cpx is null) return null;
             if (cpx.IsGeneric)
                 throw new NotSupportedException($"Trying summon non generic vein type, but complex type is generic");
             return cpx._class;
@@ -36,7 +46,8 @@ namespace vein.runtime
 
         public static implicit operator VeinTypeArg(VeinComplexType cpx)
         {
-            if (cpx.IsGeneric)
+            if (cpx is null) return null;
+            if (!cpx.IsGeneric)
                 throw new NotSupportedException($"Trying summon generic type, but complex type is non generic vein type");
             return cpx._typeArg;
         }
@@ -48,7 +59,8 @@ namespace vein.runtime
 
     public record VeinMethodSignature(
         VeinComplexType ReturnType,
-        IReadOnlyList<VeinArgumentRef> Arguments)
+        IReadOnlyList<VeinArgumentRef> Arguments,
+        IReadOnlyList<VeinTypeArg> Generics)
     {
         public int ArgLength => Arguments.Count;
 
@@ -58,7 +70,7 @@ namespace vein.runtime
 
         public static bool NotThis(VeinArgumentRef @ref) => !@ref.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
 
-        public bool IsGeneric => Arguments.Any(x => x.IsGeneric);
+        public bool IsGeneric => Arguments.Any(x => x.IsGeneric) || ReturnType.IsGeneric || Generics.Any();
 
         public bool HasCompatibility(VeinMethodSignature otherSig, bool ignoreThis)
         {
@@ -99,11 +111,11 @@ namespace vein.runtime
 
     public class VeinMethod : VeinMember, IAspectable
     {
-        public VeinMethodSignature Signature { get; private set; }
+        public VeinMethodSignature Signature { get; internal set; }
         public VeinComplexType ReturnType => Signature.ReturnType;
         public VeinClass Owner { get; protected internal set; }
-        public Dictionary<int, VeinArgumentRef> Locals { get; } = new();
-        public List<Aspect> Aspects { get; } = new();
+        public Dictionary<int, VeinArgumentRef> Locals { get; private init; } = new();
+        public List<Aspect> Aspects { get; private init; } = new();
 
         public const string METHOD_NAME_CONSTRUCTOR = "ctor";
         public const string METHOD_NAME_DECONSTRUCTOR = "dtor";
@@ -112,11 +124,11 @@ namespace vein.runtime
         public void Temp_ReplaceReturnType(VeinClass clazz) => Signature = Signature with { ReturnType = clazz };
 
 
-        internal VeinMethod(string name, MethodFlags flags, VeinComplexType returnType, VeinClass owner, params VeinArgumentRef[] args)
+        internal VeinMethod(string name, MethodFlags flags, VeinComplexType returnType, VeinClass owner, List<VeinTypeArg> generics, params VeinArgumentRef[] args)
         {
             Owner = owner;
             Flags = flags;
-            Signature = new VeinMethodSignature(returnType, args);
+            Signature = new VeinMethodSignature(returnType, args, generics);
             Name = RegenerateName(name);
         }
 
@@ -126,13 +138,13 @@ namespace vein.runtime
                 ? n : GetFullName(n, Signature.ReturnType, Signature.Arguments);
 
         public static string GetFullName(string name, VeinComplexType returnType, IEnumerable<VeinArgumentRef> args)
-            => $"{name}{new VeinMethodSignature(returnType, args.ToList()).ToTemplateString()}";
+            => $"{name}{new VeinMethodSignature(returnType, args.ToList(), new List<VeinTypeArg>()).ToTemplateString()}";
 
         public static string GetFullName(string name, VeinComplexType returnType, IEnumerable<VeinComplexType> args)
-            => $"{name}{new VeinMethodSignature(returnType, args.Select((x, y) => new VeinArgumentRef(y.ToString(), x)).ToList()).ToTemplateString()}";
+            => $"{name}{new VeinMethodSignature(returnType, args.Select((x, y) => new VeinArgumentRef(y.ToString(), x)).ToList(), new List<VeinTypeArg>()).ToTemplateString()}";
 
         public static string GetFullName(string name, VeinComplexType returnType, IEnumerable<VeinClass> args)
-            => $"{name}{new VeinMethodSignature(returnType, args.Select((x, y) => new VeinArgumentRef(y.ToString(), x)).ToList()).ToTemplateString()}";
+            => $"{name}{new VeinMethodSignature(returnType, args.Select((x, y) => new VeinArgumentRef(y.ToString(), x)).ToList(), new List<VeinTypeArg>()).ToTemplateString()}";
 
         public MethodFlags Flags { get; set; }
 
@@ -151,5 +163,16 @@ namespace vein.runtime
         public string RawName => Name.Split('(').First();
 
         public override VeinMemberKind Kind => VeinMemberKind.Method;
+
+        public override string ToString() => Name;
+
+        public VeinMethod ShadowClone() =>
+            new(Name, Flags, ReturnType, Owner, Signature.Generics.ToList(),
+                Signature.Arguments.ToArray())
+            {
+                Flags = Flags,
+                Aspects = Aspects,
+                Locals = Locals
+            };
     }
 }

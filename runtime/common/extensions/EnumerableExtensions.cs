@@ -34,6 +34,15 @@ namespace vein.extensions
             where T : struct, IComparable, IFormattable, IConvertible
             => string.Join(key, enumerable);
 
+
+
+        public static bool ContainsAny(this string data, params string[] keys)
+            => keys.Any(data.Contains);
+        public static bool ContainsAll(this string data, params string[] keys)
+        {
+            return keys.All(x => data.Contains(x));
+        }
+
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable)
             => enumerable == null || !enumerable.Any();
 

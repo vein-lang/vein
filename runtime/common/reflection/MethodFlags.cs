@@ -1,11 +1,14 @@
 namespace vein.runtime
 {
     using System;
+    using lang.c;
 
     [Flags]
+    [CTypeExport("method_flags_t")]
+    [CEnumPrefix("METHOD_")]
     public enum MethodFlags : short
     {
-        None        = 0 << 0,
+        None        = 0,
         Public      = 1 << 0,
         Static      = 1 << 1,
         Internal    = 1 << 2,
@@ -17,5 +20,6 @@ namespace vein.runtime
         Override    = 1 << 8,
         Special     = 1 << 9,
         Async       = 1 << 10,
+        Generic     = 1 << 11,
     }
 }

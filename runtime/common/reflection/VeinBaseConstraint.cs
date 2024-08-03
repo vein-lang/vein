@@ -30,6 +30,14 @@ public enum VeinTypeParameterConstraint : int
 
 public record VeinTypeArg(string Name, IReadOnlyList<VeinBaseConstraint> Constraints)
 {
-    public override string ToString() => $"µ{Name}";
+    public VeinTypeArg(string Name) : this(Name, new List<VeinBaseConstraint>()) { }
+
+    public override string ToString() => Name;
     public string ToTemplateString() => ToString();
+
+    public VeinDefinedTypeArg AsDefined(VeinClass clazz) => new(clazz, Name, Constraints);
 }
+
+
+public record VeinDefinedTypeArg(VeinClass definedClass, string Name, IReadOnlyList<VeinBaseConstraint> Constraints)
+    : VeinTypeArg(Name, Constraints);

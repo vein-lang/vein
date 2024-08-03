@@ -17,7 +17,7 @@ using Org.BouncyCastle.Utilities.Encoders;
 public class SecurityStorage
 {
     public static readonly DirectoryInfo RootFolder
-        = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".vein"));
+        = new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".vein"));
 
     public static readonly FileInfo ConfigFile =
         RootFolder.File("vcfg");

@@ -1,7 +1,9 @@
 namespace vein.runtime;
 #nullable enable
 using System;
+using System.Diagnostics;
 
+[DebuggerDisplay("{ToStringDebug()}")]
 public class VeinArgumentRef(string name, VeinComplexType complexType)
 {
     public const string THIS_ARGUMENT = "<this>";
@@ -22,6 +24,7 @@ public class VeinArgumentRef(string name, VeinComplexType complexType)
 
 
     public bool IsGeneric => ComplexType.IsGeneric;
+    public bool IsThis => Name.Equals(THIS_ARGUMENT);
 
     public string ToTemplateString() => ComplexType!.ToTemplateString();
 
@@ -31,4 +34,7 @@ public class VeinArgumentRef(string name, VeinComplexType complexType)
 
     public static VeinArgumentRef Create(VeinCore types, (VeinTypeCode code, string name) data) =>
         Create(types, (data.name, data.code));
+
+
+    private string ToStringDebug() => $"Argument ({Name}: {ComplexType})";
 }

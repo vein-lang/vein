@@ -1,11 +1,14 @@
 namespace vein.runtime
 {
     using System;
+    using lang.c;
 
     [Flags]
+    [CTypeExport("field_flag_t")]
+    [CEnumPrefix("FIELD_")]
     public enum FieldFlags : short
     {
-        None        = 0 << 0,
+        None        = 0,
         Literal     = 1 << 1,
         Public      = 1 << 2,
         Static      = 1 << 3,

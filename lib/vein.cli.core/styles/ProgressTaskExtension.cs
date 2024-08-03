@@ -24,10 +24,8 @@ public static class ProgressTaskExtension
     public static T Get<T>(this ProgressTaskState state, string key) where T : class
         => state.Get<SharedContainer<T>>(key).Value;
 
-    public readonly struct SharedContainer<T>
+    public readonly struct SharedContainer<T>(T value)
     {
-        public T Value { get; }
-
-        public SharedContainer(T value) => Value = value;
+        public T Value { get; } = value;
     }
 }
