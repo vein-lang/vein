@@ -31,6 +31,7 @@ namespace vein.project
         public DirectoryInfo CacheDir => new DirectoryInfo(Path.Combine(WorkDir.FullName, "obj"));
 
         public bool Packable => _project.Packable ?? false;
+        public bool IsWorkload => _project.Packable ?? false;
         public List<PackageAuthor> Authors => _project.Authors;
         public string Description => _project.Description;
         public string License => _project.License;
