@@ -108,6 +108,21 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
 
         foreach (var target in collection)
         {
+            var c = new CompilationTask(target, settings)
+            {
+                StatusCtx = context,
+                Status = target.Task
+            };
+
+            if (target.Project.IsWorkload)
+            {
+                target.Status = CompilationStatus.Success;
+                target.AcceptArtifacts(target.Project.WorkDir.EnumerateFiles("*.json").Select(x => new ResourceArtifact(x, target.Project.Name)).ToList());
+                PipelineRunner.Run(c, target);
+                continue;
+            }
+
+
             if (target.Dependencies.Any(x => x.Status == CompilationStatus.Failed))
                 continue;
             target.Dependencies
@@ -119,11 +134,9 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
 
             target.LoadedModules.AddRange(list);
 
-            var c = new CompilationTask(target, settings)
-            {
-                StatusCtx = context,
-                Status = target.Task
-            };
+            
+
+
 
             var status = c.ProcessFiles(target.Project.Sources, target.LoadedModules)
                 ? CompilationStatus.Success
