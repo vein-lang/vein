@@ -1,10 +1,9 @@
 namespace vein.pipes;
 
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using cmd;
-using compilation;
 using fs;
 using Newtonsoft.Json;
 using project;
@@ -24,9 +23,23 @@ public class GeneratePackage : CompilerPipeline
         var readme2 = Project.WorkDir.File("readme");
         var cert = Project.WorkDir.File("sign.cert");
 
-
+        
         if (output.Exists)
             output.Delete();
+
+        if (Project.IsWorkload)
+        {
+            shard
+                .Storage()
+                .Files(Artifacts.Concat(this.Target.Artifacts).Where(x => x.Kind == ArtifactKind.RESOURCES).Select(x => x.Path).ToArray())
+                .File(icon, icon.Exists)
+                .File(readme1, readme1.Exists)
+                .File(readme2, readme2.Exists)
+                .File(cert, cert.Exists)
+                .Return()
+                .Save(output);
+            return;
+        }
 
         shard
             .Storage()
@@ -43,7 +56,7 @@ public class GeneratePackage : CompilerPipeline
     public override bool CanApply(CompileSettings flags)
         => flags.GeneratePackageOutput || Project.Packable;
 
-    public override int Order { get; } = 999;
+    public override int Order => 999;
 }
 
 
@@ -51,11 +64,13 @@ public static class VeinProjectExtensions
 {
     public static PackageManifest GenerateManifest(this VeinProject project)
     {
-        var manifest = new PackageManifest();
-        manifest.Name = project.Name;
-        manifest.Description = project.Description;
-        manifest.Urls = project.Urls;
-        manifest.Version = project.Version;
+        var manifest = new PackageManifest
+        {
+            Name = project.Name,
+            Description = project.Description,
+            Urls = project.Urls,
+            Version = project.Version
+        };
         if (project.WorkDir.File("icon.png").Exists)
         {
             manifest.Icon = "icon.png";
@@ -68,6 +83,7 @@ public static class VeinProjectExtensions
         manifest.Authors = project.Authors;
         manifest.License = project.License ?? "unlicensed";
         manifest.Dependencies = project.Dependencies.Packages.ToList();
+        manifest.IsWorkload = project.IsWorkload;
 
         foreach (var projectReference in project.Dependencies.Projects)
         {
@@ -77,7 +93,7 @@ public static class VeinProjectExtensions
         }
 
 
-        var file = project.CacheDir.File("manifest.json");
+        var file = project.CacheDir.Ensure().File("manifest.json");
 
         if (file.Exists)
             file.Delete();
