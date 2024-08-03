@@ -18,7 +18,7 @@ public class PackageArchive : PackageBase
     public override IEnumerable<string> GetFiles()
         => _zipArchive.GetFiles();
 
-    public override string GetFile(string name)
+    public override string? GetFile(string name)
         => _zipArchive.GetFiles().FirstOrDefault(x => x.Equals(name));
 
     public override IEnumerable<string> GetFiles(string folder)

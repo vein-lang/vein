@@ -173,7 +173,9 @@ public class Shard : IDisposable, IAsyncDisposable
     {
         try
         {
-            using var stream = _archive.GetStream(_archive.GetFile(name));
+            if (string.IsNullOrEmpty(_archive.GetFile(name)))
+                return null;
+            await using var stream = _archive.GetStream(_archive.GetFile(name));
             var mem = new MemoryStream();
             await stream.CopyToAsync(mem, token);
             return mem;
