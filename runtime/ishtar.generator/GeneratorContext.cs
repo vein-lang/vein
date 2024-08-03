@@ -1,14 +1,12 @@
 namespace ishtar;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Intrinsics.Arm;
-using System.Security.Claims;
-using System.Text;
 using emit;
 using Spectre.Console;
-using Sprache;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using vein.extensions;
 using vein.reflection;
 using vein.runtime;
@@ -20,6 +18,30 @@ using static vein.runtime.VeinTypeCode;
 public record GeneratorContextConfig(bool DisableOptimization)
 {
 }
+#nullable enable
+public record struct CompilationEventData(
+    DocumentDeclaration? Document,
+    BaseSyntax? Posed,
+    string text)
+{
+    private static Exception Throw()
+    {
+        try
+        {
+            throw new Exception();
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
+    }
+
+
+    public StackTrace DebugStackTrace = new();
+
+    public string Markup() => text;
+}
+#nullable disable
 
 public class GeneratorContext(GeneratorContextConfig config)
 {
@@ -29,21 +51,21 @@ public class GeneratorContext(GeneratorContextConfig config)
     internal Dictionary<QualityTypeName, ClassBuilder> Classes { get; } = new();
     internal DocumentDeclaration Document { get; set; }
 
-    public List<string> Errors = new ();
-
+    public List<CompilationEventData> Errors = new ();
     public Dictionary<VeinMethod, VeinScope> Scopes { get; } = new();
 
     public VeinMethod CurrentMethod { get; set; }
     public VeinScope CurrentScope { get; set; }
-
     public GeneratorContext LogError(string err, ExpressionSyntax exp)
     {
-        var pos = exp.Transform?.pos ?? new Position(0, 0, 0);
+        var pos = exp.Transform.pos;
         var diff_err = exp.Transform.DiffErrorFull(Document);
-        Errors.Add($"[red bold]{err.EscapeMarkup().EscapeArgumentSymbols()}[/] \n\t" +
-                   $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
-                   $"in '[orange bold]{Document.FileEntity}[/]'." +
-                   $"{diff_err}");
+        Errors.Add(new CompilationEventData(Document, exp,
+            $"""
+             [red bold]{err.EscapeMarkup().EscapeArgumentSymbols()}[/]
+             	at '[orange bold]{pos.Line} line, {pos.Column} column[/]'
+             	in '[orange bold]{Document.FileEntity}[/]'.{diff_err}
+             """));
         return this;
     }
 
@@ -56,34 +78,76 @@ public class GeneratorContext(GeneratorContextConfig config)
         return new ScopeTransit(CurrentScope);
     }
 
-    public VeinClass ResolveType(TypeExpression targetTypeExpression)
+    public VeinComplexType ResolveType(TypeExpression targetTypeExpression)
         => ResolveType(targetTypeExpression.Typeword);
-    public VeinClass ResolveType(TypeSyntax targetTypeTypeword)
-        => Module.FindType(targetTypeTypeword.Identifier.ExpressionString,
+    public VeinComplexType ResolveType(TypeSyntax targetTypeTypeword)
+    {
+        if (targetTypeTypeword.IsGeneric)
+        {
+            var targetName = TypeSyntax.ToGlobPattern(targetTypeTypeword);
+
+            var generics = targetTypeTypeword.TypeParameters.DetermineTypes(this).ToList();
+
+            if (generics.Any(x => x.IsGeneric))
+            {
+                if (!CurrentMethod.Owner.IsGenericType)
+                {
+                    this.LogError($"Unknown used generics types '{generics.Where(x => x.IsGeneric).Select(x => x.TypeArg.ToString()).Join(',')}' is not found in '{this.CurrentMethod.Name}' function.", targetTypeTypeword.Identifier);
+                    throw new SkipStatementException();
+                }
+
+                if (!CurrentMethod.Owner.Flags.HasFlag(ClassFlags.Amorphous))
+                    return Module.FindType(targetName,
+                        Classes[CurrentMethod.Owner.FullName].Includes);
+                var ty2 =this.CurrentMethod.Owner.ResolveGenericType(generics.First());
+
+                throw new NotSupportedException($"Transit generics cannot be resolve by ResolveType(TypeSyntax)");
+            }
+
+            var classes = generics.Select(x => x.Class).ToList();
+
+            return Module.FindType(targetName,
+                Classes[CurrentMethod.Owner.FullName].Includes).CreateAmorphousVersion(classes);
+        }
+
+        
+        if (this.CurrentMethod.Signature.Generics.Any())
+        {
+            var generic =
+                this.CurrentMethod.Signature.Generics.FirstOrDefault(x => x.Name.Equals(targetTypeTypeword.Identifier));
+
+            if(generic is not null)
+                return generic;
+        }
+
+        if (this.CurrentMethod.Owner.IsGenericType)
+        {
+            var generic =
+                this.CurrentMethod.Owner.TypeArgs.FirstOrDefault(x => x.Name.Equals(targetTypeTypeword.Identifier));
+
+            if (generic is not null)
+                return generic;
+        }
+
+        return Module.FindType(new NameSymbol(targetTypeTypeword.Identifier),
             Classes[CurrentMethod.Owner.FullName].Includes);
+    }
+
+
     public VeinClass ResolveType(IdentifierExpression targetTypeTypeword)
-        => Module.FindType(targetTypeTypeword.ExpressionString,
+        => Module.FindType(new NameSymbol(targetTypeTypeword),
             Classes[CurrentMethod.Owner.FullName].Includes);
 
-    public bool HasDefinedType(IdentifierExpression id)
-    {
-        try
-        {
-            Module.FindType(id.ExpressionString,
-                Classes[CurrentMethod.Owner.FullName].Includes);
-            return true;
-        }
-        catch (TypeNotFoundException)
-        {
-            return false;
-        }
-    }
+    public bool HasDefinedType(IdentifierExpression id) =>
+        Module.FindType(new NameSymbol(id),
+            Classes[CurrentMethod.Owner.FullName].Includes, false) != null;
+
     public ClassBuilder CreateHiddenType(string name)
     {
-        QualityTypeName fullName = $"{Module.Name}%internal/{name}";
+        var fullName = new QualityTypeName(new(name), NamespaceSymbol.Internal, Module.Name);
 
         var currentType = Module.FindType(fullName, false, false);
-
+        
         if (currentType is not UnresolvedVeinClass)
             return Assert.IsType<ClassBuilder>(currentType);
 
@@ -98,7 +162,7 @@ public class GeneratorContext(GeneratorContextConfig config)
 
     public ClassBuilder CreateHiddenType(string name, VeinClass parent)
     {
-        QualityTypeName fullName = $"{Module.Name}%internal/{name}";
+        var fullName = new QualityTypeName(new(name), NamespaceSymbol.Internal, Module.Name);
 
         var currentType = Module.FindType(fullName, false, false);
 
@@ -150,7 +214,7 @@ public class GeneratorContext(GeneratorContextConfig config)
             return CurrentMethod.Owner.ResolveField(id)?.FieldType;
         if (CurrentMethod.Owner.FindProperty(id) is not null)
             return CurrentMethod.Owner.FindProperty(id).PropType;
-        var modType = Module.FindType(id.ExpressionString, Classes[CurrentMethod.Owner.FullName].Includes, false);
+        var modType = Module.FindType(new NameSymbol(id), Classes[CurrentMethod.Owner.FullName].Includes, false);
         if (modType is not null)
             return modType;
         var methods = CurrentMethod.Owner.FindAnyMethods(id.ExpressionString);
@@ -169,7 +233,7 @@ public class GeneratorContext(GeneratorContextConfig config)
     public VeinClass CreateFunctionMulticastGroup(VeinMethodSignature sig)
     {
         var @base = CurrentScope.Context.Module
-            .FindType(new QualityTypeName("std", "FunctionMulticast", "std"),
+            .FindType(new QualityTypeName(NameSymbol.FunctionMulticast, NamespaceSymbol.Std, Module.Name),
                 true, true);
 
         var hiddenClass = CurrentScope.Context
@@ -186,7 +250,7 @@ public class GeneratorContext(GeneratorContextConfig config)
         var objType = TYPE_OBJECT.AsClass(types);
         var rawType = TYPE_RAW.AsClass(types);
 
-        var ctorMethod = hiddenClass.DefineMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, hiddenClass, [
+        var ctorMethod = hiddenClass.DefineMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, hiddenClass, new List<VeinTypeArg>(), [
             new (VeinArgumentRef.THIS_ARGUMENT, hiddenClass),
             new("fn", rawType),
             new("scope",objType)
@@ -207,8 +271,9 @@ public class GeneratorContext(GeneratorContextConfig config)
         ctorGen.Emit(OpCodes.RET); // return this
 
 
-        var method = hiddenClass.DefineMethod("invoke", Internal | Special,
-            sig.ReturnType,sig.Arguments.Where(VeinMethodSignature.NotThis).ToArray());
+        var method = hiddenClass.DefineMethod("invoke", Internal | Special, sig.ReturnType,
+            new List<VeinTypeArg>(),
+            sig.Arguments.Where(VeinMethodSignature.NotThis).ToArray());
 
         var hasNotThis = sig.Arguments.All(VeinMethodSignature.NotThis);
 
@@ -237,10 +302,13 @@ public class GeneratorContext(GeneratorContextConfig config)
 
         if (field is not null)
             return field;
-        this.LogError($"'{targetType.FullName.NameWithNS}' does not contain " +
-                      $"a definition for '{target.ExpressionString}' and " +
-                      $"no extension method '{id.ExpressionString}' accepting " +
-                      $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
+        LogError(
+            $"""
+             '{targetType.FullName.NameWithNS}' does not contain
+             a definition for '{target.ExpressionString}' and
+             no extension method '{id.ExpressionString}' accepting
+             a first argument of type '{targetType.FullName.NameWithNS}' could be found.
+             """, id);
         throw new SkipStatementException();
     }
 
@@ -250,10 +318,13 @@ public class GeneratorContext(GeneratorContextConfig config)
 
         if (field is not null)
             return field;
-        this.LogError($"'{targetType.FullName.NameWithNS}' does not contain " +
-                      $"a definition for '{target.ExpressionString}' and " +
-                      $"no extension method '{id.ExpressionString}' accepting " +
-                      $"a first argument of type '{targetType.FullName.NameWithNS}' could be found.", id);
+        LogError(
+            $"""
+             '{targetType.FullName.NameWithNS}' does not contain
+             a definition for '{target.ExpressionString}' and
+             no extension method '{id.ExpressionString}' accepting
+             a first argument of type '{targetType.FullName.NameWithNS}' could be found.
+             """, id);
         throw new SkipStatementException();
     }
 

@@ -9,6 +9,7 @@ namespace ishtar.emit
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
+    using System.Threading;
     using extensions;
     using ishtar;
     using vein.extensions;
@@ -179,26 +180,34 @@ namespace ishtar.emit
         /// Only allowed <see cref="OpCodes.LDF"/>, <see cref="OpCodes.STF"/>,
         /// <see cref="OpCodes.STSF"/>, <see cref="OpCodes.LDSF"/>.
         /// </remarks>
-        public virtual ILGenerator Emit(OpCode opcode, VeinField field)
+        public virtual unsafe ILGenerator Emit(OpCode opcode, VeinField field)
         {
             if (new[] { OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF }.All(x => x != opcode))
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
 
             if (this._methodBuilder.IsConstructor && opcode == OpCodes.STF) // shit
                 this.FieldMarkAsInited(field);
+            fixed (int* ptr = &_position)
+            {
+                var d = ILCapacityValidator.Begin(ptr, opcode);
+                var pos = _position;
 
-            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+                this.EnsureCapacity<OpCode>(sizeof(int), sizeof(int));
+                this.InternalEmit(opcode);
 
-            this.EnsureCapacity<OpCode>(sizeof(int) * 2);
-            this.InternalEmit(opcode);
+                var nameIdx = this._methodBuilder.moduleBuilder.InternFieldName(field.FullName);
+                var typeIdx = this._methodBuilder.moduleBuilder.InternTypeName(field.Owner.FullName);
 
-            var nameIdx = this._methodBuilder.moduleBuilder.InternFieldName(field.FullName);
-            var typeIdx = this._methodBuilder.moduleBuilder.InternTypeName(field.Owner.FullName);
+                this.PutInteger4(nameIdx);
+                this.PutInteger4(typeIdx);
 
-            this.PutInteger4(nameIdx);
-            this.PutInteger4(typeIdx);
-
-            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} {field.Name} {field.FieldType}");
+                if (field.FieldType.IsGeneric)
+                    DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} {field.Name} {field.FieldType.TypeArg}");
+                else
+                    DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} {field.Name} {field.FieldType.Class.FullName}");
+                d.Dispose();
+            }
+           
             return this;
         }
         /// <summary>
@@ -226,8 +235,48 @@ namespace ishtar.emit
             DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} label(0x{label.Value:X})");
             return this;
         }
+
+        public virtual ILGenerator Emit(OpCode opcode, VeinComplexType type)
+            => type.IsGeneric ?
+                Emit(opcode, type.TypeArg) :
+                Emit(opcode, type.Class);
+
+        public virtual ILGenerator Emit(OpCode opcode, VeinComplexType t1, VeinComplexType t2)
+        {
+            if (opcode != OpCodes.CAST_G)
+                throw new NotSupportedException();
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+            this.EnsureCapacity<OpCode>(sizeof(int), sizeof(int), sizeof(short));
+            this.InternalEmit(opcode);
+            this.PutBool(t1.IsGeneric); 
+            if (t1.IsGeneric)
+                this.PutTypeArg(t1);
+            else
+                this.PutTypeName(t1.Class.FullName);
+            this.PutBool(t2.IsGeneric);
+            if (t2.IsGeneric)
+                this.PutTypeArg(t2);
+            else
+                this.PutTypeName(t2.Class.FullName);
+            return this;
+        }
+
         public virtual ILGenerator Emit(OpCode opcode, VeinClass type)
             => Emit(opcode, type.FullName);
+
+        public virtual ILGenerator Emit(OpCode opcode, VeinTypeArg type)
+        {
+            if (opcode != OpCodes.LD_TYPE_G)
+                throw new NotSupportedException();
+
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
+            this.EnsureCapacity<OpCode>(sizeof(int));
+            this.InternalEmit(opcode);
+            this.PutTypeArg(type);
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} [{type}] ");
+            return this;
+        }
 
         public virtual ILGenerator Emit(OpCode opcode, QualityTypeName type)
         {
@@ -246,7 +295,7 @@ namespace ishtar.emit
         /// <remarks>
         /// Only <see cref="OpCodes.LOC_INIT"/>.
         /// <br/>
-        /// <see cref="OpCodes.LOC_INIT_X"/> will be automatic generated.
+        /// <see cref="OpCodes.LOC_INIT_X"/> will be automatically generated.
         /// </remarks>
         private void WriteLocals(BinaryWriter bin)
         {
@@ -259,7 +308,12 @@ namespace ishtar.emit
             foreach (var t in LocalsBuilder)
             {
                 bin.Write((ushort)OpCodes.LOC_INIT.Value);
-                this.PutTypeNameInto(t, bin);
+                //var hasGenerics = t.Item1 is null;
+                //bin.Write(hasGenerics);
+                //if (hasGenerics)
+                //    bin.WriteGenericTypeName(t.Item2, _methodBuilder.moduleBuilder);
+                //else
+                    this.PutTypeNameInto(t.Item1 ?? new QualityTypeName(NameSymbol.FunctionMulticast, NamespaceSymbol.Internal, ModuleNameSymbol.Std), bin);
             }
         }
 
@@ -276,16 +330,20 @@ namespace ishtar.emit
         }
 
         public LocalsBuilder LocalsBuilder { get; } = new();
+
         /// <summary>
         /// Ensure local slot
         /// </summary>
         /// <returns>
         /// Index of local variable slot
         /// </returns>
-        public virtual int EnsureLocal(string key, VeinClass clazz)
+        public virtual int EnsureLocal(string key, VeinComplexType clazz)
         {
             LocalsBuilder.Mark(LocalsSize, key);
-            LocalsBuilder.Push(clazz);
+            if (clazz.IsGeneric)
+                LocalsBuilder.Push(clazz.TypeArg);
+            else
+                LocalsBuilder.Push(clazz.Class);
             return LocalsSize++;
         }
         /// <summary>
@@ -529,6 +587,12 @@ namespace ishtar.emit
             _position += sizeof(int);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void PutBool(bool value)
+        {
+            _ilBody[_position] = (byte)(value ? 1 : 0);
+            _position += sizeof(byte);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PutByte(byte value)
         {
             _ilBody[_position] = value;
@@ -615,6 +679,10 @@ namespace ishtar.emit
             => generator.HasMetadata(castFieldToMetadataKey(field));
 
         public static void FieldMarkAsInited(this ILGenerator generator, VeinField field)
-            => generator.StoreIntoMetadata(castFieldToMetadataKey(field), true);
+        {
+            if (generator.HasMetadata(castFieldToMetadataKey(field)))
+                return; // already inited
+            generator.StoreIntoMetadata(castFieldToMetadataKey(field), true);
+        }
     }
 }

@@ -5,12 +5,11 @@ using System;
 using emit;
 using vein.runtime;
 using vein.syntax;
-using static ishtar.G_Access;
 using System.Collections.Generic;
 using System.Linq;
 using vein;
 using vein.extensions;
-using InvocationExpression = vein.syntax.InvocationExpression;
+using static G_Access;
 
 public static class G_Operators
 {
@@ -51,6 +50,8 @@ public static class G_Operators
 
         if (left_type.TypeCode.HasNumber() && right_type.TypeCode.HasNumber())
             gen.EmitBinaryOperator(op);
+        else if (left_type.TypeCode.HasBoolean() && right_type.TypeCode.HasBoolean())
+            gen.EmitBinaryOperator(op);
         else
         {
             var name = $"op_{op}";
@@ -58,6 +59,13 @@ public static class G_Operators
 
 
             var method = left_type.FindMethod(name, args);
+
+            if (method is null)
+            {
+                context.LogError($"The operator '[red]{op}[/]' not implemented in '{left_type.FullName}'.", left);
+                throw new SkipStatementException();
+            }
+
 
             var methodName = VeinMethod.GetFullName(name, method.ReturnType, args);
 
@@ -252,6 +260,23 @@ public static class G_Operators
             gen.EmitExpression(node.Operand);
             gen.EmitBinaryOperator(ExpressionType.SubtractChecked, type, type, type);
         }
+        else if (node.OperatorType == ExpressionType.Negate && node.Operand.GetTypeCode().HasInteger())
+        {
+            // yes I be known, its fucking shit
+            if (node.Operand is Int32LiteralExpressionSyntax int32)
+            {
+                int32.ExpressionString = $"-{int32.ExpressionString}";
+                gen.EmitExpression(int32);
+            }
+            else
+                throw new NotSupportedException();
+        }
+        else if (node.OperatorType == ExpressionType.Negate && node.Operand is AccessExpressionSyntax access)
+        {
+            gen.EmitExpression(new Int32LiteralExpressionSyntax(-1));
+            gen.EmitExpression(access);
+            gen.Emit(OpCodes.MUL);
+        }
         else if (node.OperatorType == ExpressionType.Not)
         {
             gen.EmitExpression(node.Operand);
@@ -262,8 +287,16 @@ public static class G_Operators
         {
             // todo work only in for cycle, in other cases, it works like ++i
             var addOne =
-                new BinaryExpressionSyntax(node.Operand, new Int32LiteralExpressionSyntax(1), ExpressionType.Add);
-            var operand_assign = new BinaryExpressionSyntax(node.Operand, addOne);
+                new BinaryExpressionSyntax(node.Operand, new Int32LiteralExpressionSyntax(1).SetPos<Int32LiteralExpressionSyntax>(node.Transform), ExpressionType.Add);
+            var operand_assign = new BinaryExpressionSyntax(node.Operand, addOne).SetPos<BinaryExpressionSyntax>(node.Transform);
+            gen.EmitAssignExpression(operand_assign);
+        }
+        else if (node.OperatorType is ExpressionType.PostDecrementAssign)
+        {
+            // todo work only in for cycle, in other cases, it works like --i
+            var subOne =
+                new BinaryExpressionSyntax(node.Operand, new Int32LiteralExpressionSyntax(1).SetPos<Int32LiteralExpressionSyntax>(node.Transform), ExpressionType.Subtract);
+            var operand_assign = new BinaryExpressionSyntax(node.Operand, subOne).SetPos<BinaryExpressionSyntax>(node.Transform);
             gen.EmitAssignExpression(operand_assign);
         }
         else if (node.OperatorType == ExpressionType.And && node.Operand.GetTypeCode(ctx) == VeinTypeCode.TYPE_FUNCTION)

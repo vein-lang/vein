@@ -16,8 +16,8 @@ namespace ishtar.emit
 
     public class VeinModuleBuilder : VeinModule, IBaker
     {
-        public VeinModuleBuilder(string name, VeinCore types) : base(name, types) { }
-        public VeinModuleBuilder(string name, Version ver, VeinCore types) : base(name, ver, types) { }
+        public VeinModuleBuilder(ModuleNameSymbol name, VeinCore types) : base(name, types) { }
+        public VeinModuleBuilder(ModuleNameSymbol name, Version ver, VeinCore types) : base(name, ver, types) { }
 
         /// <summary>
         /// Define class by name.
@@ -32,27 +32,9 @@ namespace ishtar.emit
         /// 'className' - INVALID, need describe namespace.
         /// </remarks>
         /// <exception cref="IncompleteClassNameException">See 'remarks'.</exception>
-        public ClassBuilder DefineClass(string classFullname)
-        {
-            if (!classFullname.Contains("/"))
-                throw new IncompleteClassNameException("Class name not contained namespace.");
-            var typename = default(QualityTypeName);
-            if (classFullname.Contains("%"))
-            {
-                if (!classFullname.StartsWith($"{Name}%"))
-                    throw new IncompleteClassNameException($"Class name contains incorrect assembly name.");
-                typename = new QualityTypeName(classFullname);
-            }
-            else
-                typename = new QualityTypeName($"{Name}%{classFullname}");
+        public ClassBuilder DefineClass(NameSymbol className, NamespaceSymbol @namespace)
+            => DefineClass(new QualityTypeName(className, @namespace, Name));
 
-            if (typename.TryGet(x => x.Namespace) is null)
-                throw new IncompleteClassNameException($"Class name has incorrect format.");
-            if (!typename.Namespace.StartsWith(""))
-                throw new IncompleteClassNameException($"Class namespace not start with ''.");
-
-            return DefineClass(typename);
-        }
         /// <summary>
         /// Define class by name.
         /// </summary>
@@ -60,9 +42,9 @@ namespace ishtar.emit
         {
             if (class_table.Any(x => x.FullName.Equals(name)))
                 throw new DuplicateNameException($"Class '{name}' already defined.");
-            InternString(name.Name);
-            InternString(name.Namespace);
-            InternString(name.AssemblyName);
+            InternString(name.Name.name);
+            InternString(name.Namespace.@namespace);
+            InternString(name.ModuleName.moduleName);
             var c = new ClassBuilder(this, name);
             class_table.Add(c);
             return c;
@@ -75,9 +57,9 @@ namespace ishtar.emit
         {
             if (class_table.Any(x => x.FullName.Equals(name)))
                 throw new DuplicateNameException($"Class '{name}' already defined.");
-            InternString(name.Name);
-            InternString(name.Namespace);
-            InternString(name.AssemblyName);
+            InternString(name.Name.name);
+            InternString(name.Namespace.@namespace);
+            InternString(name.ModuleName.moduleName);
             var c = new ClassBuilder(this, name, parent);
             class_table.Add(c);
             return c;
@@ -163,7 +145,7 @@ namespace ishtar.emit
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
 
-            var idx = InternString(Name);
+            var idx = InternString(Name.moduleName);
             var vdx = InternString(Version.ToString());
 
             binary.Write(idx);
@@ -180,9 +162,9 @@ namespace ishtar.emit
             foreach (var (key, value) in types_table)
             {
                 binary.Write(key);
-                binary.WriteIshtarString(value.AssemblyName);
-                binary.WriteIshtarString(value.Namespace);
-                binary.WriteIshtarString(value.Name);
+                binary.WriteIshtarString(value.ModuleName.moduleName);
+                binary.WriteIshtarString(value.Namespace.@namespace);
+                binary.WriteIshtarString(value.Name.name);
             }
             binary.Write(fields_table.Count);
             foreach (var (key, value) in fields_table)
@@ -195,7 +177,7 @@ namespace ishtar.emit
             binary.Write(Deps.Count);
             foreach (var dep in Deps)
             {
-                binary.WriteIshtarString(dep.Name);
+                binary.WriteIshtarString(dep.Name.moduleName);
                 binary.WriteIshtarString(dep.Version.ToString());
             }
 
@@ -267,7 +249,7 @@ namespace ishtar.emit
         public string BakeDebugString()
         {
             var str = new StringBuilder();
-            str.AppendLine($".module '{Name}'::'{Version}'");
+            str.AppendLine($".module '{Name.moduleName}'::'{Version}'");
             str.AppendLine("{");
 
             foreach (var value in alias_table.OfType<VeinAliasType>())

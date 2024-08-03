@@ -4,22 +4,25 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using vein.reflection;
 using vein.runtime;
 using vein.syntax;
+using InvocationExpression = vein.syntax.InvocationExpression;
 
 public static class G_Types
 {
     public static VeinTypeCode GetTypeCode(this ExpressionSyntax exp, GeneratorContext? gen = null)
     {
+        if (exp is NullLiteralExpressionSyntax)
+            return VeinTypeCode.TYPE_NULL;
         if (exp is NumericLiteralExpressionSyntax num)
             return GetTypeCodeFromNumber(num);
         if (exp is BoolLiteralExpressionSyntax)
             return VeinTypeCode.TYPE_BOOLEAN;
         if (exp is StringLiteralExpressionSyntax)
             return VeinTypeCode.TYPE_STRING;
-        if (exp is NullLiteralExpressionSyntax)
-            return VeinTypeCode.TYPE_NONE;
         if (exp is IdentifierExpression id && gen is not null)
         {
             try
@@ -131,6 +134,15 @@ public static class G_Types
         return t;
     }
 
+    public static IEnumerable<VeinComplexType> DetermineTypes(this ArgumentListExpression exps, GeneratorContext context)
+        => exps.Arguments.DetermineTypes(context);
+
+    public static IEnumerable<VeinComplexType> DetermineTypes(this List<TypeSyntax> exps, GeneratorContext context)
+    {
+        foreach (var type in exps)
+            yield return context.ResolveType(type);
+    }
+
     public static IEnumerable<VeinComplexType> DetermineTypes(this IEnumerable<ExpressionSyntax> exps, GeneratorContext context)
     {
         var list = exps.ToList();
@@ -149,6 +161,8 @@ public static class G_Types
             return literal.GetTypeCode().AsClass()(Types.Storage);
         if (exp is ArrayCreationExpression arr)
             return VeinTypeCode.TYPE_ARRAY.AsClass()(Types.Storage);
+        if (exp is IndexerAccessExpressionSyntax indexer)
+            return indexer.ResolveReturnType(context);
         if (exp is AccessExpressionSyntax access)
             return access.ResolveType(context);
         if (exp is NewExpressionSyntax { IsArray: false } @new)
@@ -220,7 +234,10 @@ public static class G_Types
             
             // todo
         }
-        context.LogError($"Cannot determine expression.", exp);
+
+
+
+        context.LogError($"[DetermineType] Cannot determine expression.", exp);
         throw new SkipStatementException();
     }
 
@@ -240,13 +257,38 @@ public static class G_Types
             return chain.SkipLast(1).ResolveMemberType(context);
         if (lastToken is IdentifierExpression)
             return chain.ResolveMemberType(context);
-        context.LogError($"Cannot determine expression.", lastToken);
+        context.LogError($"[ResolveType] Cannot determine expression.", lastToken);
 
         throw new SkipStatementException();
     }
 
-    public static VeinClass ResolveReturnType(this InvocationExpression inv, GeneratorContext context)
+    public static VeinComplexType ResolveReturnType(this InvocationExpression inv, GeneratorContext context)
         => context.ResolveMethod(context.CurrentMethod.Owner, inv)?.ReturnType;
+
+
+    public static VeinComplexType ResolveReturnType(this IndexerAccessExpressionSyntax indexerAccess,
+        GeneratorContext context)
+
+    {
+        var accessType = indexerAccess.ToChain().SkipLast(1).ResolveMemberType(context);
+        if (accessType.IsGeneric)
+        {
+            context.LogError($"[ResolveReturnType][IndexerAccessExpressionSyntax] Cannot resolve indexer access type for generic {accessType.TypeArg}.", indexerAccess);
+            throw new SkipStatementException();
+        }
+
+        if (indexerAccess is { Right: ArgumentListExpression accessArguments })
+        {
+            var argTypes = accessArguments.Arguments.DetermineTypes(context).ToList();
+
+            var accessMethod = accessType.Class.FindMethod(VeinArray.ArrayAccessGetterMethodName, argTypes);
+
+            return accessMethod.ReturnType;
+        }
+
+        context.LogError($"[ResolveReturnType][IndexerAccessExpressionSyntax] indexerAccess invalid asp type.", indexerAccess);
+        throw new SkipStatementException();
+    }
 
     public static VeinComplexType ResolveReturnType(this InvocationExpression member,
         GeneratorContext context, IEnumerable<ExpressionSyntax> chain)

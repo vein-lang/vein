@@ -17,8 +17,18 @@ namespace ishtar.emit
             _initial_size = size;
         }
 
+        private ILCapacityValidator(int* size, OpCode opcode)
+        {
+            _opcode = opcode;
+            _size = size;
+            _initial_size = *size;
+        }
+
         public static IDisposable Begin(ref int size, OpCode opcode)
             => new ILCapacityValidator(ref size, opcode);
+
+        public static IDisposable Begin(int* size, OpCode opcode)
+            => new ILCapacityValidator(size, opcode);
 
         void IDisposable.Dispose()
         {

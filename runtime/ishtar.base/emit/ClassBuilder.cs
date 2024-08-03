@@ -1,22 +1,22 @@
 namespace ishtar.emit
 {
+    using extensions;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Text;
-    using extensions;
     using vein.exceptions;
     using vein.extensions;
     using vein.runtime;
 
-    public class ClassBuilder : VeinClass, IBaker
+    public record ClassBuilder : VeinClass, IBaker
     {
         internal VeinModuleBuilder moduleBuilder;
 
-        public List<string> Includes { get; set; } = new();
+        public List<NamespaceSymbol> Includes { get; set; } = new();
 
-        internal ClassBuilder WithIncludes(List<string> includes)
+        internal ClassBuilder WithIncludes(List<NamespaceSymbol> includes)
         {
             Includes.AddRange(includes);
             return this;
@@ -49,6 +49,7 @@ namespace ishtar.emit
         /// </summary>
         public QualityTypeName GetName() => this.FullName;
 
+
         /// <summary>
         /// Define method in current class.
         /// </summary>
@@ -56,24 +57,44 @@ namespace ishtar.emit
         /// Method name will be interned.
         /// </remarks>
         public MethodBuilder DefineMethod(string name, VeinComplexType returnType, params VeinArgumentRef[] args)
-        {
-            moduleBuilder.InternString(name);
-            var method = new MethodBuilder(this, name, returnType, args);
+            => DefineMethod(name, returnType, new List<VeinTypeArg>(), args);
 
-            if (Methods.Any(x => x.Name == method.Name))
-                throw new MethodAlreadyDefined($"Method '{method.Name}' in class '{Name}' already defined.");
-            Methods.Add(method);
-            return method;
-        }
         /// <summary>
         /// Define method in current class.
         /// </summary>
         /// <remarks>
         /// Method name will be interned.
         /// </remarks>
-        public MethodBuilder DefineMethod(string name, MethodFlags flags, VeinClass returnType, params VeinArgumentRef[] args)
+        public MethodBuilder DefineMethod(string name, VeinComplexType returnType, List<VeinTypeArg> generics, params VeinArgumentRef[] args)
         {
-            var method = this.DefineMethod(name, returnType, args);
+            moduleBuilder.InternString(name);
+            var method = new MethodBuilder(this, name, returnType, generics, args);
+
+            if (Methods.Any(x => x.Name == method.Name))
+                throw new MethodAlreadyDefined($"Method '{method.Name}' in class '{Name}' already defined.");
+            Methods.Add(method);
+            return method;
+        }
+
+        /// <summary>
+        /// Define method in current class.
+        /// </summary>
+        /// <remarks>
+        /// Method name will be interned.
+        /// </remarks>
+        public MethodBuilder DefineMethod(string name, MethodFlags flags, VeinComplexType returnType,
+            params VeinArgumentRef[] args) =>
+            DefineMethod(name, flags, returnType, new List<VeinTypeArg>(), args);
+
+        /// <summary>
+        /// Define method in current class.
+        /// </summary>
+        /// <remarks>
+        /// Method name will be interned.
+        /// </remarks>
+        public MethodBuilder DefineMethod(string name, MethodFlags flags, VeinComplexType returnType, List<VeinTypeArg> generics, params VeinArgumentRef[] args)
+        {
+            var method = this.DefineMethod(name, returnType, generics, args);
             method.Flags = flags;
             return method;
         }
@@ -85,7 +106,8 @@ namespace ishtar.emit
         /// </remarks>
         public VeinField DefineField(string name, FieldFlags flags, VeinClass fieldType)
         {
-            var field = new VeinField(this, new FieldName(name, this.Name), flags, fieldType);
+            
+            var field = new VeinField(this, FieldName.Construct(this, name), flags, fieldType);
             moduleBuilder.InternFieldName(field.FullName);
             if (Fields.Any(x => x.Name == name))
                 throw new FieldAlreadyDefined($"Field '{name}' in class '{Name}' already defined.");
@@ -98,7 +120,7 @@ namespace ishtar.emit
         /// </summary>
         public VeinProperty DefineAutoProperty(string name, FieldFlags flags, VeinClass propType)
         {
-            var prop = new VeinProperty(this, new (name, this.Name), flags, propType);
+            var prop = new VeinProperty(this, FieldName.Construct(this, name), flags, propType);
 
             if (!IsAbstract)
             {
@@ -117,7 +139,7 @@ namespace ishtar.emit
                 ];
 
             var getter =
-                DefineMethod(VeinProperty.GetterFnName(name), VeinProperty.ConvertShadowFlags(flags), propType, args);
+                DefineMethod(VeinProperty.GetterFnName(name), VeinProperty.ConvertShadowFlags(flags), propType, new List<VeinTypeArg>(), args);
             if (!IsAbstract)
             {
                 if (flags.HasFlag(FieldFlags.Static))
@@ -169,7 +191,7 @@ namespace ishtar.emit
         }
 
         public VeinProperty DefineEmptyProperty(string name, FieldFlags flags, VeinClass propType)
-            => new(this, new(name, this.Name), flags, propType);
+            => new(this, FieldName.Construct(this, name), flags, propType);
 
         byte[] IBaker.BakeByteArray()
         {
@@ -184,6 +206,7 @@ namespace ishtar.emit
             binary.Write((short)Parents.Count);
             foreach (var parent in Parents)
                 binary.WriteTypeName(parent.FullName, moduleBuilder);
+            binary.Write(1923); // magic
             binary.Write(Methods.Count);
             foreach (var method in Methods.OfType<IBaker>())
             {
@@ -191,6 +214,7 @@ namespace ishtar.emit
                 binary.Write(body.Length);
                 binary.Write(body);
             }
+            binary.Write(8712); // magic
             binary.Write(Fields.Count);
             foreach (var field in Fields)
             {
@@ -248,5 +272,8 @@ namespace ishtar.emit
 
         public ulong? FindMemberField(FieldName field)
             => throw new NotImplementedException();
+
+        public virtual bool Equals(ClassBuilder other) => FullName.Equals(other?.FullName);
+        public override string ToString() => base.ToString();
     }
 }

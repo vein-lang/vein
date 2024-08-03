@@ -14,7 +14,7 @@ public class VeinScope
     public GeneratorContext Context { get; }
     public ulong ScopeId { get; }
 
-    public Dictionary<IdentifierExpression, VeinClass> variables { get; } = new();
+    public Dictionary<IdentifierExpression, VeinComplexType> variables { get; } = new();
     public Dictionary<IdentifierExpression, int> locals_index { get; } = new();
 
     private static ulong _id;
@@ -78,14 +78,14 @@ public class VeinScope
         return TopScope.HasVariable(id);
     }
 
-    public (VeinClass @class, int index) GetVariable(IdentifierExpression id)
+    public (VeinComplexType @class, int index) GetVariable(IdentifierExpression id)
     {
         if (variables.TryGetValue(id, out var variable))
             return (variable, locals_index[id]);
         return TopScope.GetVariable(id);
     }
 
-    public VeinScope DefineVariable(IdentifierExpression id, VeinClass type, int localIndex)
+    public VeinScope DefineVariable(IdentifierExpression id, VeinComplexType type, int localIndex)
     {
         if (HasVariable(id))
         {

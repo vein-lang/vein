@@ -18,7 +18,7 @@ public static class G_Call
             gen.EmitLoadArgument(index!.Value);
 
 
-            foreach (var arg in invocation.Arguments)
+            foreach (var arg in invocation.Arguments.Arguments)
                 gen.EmitExpression(arg);
             var internalMethod = argument!.Type.FindMethod("invoke") ;
 
@@ -34,7 +34,7 @@ public static class G_Call
 
 
         var method = ctx.ResolveMethod(@class, invocation);
-        var args = invocation.Arguments;
+        var args = invocation.Arguments.Arguments;
 
         foreach (var arg in args)
             gen.EmitExpression(arg);

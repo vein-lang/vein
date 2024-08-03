@@ -1,7 +1,10 @@
 namespace ishtar;
 
 using System;
+using System.Linq;
 using emit;
+using Expressive;
+using vein.reflection;
 using vein.runtime;
 using vein.syntax;
 
@@ -44,7 +47,7 @@ public static class G_Access
         if (context.CurrentScope.HasVariable(id))
         {
             var (type, index) = context.CurrentScope.GetVariable(id);
-            gen.WriteDebugMetadata($"/* access local, var: '{id}', index: '{index}', type: '{type.FullName.NameWithNS}' */");
+            gen.WriteDebugMetadata($"/* access local, var: '{id}', index: '{index}', type: '{type}' */");
             return gen.Emit(OpCodes.LDLOC_S, index);
         }
 
@@ -285,6 +288,58 @@ public static class G_Access
                 var @class = ctx.ResolveType(id6);
                 return gen.EmitLoadField(@class, id7);
             }
+
+            return gen;
+        }
+
+        if (access is IndexerAccessExpressionSyntax { Right: ArgumentListExpression args, Left: IdentifierExpression accessId })
+        {
+            var argTypes = args.Arguments.DetermineTypes(ctx).ToList();
+
+            var flags = gen.GetAccessFlags(accessId);
+
+            VeinMethod method;
+
+            // first order: variable
+            if (flags.HasFlag(AccessFlags.VARIABLE))
+            {
+                var (varType, var_index) = ctx.CurrentScope.GetVariable(accessId);
+
+                if (varType.IsGeneric)
+                    throw new NotSupportedException($"Temporarily is not possible to get method declaration from generic type");
+
+                method = varType.Class.FindMethod(VeinArray.ArrayAccessGetterMethodName, argTypes);
+
+                gen.EmitLoadLocal(var_index);
+            }
+            // second order: argument
+            else if (flags.HasFlag(AccessFlags.ARGUMENT))
+            {
+                var (arg, index) = ctx.GetCurrentArgument(accessId);
+
+                method = arg.Type.FindMethod(VeinArray.ArrayAccessGetterMethodName, argTypes);
+
+                gen.EmitLoadArgument(index);
+            }
+            // three order: field
+            else if (flags.HasFlag(AccessFlags.FIELD))
+            {
+                var type = ctx.ResolveField(accessId);
+
+                method = type.FieldType.Class.FindMethod(VeinArray.ArrayAccessGetterMethodName, argTypes);
+
+                if (method is null)
+                    throw new InvalidOperationException();
+
+                gen.EmitThis().EmitLoadField(ctx.CurrentMethod.Owner, accessId);
+            }
+            else
+                throw new NotSupportedException();
+
+            foreach (var ar in args.Arguments)
+                gen.EmitExpression(ar);
+
+            gen.Emit(OpCodes.CALL, method);
 
             return gen;
         }

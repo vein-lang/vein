@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using vein.runtime;
 
 [ExcludeFromCodeCoverage]
-public sealed class IshtarMetaClass : VeinClass
+public sealed record IshtarMetaClass : VeinClass
 {
     public class CannotUseMetaClassInRuntime : Exception { }
 
@@ -17,8 +17,8 @@ public sealed class IshtarMetaClass : VeinClass
 
     public sealed override ClassFlags Flags => throw new CannotUseMetaClassInRuntime();
 
-    public static IshtarMetaClass Define(string space, string name)
-        => new IshtarMetaClass(new QualityTypeName("std", name, space));
+    public static IshtarMetaClass Define(NamespaceSymbol space, NameSymbol name)
+        => new IshtarMetaClass(new QualityTypeName(name, space, ModuleNameSymbol.Std));
     public static IshtarMetaClass Define(QualityTypeName q)
         => new IshtarMetaClass(q);
 }
