@@ -12,10 +12,13 @@ using vein.extensions;
 using vein.reflection;
 using vein.runtime;
 using static StringStorage;
+using ishtar.emit.extensions;
 
+[CTypeExport("ishtar_module_t")]
 public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIshtarModule* self, IshtarVersion version)
     : IEq<RuntimeIshtarModule>, IDisposable
 {
+    [field: CTypeOverride("void*")]
     public WeakRef<AppVault>* Vault { get; private set; } = WeakRef<AppVault>.Create(vault, self);
     public VirtualMachine vm => Vault->Value.vm;
     public uint ID { get; internal set; }
@@ -23,25 +26,33 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     public IshtarVersion Version { get; internal set; } = version;
 
 
+    [field: CTypeOverride("void*")]
     public NativeList<RuntimeIshtarAlias>* alias_table { get; private set; }
         = IshtarGC.AllocateList<RuntimeIshtarAlias>(self);
+    [field: CTypeOverride("void*")]
     public NativeList<RuntimeIshtarClass>* class_table { get; private set; }
         = IshtarGC.AllocateList<RuntimeIshtarClass>(self);
+    [field: CTypeOverride("void*")]
     public NativeList<RuntimeIshtarModule>* deps_table { get; private set; }
         = IshtarGC.AllocateList<RuntimeIshtarModule>(self);
+    [field: CTypeOverride("void*")]
     public NativeList<RuntimeAspect>* aspects_table { get; private set; }
         = IshtarGC.AllocateList<RuntimeAspect>(self);
 
+    [field: CTypeOverride("void*")]
     public NativeDictionary<int, RuntimeQualityTypeName>* types_table { get; private set; }
         = IshtarGC.AllocateDictionary<int, RuntimeQualityTypeName>(self);
+    [field: CTypeOverride("void*")]
     public NativeDictionary<int, RuntimeIshtarTypeArg>* generics_table { get; private set; }
         = IshtarGC.AllocateDictionary<int, RuntimeIshtarTypeArg>(self);
 
+    [field: CTypeOverride("void*")]
     public NativeDictionary<int, RuntimeFieldName>* fields_table { get; private set; }
         = IshtarGC.AllocateDictionary<int, RuntimeFieldName>(self);
+    [field: CTypeOverride("void*")]
     public NativeDictionary<int, InternedString>* string_table { get; private set; }
         = IshtarGC.AllocateDictionary<int, InternedString>(self);
-    public RuntimeConstStorage* ConstStorage { get; set; }
+    public RuntimeConstStorage* const_storage { get; set; }
 
 
     public void Dispose()
@@ -89,10 +100,10 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         _self = null;
         _name = null;
         Vault = null;
-        if (ConstStorage is not null)
+        if (const_storage is not null)
         {
-            ConstStorage->Dispose();
-            IshtarGC.FreeImmortal(ConstStorage);
+            const_storage->Dispose();
+            IshtarGC.FreeImmortal(const_storage);
         }
         VirtualMachine.GlobalPrintln($"end disposed module '{name}'");
     }
@@ -287,7 +298,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             var asmName = reader.ReadIshtarString();
             var ns = reader.ReadIshtarString();
             var name = reader.ReadIshtarString();
-            var t = new QualityTypeName(asmName, name, ns).T(module);
+            var t = new QualityTypeName(new NameSymbol(name), new NamespaceSymbol(ns), new ModuleNameSymbol(module->Name)).T(module);
 
             var predefined = module->vm.Types->ByQualityName(t);
             if (predefined is not null)
@@ -333,7 +344,6 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                 continue;
             var dep = resolver(name, ver);
             module->deps_table->Add(dep);
-
         }
 
         var deferClassBodies = new List<DeferClassBodyData>();
@@ -476,17 +486,17 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         var const_body_len = reader.ReadInt32();
         var const_body = reader.ReadBytes(const_body_len);
 
-        module->ConstStorage = IshtarGC.AllocateImmortal<RuntimeConstStorage>(module);
-        *module->ConstStorage = new RuntimeConstStorage(module);
+        module->const_storage = IshtarGC.AllocateImmortal<RuntimeConstStorage>(module);
+        *module->const_storage = new RuntimeConstStorage(module);
 
-        FillConstStorage(module->ConstStorage, const_body, module->vm.Frames->ModuleLoaderFrame);
+        FillConstStorage(module->const_storage, const_body, module->vm.Frames->ModuleLoaderFrame);
 
 
         VirtualMachine.GlobalPrintln($"Read {module->Name} module success");
 
 
         module->Version = IshtarVersion.Parse(module->GetConstStringByIndex(vdx));
-        module->aspects_table->AddRange(RuntimeAspect.Deconstruct(module->ConstStorage, module->vm.Frames->ModuleLoaderFrame, vault.vm.Types));
+        module->aspects_table->AddRange(RuntimeAspect.Deconstruct(module->const_storage, module->vm.Frames->ModuleLoaderFrame, vault.vm.Types));
 
         module->DefineBootstrapper();
 
@@ -502,6 +512,11 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         return module;
     }
 
+
+
+
+    public RuntimeQualityTypeName* TypeName(string name, string @namespace)
+        => RuntimeQualityTypeName.New(name, @namespace, this.Name, this._self);
 
 
     public static void FillConstStorage(RuntimeConstStorage* storage, byte[] arr, CallFrame* frame)
@@ -587,11 +602,14 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                     var ma = aspect->Union.MethodAspect;
                     var @class = classes->FirstOrNull(x => class_eq(x, ma.ClassName));
 
+                    
+
                     if (@class is not null && @class->IsUnresolved)
                         throw new UnresolvedIshtarClassDetected(@class->FullName);
 
                     if (@class is null)
                     {
+                        var debug = classes->ToList();
                         module->vm.println($"Aspect '{aspect->Name}': method '{GetStringUnsafe(ma.ClassName)}/{GetStringUnsafe(ma.MethodName)}' not found. [no class found]");
                         return;
                     }
@@ -673,16 +691,17 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         if (@class->TypeCode == VeinTypeCode.TYPE_NONE)
             @class->TypeCode = VeinTypeCode.TYPE_CLASS;
 
+        Debug.Assert(binary.ReadInt32() == 1923);
+
         var len = binary.ReadInt32();
         var methods = new List<byte[]>();
+        
         foreach (var _ in ..len)
         {
-            var body =
-                binary.ReadBytes(binary.ReadInt32());
-
-            methods.Add(body);
-            //DecodeAndDefineMethod(body, @class, ishtarModule);
+            methods.Add(binary.ReadBytes(binary.ReadInt32()));
         }
+
+        Debug.Assert(binary.ReadInt32() == 8712);
 
         var fieldsData = DecodeField(binary, @class, ishtarModule);
 
@@ -720,6 +739,13 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
     public static unsafe RuntimeIshtarMethod* DecodeAndDefineMethod(byte[] arr, RuntimeIshtarClass* @class, RuntimeIshtarModule* ishtarModule)
     {
+        /*
+        
+        
+        
+        binary.WriteGenericsTypeName(Signature.Generics.ToList(), moduleBuilder);
+        binary.Write(body); // IL Body*/
+
         using var mem = new MemoryStream(arr);
         using var binary = new BinaryReader(mem);
         var idx = binary.ReadInt32();
@@ -732,8 +758,9 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         var locals = binary.ReadByte();
         var retType = binary.ReadComplexType(ishtarModule);
         var args = ReadArguments(binary, ishtarModule);
+        var generics = ReadGenericList(binary, ishtarModule);
         var body = binary.ReadBytes(bodysize);
-
+        
         var mth = @class->DefineMethod(methodName, retType, flags, args);
 
         if (mth->IsExtern)
@@ -742,6 +769,25 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         ConstructIL(mth, body, stacksize, ishtarModule);
 
         return mth;
+    }
+
+    public static NativeList<RuntimeIshtarTypeArg>* ReadGenericList(BinaryReader reader, RuntimeIshtarModule* module)
+    {
+        var count = reader.ReadInt32();
+
+        var list = IshtarGC.AllocateList<RuntimeIshtarTypeArg>(module);
+
+        Debug.Assert(reader.ReadInt64() == 228);
+
+        foreach (int _ in ..count)
+        {
+            var t = reader.ReadGenericTypeName(module);
+            list->Add(t);
+        }
+
+        Debug.Assert(reader.ReadInt64() == 428);
+
+        return list;
     }
 
     public RuntimeQualityTypeName* GetTypeNameByIndex(int idx, CallFrame* frame)
@@ -929,7 +975,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     }
 
     private void DefineBootstrapper()
-        => Bootstrapper = this.DefineClass(new QualityTypeName(Name, "boot", "<sys>").T(_self), null);
+        => Bootstrapper = this.DefineClass(new QualityTypeName(new NameSymbol("boot"), new NamespaceSymbol("<sys>"), new ModuleNameSymbol(Name)).T(_self), null);
 
     public RuntimeIshtarClass* Bootstrapper { get; private set; }
 
@@ -1042,6 +1088,7 @@ public unsafe class UnresolvedIshtarClassDetected(RuntimeQualityTypeName* fullNa
     : Exception($"Detected unresolved '{fullName->ToString()}'");
 
 [StructLayout(LayoutKind.Explicit)]
+[CTypeExport("ishtar_aspect_union_t")]
 public unsafe struct RuntimeAspect_Union
 {
     [FieldOffset(0)]
@@ -1054,16 +1101,19 @@ public unsafe struct RuntimeAspect_Union
     public RuntimeAspect_Field FieldAspect;
 }
 
+[CTypeExport("ishtar_aspect_class_t")]
 public unsafe struct RuntimeAspect_Class
 {
     public InternedString* ClassName;
 }
+[CTypeExport("ishtar_aspect_method_t")]
 public unsafe struct RuntimeAspect_Method
 {
     public InternedString* ClassName;
     public InternedString* MethodName;
 }
 
+[CTypeExport("ishtar_aspect_field_t")]
 public unsafe struct RuntimeAspect_Field
 {
     public InternedString* ClassName;
@@ -1071,6 +1121,7 @@ public unsafe struct RuntimeAspect_Field
 }
 
 [DebuggerDisplay("{_debugString}")]
+[CTypeExport("ishtar_aspect_t")]
 public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
 {
     private RuntimeAspect* _self;
@@ -1078,10 +1129,9 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
     public RuntimeAspect_Union Union;
     public AspectTarget Target { get; }
 
+    public NativeList<RuntimeAspectArgument>* Arguments { get; }
 
     private string _debugString => $"[{GetStringUnsafe(_name)}] {Target}";
-
-    public NativeList<RuntimeAspectArgument>* Arguments { get; } 
 
     public void Dispose()
     {

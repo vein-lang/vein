@@ -5,6 +5,8 @@ using runtime;
 using runtime.gc;
 using static libuv.LibUV;
 
+
+[CTypeExport("ishtar_threading_t")]
 public unsafe struct IshtarThreading(VirtualMachine vm)
 {
     public NativeList<IshtarThread>* threads = IshtarGC.AllocateList<IshtarThread>(vm.@ref);

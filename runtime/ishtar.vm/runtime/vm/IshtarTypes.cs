@@ -3,11 +3,10 @@ namespace ishtar;
 using runtime;
 using vein.runtime;
 using collections;
-using ishtar;
-using vein.reflection;
 using static vein.runtime.VeinTypeCode;
 using runtime.gc;
 
+[CTypeExport("ishtar_types_t")]
 public readonly unsafe struct IshtarTypes(
     RuntimeIshtarClass* objectClass,
     RuntimeIshtarClass* valueTypeClass,
@@ -86,37 +85,39 @@ public readonly unsafe struct IshtarTypes(
         var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>(vault.vm.InternalModule);
 
 
-        *module = new RuntimeIshtarModule(vault, "unnamed_types", module, new IshtarVersion(0, 0));
-        
+        *module = new RuntimeIshtarModule(vault, "std", module, new IshtarVersion(0, 0));
 
-        var objectClass = r->create($"std%std/Object".L(module), null, module, TYPE_OBJECT);
-        var valueTypeClass = r->create($"std%std/ValueType".L(module), null, module, TYPE_OBJECT);
+
+
+
+        var objectClass = r->create(module->TypeName("Object", "std"), null, module, TYPE_OBJECT);
+        var valueTypeClass = r->create(module->TypeName("ValueType", "std"), null, module, TYPE_OBJECT);
 
         *r = new IshtarTypes(
             objectClass,
             valueTypeClass,
-            r->create($"std%std/Void".L(module), valueTypeClass, module, TYPE_VOID),
-            r->create($"std%std/String".L(module), objectClass, module, TYPE_STRING),
-            r->create($"std%std/Byte".L(module), valueTypeClass, module, TYPE_U1),
-            r->create($"std%std/SByte".L(module), valueTypeClass, module, TYPE_I1),
-            r->create($"std%std/Int16".L(module), valueTypeClass, module, TYPE_I2),
-            r->create($"std%std/Int32".L(module), valueTypeClass, module, TYPE_I4),
-            r->create($"std%std/Int64".L(module), valueTypeClass, module, TYPE_I8),
-            r->create($"std%std/UInt16".L(module), valueTypeClass, module, TYPE_U2),
-            r->create($"std%std/UInt32".L(module), valueTypeClass, module, TYPE_U4),
-            r->create($"std%std/UInt64".L(module), valueTypeClass,module, TYPE_U8),
-            r->create($"std%std/Half".L(module), valueTypeClass, module, TYPE_R2),
-            r->create($"std%std/Float".L(module), valueTypeClass, module, TYPE_R4),
-            r->create($"std%std/Double".L(module), valueTypeClass, module, TYPE_R8),
-            r->create($"std%std/Decimal".L(module), valueTypeClass, module, TYPE_R16),
-            r->create($"std%std/Boolean".L(module), valueTypeClass, module, TYPE_BOOLEAN),
-            r->create($"std%std/Char".L(module), valueTypeClass, module, TYPE_CHAR),
-            r->create($"std%std/Array".L(module), objectClass, module, TYPE_ARRAY),
-            r->create($"std%std/Exception".L(module), objectClass, module, TYPE_CLASS),
-            r->create($"std%std/Raw".L(module), valueTypeClass, module, TYPE_RAW),
-            r->create($"std%std/Aspect".L(module), objectClass, module, TYPE_CLASS),
-            r->create($"std%std/Function".L(module), objectClass, module, TYPE_FUNCTION),
-            r->create($"std%std/Range".L(module), objectClass, module, TYPE_CLASS)
+            r->create(module->TypeName("Void", "std"), valueTypeClass, module, TYPE_VOID),
+            r->create(module->TypeName("String", "std"), objectClass, module, TYPE_STRING),
+            r->create(module->TypeName("Byte", "std"), valueTypeClass, module, TYPE_U1),
+            r->create(module->TypeName("SByte", "std"), valueTypeClass, module, TYPE_I1),
+            r->create(module->TypeName("Int16", "std"), valueTypeClass, module, TYPE_I2),
+            r->create(module->TypeName("Int32", "std"), valueTypeClass, module, TYPE_I4),
+            r->create(module->TypeName("Int64", "std"), valueTypeClass, module, TYPE_I8),
+            r->create(module->TypeName("UInt16", "std"), valueTypeClass, module, TYPE_U2),
+            r->create(module->TypeName("UInt32", "std"), valueTypeClass, module, TYPE_U4),
+            r->create(module->TypeName("UInt64", "std"), valueTypeClass,module, TYPE_U8),
+            r->create(module->TypeName("Half", "std"), valueTypeClass, module, TYPE_R2),
+            r->create(module->TypeName("Float", "std"), valueTypeClass, module, TYPE_R4),
+            r->create(module->TypeName("Double", "std"), valueTypeClass, module, TYPE_R8),
+            r->create(module->TypeName("Decimal", "std"), valueTypeClass, module, TYPE_R16),
+            r->create(module->TypeName("Boolean", "std"), valueTypeClass, module, TYPE_BOOLEAN),
+            r->create(module->TypeName("Char", "std"), valueTypeClass, module, TYPE_CHAR),
+            r->create(module->TypeName("Array", "std"), objectClass, module, TYPE_ARRAY),
+            r->create(module->TypeName("Exception", "std"), objectClass, module, TYPE_CLASS),
+            r->create(module->TypeName("Raw", "std"), valueTypeClass, module, TYPE_RAW),
+            r->create(module->TypeName("Aspect", "std"), objectClass, module, TYPE_CLASS),
+            r->create(module->TypeName("Function", "std"), objectClass, module, TYPE_FUNCTION),
+            r->create(module->TypeName("Range", "std"), objectClass, module, TYPE_CLASS)
         );
         r->Add(objectClass, false);
         r->Add(r->VoidClass, false);

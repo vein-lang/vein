@@ -2,14 +2,18 @@ namespace ishtar
 {
     using LLVMSharp.Interop;
 
+    [CTypeExport("ishtar_method_call_info_t")]
     public unsafe struct PInvokeInfo : IEqualityComparer<PInvokeInfo>, IEquatable<PInvokeInfo>
     {
         public static PInvokeInfo Zero = default;
 
         public nint module_handle;
         public nint symbol_handle;
+        [CTypeOverride("void*")]
         public LLVMValueRef extern_function_declaration;
+        [CTypeOverride("void*")]
         public LLVMValueRef jitted_wrapper;
+        [CTypeOverride("void*")]
         public nint compiled_func_ref;
         public bool isInternal;
         

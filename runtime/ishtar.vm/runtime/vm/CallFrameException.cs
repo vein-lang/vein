@@ -1,21 +1,21 @@
-namespace ishtar
+namespace ishtar;
+
+[CTypeExport("ishtar_callframe_exception_t")]
+public unsafe struct CallFrameException
 {
-    public unsafe struct CallFrameException
+    public bool IsDefault() =>
+        last_ip is null &&
+        value is null &&
+        stack_trace is null;
+
+    public uint* last_ip;
+    public IshtarObject* value;
+    public InternedString* stack_trace;
+
+    public string GetStackTrace()
     {
-        public bool IsDefault() =>
-            last_ip is null &&
-            value is null &&
-            stack_trace is null;
-
-        public uint* last_ip;
-        public IshtarObject* value;
-        public InternedString* stack_trace;
-
-        public string GetStackTrace()
-        {
-            if (stack_trace is null)
-                return "";
-            return StringStorage.GetStringUnsafe(stack_trace);
-        }
-    };
-}
+        if (stack_trace is null)
+            return "";
+        return StringStorage.GetStringUnsafe(stack_trace);
+    }
+};

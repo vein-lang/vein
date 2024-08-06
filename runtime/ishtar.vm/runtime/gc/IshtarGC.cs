@@ -493,7 +493,8 @@ namespace ishtar.runtime.gc
         {
             using var _ = GCSync.Begin(this);
 
-            var allocator = allocatorPool.Rent<IshtarObject>(out var p, AllocationKind.reference, frame);
+            var allocator = allocatorPool.Rent<IshtarObject>(out var p,
+                AllocationKind.reference, frame);
 
             if (!@class->is_inited)
                 throw new NotImplementedException();
@@ -502,21 +503,23 @@ namespace ishtar.runtime.gc
                 (nuint)(sizeof(void*) * (long)@class->computed_size),
                 AllocationKind.reference, frame);
 
-            IshtarUnsafe.CopyBlock(p->vtable, @class->vtable, (uint)@class->computed_size * (uint)sizeof(void*));
+            IshtarUnsafe.CopyBlock(p->vtable, @class->vtable,
+                (uint)@class->computed_size * (uint)sizeof(void*));
             p->clazz = @class;
             p->vtable_size = (uint)@class->computed_size;
             p->__gc_id = (long)Stats.alive_objects++;
-#if DEBUG
+            #if DEBUG
             p->m1 = IshtarObject.magic1;
             p->m2 = IshtarObject.magic2;
             IshtarObject.CreationTrace[p->__gc_id] = Environment.StackTrace;
-#endif
+            #endif
             @class->computed_size = @class->computed_size;
 
             Stats.total_allocations++;
             Stats.total_bytes_requested += allocator.TotalSize;
 
-            InsertDebugData(new(checked((ulong)allocator.TotalSize), nameof(AllocObject), (nint)p));
+            InsertDebugData(new(checked((ulong)allocator.TotalSize),
+                nameof(AllocObject), (nint)p));
             RefsHeap.AddLast((nint)p);
 
             ObjectRegisterFinalizer(p, &_direct_finalizer, frame);
@@ -676,7 +679,6 @@ namespace ishtar.runtime.gc
 
         public static void FreeQueue<T>(NativeQueue<T>* queue) where T : unmanaged, IEq<T>
             => NativeQueue<T>.Free(queue);
-
 
         public static NativeConcurrentDictionary<TKey, TValue>* AllocateConcurrentDictionary<TKey, TValue>(void* parent, int initialCapacity = 16) 
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged

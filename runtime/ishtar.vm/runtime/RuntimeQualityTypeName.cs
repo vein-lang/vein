@@ -1,104 +1,67 @@
 namespace ishtar.runtime;
 
-using System.Linq;
 using collections;
 using gc;
-using vein.extensions;
 using vein.runtime;
 
-// remark: temporary using dotnet api and lazy interning
-public unsafe struct RuntimeQualityTypeName(InternedString* fullName) : IEq<RuntimeQualityTypeName>
+public readonly unsafe struct RuntimeQualityTypeName : IEq<RuntimeQualityTypeName>
 {
-    private readonly InternedString* _fullname = fullName;
-    private InternedString* _name;
-    private InternedString* _namespace;
-    private InternedString* _asmName;
-    private InternedString* _nameWithNS;
+    public RuntimeQualityTypeName() => throw new NotSupportedException();
+
+
+    private readonly InternedString* _name;
+    private readonly InternedString* _namespace;
+    private readonly InternedString* _moduleName;
+
+
+    public RuntimeQualityTypeName(InternedString* Name, InternedString* Namespace, InternedString* ModuleName)
+    {
+        this._name = Name;
+        this._namespace = Namespace;
+        this._moduleName = ModuleName;
+    }
+
     
-    public string Name
+    public string Name => StringStorage.GetStringUnsafe(_name);
+    public string Namespace => StringStorage.GetStringUnsafe(_namespace);
+    public string AssemblyName => StringStorage.GetStringUnsafe(_moduleName);
+
+    public string NameWithNS => $"{Namespace}::{Name}";
+
+    public static bool Eq(RuntimeQualityTypeName* p1, RuntimeQualityTypeName* p2) =>
+        InternedString.Eq(p1->_name, p2->_name) &&
+        InternedString.Eq(p1->_namespace, p2->_namespace) &&
+        InternedString.Eq(p1->_moduleName, p2->_moduleName);
+
+    public override string ToString() => $"[{AssemblyName}]::{Namespace}::{Name}";
+
+
+    public static RuntimeQualityTypeName* New(string name, string @namespace, string moduleName, void* parent)
     {
-        get
-        {
-            var fn = StringStorage.GetStringUnsafe(fullName);
+        var n = IshtarGC.AllocateImmortal<RuntimeQualityTypeName>(parent);
 
-            if (_name is not null)
-                return StringStorage.GetStringUnsafe(_name);
-            _name = StringStorage.Intern(fn.Split('/').Last(), fullName);
-            return StringStorage.GetStringUnsafe(_name);
-        }
+        *n = new RuntimeQualityTypeName(
+            StringStorage.Intern(name, parent),
+            StringStorage.Intern(@namespace, parent),
+            StringStorage.Intern(moduleName, parent)
+        );
+
+        return n;
     }
-
-
-    public string Namespace
-    {
-        get
-        {
-            if (_namespace is not null)
-                return StringStorage.GetStringUnsafe(_namespace);
-            var fn = StringStorage.GetStringUnsafe(fullName);
-            _namespace = StringStorage.Intern(fn
-                .Split('/')
-                .SkipLast(1).Join("/")
-                .Split("%").Skip(1)
-                .Join("/"), fullName);
-            return StringStorage.GetStringUnsafe(_namespace);
-        }
-    }
-
-    public string AssemblyName
-    {
-        get
-        {
-            if (_asmName is not null)
-                return StringStorage.GetStringUnsafe(_asmName);
-            var fn = StringStorage.GetStringUnsafe(fullName);
-
-            _asmName = StringStorage.Intern(fn.Split("%").SkipLast(1).Join(), fullName);
-            return StringStorage.GetStringUnsafe(_asmName);
-        }
-    }
-
-    public string NameWithNS
-    {
-        get
-        {
-            if (_nameWithNS is not null)
-                return StringStorage.GetStringUnsafe(_nameWithNS);
-            var fn = StringStorage.GetStringUnsafe(fullName);
-
-            _nameWithNS = StringStorage.Intern(fn.Split("%").Skip(1).Join(), fullName);
-            return StringStorage.GetStringUnsafe(_nameWithNS);
-        }
-    }
-
-    public static bool Eq(RuntimeQualityTypeName* p1, RuntimeQualityTypeName* p2)
-        => InternedString.Eq(p1->_fullname, p2->_fullname);
-
-    public override string ToString() => StringStorage.GetStringUnsafe(fullName);
 }
 
 
 public static unsafe class RuntimeQualityTypeNameEx
 {
-    public static RuntimeQualityTypeName* L(this string str, void* parent)
-    {
-        var tp = IshtarGC.AllocateImmortal<RuntimeQualityTypeName>(parent);
-
-        var raw = StringStorage.Intern(str, tp);
-
-        *tp = new RuntimeQualityTypeName(raw);
-
-        return tp;
-    }
-
-    public static QualityTypeName T(this RuntimeQualityTypeName t)
-        => new(t.AssemblyName, t.Name, t.Namespace);
-
     public static RuntimeQualityTypeName* T(this QualityTypeName t, void* parent)
     {
         var name = IshtarGC.AllocateImmortal<RuntimeQualityTypeName>(parent);
 
-        *name = new RuntimeQualityTypeName(StringStorage.Intern(t.FullName, name));
+        *name = new RuntimeQualityTypeName(
+            StringStorage.Intern(t.Name.name, name),
+            StringStorage.Intern(t.Namespace.@namespace, name),
+            StringStorage.Intern(t.ModuleName.moduleName, name)
+            );
 
         return name;
     }

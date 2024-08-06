@@ -7,6 +7,8 @@ namespace ishtar
         public CallFrame* frame;
     };
 
+    [CTypeExport("ishtar_error_e")]
+    [CEnumPrefix("ISHTAR_ERR_")]
     public enum WNE
     {
         NONE = 0,

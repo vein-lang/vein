@@ -242,6 +242,7 @@ namespace ishtar
         public static void Free(RuntimeIshtarSignature* sig) => IshtarGC.FreeImmortal(sig);
     }
 
+    [CTypeExport("ishtar_method_t")]
     public unsafe struct RuntimeIshtarMethod : INamed, IEq<RuntimeIshtarMethod>, IDisposable
     {
         private RuntimeIshtarMethod* _self;
@@ -333,7 +334,7 @@ namespace ishtar
         private string DiagnosticCtorTrace => DiagnosticCtorTraces[(nint)_self];
         private string DiagnosticDtorTrace => DiagnosticDtorTraces[(nint)_self];
 
-        internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
+        internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeComplexType returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
             params RuntimeMethodArgument*[] args)
         {
             this = default;
@@ -351,7 +352,7 @@ namespace ishtar
             Signature = RuntimeIshtarSignature.Allocate(returnType, arguments, _self);
         }
 
-        internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
+        internal RuntimeIshtarMethod(string name, MethodFlags flags, RuntimeComplexType returnType, RuntimeIshtarClass* owner, RuntimeIshtarMethod* self,
             NativeList<RuntimeMethodArgument>* args)
         {
             this = default;

@@ -9,6 +9,7 @@ namespace ishtar
         public static IshtarGC GetGC(this CallFrame frame) => frame.vm.GC;
     }
 
+    [CTypeExport("call_frame_t")]
     public unsafe struct CallFrame : IDisposable
     {
         public CallFrame(RuntimeIshtarMethod* m, CallFrame* parent, CallFrame* self)
@@ -22,7 +23,7 @@ namespace ishtar
                 this.level = parent->level + 1;
         }
 
-        public readonly CallFrame* Self ;
+        public readonly CallFrame* Self;
         public readonly CallFrame* parent;
         public readonly RuntimeIshtarMethod* method;
         public readonly int level;
