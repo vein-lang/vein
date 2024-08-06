@@ -9,8 +9,13 @@ namespace vein.syntax
     using Sprache;
     using stl;
 
+    [DebuggerDisplay("{ToDebugString()}")]
     public class TypeSyntax : BaseSyntax, IPositionAware<TypeSyntax>, IEquatable<TypeSyntax>
     {
+        public static TypeSyntax From(NameSymbol nameSymbol)
+            => new(new IdentifierExpression(nameSymbol.name));
+
+
         public TypeSyntax(IEnumerable<IdentifierExpression> qualifiedName)
         {
             Namespaces = qualifiedName.ToList();
@@ -33,6 +38,13 @@ namespace vein.syntax
             Namespaces = template.Namespaces;
             Identifier = template.Identifier;
             TypeParameters = template.TypeParameters;
+        }
+
+
+        private string ToDebugString()
+        {
+            if (!IsGeneric) return $"TypeName [{Identifier.ExpressionString}{(IsPointer ? "*" : "")}]";
+            return $"TypeName [{Identifier.ExpressionString}<{string.Join(',', TypeParameters.Select(x => x.Identifier.ToString()))}>]";
         }
 
         public override SyntaxType Kind => SyntaxType.Type;

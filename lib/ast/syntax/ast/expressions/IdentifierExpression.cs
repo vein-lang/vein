@@ -1,6 +1,7 @@
 namespace vein.syntax
 {
     using System;
+    using runtime;
     using Sprache;
 
     public class IdentifierExpression : ExpressionSyntax, IPositionAware<IdentifierExpression>, IEquatable<IdentifierExpression>
@@ -42,5 +43,6 @@ namespace vein.syntax
             ExpressionString;
 
         public static implicit operator string(IdentifierExpression i) => i.ToString();
+        public static implicit operator IdentifierExpression(NameSymbol s) => new(s.name);
     }
 }
