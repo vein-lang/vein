@@ -62,6 +62,15 @@ public class InstallWorkloadCommand : AsyncCommandWithProgress<InstallWorkloadCo
             await query.DownloadShardAsync(result);
 
             manifest = await Storage.GetWorkloadManifestAsync(result);
+
+            if (manifest is null)
+            {
+                task.FailTask();
+                Log.Error($"Workload package [orange3]'{name}@{version}'[/] is corrupted.");
+                return -1;
+            }
+
+            version = manifest.Version.ToNormalizedString();
         }
         else
         {
@@ -81,12 +90,7 @@ public class InstallWorkloadCommand : AsyncCommandWithProgress<InstallWorkloadCo
             return -1;
         }
 
-        if (manifest is null)
-        {
-            task.FailTask();
-            Log.Error($"Workload package [orange3]'{name}@{version}'[/] is corrupted.");
-            return -1;
-        }
+        
 
         var loader = new WorkloadRegistryLoader(manifest, tagFolder, context);
 
@@ -94,7 +98,7 @@ public class InstallWorkloadCommand : AsyncCommandWithProgress<InstallWorkloadCo
         {
             // save latest version of installed
             WorkloadDirectory
-                .SubDirectory(name).File("latest").WriteAllText(version);
+                .SubDirectory(name).File("latest.version").WriteAllText(version);
             Log.Info($"[green]Success[/] install [orange3]'{name}@{version}'[/] workload into [orange3]'global'[/].");
             return 0;
         }
@@ -111,7 +115,7 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
     public SymlinkCollector Symlink = new(SecurityStorage.RootFolder);
     public async Task<bool> InstallManifestForCurrentOS()
     {
-        directory.Ensure().File("manifest.json").WriteAllText(manifest.SaveAsString());
+        directory.Ensure().File("workload.manifest.json").WriteAllText(manifest.SaveAsString());
 
         var enums = manifest.Workloads.Select(x => (x, ctx.AddTask($"Downloading workload '{x.Value.name.key}'"))).ToList();
         await Task.Delay(1000);
