@@ -43,12 +43,12 @@ public partial class CompilationTask
             // fallback transform
             if (member.IsStruct)
             {
-                owners.Add(new TypeSyntax(new IdentifierExpression("ValueType"))
+                owners.Add(new TypeSyntax(NameSymbol.ValueType)
                     .SetPos<TypeSyntax>(member.Identifier.Transform));
             }
             else
             {
-                owners.Add(new TypeSyntax(new IdentifierExpression("Object"))
+                owners.Add(new TypeSyntax(NameSymbol.Object)
                     .SetPos<TypeSyntax>(member.Identifier.Transform));
             }
         }

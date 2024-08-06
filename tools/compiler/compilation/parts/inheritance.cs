@@ -2,6 +2,7 @@ namespace vein.compilation;
 
 using System.Linq;
 using ishtar.emit;
+using Spectre.Console;
 using syntax;
 
 public partial class CompilationTask
@@ -26,7 +27,7 @@ public partial class CompilationTask
         foreach (var method in prepairedAbstracts.Where(x => !@class.ContainsImpl(x)))
         {
             Log.Defer.Error(
-                $"[red]'{@class.Name}'[/] does not implement inherited abstract member [red]'{method.Owner.Name}.{method.Name}'[/]"
+                $"[red]'{@class.Name.name.EscapeMarkup()}'[/] does not implement inherited abstract member [red]'{($"{method.Owner.Name}.{method.Name}".EscapeMarkup())}'[/]"
                 , member.Identifier, member.OwnerDocument);
         }
     }

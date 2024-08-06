@@ -41,7 +41,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
     private static string PleaseReportProblemInto()
         => $"Please report the problem into 'https://github.com/vein-lang/vein/issues'.";
 
-    public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info, CompileSettings settings) => AnsiConsole
+    public static Task<IReadOnlyCollection<CompilationTarget>> RunAsync(DirectoryInfo info, CompileSettings settings) => AnsiConsole
         .Progress()
         .AutoClear(false)
         .AutoRefresh(true)
@@ -51,9 +51,9 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
             new PercentageColumn(),
             new SpinnerColumn { Spinner = Spinner.Known.Dots8Bit, CompletedText = "✅", FailedText = "❌" },
             new TaskDescriptionColumn { Alignment = Justify.Left })
-        .Start(ctx => Run(info, ctx, settings));
+        .StartAsync(ctx => RunAsync(info, ctx, settings));
     
-    public static IReadOnlyCollection<CompilationTarget> Run(DirectoryInfo info, ProgressContext context, CompileSettings settings)
+    public static async Task<IReadOnlyCollection<CompilationTarget>> RunAsync(DirectoryInfo info, ProgressContext context, CompileSettings settings)
     {
         var progression = new ClassicCompilationProgressionTask(context, context.AddTask("Collect projects"));
 
@@ -106,8 +106,16 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
             task.StopTask();
         });
 
-        foreach (var target in collection)
-        {
+
+        await Parallel.ForEachAsync(collection, async (target, token) => {
+            while (!token.IsCancellationRequested)
+            {
+                if (target.Dependencies.Any(x => x.Status == CompilationStatus.NotStarted))
+                    await Task.Delay(200, token);
+                else
+                    break;
+            }
+
             var c = new CompilationTask(target, settings)
             {
                 StatusCtx = context,
@@ -119,12 +127,12 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
                 target.Status = CompilationStatus.Success;
                 target.AcceptArtifacts(target.Project.WorkDir.EnumerateFiles("*.json").Select(x => new ResourceArtifact(x, target.Project.Name)).ToList());
                 PipelineRunner.Run(c, target);
-                continue;
+                return;
             }
 
 
             if (target.Dependencies.Any(x => x.Status == CompilationStatus.Failed))
-                continue;
+                return;
             target.Dependencies
                 .SelectMany(x => x.Artifacts)
                 .OfType<BinaryArtifact>()
@@ -134,7 +142,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
 
             target.LoadedModules.AddRange(list);
 
-            
+
 
 
 
@@ -146,44 +154,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
             if (status is CompilationStatus.Success)
                 target.AcceptArtifacts(c.artifacts.AsReadOnly());
             target.Status = status;
-        }
-
-        //Parallel.ForEachAsync(collection, async (target, token) =>
-        //{
-        //    while (!token.IsCancellationRequested)
-        //    {
-        //        if (target.Dependencies.Any(x => x.Status == CompilationStatus.NotStarted))
-        //            await Task.Delay(200, token);
-        //        else
-        //            break;
-        //    }
-
-        //    if (target.Dependencies.Any(x => x.Status == CompilationStatus.Failed))
-        //        return;
-        //    target.Dependencies
-        //        .SelectMany(x => x.Artifacts)
-        //        .OfType<BinaryArtifact>()
-        //        .Select(x => target.Resolver.ResolveDep(x, list))
-        //        .Pipe(list.Add)
-        //        .Consume();
-
-        //    target.LoadedModules.AddRange(list);
-
-        //    var c = new CompilationTask(target, settings)
-        //    {
-        //        StatusCtx = context,
-        //        Status = target.Task
-        //    };
-
-        //    var status = c.ProcessFiles(target.Project.Sources, target.LoadedModules)
-        //        ? CompilationStatus.Success
-        //        : CompilationStatus.Failed;
-        //    if (status is CompilationStatus.Success)
-        //        PipelineRunner.Run(c, target);
-        //    if (status is CompilationStatus.Success)
-        //        target.AcceptArtifacts(c.artifacts.AsReadOnly());
-        //    target.Status = status;
-        //}).Wait();
+        });
 
         return collection;
     }

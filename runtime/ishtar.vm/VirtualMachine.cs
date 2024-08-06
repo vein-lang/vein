@@ -25,6 +25,7 @@ namespace ishtar
         public readonly Architecture Architecture = RuntimeInformation.OSArchitecture;
     }
 
+    [CTypeExport("vm_t")]
     public unsafe struct VirtualMachineRef
     {
         public InternedString* Name;
@@ -66,8 +67,8 @@ namespace ishtar
             vm.GC = new IshtarGC(vm);
 
             vm.@ref->InternalModule = vm.Vault.DefineModule("$ishtar$");
-
-            vm.@ref->InternalClass = vm.InternalModule->DefineClass("sys%$ishtar$/global".L(vm.@ref->InternalModule),
+            
+            vm.@ref->InternalClass = vm.InternalModule->DefineClass(RuntimeQualityTypeName.New("global", "sys", "ishtar", vm.@ref->InternalModule),
                 vm.Types->ObjectClass);
 
             vm.@ref->Frames = IshtarFrames.Create(vm);

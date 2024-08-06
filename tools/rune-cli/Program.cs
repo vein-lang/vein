@@ -71,6 +71,8 @@ var app = new CommandApp();
 
 app.Configure(config =>
 {
+    config.Settings.ApplicationVersion
+        = $"Vein Rune CLI {AssemblySemFileVer}\nBranch: {BranchName}+{ShortSha}\nCall rune workloads list for view installed workloads and other version";
     config.AddCommand<NewCommand>("new")
         .WithDescription("Create new project.");
     config.AddCommand<CompileCommand>("build")
@@ -89,6 +91,8 @@ app.Configure(config =>
         .WithExample(["--project ./foo.vproj"]);
     config.AddBranch("workload", x =>
     {
+        x.AddCommand<ListInstalledWorkloadCommand>("list")
+            .WithDescription($"Get list of installed workloads");
         x.AddCommand<InstallWorkloadCommand>("install")
             .WithDescription("Install workload into global");
         x.AddCommand<InstallWorkloadCommand>("add")
@@ -121,7 +125,11 @@ app.Configure(config =>
     });
 
     config.SetExceptionHandler((ex) => {
+#if DEBUG
         WriteException(ex);
+#else
+        File.WriteAllText($"rune-error-{DateTimeOffset.Now:s}.txt", ex.ToString());
+#endif
     });
 });
 
