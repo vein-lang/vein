@@ -96,6 +96,8 @@ namespace vein.runtime
                 method |= MethodFlags.Virtual;
             if (flags.HasFlag(FieldFlags.Abstract))
                 method |= MethodFlags.Abstract;
+            if (flags.HasFlag(FieldFlags.Override))
+                method |= MethodFlags.Override;
             return method;
         }
 
