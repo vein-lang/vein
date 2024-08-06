@@ -3,10 +3,10 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>ishtar</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
-    <EnablePreviewFeatures>True</EnablePreviewFeatures>
     <GenerateRequiresPreviewFeaturesAttribute>True</GenerateRequiresPreviewFeaturesAttribute>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
-    <RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64;linux-arm64;browser-wasm</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PublishAot>true</PublishAot>
@@ -41,7 +41,7 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS</DefineConstants>
+    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS;ISHTAR_DEBUG_CONSOLE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

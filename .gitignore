@@ -75,3 +75,11 @@ dotCover.Output.xml
 !logic.cs
 
 
+
+.nuke/temp/
+
+output/
+
+workloads/compiler/bin/
+
+workloads/runtime/bin/

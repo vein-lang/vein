@@ -1,0 +1,42 @@
+name: build_nuke
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '**.json'
+      - '**.vein'
+      - '**.vproj'
+      - '**.yml'
+      - '**.yaml'
+      - '**.ps1'
+      - '**.sh'
+      - '**.cmd'
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  ubuntu-latest:
+    name: ubuntu-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: 'Cache: .nuke/temp, ~/.nuget/packages'
+        uses: actions/cache@v3
+        with:
+          path: |
+            .nuke/temp
+            ~/.nuget/packages
+          key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
+      - name: 'Run: '
+        run: ./build.sh 
+        env:
+          VEIN_API_KEY: ${{ secrets.VEIN_API_KEY }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: ./output/**.zip
+          if-no-files-found: error

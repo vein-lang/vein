@@ -69,7 +69,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "cgen", "tools\cgen\cgen.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "rune-cli", "tools\rune-cli\rune-cli.csproj", "{4546557D-B44E-4A64-A82C-5E1828D1A787}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vein.cli.core", "lib\vein.cli.core\vein.cli.core.csproj", "{7AD0D9EA-3320-4068-BB7D-ECEF7625E9D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.cli.core", "lib\vein.cli.core\vein.cli.core.csproj", "{7AD0D9EA-3320-4068-BB7D-ECEF7625E9D1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "build", ".nuke\build.csproj", "{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -381,6 +383,16 @@ Global
 		{7AD0D9EA-3320-4068-BB7D-ECEF7625E9D1}.Release|x64.Build.0 = Release|Any CPU
 		{7AD0D9EA-3320-4068-BB7D-ECEF7625E9D1}.Release|x86.ActiveCfg = Release|Any CPU
 		{7AD0D9EA-3320-4068-BB7D-ECEF7625E9D1}.Release|x86.Build.0 = Release|Any CPU
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}.Debug|x64.Build.0 = Debug|Any CPU
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}.Debug|x86.Build.0 = Debug|Any CPU
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}.Release|x64.ActiveCfg = Release|Any CPU
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}.Release|x64.Build.0 = Release|Any CPU
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}.Release|x86.ActiveCfg = Release|Any CPU
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -407,6 +419,7 @@ Global
 		{7D3EFEA5-4CD9-4A43-A999-ECB71F1D71B8} = {2A92D5A1-53AF-4E15-816C-3E64E2FAC9E4}
 		{4546557D-B44E-4A64-A82C-5E1828D1A787} = {2A92D5A1-53AF-4E15-816C-3E64E2FAC9E4}
 		{7AD0D9EA-3320-4068-BB7D-ECEF7625E9D1} = {B79D9C1A-8074-4105-8447-93A5A059A2CB}
+		{7148A46B-2FB4-419B-8C4A-3FC0C0A58C73} = {2A92D5A1-53AF-4E15-816C-3E64E2FAC9E4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E2BB3994-6F65-4E41-BA44-6258F00A3A28}

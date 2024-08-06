@@ -1,9 +1,6 @@
 namespace ishtar.libuv;
 
 using System.Runtime.InteropServices;
-using static ishtar.libuv.LibUV;
-
-
 public static unsafe class LibUV
 {
     public const string LIBNAME = "libuv";

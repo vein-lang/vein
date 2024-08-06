@@ -13,7 +13,9 @@ internal readonly struct IshtarTrace()
     {
         if (useConsole)
             return;
+#if ISHTAR_DEBUG_CONSOLE
         IshtarSharedDebugData.Setup();
+#endif
     }
 
     [Conditional("DEBUG")]
@@ -24,7 +26,9 @@ internal readonly struct IshtarTrace()
             Console.WriteLine(s);
             return;
         }
+#if ISHTAR_DEBUG_CONSOLE
         IshtarSharedDebugData.TraceOutPush(s);
+#endif
     }
 
 
@@ -36,12 +40,19 @@ internal readonly struct IshtarTrace()
             Console.WriteLine(s);
             return;
         }
+#if ISHTAR_DEBUG_CONSOLE
         IshtarSharedDebugData.StdOutPush(s);
+#endif
     }
 
     [Conditional("DEBUG")]
     public unsafe void signal_state(OpCodeValue ip, CallFrame current, TimeSpan cycleDelay, stackval currentStack)
-        => IshtarSharedDebugData.SetState(new IshtarState($"{ip}", current.method->Name, cycleDelay, $"{currentStack.type}", current.level));
+    {
+#if ISHTAR_DEBUG_CONSOLE
+        IshtarSharedDebugData.SetState(new IshtarState($"{ip}", current.method->Name, cycleDelay,
+            $"{currentStack.type}", current.level));
+#endif
+    }
 
     public static unsafe object Dump(RuntimeIshtarModule* module)
     {

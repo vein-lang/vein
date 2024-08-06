@@ -1,0 +1,15 @@
+name: vein.compiler
+version: '{VERSION}'
+author:
+  - name: Yuuki Wesp
+    github: '0xF6'
+  - name: Vein Lang
+    github: 'vein-lang'
+license: MIT license
+packable: true
+hasWorkload: true
+description: A standard compiler for Vein Lang
+urls:
+  BugUrl: https://github.com/vein-lang/vein
+  HomepageUrl: https://github.com/vein-lang/vein
+  Repository: https://github.com/vein-lang/vein
