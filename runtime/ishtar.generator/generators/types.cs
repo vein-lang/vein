@@ -304,7 +304,13 @@ public static class G_Types
                 continue;
             }
 
-            if (enumerator[i] is ThisAccessExpression @this)
+            if (enumerator[i] is ThisAccessExpression)
+            {
+                t = context.CurrentMethod.Owner;
+                continue;
+            }
+
+            if (enumerator[i] is SelfAccessExpression)
             {
                 t = context.CurrentMethod.Owner;
                 continue;
