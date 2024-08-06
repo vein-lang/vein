@@ -1,0 +1,11 @@
+#space "std"
+
+public abstract class Stream {
+    abstract canRead(): bool;
+    abstract canWrite(): bool;
+    abstract len(): u64;
+    abstract position(): u64;
+    abstract flush(): void;
+    abstract read(buffer: Array<u8>): i32;
+    abstract write(buffer: Array<u8>): void;
+}

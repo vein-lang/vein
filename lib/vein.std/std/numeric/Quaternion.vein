@@ -1,24 +1,53 @@
-#space "vein/lang/numeric"
+#space "std"
 
-#use "vein/lang"
-
-public struct Quaternion : ValueType
-{
-    /* public static Zero: Quaternion = new Quaternion(0.0f, 0.0f, 0.0f, 0.0f); */
-
+public struct Quaternion {
     public X: f32;
     public Y: f32;
     public Z: f32;
     public W: f32;
 
-    public IsZero(): bool
-        |> X + Y + Z + W == 0;
+    new(x: f32, y: f32, z: f32, w: f32) {
+        this.X = x;
+        this.Y = y;
+        this.Z = z;
+        this.W = w;
+    }
+
+    public IsZero(): bool {
+        return (this.X == 0.0f) && (this.Y == 0.0f) && (this.Z == 0.0f) && (this.W == 0.0f);
+    }
+
+    public Length(): f32 {
+        return Math.sqrt(this.X * this.X + this.Y * this.Y + this.Z * this.Z + this.W * this.W);
+    }
+
+    public Normalize(): Quaternion {
+        auto length = this.Length();
+        if (length == 0) {
+            fail new Exception();
+        }
+        return new Quaternion(this.X / length, this.Y / length, this.Z / length, this.W / length);
+    }
+
+    public Multiply(other: Quaternion): Quaternion {
+        auto x = this.W * other.X + this.X * other.W + this.Y * other.Z - this.Z * other.Y;
+        auto y = this.W * other.Y - this.X * other.Z + this.Y * other.W + this.Z * other.X;
+        auto z = this.W * other.Z + this.X * other.Y - this.Y * other.X + this.Z * other.W;
+        auto w = this.W * other.W - this.X * other.X - this.Y * other.Y - this.Z * other.Z;
+        return new Quaternion(x, y, z, w);
+    }
+
+    public Add(other: Quaternion): Quaternion 
+        |> new Quaternion(this.X + other.X, this.Y + other.Y, this.Z + other.Z, this.W + other.W);
+
+    public Dot(other: Quaternion): f32
+        |> this.X * other.X + this.Y * other.Y + this.Z * other.Z + this.W * other.W;
     
-    new (x: f32, y: f32, z: f32, w: f32)
-    {
-        X = x;
-        Y = y;
-        Z = z;
-        W = w;
+    public Inverse(): Quaternion {
+        auto lengthSq = Math.pow(this.Length(), 2);
+        if (lengthSq == 0) {
+            fail new Exception();
+        }
+        return new Quaternion(-this.X / lengthSq, -this.Y / lengthSq, -this.Z / lengthSq, this.W / lengthSq);
     }
 }

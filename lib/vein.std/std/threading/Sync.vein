@@ -1,0 +1,48 @@
+#space "std"
+
+
+class Sync {
+    public const MODE_SEMAPHORE: i32 = 0;
+    public const MODE_MUTEX: i32 = 1;
+
+    private _mode: i32;
+    private _handle: raw;
+
+    new(mode: i32) {
+        this._mode = mode;
+        if (mode == 0) 
+            this._handle = self._get_create_semaphore();
+        else 
+            this._handle = self._get_create_mutex();
+    }
+
+    unlock(): void {
+        if (this._mode == 0) 
+            _semaphore_post(this._handle);
+        else  
+            _mutex_unlock(this._handle);
+    }
+    lock(): void {
+        if (this._mode == 0) 
+            _semaphore_wait(this._handle);
+        else  
+            _mutex_lock(this._handle);
+    }
+
+
+    [native("__internal__", "sync_create_semaphore")]
+    private static extern _get_create_semaphore(): raw;
+    [native("__internal__", "sync_create_mutex")]
+    private static extern _get_create_mutex(): raw;
+
+
+    [native("__internal__", "sync_semaphore_wait")]
+    private static extern _semaphore_wait(inst: raw): void;
+    [native("__internal__", "sync_semaphore_post")]
+    private static extern _semaphore_post(inst: raw): void;
+
+    [native("__internal__", "sync_mutex_lock")]
+    private static extern _mutex_lock(inst: raw): void;
+    [native("__internal__", "sync_mutex_unlock")]
+    private static extern _mutex_unlock(inst: raw): void;
+}

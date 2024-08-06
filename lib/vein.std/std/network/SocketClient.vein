@@ -1,0 +1,41 @@
+#space "std"
+
+
+public class SocketClient {
+    private _handle: raw;
+    private _server: SocketServer;
+
+    new(server: SocketServer) {
+        this._server = server;
+        _handle = self.tcp_init_handle();
+    }
+
+    public accept(server: SocketServer): bool 
+    {
+        auto result = socket_accept_handle(this._handle, server.server_handle) == 0;
+
+        if (!result) 
+            return false;
+
+        self.socket_read_start(this._handle, &_internal_onRead);
+        return true;
+    }
+
+    private _internal_onRead(stream: raw, nread: i32, buf: raw): void {
+        auto reader = self.socket_create_stream_reader(nread, buf);
+        auto writer = self.socket_create_network_stream_writer(stream);
+        this._server.onRead(this, writer, reader);
+    }
+
+    [native("__internal__", "socket_tcp_init_handle")]
+    private static extern tcp_init_handle(): raw;
+    [native("__internal__", "socket_accept_handle")]
+    private static extern socket_accept_handle(client: raw, server: raw): i32;
+    [native("__internal__", "socket_read_start")]
+    private static extern socket_read_start(client: raw, callback: rawOnReadStart): i32;
+    [native("__internal__", "socket_create_stream_reader")]
+    private static extern socket_create_stream_reader(nread: i32, buf: raw): StreamReader;
+    [native("__internal__", "socket_create_network_stream_writer")]
+    private static extern socket_create_network_stream_writer(stream: raw): StreamWriter;
+}
+alias rawOnReadStart <| (stream: raw, nread: i32, buf: raw): void;

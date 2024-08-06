@@ -1,0 +1,51 @@
+#space "std"
+
+[special]
+public class Array<Any>
+{
+    new(size: i32) {
+
+    }
+
+
+    /*public len: i32 |> __gen_len(this);
+
+    public static resize(arr: Array<Any>, newSize: i32): Array<Any> {
+        return __gen_len(arr, newSize);
+    }
+    */
+    protected __indexer_getter(index: i32): Any {
+        return ArrayEx.arr_indexer_getter(this, index);
+    }
+    //protected extern __indexer_set(index: i64, o: Object): Void;
+
+    public Set(index: i32, value: Any): void {
+
+    }
+    public Get(index: i32): Any {
+        
+    }
+
+    [native("!!value")]
+    private _value: ValueType;
+
+    [native("!!block")]
+    private _block: i64;
+
+    [native("!!size")]
+    public readonly Length: i64;
+
+    [native("!!rank")]
+    public readonly Rank: i64;
+    public override toString(): string
+    {
+        return "Array";
+    }
+}
+
+
+public static class ArrayEx
+{
+    [native("__internal__", "__indexer_getter")]
+    static extern arr_indexer_getter(arr: Object, index: i32): Object;
+}

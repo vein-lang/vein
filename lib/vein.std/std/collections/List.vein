@@ -1,0 +1,97 @@
+#space "std"
+
+public class List<T>
+{
+    private items: Array<T>;
+    private capacity: i32;
+    private count: i32;
+
+
+    new() {
+        capacity = 4;
+        count = 0;
+        items = new Array<T>(capacity);
+    }
+
+    Add(value: T): void 
+    {
+        ensureCapacity();
+        items.Set(count, value);
+        count = count + 1;
+    }
+
+    Remove(value: T): void {
+        auto index = indexOf(value);
+        if (index >= 0)
+            RemoveAt(index);
+    }
+
+    RemoveAt(index: i32): void {
+        for (auto i = index; i < count - 1; i++)
+        {
+            auto val = items.Get(i + 1);
+            items.Set(i, val);
+        }
+        count = count - 1;
+        items.Set(count, null);
+    }
+
+    AddRange(values: T[]): void { }
+
+    Get(index: i32): T 
+        |> items.Get(index);
+
+    ensureCapacity(): void
+    {
+        if (count >= capacity)
+        {
+            capacity = capacity * 2;
+            auto newItems = new Array<T>(capacity);
+            for (auto i = 0; i < count; i++)
+            {
+                auto val = items.Get(i);
+                newItems.Set(i, val);
+            }
+            items = newItems;
+        }
+    }
+
+    indexOf(value: T): i32
+    {
+        for (auto i = 0; i < count; i++)
+        {
+            if (_sys_eql(items[i], value))
+                return i;
+        }
+        return -1;
+    }
+
+    Count(): i32 
+        |> count;
+
+    Clear(): void {
+        
+    }
+
+    [native("__internal__", "@__sys_eql_2T")]
+    private static extern _sys_eql(t1: Object, t2: Object): bool;
+}
+
+
+/*
+public class Map<TKey, TValue>
+{
+    Add(key: TKey, value: TValue): void;
+    Remove(key: TKey): void;
+    ContainsKey(key: TKey): void;
+    Get(key: TKey): void;
+}
+
+public class Stack<T>
+{
+    Push(value: T): Void;
+    Peek(): T;
+    Pop(): T;
+    Clear(): Void;
+}
+*/

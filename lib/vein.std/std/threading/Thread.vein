@@ -3,18 +3,18 @@
 
 public class Thread : Object
 {
-    //[native("__internal__", "@_threading_begin_affinity")]
-    //public extern static BeginAffinity(): Void;
-    //[native("__internal__", "@_threading_end_affinity")]
-    //public extern static EndAffinity(): Void;
-    //[native("__internal__", "@_threading_begin_critical_region")]
-    //public extern static BeginCriticalRegion(): Void;
-    //[native("__internal__", "@_threading_end_critical_region")]
-    //public extern static EndCriticalRegion(): Void;
-    //[native("__internal__", "@_threading_memory_barrier")]
-    //public extern static MemoryBarrier(): Void;
-    //[native("__internal__", "@_threading_yield")]
-    //public extern static Yield(): Void;
+    [native("__internal__", "@_threading_begin_affinity")]
+    public extern static BeginAffinity(): Void;
+    [native("__internal__", "@_threading_end_affinity")]
+    public extern static EndAffinity(): Void;
+    [native("__internal__", "@_threading_begin_critical_region")]
+    public extern static BeginCriticalRegion(): Void;
+    [native("__internal__", "@_threading_end_critical_region")]
+    public extern static EndCriticalRegion(): Void;
+    [native("__internal__", "@_threading_memory_barrier")]
+    public extern static MemoryBarrier(): Void;
+    [native("__internal__", "@_threading_yield")]
+    public extern static Yield(): Void;
     [native("__internal__", "@_threading_create")]
     public extern static Create(fn: ThreadFunction): Thread;
     [native("__internal__", "@_threading_sleep")]

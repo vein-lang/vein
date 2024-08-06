@@ -1,0 +1,15 @@
+#space "std"
+
+
+public class Regex {
+    [native("__internal__", "regex_escape")]
+    public static escape(str: string): string;
+    [native("__internal__", "regex_unescape")]
+    public static unescape(str: string): string;
+    [native("__internal__", "regex_count")]
+    public static count(pattern: string, value: string): i32;
+    [native("__internal__", "regex_isMatch")]
+    public static isMatch(pattern: string, value: string): bool;
+    [native("__internal__", "regex_replace")]
+    public extern static replace(pattern: string, value: string, replacement: string): bool;
+}

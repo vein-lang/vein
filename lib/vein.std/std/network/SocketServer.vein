@@ -1,0 +1,35 @@
+#space "std"
+
+
+public abstract class SocketServer {
+    private server_handle: raw;
+    private _endpoint: IpEndpoint;
+
+    start(endpoint: IpEndpoint): void {
+        this.server_handle = self.init_server_handle();
+        self.tcp_bind_handle(this.server_handle, endpoint);
+        this._endpoint = endpoint;
+        self.tcp_listen_handle(this.server_handle, 128, &_internal_onConnection);
+    }
+
+    private _internal_onConnection(sr: raw, status: i32): void {
+        if (status != 0) {
+            return;
+        }
+        auto client = new SocketClient();
+        this.onConnected(client);
+    }
+
+    abstract onConnected(client: SocketClient): void;
+    abstract onRead(client: SocketClient, writer: StreamWriter, reader: StreamReader): void;
+
+    [native("__internal__", "socket_init_server_handle")]
+    private static extern init_server_handle(): raw;
+    [native("__internal__", "socket_tcp_bind_handle")]
+    private static extern tcp_bind_handle(server: raw, endpoint: IpEndpoint): void;
+    [native("__internal__", "socket_tcp_bind_handle")]
+    private static extern tcp_listen_handle(server: raw, nap: i32, fn: rawOnServerConnection): void;
+    
+}
+
+alias rawOnServerConnection <| (sr: raw, status: i32): void;

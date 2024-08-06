@@ -1,0 +1,14 @@
+#ignore
+#space "std"
+
+public struct Span<T> {
+    private ptr: raw;
+    private itemSize: u8;
+    private length: u32;
+    
+    new(ptr: raw, len: u32) {
+        this.length = len;
+        this.ptr = ptr;
+        this.itemSize = sizeof<T>();
+    }
+}

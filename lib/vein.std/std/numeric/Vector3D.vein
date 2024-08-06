@@ -1,0 +1,52 @@
+#space "std"
+
+public struct Vector3 {
+    public X: f32;
+    public Y: f32;
+    public Z: f32;
+
+    new(x: f32, y: f32, z: f32) {
+        this.X = x;
+        this.Y = y;
+        this.Z = z;
+    }
+
+    public IsZero(): bool {
+        return (this.X == 0) && (this.Y == 0) && (this.Z == 0);
+    }
+
+    public Length(): f32 {
+        return Math.sqrt(this.X * this.X + this.Y * this.Y + this.Z * this.Z);
+    }
+
+    public Normalize(): Vector3 {
+        auto length = this.Length();
+        if (length == 0) {
+            fail new Exception();
+        }
+        return new Vector3(this.X / length, this.Y / length, this.Z / length);
+    }
+
+    public Add(other: Vector3): Vector3 {
+        return new Vector3(this.X + other.X, this.Y + other.Y, this.Z + other.Z);
+    }
+
+    public Subtract(other: Vector3): Vector3 {
+        return new Vector3(this.X - other.X, this.Y - other.Y, this.Z - other.Z);
+    }
+
+    public Multiply(scalar: f32): Vector3 {
+        return new Vector3(this.X * scalar, this.Y * scalar, this.Z * scalar);
+    }
+
+    public Dot(other: Vector3): f32 {
+        return this.X * other.X + this.Y * other.Y + this.Z * other.Z;
+    }
+
+    public Cross(other: Vector3): Vector3 {
+        auto x = this.Y * other.Z - this.Z * other.Y;
+        auto y = this.Z * other.X - this.X * other.Z;
+        auto z = this.X * other.Y - this.Y * other.X;
+        return new Vector3(x, y, z);
+    }
+}

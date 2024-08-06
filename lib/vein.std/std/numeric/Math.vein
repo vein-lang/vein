@@ -1,0 +1,10 @@
+#space "std"
+
+public class Math {
+    public pow(i1: f32, i2: i32): f32 {
+        return 0.0f;
+    }
+    public sqrt(i1: f32): f32 {
+        return 0.0f;
+    }
+}

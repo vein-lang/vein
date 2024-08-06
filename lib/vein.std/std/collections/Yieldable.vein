@@ -1,5 +1,4 @@
-#space "vein/lang/collections"
-#use "vein/lang"
+#space "std"
 
 
 public class Yieldable
