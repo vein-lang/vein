@@ -160,15 +160,21 @@ public static class G_Types
         if (exp is LiteralExpressionSyntax literal)
             return literal.GetTypeCode().AsClass()(Types.Storage);
         if (exp is ArrayCreationExpression arr)
-            return VeinTypeCode.TYPE_ARRAY.AsClass()(Types.Storage);
+            return context.ResolveType(new TypeSyntax(NameSymbol.Array)
+            {
+                TypeParameters = [arr.Type.Typeword]
+            });
         if (exp is IndexerAccessExpressionSyntax indexer)
             return indexer.ResolveReturnType(context);
         if (exp is AccessExpressionSyntax access)
             return access.ResolveType(context);
         if (exp is NewExpressionSyntax { IsArray: false } @new)
             return context.ResolveType(@new.TargetType.Typeword);
-        if (exp is NewExpressionSyntax { IsArray: true })
-            return VeinTypeCode.TYPE_ARRAY.AsClass()(Types.Storage);
+        if (exp is NewExpressionSyntax { IsArray: true } newArr)
+            return context.ResolveType(new TypeSyntax(NameSymbol.Array)
+            {
+                TypeParameters = [newArr.TargetType.Typeword]
+            });
         if (exp is InvocationExpression inv)
             return inv.ResolveReturnType(context);
         if (exp is ArgumentExpression { Value: IdentifierExpression } arg1)
@@ -201,7 +207,7 @@ public static class G_Types
 
         if (exp is UnaryExpressionSyntax unary)
         {
-            if (unary.Kind == SyntaxType.PostfixUnaryExpression && unary.OperatorType == ExpressionType.Negate)
+            if (unary is { Kind: SyntaxType.PostfixUnaryExpression } and { OperatorType: ExpressionType.Negate or ExpressionType.Not })
                 return unary.Operand.DetermineType(context);
 
             if (unary.Kind == SyntaxType.PostfixUnaryExpression)
@@ -221,7 +227,7 @@ public static class G_Types
 
                 if (type.Class.TypeCode != VeinTypeCode.TYPE_FUNCTION)
                 {
-                    context.LogError($"PostfixUnary expression cannot user with non function type. support only Function expression operand", exp);
+                    context.LogError($"PostfixUnary expression cannot used with non function type, supported only function expression operand", exp);
                     throw new SkipStatementException();
                 }
 
