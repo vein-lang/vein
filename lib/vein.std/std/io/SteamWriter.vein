@@ -1,0 +1,19 @@
+#space "std"
+
+public class StreamWriter : Stream {
+    private _original: Stream;
+    new(stream: Stream) {
+        this._original = stream;
+    }
+
+    override canRead(): bool |> false;
+    override canWrite(): bool |> true;
+    override len(): u64 |> _original.len();
+    override position(): u64 |> _original.position();
+    override flush(): void |> _original.flush();
+    override read(buffer: Array<u8>): i32 {
+        return 0;
+    }
+    override write(buffer: Array<u8>): void 
+        |> _original.write(buffer);
+}

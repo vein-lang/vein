@@ -171,6 +171,9 @@ public static class G_Access
             return gen.EmitLiteral(literal).EmitCall(@class, invoke1);
         }
 
+        if (access is { Left: ThisAccessExpression, Right: AccessExpressionSyntax otherAccess })
+            return gen.EmitThis().EmitAccess(otherAccess);
+
         if (access is { Left: ThisAccessExpression @this, Right: IdentifierExpression id1 })
         {
             var flags = gen.GetAccessFlags(id1);

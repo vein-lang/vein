@@ -119,6 +119,7 @@ public class ShardRegistryQuery
 
         var response = await _client.Request("@/publish")
             .AllowHttpStatus("400,409,201,403,500")
+            .WithTimeout(60)
             .PostMultipartAsync(x => x.AddFile(pkg, info.FullName, "binary/octet-stream", fileName: pkg));
 
         return (await response.GetJsonAsync<RegistryResponse>(), response.StatusCode);

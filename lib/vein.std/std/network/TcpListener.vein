@@ -1,6 +1,4 @@
-#space "vein/lang/network"
-
-#use "vein/lang"
+#space "std"
 
 public class TcpListener
 {

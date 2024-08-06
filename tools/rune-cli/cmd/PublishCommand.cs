@@ -34,7 +34,7 @@ public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
         if (apiKey is null)
         {
             Log.Error($"Api key is not [red]provided[/], set api key with parameter '--api-key' " +
-                      $"or set with config 'veinc config set registry:api:token {Guid.Empty}'");
+                      $"or set with config 'rune config set registry:api:token {Guid.Empty}'");
             return -1;
         }
 
@@ -62,8 +62,8 @@ public class PublishCommandSettings : CommandSettings, IProjectSettingProvider
 {
     [Description("Path to project")]
     [CommandOption("--project")]
-    public string Project { get; set; }
+    public required string Project { get; set; }
     [Description("API Key for publishing")]
     [CommandOption("--api-key")]
-    public string ApiKey { get; set; }
+    public string? ApiKey { get; set; }
 }

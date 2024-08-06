@@ -1,35 +1,16 @@
-#space "vein/lang/network"
-
-#use "vein/lang"
+#space "std"
 
 public class Ipv4Addr
 {
-    public new(a1: u8, a2: u8, a3: u8, a4: u8);
-}
+    private first: u8;
+    private second: u8;
+    private third: u8;
+    private fourth: u8;
 
-
-public class IpEndpoint
-{
-    public new(addr: Ipv4Addr, port: u16);
-}
-
-public class TcpSocket {
-    public static Create(endpoint: IpEndpoint): TcpSocket;
-
-    public bind(): boolean;
-    public listen(backlog: i32, fn: Function): boolean;
-
-
-    public accept(handle: raw, read: Function, write: Function): Void;
-
-
-    public write(handle: raw, req: raw, cb: Function): Void;
-    public read(handle: raw, resp: raw, cb: Function): Void;
-
-
-    public keepAlive(enable: bool, delay: u32): Void;
-
-    public isReadable(handle: raw): boolean;
-    public isWritable(handle: raw): boolean;
-    public isClosing(handle: raw): boolean;
+    new(a1: u8, a2: u8, a3: u8, a4: u8) {
+        this.first = a1;
+        this.second = a2;
+        this.third = a3;
+        this.fourth = a4;
+    }
 }

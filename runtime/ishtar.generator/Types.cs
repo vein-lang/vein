@@ -4,5 +4,5 @@ using vein.runtime;
 
 public class Types
 {
-    public static readonly VeinCore Storage = new VeinCore();
+    public static readonly VeinCore Storage = new();
 }

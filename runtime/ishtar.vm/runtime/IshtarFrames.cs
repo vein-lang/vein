@@ -4,6 +4,7 @@ namespace ishtar;
 using runtime.gc;
 using vein.runtime;
 
+[CTypeExport("ishtar_frames_t")]
 public unsafe struct IshtarFrames
 {
     private IshtarFrames(VirtualMachine vm)

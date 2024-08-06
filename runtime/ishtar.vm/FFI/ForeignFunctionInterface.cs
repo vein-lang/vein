@@ -3,6 +3,8 @@ namespace ishtar;
 using System.Collections.Generic;
 using System.Linq;
 using collections;
+using ishtar.vm.__builtin.networks;
+using networks;
 using runtime;
 using runtime.gc;
 using vein.runtime;
@@ -40,6 +42,7 @@ public unsafe class ForeignFunctionInterface
         B_Out.InitTable(this);
         B_IEEEConsts.InitTable(this);
         //B_Sys.InitTable(this);
+        B_File.InitTable(this);
         B_String.InitTable(this);
         //B_StringBuilder.InitTable(this);
         B_GC.InitTable(this);
@@ -48,7 +51,14 @@ public unsafe class ForeignFunctionInterface
         //B_Field.InitTable(this);
         //B_Function.InitTable(this);
         //B_NAPI.InitTable(this);
+        B_Regex.InitTable(this);
+        B_Socket.InitTable(this);
         B_Threading.InitTable(this);
+        B_Array.InitTable(this);
+        B_TempEq.InitTable(this);
+        B_Sync.InitTable(this);
+        B_Dns.InitTable(this);
+        B_Async.InitTable(this);
     }
 
     public RuntimeIshtarMethod* Add(string name, MethodFlags flags, VeinTypeCode returnType, params (string name, VeinTypeCode type)[] args)

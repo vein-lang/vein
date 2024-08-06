@@ -3,6 +3,7 @@ namespace ishtar.io;
 using collections;
 using static libuv.LibUV;
 
+[CTypeExport("ishtar_thread_t")]
 public readonly unsafe struct IshtarThread(
     uv_thread_t threadId,
     CallFrame* frame,
@@ -34,6 +35,7 @@ public readonly unsafe struct IshtarThread(
 }
 
 
+[CTypeExport("ishtar_thread_ctx_t")]
 public struct IshtarThreadContext(
     uv_thread_t threadId,
     uv_sem_t locker
@@ -46,6 +48,8 @@ public struct IshtarThreadContext(
 
 
 
+[CTypeExport("ishtar_thread_status_e")]
+[CEnumPrefix("THREAD_STATUS_")]
 public enum IshtarThreadStatus
 {
     CREATED,
@@ -55,6 +59,8 @@ public enum IshtarThreadStatus
 }
 
 
+[CTypeExport("ishtar_job_status_e")]
+[CEnumPrefix("JOB_STATUS_")]
 public enum IshtarJobStatus
 {
     CREATED,
@@ -64,6 +70,7 @@ public enum IshtarJobStatus
     EXITED
 }
 
+[CTypeExport("ishtar_job_ctx_t")]
 public unsafe struct IshtarJobContext(
     uv_work_t* jobId,
     uv_sem_t locker
@@ -73,7 +80,7 @@ public unsafe struct IshtarJobContext(
     public uv_work_t* JobId = jobId;
     public uv_sem_t Locker = locker;
 }
-
+[CTypeExport("ishtar_job_t")]
 public readonly unsafe struct IshtarJob(uv_work_t* workerId, CallFrame* frame, IshtarJobContext* ctx) : IEq<IshtarJob>
 {
     public readonly IshtarJobContext* ctx = ctx;

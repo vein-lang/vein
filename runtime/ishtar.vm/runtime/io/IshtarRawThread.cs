@@ -3,6 +3,7 @@ namespace ishtar.io;
 using runtime;
 using libuv;
 
+[CTypeExport("ishtar_thread_raw_t")]
 public readonly unsafe struct IshtarRawThread(
     LibUV.uv_thread_t threadId,
     delegate*<IshtarRawThread*, void> frame,

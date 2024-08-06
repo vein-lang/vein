@@ -6,6 +6,11 @@ public struct Float : ValueType
 {
     [native("!!value")]
     private _value: ValueType;
+
+
+    static op_Equal(f1: f32, f2: i32): bool {
+        return f1 == as<f32>(f2);
+    }
 }
 
 global alias f32 <| Float;

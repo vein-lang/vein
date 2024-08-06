@@ -35,6 +35,8 @@ public class VeinArgumentRef(string name, VeinComplexType complexType)
     public static VeinArgumentRef Create(VeinCore types, (VeinTypeCode code, string name) data) =>
         Create(types, (data.name, data.code));
 
+    public static VeinArgumentRef CreateThis(VeinClass clazz) => new(THIS_ARGUMENT, clazz);
+
 
     private string ToStringDebug() => $"Argument ({Name}: {ComplexType})";
 }

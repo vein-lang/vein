@@ -84,9 +84,7 @@ public unsafe static class B_StringBuilder
         //var buffer = (ImmortalObject<StringBuilder>*)arg1->vtable[@class_1.Field["!!buffer"].vtable_offset];
         //return gc.ToIshtarObject(buffer->Value.ToString(), current);
     }
-
-    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("std", "StringBuilder");
-
+    
     public static void InitTable(ForeignFunctionInterface ffi)
     {
         //ffi.vm.CreateInternalMethod("i_call_StringBuilder_append", Public | Static | Extern,

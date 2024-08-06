@@ -3,14 +3,15 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\compiler\veinc.csproj" />
-  </ItemGroup>
 
 
   <Target Name="CustomTask" AfterTargets="AfterBuild">
-    <Exec Command="veinc.exe build --ignore-cache $(ProjectDir)std/std.vproj"
-          WorkingDirectory="$(OutputPath)"
-          EnvironmentVariables="VEINC_NOVID=1;NO_COLOR=1;NO_CONSOLE=1"/>
+    <Exec Command="veinc.exe build --ignore-cache $(ProjectDir)std/std.vproj" WorkingDirectory="$(OutputPath)" EnvironmentVariables="VEINC_NOVID=1;NO_COLOR=1;NO_CONSOLE=1" Condition=" '$(OS)' == 'Windows_NT' " />
+    <Exec Command="veinc build --ignore-cache $(ProjectDir)std/std.vproj" WorkingDirectory="$(OutputPath)" EnvironmentVariables="VEINC_NOVID=1;NO_COLOR=1;NO_CONSOLE=1" Condition=" '$(OS)' != 'Windows_NT' " />
   </Target>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\tools\compiler\veinc.csproj" />
+  </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@ using vein.runtime;
 using static VirtualMachine;
 using static libuv.LibUV;
 
+[CTypeExport("ishtar_scheduler_t")]
 public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
 {
     private ulong task_index;

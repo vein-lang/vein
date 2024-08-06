@@ -1,0 +1,24 @@
+#space "std"
+
+
+public class Queue<T>
+{
+    private list: List<T>;
+
+    new ()
+        |> list = new List<T>();
+
+    enqueue(value: T): void
+        |> list.Add(value);
+    dequeue(): T
+    {
+        auto value = list.Get(0);
+        list.RemoveAt(0);
+        return value;
+    }
+    clear(): void 
+        |> list.Clear();
+
+    peek(): T
+        |> list.Get(0);
+}

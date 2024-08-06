@@ -1,0 +1,13 @@
+#space "std"
+
+
+public static class Dns {
+    [native("__internal__", "_dns_query_domain_details")]
+    extern static resolveAsync(domain: string): Job<DomainDetails>;
+}
+
+
+public class DomainDetails {
+    public ipv4: Ipv4Addr;
+    public hostname: string;
+}

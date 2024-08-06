@@ -11,17 +11,14 @@ public class String : Object
     public /*extern*/ Length: i32;
 
     public override toString(): String
-        |> Sys.toString(this);
+        |> this;
 
     [special]
     public static op_Add(v1: string, v2: string): string
         |> self.Concat(v1, v2);
     [special]
     public static op_Add(v1: string, v2: i32): string
-    {
-        auto t = v2.toString();
-        return self.Concat(v1, t);
-    }
+        |> self.Concat(v1, v2.toString());
 
     [special]
     public static op_NotEqual(v1: string, v2: string): bool
@@ -42,26 +39,23 @@ public class String : Object
 
     public static format(template: string, o1: Object): string
     {
-        let a = new string[1] { o1 };
-        return self._fmt(template, a);
+        return self._fmt(template, new Object[1] { o1 });
     }
     public static format(template: string, o1: Object, o2: Object): string
     {
-        let a = new string[2] { o1, o2 };
-        return self._fmt(template, a);
+        return self._fmt(template, new Object[2] { o1, o2 });
     }
     public static format(template: string, o1: Object, o2: Object, o3: Object): string
     {
-        let a = new string[3] { o1, o2, o3 };
-        return self._fmt(template, a);
+        return self._fmt(template,  new Object[3] { o1, o2, o3 });
     }
-    public static format(template: string, arr: Array): string
+    public static format<any>(template: string, arr: Array<any>): string
     {
         return self._fmt(template, arr);
     }
 
     // temporary using vm_bridge, todo: rework to using vein-code
     [native("__internal__", "i_call_String_fmt")]
-    private static extern _fmt(t: string, arr: Array): string;
+    private static extern _fmt<any>(t: string, arr: Array<any>): string;
 
 }

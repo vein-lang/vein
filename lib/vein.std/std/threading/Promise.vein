@@ -1,0 +1,13 @@
+#space "std"
+
+
+class Promise {
+    private onError: OnJobRejected;
+    private onFinally: OnJobFinally;
+    private onCompleted: OnJobResolved;
+
+    new(complete: OnJobResolved, error: OnJobRejected) {
+        this.onCompleted = complete;
+        this.onError = error;
+    }
+}

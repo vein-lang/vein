@@ -15,7 +15,7 @@ public static class App
     }
 
     public static Shutdown(msg: string, exitCode: i32): Void
-        |> Application.@_exit(msg, exitCode);
+        |> self.@_exit(msg, exitCode);
 
     public static SwitchFlag(key: string, value: bool): Void
         |> @_switch_flag(key, value);

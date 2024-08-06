@@ -1,3 +1,24 @@
 #space "std"
 
-class Job{}
+class Job<T> {
+    public Wait(): void;
+    public TryWait(time: TimeSpan): bool;
+
+
+    public Finally(onFinally: OnJobFinally): Job<T>;
+    //public Then(onResolved: OnJobResolved<T>): Job<T>;
+    public Catch(onRejected: OnJobRejected): Job<T>;
+
+    //public static WaitAll(list: Promise[]): void;
+    //public static WaitAny(list: Promise[]): void;
+    //public static WhenAll(list: Promise[]): Promise[];
+    //public static WhenAny(list: Promise[]): Promise;
+    //public static When(list: Promise[], predicate: PromiseSelector): Promise;
+
+    /*[special]
+    private static @await(promise: Promise): IshtarTask;*/
+}
+
+global alias OnJobRejected <| (e: Exception): void;
+global alias OnJobResolved <| (data: Object): void;
+global alias OnJobFinally <| (): void;

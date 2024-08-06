@@ -6,21 +6,25 @@ using vein.runtime;
 
 public static unsafe partial class KnowTypes
 {
-    public static QualityTypeName TypeInfoTypeName = new("std", nameof(Type), "std");
-    public static QualityTypeName FieldInfoTypeName = new("std", nameof(Field), "std");
-    public static QualityTypeName FunctionInfoTypeName = new("std", nameof(Function), "std");
+    public static QualityTypeName TypeInfoTypeName = create("std", nameof(Type), "std");
+    public static QualityTypeName FieldInfoTypeName = create("std", nameof(Field), "std");
+    public static QualityTypeName FunctionInfoTypeName = create("std", nameof(Function), "std");
 
-    public static QualityTypeName NullPointerExceptionTypeName = new("std", "NullPointerException", "std");
-    public static QualityTypeName IncorrectCastFaultTypeName = new("std", "IncorrectCastFault", "std");
+    public static QualityTypeName NullPointerExceptionTypeName = create("std", "NullPointerException", "std");
+    public static QualityTypeName IncorrectCastFaultTypeName = create("std", "IncorrectCastFault", "std");
     public static QualityTypeName FreeImmortalObjectFaultTypeName =
-        new("std", nameof(FreeImmortalObjectFault), "std");
+        create("std", nameof(FreeImmortalObjectFault), "std");
     public static QualityTypeName TypeNotFoundFaultTypeName =
-        new("std", nameof(TypeNotFoundFault), "std/reflection");
+        create("std", nameof(TypeNotFoundFault), "std/reflection");
     public static QualityTypeName MultipleTypeFoundFaultTypeName =
-        new("std", nameof(MultipleTypeFoundFault), "std/reflection");
+        create("std", nameof(MultipleTypeFoundFault), "std/reflection");
     public static QualityTypeName PlatformIsNotSupportFaultTypeName =
-        new("std", nameof(PlatformIsNotSupportFault), "std");
-    public static QualityTypeName IshtarFault = new("std", nameof(IshtarFault), "std");
+        create("std", nameof(PlatformIsNotSupportFault), "std");
+    public static QualityTypeName IshtarFault = create("std", nameof(IshtarFault), "std");
+
+
+    private static QualityTypeName create(string @module, string name, string @namespace)
+        => new QualityTypeName(new NameSymbol(name), new NamespaceSymbol(@namespace), new ModuleNameSymbol(module));
 
     public static RuntimeIshtarClass* NullPointerException(CallFrame* frame)
         => findType(NullPointerExceptionTypeName, frame);

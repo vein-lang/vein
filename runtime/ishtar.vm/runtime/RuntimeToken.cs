@@ -6,6 +6,7 @@ namespace ishtar
     ///         |        |
     ///       ModuleID  EntityID
     /// </summary>
+    [CTypeExport("ishtar_rtoken_t")]
     public record struct RuntimeToken(ulong Value)
     {
         public static readonly RuntimeToken Default = new (0);

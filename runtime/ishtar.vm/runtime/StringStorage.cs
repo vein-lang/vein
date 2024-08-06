@@ -3,8 +3,6 @@ namespace ishtar
     using System.Collections.Generic;
     using collections;
     using runtime.gc;
-    using runtime;
-    using vein.runtime;
 
     public static unsafe class StringStorage
     {
@@ -66,6 +64,7 @@ namespace ishtar
 
 
     [DebuggerDisplay("{debugStr}")]
+    [CTypeExport("ishtar_string_t")]
     public readonly unsafe struct InternedString(ulong id) : IEq<InternedString>
     {
         public readonly ulong ID = id;

@@ -1,0 +1,12 @@
+#space "std"
+
+public class IpEndpoint
+{
+    address: Ipv4Addr;
+    port: u16;
+
+    new(addr: Ipv4Addr, p: u16){
+        this.address = addr;
+        this.port = p;
+    }
+}

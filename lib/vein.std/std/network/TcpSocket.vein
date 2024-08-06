@@ -1,62 +1,24 @@
-#space "vein/lang/network"
+#space "std"
 
-#use "vein/lang"
 
-public class TcpSocket2
-{
-    private _port: u16;
-    private _is_listing: bool;
-    private _handle: ValueType;
-    private _blocked: bool;
-    private _connected: bool;
+public class TcpSocket {
 
-    /*
-    [native("__internal__", "@_sock_listen")]
-    public static extern _sock_listen(handle: ValueType, cq: i32): i32;
+    static Create(endpoint: IpEndpoint): TcpSocket;
 
-    [native("__internal__", "@_sock_send")]
-    public static extern _sock_send(handle: ValueType, buffer: u8[], len: i32): ValueType;
+    bind(): bool;
+    //listen(backlog: i32, fn: OnConnection): bool;
 
-    [native("__internal__", "@_sock_create")]
-    public static extern _create_native_socket(): ValueType;
-    */
+    accept(handle: raw, read: Function, write: Function): Void;
 
-    public IsBlocked(): bool { return _blocked; }
-    public IsListed(): bool { return _is_listing; }
-    public IsConnected(): bool { return _connected; }
 
-    public Bind(): Void
-    { }
+    write(handle: raw, req: raw, cb: Function): Void;
+    read(handle: raw, resp: raw, cb: Function): Void;
 
-    public Send(buffer: u8[]): i32
-    {
-        /*
-        auto result = TcpSocket._sock_send(this._handle, buffer, buffer.Length);
-        return result;
-        */
-        return 0;
-    }
+    keepAlive(enable: bool, delay: u32): Void;
 
-    public Listen(cq: i32): Void
-    {
-        /*
-        auto errorCode = TcpSocket._sock_listen(this._handle, cq);
-
-        if (errorCode != 0)
-        {
-            Application.Shutdown("socker error", errorCode);
-        }
-
-        _is_listing = true;
-        */
-    }
-
-    public static Create(port: u16): TcpSocket
-    {
-        /*
-        auto sock = new TcpSocket();
-        sock._port = port;
-        sock._handle = TcpSocket._create_native_socket();
-        */
-    }
+    isReadable(handle: raw): bool;
+    isWritable(handle: raw): bool;
+    isClosing(handle: raw): bool;
 }
+
+//global alias OnConnection <| (server: TcpSocket, status: i32): void;

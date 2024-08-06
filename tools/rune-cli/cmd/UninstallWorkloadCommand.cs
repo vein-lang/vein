@@ -1,6 +1,7 @@
 namespace vein.cmd;
 
 using System.ComponentModel;
+using Newtonsoft.Json;
 using project;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -36,12 +37,12 @@ public class UninstallWorkloadCommand : AsyncCommandWithProgress<UninstallWorklo
         }
 
         var version = await WorkloadDirectory
-            .SubDirectory(name).File("latest").ReadToEndAsync();
+            .SubDirectory(name).File("latest.version").ReadToEndAsync();
         var tagFolder = WorkloadDirectory
             .SubDirectory(name)
             .SubDirectory(version);
 
-        var manifest = await WorkloadManifest.OpenAsync(tagFolder.File("manifest.json"));
+        var manifest = await WorkloadManifest.OpenAsync(tagFolder.File("workload.manifest.json"));
 
 
         foreach (var (key, pkg) in manifest.Packages)

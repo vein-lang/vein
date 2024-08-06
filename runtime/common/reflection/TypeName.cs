@@ -12,6 +12,8 @@ public record struct NameSymbol(string name)
 {
     public static NameSymbol FunctionMulticast = new("FunctionMulticast");
     public static NameSymbol ValueType = new("ValueType");
+    public static NameSymbol Array = new("Array");
+    public static NameSymbol Object = new("Object");
 
     public bool HasGenerics => name.ContainsAll("<", ">");
     public bool HasUnderlying { get; private init; }
@@ -60,6 +62,10 @@ public record struct NameSymbol(string name)
             return new NameSymbol(name);
         return new NameSymbol($"{name}<{generics.Select(x => new VeinTypeArg(x.name).ToString()).Join(',')}>");
     }
+
+
+    public override string ToString() => name;
+    public static implicit operator string(NameSymbol n) => n.name;
 }
 
 public record struct NamespaceSymbol(string @namespace)

@@ -1,7 +1,5 @@
 #ignore
-#space "vein/lang/diag"
-
-#use "vein/lang"
+#space "std"
 
 public class Stopwatch
 {

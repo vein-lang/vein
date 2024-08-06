@@ -30,9 +30,6 @@ public static unsafe class B_Field
     }
 
 
-    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("std", "Field");
-
-
     public static void InitTable(ForeignFunctionInterface ffi)
     {
         //var table = ffi.method_table;

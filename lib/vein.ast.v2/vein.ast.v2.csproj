@@ -6,16 +6,18 @@
 		<RootNamespace>vein.ast.v2</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
+	  <Compile Remove="syntax\models\**" />
+	  <EmbeddedResource Remove="syntax\models\**" />
+	  <None Remove="syntax\models\**" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="morelinq" Version="3.4.2" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="NuGet.Versioning" Version="6.7.0" />
 		<PackageReference Include="Spectre.Console" Version="0.47.1-preview.0.27" />
-		<PackageReference Include="Superpower" Version="3.0.0" />
+		<PackageReference Include="Superpower" Version="3.1.0-dev-00241" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\runtime\common\vein.common.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Folder Include="syntax\models\" />
 	</ItemGroup>
 </Project>

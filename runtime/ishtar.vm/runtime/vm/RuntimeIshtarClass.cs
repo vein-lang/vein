@@ -25,14 +25,18 @@ namespace ishtar
 
     // WARNING: ALLOCATE ONLY BY GC
     [DebuggerDisplay("name = {_debug_name}, id = {ID}, isValid: {IsValid}")]
+    [CTypeExport("ishtar_class_t")]
     public unsafe struct RuntimeIshtarClass :
         IUnsafeTransitionAlignment<string, RuntimeIshtarField>,
         IUnsafeTransitionAlignment<string, RuntimeIshtarMethod>, IEq<RuntimeIshtarClass>, IDisposable
     {
         private RuntimeIshtarClass* _selfReference;
 
+        [field: CTypeOverride("void*")]
         public NativeList<RuntimeIshtarMethod>* Methods { get; private set; }
+        [field: CTypeOverride("void*")]
         public NativeList<RuntimeIshtarField>* Fields { get; private set; }
+        [field: CTypeOverride("void*")]
         public NativeList<RuntimeAspect>* Aspects { get; private set; } 
         
         public RuntimeIshtarModule* Owner { get; private set; }
@@ -40,6 +44,27 @@ namespace ishtar
         public RuntimeQualityTypeName* FullName { get; private set; }
 
         private bool _isDisposed;
+
+        private string _debug_name => FullName->NameWithNS;
+
+        public VeinTypeCode TypeCode { get; set; }
+        public ClassFlags Flags { get; set; }
+        public string Name => FullName->Name;
+
+        public RuntimeToken runtime_token { get; }
+        public uint ID { get; }
+
+        [CIfDefined("DEBUG")]
+        public ushort Magic1;
+        [CIfDefined("DEBUG")]
+        public ushort Magic2;
+
+        public bool IsValid => Magic1 == 45 && Magic2 == 75;
+
+        public ulong computed_size = 0;
+        public bool is_inited = false;
+        public void** vtable = null;
+        public ulong vtable_size = 0;
 
         public void Dispose()
         {
@@ -76,12 +101,7 @@ namespace ishtar
             _isDisposed = true;
         }
 
-        private string _debug_name => FullName->NameWithNS;
-
-        public VeinTypeCode TypeCode { get; set; }
-        public ClassFlags Flags { get; set; }
-        public string Name => FullName->Name;
-
+        
         #region Flags
 
         public bool IsSpecial => Flags.HasFlag(ClassFlags.Special);
@@ -168,7 +188,7 @@ namespace ishtar
             return f;
         }
 
-        internal RuntimeIshtarMethod* DefineMethod(string name, RuntimeIshtarClass* returnType, MethodFlags flags, NativeList<RuntimeMethodArgument>* args)
+        internal RuntimeIshtarMethod* DefineMethod(string name, RuntimeComplexType returnType, MethodFlags flags, NativeList<RuntimeMethodArgument>* args)
         {
             var method = IshtarGC.AllocateImmortal<RuntimeIshtarMethod>(_selfReference);
             *method = new RuntimeIshtarMethod(name, flags, returnType, _selfReference, method, args);
@@ -208,19 +228,6 @@ namespace ishtar
             return method;
         }
 
-        public RuntimeToken runtime_token { get; }
-        public uint ID { get; }
-
-        public ushort Magic1;
-        public ushort Magic2;
-
-        public bool IsValid => Magic1 == 45 && Magic2 == 75;
-
-        public ulong computed_size = 0;
-        public bool is_inited = false;
-        public void** vtable = null;
-        public ulong vtable_size = 0;
-        
 #if DEBUG_VTABLE
         public static Dictionary<uint, debug_vtable> dvtables = new();
 

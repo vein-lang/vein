@@ -72,13 +72,26 @@ public static unsafe class B_Threading
         return default;
     }
 
+    public static IshtarObject* not_implemented(CallFrame* current, IshtarObject** args)
+    {
+        return default;
+    }
+
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
-        ffi.Add("@_threading_create(std%std/ThreadFunction) -> std%std/Thread", ffi.AsNative(&createThread));
-        ffi.Add("@_threading_sleep(std%std/Int32) -> std%std/Void", ffi.AsNative(&sleep));
-        ffi.Add("@_threading_join(std%std/Thread) -> std%std/Void", ffi.AsNative(&join));
-        ffi.Add("@_threading_start(std%std/Thread) -> std%std/Void", ffi.AsNative(&start));
+        ffi.Add("@_threading_create([std]::std::ThreadFunction) -> [std]::std::Thread", ffi.AsNative(&createThread));
+        ffi.Add("@_threading_sleep([std]::std::Int32) -> [std]::std::Void", ffi.AsNative(&sleep));
+        ffi.Add("@_threading_join([std]::std::Thread) -> [std]::std::Void", ffi.AsNative(&join));
+        ffi.Add("@_threading_start([std]::std::Thread) -> [std]::std::Void", ffi.AsNative(&start));
+        ffi.Add("@_threading_begin_affinity() -> [std]::std::Void", ffi.AsNative(&not_implemented));
+        ffi.Add("@_threading_end_affinity() -> [std]::std::Void", ffi.AsNative(&not_implemented));
+        ffi.Add("@_threading_begin_critical_region() -> [std]::std::Void", ffi.AsNative(&not_implemented));
+        ffi.Add("@_threading_end_critical_region() -> [std]::std::Void", ffi.AsNative(&not_implemented));
+        ffi.Add("@_threading_memory_barrier() -> [std]::std::Void", ffi.AsNative(&not_implemented));
+        ffi.Add("@_threading_yield() -> [std]::std::Void", ffi.AsNative(&not_implemented));
+
+        //
     }
 
 

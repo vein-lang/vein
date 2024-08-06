@@ -1,6 +1,4 @@
-#space "vein/lang/numeric"
-
-#use "vein/lang"
+#space "std"
 
 public struct BigInt : ValueType
 {

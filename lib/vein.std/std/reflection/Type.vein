@@ -1,7 +1,5 @@
 #space "std"
 
-#use "std/workspace"
-
 public class Type
 {
     /* keep name in IshtarGC.cs */

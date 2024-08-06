@@ -23,7 +23,7 @@ public class SecurityStorage
         RootFolder.File("vcfg");
 
 
-    public static T GetByKey<T>(string key)
+    public static T? GetByKey<T>(string key)
     {
         if (!HasKey(key))
             return default;

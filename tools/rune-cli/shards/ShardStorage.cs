@@ -12,8 +12,11 @@ using project;
 public class ShardStorage : IShardStorage
 {
     public static readonly DirectoryInfo RootFolder =
-        new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".vein",
+        new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".vein",
             "shards"));
+
+    public static readonly DirectoryInfo RootFolderWorkloads =
+        new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".vein", "workloads"));
 
     public void EnsureDefaultDirectory()
     {
@@ -69,6 +72,31 @@ public class ShardStorage : IShardStorage
         var bin = GetPackageSpace(name, version).SubDirectory("lib");
         if (bin.Exists) return bin.EnumerateFiles("*.wll").ToList();
         return new();
+    }
+
+
+    public async Task<List<WorkloadManifest>> GetInstalledWorkloads()
+    {
+        var workloads = RootFolderWorkloads;
+
+        if (!workloads.Exists)
+            return new ();
+
+        // maybe poor perf
+        //var loader = workloads.GetDirectories()
+        //    .Where(x => x.File("latest.version").Exists)
+        //    .Select(x => (x, x.SubDirectory(x.File("latest.version").ReadToEnd())))
+        //    .Select(x => (x.x.Name, x.Item2.File("workload.manifest.json")))
+        //    .Select(x => new { name = x.Name, manifest = x.Item2 })
+        //    .Select(x => new { task = WorkloadManifest.OpenAsync(x.manifest), x.name });
+
+        var loader = workloads.EnumerateFiles("workload.manifest.json", SearchOption.AllDirectories)
+            .Select(WorkloadManifest.OpenAsync);
+        
+        var manifests = await Task.WhenAll(loader);
+
+
+        return manifests.ToList();
     }
 
 

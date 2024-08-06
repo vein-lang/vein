@@ -1,5 +1,7 @@
 namespace ishtar;
 
+
+[CTypeExport("ishtar_ptr_t")]
 public readonly unsafe struct SmartPointer<T>(ushort size, CallFrame* frame,
     delegate*<CallFrame*, int, T*> allocator,
     delegate*<CallFrame*, T*, int, void> free) : IDisposable where T : unmanaged

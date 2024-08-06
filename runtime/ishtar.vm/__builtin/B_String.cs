@@ -5,8 +5,18 @@ namespace ishtar
 
     public static unsafe class B_String
     {
+        public static IshtarObject* not_implemented(CallFrame* current, IshtarObject** args)
+        {
+            return default;
+        }
+
+
         public static void InitTable(ForeignFunctionInterface ffi)
         {
+            ffi.Add("i_call_String_fmt([std]::std::String,[std]::std::Array<Int32>) -> [std]::std::String",
+                ffi.AsNative(&not_implemented));
+
+
             ffi.Add("i_call_String_Concat", Private | Static | Extern, TYPE_STRING,
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
                 ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&Concat)
@@ -37,6 +47,8 @@ namespace ishtar
                 ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&Contains)
                 ;
         }
+
+
 
         [IshtarExportFlags(Private | Static)]
         [IshtarExport(2, "i_call_String_fmt")]

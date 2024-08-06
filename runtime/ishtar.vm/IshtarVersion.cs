@@ -1,11 +1,12 @@
 namespace ishtar;
 
+[CTypeExport("ishtar_version_t")]
 public readonly unsafe struct IshtarVersion(uint major, uint minor, uint patch = 0, uint build = 0)
 {
-    public uint Major { get; } = major;
-    public uint Minor { get; } = minor;
-    public uint Patch { get; } = patch;
-    public uint Build { get; } = build;
+    public uint Major => major;
+    public uint Minor => minor;
+    public uint Patch => patch;
+    public uint Build => build;
 
     public bool Equals(IshtarVersion* ver) => ver->Major == Major && ver->Minor == Minor && ver->Patch == Patch && ver->Build == Build;
     public bool Equals(IshtarVersion ver) => ver.Major == Major && ver.Minor == Minor && ver.Patch == Patch && ver.Build == Build;

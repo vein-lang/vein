@@ -4,6 +4,7 @@ using collections;
 using runtime.gc;
 using libuv;
 
+[CTypeExport("ishtar_task_t")]
 public readonly unsafe struct IshtarTask(CallFrame* frame, ulong index) : IEq<IshtarTask>, IDisposable
 {
     public readonly ulong Index = index;
@@ -12,7 +13,7 @@ public readonly unsafe struct IshtarTask(CallFrame* frame, ulong index) : IEq<Is
 
     public static bool Eq(IshtarTask* p1, IshtarTask* p2) => false;
 
-
+    [CTypeExport("ishtar_task_data_t")]
     public struct TaskData
     {
         public LibUV.uv_sem_t semaphore;

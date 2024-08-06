@@ -3,20 +3,41 @@ namespace ishtar;
 using System.Text;
 using runtime;
 
-internal struct IshtarTrace()
+[CTypeExport("ishtar_trace_t")]
+internal readonly struct IshtarTrace()
 {
-    private bool useConsole = Environment.GetCommandLineArgs().Contains("--sys::log::use-console=1");
-    private bool useFile = Environment.GetCommandLineArgs().Contains("--sys::log::use-file=1");
+    private readonly bool useConsole = Environment.GetCommandLineArgs().Contains("--sys::log::use-console=1");
 
     [Conditional("DEBUG")]
-    public void Setup() => IshtarSharedDebugData.Setup();
+    public void Setup()
+    {
+        if (useConsole)
+            return;
+        IshtarSharedDebugData.Setup();
+    }
 
     [Conditional("DEBUG")]
-    public void println(string s) => IshtarSharedDebugData.TraceOutPush(s);
+    public void println(string s)
+    {
+        if (useConsole)
+        {
+            Console.WriteLine(s);
+            return;
+        }
+        IshtarSharedDebugData.TraceOutPush(s);
+    }
 
 
     [Conditional("DEBUG")]
-    public void debug_stdout_write(string s) => IshtarSharedDebugData.StdOutPush(s);
+    public void debug_stdout_write(string s)
+    {
+        if (useConsole)
+        {
+            Console.WriteLine(s);
+            return;
+        }
+        IshtarSharedDebugData.StdOutPush(s);
+    }
 
     [Conditional("DEBUG")]
     public unsafe void signal_state(OpCodeValue ip, CallFrame current, TimeSpan cycleDelay, stackval currentStack)

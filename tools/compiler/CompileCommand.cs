@@ -47,13 +47,13 @@ public class CompileSettings : CommandSettings, IProjectSettingProvider
 
 
 [ExcludeFromCodeCoverage]
-public class CompileCommand : CommandWithProject<CompileSettings>
+public class CompileCommand : AsyncCommandWithProject<CompileSettings>
 {
-    public override int Execute(CommandContext context, CompileSettings settings, VeinProject project)
+    public override async Task<int> ExecuteAsync(CommandContext ctx, CompileSettings settings, VeinProject project)
     {
         Log.Info($"Project [orange]'{project.Name}'[/].");
 
-        var targets = CompilationTask.Run(project.WorkDir, settings);
+        var targets = await CompilationTask.RunAsync(project.WorkDir, settings);
 
         foreach (var info in targets.SelectMany(x => x.Logs.Info))
             MarkupLine(info.TrimEnd('\n'));
@@ -106,4 +106,5 @@ public class CompileCommand : CommandWithProject<CompileSettings>
             return 0;
         }
     }
+
 }

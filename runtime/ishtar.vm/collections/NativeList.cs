@@ -60,7 +60,7 @@ public unsafe struct NativeList<T> : IDisposable where T : unmanaged, IEq<T>
             throw new DuplicateItemException("");
 #endif
 
-            items[count++] = value;
+        items[count++] = value;
     }
 
     public void Remove(T* value)

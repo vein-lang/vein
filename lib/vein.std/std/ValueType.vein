@@ -8,5 +8,9 @@ public struct ValueType
     __value: raw;
 
     public virtual toString(): string 
-        |> Sys.toString(this);
+        |> value_type_toString(this);
+
+
+    [native("__internal__", "value_type_toString")]
+    private static value_type_toString(v: ValueType): string;
 }
