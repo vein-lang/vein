@@ -15,13 +15,14 @@ using Window = Terminal.Gui.Window;
 public static class IshtarSharedDebugData
 {
     public static readonly object guarder = new object();
-    
+    private static bool hasSetupCalled;
 
     private static IshtarState _state = new("UNK", "@entry", default, "NONE", 0);
 
 
     public static void SetState(IshtarState state)
     {
+        if (!hasSetupCalled) return;
         if (state.GetHashCode() == _state.GetHashCode())
             return;
 
@@ -35,12 +36,14 @@ public static class IshtarSharedDebugData
 
     public static void DumpToFile(FileInfo file, object o)
     {
+        if (!hasSetupCalled) return;
         File.WriteAllText(file.FullName, JsonConvert.SerializeObject(o, Formatting.Indented));
     }
 
     
     public static void StdOutPush(string value)
     {
+        if (!hasSetupCalled) return;
         lock (guarder)
         {
             WriteItem(value, stdOutView, false);
@@ -49,6 +52,7 @@ public static class IshtarSharedDebugData
 
     public static void TraceOutPush(string value)
     {
+        if (!hasSetupCalled) return;
         lock (guarder)
         {
             WriteItem(value, traceOutView, true);
@@ -58,6 +62,7 @@ public static class IshtarSharedDebugData
 
     private static void WriteItem(string item, TextView view, bool insert)
     {
+        if (!hasSetupCalled) return;
         var cts = new TaskCompletionSource();
 
         Application.MainLoop.Invoke(() =>
@@ -85,6 +90,7 @@ public static class IshtarSharedDebugData
     {
         new Thread(_setup).Start();
         Thread.Sleep(200);
+        hasSetupCalled = true;
     }
 
     private static IshtarTraceTextView traceOutView;

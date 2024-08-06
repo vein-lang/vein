@@ -4,30 +4,39 @@ using System.Text;
 using runtime;
 
 [CTypeExport("ishtar_trace_t")]
-internal struct IshtarTrace()
+internal readonly struct IshtarTrace()
 {
-    private bool useConsole = Environment.GetCommandLineArgs().Contains("--sys::log::use-console=1");
-    private bool useFile = Environment.GetCommandLineArgs().Contains("--sys::log::use-file=1");
+    private readonly bool useConsole = Environment.GetCommandLineArgs().Contains("--sys::log::use-console=1");
 
     [Conditional("DEBUG")]
     public void Setup()
     {
-        //IshtarSharedDebugData.Setup();
+        if (useConsole)
+            return;
+        IshtarSharedDebugData.Setup();
     }
 
     [Conditional("DEBUG")]
     public void println(string s)
     {
-        Console.WriteLine(s);
-        //IshtarSharedDebugData.TraceOutPush(s);
+        if (useConsole)
+        {
+            Console.WriteLine(s);
+            return;
+        }
+        IshtarSharedDebugData.TraceOutPush(s);
     }
 
 
     [Conditional("DEBUG")]
     public void debug_stdout_write(string s)
     {
-        Console.WriteLine(s);
-        //IshtarSharedDebugData.StdOutPush(s);
+        if (useConsole)
+        {
+            Console.WriteLine(s);
+            return;
+        }
+        IshtarSharedDebugData.StdOutPush(s);
     }
 
     [Conditional("DEBUG")]

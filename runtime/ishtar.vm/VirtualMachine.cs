@@ -7,7 +7,6 @@ namespace ishtar
     using runtime;
     using runtime.gc;
     using System.Runtime.CompilerServices;
-    using debug;
     using vein.extensions;
     using vein.runtime;
     using static OpCodeValue;
