@@ -52,9 +52,6 @@ public static unsafe class B_Type
         return null;
     }
 
-    internal static IshtarMetaClass ThisClass => IshtarMetaClass.Define("std", "Type");
-
-
     public static void InitTable(ForeignFunctionInterface ffi)
     {
         //ffi.Add(ffi.vm.CreateInternalMethod("i_call_Type_findByName", Public | Static | Extern,
