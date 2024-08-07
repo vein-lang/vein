@@ -250,8 +250,8 @@ class Build : NukeBuild
             var tokenAuth = new Credentials(GithubToken);
             client.Credentials = tokenAuth;
 
-            var owner = "vein";
-            var repoName = "vein-lang";
+            var owner = "vein-lang";
+            var repoName = "vein";
             var tagName = GitTasks.Git($"tag --contains {Repository.Commit}").First().Text.Trim();
             Log.Information($"tagName: {tagName}");
             var releaseName = $"Release {tagName}";
