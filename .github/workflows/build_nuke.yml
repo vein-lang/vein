@@ -31,7 +31,7 @@ jobs:
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
       - name: 'Run: '
-        run: ./build.sh 
+        run: ./build.cmd
         env:
           VEIN_API_KEY: ${{ secrets.VEIN_API_KEY }}
       - name: Upload artifacts
