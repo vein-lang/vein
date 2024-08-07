@@ -231,7 +231,7 @@ class Build : NukeBuild
     {
         try
         {
-            var b = GitTasks.Git($"git tag --contains {Repository.Commit}")
+            var b = GitTasks.Git($"tag --contains {Repository.Commit}")
                 .FirstOrDefault();
             var tag = b.Text?.Trim();
 
@@ -253,7 +253,7 @@ class Build : NukeBuild
 
             var owner = "vein";
             var repoName = "vein-lang";
-            var tagName = GitTasks.Git($"git tag --contains {Repository.Commit}").First().Text.Trim();
+            var tagName = GitTasks.Git($"tag --contains {Repository.Commit}").First().Text.Trim();
             Log.Information($"tagName: {tagName}");
             var releaseName = $"Release {tagName}";
             var releaseBody = "";
