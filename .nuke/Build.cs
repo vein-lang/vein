@@ -39,7 +39,7 @@ using Nuke.Common.Tools.GitVersion;
 
 [GitHubActions("build_nuke", GitHubActionsImage.UbuntuLatest, AutoGenerate = false,
     On = [GitHubActionsTrigger.Push],
-    ImportSecrets = ["VEIN_API_KEY"],
+    ImportSecrets = ["VEIN_API_KEY", "GITHUB_TOKEN"],
     EnableGitHubToken = true)]
 class Build : NukeBuild
 {
@@ -71,9 +71,8 @@ class Build : NukeBuild
     Project RuneCLI => Tools.GetProject("rune-cli");
     Project Ishtar => Backends.GetProject("ishtar.vm");
 
-
-    [Secret]  readonly string GithubToken;
-
+    
+    [Parameter] [Secret] readonly string GithubToken;
 
     AbsolutePath WorkloadRuntime => RootDirectory / "workloads" / "runtime";
     AbsolutePath WorkloadCompiler => RootDirectory / "workloads" / "compiler";
