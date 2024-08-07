@@ -73,7 +73,9 @@
               "BuildVeinc",
               "Clean",
               "Compile",
+              "Pack",
               "PackIshtar",
+              "PublishRelease",
               "PublishWorkloads",
               "Restore"
             ]
@@ -95,7 +97,9 @@
               "BuildVeinc",
               "Clean",
               "Compile",
+              "Pack",
               "PackIshtar",
+              "PublishRelease",
               "PublishWorkloads",
               "Restore"
             ]

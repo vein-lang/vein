@@ -19,6 +19,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Project = Nuke.Common.ProjectModel.Project;
 using System;
 using System.ComponentModel;
+using System.IO;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
@@ -32,6 +33,8 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using Nuke.Common.Utilities.Collections;
 using static Nuke.Common.Tools.NSwag.NSwagTasks;
 using Nuke.Common.CI.GitHubActions;
+using Nuke.Common.Tools.Git;
+using Nuke.Common.Tools.GitVersion;
 
 
 [GitHubActions("build_nuke", GitHubActionsImage.UbuntuLatest, AutoGenerate = false,
@@ -52,10 +55,9 @@ class Build : NukeBuild
 
     GitHubActions GitHubActions => GitHubActions.Instance;
 
-
     [Solution] readonly Solution Solution;
 
-
+    [GitVersion] readonly GitVersion GitVersion;
     [Description("Mark build as publish workloads")]
     [Parameter] readonly bool HasPublishWorkloads;
 
@@ -68,6 +70,9 @@ class Build : NukeBuild
     Project Veinc => Tools.GetProject("veinc");
     Project RuneCLI => Tools.GetProject("rune-cli");
     Project Ishtar => Backends.GetProject("ishtar.vm");
+
+
+    [Secret]  readonly string GithubToken;
 
 
     AbsolutePath WorkloadRuntime => RootDirectory / "workloads" / "runtime";
@@ -222,7 +227,60 @@ class Build : NukeBuild
         });
 
     #endregion
+    bool IsReleaseCommit()
+    {
+        try
+        {
+            var b = GitTasks.Git($"git tag --contains {Repository.Commit}")
+                .FirstOrDefault();
+            var tag = b.Text?.Trim();
 
+            return !string.IsNullOrEmpty(tag);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    Target PublishRelease => _ => _
+        .DependsOn(Pack)
+        .OnlyWhenDynamic(IsReleaseCommit)
+        .Executes(async () => {
+            var client = new GitHubClient(new ProductHeaderValue("NukeBuild"));
+            var tokenAuth = new Credentials(GithubToken);
+            client.Credentials = tokenAuth;
+
+            var owner = "vein";
+            var repoName = "vein-lang";
+            var tagName = GitTasks.Git($"git tag --contains {Repository.Commit}").First().Text.Trim();
+            Log.Information($"tagName: {tagName}");
+            var releaseName = $"Release {tagName}";
+            var releaseBody = "";
+
+            var newRelease = new NewRelease(tagName)
+            {
+                Name = releaseName,
+                Body = releaseBody,
+                Draft = true,
+                Prerelease = true
+            };
+
+            var release = await client.Repository.Release.Create(owner, repoName, newRelease);
+
+            var assets = Directory.GetFiles(OutputDirectory, "*.zip");
+            foreach (var asset in assets)
+            {
+                var assetUpload = new ReleaseAssetUpload
+                {
+                    FileName = Path.GetFileName(asset),
+                    ContentType = "application/zip",
+                    RawData = File.OpenRead(asset)
+                };
+
+                await client.Repository.Release.UploadAsset(release, assetUpload);
+            }
+        });
 
     Target PublishWorkloads => _ => _
         .DependsOn(Clean, PackIshtar, BuildVeinc)
@@ -231,8 +289,12 @@ class Build : NukeBuild
             Log.Information($"GOING EXECUTE WORKLOADS");
         });
 
+    Target Pack => _ => _
+        .DependsOn(PackIshtar, BuildVeinc, BuildRune, PublishWorkloads)
+        .Executes();
+
     Target Compile => _ => _
-        .DependsOn(Clean, PackIshtar, BuildVeinc, BuildRune, PublishWorkloads)
+        .DependsOn(Clean, PublishRelease)
         .Produces(OutputDirectory / "*.zip")
         .Executes(() => {
             Log.Information($"Success building");
