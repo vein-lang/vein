@@ -46,7 +46,6 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     }
 };
 
-ColorShim.Apply();
 
 AppFlags.RegisterArgs(ref args);
 

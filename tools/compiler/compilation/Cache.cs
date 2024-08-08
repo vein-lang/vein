@@ -43,7 +43,7 @@ public class Cache
             read_task.Increment(1);
             read_task.VeinStatus($"Check changes [grey]'{key.Name}'[/]...");
             var hash = Convert.ToBase64String(SHA512.HashData(Encoding.UTF8.GetBytes(value)));
-            hashmap.Add(key.Name, hash);
+            hashmap[key.Name] = hash;
         }
 
 
