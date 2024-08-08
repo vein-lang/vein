@@ -15,6 +15,7 @@
     <PackageReference Include="DeviceId.Windows.Wmi" Version="6.6.0" />
     <PackageReference Include="Flurl.Http" Version="4.0.2" />
     <PackageReference Include="Flurl.Http.Newtonsoft" Version="0.9.1" />
+    <PackageReference Include="NuGet.Protocol" Version="6.10.1" />
     <PackageReference Include="xunit.assert" Version="2.8.0" />
   </ItemGroup>
   <ItemGroup>

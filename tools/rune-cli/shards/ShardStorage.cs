@@ -4,8 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using MoreLinq;
 using Newtonsoft.Json;
+using NuGet.Packaging;
+using NuGet.Protocol;
+using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using project;
 
@@ -18,11 +22,27 @@ public class ShardStorage : IShardStorage
     public static readonly DirectoryInfo RootFolderWorkloads =
         new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".vein", "workloads"));
 
-    public void EnsureDefaultDirectory()
+    public static readonly DirectoryInfo RootFolderNugets =
+        new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".vein", "nugets"));
+
+    private void EnsureDefaultDirectory()
     {
         if (!RootFolder.Exists) RootFolder.Create();
+        if (!RootFolderWorkloads.Exists) RootFolderWorkloads.Create();
+        if (!RootFolderNugets.Exists) RootFolderNugets.Create();
     }
 
+
+    public DirectoryInfo EnsureSpace(NuspecReader package)
+    {
+        EnsureDefaultDirectory();
+
+        var space = GetPackageSpace(package);
+
+        space.Create();
+
+        return space;
+    }
 
     public DirectoryInfo EnsureSpace(RegistryPackage package)
     {
@@ -49,6 +69,9 @@ public class ShardStorage : IShardStorage
 
     public DirectoryInfo GetPackageSpace(RegistryPackage package)
         => GetPackageSpace(package.Name, package.Version);
+
+    public DirectoryInfo GetPackageSpace(NuspecReader package)
+        => ToNugetFolder(package.GetId(), package.GetVersion());
 
     public DirectoryInfo GetPackageSpace(string name, NuGetVersion version)
         => RootFolder
@@ -125,6 +148,75 @@ public class ShardStorage : IShardStorage
 
         var json = GetPackageSpace(name, version).File("manifest.json");
         return JsonConvert.DeserializeObject<RegistryPackage>(json.ReadToEnd());
+    }
+
+
+    public DirectoryInfo ToNugetFolder(string packageId, NuGetVersion version) =>
+        RootFolderNugets
+            .SubDirectory(packageId)
+            .SubDirectory(version.ToNormalizedString());
+
+    public bool NuGetPackageHasInstalled(string packageId, NuGetVersion version) =>
+        ToNugetFolder(packageId, version)
+            .File("package.nupkg").Exists;
+
+    public async Task<DirectoryInfo> EnsureNuGetPackage(string packageId, NuGetVersion version)
+    {
+        var targetDirectory = ToNugetFolder(packageId, version);
+        var selfFolder = targetDirectory.SubDirectory(".self");
+        if (NuGetPackageHasInstalled(packageId, version))
+            return selfFolder;
+
+        CancellationToken cancellationToken = CancellationToken.None;
+        var logger = NuGet.Common.NullLogger.Instance;
+        SourceCacheContext cache = new SourceCacheContext();
+        SourceRepository repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
+        FindPackageByIdResource resource = await repository.GetResourceAsync<FindPackageByIdResource>(cancellationToken);
+
+        using MemoryStream packageStream = new MemoryStream();
+
+        await resource.CopyNupkgToStreamAsync(
+            packageId,
+            version,
+            packageStream,
+            cache,
+            logger,
+            cancellationToken);
+
+        using PackageArchiveReader packageReader = new PackageArchiveReader(packageStream);
+        NuspecReader nuspecReader = await packageReader.GetNuspecReaderAsync(cancellationToken);
+
+        
+        EnsureSpace(nuspecReader);
+
+        var nuspecStream = targetDirectory.File("nuspec.config").OpenWrite();
+
+        await nuspecReader.Xml.SaveAsync(nuspecStream, SaveOptions.None, cancellationToken);
+
+        nuspecStream.Close();
+        await nuspecStream.DisposeAsync();
+
+        var NuPkgStream = targetDirectory.File("package.nupkg").OpenWrite();
+
+        await packageStream.CopyToAsync(NuPkgStream, cancellationToken);
+
+        NuPkgStream.Close();
+
+        await NuPkgStream.DisposeAsync();
+
+        
+
+        var files = packageReader.GetFiles().ToList();
+        packageReader.CopyFiles(selfFolder.Ensure().FullName, files, (file, path, stream) =>
+        {
+            new FileInfo(path)!.Directory!.Ensure();
+            using var fi = File.OpenWrite(path);
+            stream.CopyTo(fi);
+            return path;
+        }, logger, cancellationToken);
+
+
+        return selfFolder;
     }
 }
 

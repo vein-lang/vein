@@ -55,7 +55,6 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     System.Console.OutputEncoding = Encoding.Unicode;
 
-ColorShim.Apply();
 ILGenerator.DoNotGenDebugInfo = false;
 
 if (!skipIntro)
