@@ -1,0 +1,14 @@
+
+
+name: vein.runtime.llvm
+version: '18.1.3.1'
+author:
+  - name: LLVM Project
+    github: 'llvm'
+license: Apache-2.0 WITH LLVM-exception license
+packable: true
+hasWorkload: true
+description: LLVM - A ishtar component for generate glue code in runtime
+urls:
+  HomepageUrl: https://github.com/llvm/llvm-project
+  Repository: https://github.com/llvm/llvm-project

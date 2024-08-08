@@ -29,6 +29,9 @@
                     "execPath": "ishtar",
                     "exportSymlink": true
                 }
+            ],
+            "dependencies":[
+                "vein.runtime.llvm"
             ]
         }
     }
