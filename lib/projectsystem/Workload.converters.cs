@@ -83,6 +83,11 @@ public class WorkloadPackageBaseConverter : JsonConverter<List<IWorkloadPackageB
         {
             if (expression is not JObject jObj)
                 continue;
+            if (jObj.ContainsKey("sdkTarget") || jObj.ContainsKey("SdkTarget"))
+            {
+                existingValue.Add(jObj.ToObject<WorkloadPackageSdk>());
+                continue;
+            }
             if (jObj.ContainsKey("execPath") || jObj.ContainsKey("ExecPath"))
             {
                 existingValue.Add(jObj.ToObject<WorkloadPackageTool>());
@@ -138,6 +143,41 @@ public class WorkloadConverter : JsonConverter
         writer.WriteEndObject();
     }
 }
+
+public class WorkloadSdkAliasesPackageConverter : JsonConverter
+{
+    public override bool CanConvert(Type objectType)
+        => typeof(Dictionary<PackageKey, string>).IsAssignableFrom(objectType);
+
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    {
+        var packages = new Dictionary<PackageKey, string>();
+        var jsonObject = JObject.Load(reader);
+
+        foreach (var property in jsonObject.Properties())
+        {
+            var package = property.Value.ToString();
+            packages[new PackageKey(property.Name)] = package;
+        }
+
+        return packages;
+    }
+
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    {
+        var packages = (Dictionary<PackageKey, string>)value;
+        writer.WriteStartObject();
+
+        foreach (var kvp in packages)
+        {
+            writer.WritePropertyName(kvp.Key.key);
+            serializer.Serialize(writer, kvp.Value);
+        }
+
+        writer.WriteEndObject();
+    }
+}
+
 public class WorkloadPackageConverter : JsonConverter
 {
     public override bool CanConvert(Type objectType)

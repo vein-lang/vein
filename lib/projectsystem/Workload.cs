@@ -52,7 +52,9 @@ public record WorkloadPackageFramework : IWorkloadPackageBase
 
 public record WorkloadPackageSdk : IWorkloadPackageBase
 {
-
+    public required string SdkTarget { get; init; }
+    [JsonConverter(typeof(WorkloadSdkAliasesPackageConverter))]
+    public required Dictionary<PlatformKey, string> Aliases { get; init; } = new();
 }
 
 public record WorkloadManifest
@@ -80,16 +82,16 @@ public record WorkloadManifest
 [JsonConverter(typeof(PlatformKeyContactConverter))]
 public readonly record struct PlatformKey(string key)
 {
-    public static PlatformKey Any = new("any");
-    public static PlatformKey Windows_x64 = new("win-x64");
-    public static PlatformKey Windows_arm64 = new("win-arm64");
-    public static PlatformKey Linux_ppc64el = new("linux-ppc64el");
-    public static PlatformKey Linux_arm64 = new("linux-arm64");
-    public static PlatformKey Linux_x64 = new("linux-x64");
-    public static PlatformKey Osx_arm64 = new("osx-arm64");
-    public static PlatformKey Osx_x64 = new("osx-x64");
+    public static readonly PlatformKey Any = new("any");
+    public static readonly PlatformKey Windows_x64 = new("win-x64");
+    public static readonly PlatformKey Windows_arm64 = new("win-arm64");
+    public static readonly PlatformKey Linux_ppc64el = new("linux-ppc64el");
+    public static readonly PlatformKey Linux_arm64 = new("linux-arm64");
+    public static readonly PlatformKey Linux_x64 = new("linux-x64");
+    public static readonly PlatformKey Osx_arm64 = new("osx-arm64");
+    public static readonly PlatformKey Osx_x64 = new("osx-x64");
 
-    public static IReadOnlyList<PlatformKey> All = new List<PlatformKey>()
+    public static readonly IReadOnlyList<PlatformKey> All = new List<PlatformKey>()
     {
         Any,
         Windows_x64,
@@ -104,20 +106,20 @@ public readonly record struct PlatformKey(string key)
     public static PlatformKey GetCurrentPlatform()
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && RuntimeInformation.OSArchitecture == Architecture.X64)
-            return PlatformKey.Windows_x64;
+            return Windows_x64;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && RuntimeInformation.OSArchitecture == Architecture.Arm64)
-            return PlatformKey.Windows_arm64;
+            return Windows_arm64;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && RuntimeInformation.OSArchitecture == Architecture.Ppc64le)
-            return PlatformKey.Linux_ppc64el;
+            return Linux_ppc64el;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && RuntimeInformation.OSArchitecture == Architecture.Arm64)
-            return PlatformKey.Linux_arm64;
+            return Linux_arm64;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && RuntimeInformation.OSArchitecture == Architecture.X64)
-            return PlatformKey.Linux_x64;
+            return Linux_x64;
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && RuntimeInformation.OSArchitecture == Architecture.Arm64)
-            return PlatformKey.Osx_arm64;
+            return Osx_arm64;
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && RuntimeInformation.OSArchitecture == Architecture.X64)
-            return PlatformKey.Osx_x64;
+            return Osx_x64;
 
         throw new PlatformNotSupportedException($"Platform is not supported, only supported '{string.Join(',', All.Select(x => x.key))}'");
     }
