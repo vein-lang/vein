@@ -1,6 +1,7 @@
-namespace ishtar;
+namespace ishtar.vm.runtime;
 
 using System.Text;
+using ishtar.runtime;
 using runtime;
 
 [CTypeExport("ishtar_trace_t")]
@@ -106,7 +107,7 @@ internal readonly struct IshtarTrace()
             var current = 0;
             while (current < codeSize)
             {
-                strBuilder.Append($"0x{(*code + current):X} ");
+                strBuilder.Append($"0x{*code + current:X} ");
                 current++;
             }
             return strBuilder.ToString();
@@ -124,7 +125,7 @@ internal readonly struct IshtarTrace()
             },
             Header = new
             {
-                compiled_func_ref = method->PIInfo.compiled_func_ref,
+                method->PIInfo.compiled_func_ref,
                 extern_function_declaration = method->PIInfo.extern_function_declaration.Name,
                 jitted_wrapper = method->PIInfo.jitted_wrapper.Name,
                 code_size = method->Header == null ? 0 : method->Header->code_size,

@@ -4,8 +4,6 @@
 #pragma warning disable IDE1006
 namespace ishtar;
 
-using System.Runtime.CompilerServices;
-
 public static class IshtarMath
 {
     #region min
