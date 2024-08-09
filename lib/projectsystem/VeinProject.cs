@@ -1,4 +1,5 @@
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("build")]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("veinc")]
 
 namespace vein.project;
 

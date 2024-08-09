@@ -25,7 +25,8 @@ public record WorkloadPackage([field: JsonIgnore] PackageKey name)
     [JsonConverter(typeof(DictionaryAliasesConverter))]
     public required Dictionary<PlatformKey, string> Aliases { get; init; } = new();
     public required List<IWorkloadPackageBase> Definition { get; init; } = new();
-    public required List<PackageKey> Dependencies { get; init; } = new();
+    [JsonConverter(typeof(DictionaryDependencyConverter))]
+    public required Dictionary<PackageKey, NuGetVersion> Dependencies { get; init; } = new();
 }
 
 public interface IWorkloadPackageBase;
@@ -123,12 +124,21 @@ public readonly record struct PlatformKey(string key)
 
         throw new PlatformNotSupportedException($"Platform is not supported, only supported '{string.Join(',', All.Select(x => x.key))}'");
     }
+
+    public override string ToString() => key;
 }
 
 [JsonConverter(typeof(PackageKeyContactConverter))]
-public readonly record struct PackageKey(string key);
+public readonly record struct PackageKey(string key)
+{
+    public override string ToString() => key;
+}
+
 [JsonConverter(typeof(WorkloadKeyContactConverter))]
-public readonly record struct WorkloadKey(string key);
+public readonly record struct WorkloadKey(string key)
+{
+    public override string ToString() => key;
+}
 
 [JsonConverter(typeof(PackageKindKeyContactConverter))]
 public readonly record struct PackageKindKey(string key)
@@ -145,4 +155,5 @@ public readonly record struct PackageKindKey(string key)
         Tool,
         Template
     }.AsReadOnly();
+    public override string ToString() => key;
 }

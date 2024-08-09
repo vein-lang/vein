@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Versioning;
 
 public class WorkloadKeyContactConverter : JsonConverter<WorkloadKey>
 {
@@ -147,17 +148,17 @@ public class WorkloadConverter : JsonConverter
 public class WorkloadSdkAliasesPackageConverter : JsonConverter
 {
     public override bool CanConvert(Type objectType)
-        => typeof(Dictionary<PackageKey, string>).IsAssignableFrom(objectType);
+        => typeof(Dictionary<PlatformKey, string>).IsAssignableFrom(objectType);
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
-        var packages = new Dictionary<PackageKey, string>();
+        var packages = new Dictionary<PlatformKey, string>();
         var jsonObject = JObject.Load(reader);
 
         foreach (var property in jsonObject.Properties())
         {
             var package = property.Value.ToString();
-            packages[new PackageKey(property.Name)] = package;
+            packages[new PlatformKey(property.Name)] = package;
         }
 
         return packages;
@@ -165,7 +166,7 @@ public class WorkloadSdkAliasesPackageConverter : JsonConverter
 
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
-        var packages = (Dictionary<PackageKey, string>)value;
+        var packages = (Dictionary<PlatformKey, string>)value;
         writer.WriteStartObject();
 
         foreach (var kvp in packages)
@@ -236,6 +237,37 @@ public class DictionaryAliasesConverter : JsonConverter<Dictionary<PlatformKey, 
         {
             var package = property.Value.ToObject<string>(serializer);
             packages[new PlatformKey(property.Name)] = package;
+        }
+
+        return packages;
+    }
+}
+
+
+public class DictionaryDependencyConverter : JsonConverter<Dictionary<PackageKey, NuGetVersion>>
+{
+    public override void WriteJson(JsonWriter writer, Dictionary<PackageKey, NuGetVersion> value, JsonSerializer serializer)
+    {
+        writer.WriteStartObject();
+        foreach (var kvp in value)
+        {
+            writer.WritePropertyName(kvp.Key.key);
+            serializer.Serialize(writer, kvp.Value.ToNormalizedString());
+        }
+        writer.WriteEndObject();
+    }
+
+    public override Dictionary<PackageKey, NuGetVersion> ReadJson(JsonReader reader, Type objectType,
+        Dictionary<PackageKey, NuGetVersion> existingValue, bool hasExistingValue,
+        JsonSerializer serializer)
+    {
+        var packages = new Dictionary<PackageKey, NuGetVersion>();
+        var jsonObject = JObject.Load(reader);
+
+        foreach (var property in jsonObject.Properties())
+        {
+            var package = property.Value.ToObject<string>(serializer);
+            packages[new PackageKey(property.Name)] = NuGetVersion.Parse(package);
         }
 
         return packages;
