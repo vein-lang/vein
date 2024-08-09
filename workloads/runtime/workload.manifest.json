@@ -1,6 +1,6 @@
 {
     "name": "vein.runtime",
-    "version": "{VERSION}",
+    "version": "1.0.0",
     "workloads": {
         "vein-compiler": {
             "name": "vein-runtime",
@@ -16,7 +16,7 @@
         }
     },
     "packages": {
-        "vein-compiler-package": {
+        "vein-runtime-package": {
             "name": "vein-runtime-package",
             "kind": "tool",
             "aliases": {
@@ -30,9 +30,9 @@
                     "exportSymlink": true
                 }
             ],
-            "dependencies":[
-                "vein.runtime.llvm"
-            ]
+            "dependencies":{
+                "vein.runtime.llvm": "18.1.3.1"
+            }
         }
     }
 }
