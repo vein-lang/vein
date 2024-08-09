@@ -10,6 +10,10 @@
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
         },
+        "GithubToken": {
+          "type": "string",
+          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
+        },
         "HasPublishWorkloads": {
           "type": "boolean"
         },
@@ -34,8 +38,8 @@
             "TeamCity",
             "Terminal",
             "TravisCI",
-            "VisualStudio",
-            "VSCode"
+            "VSCode",
+            "VisualStudio"
           ]
         },
         "NoLogo": {
@@ -70,12 +74,14 @@
               "BuildIshtarDebug",
               "BuildIshtarNative",
               "BuildRune",
+              "BuildVeinStd",
               "BuildVeinc",
               "Clean",
               "Compile",
               "Pack",
               "PackIshtar",
               "PublishRelease",
+              "PublishVeinStd",
               "PublishWorkloads",
               "Restore"
             ]
@@ -94,16 +100,22 @@
               "BuildIshtarDebug",
               "BuildIshtarNative",
               "BuildRune",
+              "BuildVeinStd",
               "BuildVeinc",
               "Clean",
               "Compile",
               "Pack",
               "PackIshtar",
               "PublishRelease",
+              "PublishVeinStd",
               "PublishWorkloads",
               "Restore"
             ]
           }
+        },
+        "VeinApiKey": {
+          "type": "string",
+          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "Verbosity": {
           "type": "string",
