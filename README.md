@@ -36,7 +36,7 @@
 
 ## What is Vein?
 
-> **Vein is under active development.** Use it to speed up your development workflows or run quantum production code in resource-constrained environments. We're working on more complete std and integration with multiple part of life.
+> **Vein is under active development.** We're working on more complete std and integration with multiple part of life. And at the moment we are stabilizing the state of the compiler and the set of language features
 
 Vein is an all-in-one language for quantum computing and general purpose apps. 
 
