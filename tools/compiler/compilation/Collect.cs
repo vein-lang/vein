@@ -8,6 +8,7 @@ using cmd;
 using project;
 using Spectre.Console;
 using styles;
+using vein.extensions;
 
 public record ClassicCompilationProgressionTask(ProgressContext context, ProgressTask current) : IProgressionTask
 {
@@ -74,6 +75,18 @@ public partial class CompilationTask
         foreach (var file in files)
         {
             var p = VeinProject.LoadFrom(file);
+
+            if (!string.IsNullOrEmpty(settings.OverrideVersion) && !string.IsNullOrEmpty(settings.Project))
+            {
+                var setProject = Path.GetFileNameWithoutExtension(settings.Project);
+                var current = Path.GetFileNameWithoutExtension(file.FullName);
+
+                if (setProject.Equals(current))
+                {
+                    Log.Info($"Override [orange]'{p.Name}'[/] project [yellow]'{p.Version}'[/] to [yellow]'{settings.OverrideVersion}'[/].");
+                    p._project.Version = settings.OverrideVersion;
+                }
+            }
 
             if (p is null)
             {

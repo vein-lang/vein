@@ -41,7 +41,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
     private static string PleaseReportProblemInto()
         => $"Please report the problem into 'https://github.com/vein-lang/vein/issues'.";
 
-    public static Task<IReadOnlyCollection<CompilationTarget>> RunAsync(DirectoryInfo info, CompileSettings settings) => AnsiConsole
+    public static Task<IReadOnlyCollection<CompilationTarget>> RunAsync(DirectoryInfo info, CompileSettings settings, VeinProject? project = null) => AnsiConsole
         .Progress()
         .AutoClear(false)
         .AutoRefresh(true)

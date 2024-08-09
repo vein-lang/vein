@@ -43,6 +43,10 @@ public class CompileSettings : CommandSettings, IProjectSettingProvider
     [Description("Ignore cache.")]
     [CommandOption("--ignore-cache")]
     public bool IgnoreCache { get; set; }
+
+    [Description("Override generated version")]
+    [CommandOption("--override-version", IsHidden = true)]
+    public string OverrideVersion { get; set; }
 }
 
 
