@@ -1,5 +1,7 @@
 namespace ishtar.runtime.gc;
 
+using ishtar.vm.runtime;
+
 public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 {
     public class GcNotLoaded : Exception;

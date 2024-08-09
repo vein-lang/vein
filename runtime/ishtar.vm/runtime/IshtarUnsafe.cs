@@ -1,7 +1,6 @@
 namespace ishtar
 {
     using System.Diagnostics.CodeAnalysis;
-    using System.Runtime.CompilerServices;
 
     public static unsafe class IshtarUnsafe
     {

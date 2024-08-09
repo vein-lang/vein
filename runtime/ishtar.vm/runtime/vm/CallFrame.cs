@@ -1,6 +1,5 @@
 namespace ishtar
 {
-    using System.Runtime.CompilerServices;
     using System.Text;
     using runtime.gc;
 
