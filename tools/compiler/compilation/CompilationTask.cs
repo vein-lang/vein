@@ -221,8 +221,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
                     Directives = new List<DirectiveSyntax>(),
                     FileEntity = key,
                     Includes = { },
-                    SourceText = value,
-                    _line_offsets = Array.Empty<int>(),
+                    SourceText = value
                 });
                 read_task.FailTask();
                 return false;

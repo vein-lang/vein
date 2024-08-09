@@ -40,7 +40,7 @@ public class SecurityStorage
     {
         var store = ReadStorage();
 
-        store[key] = JToken.FromObject(value);
+        store[key] = JToken.FromObject(value!);
 
         Save(store);
     }
@@ -64,7 +64,7 @@ public class SecurityStorage
             if (!ConfigFile.Exists)
                 return new Dictionary<string, JToken>();
             var content = ConfigFile.ReadToEnd();
-            return JsonConvert.DeserializeObject<Dictionary<string, JToken>>(BlowfishDecrypt(content));
+            return JsonConvert.DeserializeObject<Dictionary<string, JToken>>(BlowfishDecrypt(content))!;
         }
         catch
         {

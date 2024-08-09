@@ -9,8 +9,7 @@ public unsafe class IshtarJIT(VirtualMachine vm)
     public static Architecture Architecture => RuntimeInformation.ProcessArchitecture;
 
     // x86 is not support, but need safe apply arm32
-    public Assembler AllocEmitter()
-        => new Assembler(64);
+    public Assembler AllocEmitter() => new(64);
 
     public delegate*<void> GenerateHalt()
     {

@@ -12,9 +12,9 @@ namespace ishtar.emit
 
     public record ClassBuilder : VeinClass, IBaker
     {
-        internal VeinModuleBuilder moduleBuilder;
+        internal readonly VeinModuleBuilder moduleBuilder;
 
-        public List<NamespaceSymbol> Includes { get; set; } = new();
+        public List<NamespaceSymbol> Includes { get; set; } = [];
 
         internal ClassBuilder WithIncludes(List<NamespaceSymbol> includes)
         {
@@ -57,7 +57,7 @@ namespace ishtar.emit
         /// Method name will be interned.
         /// </remarks>
         public MethodBuilder DefineMethod(string name, VeinComplexType returnType, params VeinArgumentRef[] args)
-            => DefineMethod(name, returnType, new List<VeinTypeArg>(), args);
+            => DefineMethod(name, returnType, [], args);
 
         /// <summary>
         /// Define method in current class.
@@ -84,7 +84,7 @@ namespace ishtar.emit
         /// </remarks>
         public MethodBuilder DefineMethod(string name, MethodFlags flags, VeinComplexType returnType,
             params VeinArgumentRef[] args) =>
-            DefineMethod(name, flags, returnType, new List<VeinTypeArg>(), args);
+            DefineMethod(name, flags, returnType, [], args);
 
         /// <summary>
         /// Define method in current class.
@@ -139,7 +139,7 @@ namespace ishtar.emit
                 ];
 
             var getter =
-                DefineMethod(VeinProperty.GetterFnName(name), VeinProperty.ConvertShadowFlags(flags), propType, new List<VeinTypeArg>(), args);
+                DefineMethod(VeinProperty.GetterFnName(name), VeinProperty.ConvertShadowFlags(flags), propType, [], args);
             if (!IsAbstract)
             {
                 if (flags.HasFlag(FieldFlags.Static))
@@ -196,7 +196,7 @@ namespace ishtar.emit
         byte[] IBaker.BakeByteArray()
         {
             if (Methods.Count == 0 && Fields.Count == 0)
-                return Array.Empty<byte>();
+                return [];
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);
 
@@ -232,12 +232,12 @@ namespace ishtar.emit
             if (IsInterface) str.Append($".interface ");
             else if (IsValueType) str.Append($".struct ");
             else str.Append($".class ");
-            str.Append($"'{FullName.Name}' {Flags.EnumerateFlags(new[] { ClassFlags.None, ClassFlags.Interface }).Join(' ').ToLowerInvariant()}");
+            str.Append($"'{FullName.Name}' {Flags.EnumerateFlags([ClassFlags.None, ClassFlags.Interface]).Join(' ').ToLowerInvariant()}");
             str.AppendLine($" extends {Parents.Select(x => $"'{x.Name}'").Join(", ")}");
             str.AppendLine("{");
             foreach (var field in Fields)
             {
-                var flags = field.Flags.EnumerateFlags(new [] {FieldFlags.None}).Join(' ').ToLowerInvariant();
+                var flags = field.Flags.EnumerateFlags([FieldFlags.None]).Join(' ').ToLowerInvariant();
                 str.AppendLine($"\t.field '{field.Name}' as '{field.FieldType.ToTemplateString()}' {flags}");
             }
             foreach (var method in Methods.OfType<IBaker>().Select(method => method.BakeDebugString()))
@@ -274,6 +274,8 @@ namespace ishtar.emit
             => throw new NotImplementedException();
 
         public virtual bool Equals(ClassBuilder other) => FullName.Equals(other?.FullName);
+        public override int GetHashCode() => FullName!.GetHashCode();
+
         public override string ToString() => base.ToString();
     }
 }

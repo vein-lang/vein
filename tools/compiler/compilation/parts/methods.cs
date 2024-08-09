@@ -44,7 +44,7 @@ public partial class CompilationTask
                     Log.Defer.Error(
                         $"In [orange]'{method.Identifier}'[/] aspect [red bold]{aspect.Name}[/] " +
                         $"not found, maybe skip use?.",
-                        aspect, method.OwnerClass.OwnerDocument);
+                        aspect, method!.OwnerClass!.OwnerDocument);
                     continue;
             }
         }
@@ -87,7 +87,7 @@ public partial class CompilationTask
                     Log.Defer.Error(
                         $"In [orange]'{method.Identifier}'[/] method [red bold]{mod.ModificatorKind}[/] " +
                         $"is not supported [orange bold]modificator[/].",
-                        method.Identifier, method.OwnerClass.OwnerDocument);
+                        method.Identifier, method!.OwnerClass!.OwnerDocument);
                     continue;
             }
         }
@@ -97,12 +97,12 @@ public partial class CompilationTask
             Log.Defer.Error(
                 $"Modificator [red bold]public[/] cannot be combined with [red bold]private[/] " +
                 $"in [orange]'{method.Identifier}'[/] method.",
-                method.ReturnType, method.OwnerClass.OwnerDocument);
+                method.ReturnType, method.OwnerClass!.OwnerDocument);
         if (flags.HasFlag(MethodFlags.Async) && !method.ReturnType.IsAsyncJob)
             Log.Defer.Error(
                 $"Method [orange]'{method.Identifier}'[/] has marked as [red bold]async[/] " +
                 $"but return type is not [red bold]Job[/] ",
-                method.ReturnType, method.OwnerClass.OwnerDocument);
+                method.ReturnType, method.OwnerClass!.OwnerDocument);
 
         return flags;
     }
@@ -134,7 +134,7 @@ public partial class CompilationTask
                     //           $"at '[orange bold]{pos.Line} line, {pos.Column} column[/]' \n\t" +
                     //           $"in '[orange bold]{doc.FileEntity}[/]'." +
                     //           $"{err_line}");
-                    Log.Defer.Error($"[red bold]{e.Message.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/]", member, doc);
+                    Log.Defer.Error($"[red bold]{e!.Message!.Trim().EscapeMarkup()}, expected {e.FormatExpectations().EscapeMarkup().EscapeArgumentSymbols()}[/]", member, doc);
                     break;
                 case MethodDeclarationSyntax method:
                     Status.VeinStatus($"Regeneration method [grey]'{method.Identifier}'[/]");

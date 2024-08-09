@@ -13,8 +13,5 @@ public class SelfUpdateCommandSettings : CommandSettings
 
 public class SelfUpdateCommand : Command<SelfUpdateCommandSettings>
 {
-    public override int Execute(CommandContext context, SelfUpdateCommandSettings settings)
-    {
-        return 0;
-    }
+    public override int Execute(CommandContext context, SelfUpdateCommandSettings settings) => 0;
 }

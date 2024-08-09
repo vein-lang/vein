@@ -310,8 +310,7 @@ namespace vein.runtime
         }
 
         public virtual bool Equals(VeinClass other) => FullName.Equals(other?.FullName);
-
-
+        public override int GetHashCode() => FullName!.GetHashCode();
 
 
         public VeinClass CreateAmorphousVersion(List<VeinClass> generics)

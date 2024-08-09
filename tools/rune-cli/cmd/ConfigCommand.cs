@@ -8,11 +8,11 @@ public class SetConfigCommandSettings : CommandSettings
 {
     [Description("A key.")]
     [CommandArgument(0, "[KEY]")]
-    public string Key { get; set; }
+    public string Key { get; init; }
 
     [Description("A value.")]
     [CommandArgument(1, "[VALUE]")]
-    public string Value { get; set; }
+    public string Value { get; init; }
 }
 
 [ExcludeFromCodeCoverage]

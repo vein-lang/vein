@@ -71,7 +71,7 @@ public record WorkloadManifest
 
 
     public static async Task<WorkloadManifest> OpenAsync(FileInfo bin)
-        => JsonConvert.DeserializeObject<WorkloadManifest>(await bin.ReadToEndAsync());
+        => JsonConvert.DeserializeObject<WorkloadManifest>(await bin.ReadToEndAsync())!;
 
     public string SaveAsString() =>
         JsonConvert.SerializeObject(this, new JsonSerializerSettings()

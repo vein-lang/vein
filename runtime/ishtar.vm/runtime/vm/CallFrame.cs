@@ -87,10 +87,7 @@ namespace ishtar
             var str = new StringBuilder();
 
             if (frame is null)
-            {
                 throw new Exception($"<<DETECTED NULL FRAME>>");
-                return;
-            }
 
             if (frame->method != null && !frame->method->IsDisposed() && frame->method->Owner is not null && frame->method->Owner->FullName is not null)
                 str.AppendLine($"\tat {frame->method->Owner->FullName->NameWithNS}.{frame->method->Name}");

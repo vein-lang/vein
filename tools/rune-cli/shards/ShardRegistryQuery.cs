@@ -25,10 +25,7 @@ public class ShardRegistryQuery
         var serializer = new Flurl.Http.Newtonsoft.NewtonsoftJsonSerializer(settings);
 
         _endpoint = endpoint;
-        _client = new FlurlClient($"{endpoint}").WithSettings(x =>
-        {
-            x.JsonSerializer = serializer;
-        });
+        _client = new FlurlClient($"{endpoint}").WithSettings(x => x.JsonSerializer = serializer);
         
     }
 

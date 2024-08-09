@@ -141,13 +141,13 @@ public class ShardStorage : IShardStorage
     public string TemplateName(RegistryPackage package) =>
         TemplateName(package.Name, package.Version);
 
-    public RegistryPackage GetManifest(string name, NuGetVersion version)
+    public RegistryPackage? GetManifest(string name, NuGetVersion version)
     {
         if (!IsAvailable(name, version))
             return null;
 
         var json = GetPackageSpace(name, version).File("manifest.json");
-        return JsonConvert.DeserializeObject<RegistryPackage>(json.ReadToEnd());
+        return JsonConvert.DeserializeObject<RegistryPackage>(json.ReadToEnd())!;
     }
 
 
@@ -241,5 +241,5 @@ public interface IShardStorage
 
     string TemplateName(RegistryPackage package);
 
-    RegistryPackage GetManifest(string name, NuGetVersion version);
+    RegistryPackage? GetManifest(string name, NuGetVersion version);
 }

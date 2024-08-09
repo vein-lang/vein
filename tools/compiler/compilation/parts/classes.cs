@@ -22,7 +22,7 @@ public partial class CompilationTask
         if (x.member is not ClassDeclarationSyntax clazz)
             return;
 
-        var (@class, member) = (x.@class, xMember: clazz);
+        var (@class, member) = (x.@class, clazz);
         var doc = member.OwnerDocument;
         @class.Flags = GenerateClassFlags(member);
 
@@ -298,10 +298,7 @@ public partial class CompilationTask
 
     public ClassBuilder CompileClass(ClassDeclarationSyntax member, DocumentDeclaration doc, VeinCore types)
     {
-        void _defineClass(ClassBuilder clz)
-        {
-            KnowClasses.Add(clz.FullName, clz);
-        }
+        void _defineClass(ClassBuilder clz) => KnowClasses.Add(clz.FullName, clz);
 
 
         if (member.IsForwardedType)

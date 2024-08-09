@@ -334,7 +334,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
     }
 
-    private static readonly List<WeakImmortalRef> _weak_refs = new List<WeakImmortalRef>();
+    private static readonly List<WeakImmortalRef> _weak_refs = new();
 
     public void* alloc_immortal(uint size)
     {

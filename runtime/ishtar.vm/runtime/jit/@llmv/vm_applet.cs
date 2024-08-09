@@ -48,7 +48,6 @@ public unsafe struct comparer_applet
         passManager.AddCFGSimplificationPass();
         passManager.Run(module);
         var target = LLVMTargetRef.Targets.ToList().First(x => x.Name.Equals("x86-64"));
-        var outputPath = "path/to/your/output.o";
         var targetMachine = target.CreateTargetMachine(target.Name, "generic", "",
             LLVMCodeGenOptLevel.LLVMCodeGenLevelDefault,
             LLVMRelocMode.LLVMRelocDefault,

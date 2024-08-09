@@ -13,7 +13,7 @@ using Spectre.Console.Cli;
 public class RestoreCommand : AsyncCommandWithProject<RestoreCommandSettings>
 {
     public ProgressContext ProgressContext { get; set; }
-    public static readonly Uri VEIN_GALLERY = new Uri("https://api.vein-lang.org/");
+    public static readonly Uri VEIN_GALLERY = new("https://api.vein-lang.org/");
     public ShardRegistryQuery query = new ShardRegistryQuery(VEIN_GALLERY)
         .WithStorage(new ShardStorage());
     public override async Task<int> ExecuteAsync(CommandContext context, RestoreCommandSettings settings,
@@ -80,12 +80,16 @@ public class RestoreCommand : AsyncCommandWithProject<RestoreCommandSettings>
         task.VeinStatus($"Fetch '{@ref.Name}@{@ref.Version}'...");
         var q = await query.FindByName(@ref.Name, $"{@ref.Version}");
 
+        if (q is null)
+            throw new PackageNotFoundException($"{@ref.Name}");
+
         foreach (var dependency in q.Dependencies)
             await FetchAsync(container, task, dependency);
         container.Add(q);
     }
 }
 
+public class PackageNotFoundException(string msg) : Exception(msg);
 
 public class RestoreCommandSettings : CommandSettings, IProjectSettingProvider
 {

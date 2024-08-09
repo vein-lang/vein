@@ -292,15 +292,9 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
         return true;
     }
 
-    private async Task<bool> InstallTemplate(WorkloadPackage sdk, DirectoryInfo targetFolder)
-    {
-        return false;
-    }
+    private async Task<bool> InstallTemplate(WorkloadPackage sdk, DirectoryInfo targetFolder) => false;
 
-    private async Task<bool> InstallFrameworks(WorkloadPackage sdk, DirectoryInfo targetFolder)
-    {
-        return false;
-    }
+    private async Task<bool> InstallFrameworks(WorkloadPackage sdk, DirectoryInfo targetFolder) => false;
 
 
     private async Task<DirectoryInfo> DownloadWorkloadAndInstallPackage(

@@ -7,7 +7,7 @@ namespace vein.syntax
 
     public static class SyntaxExtensions
     {
-        public static T WithLeadingComments<T>(this T syntax, IEnumerable<string> comments)
+        public static T? WithLeadingComments<T>(this T syntax, IEnumerable<string>? comments)
             where T : BaseSyntax
         {
             if (comments != null)
@@ -15,7 +15,7 @@ namespace vein.syntax
             return syntax;
         }
 
-        public static T WithLeadingComment<T>(this T syntax, string comment)
+        public static T? WithLeadingComment<T>(this T syntax, string? comment)
             where T : BaseSyntax
         {
             if (comment != null)
@@ -23,7 +23,7 @@ namespace vein.syntax
             return syntax;
         }
 
-        public static T WithTrailingComments<T>(this T syntax, IEnumerable<string> comments)
+        public static T? WithTrailingComments<T>(this T syntax, IEnumerable<string>? comments)
             where T : BaseSyntax
         {
             if (comments != null)
@@ -31,7 +31,7 @@ namespace vein.syntax
             return syntax;
         }
 
-        public static T WithTrailingComment<T>(this T syntax, string comment)
+        public static T? WithTrailingComment<T>(this T syntax, string? comment)
             where T : BaseSyntax
         {
             if (comment != null)
@@ -39,10 +39,10 @@ namespace vein.syntax
             return syntax;
         }
 
-        public static BlockSyntax WithInnerComments(this BlockSyntax syntax, IEnumerable<string> comments)
+        public static BlockSyntax WithInnerComments(this BlockSyntax syntax, IEnumerable<string>? comments)
         {
             if (comments != null)
-                syntax?.InnerComments.AddRange(comments);
+                syntax.InnerComments.AddRange(comments);
 
             return syntax;
         }
@@ -50,7 +50,7 @@ namespace vein.syntax
         public static BlockSyntax WithInnerComment(this BlockSyntax syntax, params string[] comments) =>
             syntax.WithInnerComments(comments);
 
-        public static ClassDeclarationSyntax WithInnerComments(this ClassDeclarationSyntax syntax, IEnumerable<string> comments)
+        public static ClassDeclarationSyntax? WithInnerComments(this ClassDeclarationSyntax? syntax, IEnumerable<string>? comments)
         {
             var s = new List<int>();
 
@@ -64,10 +64,10 @@ namespace vein.syntax
             return syntax;
         }
 
-        public static ClassDeclarationSyntax WithInnerComment(this ClassDeclarationSyntax syntax, params string[] comments) =>
+        public static ClassDeclarationSyntax? WithInnerComment(this ClassDeclarationSyntax syntax, params string[] comments) =>
             syntax.WithInnerComments(comments);
 
-        public static T WithProperties<T>(this T syntax, MemberDeclarationSyntax other = null)
+        public static T? WithProperties<T>(this T? syntax, MemberDeclarationSyntax? other = null)
             where T : MemberDeclarationSyntax
         {
             if (other == null || syntax == null)

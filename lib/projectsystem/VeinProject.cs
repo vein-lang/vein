@@ -33,7 +33,7 @@ public class VeinProject
     public string Name { get; }
     public DirectoryInfo WorkDir { get; }
     public FileInfo ProjectFile { get; }
-    public DirectoryInfo CacheDir => new DirectoryInfo(Path.Combine(WorkDir.FullName, "obj"));
+    public DirectoryInfo CacheDir => new(Path.Combine(WorkDir.FullName, "obj"));
 
     public bool Packable => _project.Packable ?? false;
     public bool IsWorkload => _project.HasWorkload ?? false;
@@ -43,7 +43,7 @@ public class VeinProject
     public string License => _project.License;
     public PackageUrls Urls => _project.Urls;
 
-    public NuGetVersion Version => new NuGetVersion(_project.Version);
+    public NuGetVersion Version => new(_project.Version);
 
     public IReadOnlyCollection<FileInfo> Sources => WorkDir
         .EnumerateFiles("*.vein", SearchOption.AllDirectories)

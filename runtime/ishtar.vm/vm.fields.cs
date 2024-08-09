@@ -24,7 +24,7 @@ public unsafe struct VirtualMachineRef
 
 public unsafe partial class VirtualMachine : IDisposable
 {
-    public readonly RuntimeInfo runtimeInfo = new RuntimeInfo();
+    public readonly RuntimeInfo runtimeInfo = new();
 
     public VirtualMachineRef* @ref;
 

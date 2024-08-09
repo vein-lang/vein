@@ -9,7 +9,7 @@ namespace vein.syntax
     {
         public MemberDeclarationSyntax() { }
 
-        public MemberDeclarationSyntax(MemberDeclarationSyntax other = null)
+        public MemberDeclarationSyntax(MemberDeclarationSyntax? other = null)
             => this.WithProperties(other);
         public override SyntaxType Kind => SyntaxType.ClassMember;
 

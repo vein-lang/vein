@@ -15,21 +15,21 @@ namespace ishtar.emit
     using vein.extensions;
     using vein.runtime;
 
-    public class ILGenerator
+    public sealed class ILGenerator
     {
         private byte[] _ilBody;
         private int _position;
-        internal List<ushort> _opcodes = new ();
-        internal List<OpCode> _debug_list = new ();
+        internal List<ushort> _opcodes = [];
+        private List<OpCode> _debug_list = [];
         internal readonly MethodBuilder _methodBuilder;
         private readonly StringBuilder _debugBuilder = new ();
         public static bool DoNotGenDebugInfo = true;
 
         internal int LocalsSize { get; set; }
 
-        public virtual int ILOffset => _position;
+        public int ILOffset => _position;
 
-        internal ILGenerator(MethodBuilder method) : this(method, 16) { }
+        internal ILGenerator(MethodBuilder method) : this(method, size: 16) { }
         internal ILGenerator(MethodBuilder method, int size)
         {
             _methodBuilder = method;
@@ -38,14 +38,14 @@ namespace ishtar.emit
 
         internal MethodBuilder GetMethodBuilder() => _methodBuilder;
 
-        public virtual ILGenerator Emit(OpCode opcode)
+        public ILGenerator Emit(OpCode opcode)
         {
             EnsureCapacity<OpCode>();
             InternalEmit(opcode);
             DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name}");
             return this;
         }
-        public virtual ILGenerator Emit(OpCode opcode, byte arg)
+        public ILGenerator Emit(OpCode opcode, byte arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -65,7 +65,7 @@ namespace ishtar.emit
             DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.sbyte");
             return this;
         }
-        public virtual ILGenerator Emit(OpCode opcode, short arg)
+        public ILGenerator Emit(OpCode opcode, short arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -77,7 +77,7 @@ namespace ishtar.emit
             return this;
         }
 
-        public virtual ILGenerator Emit(OpCode opcode, int arg)
+        public ILGenerator Emit(OpCode opcode, int arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -88,7 +88,7 @@ namespace ishtar.emit
             DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.int");
             return this;
         }
-        public virtual ILGenerator Emit(OpCode opcode, long arg)
+        public ILGenerator Emit(OpCode opcode, long arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -100,7 +100,7 @@ namespace ishtar.emit
             return this;
         }
 
-        public virtual ILGenerator Emit(OpCode opcode, ulong arg)
+        public ILGenerator Emit(OpCode opcode, ulong arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -112,7 +112,7 @@ namespace ishtar.emit
             return this;
         }
 
-        public virtual ILGenerator Emit(OpCode opcode, float arg)
+        public ILGenerator Emit(OpCode opcode, float arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -124,7 +124,7 @@ namespace ishtar.emit
             return this;
         }
 
-        public virtual ILGenerator Emit(OpCode opcode, double arg)
+        public ILGenerator Emit(OpCode opcode, double arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -136,7 +136,7 @@ namespace ishtar.emit
             return this;
         }
 
-        public virtual ILGenerator Emit(OpCode opcode, decimal arg)
+        public ILGenerator Emit(OpCode opcode, decimal arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -156,7 +156,7 @@ namespace ishtar.emit
         /// <remarks>
         /// <see cref="string"/> will be interned.
         /// </remarks>
-        public virtual ILGenerator Emit(OpCode opcode, string str)
+        public ILGenerator Emit(OpCode opcode, string str)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -180,7 +180,7 @@ namespace ishtar.emit
         /// Only allowed <see cref="OpCodes.LDF"/>, <see cref="OpCodes.STF"/>,
         /// <see cref="OpCodes.STSF"/>, <see cref="OpCodes.LDSF"/>.
         /// </remarks>
-        public virtual unsafe ILGenerator Emit(OpCode opcode, VeinField field)
+        public unsafe ILGenerator Emit(OpCode opcode, VeinField field)
         {
             if (new[] { OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF }.All(x => x != opcode))
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
@@ -220,12 +220,12 @@ namespace ishtar.emit
         /// <remarks>
         /// Only <see cref="OpCodes.LDF"/>.
         /// </remarks>
-        public virtual ILGenerator Emit(OpCode opcode, FieldName field) => throw new NotImplementedException();
+        public ILGenerator Emit(OpCode opcode, FieldName field) => throw new NotImplementedException();
 
         /// <summary>
         /// Emit branch instruction with label.
         /// </summary>
-        public virtual ILGenerator Emit(OpCode opcode, Label label)
+        public ILGenerator Emit(OpCode opcode, Label label)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -236,12 +236,12 @@ namespace ishtar.emit
             return this;
         }
 
-        public virtual ILGenerator Emit(OpCode opcode, VeinComplexType type)
+        public ILGenerator Emit(OpCode opcode, VeinComplexType type)
             => type.IsGeneric ?
                 Emit(opcode, type.TypeArg) :
                 Emit(opcode, type.Class);
 
-        public virtual ILGenerator Emit(OpCode opcode, VeinComplexType t1, VeinComplexType t2)
+        public ILGenerator Emit(OpCode opcode, VeinComplexType t1, VeinComplexType t2)
         {
             if (opcode != OpCodes.CAST_G)
                 throw new NotSupportedException();
@@ -261,10 +261,10 @@ namespace ishtar.emit
             return this;
         }
 
-        public virtual ILGenerator Emit(OpCode opcode, VeinClass type)
+        public ILGenerator Emit(OpCode opcode, VeinClass type)
             => Emit(opcode, type.FullName);
 
-        public virtual ILGenerator Emit(OpCode opcode, VeinTypeArg type)
+        public ILGenerator Emit(OpCode opcode, VeinTypeArg type)
         {
             if (opcode != OpCodes.LD_TYPE_G)
                 throw new NotSupportedException();
@@ -278,7 +278,7 @@ namespace ishtar.emit
             return this;
         }
 
-        public virtual ILGenerator Emit(OpCode opcode, QualityTypeName type)
+        public ILGenerator Emit(OpCode opcode, QualityTypeName type)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
@@ -337,7 +337,7 @@ namespace ishtar.emit
         /// <returns>
         /// Index of local variable slot
         /// </returns>
-        public virtual int EnsureLocal(string key, VeinComplexType clazz)
+        public int EnsureLocal(string key, VeinComplexType clazz)
         {
             LocalsBuilder.Mark(LocalsSize, key);
             if (clazz.IsGeneric)
@@ -354,7 +354,7 @@ namespace ishtar.emit
         /// <remarks>
         /// Only <see cref="OpCodes.CALL"/>.
         /// </remarks>
-        public virtual ILGenerator Emit(OpCode opcode, VeinMethod method)
+        public ILGenerator Emit(OpCode opcode, VeinMethod method)
         {
             if (method is null)
                 throw new ArgumentNullException(nameof(method));
@@ -474,7 +474,7 @@ namespace ishtar.emit
             return info.CurrentCatch;
         }
 
-        public virtual void BeginFinallyBlock()
+        public void BeginFinallyBlock()
         {
             if (exceptionStackIndex == 0)
                 throw new InvalidOperationException($"Exception stack has been empty!");
@@ -508,7 +508,7 @@ namespace ishtar.emit
         /// Define label for future use. 
         /// </summary>
         /// <returns></returns>
-        public virtual Label DefineLabel(string name)
+        public Label DefineLabel(string name)
         {
             _labels ??= new int[4];
             if (_labels_count >= _labels.Length)
@@ -519,7 +519,7 @@ namespace ishtar.emit
         /// <summary>
         /// Define multiple labels for future use.
         /// </summary>
-        public virtual Label[] DefineLabel(uint size, string name) =>
+        public Label[] DefineLabel(uint size, string name) =>
             Enumerable.Range(0, (int)size).Select(x => DefineLabel($"name.{x}")).ToArray();
 
         /// <summary>
@@ -527,7 +527,7 @@ namespace ishtar.emit
         /// </summary>
         /// <exception cref="InvalidLabelException"></exception>
         /// <exception cref="UndefinedLabelException"></exception>
-        public virtual void UseLabel(Label loc)
+        public void UseLabel(Label loc)
         {
             if (_labels is null || loc.Value < 0 || loc.Value >= _labels.Length)
                 throw new InvalidLabelException();

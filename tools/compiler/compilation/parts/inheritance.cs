@@ -43,6 +43,9 @@ public partial class CompilationTask
         {
             var pos = member.Methods.FirstOrDefault(x => x.IsEquals(method));
 
+            if (pos is null)
+                continue;
+
             Log.Defer.Warn(
                 $"[yellow]'{method.Owner.Name}::{method.Name}' hides inherited member '{member.Identifier}::{method.Name}'.[/]",
                 pos.Identifier, member.OwnerDocument);

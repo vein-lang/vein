@@ -77,7 +77,7 @@ public partial class CompilationTask
             if (member.Getter is not null)
                 GenerateBody((MethodBuilder)prop.Getter, member.Getter.Body, doc);
             if (member.IsShortform())
-                GenerateBody((MethodBuilder)prop.Getter, new(new ReturnStatementSyntax(member.Expression)), doc);
+                GenerateBody((MethodBuilder)prop.Getter, new(new ReturnStatementSyntax(member.Expression!)), doc);
         }
     }
 }

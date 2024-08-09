@@ -26,17 +26,16 @@ namespace vein.syntax
 
         public NamespaceSymbol Namespace => new(Name);
 
-        public IEnumerable<DirectiveSyntax> Directives { get; set; }
-        public IEnumerable<MemberDeclarationSyntax> Members { get; set; }
+        public IEnumerable<DirectiveSyntax> Directives { get; init; }
+        public IEnumerable<MemberDeclarationSyntax> Members { get; init; }
         public IEnumerable<AspectDeclarationSyntax> Aspects { get; set; }
-        public IEnumerable<AliasSyntax> Aliases { get; set; }
+        public IEnumerable<AliasSyntax> Aliases { get; init; }
         public FileInfo FileEntity { get; set; }
         public string SourceText { get; set; }
         public string[] SourceLines => SourceText.Replace("\r", "").Split("\n");
 
         private List<NamespaceSymbol>? _includes;
 
-        public int[]? _line_offsets;
 
         public List<NamespaceSymbol> Includes => _includes ??= Directives.OfExactType<UseSyntax>().Select(x =>
         {

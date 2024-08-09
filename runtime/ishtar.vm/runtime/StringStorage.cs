@@ -70,7 +70,7 @@ namespace ishtar
         public readonly ulong ID = id;
         public bool Equals(InternedString* st) => st->ID == ID;
 
-        private string debugStr => StringStorage.storage_d[id];
+        private string debugStr => StringStorage.storage_d[ID];
         public static bool Eq(InternedString* p1, InternedString* p2) => p1->ID.Equals(p2->ID);
     }
 }

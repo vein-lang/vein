@@ -37,7 +37,7 @@ namespace vein.fs
             var header = new ElfHeader
             {
                 Identification = {
-                    Magic = new[] { (char)0x7f, 'E', 'L', 'F' },
+                    Magic = [(char)0x7f, 'E', 'L', 'F'],
                     FileClass = ElfFileClass.Elf32,
                     DataType = ElfDataType.Lsb,
                     Version = 1,
