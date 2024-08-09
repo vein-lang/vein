@@ -7,6 +7,7 @@
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
     <RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PublishAot>true</PublishAot>
@@ -48,8 +49,10 @@
     <PackageReference Include="Iced" Version="1.20.0" />
     <PackageReference Include="ishtar.bdwgc" Version="8.2.6.40" GeneratePathProperty="true" />
     <PackageReference Include="ishtar.libuv" Version="1.48.0.20" GeneratePathProperty="true" />
-    <PackageReference Include="LLVMSharp" Version="16.0.0" />
-    <PackageReference Include="LLVMSharp.Interop" Version="16.0.0" />
+    <PackageReference Include="LLVMSharp" Version="16.0.0">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="LLVMSharp.Interop" Version="16.0.0"/>
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics.CodeAnalysis" />
@@ -70,4 +73,11 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="ishtar_test" />
+    <Using Include="System.Runtime.InteropServices"></Using>
+    <Using Include="System.Runtime.CompilerServices"></Using>
+    <Using Include="System.Diagnostics"></Using>
+    <Using Include="lang.c"></Using>
+  </ItemGroup>
 </Project>
