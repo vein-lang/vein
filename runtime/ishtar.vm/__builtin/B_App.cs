@@ -54,7 +54,7 @@ namespace ishtar
             var clr_key = IshtarMarshal.ToDotnetString(key, current);
             var clr_value = IshtarMarshal.ToDotnetBoolean(value, current);
 
-            current->vm.Config.Set(clr_key, clr_value);
+            //current->vm.Config.Set(clr_key, clr_value);
 
             return null;
         }

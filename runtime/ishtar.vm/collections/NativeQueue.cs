@@ -1,7 +1,5 @@
 namespace ishtar.collections;
 
-using System.Runtime.CompilerServices;
-
 public unsafe struct NativeQueue<T> : IDisposable where T : unmanaged, IEq<T>
 {
     private T** items;

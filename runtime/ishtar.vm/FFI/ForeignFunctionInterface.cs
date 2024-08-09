@@ -167,9 +167,6 @@ public unsafe class ForeignFunctionInterface
 
     public void DisplayDefinedMapping()
     {
-        if (vm.Config.HasFlag(SysFlag.DISPLAY_FFI_MAPPING))
-            return;
-
         foreach (var (key, value) in method_table)
             vm.trace.println($"ffi map '{key}' -> 'sys::FFI/{(GetMethod(value))->Name}'");
     }
