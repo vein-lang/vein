@@ -6,7 +6,7 @@
     },
     "install workload with manifest": {
       "commandName": "Project",
-      "commandLineArgs": "workload install vein-compiler --manifest C:\\git\\vein_workloads\\compiler\\vein.compiler.json"
+      "commandLineArgs": "workload install vein.runtime --manifest C:\\git\\vein.lang\\workloads\\runtime\\workload.manifest.json"
     }
   }
 }

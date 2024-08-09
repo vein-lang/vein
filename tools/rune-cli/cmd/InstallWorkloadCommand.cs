@@ -1,8 +1,11 @@
 namespace vein.cmd;
 
 using System.ComponentModel;
-using System.IO.Compression;
+using System.Text;
+using System.Threading.Tasks;
+using Expressive;
 using Flurl.Http;
+using MoreLinq;
 using NuGet.Versioning;
 using project;
 using project.shards;
@@ -15,36 +18,45 @@ public class InstallWorkloadCommandSettings : CommandSettings
 {
     [Description("A package name.")]
     [CommandArgument(0, "[PACKAGE]")]
-    public required string PackageName { get; set; }
+    public required string PackageName { get; init; }
 
     [Description("Package version")]
     [CommandOption("--version")]
-    public string? PackageVersion { get; set; }
+    public string? PackageVersion { get; init; }
 
     [Description("Package version")]
     [CommandOption("--manifest", IsHidden = true)]
-    public string? ManifestFile { get; set; }
+    public string? ManifestFile { get; init; }
 }
 
 public class InstallWorkloadCommand : AsyncCommandWithProgress<InstallWorkloadCommandSettings>
 {
-    public static readonly DirectoryInfo WorkloadDirectory = SecurityStorage.RootFolder.SubDirectory("workloads");
-    public static readonly Uri VEIN_GALLERY = new("https://api.vein-lang.org/");
-    public static readonly ShardStorage Storage = new();
-
     public override async Task<int> ExecuteAsync(ProgressContext context, InstallWorkloadCommandSettings settings)
+        => await WorkloadRegistryLoader.InstallWorkloadAsync(
+            new PackageKey(settings.PackageName),
+            settings.PackageVersion,
+            settings.ManifestFile,
+            context);
+}
+
+
+public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo directory, ProgressContext ctx)
+{
+    private readonly SymlinkCollector Symlink = new(SecurityStorage.RootFolder);
+    private static readonly DirectoryInfo WorkloadDirectory = SecurityStorage.RootFolder.SubDirectory("workloads");
+    private static readonly Uri VEIN_GALLERY = new("https://api.vein-lang.org/");
+    private static readonly ShardStorage Storage = new();
+
+    public static async Task<int> InstallWorkloadAsync(PackageKey PackageName, string? PackageVersion, string? manifestFile, ProgressContext ctx)
     {
-        using var task = context.AddTask($"fetch [orange3]'{settings.PackageName}'[/] workload...")
+        using var task = ctx.AddTask($"fetch [orange3]'{PackageName.key}'[/] workload...")
             .IsIndeterminate();
 
-
-        await Task.Delay(1000);
-
-        var name = settings.PackageName;
-        var version = settings.PackageVersion ?? "latest";
+        var name = PackageName.key;
+        var version = PackageVersion ?? "latest";
         var manifest = default(WorkloadManifest);
 
-        if (string.IsNullOrEmpty(settings.ManifestFile))
+        if (string.IsNullOrEmpty(manifestFile))
         {
             var query = new ShardRegistryQuery(VEIN_GALLERY).WithStorage(Storage);
 
@@ -57,7 +69,7 @@ public class InstallWorkloadCommand : AsyncCommandWithProgress<InstallWorkloadCo
                 return -1;
             }
 
-            task.Description($"download [orange3]'{settings.PackageName}'[/] workload...");
+            task.Description($"download [orange3]'{PackageName}'[/] workload...");
 
             await query.DownloadShardAsync(result);
 
@@ -74,7 +86,7 @@ public class InstallWorkloadCommand : AsyncCommandWithProgress<InstallWorkloadCo
         }
         else
         {
-            manifest = await WorkloadManifest.OpenAsync(settings.ManifestFile.ToFile());
+            manifest = await WorkloadManifest.OpenAsync(manifestFile.ToFile());
             version = manifest.Version.ToNormalizedString();
         }
 
@@ -90,9 +102,9 @@ public class InstallWorkloadCommand : AsyncCommandWithProgress<InstallWorkloadCo
             return -1;
         }
 
-        
 
-        var loader = new WorkloadRegistryLoader(manifest, tagFolder, context);
+
+        var loader = new WorkloadRegistryLoader(manifest, tagFolder, ctx);
 
         if (await loader.InstallManifestForCurrentOS())
         {
@@ -105,14 +117,14 @@ public class InstallWorkloadCommand : AsyncCommandWithProgress<InstallWorkloadCo
         Log.Error($"[red]Failed[/] install [orange3]'{name}@{version}'[/] workload.");
         tagFolder.Delete(true);
         task.FailTask();
+
         return -1;
     }
-}
 
 
-public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo directory, ProgressContext ctx)
-{
-    public SymlinkCollector Symlink = new(SecurityStorage.RootFolder);
+
+
+
     public async Task<bool> InstallManifestForCurrentOS()
     {
         directory.Ensure().File("workload.manifest.json").WriteAllText(manifest.SaveAsString());
@@ -120,6 +132,7 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
         var enums = manifest.Workloads.Select(x => (x, ctx.AddTask($"Downloading workload '{x.Value.name.key}'"))).ToList();
         await Task.Delay(1000);
         var result = true;
+
         foreach (var ((id, workload), task) in enums)
         {
             using var _ = task.IsIndeterminate();
@@ -138,7 +151,8 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
             }
             catch (Exception e)
             {
-                Log.Error($"");
+                Log.Error($"bad workload package");
+                return false;
             }
         }
 
@@ -147,7 +161,20 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
         return result;
     }
 
-    public async Task<bool> InstallWorkloadForCurrentOS(Workload workload, DirectoryInfo targetFolder)
+
+    private async Task<bool> InstallDependencies(WorkloadPackage package)
+    {
+        foreach (var (key, version) in package.Dependencies)
+        {
+            var loader = await InstallWorkloadAsync(key, version.ToNormalizedString(), null, ctx);
+
+            if (loader != 0) return false;
+        }
+
+        return true;
+    }
+
+    private async Task<bool> InstallWorkloadForCurrentOS(Workload workload, DirectoryInfo targetFolder)
     {
         var enums = workload.Packages.Select(x => (x, ctx.AddTask($"Processing '{x.key}' package..."))).ToList();
         var result = true;
@@ -156,6 +183,11 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
             using var _ = task.IsIndeterminate();
 
             var package = manifest.Packages[x];
+
+            result &= await InstallDependencies(package);
+
+            if (!result)
+                return false;
 
             result &= package.Kind switch
             {
@@ -176,11 +208,67 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
         return result;
     }
 
-    public async Task<bool> InstallSdk(WorkloadPackage sdk, DirectoryInfo targetFolder)
+    private async Task<bool> InstallSdk(WorkloadPackage sdk, DirectoryInfo targetFolder)
     {
+        var currentOs = PlatformKey.GetCurrentPlatform();
+
+        if (!sdk.Aliases.TryGetValue(currentOs, out var alias))
+            throw new PlatformNotSupportedException($"Aliases workload not found for '{currentOs}' platform");
+
+        if (alias.StartsWith("http:"))
+            throw new PlatformNotSupportedException($"Workload installer not support http scheme. please use https");
+        if (alias.StartsWith("file://"))
+        {
+#if DEBUG
+            // for testing reason allow use file scheme
+            await using var zip = new PackageArchive(alias.Replace(@"file://", "").ToFile());
+
+            zip.ExtractTo(targetFolder);
+            return true;
+#else
+            throw new PlatformNotSupportedException($"Workload installer not support file scheme. please use https");
+#endif
+        }
+
+        if (alias.StartsWith("nuget://"))
+        {
+            var fullAlias = alias.Replace("nuget://", "");
+
+            var packageName = fullAlias.Split('@').First();
+            var packageVersion = fullAlias.Split('@').Last();
+
+
+            var nugetDirectory = await Storage.EnsureNuGetPackage(packageName, NuGetVersion.Parse(packageVersion));
+
+            CopyFilesRecursively(nugetDirectory, targetFolder);
+
+
+            var pathBuilder = new StringBuilder();
+
+            foreach (var packageSdk in sdk.Definition.OfType<WorkloadPackageSdk>())
+            {
+                if (packageSdk.Aliases.TryGetValue(currentOs, out alias))
+                {
+                    pathBuilder.AppendLine($"{packageSdk.SdkTarget},{alias.Replace("root://", "")};");
+                }
+            }
+
+
+            targetFolder.File("sdk.target").WriteAllText(pathBuilder.ToString());
+            return true;
+        }
+
         return false;
     }
-    public async Task<bool> InstallTool(WorkloadPackage pkg, DirectoryInfo targetFolder)
+
+    private static void CopyFilesRecursively(DirectoryInfo sourcePath, DirectoryInfo targetPath)
+    {
+        foreach (string dirPath in Directory.GetDirectories(sourcePath.FullName, "*", SearchOption.AllDirectories))
+            Directory.CreateDirectory(dirPath.Replace(sourcePath.FullName, targetPath.FullName));
+        foreach (string newPath in Directory.GetFiles(sourcePath.FullName, "*.*", SearchOption.AllDirectories)) File.Copy(newPath, newPath.Replace(sourcePath.FullName, targetPath.FullName), true);
+    }
+
+    private async Task<bool> InstallTool(WorkloadPackage pkg, DirectoryInfo targetFolder)
     {
         var tools = pkg.Definition.OfType<WorkloadPackageTool>().ToList();
 
@@ -203,17 +291,19 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
         
         return true;
     }
-    public async Task<bool> InstallTemplate(WorkloadPackage sdk, DirectoryInfo targetFolder)
+
+    private async Task<bool> InstallTemplate(WorkloadPackage sdk, DirectoryInfo targetFolder)
     {
         return false;
     }
-    public async Task<bool> InstallFrameworks(WorkloadPackage sdk, DirectoryInfo targetFolder)
+
+    private async Task<bool> InstallFrameworks(WorkloadPackage sdk, DirectoryInfo targetFolder)
     {
         return false;
     }
 
 
-    public async Task<DirectoryInfo> DownloadWorkloadAndInstallPackage(
+    private async Task<DirectoryInfo> DownloadWorkloadAndInstallPackage(
         WorkloadPackage package, DirectoryInfo targetFolder, NuGetVersion version)
     {
         var currentOs = PlatformKey.GetCurrentPlatform();
@@ -264,7 +354,7 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
             return packageFolder;
         }
 
-        var query = new ShardRegistryQuery(InstallWorkloadCommand.VEIN_GALLERY);
+        var query = new ShardRegistryQuery(VEIN_GALLERY);
 
         var shardManifest = await query.FindByName(alias, version.ToNormalizedString(), true);
 

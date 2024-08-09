@@ -3,6 +3,7 @@ namespace vein.cmd;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using NuGet.Versioning;
 using project;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -19,7 +20,7 @@ public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
             .WithStorage(store);
         var name = project.Name;
         var version = project.Version;
-        var pkg = store.TemplateName(project.Name, project.Version);
+        var pkg = store.TemplateName(project.Name, string.IsNullOrEmpty(settings.OverrideVersion) ? version : NuGetVersion.Parse(settings.OverrideVersion));
 
         var file = project.WorkDir.SubDirectory("bin").File(pkg);
 
@@ -66,4 +67,7 @@ public class PublishCommandSettings : CommandSettings, IProjectSettingProvider
     [Description("API Key for publishing")]
     [CommandOption("--api-key")]
     public string? ApiKey { get; set; }
+    [Description("Override version")]
+    [CommandOption("--override-version", IsHidden = true)]
+    public string? OverrideVersion { get; set; }
 }

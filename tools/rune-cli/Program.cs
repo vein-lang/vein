@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using NuGet.Versioning;
 using vein;
 using vein.cmd;
 using vein.json;
@@ -64,7 +65,6 @@ if (!skipIntro)
 }
 
 AppFlags.RegisterArgs(ref args);
-
 
 var app = new CommandApp();
 
