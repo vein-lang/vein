@@ -6,6 +6,7 @@ using runtime.vin;
 using vm.runtime;
 using llmv;
 using runtime;
+using static runtime.gc.BoehmGCLayout.Native;
 
 public unsafe partial class VirtualMachine
 {
@@ -13,10 +14,13 @@ public unsafe partial class VirtualMachine
     {
         var vm = new VirtualMachine();
 
-        BoehmGCLayout.Native.Load(vm.runtimeInfo);
-        BoehmGCLayout.Native.GC_set_find_leak(true);
-        BoehmGCLayout.Native.GC_init();
-        BoehmGCLayout.Native.GC_allow_register_threads();
+        Load(vm.runtimeInfo);
+        GC_set_find_leak(true);
+        GC_set_all_interior_pointers(true);
+        GC_set_finalizer_notifier(on_gc_finalization);
+        GC_init();
+        GC_allow_register_threads();
+        libuv_gc_allocator.install();
 
         vm.@ref = IshtarGC.AllocateImmortal<VirtualMachineRef>(null);
 
@@ -49,6 +53,13 @@ public unsafe partial class VirtualMachine
         vm.@ref->task_scheduler = vm.threading.CreateScheduler(vm);
 
         return vm;
+    }
+
+    private static void on_gc_finalization()
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("on_gc_finalization");
+        Console.ResetColor();
     }
 
     public void Dispose()
