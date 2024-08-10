@@ -370,6 +370,16 @@ public unsafe partial class VirtualMachine : IDisposable
                     var this_obj = (IshtarObject*)@this->data.p;
                     var target_class = this_obj->clazz;
 
+                    if (!field->FieldType.IsGeneric)
+                    {
+                        if (value->type != TYPE_NULL && field->FieldType.Class->TypeCode != value->type)
+                        {
+                            CallFrame.FillStackTrace(invocation);
+                            ForceThrow(KnowTypes.IncorrectCastFault(invocation), $"Cannot cast '{value->type}' to '{field->FieldType.Class->TypeCode}', maybe invalid IL");
+                            goto exception_handle;
+                        }
+                    }
+
                     println($".STF -> {value->type} (to {field->Name})");
 
                     if (value->type == TYPE_NULL)
@@ -647,6 +657,17 @@ public unsafe partial class VirtualMachine : IDisposable
                     else
                         task_scheduler->execute_method(child_frame);
 
+                    if (!child_frame->exception.IsDefault())
+                    {
+                        sp->type = TYPE_CLASS;
+                        sp->data.p = (nint)child_frame->exception.value;
+                        invocation->exception = child_frame->exception;
+
+                        GC.FreeStack(child_frame, method_args, method->ArgLength);
+                        child_frame->Dispose();
+                        goto exception_handle;
+                    }
+
                     if (method->ReturnType->TypeCode != TYPE_VOID)
                     {
                         invocation->assert(!child_frame->returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
@@ -658,16 +679,6 @@ public unsafe partial class VirtualMachine : IDisposable
                         sp++;
                     }
 
-                    if (!child_frame->exception.IsDefault())
-                    {
-                        sp->type = TYPE_CLASS;
-                        sp->data.p = (nint)child_frame->exception.value;
-                        invocation->exception = child_frame->exception;
-                            
-                        GC.FreeStack(child_frame, method_args, method->ArgLength);
-                        child_frame->Dispose();
-                        goto exception_handle;
-                    }
                     println($".call after {method->Owner->Name}::{method->Name}, sp: {getStackLen()}");
                     GC.FreeStack(child_frame, method_args, method->ArgLength);
                     child_frame->Dispose();
