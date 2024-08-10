@@ -12,9 +12,6 @@ public unsafe struct IshtarObject
     public RuntimeIshtarClass* clazz;
     public void** vtable;
     public GCFlags flags;
-    public GCColor color;
-    public ulong refs_size;
-    public double priority => 1d / Math.Max(1, refs_size);
 
     public uint vtable_size;
 
@@ -26,11 +23,13 @@ public unsafe struct IshtarObject
 
     public long m1 = magic1;
     public long m2 = magic2;
-    public static Dictionary<long, string> CreationTrace = new();
+    public static readonly Dictionary<long, string> CreationTrace = new();
 
     public string CreationTraceData => CreationTrace[__gc_id];
 #endif
 
+    public bool IsDestroyedObject()
+        => m1 == 0 && m2 == 0 && flags == 0 && vtable == null;
 
     public bool IsValidObject()
     {
