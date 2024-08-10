@@ -180,11 +180,17 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void GC_stop_func();
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void GC_finalizer_notifier_func();
 
 
         // GC_API void GC_CALL GC_set_find_leak(int);
         [DllImport(LIBNAME)]
         public static extern void GC_set_find_leak(bool zero);
+        [DllImport(LIBNAME)]
+        public static extern void GC_set_all_interior_pointers(bool zero);
+        [DllImport(LIBNAME)]
+        public static extern void GC_set_finalizer_notifier(GC_finalizer_notifier_func fn);
 
         [DllImport(LIBNAME)]
         public static extern long GC_get_heap_size();
@@ -203,6 +209,9 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         
         [DllImport(LIBNAME)]
         public static extern void GC_remove_roots(void* hi, void* low);
+
+        [DllImport(LIBNAME)]
+        public static extern bool GC_thread_is_registered();
 
 
         [DllImport(LIBNAME)]
