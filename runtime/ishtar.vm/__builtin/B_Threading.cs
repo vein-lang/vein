@@ -8,13 +8,13 @@ public static unsafe class B_Threading
 {
     private static RuntimeIshtarClass* getThreadClass(CallFrame* current)
     {
-        var threadTypeName = current->vm.Vault.GlobalFindTypeName("std%std/Thread");
+        var threadTypeName = current->vm.Vault.GlobalFindTypeName("[std]::std::Thread");
         var result = current->vm.Vault.GlobalFindType(threadTypeName, true, true);
 
         return result;
     }
 
-    public static IshtarObject* createThread(CallFrame* current, IshtarObject** args)
+    private static IshtarObject* createThread(CallFrame* current, IshtarObject** args)
     {
         var fnBox = args[0];
         var clazz = fnBox->clazz;
@@ -42,7 +42,8 @@ public static unsafe class B_Threading
 
         return threadObj;
     }
-    public static IshtarObject* sleep(CallFrame* current, IshtarObject** args)
+
+    private static IshtarObject* sleep(CallFrame* current, IshtarObject** args)
     {
         var ms = ToIn32(args[0], current);
         var clampTime = min(max(abs(ms), 1), 600_000);
@@ -56,14 +57,16 @@ public static unsafe class B_Threading
 
         return (IshtarThread*)threadObj->vtable[type->Field["_threadRef"]->vtable_offset];
     }
-    public static IshtarObject* join(CallFrame* current, IshtarObject** args)
+
+    private static IshtarObject* join(CallFrame* current, IshtarObject** args)
     {
         var thread = getThread(current, args);
         thread->join();
 
         return default;
     }
-    public static IshtarObject* start(CallFrame* current, IshtarObject** args)
+
+    private static IshtarObject* start(CallFrame* current, IshtarObject** args)
     {
         var thread = getThread(current, args);
 
@@ -72,7 +75,7 @@ public static unsafe class B_Threading
         return default;
     }
 
-    public static IshtarObject* not_implemented(CallFrame* current, IshtarObject** args)
+    private static IshtarObject* not_implemented(CallFrame* current, IshtarObject** args)
     {
         return default;
     }
