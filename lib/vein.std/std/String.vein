@@ -56,6 +56,6 @@ public class String : Object
 
     // temporary using vm_bridge, todo: rework to using vein-code
     [native("__internal__", "i_call_String_fmt")]
-    private static extern _fmt<any>(t: string, arr: Array<any>): string;
+    private static extern _fmt(t: string, arr: Object): string;
 
 }
