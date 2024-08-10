@@ -230,6 +230,8 @@ namespace ishtar
 #if DEBUG_VTABLE
         public static Dictionary<uint, debug_vtable> dvtables = new();
 
+        public debug_vtable dvtable => dvtables[ID];
+
 
         public class debug_vtable
         {
