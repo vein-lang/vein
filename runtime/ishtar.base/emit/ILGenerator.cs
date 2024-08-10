@@ -7,6 +7,7 @@ namespace ishtar.emit
     using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
+    using System.Reflection.Emit;
     using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
@@ -14,6 +15,7 @@ namespace ishtar.emit
     using ishtar;
     using vein.extensions;
     using vein.runtime;
+    using OpCodes = ishtar.OpCodes;
 
     public sealed class ILGenerator
     {
@@ -246,7 +248,7 @@ namespace ishtar.emit
             if (opcode != OpCodes.CAST_G)
                 throw new NotSupportedException();
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
-            this.EnsureCapacity<OpCode>(sizeof(int), sizeof(int), sizeof(short));
+            this.EnsureCapacity<OpCode>(sizeof(int), sizeof(int), sizeof(byte), sizeof(byte));
             this.InternalEmit(opcode);
             this.PutBool(t1.IsGeneric); 
             if (t1.IsGeneric)
@@ -258,6 +260,8 @@ namespace ishtar.emit
                 this.PutTypeArg(t2);
             else
                 this.PutTypeName(t2.Class.FullName);
+
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} from [{(t1.IsGeneric ? t1.TypeArg.Name : t1.Class.Name)}] to [{(t2.IsGeneric ? t2.TypeArg.Name : t2.Class.Name)}]");
             return this;
         }
 
@@ -661,12 +665,7 @@ namespace ishtar.emit
         public void StoreIntoMetadata(string key, object o) => Metadata.Add(key, o);
         public bool HasMetadata(string key) => Metadata.ContainsKey(key);
 
-        private void DebugAppendLine(string s)
-        {
-            if (DoNotGenDebugInfo)
-                return;
-            _debugBuilder.AppendLine(s);
-        }
+        private void DebugAppendLine(string s) => _debugBuilder.AppendLine(s);
     }
 
 
