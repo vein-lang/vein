@@ -168,7 +168,7 @@ public unsafe class ForeignFunctionInterface
     public void DisplayDefinedMapping()
     {
         foreach (var (key, value) in method_table)
-            vm.trace.println($"ffi map '{key}' -> 'sys::FFI/{(GetMethod(value))->Name}'");
+            vm.trace.log($"ffi map '{key}' -> 'sys::FFI/{(GetMethod(value))->Name}'");
     }
 }
 

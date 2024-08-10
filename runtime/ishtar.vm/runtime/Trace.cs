@@ -20,7 +20,7 @@ internal readonly struct IshtarTrace()
     }
 
     [Conditional("DEBUG")]
-    public void println(string s)
+    public void log(string s)
     {
         if (useConsole)
         {
@@ -32,6 +32,20 @@ internal readonly struct IshtarTrace()
 #endif
     }
 
+    [Conditional("DEBUG")]
+    public void error(string s)
+    {
+        if (useConsole)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(s);
+            Console.ResetColor();
+            return;
+        }
+#if ISHTAR_DEBUG_CONSOLE
+        IshtarSharedDebugData.TraceOutPush(s);
+#endif
+    }
 
     [Conditional("DEBUG")]
     public void debug_stdout_write(string s)

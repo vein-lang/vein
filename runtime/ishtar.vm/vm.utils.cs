@@ -59,13 +59,13 @@ public unsafe partial class VirtualMachine
     }
 
     [Conditional("DEBUG")]
-    public void println(string str) => trace.println(str);
+    public void println(string str) => trace.log(str);
 
     public void halt(int exitCode = -1)
     {
 #if DEBUG
-        trace.println($"exit code is {exitCode}");
-        trace.println("Press ENTER to exit...");
+        trace.log($"exit code is {exitCode}");
+        trace.log("Press ENTER to exit...");
         while (System.Console.ReadKey().Key != ConsoleKey.Enter) Thread.Sleep(1);
 #endif
         Environment.Exit(exitCode);

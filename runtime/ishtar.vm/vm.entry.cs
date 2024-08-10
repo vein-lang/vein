@@ -86,11 +86,11 @@ unsafe
     }
 
     watcher.Stop();
-    vm.trace.println($"Elapsed: {watcher.Elapsed}");
+    vm.trace.log($"Elapsed: {watcher.Elapsed}");
     frame->Dispose();
     vm.Dispose();
 
-    vm.trace.println($"Press ENTER to exit...");
+    vm.trace.log($"Press ENTER to exit...");
 
     Console.ReadKey();
     return 0;
