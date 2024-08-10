@@ -13,9 +13,8 @@ namespace ishtar
 
         public static void InitTable(ForeignFunctionInterface ffi)
         {
-            ffi.Add("i_call_String_fmt([std]::std::String,[std]::std::Array<Int32>) -> [std]::std::String",
+            ffi.Add("i_call_String_fmt([std]::std::String,[std]::std::Object) -> [std]::std::String",
                 ffi.AsNative(&not_implemented));
-
 
             ffi.Add("i_call_String_Concat", Private | Static | Extern, TYPE_STRING,
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
