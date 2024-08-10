@@ -9,7 +9,6 @@ using runtime;
 
 public unsafe partial class VirtualMachine
 {
-    /// <exception cref="OutOfMemoryException">There is insufficient memory to satisfy the request.</exception>
     public static VirtualMachine Create(string name)
     {
         var vm = new VirtualMachine();

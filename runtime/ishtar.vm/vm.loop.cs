@@ -3,6 +3,7 @@ namespace ishtar;
 using emit;
 using runtime;
 using vein.extensions;
+using vein.runtime;
 using static OpCodeValue;
 using static vein.runtime.VeinTypeCode;
 using static WNE;
@@ -443,9 +444,33 @@ public unsafe partial class VirtualMachine : IDisposable
                         ForceThrow(KnowTypes.IncorrectCastFault(invocation));
                         goto exception_handle;
                     }
-                    else ++sp;
+                    ++sp;
                 }
-                    break;
+                break;
+                case CAST_G:
+                {
+                    var type1IsGeneric = *++ip == 1;
+                    var typeIndex1 = *++ip;
+                    var type2IsGeneric = *++ip == 1;
+                    var typeIndex2 = *++ip;
+
+                    if (type1IsGeneric | type2IsGeneric)
+                    {
+                        ForceThrow(KnowTypes.IncorrectCastFault(invocation));
+                        goto exception_handle;
+                    }
+
+                    var fromClass = GetClass(typeIndex1, _module, invocation);
+                    var toClass = GetClass(typeIndex2, _module, invocation);
+
+                    if (!fromClass->TypeCode.IsCompatibleNumber(toClass->TypeCode))
+                    {
+                        ForceThrow(KnowTypes.IncorrectCastFault(invocation));
+                        goto exception_handle;
+                    }
+                    (sp - 1)->type = toClass->TypeCode;
+                    ip++;
+                } break;
                 case SEH_ENTER:
                     ip++;
                     zone = mh->exception_handler_list->Get((int)(*ip));
