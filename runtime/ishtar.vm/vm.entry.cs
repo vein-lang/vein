@@ -81,8 +81,33 @@ unsafe
 
     if (!frame->exception.IsDefault())
     {
-        vm.trace.println($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
-                          $"{frame->exception.GetStackTrace()}");
+        var exceptionValue = frame->exception.value;
+        var exceptionClass = exceptionValue->clazz;
+
+        if (exceptionClass->FindField("message") is null)
+        {
+            vm.trace.error($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
+                           $"{frame->exception.GetStackTrace()}");
+        }
+        else
+        {
+            var msg = exceptionValue->vtable[exceptionClass->Field["message"]->vtable_offset];
+            if (msg is null)
+            {
+                vm.trace.error($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
+                               $"{frame->exception.GetStackTrace()}");
+            }
+            else
+            {
+                var message = IshtarMarshal.ToDotnetString((IshtarObject*)msg, frame);
+                vm.trace.error(
+                    $"""
+                     unhandled exception '{frame->exception.value->clazz->Name}' was thrown.
+                     '{message}'
+                     {frame->exception.GetStackTrace()}
+                     """);
+            }
+        }
     }
 
     watcher.Stop();
