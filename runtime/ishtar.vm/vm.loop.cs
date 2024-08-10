@@ -75,11 +75,20 @@ public unsafe partial class VirtualMachine : IDisposable
             return null;
         }
 
-        void ForceThrow(RuntimeIshtarClass* clazz)
+        void ForceThrow(RuntimeIshtarClass* clazz, string? msg = null)
         {
             CallFrame.FillStackTrace(invocation);
-            sp->data.p = (nint)GC.AllocObject(clazz, invocation);
+            var exception = GC.AllocObject(clazz, invocation);
+            sp->data.p = (nint)exception;
             sp->type = TYPE_CLASS;
+
+            if (msg is null) return;
+
+            if (clazz->FindField("message") is null)
+                throw new InvalidOperationException($"Class '{clazz->FullName->NameWithNS}' is not contained 'message' field.");
+
+            exception->vtable[clazz->Field["message"]->vtable_offset]
+                = GC.ToIshtarObject(msg, invocation);
         }
 
         var stopwatch = new Stopwatch();
