@@ -579,6 +579,17 @@ namespace ishtar.runtime.gc
         {
             using var _ = GCSync.Begin(this);
 
+            if (obj->IsDestroyedObject())
+            {
+                gcLayout.register_finalizer_no_order(obj, null, frame);
+                DeleteDebugData((nint)obj);
+                RefsHeap.Remove((nint)obj);
+                Stats.total_bytes_requested -= allocatorPool.Return(obj);
+                Stats.total_allocations--;
+                Stats.alive_objects--;
+                return;
+            }
+
             if (!obj->IsValidObject())
             {
                 VM.FastFail(WNE.STATE_CORRUPT, "trying free memory of invalid object", frame);
