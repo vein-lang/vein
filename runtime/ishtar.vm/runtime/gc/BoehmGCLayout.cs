@@ -1,6 +1,6 @@
 namespace ishtar.runtime.gc;
 
-using ishtar.vm.runtime;
+using ishtar.runtime;
 
 public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 {
@@ -10,27 +10,6 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
     public class Native
     {
-        public static void Load(RuntimeInfo info)
-        {
-            //switch (info)
-            //{
-            //    case { isWindows: true, Architecture: Architecture.X64 }:
-            //        NativeLibrary.Load("libgc");
-            //        break;
-            //    case { isLinux: true, Architecture: Architecture.X64 }:
-            //        NativeLibrary.Load("./includes/libgc.so");
-            //        break;
-            //    case { isOSX: true, Architecture: Architecture.X64 }:
-            //        NativeLibrary.Load("./includes/libgc_x64.dylib");
-            //        break;
-            //    case { isOSX: true, Architecture: Architecture.Arm64 }:
-            //        NativeLibrary.Load("./includes/libgc_arm64.dylib");
-            //        break;
-            //    default:
-            //        throw new NotSupportedException($"Platform is not support gc loading");
-            //}
-        }
-
         public const string LIBNAME = "libgc";
 
 
@@ -349,49 +328,8 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
     {
         if (!Native.GC_is_init_called())
             throw new GcNotLoaded();
-        //if (root_block == 0)
-        //{
-        //    Interlocked.MemoryBarrier();
-        //    var data = (nint**)Native.GC_malloc_ignore_off_page(totalSize);
-
-        //    Interlocked.Exchange(ref root_block, (nint)data);
-
-        //    Native.GC_add_roots((nint**)root_block, (nint**)(root_block + (totalSize)));
-        //}
-
-        //if (_offset + size > totalSize)
-        //{
-        //    totalSize *= 2;
-        //    Interlocked.Exchange(ref root_block, Native.GC_debug_realloc(root_block, totalSize, "vein.v", 0));
-        //    throw new InsufficientMemoryException();
-        //}
-
-
-        var ptr = (void*)Native.GC_malloc_atomic_uncollectable(size);
-
-
-        var result = Native.GC_toggleref_add(ptr, 0);
-
-
-        if (result == 0)
-        {
-
-        }
-
-        //var weakData = (void**)NativeMemory.AllocZeroed((uint)sizeof(nint), 2);
-
-        //_weak_refs.Add(new WeakImmortalRef(weakData, ptr));
-
-        //*weakData = (void*)(~(int)1 & (int)ptr);
-
-        //Native.GC_register_long_link(weakData, ptr);
-
-        //create_weak_link(weakData, ptr, false);
-
-
-        //((nint**)root_block)[_offset] = ptr;
-        //_offset+=sizeof(nint);
-
+        var ptr = (void*)Native.GC_malloc_uncollectable(size);
+        Native.GC_toggleref_add(ptr, 0);
         return ptr;
     }
 
