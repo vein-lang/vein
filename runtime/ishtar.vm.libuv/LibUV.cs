@@ -1,6 +1,8 @@
 namespace ishtar.libuv;
 
 using System.Runtime.InteropServices;
+using static ishtar.libuv.LibUV;
+
 public static unsafe class LibUV
 {
     private const string LIBNAME = "libuv";
@@ -91,8 +93,7 @@ public static unsafe class LibUV
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern UV_ERR uv_cancel(uv_work_t* req);
-
-
+    
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern UV_ERR uv_tcp_init(nint loop, uv_tcp_t* handle);
 
@@ -115,7 +116,7 @@ public static unsafe class LibUV
     public static extern UV_ERR uv_tcp_bind(uv_tcp_t* handle, ref sockaddr_in addr, uint flags);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern UV_ERR uv_listen(uv_tcp_t* stream, int backlog, uv_connection_cb cb);
+    public static extern UV_ERR uv_listen(uv_tcp_t* stream, int backlog, delegate*<uv_tcp_t*, int, void> cb);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern UV_ERR uv_read_start(ref uv_stream_t stream, uv_alloc_cb alloc_cb, uv_read_cb read_cb);
@@ -144,6 +145,18 @@ public static unsafe class LibUV
     public delegate void uv_free_func(IntPtr ptr);
 
 
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_fs_req_cleanup(uv_fs_t* req);
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int uv_fs_open(IntPtr loop, uv_fs_t* req, string path, int flags, int mode, uv_fs_cb cb);
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern UV_ERR uv_fs_read(IntPtr loop, uv_fs_t* req, int file, uv_buf_t* buffers, uint number_buffers, long offset, uv_fs_cb cb);
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern UV_ERR uv_fs_close(IntPtr loop, uv_fs_t* req, int file, uv_fs_cb cb);
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern UV_ERR uv_fs_stat(IntPtr loop, uv_fs_t* req, char* path, uv_fs_cb cb);
+
+
     public delegate void uv_connection_cb(IntPtr server, int status);
     public delegate void uv_conn_alloc_cb(IntPtr handle, ulong suggested_size, out uv_buf_t buf);
     public delegate void uv_read_cb(IntPtr stream, nint nread, ref uv_buf_t buf);
@@ -157,6 +170,9 @@ public static unsafe class LibUV
     public delegate nint uv_alloc_cb(nint size, nint align, nint zero_fill);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void uv_free_cb(nint ptr);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public unsafe delegate void uv_fs_cb(uv_fs_t* req);
+    
 
     public enum uv_run_mode
     {
@@ -169,7 +185,28 @@ public static unsafe class LibUV
         UV_LOOP_BLOCK_SIGNAL = 0,
         UV_METRICS_IDLE_TIME = 1
     }
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct uv_fs_t
+    {
+        public IntPtr data;
+        public IntPtr loop;
+        public int fs_type;
+        public IntPtr result;
+        public IntPtr ptr;
+        public IntPtr path;
+        public uv_buf_t buf;
+        public IntPtr cb;
+        public IntPtr fs_req_cleanup;
+        public IntPtr syscall;
+        public IntPtr args;
+    }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct uv_buf_t
+    {
+        public IntPtr basePtr;
+        public IntPtr len;
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct sockaddr_in
@@ -188,9 +225,51 @@ public static unsafe class LibUV
         public override string ToString() => $"[threadId {handle}]";
     }
 
+    public enum UvHandleType
+    {
+        UNKNOWN_HANDLE = 0,
+        ASYNC,
+        CHECK,
+        FS_EVENT,
+        FS_POLL,
+        HANDLE,
+        IDLE,
+        NAMED_PIPE,
+        POLL,
+        PREPARE,
+        PROCESS,
+        STREAM,
+        TCP,
+        TIMER,
+        TTY,
+        UDP,
+        SIGNAL,
+        FILE
+    }
+
+    /*  XX(ASYNC, async)                                                            \
+       XX(CHECK, check)                                                            \
+       XX(FS_EVENT, fs_event)                                                      \
+       XX(FS_POLL, fs_poll)                                                        \
+       XX(HANDLE, handle)                                                          \
+       XX(IDLE, idle)                                                              \
+       XX(NAMED_PIPE, pipe)                                                        \
+       XX(POLL, poll)                                                              \
+       XX(PREPARE, prepare)                                                        \
+       XX(PROCESS, process)                                                        \
+       XX(STREAM, stream)                                                          \
+       XX(TCP, tcp)                                                                \
+       XX(TIMER, timer)                                                            \
+       XX(TTY, tty)                                                                \
+       XX(UDP, udp)                                                                \
+       XX(SIGNAL, signal) */
+
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_tcp_t
     {
+        public void* data;
+        public void* loop;
+        public UvHandleType uv_handle_type;
         public uv_stream_t stream;
 
         public override string ToString() => $"[uv_tcp_t {stream}]";
@@ -238,24 +317,25 @@ public static unsafe class LibUV
         public override string ToString() => $"[mutexId 0x{handle:X}]";
     }
 
-    public struct uv_buf_t
+    [StructLayout(LayoutKind.Sequential)]
+    public struct uv_stat_t
     {
-        private readonly IntPtr _field0;
-        private readonly IntPtr _field1;
-
-        public uv_buf_t(IntPtr memory, int len, bool IsWindows)
-        {
-            if (IsWindows)
-            {
-                _field0 = (IntPtr)len;
-                _field1 = memory;
-            }
-            else
-            {
-                _field0 = memory;
-                _field1 = (IntPtr)len;
-            }
-        }
+        public ulong st_dev;
+        public ulong st_mode;
+        public ulong st_nlink;
+        public ulong st_uid;
+        public ulong st_gid;
+        public ulong st_rdev;
+        public ulong st_ino;
+        public ulong st_size;
+        public ulong st_blksize;
+        public ulong st_blocks;
+        public ulong st_flags;
+        public ulong st_gen;
+        public ulong st_atim;
+        public ulong st_mtim;
+        public ulong st_ctim;
+        public ulong st_birthtim;
     }
 
     public enum HandleType
