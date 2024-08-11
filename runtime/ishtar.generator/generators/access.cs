@@ -25,7 +25,7 @@ public static class G_Access
 
     public static ILGenerator EmitStageField(this ILGenerator gen, VeinField field)
     {
-        if (!field.IsStatic) return gen.EmitThis().Emit(OpCodes.STF, field);
+        if (!field.IsStatic) return gen.Emit(OpCodes.STF, field);
         return gen.Emit(OpCodes.STSF, field);
     }
 

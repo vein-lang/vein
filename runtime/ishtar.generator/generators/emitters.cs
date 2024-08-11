@@ -24,7 +24,6 @@ public static class G_Emitters
         if (expr is LiteralExpressionSyntax literal)
             return gen.EmitLiteral(literal);
 
-
         if (expr is NewExpressionSyntax @new)
         {
             gen.EmitCreateObject(@new);

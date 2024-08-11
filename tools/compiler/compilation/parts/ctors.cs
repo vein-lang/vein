@@ -75,10 +75,10 @@ public partial class CompilationTask
                     gen.Emit(OpCodes.LDNULL);
                 else
                     gen.EmitExpression(exp);
-                gen.EmitStageField(field);
+                gen.EmitThis().EmitStageField(field);
             }
         }
-        // ctors has return himself
+        // constructors has returned owner class
         gen.Emit(OpCodes.LDARG_0).Emit(OpCodes.RET);
     }
 
@@ -135,7 +135,7 @@ public partial class CompilationTask
                 gen.Emit(OpCodes.LDNULL);
             else
                 gen.EmitExpression(exp);
-            gen.Emit(OpCodes.STSF, field);
+            gen.EmitThis().Emit(OpCodes.STSF, field);
         }
     }
 }

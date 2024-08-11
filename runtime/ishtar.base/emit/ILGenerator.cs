@@ -7,15 +7,11 @@ namespace ishtar.emit
     using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
-    using System.Reflection.Emit;
     using System.Runtime.CompilerServices;
     using System.Text;
-    using System.Threading;
     using extensions;
-    using ishtar;
     using vein.extensions;
     using vein.runtime;
-    using OpCodes = ishtar.OpCodes;
 
     public sealed class ILGenerator
     {
