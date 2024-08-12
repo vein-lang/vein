@@ -51,7 +51,7 @@ public unsafe struct IshtarArray : IEquatable<IshtarArray>
     public IshtarObject* Get(uint index, CallFrame* frame)
     {
         if (!ElementClass->IsPrimitive) return elements[index];
-        var result = frame->vm.GC.AllocObject(ElementClass, frame);
+        var result = frame->vm->gc->AllocObject(ElementClass, frame);
         var el = elements[index];
         var offset = result->clazz->Field["!!value"]->vtable_offset;
         result->vtable[offset] = el->vtable[offset];
@@ -65,7 +65,7 @@ public unsafe struct IshtarArray : IEquatable<IshtarArray>
         VirtualMachine.Assert(value_class->TypeCode == ElementClass->TypeCode || value_class->IsInner(ElementClass), WNE.TYPE_MISMATCH, "Element type mismatch.", frame);
         if (index >= length)
         {
-            frame->vm.FastFail(WNE.OUT_OF_RANGE, $"", frame);
+            frame->vm->FastFail(WNE.OUT_OF_RANGE, $"", frame);
             return;
         }
 

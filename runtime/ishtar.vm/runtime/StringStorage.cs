@@ -49,7 +49,7 @@ namespace ishtar
             ForeignFunctionInterface.StaticValidate(p, frame);
             if (storage_l.ContainsKey((nint)p))
                 return storage_l[(nint)p];
-            frame->vm.FastFail(WNE.ACCESS_VIOLATION, "Pointer incorrect.", frame);
+            frame->vm->FastFail(WNE.ACCESS_VIOLATION, "Pointer incorrect.", frame);
             return null;
         }
 

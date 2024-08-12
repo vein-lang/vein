@@ -13,7 +13,7 @@ public static partial class KnowTypes
         //    public IntPtr Handle
         //    {
         //        get => IshtarMarshal.ToDotnetPointer((IshtarObject*)_obj->vtable[GetFieldOffset("_handle")], _frame);
-        //        set => _obj->vtable[GetFieldOffset("_handle")] = _frame.GetGC().ToIshtarObject(value, _frame);
+        //        set => _obj->vtable[GetFieldOffset("_handle")] = _frame.GetGC()->ToIshtarObject(value, _frame);
         //    }
         //}
     }

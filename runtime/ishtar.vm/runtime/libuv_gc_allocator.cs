@@ -1,4 +1,4 @@
-﻿namespace ishtar.vm.runtime;
+namespace ishtar.runtime;
 
 using static ishtar.runtime.gc.BoehmGCLayout.Native;
 using static libuv.LibUV;

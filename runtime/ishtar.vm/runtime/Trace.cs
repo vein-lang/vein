@@ -1,13 +1,12 @@
-namespace ishtar.vm.runtime;
+namespace ishtar.runtime;
 
 using System.Text;
 using ishtar.runtime;
-using runtime;
 
 [CTypeExport("ishtar_trace_t")]
-internal readonly struct IshtarTrace()
+internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
 {
-    private readonly bool useConsole = Environment.GetCommandLineArgs().Contains("--sys::log::use-console=1");
+    private readonly bool useConsole = vm->Config.UseConsole;
 
     [Conditional("DEBUG")]
     public void Setup()

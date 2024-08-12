@@ -7,9 +7,9 @@ using static libuv.LibUV;
 
 
 [CTypeExport("ishtar_threading_t")]
-public unsafe struct IshtarThreading(VirtualMachine vm)
+public unsafe struct IshtarThreading(VirtualMachine* vm)
 {
-    public NativeList<IshtarThread>* threads = IshtarGC.AllocateList<IshtarThread>(vm.@ref);
+    public NativeList<IshtarThread>* threads = IshtarGC.AllocateList<IshtarThread>(vm);
 
     public IshtarRawThread* CreateRawThread(RuntimeIshtarModule* mainModule, delegate*<IshtarRawThread*, void> frame, string name)
     {
@@ -29,7 +29,7 @@ public unsafe struct IshtarThreading(VirtualMachine vm)
         *threadContext = new IshtarThreadContext(threadId, locker);
         *thread = new IshtarThread(threadId, frame, threadContext);
 
-        frame->vm.println($"thread start {threadId}");
+        frame->vm->println($"thread start {threadId}");
 
         threads->Add(thread);
 
@@ -38,13 +38,13 @@ public unsafe struct IshtarThreading(VirtualMachine vm)
 
     public static void DestroyThread(IshtarThread* thread)
     {
-        thread->callFrame->vm.println($"[thread] exit thread with status {thread->ctx->Status} {thread->threadId}");
+        thread->callFrame->vm->println($"[thread] exit thread with status {thread->ctx->Status} {thread->threadId}");
         uv_sem_destroy(ref thread->ctx->Locker);
         IshtarGC.FreeImmortal(thread->ctx);
         IshtarGC.FreeImmortal(thread);
     }
 
-    public TaskScheduler* CreateScheduler(VirtualMachine vm) => TaskScheduler.Create(vm);
+    public TaskScheduler* CreateScheduler(VirtualMachine* vm) => TaskScheduler.Create(vm);
     public void FreeScheduler(TaskScheduler* scheduler) => TaskScheduler.Free(scheduler);
 
     private static void execute(nint arg)
@@ -61,16 +61,16 @@ public unsafe struct IshtarThreading(VirtualMachine vm)
         var vm = threadData->callFrame->vm;
 
         var stackbase = new GC_stack_base();
-        vm.GC.get_stack_base(&stackbase);
-        vm.GC.register_thread(&stackbase);
+        vm->gc->get_stack_base(&stackbase);
+        vm->gc->register_thread(&stackbase);
 
-        vm.exec_method(frame);
+        vm->exec_method(frame);
 
-        vm.GC.unregister_thread();
+        vm->gc->unregister_thread();
 
         threadData->complete();
 
-        vm.threading.threads->Remove(threadData);
+        vm->threading.threads->Remove(threadData);
         DestroyThread(threadData);
     }
 

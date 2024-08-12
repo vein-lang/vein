@@ -48,7 +48,7 @@ namespace ishtar
             return lst;
         }
 
-        public static NativeList<RuntimeMethodArgument>* Create(VirtualMachine vm, VeinArgumentRef[] data, void* parent)
+        public static NativeList<RuntimeMethodArgument>* Create(VirtualMachine* vm, VeinArgumentRef[] data, void* parent)
         {
             if (data.Length == 0)
                 return IshtarGC.AllocateList<RuntimeMethodArgument>(parent);
@@ -59,7 +59,7 @@ namespace ishtar
             {
                 var a = IshtarGC.AllocateImmortal<RuntimeMethodArgument>(parent);
                 
-                *a = new RuntimeMethodArgument(vm.Vault.GlobalFindType(tuple.Type.FullName.T(a)), StringStorage.Intern(tuple.Name, a), a);
+                *a = new RuntimeMethodArgument(vm->Vault.GlobalFindType(tuple.Type.FullName.T(a)), StringStorage.Intern(tuple.Name, a), a);
 
                 lst->Add(a);
             }
@@ -280,9 +280,7 @@ namespace ishtar
             if (_self is null)
                 return;
             DiagnosticDtorTraces[(nint)_self] = Environment.StackTrace;
-
-            VirtualMachine.GlobalPrintln($"Disposed method '{Name}'");
-
+            
             if (Header is not null)
                 IshtarGC.FreeImmortal(Header);
             (Arguments)->ForEach(x => x->Dispose());

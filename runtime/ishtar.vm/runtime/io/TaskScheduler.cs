@@ -16,13 +16,16 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
     private readonly NativeQueue<IshtarTask>* _queue = queue;
 
 
-    public static TaskScheduler* Create(VirtualMachine vm)
+    public nint getLoop() => loop;
+
+
+    public static TaskScheduler* Create(VirtualMachine* vm)
     {
-        var scheduler = IshtarGC.AllocateImmortal<TaskScheduler>(vm.@ref);
+        var scheduler = IshtarGC.AllocateImmortal<TaskScheduler>(vm);
         var queue = IshtarGC.AllocateQueue<IshtarTask>(scheduler);
         *scheduler = new TaskScheduler(queue);
 
-        var asyncHeader = IshtarGC.AllocateImmortal<nint>(vm.@ref);
+        var asyncHeader = IshtarGC.AllocateImmortal<nint>(vm);
         scheduler->loop = uv_default_loop();
         Assert(uv_async_init(scheduler->loop, (nint)asyncHeader, on_async) == 0,
             WNE.THREAD_STATE_CORRUPTED, "scheduler has failed create async io");
@@ -51,7 +54,7 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
         var queue = taskScheduler->_queue;
         while (queue->TryDequeue(out var task))
         {
-            task->Frame->vm.exec_method(task->Frame);
+            task->Frame->vm->exec_method(task->Frame);
             uv_sem_post(ref task->Data->semaphore);
         }
     }
@@ -64,7 +67,7 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
     }
 
     private void doExecute(CallFrame* frame)
-        => frame->vm.exec_method(frame);
+        => frame->vm->exec_method(frame);
 
     private void doAsyncExecute(CallFrame* frame)
     {
@@ -106,17 +109,17 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
 
             var gcInfo = new GC_stack_base();
 
-            vm.GC.get_stack_base(&gcInfo);
+            vm->gc->get_stack_base(&gcInfo);
 
-            vm.GC.register_thread(&gcInfo);
+            vm->gc->register_thread(&gcInfo);
 
-            vm.task_scheduler->run();
+            vm->task_scheduler->run();
 
-            vm.GC.unregister_thread();
+            vm->gc->unregister_thread();
             GlobalPrintln("execute_scheduler:end");
         }
 
-        entryModule->vm.threading
+        entryModule->vm->threading
             .CreateRawThread(entryModule, &execute_scheduler, "IshtarScheduler::&execute");
     }
 }

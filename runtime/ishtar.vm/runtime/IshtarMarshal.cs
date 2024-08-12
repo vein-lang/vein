@@ -8,14 +8,14 @@ namespace ishtar
     {
         public static IshtarObject* ToIshtarObject(this IshtarGC gc, string str, CallFrame* frame)
         {
-            var arg = gc.AllocObject(TYPE_STRING.AsRuntimeClass(gc.VM.Types), frame);
+            var arg = gc.AllocObject(TYPE_STRING.AsRuntimeClass(gc.VM->Types), frame);
             var clazz = arg->clazz;
             arg->vtable[clazz->Field["!!value"]->vtable_offset] = StringStorage.Intern(str, frame);
             return arg;
         }
         public static IshtarObject* ToIshtarObject(this IshtarGC gc, int dotnet_value, CallFrame* frame)
         {
-            var obj = gc.AllocObject(TYPE_I4.AsRuntimeClass(gc.VM.Types), frame);
+            var obj = gc.AllocObject(TYPE_I4.AsRuntimeClass(gc.VM->Types), frame);
             var clazz = obj->clazz;
             obj->vtable[clazz->Field["!!value"]->vtable_offset] = (int*)dotnet_value;
 
@@ -24,7 +24,7 @@ namespace ishtar
 
         public static IshtarObject* ToIshtarObject(this IshtarGC gc, bool dotnet_value, CallFrame* frame)
         {
-            var obj = gc.AllocObject(TYPE_BOOLEAN.AsRuntimeClass(gc.VM.Types), frame);
+            var obj = gc.AllocObject(TYPE_BOOLEAN.AsRuntimeClass(gc.VM->Types), frame);
             var clazz = obj->clazz;
             obj->vtable[clazz->Field["!!value"]->vtable_offset] = (int*)(dotnet_value ? 1 : 0);
 
@@ -32,7 +32,7 @@ namespace ishtar
         }
         public static IshtarObject* ToIshtarObject(this IshtarGC gc, short dotnet_value, CallFrame* frame)
         {
-            var obj = gc.AllocObject(TYPE_I2.AsRuntimeClass(gc.VM.Types), frame);
+            var obj = gc.AllocObject(TYPE_I2.AsRuntimeClass(gc.VM->Types), frame);
             var clazz = obj->clazz;
             obj->vtable[clazz->Field["!!value"]->vtable_offset] = (short*)dotnet_value;
 
@@ -40,7 +40,7 @@ namespace ishtar
         }
         public static IshtarObject* ToIshtarObject(this IshtarGC gc, byte dotnet_value, CallFrame* frame)
         {
-            var obj = gc.AllocObject(TYPE_I1.AsRuntimeClass(gc.VM.Types), frame);
+            var obj = gc.AllocObject(TYPE_I1.AsRuntimeClass(gc.VM->Types), frame);
             var clazz = obj->clazz;
             obj->vtable[clazz->Field["!!value"]->vtable_offset] = (int*)dotnet_value;
 
@@ -48,7 +48,7 @@ namespace ishtar
         }
         public static IshtarObject* ToIshtarObject(this IshtarGC gc, long dotnet_value, CallFrame* frame)
         {
-            var obj = gc.AllocObject(TYPE_I8.AsRuntimeClass(gc.VM.Types), frame);
+            var obj = gc.AllocObject(TYPE_I8.AsRuntimeClass(gc.VM->Types), frame);
             var clazz = obj->clazz;
             obj->vtable[clazz->Field["!!value"]->vtable_offset] = (long*)dotnet_value;
 
@@ -57,7 +57,7 @@ namespace ishtar
 
         public static IshtarObject* ToIshtarObject(this IshtarGC gc, float dotnet_value, CallFrame* frame)
         {
-            var obj = gc.AllocObject(TYPE_I8.AsRuntimeClass(gc.VM.Types), frame);
+            var obj = gc.AllocObject(TYPE_I8.AsRuntimeClass(gc.VM->Types), frame);
             var clazz = obj->clazz;
             obj->vtable[clazz->Field["!!value"]->vtable_offset] = (int*)BitConverter.SingleToInt32Bits(dotnet_value);
 
@@ -66,14 +66,14 @@ namespace ishtar
 
         public static IshtarObject* ToIshtarObject(this IshtarGC gc, nint dotnet_value, CallFrame* frame)
         {
-            var obj = gc.AllocObject(TYPE_RAW.AsRuntimeClass(gc.VM.Types), frame);
+            var obj = gc.AllocObject(TYPE_RAW.AsRuntimeClass(gc.VM->Types), frame);
             obj->vtable = (void**)dotnet_value;
             return obj;
         }
 
         public static IshtarObject* ToIshtarObject(this IshtarGC gc, ushort dotnet_value, CallFrame* frame)
         {
-            var obj = gc.AllocObject(TYPE_U2.AsRuntimeClass(gc.VM.Types), frame);
+            var obj = gc.AllocObject(TYPE_U2.AsRuntimeClass(gc.VM->Types), frame);
             var clazz = obj->clazz;
             obj->vtable[clazz->Field["!!value"]->vtable_offset] = (long*)dotnet_value;
 
@@ -112,7 +112,7 @@ namespace ishtar
                 case { } when typeof(X) == typeof(float):
                     return gc.ToIshtarObject(cast<float>(value), frame);
                 default:
-                    gc.VM.FastFail(WNE.TYPE_MISMATCH,
+                    gc.VM->FastFail(WNE.TYPE_MISMATCH,
                         $"[marshal::ToIshtarObject] converter for '{typeof(X).Name}' not support.", frame);
                     return default;
             }
@@ -149,7 +149,7 @@ namespace ishtar
                 case { } when value is float:
                     return gc.ToIshtarObject(cast<float>(value), frame);
                 default:
-                    gc.VM.FastFail(WNE.TYPE_MISMATCH,
+                    gc.VM->FastFail(WNE.TYPE_MISMATCH,
                         $"[marshal::ToIshtarObject] converter for '{value.GetType().Name}' not support.", frame);
                     return default;
             }
@@ -186,7 +186,7 @@ namespace ishtar
                 case { } when typeof(X) == typeof(string):
                     return (X)(object)ToDotnetString(obj, frame);
                 default:
-                    frame->vm.FastFail(WNE.TYPE_MISMATCH,
+                    frame->vm->FastFail(WNE.TYPE_MISMATCH,
                         $"[marshal::ToDotnet] converter for '{typeof(X).Name}' not support.", frame);
                     return default;
             }
@@ -277,26 +277,26 @@ namespace ishtar
 
         public static IshtarObject* ToIshtarString(IshtarObject* obj, CallFrame* frame) => obj->clazz->TypeCode switch
         {
-            TYPE_U1 => frame->GetGC().ToIshtarObject($"{ToDotnetUInt8(obj, frame)}", frame),
-            TYPE_I1 => frame->GetGC().ToIshtarObject($"{ToDotnetInt8(obj, frame)}", frame),
-            TYPE_U2 => frame->GetGC().ToIshtarObject($"{ToDotnetUInt16(obj, frame)}", frame),
-            TYPE_I2 => frame->GetGC().ToIshtarObject($"{ToDotnetInt16(obj, frame)}", frame),
-            TYPE_U4 => frame->GetGC().ToIshtarObject($"{ToDotnetUInt32(obj, frame)}", frame),
-            TYPE_I4 => frame->GetGC().ToIshtarObject($"{ToDotnetInt32(obj, frame)}", frame),
-            TYPE_U8 => frame->GetGC().ToIshtarObject($"{ToDotnetUInt64(obj, frame)}", frame),
-            TYPE_I8 => frame->GetGC().ToIshtarObject($"{ToDotnetInt64(obj, frame)}", frame),
-            TYPE_R4 => frame->GetGC().ToIshtarObject($"{ToDotnetFloat(obj, frame)}", frame),
-            TYPE_BOOLEAN => frame->GetGC().ToIshtarObject($"{ToDotnetBoolean(obj, frame)}", frame),
-            TYPE_CHAR => frame->GetGC().ToIshtarObject($"{ToDotnetChar(obj, frame)}", frame),
-            TYPE_RAW => frame->GetGC().ToIshtarObject($"0x{ToDotnetPointer(obj, frame):X8}", frame),
+            TYPE_U1 => frame->GetGC()->ToIshtarObject($"{ToDotnetUInt8(obj, frame)}", frame),
+            TYPE_I1 => frame->GetGC()->ToIshtarObject($"{ToDotnetInt8(obj, frame)}", frame),
+            TYPE_U2 => frame->GetGC()->ToIshtarObject($"{ToDotnetUInt16(obj, frame)}", frame),
+            TYPE_I2 => frame->GetGC()->ToIshtarObject($"{ToDotnetInt16(obj, frame)}", frame),
+            TYPE_U4 => frame->GetGC()->ToIshtarObject($"{ToDotnetUInt32(obj, frame)}", frame),
+            TYPE_I4 => frame->GetGC()->ToIshtarObject($"{ToDotnetInt32(obj, frame)}", frame),
+            TYPE_U8 => frame->GetGC()->ToIshtarObject($"{ToDotnetUInt64(obj, frame)}", frame),
+            TYPE_I8 => frame->GetGC()->ToIshtarObject($"{ToDotnetInt64(obj, frame)}", frame),
+            TYPE_R4 => frame->GetGC()->ToIshtarObject($"{ToDotnetFloat(obj, frame)}", frame),
+            TYPE_BOOLEAN => frame->GetGC()->ToIshtarObject($"{ToDotnetBoolean(obj, frame)}", frame),
+            TYPE_CHAR => frame->GetGC()->ToIshtarObject($"{ToDotnetChar(obj, frame)}", frame),
+            TYPE_RAW => frame->GetGC()->ToIshtarObject($"0x{ToDotnetPointer(obj, frame):X8}", frame),
             TYPE_STRING => obj,
-            //TYPE_FUNCTION => frame->GetGC().ToIshtarObject(new IshtarLayerFunction(obj, frame).Name, frame),
+            //TYPE_FUNCTION => frame->GetGC()->ToIshtarObject(new IshtarLayerFunction(obj, frame).Name, frame),
             _ => ReturnDefault(nameof(ToIshtarString), $"Convert to '{obj->clazz->TypeCode}' not supported.", frame),
         };
 
         private static IshtarObject* ReturnDefault(string name, string msg, CallFrame* frame)
         {
-            frame->vm.FastFail(WNE.TYPE_MISMATCH,
+            frame->vm->FastFail(WNE.TYPE_MISMATCH,
                 $"[marshal::{name}] {msg}", frame);
             return default;
         }
@@ -316,7 +316,7 @@ namespace ishtar
 
             if (@class->TypeCode is TYPE_NONE or > TYPE_ARRAY or < TYPE_NONE)
             {
-                frame->vm.FastFail(WNE.ACCESS_VIOLATION,
+                frame->vm->FastFail(WNE.ACCESS_VIOLATION,
                     $"Scalar value type cannot be extracted. [{@class->FullName->NameWithNS}]\n" +
                     "Invalid memory address is possible.\n" +
                     "Please report the problem into https://github.com/vein-lang/vein/issues",
@@ -360,7 +360,7 @@ namespace ishtar
                     val.data.f_r4 = ToDotnetFloat(obj, frame);
                     break;
                 case TYPE_R8 or TYPE_R2 or TYPE_R16:
-                    frame->vm.FastFail(WNE.ACCESS_VIOLATION,
+                    frame->vm->FastFail(WNE.ACCESS_VIOLATION,
                         "Unboxing operation error.\n" +
                         $"Scalar value type '{val.type}' cannot be extracted.\n" +
                         "Currently is not support.\n" +
@@ -383,7 +383,7 @@ namespace ishtar
             var val = new stackval { type = type_code };
             if (type_code is TYPE_OBJECT or TYPE_CLASS or TYPE_ARRAY or TYPE_RAW or TYPE_FUNCTION or TYPE_NONE or TYPE_TOKEN or TYPE_VOID or TYPE_CHAR)
             {
-                frame->vm.FastFail(WNE.ACCESS_VIOLATION,
+                frame->vm->FastFail(WNE.ACCESS_VIOLATION,
                     $"[LegacyBoxing] Scalar value type cannot be extracted. [{type_code}]\n" +
                     "Invalid memory address is possible.\n" +
                     "Please report the problem into https://github.com/vein-lang/vein/issues",
@@ -427,7 +427,7 @@ namespace ishtar
                 val.data.p = (nint)StringStorage.Intern(value, frame);
                 break;
                 case TYPE_R8 or TYPE_R2 or TYPE_R16:
-                frame->vm.FastFail(WNE.ACCESS_VIOLATION,
+                frame->vm->FastFail(WNE.ACCESS_VIOLATION,
                     "Unboxing operation error.\n" +
                     $"Scalar value type '{val.type}' cannot be extracted.\n" +
                     "Currently is not support.\n" +
@@ -444,7 +444,7 @@ namespace ishtar
         {
             if (p->type == TYPE_NONE)
             {
-                frame->vm.FastFail(WNE.ACCESS_VIOLATION,
+                frame->vm->FastFail(WNE.ACCESS_VIOLATION,
                     "Boxing operation error.\n" +
                     $"p->type is NONE [{p->type}]\n" +
                     "Invalid allocation or incorrect type setup possible.\n" +
@@ -454,7 +454,7 @@ namespace ishtar
             }
             if (p->type == TYPE_RAW)
             {
-                frame->vm.FastFail(WNE.ACCESS_VIOLATION,
+                frame->vm->FastFail(WNE.ACCESS_VIOLATION,
                     "Boxing operation error.\n" +
                     $"p->type is RAW [{p->type}]\n" +
                     "Cannot boxing pointer type.\n" +
@@ -467,7 +467,7 @@ namespace ishtar
                 return (IshtarObject*)p->data.p;
             if (p->type is TYPE_NONE or > TYPE_ARRAY or < TYPE_NONE)
             {
-                frame->vm.FastFail(WNE.ACCESS_VIOLATION,
+                frame->vm->FastFail(WNE.ACCESS_VIOLATION,
                     "Boxing operation error.\n" +
                     $"Scalar value type cannot be extracted. [{p->type}]\n" +
                     "Invalid memory address is possible.\n" +
@@ -477,14 +477,14 @@ namespace ishtar
             }
 
             var gc = frame->GetGC();
-            var clazz = p->type.AsRuntimeClass(gc.VM.Types);
-            var obj = gc.AllocObject(clazz, frame);
+            var clazz = p->type.AsRuntimeClass(gc->VM->Types);
+            var obj = gc->AllocObject(clazz, frame);
 
             ForeignFunctionInterface.StaticValidateField(frame, &obj, "!!value");
 
             if (obj->vtable is null)
             {
-                frame->vm.FastFail(WNE.ACCESS_VIOLATION,
+                frame->vm->FastFail(WNE.ACCESS_VIOLATION,
                     "Boxing operation error.\n" +
                     $"vtable is null [{p->type}]\n" +
                     "Invalid allocation or incorrect type setup possible.\n" +

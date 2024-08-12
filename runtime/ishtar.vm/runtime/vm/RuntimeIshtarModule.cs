@@ -20,10 +20,10 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 {
     [field: CTypeOverride("void*")]
     public WeakRef<AppVault>* Vault { get; private set; } = WeakRef<AppVault>.Create(vault, self);
-    public VirtualMachine vm => Vault->Value.vm;
+    public VirtualMachine* vm => Vault->Value.vm;
     public uint ID { get; internal set; }
 
-    public IshtarVersion Version { get; internal set; } = version;
+    public IshtarVersion Version { get; private set; } = version;
 
 
     [field: CTypeOverride("void*")]
@@ -255,7 +255,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
     public static RuntimeIshtarModule* Read(AppVault vault, byte[] arr, NativeList<RuntimeIshtarModule>* deps, ModuleResolverCallback resolver)
     {
-        var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>(vault.vm.@ref);
+        var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>(vault.vm);
 
         *module = new RuntimeIshtarModule(vault, "unnamed", module, new IshtarVersion());
 
@@ -274,7 +274,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         {
             var exp = new ILCompatibleException(ilVersion, OpCodes.SetVersion);
 
-            vault.vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Unable to load assembly: '{exp.Message}'.", vault.vm.Frames->ModuleLoaderFrame);
+            vault.vm->FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"Unable to load assembly: '{exp.Message}'.", vault.vm->Frames->ModuleLoaderFrame);
             return null;
         }
 
@@ -300,7 +300,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             var name = reader.ReadIshtarString();
             var t = new QualityTypeName(new NameSymbol(name), new NamespaceSymbol(ns), new ModuleNameSymbol(module->Name)).T(module);
 
-            var predefined = module->vm.Types->ByQualityName(t);
+            var predefined = module->vm->Types->ByQualityName(t);
             if (predefined is not null)
             {
                 VirtualMachine.GlobalPrintln($"read typename: [{key}] '{t->NameWithNS}' and linked by predefined type");
@@ -308,7 +308,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             }
             else if (asmName.Equals(module->Name))
             {
-                var c = module->DefineClass(t, module->vm.Types->ObjectClass);
+                var c = module->DefineClass(t, module->vm->Types->ObjectClass);
                 c->Flags |= ClassFlags.NotCompleted;
                 VirtualMachine.GlobalPrintln($"read typename: [{key}] '{t->NameWithNS}' and set not completed");
             }
@@ -489,14 +489,14 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         module->const_storage = IshtarGC.AllocateImmortal<RuntimeConstStorage>(module);
         *module->const_storage = new RuntimeConstStorage(module);
 
-        FillConstStorage(module->const_storage, const_body, module->vm.Frames->ModuleLoaderFrame);
+        FillConstStorage(module->const_storage, const_body, module->vm->Frames->ModuleLoaderFrame);
 
 
         VirtualMachine.GlobalPrintln($"Read {module->Name} module success");
 
 
         module->Version = IshtarVersion.Parse(module->GetConstStringByIndex(vdx));
-        module->aspects_table->AddRange(RuntimeAspect.Deconstruct(module->const_storage, module->vm.Frames->ModuleLoaderFrame, vault.vm.Types));
+        module->aspects_table->AddRange(RuntimeAspect.Deconstruct(module->const_storage, module->vm->Frames->ModuleLoaderFrame, vault.vm->Types));
 
         module->DefineBootstrapper();
 
@@ -504,7 +504,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         ValidateRuntimeTokens(module);
         module->LinkFFIMethods(module);
 #if DEBUG
-        module->vm.Jitter.GetExecutionModule().PrintToFile($"{module->Name}_ffi.ll");
+        module->vm->Jitter.GetExecutionModule().PrintToFile($"{module->Name}_ffi.ll");
 #endif
         InitVTables(module);
         
@@ -594,7 +594,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                         @class->Aspects->Add(aspect);
                     }
                     else
-                        module->vm.println($"Aspect '{aspect->Name}': class '{GetStringUnsafe(classAspect.ClassName)}' not found.");
+                        module->vm->println($"Aspect '{aspect->Name}': class '{GetStringUnsafe(classAspect.ClassName)}' not found.");
                     break;
                 }
                 case AspectTarget.Method:
@@ -610,7 +610,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                     if (@class is null)
                     {
                         var debug = classes->ToList();
-                        module->vm.println($"Aspect '{aspect->Name}': method '{GetStringUnsafe(ma.ClassName)}/{GetStringUnsafe(ma.MethodName)}' not found. [no class found]");
+                        module->vm->println($"Aspect '{aspect->Name}': method '{GetStringUnsafe(ma.ClassName)}/{GetStringUnsafe(ma.MethodName)}' not found. [no class found]");
                         return;
                     }
                     var method = @class->Methods->FirstOrNull(m => m->Name.Equals(GetStringUnsafe(ma.MethodName)));
@@ -619,7 +619,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
                     else
                     {
                         var methods = @class->Methods->ToList();
-                        module->vm.println($"Aspect '{aspect->Name}': method '{GetStringUnsafe(ma.ClassName)}/{GetStringUnsafe(ma.MethodName)}' not found.");
+                        module->vm->println($"Aspect '{aspect->Name}': method '{GetStringUnsafe(ma.ClassName)}/{GetStringUnsafe(ma.MethodName)}' not found.");
                     }
                     break;
                 }
@@ -633,14 +633,14 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
                     if (@class is null)
                     {
-                        module->vm.println($"Aspect '{aspect->Name}': field '{GetStringUnsafe(fa.ClassName)}/{GetStringUnsafe(fa.FieldName)}' not found. [no class found]");
+                        module->vm->println($"Aspect '{aspect->Name}': field '{GetStringUnsafe(fa.ClassName)}/{GetStringUnsafe(fa.FieldName)}' not found. [no class found]");
                         return;
                     }
                     var field = @class->Fields->FirstOrNull(m => m->Name.Equals(GetStringUnsafe(fa.FieldName)));
                     if (field is not null)
                         field->Aspects->Add(aspect);
                     else
-                        module->vm.println($"Aspect '{aspect->Name}': field '{GetStringUnsafe(fa.ClassName)}/{GetStringUnsafe(fa.FieldName)}' not found.");
+                        module->vm->println($"Aspect '{aspect->Name}': field '{GetStringUnsafe(fa.ClassName)}/{GetStringUnsafe(fa.FieldName)}' not found.");
                     break;
                 }
             }
@@ -794,7 +794,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     {
         if (types_table->TryGetValue(idx, out var result))
             return result;
-        vm.FastFail(WNE.TYPE_LOAD, $"No found type by '{idx}'", frame);
+        vm->FastFail(WNE.TYPE_LOAD, $"No found type by '{idx}'", frame);
         return null;
     }
 
@@ -825,13 +825,13 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         var name = method->Name;
         if (aspect is null)
         {
-            vm.FastFail(WNE.TYPE_LOAD, $"(0x1) Extern function without native aspect. [{name}]", sys_frame);
+            vm->FastFail(WNE.TYPE_LOAD, $"(0x1) Extern function without native aspect. [{name}]", sys_frame);
             return;
         }
 
         if (aspect->Arguments->Length != 2)
         {
-            vm.FastFail(WNE.TYPE_LOAD, $"(0x1) Native aspect incorrect arguments. [{name}]", sys_frame);
+            vm->FastFail(WNE.TYPE_LOAD, $"(0x1) Native aspect incorrect arguments. [{name}]", sys_frame);
             return;
         }
 
@@ -839,7 +839,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         if (import_tg->Value.type is not VeinTypeCode.TYPE_STRING)
         {
-            vm.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{name}]", sys_frame);
+            vm->FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{name}]", sys_frame);
             return;
         }
 
@@ -847,7 +847,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         if (import_fn->Value.type is not VeinTypeCode.TYPE_STRING)
         {
-            vm.FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{name}]", sys_frame);
+            vm->FastFail(WNE.TYPE_LOAD, $"(0x2) Native aspect incorrect arguments. [{name}]", sys_frame);
             return;
         }
 
@@ -871,7 +871,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     }
     private void LinkInternalNative(string name, RuntimeIshtarMethod* method)
     {
-        vm.FFI.GetMethod(name, out var header);
+        vm->FFI.GetMethod(name, out var header);
         method->PIInfo = header;
     }
 
@@ -907,7 +907,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             var endAddr = bin.ReadInt32();
             var filterAddr = bin.ReadIntArray().ToNative(module);
             var catchAddr = bin.ReadIntArray().ToNative(module);
-            var catchClass = bin.ReadTypesArray((x) => (nint)module->GetTypeNameByIndex(x, module->vm.Frames->ModuleLoaderFrame)).ToNative<RuntimeQualityTypeName>(module);
+            var catchClass = bin.ReadTypesArray((x) => (nint)module->GetTypeNameByIndex(x, module->vm->Frames->ModuleLoaderFrame)).ToNative<RuntimeQualityTypeName>(module);
             var types = bin.ReadSpecialDirectByteArray().ToNative(module);
 
             var item = IshtarGC.AllocateImmortal<ProtectedZone>(module);
@@ -967,7 +967,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
 
 
-            var a = RuntimeMethodArgument.Create(ishtarModule->vm.Types, ishtarModule->GetConstStringByIndex(nIdx),
+            var a = RuntimeMethodArgument.Create(ishtarModule->vm->Types, ishtarModule->GetConstStringByIndex(nIdx),
                 argType, ishtarModule);
             args->Add(a);
         }
@@ -979,7 +979,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
     public RuntimeIshtarClass* Bootstrapper { get; private set; }
 
-    public CallFrame* sys_frame => Vault->Value.vm.Frames->ModuleLoaderFrame;
+    public CallFrame* sys_frame => Vault->Value.vm->Frames->ModuleLoaderFrame;
     public static bool Eq(RuntimeIshtarModule* p1, RuntimeIshtarModule* p2) => p1->ID == p2->ID;
 }
 public static unsafe class QualityTypeEx

@@ -7,6 +7,7 @@
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">$(NETCoreSdkRuntimeIdentifier)</RuntimeIdentifier>
     <RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -52,7 +53,7 @@
     <PackageReference Include="LLVMSharp" Version="16.0.0">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="LLVMSharp.Interop" Version="16.0.0"/>
+    <PackageReference Include="LLVMSharp.Interop" Version="16.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics.CodeAnalysis" />
@@ -79,5 +80,10 @@
     <Using Include="System.Runtime.CompilerServices"></Using>
     <Using Include="System.Diagnostics"></Using>
     <Using Include="lang.c"></Using>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="FFI\generated\" />
+    <Folder Include="runtime\io\ini\" />
   </ItemGroup>
 </Project>

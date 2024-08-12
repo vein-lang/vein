@@ -13,7 +13,7 @@ public sealed unsafe class IshtarAllocatorPool(GCLayout? layout) : IIshtarAlloca
         if (layout is not null)
             return new GCLayoutAllocator(layout);
 
-        if (frame->vm.Config.UseDebugAllocator)
+        if (frame->vm->@ref->Config.UseDebugAllocator)
             return new DebugManagedAllocator();
 
         throw new NotImplementedException();

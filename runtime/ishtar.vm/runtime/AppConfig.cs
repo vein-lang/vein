@@ -1,10 +1,13 @@
-namespace ishtar.vm.runtime;
+namespace ishtar.runtime;
 
-// TODO
-public struct AppConfig
+using io.ini;
+
+public readonly unsafe struct AppConfig(IniRoot* rootCfg)
 {
-    public bool UseDebugAllocator => Environment.GetEnvironmentVariable("+vm:has_debug_allocator") is not null;
-    public bool DisabledFinalization => Environment.GetEnvironmentVariable("+vm:has_disabled_finalization") is not null;
-    public bool CallOpCodeSkipValidateArgs => Environment.GetEnvironmentVariable("+vm:skip-validate-args") is not null;
-    public bool DisableValidationInvocationArgs => Environment.GetEnvironmentVariable("+vm:has_disabled_validation_inv_args") is not null;
+    public bool UseDebugAllocator => rootCfg->GetGroup("vm").GetFlag("has_debug_allocator");
+    public bool DisabledFinalization => rootCfg->GetGroup("vm").GetFlag("has_disabled_finalization");
+    public bool CallOpCodeSkipValidateArgs => rootCfg->GetGroup("vm").GetFlag("skip_validate_args");
+    public bool SkipValidateStfType => rootCfg->GetGroup("vm").GetFlag("skip_validate_stf_type");
+    public bool DisableValidationInvocationArgs => rootCfg->GetGroup("vm").GetFlag("has_disabled_validation_inv_args");
+    public bool UseConsole => rootCfg->GetGroup("vm").GetFlag("use_console");
 }

@@ -13,11 +13,11 @@ public unsafe class ABI(VirtualMachine vm)
         if (_cache.ContainsKey(entity.Entry))
             return;
 
-        var result = frame->vm.NativeStorage.TryLoad(new FileInfo(entity.Entry), out var handle);
+        var result = frame->vm->NativeStorage.TryLoad(new FileInfo(entity.Entry), out var handle);
 
         if (!result)
         {
-            frame->vm.FastFail(WNE.NATIVE_LIBRARY_COULD_NOT_LOAD, $"{entity.Entry}", frame);
+            frame->vm->FastFail(WNE.NATIVE_LIBRARY_COULD_NOT_LOAD, $"{entity.Entry}", frame);
             return;
         }
 
@@ -33,14 +33,14 @@ public unsafe class ABI(VirtualMachine vm)
 
         try
         {
-            var symbol = frame->vm.NativeStorage.GetSymbol(cached.handle, entity.Fn);
+            var symbol = frame->vm->NativeStorage.GetSymbol(cached.handle, entity.Fn);
 
             cached.ImportedSymbols.Add(entity.Fn, symbol);
             entity.Handle = symbol;
         }
         catch
         {
-            frame->vm.FastFail(WNE.NATIVE_LIBRARY_SYMBOL_COULD_NOT_FOUND, $"{entity.Entry}::{entity.Fn}", frame);
+            frame->vm->FastFail(WNE.NATIVE_LIBRARY_SYMBOL_COULD_NOT_FOUND, $"{entity.Entry}::{entity.Fn}", frame);
         }
     }
 
