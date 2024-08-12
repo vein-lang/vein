@@ -4,9 +4,9 @@ using ishtar.runtime.io;
 using ishtar.runtime.io.ini;
 using runtime.gc;
 
-public unsafe partial class VirtualMachine
+public unsafe partial struct VirtualMachine
 {
-    public static IniRoot* readBootCfg(VirtualMachineRef* @ref)
+    public static IniRoot* readBootCfg()
     {
         var path = "";
 
@@ -19,7 +19,7 @@ public unsafe partial class VirtualMachine
 
         var source = IshtarFile.readAllFile(path);
 
-        var parser = new IniParser(source, IshtarGC.CreateAllocatorWithParent(@ref));
+        var parser = new IniParser(source, IshtarGC.CreateAllocatorWithParent(null));
 
         return parser.Parse();
     }

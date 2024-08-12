@@ -36,9 +36,9 @@ namespace ishtar
                 => throw new NotSupportedException();
 
             static rawval* alloc(CallFrame* frame, int size)
-                => frame->vm.GC.AllocRawValue(frame);
+                => frame->vm->gc->AllocRawValue(frame);
             static void free(CallFrame* frame, rawval* stack, int size)
-                => frame->vm.GC.FreeRawValue(stack);
+                => frame->vm->gc->FreeRawValue(stack);
 
 
             var p = new SmartPointer<rawval>(size, frame,
@@ -70,14 +70,14 @@ namespace ishtar
                 throw new ArgumentException($"size is not allowed zero");
 
             static stackval* allocArray(CallFrame* frame, int size)
-                => frame->vm.GC.AllocateStack(frame, size);
+                => frame->vm->gc->AllocateStack(frame, size);
             static void freeArray(CallFrame* frame, stackval* stack, int size)
-                => frame->vm.GC.FreeStack(frame, stack, size);
+                => frame->vm->gc->FreeStack(frame, stack, size);
 
             static stackval* alloc(CallFrame* frame, int size)
-                => frame->vm.GC.AllocValue(frame);
+                => frame->vm->gc->AllocValue(frame);
             static void free(CallFrame* frame, stackval* stack, int size)
-                => frame->vm.GC.FreeValue(stack);
+                => frame->vm->gc->FreeValue(stack);
 
 
             var p = new SmartPointer<stackval>(size, frame,

@@ -7,11 +7,49 @@ using vein.runtime;
 using static OpCodeValue;
 using static vein.runtime.VeinTypeCode;
 using static WNE;
-public unsafe partial class VirtualMachine : IDisposable
+public unsafe partial struct VirtualMachine : IDisposable
 {
+    void ForceThrow(RuntimeIshtarClass* clazz, stackval* sp, CallFrame* invocation, string? msg = null)
+    {
+        CallFrame.FillStackTrace(invocation);
+        var exception = gc->AllocObject(clazz, invocation);
+        sp->data.p = (nint)exception;
+        sp->type = TYPE_CLASS;
+
+        if (msg is null) return;
+
+        if (clazz->FindField("message") is null)
+            throw new InvalidOperationException($"Class '{clazz->FullName->NameWithNS}' is not contained 'message' field.");
+
+        exception->vtable[clazz->Field["message"]->vtable_offset]
+            = gc->ToIshtarObject(msg, invocation);
+    }
+
+    void jump_now(uint* start, ref uint* ip, MetaMethodHeader* mh, CallFrame* invocation)
+    {
+        var labelKey = mh->labels->Get((int)*ip);
+        if (mh->labels_map->TryGetValue(labelKey, out var label))
+            ip = start + label.pos - 1;
+        else
+            FastFail(PROTECTED_ZONE_LABEL_CORRUPT, "[jump_now] cannot find protected zone label", invocation);
+    }
+    void jump_to(int index, uint* start, ref uint* ip, MetaMethodHeader* mh, CallFrame* invocation)
+    {
+        if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
+            ip = start + label.pos - 1;
+        else FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[jump_to] cannot find protected zone label", invocation);
+    }
+    uint* get_jumper(int index, uint* start, MetaMethodHeader* mh, CallFrame* invocation)
+    {
+        if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
+            return start + label.pos - 1;
+        FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[get_jumper] cannot find protected zone label", invocation);
+        return null;
+    }
+
     public void exec_method(CallFrame* invocation)
     {
-        if (!Config.DisableValidationInvocationArgs)
+        if (!@ref->Config.DisableValidationInvocationArgs)
         {
             var argsLen = invocation->method->ArgLength;
 
@@ -51,45 +89,6 @@ public unsafe partial class VirtualMachine : IDisposable
         var end_stack = sp + mh->max_stack;
         uint* endfinally_ip = null;
         var zone = default(ProtectedZone*);
-        void jump_now()
-        {
-            var labelKey = mh->labels->Get((int)*ip);
-            if (mh->labels_map->TryGetValue(labelKey, out var label))
-                ip = start + label.pos - 1;
-            else
-                FastFail(PROTECTED_ZONE_LABEL_CORRUPT, "[jump_now] cannot find protected zone label", invocation);
-        }
-
-
-        void jump_to(int index)
-        {
-            if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
-                ip = start + label.pos - 1;
-            else FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[jump_to] cannot find protected zone label", invocation);
-        }
-        uint* get_jumper(int index)
-        {
-            if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
-                return start + label.pos - 1;
-            FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[get_jumper] cannot find protected zone label", invocation);
-            return null;
-        }
-
-        void ForceThrow(RuntimeIshtarClass* clazz, string? msg = null)
-        {
-            CallFrame.FillStackTrace(invocation);
-            var exception = GC.AllocObject(clazz, invocation);
-            sp->data.p = (nint)exception;
-            sp->type = TYPE_CLASS;
-
-            if (msg is null) return;
-
-            if (clazz->FindField("message") is null)
-                throw new InvalidOperationException($"Class '{clazz->FullName->NameWithNS}' is not contained 'message' field.");
-
-            exception->vtable[clazz->Field["message"]->vtable_offset]
-                = GC.ToIshtarObject(msg, invocation);
-        }
 
         var stopwatch = new Stopwatch();
 
@@ -212,6 +211,7 @@ public unsafe partial class VirtualMachine : IDisposable
                 case LDC_F4:
                     ++ip;
                     sp->type = TYPE_R4;
+                    // TODO remove using Int32BitsToSingle
                     sp->data.f_r4 = BitConverter.Int32BitsToSingle((int)(*ip));
                     ++ip;
                     ++sp;
@@ -223,6 +223,7 @@ public unsafe partial class VirtualMachine : IDisposable
                     var t1 = (long)*ip;
                     ++ip;
                     var t2 = (long)*ip;
+                    // TODO remove using Int64BitsToDouble
                     sp->data.f = BitConverter.Int64BitsToDouble(t2 << 32 | t1 & 0xffffffffL);
                     ++ip;
                     ++sp;
@@ -286,7 +287,7 @@ public unsafe partial class VirtualMachine : IDisposable
                     var typeID = GetClass(sp->data.ui, _module, invocation);
                     sp->type = TYPE_ARRAY;
                     if (invocation->method->IsStatic)
-                        sp->data.p = (nint)GC.AllocArray(typeID, size, 1, invocation);
+                        sp->data.p = (nint)gc->AllocArray(typeID, size, 1, invocation);
                     //else fixed (IshtarObject** node = &invocation._this_)
                     //       sp->data.p = (nint)IshtarGC.AllocArray(typeID, size, 1, node, invocation);
                     ++sp;
@@ -362,20 +363,20 @@ public unsafe partial class VirtualMachine : IDisposable
                     --sp;
                     if (@this->type == TYPE_NONE)
                     {
-                        ForceThrow(KnowTypes.NullPointerException(invocation));
+                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
                         goto exception_handle;
                     }
                     //FFI.StaticValidate(invocation, @this, field.Owner);
                     var value = sp;
                     var this_obj = (IshtarObject*)@this->data.p;
-                    var target_class = this_obj->clazz;
 
-                    if (!field->FieldType.IsGeneric)
+                    if (!@ref->Config.SkipValidateStfType || !field->FieldType.IsGeneric)
                     {
                         if (value->type != TYPE_NULL && field->FieldType.Class->TypeCode != value->type)
                         {
                             CallFrame.FillStackTrace(invocation);
-                            ForceThrow(KnowTypes.IncorrectCastFault(invocation), $"Cannot cast '{value->type}' to '{field->FieldType.Class->TypeCode}', maybe invalid IL");
+                            ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation,
+                                $"Cannot cast '{value->type}' to '{field->FieldType.Class->TypeCode}', maybe invalid IL");
                             goto exception_handle;
                         }
                     }
@@ -412,7 +413,7 @@ public unsafe partial class VirtualMachine : IDisposable
                     if (@this->type == TYPE_NULL)
                     {
                         CallFrame.FillStackTrace(invocation);
-                        ForceThrow(KnowTypes.NullPointerException(invocation));
+                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
                         goto exception_handle;
                     }
                     //FFI.StaticValidate(invocation, @this, field.Owner);
@@ -454,13 +455,13 @@ public unsafe partial class VirtualMachine : IDisposable
                     var t1 = (IshtarObject*)sp->data.p;
                     if (t1 == null)
                     {
-                        ForceThrow(KnowTypes.NullPointerException(invocation));
+                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
                         goto exception_handle;
                     }
                     var r = IshtarObject.IsInstanceOf(invocation, t1, t2);
                     if (r == null)
                     {
-                        ForceThrow(KnowTypes.IncorrectCastFault(invocation));
+                        ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation);
                         goto exception_handle;
                     }
                     ++sp;
@@ -475,7 +476,7 @@ public unsafe partial class VirtualMachine : IDisposable
 
                     if (type1IsGeneric | type2IsGeneric)
                     {
-                        ForceThrow(KnowTypes.IncorrectCastFault(invocation));
+                        ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation);
                         goto exception_handle;
                     }
 
@@ -484,7 +485,7 @@ public unsafe partial class VirtualMachine : IDisposable
 
                     if (!fromClass->TypeCode.IsCompatibleNumber(toClass->TypeCode))
                     {
-                        ForceThrow(KnowTypes.IncorrectCastFault(invocation));
+                        ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation);
                         goto exception_handle;
                     }
                     (sp - 1)->type = toClass->TypeCode;
@@ -501,7 +502,7 @@ public unsafe partial class VirtualMachine : IDisposable
                     if (*ip == (uint)SEH_LEAVE_S)
                     {
                         ++ip;
-                        jump_now();
+                        jump_now(start, ref ip, mh, invocation);
                     }
                     else
                         ip++;
@@ -517,17 +518,12 @@ public unsafe partial class VirtualMachine : IDisposable
                 case POP:
                     ++ip;
                     --sp;
-                    if (sp->type == TYPE_CLASS)
-                    {
-                        var obj = ((IshtarObject*)sp->data.p);
-                        GC.FreeObject(&obj, invocation);
-                    }
                     break;
                 case THROW:
                     --sp;
                     if (sp->data.p == IntPtr.Zero)
                     {
-                        sp->data.p = (nint)GC.AllocObject(KnowTypes.NullPointerException(invocation), invocation);
+                        sp->data.p = (nint)gc->AllocObject(KnowTypes.NullPointerException(invocation), invocation);
                         sp->type = TYPE_CLASS;
                     }
                     goto exception_handle;
@@ -536,7 +532,7 @@ public unsafe partial class VirtualMachine : IDisposable
                     ++ip;
                     sp->type = TYPE_CLASS;
                     sp->data.p = (nint)
-                        GC.AllocObject(
+                        gc->AllocObject(
                             _module->FindType(_module->GetTypeNameByIndex((int)*ip, invocation), true), invocation);
                     ++ip;
                     ++sp;
@@ -550,7 +546,7 @@ public unsafe partial class VirtualMachine : IDisposable
                     var method = GetMethod(tokenIdx, owner, _module, invocation);
                     ++ip;
 
-                    var raw = GC.AllocRawValue(invocation); // TODO destroy
+                    var raw = gc->AllocRawValue(invocation); // TODO destroy
 
                     raw->type = VeinRawCode.ISHTAR_METHOD;
                     raw->data.m = method;
@@ -580,7 +576,7 @@ public unsafe partial class VirtualMachine : IDisposable
 
                         if (sp->type == TYPE_NULL)
                         {
-                            ForceThrow(KnowTypes.NullPointerException(invocation));
+                            ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
                             goto exception_handle;
                         }
 
@@ -588,7 +584,7 @@ public unsafe partial class VirtualMachine : IDisposable
 
                         if (raw->type == VeinRawCode.ISHTAR_ERROR)
                         {
-                            ForceThrow(KnowTypes.IncorrectCastFault(invocation));
+                            ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation);
                             goto exception_handle;
                         }
                         Assert(raw->type == VeinRawCode.ISHTAR_METHOD, MISSING_TYPE, "", invocation);
@@ -598,48 +594,46 @@ public unsafe partial class VirtualMachine : IDisposable
 
                     var child_frame = invocation->CreateChild(method);
                     println($".call {method->Owner->Name}::{method->Name}");
-                    var method_args = GC.AllocateStack(child_frame, method->ArgLength);
+                    var method_args = gc->AllocateStack(child_frame, method->ArgLength);
                     for (int i = 0, y = method->ArgLength - 1; i != method->ArgLength; i++, y--)
                     {
                         var _a = method->Arguments->Get(i); // TODO, type eq validate
                         --sp;
-//#if DEBUG
-//                                if (_a->Type.IsGeneric)
-//                                    println($"@@@<< {StringStorage.GetString(_a->Name, invocation)}: {StringStorage.GetString(_a->Type.TypeArg->Name, invocation)}");
-//                                else
-//                                    println($"@@@<< {StringStorage.GetString(_a->Name, invocation)}: {_a->Type.Class->FullName->NameWithNS}");
-                            
-//                                if (Config.CallOpCodeSkipValidateArgs)
-//                                {
-//                                    method_args[y] = *sp;
-//                                    continue;
-//                                }
-//                                var arg_class = _a->Type;
-//                                if (arg_class->Name is not "Object" and not "ValueType")
-//                                {
-//                                    var sp_obj = IshtarMarshal.Boxing(invocation, sp);
+                        if (!@ref->Config.CallOpCodeSkipValidateArgs)
+                        {
+                            println(_a->Type.IsGeneric
+                                ? $"@@@<< {StringStorage.GetString(_a->Name, invocation)}: {StringStorage.GetString(_a->Type.TypeArg->Name, invocation)}"
+                                : $"@@@<< {StringStorage.GetString(_a->Name, invocation)}: {_a->Type.Class->FullName->NameWithNS}");
 
-//                                    if (sp_obj == null)
-//                                        continue;
+                            if (_a->Type.IsGeneric)
+                                continue;
+                            var arg_class = _a->Type.Class;
 
-//                                    var sp_class = sp_obj->clazz;
+                            if (arg_class->Name is not "Object" and not "ValueType")
+                            {
+                                var sp_obj = IshtarMarshal.Boxing(invocation, sp);
 
-//                                    if (sp_class == null)
-//                                        continue;
+                                if (sp_obj == null)
+                                    continue;
 
-//                                    if (sp_class->ID != arg_class->ID)
-//                                    {
-//                                        if (!sp_class->IsInner(arg_class))
-//                                        {
-//                                            FastFail(TYPE_MISMATCH,
-//                                                $"Argument '{StringStorage.GetString(_a->Name, invocation)}: {_a->Type->Name}'" +
-//                                                $" is not matched for '{method->Name}' function.",
-//                                                invocation);
-//                                            break;
-//                                        }
-//                                    }
-//                                }
-//#endif
+                                var sp_class = sp_obj->clazz;
+
+                                if (sp_class == null)
+                                    continue;
+
+                                if (sp_class->ID != arg_class->ID)
+                                {
+                                    if (!sp_class->IsInner(arg_class))
+                                    {
+                                        FastFail(TYPE_MISMATCH,
+                                            $"Argument '{StringStorage.GetString(_a->Name, invocation)}: {(_a->Type.IsGeneric ? StringStorage.GetString(_a->Type.TypeArg->Name, invocation) : _a->Type.Class->Name)}'" +
+                                            $" is not matched for '{method->Name}' function.",
+                                            invocation);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
 
                         println($".arg {method->Owner->Name}::{method->Name} (argument {y} is {sp->type} type) sp: {getStackLen()}");
 
@@ -663,7 +657,7 @@ public unsafe partial class VirtualMachine : IDisposable
                         sp->data.p = (nint)child_frame->exception.value;
                         invocation->exception = child_frame->exception;
 
-                        GC.FreeStack(child_frame, method_args, method->ArgLength);
+                        gc->FreeStack(child_frame, method_args, method->ArgLength);
                         child_frame->Dispose();
                         goto exception_handle;
                     }
@@ -680,9 +674,9 @@ public unsafe partial class VirtualMachine : IDisposable
                     }
 
                     println($".call after {method->Owner->Name}::{method->Name}, sp: {getStackLen()}");
-                    GC.FreeStack(child_frame, method_args, method->ArgLength);
+                    gc->FreeStack(child_frame, method_args, method->ArgLength);
                     child_frame->Dispose();
-                    GC.Collect();
+                    gc->Collect();
                 } break;
                 case LOC_INIT:
                 {
@@ -749,51 +743,51 @@ public unsafe partial class VirtualMachine : IDisposable
                         {
                             case TYPE_I1:
                                 if (first.data.b < second.data.b)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U1:
                                 if (first.data.ub < second.data.ub)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_I2:
                                 if (first.data.s < second.data.s)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U2:
                                 if (first.data.us < second.data.us)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_I4:
                                 if (first.data.i < second.data.i)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U4:
                                 if (first.data.ui < second.data.ui)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_I8:
                                 if (first.data.l < second.data.l)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U8:
                                 if (first.data.ul < second.data.ul)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R2:
                                 if (first.data.hf < second.data.hf)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R4:
                                 if (first.data.f_r4 < second.data.f_r4)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R8:
                                 if (first.data.f < second.data.f)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R16:
                                 if (first.data.d < second.data.d)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             default:
                                 throw new NotImplementedException();
@@ -813,52 +807,52 @@ public unsafe partial class VirtualMachine : IDisposable
                     {
                         case TYPE_I1:
                             if (first.data.b != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_U1:
                             if (first.data.ub != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_I2:
                             if (first.data.s != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_U2:
                             if (first.data.us != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_I4:
                         case TYPE_BOOLEAN:
                             if (first.data.i != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_U4:
                             if (first.data.ui != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_I8:
                             if (first.data.l != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_U8:
                             if (first.data.ul != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_R2:
                             if ((float)first.data.hf != 0.0f)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_R4:
                             if (first.data.f_r4 != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_R8:
                             if (first.data.f != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_R16:
                             if (first.data.d != 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         default:
                             throw new NotImplementedException();
@@ -879,51 +873,51 @@ public unsafe partial class VirtualMachine : IDisposable
                         {
                             case TYPE_I1:
                                 if (first.data.b <= second.data.b)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U1:
                                 if (first.data.ub <= second.data.ub)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_I2:
                                 if (first.data.s <= second.data.s)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U2:
                                 if (first.data.us <= second.data.us)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_I4:
                                 if (first.data.i <= second.data.i)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U4:
                                 if (first.data.ui <= second.data.ui)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_I8:
                                 if (first.data.l <= second.data.l)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U8:
                                 if (first.data.ul <= second.data.ul)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R2:
                                 if (first.data.hf <= second.data.hf)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R4:
                                 if (first.data.f_r4 <= second.data.f_r4)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R8:
                                 if (first.data.f <= second.data.f)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R16:
                                 if (first.data.d <= second.data.d)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             default:
                                 throw new NotImplementedException();
@@ -947,51 +941,51 @@ public unsafe partial class VirtualMachine : IDisposable
                         {
                             case TYPE_I1:
                                 if (first.data.b != second.data.b)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U1:
                                 if (first.data.ub != second.data.ub)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_I2:
                                 if (first.data.s != second.data.s)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U2:
                                 if (first.data.us != second.data.us)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_I4:
                                 if (first.data.i != second.data.i)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U4:
                                 if (first.data.ui != second.data.ui)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_I8:
                                 if (first.data.l != second.data.l)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_U8:
                                 if (first.data.ul != second.data.ul)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R2:
                                 if (first.data.hf != second.data.hf)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R4:
                                 if (first.data.f_r4 != second.data.f_r4)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R8:
                                 if (first.data.f != second.data.f)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             case TYPE_R16:
                                 if (first.data.d != second.data.d)
-                                    jump_now();
+                                    jump_now(start, ref ip, mh, invocation);
                                 else ++ip; break;
                             default:
                                 throw new NotImplementedException();
@@ -1003,7 +997,7 @@ public unsafe partial class VirtualMachine : IDisposable
                     break;
                 case JMP:
                     ++ip;
-                    jump_now();
+                    jump_now(start, ref ip, mh, invocation);
                     break;
                 case JMP_F:
                 {
@@ -1014,52 +1008,52 @@ public unsafe partial class VirtualMachine : IDisposable
                     {
                         case TYPE_I1:
                             if (first.data.b == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_U1:
                             if (first.data.ub == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_I2:
                             if (first.data.s == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_U2:
                             if (first.data.us == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_I4:
                         case TYPE_BOOLEAN:
                             if (first.data.i == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_U4:
                             if (first.data.ui == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_I8:
                             if (first.data.l == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_U8:
                             if (first.data.ul == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_R2:
                             if (first.data.hf == (Half)0f)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_R4:
                             if (first.data.f_r4 == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_R8:
                             if (first.data.f == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         case TYPE_R16:
                             if (first.data.d == 0)
-                                jump_now();
+                                jump_now(start, ref ip, mh, invocation);
                             else ++ip; break;
                         default:
                             throw new NotImplementedException();
@@ -1119,9 +1113,9 @@ public unsafe partial class VirtualMachine : IDisposable
                 case RESERVED_2:
                     ++ip;
                     println($"*** GC DUMP ***");
-                    println($"\talive_objects: {GC.Stats.alive_objects}");
-                    println($"\ttotal_allocations: {GC.Stats.total_allocations}");
-                    println($"\ttotal_bytes_requested: {GC.Stats.total_bytes_requested}");
+                    println($"\talive_objects: {gc->alive_objects}");
+                    println($"\ttotal_allocations: {gc->total_allocations}");
+                    println($"\ttotal_bytes_requested: {gc->total_bytes_requested}");
                     println($"*** END GC DUMP ***");
                     break;
                 case LDC_STR:
@@ -1129,7 +1123,7 @@ public unsafe partial class VirtualMachine : IDisposable
                     ++ip;
                     sp->type = TYPE_STRING;
                     var str = _module->GetConstStringByIndex((int) *ip);
-                    sp->data.p = (nint)GC.ToIshtarObject(str, invocation);
+                    sp->data.p = (nint)gc->ToIshtarObject(str, invocation);
                     ++sp;
                     ++ip;
                 }
@@ -1156,7 +1150,7 @@ public unsafe partial class VirtualMachine : IDisposable
                 ip++;
             }
 
-            var tryEndAddr = zone != default ? get_jumper(zone->TryEndLabel) : null;
+            var tryEndAddr = zone != default ? get_jumper(zone->TryEndLabel, start, mh, invocation) : null;
 
             if (zone != default && tryEndAddr > ip)
             {
@@ -1209,7 +1203,7 @@ public unsafe partial class VirtualMachine : IDisposable
 
                 if (label_addr != -1)
                 {
-                    jump_to(label_addr);
+                    jump_to(label_addr, start, ref ip, mh, invocation);
                     ++sp;
                 }
                 else fill_frame_exception();

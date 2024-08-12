@@ -79,7 +79,7 @@ namespace ishtar
         {
             bool failMapping(int code, RuntimeIshtarField* field)
             {
-                frame->vm.FastFail(WNE.TYPE_LOAD,
+                frame->vm->FastFail(WNE.TYPE_LOAD,
                     $"Native aspect has incorrect mapping for '{field->FullName->Name}' field. [0x{code:X}]", frame);
                 return false;
             }

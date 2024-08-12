@@ -4,7 +4,7 @@ using vein.runtime;
 using static vein.runtime.VeinTypeCode;
 using static WNE;
 
-public unsafe partial class VirtualMachine
+public unsafe partial struct VirtualMachine
 {
     private void exec_method_external_native(CallFrame* frame)
     {

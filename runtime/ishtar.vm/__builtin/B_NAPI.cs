@@ -32,7 +32,7 @@ public static unsafe class B_NAPI
         //    return IshtarObject.NullPointer;
         //}
 
-        //var result = current.vm.NativeStorage.TryLoad(libFile, out var h);
+        //var result = current.vm->NativeStorage.TryLoad(libFile, out var h);
 
         //if (!result)
         //{
@@ -42,7 +42,7 @@ public static unsafe class B_NAPI
 
 
         //var handleClass = KnowTypes.VeinLang.Native.NativeHandle(current);
-        //var handleObj = current.vm.GC.AllocObject(handleClass, current);
+        //var handleObj = current.vm->gc.AllocObject(handleClass, current);
 
         //var wrapper = new KnowTypes.WrappedTypes.S_NativeHandle(handleObj, current);
 
@@ -55,7 +55,7 @@ public static unsafe class B_NAPI
     public static void InitTable(ForeignFunctionInterface ffi)
     {
         //var table = ffi.method_table;
-        //ffi.vm.CreateInternalMethod("i_call_NAPI_LoadNative", Public | Static | Extern)
+        //ffi.vm->CreateInternalMethod("i_call_NAPI_LoadNative", Public | Static | Extern)
         //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&LoadNativeLibrary)
         //    .AddInto(table, x => x.Name);
     }

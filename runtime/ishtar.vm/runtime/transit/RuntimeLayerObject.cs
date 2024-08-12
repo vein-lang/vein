@@ -55,7 +55,7 @@
 //                method = runtime_method
 //            };
 
-//            _frame.vm.exec_method(callFrame);
+//            _frame.vm->exec_method(callFrame);
 
 //            if (callFrame.exception is not null)
 //                _frame.exception = callFrame.exception;

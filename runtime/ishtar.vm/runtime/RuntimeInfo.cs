@@ -1,4 +1,4 @@
-namespace ishtar.vm.runtime;
+namespace ishtar.runtime;
 
 public readonly struct RuntimeInfo()
 {

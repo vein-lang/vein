@@ -4,12 +4,15 @@ using io;
 using libuv;
 using static IshtarMath;
 
+
 public static unsafe class B_Threading
 {
     private static RuntimeIshtarClass* getThreadClass(CallFrame* current)
     {
-        var threadTypeName = current->vm.Vault.GlobalFindTypeName("[std]::std::Thread");
-        var result = current->vm.Vault.GlobalFindType(threadTypeName, true, true);
+        var vault = AppVault.GetVault(current->vm);
+
+        var threadTypeName = vault.GlobalFindTypeName("[std]::std::Thread");
+        var result = vault.GlobalFindType(threadTypeName, true, true);
 
         return result;
     }
@@ -19,11 +22,11 @@ public static unsafe class B_Threading
         var fnBox = args[0];
         var clazz = fnBox->clazz;
 
-        var scopePointer = fnBox->vtable[clazz->Field["_scope"]->vtable_offset];
-        var fnPointer = fnBox->vtable[clazz->Field["_fn"]->vtable_offset];
+        var proxy = new Vein_ClosureDelegate(fnBox);
+
         
-        var isVolatile = scopePointer == null;
-        var metadataRef = (rawval*)fnPointer;
+        var isVolatile = proxy.IsVolatile;
+        var metadataRef = proxy.Function;
 
         current->assert(metadataRef->type == VeinRawCode.ISHTAR_METHOD, WNE.TYPE_MISMATCH);
 
@@ -35,10 +38,10 @@ public static unsafe class B_Threading
             throw null;
         
         var type = getThreadClass(current);
-        var threadObj = current->vm.GC.AllocObject(type, current);
+        var threadObj = current->vm->gc->AllocObject(type, current);
 
         threadObj->vtable[type->Field["_fn"]->vtable_offset] = fnBox;
-        threadObj->vtable[type->Field["_threadRef"]->vtable_offset] = current->vm.threading.CreateThread(childFrame);
+        threadObj->vtable[type->Field["_threadRef"]->vtable_offset] = current->vm->threading.CreateThread(childFrame);
 
         return threadObj;
     }

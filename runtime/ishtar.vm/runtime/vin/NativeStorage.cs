@@ -2,7 +2,7 @@ namespace ishtar.runtime.vin;
 
 using ishtar.vin.loaders;
 
-public class NativeStorage(VirtualMachine vm)
+public unsafe class NativeStorage(VirtualMachine* vm)
 {
     private readonly object guarder = new();
     private readonly Dictionary<string, nint> _cache = new();

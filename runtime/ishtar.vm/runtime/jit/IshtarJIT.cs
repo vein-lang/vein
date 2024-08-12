@@ -4,7 +4,7 @@ using Iced.Intel;
 using vein.runtime;
 using static Iced.Intel.AssemblerRegisters;
 
-public unsafe class IshtarJIT(VirtualMachine vm)
+public unsafe class IshtarJIT(VirtualMachine* vm)
 {
     public static Architecture Architecture => RuntimeInformation.ProcessArchitecture;
 
@@ -206,9 +206,9 @@ public unsafe class IshtarJIT(VirtualMachine vm)
 
             if (argInfo.Instruction is x64_AssemblerStep.InstructionTarget.push)
             {
-                vm.FastFail(WNE.JIT_ASM_GENERATOR_INCORRECT_CAST,
+                vm->FastFail(WNE.JIT_ASM_GENERATOR_INCORRECT_CAST,
                     $"Direct call is not supported push operations",
-                    vm.Frames->Jit);
+                    vm->Frames->Jit);
             }
             else
             {
@@ -223,9 +223,9 @@ public unsafe class IshtarJIT(VirtualMachine vm)
                         asm.mov(__dword_ptr[rdi - (sbpOffset += argInfo.Register.GetSize())],
                             new AssemblerRegister32(argInfo.Register));
                     else
-                        vm.FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
+                        vm->FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
                             $"cannot move int32 into 16/8 bit register.",
-                            vm.Frames->Jit);
+                            vm->Frames->Jit);
                 }
                 else if (atype is VeinTypeCode.TYPE_I8)
                     asm.mov(__dword_ptr[rdi - (sbpOffset += argInfo.Register.GetSize())], new AssemblerRegister64(argInfo.Register));
@@ -234,9 +234,9 @@ public unsafe class IshtarJIT(VirtualMachine vm)
                 else if (atype is VeinTypeCode.TYPE_R4 or VeinTypeCode.TYPE_R8)
                     asm.movss(__dword_ptr[rdi - (sbpOffset += VeinTypeCode.TYPE_R4.GetNativeSize())], new AssemblerRegisterXMM(argInfo.Register));
                 else
-                    vm.FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
+                    vm->FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
                         $"type code '{atype}' is not supported.",
-                        vm.Frames->Jit);
+                        vm->Frames->Jit);
             }
         }
 
@@ -268,7 +268,7 @@ public unsafe class IshtarJIT(VirtualMachine vm)
             asm.pop(rbp);
         }
         asm.ret();
-        if (vm.HasFaulted())
+        if (vm->HasFaulted())
             return null;
         return RecollectExecutableMemory(asm);
     }
@@ -322,9 +322,9 @@ public unsafe class IshtarJIT(VirtualMachine vm)
                     asm.mov(__dword_ptr[rsp + stackOffset], val.data.i);
                     stackOffset += 8;
                 }
-                else vm.FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
+                else vm->FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
                         $"type code '{val.type}' is not supported.",
-                        vm.Frames->Jit);
+                        vm->Frames->Jit);
             }
             else
             {
@@ -340,18 +340,18 @@ public unsafe class IshtarJIT(VirtualMachine vm)
                     else if (argInfo.Register.IsGPR32())
                         asm.mov(new AssemblerRegister32(argInfo.Register), val.data.i);
                     else
-                        vm.FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
+                        vm->FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
                             $"cannot move int32 into 16/8 bit register.",
-                            vm.Frames->Jit);
+                            vm->Frames->Jit);
                 }
                 else if (val.type is VeinTypeCode.TYPE_I8)
                     asm.mov(new AssemblerRegister64(argInfo.Register), val.data.l);
                 else if (val.type is VeinTypeCode.TYPE_RAW)
                     asm.mov(new AssemblerRegister64(argInfo.Register), __[argumentValues[index++].data.p]);
                 else
-                    vm.FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
+                    vm->FastFail(WNE.JIT_ASM_GENERATOR_TYPE_FAULT,
                         $"type code '{val.type}' is not supported.",
-                        vm.Frames->Jit);
+                        vm->Frames->Jit);
             }
         }
         
@@ -376,7 +376,7 @@ public unsafe class IshtarJIT(VirtualMachine vm)
             asm.pop(rbp);
         }
         asm.ret();
-        if (vm.HasFaulted())
+        if (vm->HasFaulted())
             return null;
         return RecollectExecutableMemory(asm);
     }
@@ -612,7 +612,7 @@ public unsafe class IshtarJIT(VirtualMachine vm)
         FlushInstructions(asm_mem, asm_size);
         if (!NativeApi.VirtualProtect(asm_mem, asm_size, NativeApi.Protection.PAGE_EXECUTE_READ, out _))
         {
-            vm.FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", vm.Frames->Jit);
+            vm->FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", vm->Frames->Jit);
             return null;
         }
         return asm_mem; 

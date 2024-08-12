@@ -4,12 +4,19 @@ using io;
 using runtime.gc;
 using runtime.vin;
 using runtime;
-using vm.runtime;
 using llmv;
+using ishtar.runtime.io.ini;
 
 [CTypeExport("vm_t")]
-public unsafe struct VirtualMachineRef
+public unsafe partial struct VirtualMachine : IDisposable
 {
+    public readonly RuntimeInfo runtimeInfo = new();
+    public readonly VirtualMachine* @ref = self;
+
+    public AppVault Vault => AppVault.GetVault(@ref);
+    public ForeignFunctionInterface FFI => Vault.FFI;
+    public NativeStorage NativeStorage => Vault.NativeStorage;
+
     public InternedString* Name;
 
     public IshtarFrames* Frames;
@@ -20,29 +27,9 @@ public unsafe struct VirtualMachineRef
     public TaskScheduler* task_scheduler;
     internal RuntimeIshtarModule* InternalModule;
     internal RuntimeIshtarClass* InternalClass;
-}
-
-public unsafe partial class VirtualMachine : IDisposable
-{
-    public readonly RuntimeInfo runtimeInfo = new();
-
-    public VirtualMachineRef* @ref;
-
-    public volatile NativeException CurrentException;
-    public volatile IWatchDog watcher;
-    public volatile AppVault Vault;
-    public volatile IshtarGC GC;
-    public volatile ForeignFunctionInterface FFI;
-    public volatile IshtarJIT Jit;
-    public volatile NativeStorage NativeStorage;
+    public IniRoot* boot_cfg;
     public AppConfig Config;
-
-    public IshtarFrames* Frames => @ref->Frames;
-    internal IshtarTrace trace => @ref->trace;
-    internal LLVMContext Jitter => @ref->Jitter;
-    public IshtarTypes* Types => @ref->Types;
-    public IshtarThreading threading => @ref->threading;
-    public TaskScheduler* task_scheduler => @ref->task_scheduler;
-    internal RuntimeIshtarModule* InternalModule => @ref->InternalModule;
-    internal RuntimeIshtarClass* InternalClass => @ref->InternalClass;
+    public IshtarMasterFault* currentFault;
+    public IshtarWatchDog watcher;
+    public IshtarGC* gc;
 }

@@ -3,9 +3,9 @@ namespace ishtar
     using System.Text;
     using runtime.gc;
 
-    public static class CallFrameEx
+    public static unsafe class CallFrameEx
     {
-        public static IshtarGC GetGC(this CallFrame frame) => frame.vm.GC;
+        public static IshtarGC* GetGC(this CallFrame frame) => frame.vm->gc;
     }
 
     [CTypeExport("call_frame_t")]
@@ -29,7 +29,7 @@ namespace ishtar
         public SmartPointer<stackval> returnValue;
         public stackval* args;
         public OpCodeValue last_ip;
-        public VirtualMachine vm => method->Owner->Owner->vm;
+        public VirtualMachine* vm => method->Owner->Owner->vm;
 
         public CallFrameException exception;
 
@@ -44,6 +44,15 @@ namespace ishtar
             return frame;
         }
 
+        public static CallFrame* Create(RuntimeIshtarMethod* method)
+        {
+            var frame = IshtarGC.AllocateImmortal<CallFrame>(null);
+
+            *frame = new CallFrame(method, null, frame);
+
+            return frame;
+        }
+
         private static void Free(CallFrame* frame) => IshtarGC.FreeImmortal(frame);
 
 
@@ -51,34 +60,34 @@ namespace ishtar
         {
             if (conditional)
                 return;
-            vm.FastFail(WNE.STATE_CORRUPT, $"Static assert failed: '{msg}'", Self);
+            vm->FastFail(WNE.STATE_CORRUPT, $"Static assert failed: '{msg}'", Self);
         }
         public void assert(bool conditional, WNE type, [CallerArgumentExpression("conditional")] string msg = default)
         {
             if (conditional)
                 return;
-            vm.FastFail(type, $"Static assert failed: '{msg}'", Self);
+            vm->FastFail(type, $"Static assert failed: '{msg}'", Self);
         }
 
 
         public void ThrowException(RuntimeIshtarClass* @class) =>
             this.exception = new CallFrameException()
             {
-                value = vm.GC.AllocObject(@class, Self)
+                value = vm->gc->AllocObject(@class, Self)
             };
 
         public void ThrowException(RuntimeIshtarClass* @class, string message)
         {
             this.exception = new CallFrameException()
             {
-                value = vm.GC.AllocObject(@class, Self)
+                value = vm->gc->AllocObject(@class, Self)
             };
 
             if (@class->FindField("message") is null)
                 throw new InvalidOperationException($"Class '{@class->FullName->NameWithNS}' is not contained 'message' field.");
 
             this.exception.value->vtable[@class->Field["message"]->vtable_offset]
-                = vm.GC.ToIshtarObject(message, Self);
+                = vm->gc->ToIshtarObject(message, Self);
         }
 
 

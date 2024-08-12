@@ -5,7 +5,7 @@ using runtime;
 using static OpCodeValue;
 using static vein.runtime.VeinTypeCode;
 
-public unsafe partial class VirtualMachine
+public unsafe partial struct VirtualMachine
 {
     public delegate void A_OperationDelegate<T>(ref T t1, ref T t2);
 
@@ -218,7 +218,7 @@ public unsafe partial class VirtualMachine
                         if (i2 == 0)
                         {
                             // TODO
-                            FastFail(WNE.ACCESS_VIOLATION, $"YOUR JUST OPEN A BLACKHOLE!!! [DivideByZeroError]", frame);
+                            frame->vm->FastFail(WNE.ACCESS_VIOLATION, $"YOUR JUST OPEN A BLACKHOLE!!! [DivideByZeroError]", frame);
                         }
                         i1 /= i2;
                         break;

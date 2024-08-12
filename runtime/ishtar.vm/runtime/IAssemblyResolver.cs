@@ -55,7 +55,7 @@ namespace vein.runtime
         public RuntimeIshtarModule* Resolve(IshtarAssembly assembly)
         {
             var (_, code) = assembly.Sections.First();
-            var deps = IshtarGC.AllocateList<RuntimeIshtarModule>(Vault.vm.@ref);
+            var deps = IshtarGC.AllocateList<RuntimeIshtarModule>(Vault.vm);
 
             var module = RuntimeIshtarModule.Read(Vault, code, deps, (s, version) =>
                 this.ResolveDep(s, version, deps));
@@ -106,7 +106,7 @@ namespace vein.runtime
                            $"\t  {search_paths.Select(x => $"Path '{x}', Exist: {x.Exists}").Join("\n\t  ")};";
                 if (files.Length != 0)
                     text += $"\n\tfiles checked: {files.Select(x => $"{x}").Join("\n\t\t")}";
-                Vault.vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, text, sys_frame);
+                Vault.vm->FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, text, sys_frame);
                 return null;
             }
         }
@@ -114,6 +114,6 @@ namespace vein.runtime
         protected override void debug(string s) { }
 
 
-        public CallFrame* sys_frame => Vault.vm.Frames->ModuleLoaderFrame;
+        public CallFrame* sys_frame => Vault.vm->Frames->ModuleLoaderFrame;
     }
 }

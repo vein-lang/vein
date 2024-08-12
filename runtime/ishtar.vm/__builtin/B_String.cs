@@ -77,7 +77,7 @@ namespace ishtar
 
             var result = string.Format(template, dotnet_arr);
 
-            return gc.ToIshtarObject(result, frame);
+            return gc->ToIshtarObject(result, frame);
 
         }
 
@@ -100,7 +100,7 @@ namespace ishtar
 
             var result = string.Concat(str1, str2);
 
-            return gc.ToIshtarObject(result, frame);
+            return gc->ToIshtarObject(result, frame);
         }
 
 
@@ -123,7 +123,7 @@ namespace ishtar
 
             var result = str1.Contains(str2);
 
-            return gc.ToIshtarObject(result, frame);
+            return gc->ToIshtarObject(result, frame);
         }
 
         [IshtarExportFlags(Private | Static)]
@@ -144,7 +144,7 @@ namespace ishtar
 
             var result = str1.Equals(str2);
 
-            return gc.ToIshtarObject(result, frame);
+            return gc->ToIshtarObject(result, frame);
         }
 
         public static IshtarObject* TemplateFunctionApply(CallFrame* frame, IshtarObject** args, Func<string, string> apply)
@@ -158,7 +158,7 @@ namespace ishtar
 
             var result = apply(clr_str);
 
-            return gc.ToIshtarObject(result, frame);
+            return gc->ToIshtarObject(result, frame);
         }
 
 

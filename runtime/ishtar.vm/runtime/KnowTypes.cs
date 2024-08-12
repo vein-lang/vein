@@ -12,12 +12,13 @@ public static unsafe partial class KnowTypes
 
     public static QualityTypeName NullPointerExceptionTypeName = create("std", "NullPointerException", "std");
     public static QualityTypeName IncorrectCastFaultTypeName = create("std", "IncorrectCastFault", "std");
+    public static QualityTypeName SocketFaultTypeName = create("std", "SocketFault", "std");
     public static QualityTypeName FreeImmortalObjectFaultTypeName =
         create("std", nameof(FreeImmortalObjectFault), "std");
     public static QualityTypeName TypeNotFoundFaultTypeName =
-        create("std", nameof(TypeNotFoundFault), "std/reflection");
+        create("std", nameof(TypeNotFoundFault), "std::reflection");
     public static QualityTypeName MultipleTypeFoundFaultTypeName =
-        create("std", nameof(MultipleTypeFoundFault), "std/reflection");
+        create("std", nameof(MultipleTypeFoundFault), "std::reflection");
     public static QualityTypeName PlatformIsNotSupportFaultTypeName =
         create("std", nameof(PlatformIsNotSupportFault), "std");
     public static QualityTypeName IshtarFault = create("std", nameof(IshtarFault), "std");
@@ -47,6 +48,9 @@ public static unsafe partial class KnowTypes
     public static RuntimeIshtarClass* NativeFault(CallFrame* frame)
         => findType(IshtarFault, frame);
 
+    public static RuntimeIshtarClass* SocketFault(CallFrame* frame)
+        => findType(SocketFaultTypeName, frame);
+
     public static RuntimeIshtarClass* Type(CallFrame* frame)
         => findType(TypeInfoTypeName, frame);
     public static RuntimeIshtarClass* Field(CallFrame* frame)
@@ -74,7 +78,7 @@ public static unsafe partial class KnowTypes
 
         if (t->IsUnresolved)
         {
-            frame->vm.FastFail(WNE.MISSING_TYPE, $"Cannot find '{q->NameWithNS}' bulitin type", frame);
+            frame->vm->FastFail(WNE.MISSING_TYPE, $"Cannot find '{q->NameWithNS}' bulitin type", frame);
             return null;
         }
         

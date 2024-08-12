@@ -26,16 +26,16 @@ public static unsafe class B_Function
     public static void InitTable(ForeignFunctionInterface ffi)
     {
         //var table = ffi.method_table;
-        //ffi.vm.CreateInternalMethod("i_call_Function_call", Public | Static | Extern,
+        //ffi.vm->CreateInternalMethod("i_call_Function_call", Public | Static | Extern,
         //        new VeinArgumentRef("f", ThisClass),
-        //        new VeinArgumentRef("args", ffi.vm.Types.ArrayClass))
+        //        new VeinArgumentRef("args", ffi.vm->Types.ArrayClass))
         //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Call)
         //    .AddInto(table, x => x.Name);
-        //ffi.vm.CreateInternalMethod("i_call_Function_create", Public | Static | Extern,
-        //        new VeinArgumentRef("target", ffi.vm.Types.ObjectClass),
-        //        new VeinArgumentRef("name", ffi.vm.Types.StringClass),
-        //        new VeinArgumentRef("ignoreCase", ffi.vm.Types.BoolClass),
-        //        new VeinArgumentRef("throwWhenFailBind", ffi.vm.Types.BoolClass)
+        //ffi.vm->CreateInternalMethod("i_call_Function_create", Public | Static | Extern,
+        //        new VeinArgumentRef("target", ffi.vm->Types.ObjectClass),
+        //        new VeinArgumentRef("name", ffi.vm->Types.StringClass),
+        //        new VeinArgumentRef("ignoreCase", ffi.vm->Types.BoolClass),
+        //        new VeinArgumentRef("throwWhenFailBind", ffi.vm->Types.BoolClass)
         //        )
         //    .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&Create)
         //    .AddInto(table, x => x.Name);

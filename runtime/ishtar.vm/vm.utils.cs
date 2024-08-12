@@ -3,7 +3,7 @@ namespace ishtar;
 using vein.runtime;
 using static vein.runtime.VeinTypeCode;
 
-public unsafe partial class VirtualMachine 
+public unsafe partial struct VirtualMachine 
 {
     public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, params (string name, VeinTypeCode code)[] args)
     {
@@ -32,30 +32,30 @@ public unsafe partial class VirtualMachine
         => InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags);
 
     public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, params VeinArgumentRef[] args)
-        => InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, RuntimeMethodArgument.Create(this, args, @ref));
+        => InternalClass->DefineMethod(name, TYPE_VOID.AsRuntimeClass(Types), flags, RuntimeMethodArgument.Create(@ref, args, @ref));
 
     public RuntimeIshtarMethod* CreateInternalMethod(string name, MethodFlags flags, RuntimeIshtarClass* returnType, params VeinArgumentRef[] args)
-        => InternalClass->DefineMethod(name, returnType, flags, RuntimeMethodArgument.Create(this, args, @ref));
+        => InternalClass->DefineMethod(name, returnType, flags, RuntimeMethodArgument.Create(@ref, args, @ref));
 
     public RuntimeIshtarMethod* DefineEmptySystemMethod(string name)
         => CreateInternalMethod(name, MethodFlags.Extern, TYPE_VOID.AsRuntimeClass(Types), Array.Empty<VeinArgumentRef>());
 
 
-    public bool HasFaulted() => CurrentException is not null;
+    public bool HasFaulted() => @ref->currentFault is not null;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FastFail(WNE type, string msg, CallFrame* frame)
     {
-        watcher?.FastFail(type, msg, frame);
-        watcher?.ValidateLastError();
+        watcher.FastFail(type, msg, frame);
+        watcher.ValidateLastError();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FastFail(bool assert, WNE type, string msg, CallFrame* frame)
     {
         if (!assert) return;
-        watcher?.FastFail(type, msg, frame);
-        watcher?.ValidateLastError();
+        watcher.FastFail(type, msg, frame);
+        watcher.ValidateLastError();
     }
 
     [Conditional("DEBUG")]
@@ -77,7 +77,7 @@ public unsafe partial class VirtualMachine
             return;
         if (frame is null)
             return;
-        frame->vm.FastFail(type, $"static assert failed: {msg}", frame);
+        frame->vm->FastFail(type, $"static assert failed: {msg}", frame);
     }
 
     public static void GlobalPrintln(string empty) { }

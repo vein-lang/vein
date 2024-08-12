@@ -31,18 +31,18 @@ public static unsafe class B_Sys
     [IshtarExport(0, "@queryPerformanceCounter")]
     [IshtarExportFlags(Public | Static)]
     public static IshtarObject* QueryPerformanceCounter(CallFrame* current, IshtarObject** _)
-        => current->GetGC().ToIshtarObject(Stopwatch.GetTimestamp(), current);
+        => current->GetGC()->ToIshtarObject(Stopwatch.GetTimestamp(), current);
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
-        //ffi.Add(ffi.vm.CreateInternalMethod("@value2string", Public | Static | Extern,
-        //        new VeinArgumentRef("value", ffi.vm.Types->ValueTypeClass))
+        //ffi.Add(ffi.vm->CreateInternalMethod("@value2string", Public | Static | Extern,
+        //        new VeinArgumentRef("value", ffi.vm->Types->ValueTypeClass))
         //    ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&ValueToString));
-        //ffi.vm.CreateInternalMethod("@object2string", Public | Static | Extern,
-        //        new VeinArgumentRef("value", ffi.vm.Types.ObjectClass))
+        //ffi.vm->CreateInternalMethod("@object2string", Public | Static | Extern,
+        //        new VeinArgumentRef("value", ffi.vm->Types.ObjectClass))
         //    .AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&ObjectToString)
         //    .AddInto(table, x => x.Name);
-        //ffi.vm.CreateInternalMethod("@queryPerformanceCounter", Public | Static | Extern)
+        //ffi.vm->CreateInternalMethod("@queryPerformanceCounter", Public | Static | Extern)
         //    .AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&QueryPerformanceCounter)
         //    .AddInto(table, x => x.Name);
     }

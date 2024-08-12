@@ -3,7 +3,7 @@ namespace ishtar;
 using System.Collections.Generic;
 using System.Linq;
 using collections;
-using ishtar.vm.__builtin.networks;
+using ishtar.__builtin.networks;
 using networks;
 using runtime;
 using runtime.gc;
@@ -11,18 +11,18 @@ using vein.runtime;
 
 public unsafe class ForeignFunctionInterface
 {
-    public readonly VirtualMachine vm;
+    public readonly VirtualMachine* vm;
     public NativeDictionary<ulong, RuntimeIshtarMethod>* methods { get; } 
     public Dictionary<string, ulong> method_table { get; } = new();
     public AtomicNativeDictionary<ulong, PInvokeInfo>* deferMethods { get; }
 
     private ulong _index;
 
-    public ForeignFunctionInterface(VirtualMachine vm)
+    public ForeignFunctionInterface(VirtualMachine* vm)
     {
         this.vm = vm;
-        methods = IshtarGC.AllocateDictionary<ulong, RuntimeIshtarMethod>(vm.@ref);
-        deferMethods = IshtarGC.AllocateAtomicDictionary<ulong, PInvokeInfo>(vm.@ref);
+        methods = IshtarGC.AllocateDictionary<ulong, RuntimeIshtarMethod>(vm);
+        deferMethods = IshtarGC.AllocateAtomicDictionary<ulong, PInvokeInfo>(vm);
         INIT();
     }
     public PInvokeInfo AsNative(delegate*<CallFrame*, IshtarObject**, IshtarObject*> p)
@@ -62,7 +62,7 @@ public unsafe class ForeignFunctionInterface
     }
 
     public RuntimeIshtarMethod* Add(string name, MethodFlags flags, VeinTypeCode returnType, params (string name, VeinTypeCode type)[] args)
-        => Add(name, flags, vm.Types->ByTypeCode(returnType), args);
+        => Add(name, flags, vm->Types->ByTypeCode(returnType), args);
 
     public RuntimeIshtarMethod* Add(string name, MethodFlags flags, RuntimeIshtarClass* returnType, params (string name, VeinTypeCode type)[] args)
     {
@@ -72,10 +72,10 @@ public unsafe class ForeignFunctionInterface
         for (int index = 0; index < args.Length; index++)
         {
             var (_, type) = args[index];
-            arr[index] = vm.Types->ByTypeCode(type);
+            arr[index] = vm->Types->ByTypeCode(type);
         }
 
-        var method = vm.CreateInternalMethod(
+        var method = vm->CreateInternalMethod(
             RuntimeIshtarMethod.GetFullName(name, returnType, arr), flags, args);
         method->Assert(method);
         method_table.Add(method->Name, _index);
@@ -94,7 +94,7 @@ public unsafe class ForeignFunctionInterface
     public static void StaticValidate(void* p, CallFrame* frame)
     {
         if (p != null) return;
-        frame->vm.FastFail(WNE.STATE_CORRUPT, "Null pointer state.", frame);
+        frame->vm->FastFail(WNE.STATE_CORRUPT, "Null pointer state.", frame);
     }
 
     [Conditional("STATIC_VALIDATE_IL")]
@@ -149,7 +149,7 @@ public unsafe class ForeignFunctionInterface
                 return;
             }
         }
-        vm.FastFail(WNE.MISSING_METHOD, $"method '{FullName}' is not found", vm.Frames->NativeLoader);
+        vm->FastFail(WNE.MISSING_METHOD, $"method '{FullName}' is not found", vm->Frames->NativeLoader);
         throw new EntryPointNotFoundException(FullName);
     }
 
@@ -159,7 +159,7 @@ public unsafe class ForeignFunctionInterface
     public static void LinkExternalNativeLibrary(string importModule, string fnName,
         RuntimeIshtarMethod* importCaller)
     {
-        var jitter = importCaller->Owner->Owner->vm.Jitter;
+        var jitter = importCaller->Owner->Owner->vm->Jitter;
 
         jitter.CompileFFI(importCaller, importModule, fnName);
     }
@@ -168,7 +168,7 @@ public unsafe class ForeignFunctionInterface
     public void DisplayDefinedMapping()
     {
         foreach (var (key, value) in method_table)
-            vm.trace.log($"ffi map '{key}' -> 'sys::FFI/{(GetMethod(value))->Name}'");
+            vm->trace.log($"ffi map '{key}' -> 'sys::FFI/{(GetMethod(value))->Name}'");
     }
 }
 

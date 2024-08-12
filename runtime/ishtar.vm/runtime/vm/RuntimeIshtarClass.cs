@@ -228,7 +228,7 @@ namespace ishtar
         }
 
 #if DEBUG_VTABLE
-        public static Dictionary<uint, debug_vtable> dvtables = new();
+        private static readonly Dictionary<uint, debug_vtable> dvtables = new();
 
         public debug_vtable dvtable => dvtables[ID];
 
@@ -247,7 +247,7 @@ namespace ishtar
             public void Dispose() => disposer(ptr);
         }
         
-        public void init_vtable(VirtualMachine vm, CallFrame* fr = null)
+        public void init_vtable(VirtualMachine* vm, CallFrame* fr = null)
         {
             if (is_inited) return;
 
@@ -268,7 +268,7 @@ namespace ishtar
             {
                 computed_size = (ulong)sizeof(void*);
                 vtable_size = (ulong)sizeof(void*);
-                vtable = vm.GC.AllocVTable(1);
+                vtable = vm->gc->AllocVTable(1);
                 is_inited = true;
                 return;
             }
@@ -280,13 +280,13 @@ namespace ishtar
             {
                 if (Parent->IsUnresolved)
                 {
-                    vm.FastFail(TYPE_MISMATCH, "Cannot init vtable when parent type is unresolved", frame);
+                    vm->FastFail(TYPE_MISMATCH, "Cannot init vtable when parent type is unresolved", frame);
                     return;
                 }
 
                 if (IsUnresolved)
                 {
-                    vm.FastFail(TYPE_MISMATCH, "Cannot init vtable when type is unresolved", frame);
+                    vm->FastFail(TYPE_MISMATCH, "Cannot init vtable when type is unresolved", frame);
                     return;
                 }
 
@@ -307,7 +307,7 @@ namespace ishtar
 
             if (computed_size >= long.MaxValue) // fuck IntPtr ctor limit
             {
-                vm.FastFail(TYPE_LOAD, $"'{FullName->ToString()}' too big object.", frame);
+                vm->FastFail(TYPE_LOAD, $"'{FullName->ToString()}' too big object.", frame);
                 return;
             }
 
@@ -328,7 +328,7 @@ namespace ishtar
             dvtable.vtable_info = new string[computed_size];
 #endif
 
-            vtable = vm.GC.AllocVTable((uint)computed_size);
+            vtable = vm->gc->AllocVTable((uint)computed_size);
             
 #if DEBUG_VTABLE
             dvtable.vtable_methods = new RuntimeIshtarMethod*[(long)computed_size];
@@ -356,7 +356,7 @@ namespace ishtar
 
                 if ((method->Flags & MethodFlags.Abstract) != 0 && (Flags & ClassFlags.Abstract) == 0)
                 {
-                    vm.FastFail(TYPE_LOAD,
+                    vm->FastFail(TYPE_LOAD,
                         $"Method '{method->Name}' in '{Name}' type has invalid mapping.", frame);
                     return;
                 }
@@ -373,7 +373,7 @@ namespace ishtar
                 {
                     var w = Parent->FindMethod(method->Name);
                     if (w == null && (method->Flags & MethodFlags.Override) != 0)
-                        vm.FastFail(MISSING_METHOD,
+                        vm->FastFail(MISSING_METHOD,
                             $"Method '{method->Name}' mark as OVERRIDE," +
                             $" but parent class '{Parent->Name}'" +
                             $" no contained virtual/abstract method.", frame);
@@ -399,7 +399,7 @@ namespace ishtar
 
                     if ((field->Flags & FieldFlags.Abstract) != 0 && (Flags & ClassFlags.Abstract) == 0)
                     {
-                        vm.FastFail(TYPE_LOAD,
+                        vm->FastFail(TYPE_LOAD,
                             $"Field '{field->Name}' in '{this.Name}' type has invalid mapping.", frame);
                         return;
                     }
@@ -437,7 +437,7 @@ namespace ishtar
                         var w = Parent->FindField(field->FullName);
 
                         if (w == null && (field->Flags & FieldFlags.Override) != 0)
-                            vm.FastFail(MISSING_FIELD,
+                            vm->FastFail(MISSING_FIELD,
                                 $"Field '{field->Name}' mark as OVERRIDE," +
                                 $" but parent class '{Parent->Name}' " +
                                 $"no contained virtual/abstract method.", frame);
