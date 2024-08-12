@@ -12,12 +12,12 @@ namespace ishtar
             var gc = current->GetGC();
             // TODO remove using RuntimeInformation
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return gc.ToIshtarObject(0, current);
+                return gc->ToIshtarObject(0, current);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                return gc.ToIshtarObject(1, current);
+                return gc->ToIshtarObject(1, current);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                return gc.ToIshtarObject(2, current);
-            return gc.ToIshtarObject(-1, current);
+                return gc->ToIshtarObject(2, current);
+            return gc->ToIshtarObject(-1, current);
         }
 
 
@@ -31,7 +31,7 @@ namespace ishtar
             ForeignFunctionInterface.StaticTypeOf(current, &exitCode, TYPE_I4);
             ForeignFunctionInterface.StaticValidateField(current, &exitCode, "!!value");
 
-            current->vm.halt(IshtarMarshal.ToDotnetInt32(exitCode, current));
+            current->vm->halt(IshtarMarshal.ToDotnetInt32(exitCode, current));
 
             return null;
         }
@@ -54,7 +54,7 @@ namespace ishtar
             var clr_key = IshtarMarshal.ToDotnetString(key, current);
             var clr_value = IshtarMarshal.ToDotnetBoolean(value, current);
 
-            //current->vm.Config.Set(clr_key, clr_value);
+            //current->vm->Config.Set(clr_key, clr_value);
 
             return null;
         }

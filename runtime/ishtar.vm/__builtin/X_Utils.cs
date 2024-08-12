@@ -7,7 +7,7 @@ public static unsafe class X_Utils
     //[IshtarExportFlags(Public | Static)]
     //public static IshtarObject* BumpModulesTypes(CallFrame current, IshtarObject** args)
     //{
-    //    foreach (var module in current.vm.Vault.Modules)
+    //    foreach (var module in current.vm->Vault.Modules)
     //    {
     //        Console.ForegroundColor = ConsoleColor.Green;
     //        Console.WriteLine($"#module '{module->Name}'\n");
@@ -34,10 +34,10 @@ public static unsafe class X_Utils
     //public static void InitTable(ForeignFunctionInterface ffi)
     //{
     //    var table = ffi.method_table;
-    //    ffi.vm.CreateInternalMethod("vein::ishtar::graph::bump", Public | Static | Extern)
+    //    ffi.vm->CreateInternalMethod("vein::ishtar::graph::bump", Public | Static | Extern)
     //        .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&BumpModulesTypes)
     //        .AddInto(table, x => x.Name);
-    //    ffi.vm.CreateInternalMethod("vein::ishtar::debugger::break", Public | Static | Extern)
+    //    ffi.vm->CreateInternalMethod("vein::ishtar::debugger::break", Public | Static | Extern)
     //        .AsNative((delegate*<CallFrame, IshtarObject**, IshtarObject*>)&DebuggerBreak)
     //        .AddInto(table, x => x.Name);
     //}

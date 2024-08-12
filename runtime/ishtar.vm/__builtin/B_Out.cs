@@ -25,21 +25,21 @@ namespace ishtar
                     IshtarMarshal.ToDotnetString(arg1, current) :
                     IshtarMarshal.ToDotnetString(IshtarMarshal.ToIshtarString(arg1, current), current);
 
-            current->vm.trace.console_std_write(str);
+            current->vm->trace.console_std_write(str);
             return null;
         }
 
         [IshtarExport(0, "@_readline")]
         [IshtarExportFlags(Public | Static)]
         public static IshtarObject* FReadLine(CallFrame* current, IshtarObject** args)
-            => current->GetGC().ToIshtarObject(In.ReadLine(), current);
+            => current->GetGC()->ToIshtarObject(In.ReadLine(), current);
 
 
         public static void InitTable(ForeignFunctionInterface ffi)
         {
             ffi.Add("@_println", Public | Static | Extern, TYPE_VOID, ("val", TYPE_OBJECT))
                 ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FPrintLn_Object);
-            ffi.Add("@_readline", Public | Static | Extern,  TYPE_STRING.AsRuntimeClass(ffi.vm.Types))
+            ffi.Add("@_readline", Public | Static | Extern,  TYPE_STRING.AsRuntimeClass(ffi.vm->Types))
                 ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&FReadLine);
         }
     }

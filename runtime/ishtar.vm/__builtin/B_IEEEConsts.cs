@@ -9,7 +9,7 @@ namespace ishtar
         [IshtarExportFlags(Public | Static)]
         public static IshtarObject* getHalfNaN(CallFrame* current, IshtarObject** args)
         {
-            current->vm.FastFail(WNE.MISSING_METHOD, "[B_IEEEConsts::getHalfNaN]", current);
+            current->vm->FastFail(WNE.MISSING_METHOD, "[B_IEEEConsts::getHalfNaN]", current);
             return null;
         }
 

@@ -8,12 +8,12 @@ public static unsafe class B_GC
     [IshtarExport(0, "i_call_GC_get_allocated")]
     [IshtarExportFlags(Public | Static)]
     public static IshtarObject* GetAllocatedBytes(CallFrame* current, IshtarObject** _)
-        => current->GetGC().ToIshtarObject(current->vm.GC.Stats.total_allocations, current);
+        => current->GetGC()->ToIshtarObject(current->vm->gc->total_allocations, current);
 
     [IshtarExport(0, "i_call_GC_get_alive_objects")]
     [IshtarExportFlags(Public | Static)]
     public static IshtarObject* GetAliveObjects(CallFrame* current, IshtarObject** _)
-        => current->GetGC().ToIshtarObjectT(current->vm.GC.Stats.alive_objects, current);
+        => current->GetGC()->ToIshtarObjectT(current->vm->gc->alive_objects, current);
 
     public static void InitTable(ForeignFunctionInterface ffi)
     {
