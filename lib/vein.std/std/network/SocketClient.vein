@@ -30,7 +30,7 @@ public class SocketClient {
     [native("__internal__", "socket_tcp_init_handle")]
     private static extern tcp_init_handle(): raw;
     [native("__internal__", "socket_accept_handle")]
-    private static extern socket_accept_handle(client: raw, server: raw): i32;
+    private static extern socket_accept_handle(client: raw, server: SocketHandle): i32;
     [native("__internal__", "socket_read_start")]
     private static extern socket_read_start(client: raw, callback: rawOnReadStart): i32;
     [native("__internal__", "socket_create_stream_reader")]

@@ -1,13 +1,25 @@
 #space "std"
 
-public class Testable
+public class Testable : SocketServer
 {
+    new() {}
+
     public static master(): Void
     {
-        auto s = new Array<i32>(1);
-        auto w = s[0];
+        auto t = new Testable();
 
-        auto b = as<i64>(0);
-        auto cs = nameof(master);
+        t.start(new IpEndpoint(new Ipv4Addr(as<u8>(127),as<u8>(0),as<u8>(0),as<u8>(1)), as<u16>(7283)));
+
+        while(true) {
+            Thread.Sleep(100);
+        }
+    }
+
+
+    override onConnected(client: SocketClient): void {
+
+    }
+    override onRead(client: SocketClient, writer: StreamWriter, reader: StreamReader): void {
+
     }
 }

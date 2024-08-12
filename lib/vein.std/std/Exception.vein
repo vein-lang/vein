@@ -43,3 +43,10 @@ public class PlatformIsNotSupportFault : Exception
     public new(msg: string)
         |> this.message = msg;
 }
+
+public class SocketFault : Exception
+{
+    public new();
+    public new(msg: string)
+        |> this.message = msg;
+}

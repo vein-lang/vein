@@ -8,9 +8,9 @@ public class Ipv4Addr
     private fourth: u8;
 
     new(a1: u8, a2: u8, a3: u8, a4: u8) {
-        this.first = a1;
-        this.second = a2;
-        this.third = a3;
-        this.fourth = a4;
+        first = a1;
+        second = a2;
+        third = a3;
+        fourth = a4;
     }
 }
