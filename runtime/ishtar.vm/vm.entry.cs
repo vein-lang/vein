@@ -9,8 +9,10 @@ unsafe
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         Console.OutputEncoding = Encoding.Unicode;
 
+    VirtualMachine.static_init();
+
     var vm = VirtualMachine.Create("app");
-    var vault = vm.Vault;
+    var vault = vm->Vault;
 
 #if DEBUG
     Thread.CurrentThread.Name = $"ishtar::entry";
@@ -29,13 +31,13 @@ unsafe
     {
         if (args.Length < 1)
         {
-            vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, "0x1 [module path is not passed]", vm.Frames->EntryPoint);
+            vm->FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, "0x1 [module path is not passed]", vm->Frames->EntryPoint);
             return -1;
         }
         var entry = new FileInfo(args.First());
         if (!entry.Exists)
         {
-            vm.FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"0x2 [{entry.FullName} is not found]", vm.Frames->EntryPoint);
+            vm->FastFail(WNE.ASSEMBLY_COULD_NOT_LOAD, $"0x2 [{entry.FullName} is not found]", vm->Frames->EntryPoint);
             return -2;
         }
         vault.WorkDirectory = entry.Directory;
@@ -53,7 +55,7 @@ unsafe
 
     if (entry_point is null)
     {
-        vm.FastFail(WNE.MISSING_METHOD, $"Entry point in '{module->Name}' module is not defined.", vm.Frames->EntryPoint);
+        vm->FastFail(WNE.MISSING_METHOD, $"Entry point in '{module->Name}' module is not defined.", vm->Frames->EntryPoint);
         return -280;
     }
 
@@ -76,8 +78,8 @@ unsafe
     //    IshtarSharedDebugData.DumpToFile(new FileInfo($"./modules/{x->Name}.module"), IshtarTrace.Dump(x));
     //});
 
-    vm.task_scheduler->start_threading(module);
-    vm.task_scheduler->execute_method(frame);
+    vm->task_scheduler->start_threading(module);
+    vm->task_scheduler->execute_method(frame);
 
     if (!frame->exception.IsDefault())
     {
@@ -86,7 +88,7 @@ unsafe
 
         if (exceptionClass->FindField("message") is null)
         {
-            vm.trace.error($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
+            vm->trace.error($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
                            $"{frame->exception.GetStackTrace()}");
         }
         else
@@ -94,13 +96,13 @@ unsafe
             var msg = exceptionValue->vtable[exceptionClass->Field["message"]->vtable_offset];
             if (msg is null)
             {
-                vm.trace.error($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
+                vm->trace.error($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
                                $"{frame->exception.GetStackTrace()}");
             }
             else
             {
                 var message = IshtarMarshal.ToDotnetString((IshtarObject*)msg, frame);
-                vm.trace.error(
+                vm->trace.error(
                     $"""
                      unhandled exception '{frame->exception.value->clazz->Name}' was thrown.
                      '{message}'
@@ -111,11 +113,11 @@ unsafe
     }
 
     watcher.Stop();
-    vm.trace.log($"Elapsed: {watcher.Elapsed}");
+    vm->trace.log($"Elapsed: {watcher.Elapsed}");
     frame->Dispose();
-    vm.Dispose();
+    vm->Dispose();
 
-    vm.trace.log($"Press ENTER to exit...");
+    vm->trace.log($"Press ENTER to exit...");
 
     Console.ReadKey();
     return 0;
