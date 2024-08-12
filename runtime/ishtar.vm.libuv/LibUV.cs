@@ -80,16 +80,16 @@ public static unsafe class LibUV
     public static extern void uv_sem_destroy(ref uv_sem_t sem);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern UV_ERR uv_mutex_init(out uv_mutex_t handle);
+    public static extern UV_ERR uv_mutex_init(uv_mutex_t* handle);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uv_mutex_lock(ref uv_mutex_t handle);
+    public static extern void uv_mutex_lock(uv_mutex_t* handle);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uv_mutex_unlock(ref uv_mutex_t handle);
+    public static extern void uv_mutex_unlock(uv_mutex_t* handle);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uv_mutex_destroy(ref uv_mutex_t handle);
+    public static extern void uv_mutex_destroy(uv_mutex_t* handle);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern UV_ERR uv_cancel(uv_work_t* req);
