@@ -48,7 +48,7 @@ public static class G_Access
         {
             var (type, index) = context.CurrentScope.GetVariable(id);
             gen.WriteDebugMetadata($"/* access local, var: '{id}', index: '{index}', type: '{type}' */");
-            return gen.Emit(OpCodes.LDLOC_S, index);
+            return gen.EmitLoadLocal(index);
         }
 
         // second order: search argument
@@ -250,7 +250,7 @@ public static class G_Access
         }
 
         if (access is { Left: ThisAccessExpression, Right: InvocationExpression inv1 })
-            return gen.EmitCall(ctx.CurrentMethod.Owner, inv1);
+            return gen.EmitThis().EmitCall(ctx.CurrentMethod.Owner, inv1);
         if (access is { Left: SelfAccessExpression, Right: InvocationExpression inv2 })
             return gen.EmitCall(ctx.CurrentMethod.Owner, inv2);
 
