@@ -78,7 +78,7 @@ public partial class CompilationTask
                     flags |= MethodFlags.Virtual;
                     continue;
                 case "abstract":
-                    flags |= MethodFlags.Virtual;
+                    flags |= MethodFlags.Abstract;
                     continue;
                 case "async":
                     flags |= MethodFlags.Async;

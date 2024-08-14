@@ -316,7 +316,8 @@ public static class G_Operators
             }
             else
                 throw new NotSupportedException("EmitLoadFunction");
-            gen.Emit(OpCodes.LDNULL);
+
+            gen.EmitThis(); // todo, check method ref from another scopes 
 
             var ctor = fnType.FindMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR,
             [

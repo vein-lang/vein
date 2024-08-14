@@ -66,59 +66,12 @@ unsafe
 
     var watcher = Stopwatch.StartNew();
 
-    //var debugModules = new DirectoryInfo("./modules");
-
-    //if (!debugModules.Exists)
-    //    debugModules.Create();
-
-    //IshtarSharedDebugData.DumpToFile(new FileInfo($"./modules/{module->Name}.module"), IshtarTrace.Dump(module));
-
-    //module->deps_table->ForEach(x =>
-    //{
-    //    IshtarSharedDebugData.DumpToFile(new FileInfo($"./modules/{x->Name}.module"), IshtarTrace.Dump(x));
-    //});
-
     vm->task_scheduler->start_threading(module);
     vm->task_scheduler->execute_method(frame);
-
-    if (!frame->exception.IsDefault())
-    {
-        var exceptionValue = frame->exception.value;
-        var exceptionClass = exceptionValue->clazz;
-
-        if (exceptionClass->FindField("message") is null)
-        {
-            vm->trace.error($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
-                           $"{frame->exception.GetStackTrace()}");
-        }
-        else
-        {
-            var msg = exceptionValue->vtable[exceptionClass->Field["message"]->vtable_offset];
-            if (msg is null)
-            {
-                vm->trace.error($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
-                               $"{frame->exception.GetStackTrace()}");
-            }
-            else
-            {
-                var message = IshtarMarshal.ToDotnetString((IshtarObject*)msg, frame);
-                vm->trace.error(
-                    $"""
-                     unhandled exception '{frame->exception.value->clazz->Name}' was thrown.
-                     '{message}'
-                     {frame->exception.GetStackTrace()}
-                     """);
-            }
-        }
-    }
 
     watcher.Stop();
     vm->trace.log($"Elapsed: {watcher.Elapsed}");
     frame->Dispose();
     vm->Dispose();
-
-    vm->trace.log($"Press ENTER to exit...");
-
-    Console.ReadKey();
     return 0;
 }

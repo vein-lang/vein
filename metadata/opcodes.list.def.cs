@@ -6,7 +6,7 @@ namespace ishtar
 	using System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 25;
+		internal static int SetVersion = 26;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -364,6 +364,13 @@ namespace ishtar
 		/// chain: 0
 		/// </summary>
 		public static readonly OpCode CALL = new (0x32, 0x0200001F);
+		/// <summary>
+		/// Call operation (abstract and virtual only).
+		/// size: 8
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode CALL_V = new (0x77, 0x0200001F);
 		/// <summary>
 		/// Call operation (load pointer from stack).
 		/// size: 0
@@ -894,6 +901,7 @@ namespace ishtar
 			{OpCodeValue.RESERVED_2, RESERVED_2},
 			{OpCodeValue.RET, RET},
 			{OpCodeValue.CALL, CALL},
+			{OpCodeValue.CALL_V, CALL_V},
 			{OpCodeValue.CALL_SP, CALL_SP},
 			{OpCodeValue.LDFN, LDFN},
 			{OpCodeValue.LDNULL, LDNULL},

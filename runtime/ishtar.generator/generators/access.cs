@@ -39,6 +39,18 @@ public static class G_Access
         5 => gen.Emit(OpCodes.LDARG_5),
         _ => gen.Emit(OpCodes.LDARG_S, i)
     };
+
+    public static ILGenerator EmitStageLocal(this ILGenerator gen, int i) => i switch
+    {
+        0 => gen.Emit(OpCodes.STLOC_0),
+        1 => gen.Emit(OpCodes.STLOC_1),
+        2 => gen.Emit(OpCodes.STLOC_2),
+        3 => gen.Emit(OpCodes.STLOC_3),
+        4 => gen.Emit(OpCodes.STLOC_4),
+        5 => gen.Emit(OpCodes.STLOC_5),
+        _ => gen.Emit(OpCodes.STLOC_S, i)
+    };
+
     public static ILGenerator EmitLoadIdentifierReference(this ILGenerator gen, IdentifierExpression id)
     {
         var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
@@ -48,7 +60,7 @@ public static class G_Access
         {
             var (type, index) = context.CurrentScope.GetVariable(id);
             gen.WriteDebugMetadata($"/* access local, var: '{id}', index: '{index}', type: '{type}' */");
-            return gen.Emit(OpCodes.LDLOC_S, index);
+            return gen.EmitLoadLocal(index);
         }
 
         // second order: search argument
@@ -250,7 +262,7 @@ public static class G_Access
         }
 
         if (access is { Left: ThisAccessExpression, Right: InvocationExpression inv1 })
-            return gen.EmitCall(ctx.CurrentMethod.Owner, inv1);
+            return gen.EmitThis().EmitCall(ctx.CurrentMethod.Owner, inv1);
         if (access is { Left: SelfAccessExpression, Right: InvocationExpression inv2 })
             return gen.EmitCall(ctx.CurrentMethod.Owner, inv2);
 

@@ -1,7 +1,7 @@
 #space "std"
 
 [special, forwarded]
-public class Aspect : Object 
+public abstract class Aspect : Object 
 {
     public static USAGE_METHOD: i32 = 1 << 1;
     public static USAGE_CLASS: i32 = 1 << 2;

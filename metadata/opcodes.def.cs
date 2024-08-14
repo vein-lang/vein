@@ -210,6 +210,10 @@ public enum OpCodeValue : ushort
 	/// </summary>
 	CALL = 0x32,
 	/// <summary>
+	/// Call operation (abstract and virtual only).
+	/// </summary>
+	CALL_V = 0x77,
+	/// <summary>
 	/// Call operation (load pointer from stack).
 	/// </summary>
 	CALL_SP = 0x72,
