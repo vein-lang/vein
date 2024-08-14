@@ -376,12 +376,15 @@ public unsafe partial struct VirtualMachine : IDisposable
 
                     if (!@ref->Config.SkipValidateStfType || !field->FieldType.IsGeneric)
                     {
-                        if (value->type != TYPE_NULL && field->FieldType.Class->TypeCode != value->type)
+                        if ((value->type != TYPE_NULL) && field->FieldType.Class->TypeCode != value->type)
                         {
-                            CallFrame.FillStackTrace(invocation);
-                            ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation,
-                                $"Cannot cast '{value->type}' to '{field->FieldType.Class->TypeCode}', maybe invalid IL");
-                            goto exception_handle;
+                            if (field->FieldType.Class->TypeCode != TYPE_OBJECT || value->type != TYPE_CLASS)
+                            {
+                                CallFrame.FillStackTrace(invocation);
+                                ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation,
+                                    $"Cannot cast '{value->type}' to '{field->FieldType.Class->TypeCode}', maybe invalid IL");
+                                goto exception_handle;
+                            }
                         }
                     }
 
