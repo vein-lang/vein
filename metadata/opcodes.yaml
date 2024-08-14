@@ -56,6 +56,9 @@
 - CALL:
     description: Call operation.
     override-size: 8
+- CALL_V:
+    description: Call operation (abstract and virtual only).
+    override-size: 8
 - CALL_SP:
     description: Call operation (load pointer from stack).
 - LDFN:

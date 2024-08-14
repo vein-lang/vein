@@ -117,5 +117,6 @@
   "LDFN": 115,
   "LD_TYPE.G": 116,
   "CAST.G": 117,
-  "LD_TYPE.E": 118
+  "LD_TYPE.E": 118,
+  "CALL_V": 119
 }
