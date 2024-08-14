@@ -80,5 +80,16 @@ public unsafe partial struct VirtualMachine
         frame->vm->FastFail(type, $"static assert failed: {msg}", frame);
     }
 
+    public static void Assert(bool when, bool conditional, WNE type, string msg, CallFrame* frame = null)
+    {
+        if (!when)
+            return;
+        if (conditional)
+            return;
+        if (frame is null)
+            throw new BadImageFormatException();
+        frame->vm->FastFail(type, $"static assert failed: {msg}", frame);
+    }
+
     public static void GlobalPrintln(string empty) { }
 }
