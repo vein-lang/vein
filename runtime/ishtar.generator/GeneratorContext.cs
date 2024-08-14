@@ -237,7 +237,7 @@ public class GeneratorContext(GeneratorContextConfig config)
                 true, true);
 
         var hiddenClass = CurrentScope.Context
-            .CreateHiddenType($"fn_{string.Join(' ', Encoding.UTF8.GetBytes(sig.ToTemplateString()).Select(x => $"{x:X}"))}", @base);
+            .CreateHiddenType($"fn_{Convert.ToBase64String(Encoding.UTF8.GetBytes(sig.ToTemplateString()))}", @base);
 
         if (hiddenClass.TypeCode is TYPE_FUNCTION)
             return hiddenClass;
@@ -284,8 +284,9 @@ public class GeneratorContext(GeneratorContextConfig config)
             generator.EmitThis();
             generator.Emit(OpCodes.LDF, scope);
         }
+
         foreach (int i in ..method.Signature.ArgLength)
-            generator.Emit(OpCodes.LDARG_S, i + 1); // TODO optimization for LDARG_X
+            generator.EmitLoadArgument(i + 1); //generator.Emit(OpCodes.LDARG_S, i + 1);
 
         generator.EmitThis();
         generator.Emit(OpCodes.LDF, ptrRef);
