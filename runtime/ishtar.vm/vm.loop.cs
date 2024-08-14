@@ -49,6 +49,8 @@ public unsafe partial struct VirtualMachine : IDisposable
 
     public void exec_method(CallFrame* invocation)
     {
+        FastFail(invocation->method is null, ACCESS_VIOLATION, "unexpected call frame method pointer corrupted.", invocation);
+        FastFail((invocation->method->Flags & MethodFlags.Abstract) != 0, EXECUTION_CORRUPTED, "unexpected call abstract method", invocation);
         if (!@ref->Config.DisableValidationInvocationArgs)
         {
             var argsLen = invocation->method->ArgLength;
@@ -163,6 +165,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                     println($"load from args ({sp->type})");
                     Assert(sp->type != TYPE_NONE, STATE_CORRUPT, "", invocation);
                     Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, "", invocation);
+                    Assert(sp->type == TYPE_CLASS, sp->data.p != 0, STATE_CORRUPT, "", invocation);
                     ++sp;
                     ++ip;
                     break;
@@ -172,6 +175,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                     println($"load from args ({sp->type})");
                     Assert(sp->type != TYPE_NONE, STATE_CORRUPT, "", invocation);
                     Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, "", invocation);
+                    Assert(sp->type == TYPE_CLASS, sp->data.p != 0, STATE_CORRUPT, "", invocation);
                     ++sp;
                     ++ip;
                     break;
