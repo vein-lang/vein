@@ -361,6 +361,10 @@ namespace ishtar.emit
             if (opcode != OpCodes.CALL && opcode != OpCodes.LDFN)
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
 
+            // for automatic change CALL opcode to CALL_V 
+            if (opcode == OpCodes.CALL && (method.IsVirtual || method.IsAbstract))
+                opcode = OpCodes.CALL_V;
+
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
 
             var (tokenIdx, ownerIdx) = this._methodBuilder.classBuilder.moduleBuilder.GetMethodToken(method);
