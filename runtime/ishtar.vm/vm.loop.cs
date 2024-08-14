@@ -562,6 +562,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                     sp->data.p = (nint)raw;
                     ++sp;
                 } break;
+                case CALL_V:
                 case CALL_SP:
                 case CALL:
                 {
@@ -575,8 +576,41 @@ public unsafe partial struct VirtualMachine : IDisposable
                         method = GetMethod(tokenIdx, owner, _module, invocation);
                         ++ip;
                     }
+                    else if (invocation->last_ip == CALL_V)
+                    {
+                        ++ip;
+                        var tokenIdx = *ip;
+                        var owner = readTypeName(*++ip, _module, invocation);
 
-                    if (invocation->last_ip == CALL_SP)
+                        var targetMethod = GetMethod(tokenIdx, owner, _module, invocation);
+
+                        Assert((targetMethod->Flags & MethodFlags.Static) == 0, TYPE_MISMATCH, "call.v fail", invocation);
+
+                        // take this* ref from stack for getting overrides method from vtable
+                        var shiftSp = sp - targetMethod->ArgLength;
+
+                        if (shiftSp->type == TYPE_NULL)
+                        {
+                            @ref->ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
+                            goto exception_handle;
+                            return;
+                        }
+
+                        ++ip;
+                        Assert(shiftSp->type == targetMethod->Owner->TypeCode, TYPE_MISMATCH, "call.v fail", invocation);
+                        var targetObj = (IshtarObject*)shiftSp->data.p;
+
+                        Assert(shiftSp->type == TYPE_CLASS, targetObj != null, GC_MOVED_UNMOVABLE_MEMORY, "closure scope deleted", invocation);
+
+                        if (!IshtarObject.IsAssignableFrom(invocation, targetObj->clazz, targetMethod->Owner))
+                        {
+                            Assert(false, TYPE_MISMATCH, "call.v fail", invocation);
+                            return;
+                        }
+
+                        method = (RuntimeIshtarMethod*)targetObj->vtable[targetMethod->vtable_offset];
+                    }
+                    else if (invocation->last_ip == CALL_SP)
                     {
                         ++ip;
                         sp--;
@@ -597,8 +631,18 @@ public unsafe partial struct VirtualMachine : IDisposable
                         Assert(raw->type == VeinRawCode.ISHTAR_METHOD, MISSING_TYPE, "", invocation);
                         method = raw->data.m;
                     }
-                        
+                    else
+                        FastFail(true, EXECUTION_CORRUPTED,
+                            "incorrect opcode behaviour", invocation);
 
+                    if (invocation->last_ip != CALL_V)
+                    {
+                        FastFail((method->Flags & MethodFlags.Abstract) != 0, EXECUTION_CORRUPTED,
+                            "opcode CALL/CALL_SP cannot execute abstract method", invocation);
+                        FastFail((method->Flags & MethodFlags.Virtual) != 0, EXECUTION_CORRUPTED,
+                            "opcode CALL/CALL_SP cannot execute virtual method", invocation);
+                    }
+                    
                     var child_frame = invocation->CreateChild(method);
                     println($".call {method->Owner->Name}::{method->Name}");
                     var method_args = gc->AllocateStack(child_frame, method->ArgLength);
@@ -646,7 +690,7 @@ public unsafe partial struct VirtualMachine : IDisposable
 
                         if (sp->type > TYPE_NULL)
                             FastFail(STATE_CORRUPT, $"[call arg validation] trying fill corrupted argument [{y}/{method->ArgLength}] for [{method->Name}]", invocation);
-
+                        Assert(sp->type == TYPE_CLASS, sp->data.p != 0, GC_MOVED_UNMOVABLE_MEMORY, "argument incorrect, maybe gc dropped memory from callframe", invocation);
                         method_args[y] = *sp;
                     }
 
