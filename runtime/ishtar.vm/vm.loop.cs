@@ -1262,10 +1262,47 @@ public unsafe partial struct VirtualMachine : IDisposable
             else
             {
                 fill_frame_exception();
+                if (invocation->level == 0)
+                    handle_unhandled_exception(invocation);
                 return;
             }
 
             goto vm_cycle_start;
+        }
+    }
+
+    private void handle_unhandled_exception(CallFrame* frame)
+    {
+        if (!frame->exception.IsDefault())
+        {
+            var exceptionValue = frame->exception.value;
+            var exceptionClass = exceptionValue->clazz;
+
+            if (exceptionClass->FindField("message") is null)
+            {
+                trace.error($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
+                                $"{frame->exception.GetStackTrace()}");
+            }
+            else
+            {
+                var msg = exceptionValue->vtable[exceptionClass->Field["message"]->vtable_offset];
+                if (msg is null)
+                {
+                    trace.error($"unhandled exception '{frame->exception.value->clazz->Name}' was thrown. \n" +
+                                    $"{frame->exception.GetStackTrace()}");
+                }
+                else
+                {
+                    var message = IshtarMarshal.ToDotnetString((IshtarObject*)msg, frame);
+                    trace.error(
+                        $"""
+                         unhandled exception '{frame->exception.value->clazz->Name}' was thrown.
+                         '{message}'
+                         {frame->exception.GetStackTrace()}
+                         """);
+                }
+            }
+            halt();
         }
     }
 }
