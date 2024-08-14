@@ -64,7 +64,7 @@ public static class G_Local
         scope.DefineVariable(localVar.Identifier, type, locIndex);
 
         generator.Emit(OpCodes.LDNULL);
-        generator.Emit(OpCodes.STLOC_S, locIndex); // TODO optimization for STLOC_0,1,2 and etc
+        generator.EmitStageLocal(locIndex);
     }
 
     public static void EmitLocalVariable(this ILGenerator generator, LocalVariableDeclaration localVar)

@@ -39,6 +39,18 @@ public static class G_Access
         5 => gen.Emit(OpCodes.LDARG_5),
         _ => gen.Emit(OpCodes.LDARG_S, i)
     };
+
+    public static ILGenerator EmitStageLocal(this ILGenerator gen, int i) => i switch
+    {
+        0 => gen.Emit(OpCodes.STLOC_0),
+        1 => gen.Emit(OpCodes.STLOC_1),
+        2 => gen.Emit(OpCodes.STLOC_2),
+        3 => gen.Emit(OpCodes.STLOC_3),
+        4 => gen.Emit(OpCodes.STLOC_4),
+        5 => gen.Emit(OpCodes.STLOC_5),
+        _ => gen.Emit(OpCodes.STLOC_S, i)
+    };
+
     public static ILGenerator EmitLoadIdentifierReference(this ILGenerator gen, IdentifierExpression id)
     {
         var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
