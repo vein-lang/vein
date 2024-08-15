@@ -14,10 +14,9 @@ public class WorkloadKeyContactConverter : JsonConverter<WorkloadKey>
     public override WorkloadKey ReadJson(JsonReader reader, Type objectType, WorkloadKey existingValue, bool hasExistingValue,
         JsonSerializer serializer)
     {
-        if (hasExistingValue)
-            throw new NotSupportedException();
-
-        return new((string)reader.Value);
+        if (reader.Value is not string str)
+            throw new InvalidOperationException();
+        return new(str);
     }
 }
 public class PackageKeyContactConverter : JsonConverter<PackageKey>
@@ -28,9 +27,9 @@ public class PackageKeyContactConverter : JsonConverter<PackageKey>
     public override PackageKey ReadJson(JsonReader reader, Type objectType, PackageKey existingValue, bool hasExistingValue,
         JsonSerializer serializer)
     {
-        if (hasExistingValue)
-            throw new NotSupportedException();
-        return new((string)reader.Value);
+        if (reader.Value is not string str)
+            throw new InvalidOperationException();
+        return new(str);
     }
 }
 public class PlatformKeyContactConverter : JsonConverter<PlatformKey>
@@ -41,9 +40,9 @@ public class PlatformKeyContactConverter : JsonConverter<PlatformKey>
     public override PlatformKey ReadJson(JsonReader reader, Type objectType, PlatformKey existingValue, bool hasExistingValue,
         JsonSerializer serializer)
     {
-        if (hasExistingValue)
-            throw new NotSupportedException();
-        return new((string)reader.Value);
+        if (reader.Value is not string str)
+            throw new InvalidOperationException();
+        return new(str);
     }
 }
 public class PackageKindKeyContactConverter : JsonConverter<PackageKindKey>
@@ -54,9 +53,9 @@ public class PackageKindKeyContactConverter : JsonConverter<PackageKindKey>
     public override PackageKindKey ReadJson(JsonReader reader, Type objectType, PackageKindKey existingValue, bool hasExistingValue,
         JsonSerializer serializer)
     {
-        if (hasExistingValue)
-            throw new NotSupportedException();
-        return new((string)reader.Value);
+        if (reader.Value is not string str)
+            throw new InvalidOperationException();
+        return new(str);
     }
 }
 public class WorkloadPackageBaseConverter : JsonConverter<List<IWorkloadPackageBase>>
@@ -123,6 +122,7 @@ public class WorkloadConverter : JsonConverter
 
         foreach (var property in jsonObject.Properties())
         {
+            property.Value["name"] = property.Name;
             var workload = property.Value.ToObject<Workload>(serializer);
             workloads[new WorkloadKey(property.Name)] = workload;
         }
@@ -179,6 +179,40 @@ public class WorkloadSdkAliasesPackageConverter : JsonConverter
     }
 }
 
+public class DictionaryWithPackageKeyConverter<T> : JsonConverter
+{
+    public override bool CanConvert(Type objectType)
+        => typeof(Dictionary<PackageKey, T>).IsAssignableFrom(objectType);
+
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    {
+        var packages = new Dictionary<PackageKey, T>();
+        var jsonObject = JObject.Load(reader);
+
+        foreach (var property in jsonObject.Properties())
+        {
+            var package = property.Value.ToObject<T>(serializer);
+            packages[new PackageKey(property.Name)] = package;
+        }
+
+        return packages;
+    }
+
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    {
+        var packages = (Dictionary<PackageKey, WorkloadPackage>)value;
+        writer.WriteStartObject();
+
+        foreach (var kvp in packages)
+        {
+            writer.WritePropertyName(kvp.Key.key);
+            serializer.Serialize(writer, kvp.Value);
+        }
+
+        writer.WriteEndObject();
+    }
+}
+
 public class WorkloadPackageConverter : JsonConverter
 {
     public override bool CanConvert(Type objectType)
@@ -191,6 +225,7 @@ public class WorkloadPackageConverter : JsonConverter
 
         foreach (var property in jsonObject.Properties())
         {
+            property.Value["name"] = property.Name;
             var package = property.Value.ToObject<WorkloadPackage>(serializer);
             packages[new PackageKey(property.Name)] = package;
         }
