@@ -4,5 +4,6 @@ namespace vein.runtime
     {
         byte[] BakeByteArray();
         string BakeDebugString();
+        string BakeDiagnosticDebugString();
     }
 }
