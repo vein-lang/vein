@@ -21,6 +21,7 @@ namespace ishtar.emit
         private List<OpCode> _debug_list = [];
         internal readonly MethodBuilder _methodBuilder;
         private readonly StringBuilder _debugBuilder = new ();
+        private readonly StringBuilder _diagnosticDebugBuilder = new ();
         public static bool DoNotGenDebugInfo = true;
 
         internal int LocalsSize { get; set; }
@@ -583,6 +584,8 @@ namespace ishtar.emit
 
         internal string BakeDebugString()
             => _position == 0 ? "" : $"{LocalsBuilder}\n{_debugBuilder}";
+        internal string BakeDiagnosticDebugString()
+            => _position == 0 ? "" : $"{LocalsBuilder}\n{_diagnosticDebugBuilder}";
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void PutInteger4(int value)
@@ -665,7 +668,12 @@ namespace ishtar.emit
         public void StoreIntoMetadata(string key, object o) => Metadata.Add(key, o);
         public bool HasMetadata(string key) => Metadata.ContainsKey(key);
 
-        private void DebugAppendLine(string s) => _debugBuilder.AppendLine(s);
+        private void DebugAppendLine(string s)
+        {
+            _debugBuilder.AppendLine(s);
+            _diagnosticDebugBuilder.AppendLine(s);
+            _diagnosticDebugBuilder.AppendLine(Environment.StackTrace);
+        }
     }
 
 

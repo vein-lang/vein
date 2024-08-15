@@ -1,8 +1,6 @@
 namespace vein
 {
-    using System;
     using compilation;
-    using ishtar;
 
     public class AssemblyResolver : ModuleResolverBase
     {

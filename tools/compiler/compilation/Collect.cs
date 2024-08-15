@@ -1,12 +1,6 @@
 namespace vein.compilation;
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using cmd;
 using project;
-using Spectre.Console;
 using styles;
 using vein.extensions;
 

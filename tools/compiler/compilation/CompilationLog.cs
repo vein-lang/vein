@@ -1,8 +1,5 @@
 namespace vein.compilation;
 
-using System.Collections.Generic;
-using ishtar;
-
 public class CompilationLog
 {
     public Queue<string> Info { get; } = new();

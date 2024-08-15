@@ -281,5 +281,7 @@ namespace ishtar.emit
 
             return str.ToString();
         }
+
+        public string BakeDiagnosticDebugString() => throw new NotImplementedException();
     }
 }

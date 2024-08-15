@@ -1,12 +1,7 @@
 namespace vein.pipes;
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using cmd;
 using compilation;
 using fs;
-using ishtar.emit;
 using project;
 
 [ExcludeFromCodeCoverage]
@@ -14,6 +9,8 @@ public abstract class CompilerPipeline
 {
     protected DirectoryInfo OutputDirectory
         => new(Path.Combine(Project.WorkDir.FullName, "bin"));
+    protected DirectoryInfo ObjectDirectory
+        => new(Path.Combine(Project.WorkDir.FullName, "obj"));
     protected FileInfo OutputBinaryPath =>
         new(Path.Combine(OutputDirectory.FullName, $"{Project.Name}.wll"));
 

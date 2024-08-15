@@ -1,32 +1,21 @@
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Converters;
-using Spectre.Console;
 using Spectre.Console.Cli;
 using vein;
-using vein.cmd;
+using vein.cli;
 using static Spectre.Console.AnsiConsole;
 using vein.json;
-
-
-
 [assembly: InternalsVisibleTo("veinc_test")]
 
 if (Environment.GetEnvironmentVariable("NO_CONSOLE") is not null)
     AnsiConsole.Console = RawConsole.Create();
-
-if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
-{
-    MarkupLine("Platform is not supported.");
-    return -1;
-}
-
-var skipIntro = 
-    Environment.GetEnvironmentVariable("VEINC_NOVID") is not null;
+else if (Environment.GetEnvironmentVariable("FORK_CONSOLE") is not null)
+    AnsiConsole.Console = RawConsole.CreateForkConsole();
 
 var watch = Stopwatch.StartNew();
 
@@ -46,24 +35,23 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     }
 };
 
+await Host.CreateDefaultBuilder(args)
+    .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.None))
+    .UseConsoleLifetime()
+    .UseSpectreConsole(config =>
+    {
+        config.AddCommand<CompileCommand>("build")
+            .WithDescription("Build current project.");
 
-AppFlags.RegisterArgs(ref args);
-
-
-var app = new CommandApp();
-
-app.Configure(config =>
-{
-    config.AddCommand<CompileCommand>("build")
-        .WithDescription("Build current project.");
-
-    config.SetExceptionHandler((ex) => {
-        WriteException(ex);
-    });
-});
-
-var result = app.Run(args);
+        config.SetExceptionHandler((ex) => {
+            WriteException(ex);
+        });
+    })
+    .ConfigureServices(
+        (_, services) =>
+        {
+        })
+    .RunConsoleAsync();
 
 watch.Stop();
-
-return result;
+return Environment.ExitCode;

@@ -1,12 +1,8 @@
 namespace vein;
 
-using System;
-using System.Collections.Generic;
 using System.Text;
 using compilation;
-using ishtar;
 using MoreLinq;
-using syntax;
 using static Spectre.Console.AnsiConsole;
 
 

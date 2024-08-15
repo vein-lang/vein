@@ -1,12 +1,5 @@
 namespace vein.compilation;
 
-using ishtar.emit;
-using System.Collections.Generic;
-using ishtar;
-using Spectre.Console;
-using runtime;
-using syntax;
-
 public partial class CompilationTask
 {
     private MethodFlags GenerateMethodFlags(MethodDeclarationSyntax method)

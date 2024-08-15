@@ -103,6 +103,28 @@ public class MethodBuilder : VeinMethod, IBaker
         return str.ToString();
     }
 
+    public string BakeDiagnosticDebugString()
+    {
+        var str = new StringBuilder();
+        var args = Signature.ToTemplateString(true);
+        if (Flags.HasFlag(Extern))
+            return "";
+        if (Flags.HasFlag(Extern))
+            return "";
+        if (Flags.HasFlag(Abstract))
+            return "";
+        str.AppendLine($".method {(IsSpecial ? "special " : "")}'{RawName}' [{Signature.Arguments.Where(x => x.IsGeneric).Select(x => x.TypeArg!.ToTemplateString()).Join(',')}] {args} {Flags.EnumerateFlags([None, Extern]).Join(' ').ToLowerInvariant()}");
+        var body = _generator.BakeDiagnosticDebugString();
+        str.AppendLine("{");
+        if (!string.IsNullOrEmpty(body))
+        {
+            str.AppendLine($"\t");
+            str.AppendLine($"{body.Split("\n").Select(x => $"\t{x}").Join("\n").TrimEnd('\n')}");
+        }
+        str.AppendLine("}");
+        return str.ToString();
+    }
+
     #region Arg&Locals manage (NEED REFACTORING)
 
     internal int? GetArgumentIndex(FieldName @ref)

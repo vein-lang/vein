@@ -1,17 +1,8 @@
 namespace vein.compilation;
 
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using exceptions;
 using extensions;
-using ishtar;
-using ishtar.emit;
 using MoreLinq;
-using runtime;
-using Spectre.Console;
-using syntax;
 using vein.reflection;
 using static runtime.MethodFlags;
 

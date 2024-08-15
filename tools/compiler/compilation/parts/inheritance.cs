@@ -1,10 +1,5 @@
 namespace vein.compilation;
 
-using System.Linq;
-using ishtar.emit;
-using Spectre.Console;
-using syntax;
-
 public partial class CompilationTask
 {
     public void ValidateInheritance((ClassBuilder @class, MemberDeclarationSyntax member) x)

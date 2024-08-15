@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Expressive;
 using Flurl.Http;
-using MoreLinq;
 using NuGet.Versioning;
+using Org.BouncyCastle.Bcpg;
 using project;
 using project.shards;
 using Spectre.Console;
@@ -29,26 +29,34 @@ public class InstallWorkloadCommandSettings : CommandSettings
     public string? ManifestFile { get; init; }
 }
 
-public class InstallWorkloadCommand : AsyncCommandWithProgress<InstallWorkloadCommandSettings>
+public record WorkloadInstallingContext(
+    ShardRegistryQuery query,
+    ShardStorage storage,
+    WorkloadDb workloadDb,
+    PackageKey PackageName,
+    string? PackageVersion,
+    string? manifestFile,
+    ProgressContext ctx);
+
+public class InstallWorkloadCommand(ShardRegistryQuery query, ShardStorage storage, WorkloadDb workloadDb) : AsyncCommandWithProgress<InstallWorkloadCommandSettings>
 {
     public override async Task<int> ExecuteAsync(ProgressContext context, InstallWorkloadCommandSettings settings)
-        => await WorkloadRegistryLoader.InstallWorkloadAsync(
+        => await WorkloadRegistryLoader.InstallWorkloadAsync(new (query, storage, workloadDb,
             new PackageKey(settings.PackageName),
             settings.PackageVersion,
             settings.ManifestFile,
-            context);
+            context));
 }
 
 
-public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo directory, ProgressContext ctx)
+public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage storage, WorkloadManifest manifest, DirectoryInfo directory, WorkloadDb workloadDb, ProgressContext ctx)
 {
     private readonly SymlinkCollector Symlink = new(SecurityStorage.RootFolder);
     private static readonly DirectoryInfo WorkloadDirectory = SecurityStorage.RootFolder.SubDirectory("workloads");
-    private static readonly Uri VEIN_GALLERY = new("https://api.vein-lang.org/");
-    private static readonly ShardStorage Storage = new();
 
-    public static async Task<int> InstallWorkloadAsync(PackageKey PackageName, string? PackageVersion, string? manifestFile, ProgressContext ctx)
+    public static async Task<int> InstallWorkloadAsync(WorkloadInstallingContext context)
     {
+        var (query, storage, workloadDb, PackageName, PackageVersion, manifestFile, ctx) = context;
         using var task = ctx.AddTask($"fetch [orange3]'{PackageName.key}'[/] workload...")
             .IsIndeterminate();
 
@@ -58,8 +66,6 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
 
         if (string.IsNullOrEmpty(manifestFile))
         {
-            var query = new ShardRegistryQuery(VEIN_GALLERY).WithStorage(Storage);
-
             var result = await query.FindByName(name, version);
 
             if (result is null)
@@ -73,7 +79,7 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
 
             await query.DownloadShardAsync(result);
 
-            manifest = await Storage.GetWorkloadManifestAsync(result);
+            manifest = await storage.GetWorkloadManifestAsync(result);
 
             if (manifest is null)
             {
@@ -104,7 +110,7 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
 
 
 
-        var loader = new WorkloadRegistryLoader(manifest, tagFolder, ctx);
+        var loader = new WorkloadRegistryLoader(query, storage, manifest, tagFolder, workloadDb, ctx);
 
         if (await loader.InstallManifestForCurrentOS())
         {
@@ -166,7 +172,7 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
     {
         foreach (var (key, version) in package.Dependencies)
         {
-            var loader = await InstallWorkloadAsync(key, version.ToNormalizedString(), null, ctx);
+            var loader = await InstallWorkloadAsync(new WorkloadInstallingContext(query, storage, workloadDb, key, version.ToNormalizedString(), null, ctx));
 
             if (loader != 0) return false;
         }
@@ -238,7 +244,7 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
             var packageVersion = fullAlias.Split('@').Last();
 
 
-            var nugetDirectory = await Storage.EnsureNuGetPackage(packageName, NuGetVersion.Parse(packageVersion));
+            var nugetDirectory = await storage.EnsureNuGetPackage(packageName, NuGetVersion.Parse(packageVersion));
 
             CopyFilesRecursively(nugetDirectory, targetFolder);
 
@@ -247,14 +253,18 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
 
             foreach (var packageSdk in sdk.Definition.OfType<WorkloadPackageSdk>())
             {
+                
                 if (packageSdk.Aliases.TryGetValue(currentOs, out alias))
                 {
+                    await workloadDb.RegistrySdkAsync(packageSdk.SdkTarget, alias.Replace("root://", ""), targetFolder);
                     pathBuilder.AppendLine($"{packageSdk.SdkTarget},{alias.Replace("root://", "")};");
                 }
             }
 
 
-            targetFolder.File("sdk.target").WriteAllText(pathBuilder.ToString());
+            await targetFolder.File("sdk.target").WriteAllTextAsync(pathBuilder.ToString());
+
+            
             return true;
         }
 
@@ -278,6 +288,7 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
         task.Description("linking tools...");
         foreach (var tool in tools)
         {
+            await workloadDb.RegistryTool(pkg.name, tool, packageFolder);
             if (!tool.ExportSymlink)
                 continue;
             var file = new FileInfo(Symlink.ToExec(tool.ExecPath));
@@ -288,7 +299,9 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
                     tool.OverrideName, toolExec);
             await Task.Delay(500);
         }
+
         
+
         return true;
     }
 
@@ -347,9 +360,7 @@ public class WorkloadRegistryLoader(WorkloadManifest manifest, DirectoryInfo dir
             }
             return packageFolder;
         }
-
-        var query = new ShardRegistryQuery(VEIN_GALLERY);
-
+        
         var shardManifest = await query.FindByName(alias, version.ToNormalizedString(), true);
 
         if (shardManifest is null)

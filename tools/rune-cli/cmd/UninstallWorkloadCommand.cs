@@ -12,14 +12,12 @@ public class UninstallWorkloadCommandSettings : CommandSettings
 {
     [Description("A package name.")]
     [CommandArgument(0, "[PACKAGE]")]
-    public required string PackageName { get; set; }
+    public required string PackageName { get; init; }
 }
 public class UninstallWorkloadCommand : AsyncCommandWithProgress<UninstallWorkloadCommandSettings>
 {
-    public static readonly DirectoryInfo WorkloadDirectory = SecurityStorage.RootFolder.SubDirectory("workloads");
-    public static readonly Uri VEIN_GALLERY = new("https://api.vein-lang.org/");
-    public static readonly ShardStorage Storage = new();
-    public SymlinkCollector Symlink = new(SecurityStorage.RootFolder);
+    private static readonly DirectoryInfo WorkloadDirectory = SecurityStorage.RootFolder.SubDirectory("workloads");
+    private readonly SymlinkCollector Symlink = new(SecurityStorage.RootFolder);
 
     public override async Task<int> ExecuteAsync(ProgressContext context, UninstallWorkloadCommandSettings settings)
     {

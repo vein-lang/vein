@@ -1,10 +1,5 @@
 namespace vein.compilation;
 
-using System.Linq;
-using ishtar;
-using ishtar.emit;
-using runtime;
-using syntax;
 using static runtime.VeinTypeCode;
 
 public partial class CompilationTask

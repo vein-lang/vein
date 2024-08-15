@@ -192,9 +192,8 @@ namespace vein.fs
             using var fs = File.Create(file);
 
             WriteElf(memory.ToArray(), fs, asm.metadata);
-
-            if (!string.IsNullOrEmpty(asm.DebugData))
-                File.WriteAllText($"{file}.lay", asm.DebugData);
         }
+
+        public static string GetDebugData(IshtarAssembly asm) => asm.DebugData;
     }
 }

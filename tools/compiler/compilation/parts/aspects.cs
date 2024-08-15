@@ -1,13 +1,6 @@
 namespace vein.compilation;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using extensions;
-using ishtar;
-using ishtar.emit;
-using runtime;
-using syntax;
 using vein.reflection;
 using static runtime.VeinTypeCode;
 

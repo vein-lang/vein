@@ -12,15 +12,17 @@ using Newtonsoft.Json.Serialization;
 using NuGet.Versioning;
 
 
-public record Workload([field: JsonIgnore] WorkloadKey name)
+public record Workload
 {
+    public required WorkloadKey name { get; init; }
     public required List<PlatformKey> Platforms { get; init; } = new();
     public required List<PackageKey> Packages { get; init; } = new();
     public required string Description { get; init; }
 }
 
-public record WorkloadPackage([field: JsonIgnore] PackageKey name)
+public record WorkloadPackage
 {
+    public required PackageKey name { get; init; }
     public required PackageKindKey Kind { get; init; }
     [JsonConverter(typeof(DictionaryAliasesConverter))]
     public required Dictionary<PlatformKey, string> Aliases { get; init; } = new();
@@ -131,6 +133,9 @@ public readonly record struct PlatformKey(string key)
 [JsonConverter(typeof(PackageKeyContactConverter))]
 public readonly record struct PackageKey(string key)
 {
+    public static PackageKey VeinCompilerPackage = new("vein-compiler-package");
+    public static PackageKey VeinRuntimePackage = new("vein-runtime-package");
+    
     public override string ToString() => key;
 }
 

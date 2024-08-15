@@ -15,7 +15,10 @@ using project;
 
 public class ShardStorage : IShardStorage
 {
-    public static readonly DirectoryInfo RootFolder =
+    public static readonly DirectoryInfo VeinRootFolder =
+        new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".vein"));
+
+    public static readonly DirectoryInfo ShardRootFolder =
         new(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".vein",
             "shards"));
 
@@ -27,7 +30,7 @@ public class ShardStorage : IShardStorage
 
     private void EnsureDefaultDirectory()
     {
-        if (!RootFolder.Exists) RootFolder.Create();
+        if (!ShardRootFolder.Exists) ShardRootFolder.Create();
         if (!RootFolderWorkloads.Exists) RootFolderWorkloads.Create();
         if (!RootFolderNugets.Exists) RootFolderNugets.Create();
     }
@@ -74,16 +77,16 @@ public class ShardStorage : IShardStorage
         => ToNugetFolder(package.GetId(), package.GetVersion());
 
     public DirectoryInfo GetPackageSpace(string name, NuGetVersion version)
-        => RootFolder
+        => ShardRootFolder
             .SubDirectory(name)
             .SubDirectory(version.ToNormalizedString());
 
     public void Prune() =>
-        RootFolder.EnumerateFiles("*.*", SearchOption.AllDirectories)
+        ShardRootFolder.EnumerateFiles("*.*", SearchOption.AllDirectories)
             .Pipe(x => x.Delete());
 
     public List<NuGetVersion> GetAvailableVersions(string name) =>
-        RootFolder
+        ShardRootFolder
             .SubDirectory(name)
             .EnumerateDirectories()
             .Where(x => NuGetVersion.TryParse(x.Name, out _))

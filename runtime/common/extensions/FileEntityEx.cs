@@ -3,6 +3,7 @@ namespace vein;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 public static class FileEntityEx
@@ -40,8 +41,18 @@ public static class FileEntityEx
         return new FileInfo(Path.Combine(info.FullName, name));
     }
 
+    public static string SanitizeFileSystemName(this string name)
+        => Path.GetInvalidFileNameChars().Concat([' ', ')', '(', '\\', '/', ',', '@']).Aggregate(name, (current, c) => current.Replace(c.ToString(), ""));
+
     public static void WriteAllText(this FileInfo info, string content)
         => System.IO.File.WriteAllText(info.FullName, content);
+    public static void WriteAllBytes(this FileInfo info, byte[] content)
+        => System.IO.File.WriteAllBytes(info.FullName, content);
+
+    public static Task WriteAllTextAsync(this FileInfo info, string content, CancellationToken ct = default)
+        => System.IO.File.WriteAllTextAsync(info.FullName, content, ct);
+    public static Task WriteAllBytesAsync(this FileInfo info, byte[] content, CancellationToken ct = default)
+        => System.IO.File.WriteAllBytesAsync(info.FullName, content, ct);
 
     public static string ReadToEnd(this FileInfo info)
         => System.IO.File.ReadAllText(info.FullName);
