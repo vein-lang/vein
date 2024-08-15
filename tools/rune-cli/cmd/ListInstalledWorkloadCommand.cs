@@ -5,17 +5,14 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 
 [ExcludeFromCodeCoverage]
-public class ListInstalledWorkloadCommand : AsyncCommandWithProgress<ListInstalledWorkloadCommand.ListWorkloadCommandSettings>
+public class ListInstalledWorkloadCommand(ShardStorage storage) : AsyncCommandWithProgress<ListInstalledWorkloadCommand.ListWorkloadCommandSettings>
 {
     [ExcludeFromCodeCoverage]
     public class ListWorkloadCommandSettings : CommandSettings;
 
-
-    public static readonly ShardStorage Storage = new();
-
     public override async Task<int> ExecuteAsync(ProgressContext context, ListWorkloadCommandSettings settings)
     {
-        var manifests = await Storage.GetInstalledWorkloads();
+        var manifests = await storage.GetInstalledWorkloads();
 
         if (manifests.Count == 0)
         {

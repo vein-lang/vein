@@ -21,11 +21,9 @@ public class UpdateWorkloadCommandSettings : CommandSettings
     public string? ManifestFile { get; set; }
 }
 
-public class UpdateWorkloadCommand : AsyncCommandWithProgress<UpdateWorkloadCommandSettings>
+public class UpdateWorkloadCommand(ShardRegistryQuery query, ShardStorage storage, WorkloadDb db) : AsyncCommandWithProgress<UpdateWorkloadCommandSettings>
 {
     public static readonly DirectoryInfo WorkloadDirectory = SecurityStorage.RootFolder.SubDirectory("workloads");
-    public static readonly Uri VEIN_GALLERY = new("https://api.vein-lang.org/");
-    public static readonly ShardStorage Storage = new();
 
     public override async Task<int> ExecuteAsync(ProgressContext context, UpdateWorkloadCommandSettings settings)
     {
@@ -36,7 +34,7 @@ public class UpdateWorkloadCommand : AsyncCommandWithProgress<UpdateWorkloadComm
             });
         if (uninstallResult != 0)
             return uninstallResult;
-        var installResult = await new InstallWorkloadCommand().ExecuteAsync(context,
+        var installResult = await new InstallWorkloadCommand(query, storage, db).ExecuteAsync(context,
             new InstallWorkloadCommandSettings()
             {
                 PackageName = settings.PackageName,
