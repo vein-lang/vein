@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\lib\spectre.console\src\Spectre.Console.Cli\Spectre.Console.Cli.csproj" />
     <ProjectReference Include="..\..\lib\spectre.console\src\Spectre.Console\Spectre.Console.csproj" />
     <ProjectReference Include="..\..\lib\vein.cli.core\vein.cli.core.csproj" />
+    <ProjectReference Include="..\..\lib\vein.compiler.shared\vein.compiler.shared.csproj" />
     <ProjectReference Include="..\..\lib\version\version.csproj" />
     <ProjectReference Include="..\..\runtime\ishtar.generator\ishtar.generator.csproj" />
     <ProjectReference Include="..\..\lib\projectsystem\vein.project.csproj" />
