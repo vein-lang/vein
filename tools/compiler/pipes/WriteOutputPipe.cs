@@ -1,7 +1,5 @@
 namespace vein.pipes;
 
-using System.IO;
-using cmd;
 using fs;
 using MoreLinq;
 

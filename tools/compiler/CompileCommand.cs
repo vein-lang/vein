@@ -1,12 +1,7 @@
 namespace vein.cmd;
 
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using compilation;
 using project;
-using Spectre.Console;
 using Spectre.Console.Cli;
 using static Spectre.Console.AnsiConsole;
 

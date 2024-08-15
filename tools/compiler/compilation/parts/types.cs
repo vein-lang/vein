@@ -1,11 +1,6 @@
 namespace vein.compilation;
 
-using System.Linq;
-using ishtar.emit;
 using reflection;
-using runtime;
-using Spectre.Console;
-using syntax;
 
 public partial class CompilationTask
 {

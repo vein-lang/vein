@@ -1,12 +1,7 @@
 namespace vein.pipes;
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using cmd;
 using compilation;
 using fs;
-using ishtar.emit;
 using project;
 
 [ExcludeFromCodeCoverage]

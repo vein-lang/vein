@@ -1,10 +1,5 @@
 namespace vein.pipes;
 
-using System;
-using System.IO;
-using System.Linq;
-using cmd;
-
 [ExcludeFromCodeCoverage]
 public class SingleFileOutputPipe : CompilerPipeline
 {

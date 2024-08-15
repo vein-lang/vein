@@ -1,12 +1,5 @@
 namespace vein.compilation;
 
-using System.Collections.Generic;
-using System.Linq;
-using ishtar;
-using ishtar.emit;
-using runtime;
-using syntax;
-
 public partial class CompilationTask
 {
     private VeinArgumentRef[] GenerateArgument(ClassBuilder clazz, MethodDeclarationSyntax method, DocumentDeclaration doc)

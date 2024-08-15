@@ -1,10 +1,5 @@
 namespace vein.compilation;
 
-using ishtar.emit;
-using runtime;
-using syntax;
-using System;
-
 public partial class CompilationTask
 {
     public (VeinProperty prop, PropertyDeclarationSyntax member)

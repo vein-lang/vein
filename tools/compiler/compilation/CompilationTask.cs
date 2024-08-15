@@ -1,24 +1,11 @@
 namespace vein.compilation;
 
 using MoreLinq;
-using Spectre.Console;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using ishtar;
 using vein;
-using cmd;
-using ishtar.emit;
 using extensions;
 using pipes;
 using project;
-using runtime;
 using stl;
-using syntax;
 using vein.fs;
 using vein.styles;
 

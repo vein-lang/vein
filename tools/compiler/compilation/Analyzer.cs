@@ -1,8 +1,5 @@
 namespace vein.compilation;
 
-using ishtar;
-using Spectre.Console;
-using syntax;
 using static runtime.VeinTypeCode;
 
 public partial class CompilationTask

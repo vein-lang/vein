@@ -1,12 +1,7 @@
 namespace vein.compilation;
 
-using System.Collections.Generic;
-using System.IO;
-using cmd;
 using fs;
 using project;
-using runtime;
-using syntax;
 
 public record CompilationTarget
 {
