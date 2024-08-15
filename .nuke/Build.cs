@@ -41,6 +41,7 @@ using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Tools.Git;
 using Nuke.Common.Tools.GitVersion;
 using vein.cmd;
+using vein.compiler.shared;
 using vein.json;
 using vein.project;
 

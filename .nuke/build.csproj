@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\tools\compiler\veinc.csproj" />
     <ProjectReference Include="..\tools\rune-cli\rune-cli.csproj" />
   </ItemGroup>
 
