@@ -246,6 +246,22 @@ namespace ishtar.emit
             return str.ToString();
         }
 
+        public string BakeDiagnosticDebugString()
+        {
+            var str = new StringBuilder();
+            str.AppendLine($".namespace '{FullName.Namespace}'");
+            if (IsInterface) str.Append($".interface ");
+            else if (IsValueType) str.Append($".struct ");
+            else str.Append($".class ");
+            str.Append($"'{FullName.Name}' {Flags.EnumerateFlags([ClassFlags.None, ClassFlags.Interface]).Join(' ').ToLowerInvariant()}");
+            str.AppendLine($" extends {Parents.Select(x => $"'{x.Name}'").Join(", ")}");
+            str.AppendLine("{");
+            foreach (var method in Methods.OfType<IBaker>().Select(method => method.BakeDiagnosticDebugString()))
+                str.AppendLine($"{method.Split("\n").Select(x => $"\t{x}").Join("\n").TrimEnd('\n')}");
+            str.AppendLine("}");
+            return str.ToString();
+        }
+
         #region Overrides of VeinClass
 
         protected override VeinMethod GetOrCreateTor(string name, bool isStatic = false)
