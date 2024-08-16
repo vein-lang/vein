@@ -222,6 +222,9 @@ public static class VeinTypeCodeEx
     public static bool HasBoolean(this VeinTypeCode code) =>
         code == TYPE_BOOLEAN;
 
+    public static bool HasObjectOrClass(this VeinTypeCode code) =>
+        code is TYPE_CLASS or TYPE_OBJECT;
+
     public static bool HasInteger(this VeinTypeCode code) =>
         HasSigned(code) || HasUnsigned(code);
 

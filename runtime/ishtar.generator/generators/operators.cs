@@ -52,6 +52,8 @@ public static class G_Operators
             gen.EmitBinaryOperator(op);
         else if (left_type.TypeCode.HasBoolean() && right_type.TypeCode.HasBoolean())
             gen.EmitBinaryOperator(op);
+        else if (left_type.TypeCode.HasObjectOrClass() && right_type.IsNullType())
+            gen.EmitBinaryOperator(op);
         else
         {
             var name = $"op_{op}";
@@ -80,6 +82,8 @@ public static class G_Operators
             gen.Emit(OpCodes.CALL, method);
         }
     }
+
+    public static bool IsNullType(this VeinClass clazz) => clazz is NullClass;
 
     public static void EmitAssignExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
     {
