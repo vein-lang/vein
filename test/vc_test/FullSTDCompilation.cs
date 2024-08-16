@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using vein.cmd;
 using vein.compilation;
+using vein.compiler.shared;
 using vein.json;
 using vein.project;
 
@@ -21,7 +22,6 @@ public class FullSTDCompilation
     {
         cache_folder = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "veinc_test_cache", Guid.NewGuid().ToString().Trim('-')));
         cache_folder.Create();
-        ColorShim.Apply();
         JsonConvert.DefaultSettings = () => new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
@@ -55,7 +55,7 @@ public class FullSTDCompilation
         AppFlags.Set(ApplicationFlag.use_predef_array_type_initer, true);
         var project = VeinProject.LoadFrom(project_file);
         var settings = new CompileSettings();
-        var targets = CompilationTask.Run(project.WorkDir, settings);
+        var targets = CompilationTask.RunAsync(project.WorkDir, settings).Result;
         Assert.IsNotEmpty(targets);
         Assert.IsTrue(targets.Count == 1);
 

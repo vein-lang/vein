@@ -16,6 +16,9 @@ public class EtherealFunctionTest : TestContext
     public void IsTest()
         => Syntax.ethereal_function_expression("is").Positioned().ParseVein($"is<bool>(beta)");
 
+    [Test]
+    public void SizeOfTest()
+        => Syntax.ethereal_function_expression("sizeof").Positioned().ParseVein($"sizeof<bool>()");
 
     [TestCase("as", "as<Type>(1 + 1)")]
     [TestCase("is", "is<Type>(1 + 1)")]
@@ -31,6 +34,8 @@ public class EtherealFunctionTest : TestContext
     [TestCase("is", "is<Type>(is<Type>(beta))")]
     [TestCase("nameof", "nameof<Type>(nameof<Type>(beta))")]
     [TestCase("typeof", "typeof<Type>(typeof<Type>(beta))")]
+
+    [TestCase("sizeof", "sizeof<Type>()")]
     public void All(string keyword, string parseText)
     {
         var a1 = Syntax.ethereal_function_expression(keyword).Positioned().ParseVein(parseText);
