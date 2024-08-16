@@ -191,6 +191,8 @@ public static class G_Types
             return context.ResolveType(t.Typeword);
         if (exp is NameOfFunctionExpression)
             return VeinTypeCode.TYPE_STRING.AsClass()(Types.Storage);
+        if (exp is SizeOfFunctionExpression)
+            return VeinTypeCode.TYPE_I4.AsClass()(Types.Storage);
         if (exp is BinaryExpressionSyntax bin)
         {
             if (bin.OperatorType.IsLogic())
