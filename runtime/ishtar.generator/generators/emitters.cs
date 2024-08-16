@@ -7,6 +7,7 @@ using vein.syntax;
 using System.Linq;
 using Expressive;
 using System.Data;
+using lang.c;
 
 public static class G_Emitters
 {
@@ -68,35 +69,89 @@ public static class G_Emitters
             return gen.EmitTypeIs(typeIs);
         if (fn is TypeOfFunctionExpression typeOf)
             return gen.EmitTypeOf(typeOf);
+        if (fn is SizeOfFunctionExpression sizeOf)
+            return gen.EmitSizeOf(sizeOf);
         throw new NotImplementedException();
+    }
+
+    public static ILGenerator EmitSizeOf(this ILGenerator gen, SizeOfFunctionExpression sizeOf)
+    {
+        var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
+        var t = context.ResolveType(sizeOf.Generics.Single());
+
+        if (t.IsGeneric)
+        {
+            context.LogError($"sizeof cannot use with generics [limitation is temporary, awaiting natural structs and fully generics implementation].", sizeOf);
+            throw new SkipStatementException();
+        }
+
+        var naturalSize = t.Class.TypeCode.GetNativeSize();
+
+        return naturalSize switch
+        {
+            0 => throw new InvalidOperationException(),
+            1 => gen.Emit(OpCodes.LDC_I4_1),
+            2 => gen.Emit(OpCodes.LDC_I4_2),
+            3 => gen.Emit(OpCodes.LDC_I4_3),
+            4 => gen.Emit(OpCodes.LDC_I4_4),
+            5 => gen.Emit(OpCodes.LDC_I4_5),
+            _ => gen.Emit(OpCodes.LDC_I4_S, naturalSize),
+        };
     }
 
     public static ILGenerator EmitTypeOf(this ILGenerator gen, TypeOfFunctionExpression nameOf)
     {
         var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
-        if (nameOf.Expression is IdentifierExpression id)
-            return gen.Emit(OpCodes.LD_TYPE, context.ResolveType(id));
-        return gen.EmitExpression(nameOf.Expression).Emit(OpCodes.LD_TYPE_E);
+        if (nameOf.Expression.IsDefined)
+        {
+            if (nameOf.Expression.Get() is IdentifierExpression id)
+                return gen.Emit(OpCodes.LD_TYPE, context.ResolveType(id));
+            return gen.EmitExpression(nameOf.Expression.Get()).Emit(OpCodes.LD_TYPE_E);
+        }
+        if (nameOf.Generics.Count == 0)
+        {
+            context.LogError($"as type required type argument", nameOf);
+            throw new SkipStatementException();
+        }
+        if (nameOf.Generics.Count != 1)
+        {
+            context.LogError($"as type required single type argument", nameOf);
+            throw new SkipStatementException();
+        }
+        var type = context.ResolveType(nameOf.Generics.Single());
+        return gen.Emit(OpCodes.LD_TYPE, type);
     }
 
     public static ILGenerator EmitNameOf(this ILGenerator gen, NameOfFunctionExpression nameOf)
     {
+        var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
         // TODO, validate exist variable\field\method\class\etc
-        if (nameOf.Expression is AccessExpressionSyntax nameof_exp1)
+        if (!nameOf.Expression.IsDefined)
+        {
+            context.LogError($"nameof required single type argument", nameOf);
+            throw new SkipStatementException();
+        }
+        if (nameOf.Expression.Get() is AccessExpressionSyntax nameof_exp1)
             return gen.Emit(OpCodes.LDC_STR, nameof_exp1.Right.ToString());
-        if (nameOf.Expression is IdentifierExpression nameof_exp2)
+        if (nameOf.Expression.Get() is IdentifierExpression nameof_exp2)
             return gen.Emit(OpCodes.LDC_STR, nameof_exp2.ToString());
-        var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
-        ctx.LogError($"Target expression is not valid named expression.", nameOf);
+        context.LogError($"Target expression is not valid named expression.", nameOf);
         throw new SkipStatementException();
     }
 
-    public static ILGenerator EmitTypeIs(this ILGenerator gen, TypeIsFunctionExpression nameOf)
+    public static ILGenerator EmitTypeIs(this ILGenerator gen, TypeIsFunctionExpression typeOf)
     {
         var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
-        gen.EmitExpression(nameOf.Expression).Emit(OpCodes.LD_TYPE_E);
-        var t = context.ResolveType(nameOf.Generics.Single());
+        if (!typeOf.Expression.IsDefined)
+        {
+            context.LogError($"type is required single type argument", typeOf);
+            throw new SkipStatementException();
+        }
+        gen.EmitExpression(typeOf.Expression.Get()).Emit(OpCodes.LD_TYPE_E);
+        var t = context.ResolveType(typeOf.Generics.Single());
 
         gen.Emit(t.IsGeneric ? OpCodes.LD_TYPE_G : OpCodes.LD_TYPE, t);
 
@@ -119,9 +174,9 @@ public static class G_Emitters
             throw new SkipStatementException();
         }
         var type = context.ResolveType(typeAs.Generics.Single());
-        var fromType = typeAs.Expression.DetermineType(context);
+        var fromType = typeAs.Expression.Get().DetermineType(context);
 
-        return gen.EmitExpression(typeAs.Expression).Emit(OpCodes.CAST_G, fromType, type);
+        return gen.EmitExpression(typeAs.Expression.Get()).Emit(OpCodes.CAST_G, fromType, type);
     }
 
     public static ILGenerator EmitThis(this ILGenerator gen, bool rly = true)
