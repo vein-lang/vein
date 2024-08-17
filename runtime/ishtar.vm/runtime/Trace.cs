@@ -1,12 +1,13 @@
 namespace ishtar.runtime;
 
+using System.Diagnostics;
 using System.Text;
-using ishtar.runtime;
 
 [CTypeExport("ishtar_trace_t")]
 internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
 {
-    private readonly bool useConsole = vm->Config.UseConsole;
+    private bool useConsole => vm->Config.UseConsole;
+    private bool NoTrace => vm->Config.NoTrace;
 
     [Conditional("DEBUG")]
     public void Setup()
@@ -23,6 +24,7 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
     {
         if (useConsole)
         {
+            if (NoTrace) return;
             Console.WriteLine(s);
             return;
         }
@@ -36,6 +38,7 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
     {
         if (useConsole)
         {
+            if (NoTrace) return;
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(s);
             Console.ResetColor();
@@ -46,12 +49,20 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
 #endif
     }
 
-    [Conditional("DEBUG")]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void debug_stdout_write(string s)
     {
         if (useConsole)
         {
+            if (!NoTrace)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+            }
             Console.WriteLine(s);
+            if (!NoTrace)
+            {
+                Console.ResetColor();
+            }
             return;
         }
 #if ISHTAR_DEBUG_CONSOLE
@@ -62,6 +73,7 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
     [Conditional("DEBUG")]
     public unsafe void signal_state(OpCodeValue ip, CallFrame current, TimeSpan cycleDelay, stackval currentStack)
     {
+        if (NoTrace) return;
 #if ISHTAR_DEBUG_CONSOLE
         IshtarSharedDebugData.SetState(new IshtarState($"{ip}", current.method->Name, cycleDelay,
             $"{currentStack.type}", current.level));
@@ -147,6 +159,7 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void console_std_write(string s)
     {
 #if DEBUG
