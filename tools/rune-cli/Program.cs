@@ -63,7 +63,7 @@ ILGenerator.DoNotGenDebugInfo = false;
 if (!skipIntro)
 {
     MarkupLine($"[grey]Vein's Rune CLI[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
-    MarkupLine($"[grey]Copyright (C)[/] [cyan3]2024[/] [bold]Yuuki Wesp[/].\n\n");
+    MarkupLine($"[grey]Copyright (C)[/] [cyan3]2024[/] [bold]Vein[/].\n\n");
 }
 
 AppFlags.RegisterArgs(ref args);
@@ -75,6 +75,8 @@ await Host.CreateDefaultBuilder(args)
     .UseSpectreConsole(config => {
         config.Settings.ApplicationVersion
         = $"Vein Rune CLI {AssemblySemFileVer}\nBranch: {BranchName}+{ShortSha}\nCall rune workloads list for view installed workloads and other version";
+        config.AddCommand<RunCommand>("run")
+            .WithDescription("Run project");
         config.AddCommand<NewCommand>("new")
             .WithDescription("Create new project.");
         config.AddCommand<BuildCommand>("build")

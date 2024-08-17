@@ -1,5 +1,5 @@
 name: vein.compiler
-version: '0.30'
+version: '0.30.1'
 author:
   - name: Yuuki Wesp
     github: '0xF6'
