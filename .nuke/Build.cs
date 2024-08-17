@@ -353,7 +353,7 @@ class Build : NukeBuild
     }
 
     Target PublishRelease => _ => _
-        .DependsOn(Pack)
+        .DependsOn(Pack, BuildVeinStd)
         .OnlyWhenDynamic(IsReleaseCommit)
         .Requires(() => GithubToken)
         .Executes(async () => {
