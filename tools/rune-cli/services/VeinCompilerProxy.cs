@@ -40,7 +40,9 @@ public class VeinCompilerProxy(FileInfo compilerPath, IEnumerable<string> args) 
                 await Console.Out.WriteAsync(new string(buffer, 0, charsRead));
         });
 
-        await Task.WhenAll(outputTask, _process.WaitForExitAsync());
+        await Task.WhenAll(outputTask);
+
+        await _process.WaitForExitAsync();
 
         return _process.ExitCode;
     }

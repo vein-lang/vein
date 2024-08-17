@@ -30,9 +30,11 @@ public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, Di
                 await Console.Out.WriteAsync(new string(buffer, 0, charsRead));
         });
 
-        await Task.WhenAll(outputTask, _process.WaitForExitAsync());
+        await Task.WhenAll(outputTask);
 
-        return _process.ExitCode;
+        await _process.WaitForExitAsync();
+
+        return _process.ExitCode;   
     }
 
     public void Dispose() => _process.Dispose();
