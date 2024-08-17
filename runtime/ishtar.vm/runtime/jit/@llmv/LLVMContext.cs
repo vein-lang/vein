@@ -1,40 +1,54 @@
 namespace ishtar.llmv;
 
 using LLVMSharp.Interop;
-using System.Reflection;
 using vein.extensions;
 using vein.runtime;
 
 public unsafe struct LLVMContext
 {
-    private readonly LLVMOpaqueContext* _ctx;
+    private LLVMOpaqueContext* _ctx;
     private LLVMModuleRef _ffiModule;
-    private readonly LLVMExecutionEngineRef _executionEngine;
-
-    public LLVMContext()
+    private LLVMExecutionEngineRef _executionEngine;
+    private bool is_inited;
+    public LLVMContext(VirtualMachine* vm)
     {
-        LLVM.LinkInMCJIT();
-        LLVM.InitializeNativeAsmPrinter();
-        LLVM.InitializeNativeAsmParser();
-        LLVM.InitializeNativeTarget();
+        using var tag = Profiler.Begin("vm:llvm:init");
 
+        if (vm->Config.Jit.EnableTargetMC)
+            LLVM.LinkInMCJIT();
+        if (vm->Config.Jit.EnableAsmPrinter)
+            LLVM.InitializeNativeAsmPrinter();
+        if (vm->Config.Jit.EnableAsmParser)
+            LLVM.InitializeNativeAsmParser();
+        if (vm->Config.Jit.IsAutoTarget)
+            LLVM.InitializeNativeTarget();
 
-        LLVM.InitializeAArch64Target();
-        LLVM.InitializeAArch64AsmParser();
-        LLVM.InitializeAArch64Disassembler();
-        LLVM.InitializeAArch64TargetInfo();
-        LLVM.InitializeAArch64TargetMC();
+        if (!vm->Config.Jit.DeferContext) deferInit();
+    }
 
+    private void deferInit()
+    {
+        if (is_inited) return;
         _ctx = LLVM.ContextCreate();
-        
+
         if (_ffiModule == default)
             _ffiModule = LLVMModuleRef.CreateWithName("_ffi");
 
         _executionEngine = _ffiModule.CreateExecutionEngine();
+        is_inited = true;
     }
 
-    public LLVMExecutionEngineRef GetExecutionEngine() => _executionEngine;
-    public LLVMModuleRef GetExecutionModule() => _ffiModule;
+    public LLVMExecutionEngineRef GetExecutionEngine()
+    {
+        if (!is_inited) deferInit();
+        return _executionEngine;
+    }
+
+    public LLVMModuleRef GetExecutionModule()
+    {
+        if (!is_inited) deferInit();
+        return _ffiModule;
+    }
 
     [Conditional("DEBUG")]
     public void PrintAsm(RuntimeIshtarMethod* method)
@@ -60,6 +74,8 @@ public unsafe struct LLVMContext
 
     public PInvokeInfo CompileFFIWithSEH(string methodName, string moduleName, string fnName, List<VeinTypeCode> args, VeinTypeCode returnType)
     {
+        if (!is_inited) deferInit();
+
         var retType = GetLLVMType(returnType);
         var args_converted = args.Select(GetLLVMType).ToList();
 
@@ -133,6 +149,8 @@ public unsafe struct LLVMContext
 
     public void CompileRawFFI(RuntimeIshtarMethod* method, string moduleName, string fnName)
     {
+        if (!is_inited) deferInit();
+
         if (_ffiModule == default)
             _ffiModule = LLVMModuleRef.CreateWithName("_ffi");
 
@@ -179,6 +197,8 @@ public unsafe struct LLVMContext
 
     public void CompileFFI(RuntimeIshtarMethod* method, string moduleName, string fnName)
     {
+        if (!is_inited) deferInit();
+
         var maxSize = Math.Max(Math.Max(sizeof(decimal), sizeof(Half)), IntPtr.Size);
         var stackUnionType = LLVMTypeRef.CreateArray(LLVMTypeRef.Int8, (uint)maxSize);
         var stackValType = LLVMTypeRef.CreateStruct(new[] { stackUnionType, LLVMTypeRef.Int32 }, false);
