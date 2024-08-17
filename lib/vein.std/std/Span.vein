@@ -1,14 +1,20 @@
-#ignore
 #space "std"
 
 public struct Span<T> {
-    private ptr: raw;
-    private itemSize: u8;
-    private length: u32;
+    // keep names in proxy Vein_Span_u8
+    private _ptr: raw;
+    private _itemSize: i32;
+    private _length: i32;
+    private _isDestroyed: bool;
     
-    new(ptr: raw, len: u32) {
-        this.length = len;
-        this.ptr = ptr;
-        this.itemSize = sizeof<T>();
+    public new(ptr: raw, len: i32, elsize: i32) {
+        this._length = len;
+        this._ptr = ptr;
+        this._itemSize = elsize;
+    }
+
+    private new(len: i32, elsize: i32) {
+        this._length = len;
+        this._itemSize = elsize;
     }
 }

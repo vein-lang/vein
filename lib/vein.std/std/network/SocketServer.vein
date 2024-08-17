@@ -8,19 +8,24 @@ public abstract class SocketServer {
     start(endpoint: IpEndpoint): void {
         this._endpoint = endpoint;
         this.server_handle = self.tcp_bind_handle(endpoint);
-        self.tcp_listen_handle(this.server_handle, 128, &_internal_onConnection);
+        self.tcp_listen_handle(this.server_handle, 128, &doBeginConnection);
     }
 
-    private _internal_onConnection(sr: raw, status: i32): void {
+    private doBeginConnection(sr: ClientHandle, status: i32): void 
+        |> this.beginConnection(sr, status);
+
+    protected virtual beginConnection(sr: ClientHandle, status: i32): void {
         if (status != 0) {
+            Out.print("libuv error");
+            Out.print(status);
+            Out.print("failed beginConnect");
             return;
         }
-        auto client = new SocketClient();
+        auto client = new SocketClient(this, sr);
         this.onConnected(client);
     }
 
     abstract onConnected(client: SocketClient): void;
-    abstract onRead(client: SocketClient, writer: StreamWriter, reader: StreamReader): void;
 
     [native("__internal__", "socket_tcp_bind_handle")]
     private static extern tcp_bind_handle(endpoint: IpEndpoint): SocketHandle;
@@ -33,4 +38,4 @@ struct SocketHandle {
     server_handle: raw;
 }
 
-alias rawOnServerConnection <| (sr: raw, status: i32): void;
+alias rawOnServerConnection <| (sr: ClientHandle, status: i32): void;
