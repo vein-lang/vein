@@ -133,7 +133,7 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
 
     public async Task<bool> InstallManifestForCurrentOS()
     {
-        directory.Ensure().File("workload.manifest.json").WriteAllText(manifest.SaveAsString());
+        await directory.Ensure().File("workload.manifest.json").WriteAllTextAsync(manifest.SaveAsString());
 
         var enums = manifest.Workloads.Select(x => (x, ctx.AddTask($"Downloading workload '{x.Value.name.key}'"))).ToList();
         await Task.Delay(1000);
@@ -158,6 +158,7 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
             catch (Exception e)
             {
                 Log.Error($"bad workload package");
+                AnsiConsole.WriteException(e);
                 return false;
             }
         }
