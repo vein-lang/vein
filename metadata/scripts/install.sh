@@ -65,7 +65,7 @@ fi
 chmod +x "$OUTPUT_DIR/rune"
 chmod +x "$OUTPUT_DIR/bin/rune.sh"
 
-"$OUTPUT_DIR/rune" workload update vein.runtime@0.30.2
-"$OUTPUT_DIR/rune" workload update vein.compiler@0.30.2
+"$OUTPUT_DIR/rune" workload install vein.runtime@0.30.2
+"$OUTPUT_DIR/rune" workload install vein.compiler@0.30.2
 
 echo "Installation complete. Please restart your terminal to use the new PATH."

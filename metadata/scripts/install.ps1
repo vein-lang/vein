@@ -22,8 +22,8 @@ try {
     $env:Path += ";$outputDir"
     [Environment]::SetEnvironmentVariable("Path", $env:Path, [EnvironmentVariableTarget]::User)
 
-    Invoke-Expression "$outputDir\rune.exe workload update vein.runtime@0.30.2"
-    Invoke-Expression "$outputDir\rune.exe workload update vein.compiler@0.30.2"
+    Invoke-Expression "$outputDir\rune.exe workload install vein.runtime@0.30.2"
+    Invoke-Expression "$outputDir\rune.exe workload install vein.compiler@0.30.2"
     Write-Output "Rune Installed, restart your teminal for use"
 }
 catch {
