@@ -1,6 +1,6 @@
 {
     "name": "vein.compiler",
-    "version": "0.30.2",
+    "version": "0.30.3",
     "workloads": {
         "vein-compiler": {
             "name": "vein-compiler",
@@ -22,11 +22,11 @@
             "name": "vein-compiler-package",
             "kind": "tool",
             "aliases": {
-                "win-x64": "https://github.com/vein-lang/vein/releases/download/v0.30.2/vein.compiler.win-x64.zip",
-                "osx-x64": "https://github.com/vein-lang/vein/releases/download/v0.30.2/veinc.compiler.osx-x64.zip",
-                "osx-arm64": "https://github.com/vein-lang/vein/releases/download/v0.30.2/veinc.compiler.osx-arm64.zip",
-                "linux-x64": "https://github.com/vein-lang/vein/releases/download/v0.30.2/veinc.compiler.linux-x64.zip",
-                "linux-arm64": "https://github.com/vein-lang/vein/releases/download/v0.30.2/veinc.compiler.linux-arm64.zip"
+                "win-x64": "https://github.com/vein-lang/vein/releases/download/v0.30.3/veinc.compiler.win-x64.zip",
+                "osx-x64": "https://github.com/vein-lang/vein/releases/download/v0.30.3/veinc.compiler.osx-x64.zip",
+                "osx-arm64": "https://github.com/vein-lang/vein/releases/download/v0.30.3/veinc.compiler.osx-arm64.zip",
+                "linux-x64": "https://github.com/vein-lang/vein/releases/download/v0.30.3/veinc.compiler.linux-x64.zip",
+                "linux-arm64": "https://github.com/vein-lang/vein/releases/download/v0.30.3/veinc.compiler.linux-arm64.zip"
             },
             "definition": [
                 {
