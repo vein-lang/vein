@@ -16,8 +16,6 @@ public class UninstallWorkloadCommandSettings : CommandSettings
 }
 public class UninstallWorkloadCommand : AsyncCommandWithProgress<UninstallWorkloadCommandSettings>
 {
-    public const int PACKAGE_NOT_FOUND = -15;
-
     private static readonly DirectoryInfo WorkloadDirectory = SecurityStorage.RootFolder.SubDirectory("workloads");
     private readonly SymlinkCollector Symlink = new(SecurityStorage.RootFolder);
 
@@ -26,20 +24,20 @@ public class UninstallWorkloadCommand : AsyncCommandWithProgress<UninstallWorklo
         using var task = context.AddTask($"delete [orange3]'{settings.PackageName}'[/] workload...")
             .IsIndeterminate();
         await Task.Delay(1000);
-        var name = settings.PackageName;
+        var package = settings.PackageName;
 
         if (!WorkloadDirectory
-                .SubDirectory(name).Exists)
+                .SubDirectory(package).Exists)
         {
             task.FailTask();
-            Log.Error($"Workload package [orange3]'{name}'[/] not installed.");
-            return PACKAGE_NOT_FOUND;
+            Log.Error($"Workload package [orange3]'{package}'[/] not installed.");
+            return -1;
         }
 
         var version = await WorkloadDirectory
-            .SubDirectory(name).File("latest.version").ReadToEndAsync();
+            .SubDirectory(package).File("latest.version").ReadToEndAsync();
         var tagFolder = WorkloadDirectory
-            .SubDirectory(name)
+            .SubDirectory(package)
             .SubDirectory(version);
 
         var manifest = await WorkloadManifest.OpenAsync(tagFolder.File("workload.manifest.json"));

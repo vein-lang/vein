@@ -1,6 +1,5 @@
 namespace vein.cmd;
 
-using System;
 using System.Collections.Generic;
 using project;
 using Spectre.Console.Cli;
@@ -13,8 +12,8 @@ using Spectre.Console;
 public class AddCommand(ShardRegistryQuery query) : AsyncCommandWithProject<AddCommandSettings>
 { public override async Task<int> ExecuteAsync(CommandContext context, AddCommandSettings settings, VeinProject project)
     {
-        var name = settings.PackageName ?? throw new ArgumentNullException(nameof(settings.PackageName));
-        var version = settings.PackageVersion ?? "latest";
+        var name = settings.PackageName.Name;
+        var version = settings.PackageName.Version;
 
         project._project.Packages ??= new List<string>();
         
@@ -71,11 +70,8 @@ public class AddCommandSettings : CommandSettings, IProjectSettingProvider
 {
     [Description("Package name")]
     [CommandArgument(0, "[NAME]")]
-    public string PackageName { get; set; }
+    public required RunePackageKey PackageName { get; set; }
     [Description("Path to project")]
     [CommandOption("--project")]
     public string Project { get; set; }
-    [Description("Package version")]
-    [CommandOption("--version")]
-    public string PackageVersion { get; set; }
 }

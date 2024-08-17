@@ -1,12 +1,12 @@
 {
   "profiles": {
     "rune-cli": {
-      "commandName": "Project",
-      "commandLineArgs": ""
+      "commandName": "Project"
     },
     "install workload with manifest": {
       "commandName": "Project",
-      "commandLineArgs": "workload install vein.compiler@0.30.1"
+      "commandLineArgs": "build",
+      "workingDirectory": "C:\\git\\vein.lang\\lib\\vein.std\\std"
     }
   }
 }

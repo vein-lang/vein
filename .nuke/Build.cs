@@ -268,7 +268,7 @@ class Build : NukeBuild
                 "osx-arm64"
             };
             runtimes.ForEach(runtime => {
-                var outputDir =  OutputDirectory / $"ishtar" / runtime / "debug";
+                var outputDir =  OutputDirectory / $"ishtar" / runtime;
                 outputDir.CreateOrCleanDirectory();
                 DotNetPublish(c => c
                     .SetProject(Ishtar)
