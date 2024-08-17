@@ -5,7 +5,7 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
-    <Version>0.30-preview</Version>
+    <Version>0.30.3</Version>
     <LangVersion>preview</LangVersion>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <EnablePreviewFeatures>true</EnablePreviewFeatures>
