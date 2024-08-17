@@ -14,12 +14,12 @@ try {
     $releaseInfo = Invoke-RestMethod -Uri $apiUrl
     $asset = $releaseInfo.assets | Where-Object { $_.name -eq "rune.$arch.zip" }
     $downloadUrl = $asset.browser_download_url
-    New-Item -ItemType Directory -Force -Path $outputDir
-    New-Item -ItemType Directory -Force -Path $binDir
+    New-Item -ItemType Directory -Force -Path $outputDir > $null
+    New-Item -ItemType Directory -Force -Path $binDir > $null
     $zipFile = "$outputDir\rune.$arch.zip"
     DownloadFile $downloadUrl $zipFile
-    Expand-Archive -Path $zipFile -DestinationPath $binDir -Force
-    Remove-Item -Force $zipFile
+    Expand-Archive -Path $zipFile -DestinationPath $binDir -Force > $null
+    Remove-Item -Force $zipFile > $null
     $env:Path += ";$binDir"
     [Environment]::SetEnvironmentVariable("Path", $env:Path, [EnvironmentVariableTarget]::User)
 
