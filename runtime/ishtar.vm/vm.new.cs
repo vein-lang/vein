@@ -14,6 +14,7 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
     {
         if (hasInited)
             throw new NotSupportedException();
+        using var tag = Profiler.Begin("vm:init");
         GC_set_find_leak(true);
         GC_set_all_interior_pointers(true);
         GC_set_finalizer_notifier(on_gc_finalization);
@@ -25,6 +26,7 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
 
     public static VirtualMachine* Create(string name)
     {
+        using var tag = Profiler.Begin("vm:create");
         var vm = IshtarGC.AllocateImmortal<VirtualMachine>(null);
         *vm = new VirtualMachine(vm);
         vm->Name = StringStorage.Intern(name, vm);
@@ -69,6 +71,7 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
 
     public void Dispose()
     {
+        using var tag = Profiler.Begin("vm:dispose");
         task_scheduler->Dispose();
         InternalModule->Dispose();
         IshtarGC.FreeImmortalRoot(InternalModule);

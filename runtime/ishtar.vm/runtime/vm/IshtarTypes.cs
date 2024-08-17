@@ -81,6 +81,7 @@ public readonly unsafe struct IshtarTypes(
 
     public static IshtarTypes* Create(AppVault vault)
     {
+        using var tag = Profiler.Begin("vm:types:create");
         var r = IshtarGC.AllocateImmortal<IshtarTypes>(vault.vm->InternalModule);
         var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>(vault.vm->InternalModule);
 
