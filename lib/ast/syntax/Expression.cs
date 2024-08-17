@@ -352,6 +352,7 @@ namespace vein.syntax
             from oo in
                 post_increment_expression.Select(x => x.Downlevel()).Positioned()
                 .Or(post_decrement_expression.Positioned())
+                .Or(ethereal_function_expression("sizeof").Positioned())
                 .Or(ethereal_function_expression("nameof").Positioned())
                 .Or(ethereal_function_expression("typeof").Positioned())
                 .Or(ethereal_function_expression("is").Positioned())
@@ -378,7 +379,7 @@ namespace vein.syntax
         protected internal virtual Parser<EtherealFunctionExpression> ethereal_function_expression(string keyword) =>
             from kv in KeywordExpression(keyword)
             from generics in GenericsDeclarationParser.Optional()
-            from exp in QualifiedExpression.Parenthesis()
+            from exp in QualifiedExpression.Optional().Parenthesis()
             select EtherealFunctionExpression.Select(kv.ExpressionString, generics.GetOrEmpty(), exp);
 
         protected internal virtual Parser<ExpressionSyntax> array_creation_expression =>

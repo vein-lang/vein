@@ -12,6 +12,12 @@ namespace vein.syntax
         {
             try
             {
+                return FormatError(t, doc.SourceLines);
+            }
+            catch { }
+
+            try
+            {
                 var (diff, arrow_line) = DiffError(t, doc.SourceLines);
                 if (diff is null && arrow_line is null)
                     return "";
@@ -22,6 +28,27 @@ namespace vein.syntax
                 return ""; // TODO analytic
             }
         }
+
+        private static string FormatError(Transform position, string[] sources)
+        {
+            if (position.pos.Line <= 0 || position.pos.Line > sources.Length)
+                throw new ArgumentOutOfRangeException(nameof(position.pos.Line), "Line number is out of range.");
+
+            var line = sources[position.pos.Line - 1];
+
+            if (position.pos.Column <= 0 || position.pos.Column > line.Length)
+                throw new ArgumentOutOfRangeException(nameof(position.pos.Column), "Column number is out of range.");
+
+            if (position.pos.Column - 1 + position.len > line.Length)
+                throw new ArgumentOutOfRangeException(nameof(position.len), "Length is out of range.");
+            
+            var formattedError =
+                $"\n\t[grey]{line.EscapeMarkup()}[/]" +
+                $"\n\t{new string(' ', position.pos.Column - 1)}[red]{new string('^', position.len)}[/]";
+
+            return formattedError;
+        }
+
 
         public static string DiffErrorFull(this Transform t, FileInfo doc)
         {
