@@ -43,7 +43,7 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS;ISHTAR_DEBUG_CONSOLE</DefineConstants>
+    <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS;ISHTAR_DEBUG_CONSOLE;PROFILER;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -62,7 +62,6 @@
     <ProjectReference Include="..\..\lib\capi\capi.csproj" />
     <ProjectReference Include="..\common\vein.common.csproj" />
     <ProjectReference Include="..\ishtar.base\ishtar.base.csproj" />
-    <ProjectReference Include="..\ishtar.vm.libuv\ishtar.vm.libuv.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
     <ProjectReference Include="..\..\lib\ishtar.debug.console\ishtar.debug.csproj" />
@@ -85,5 +84,11 @@
   <ItemGroup>
     <Folder Include="FFI\generated\" />
     <Folder Include="runtime\io\ini\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="boot.ini">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
