@@ -10,6 +10,7 @@ namespace ishtar.emit
     using System.Runtime.CompilerServices;
     using System.Text;
     using extensions;
+    using MoreLinq;
     using vein.extensions;
     using vein.runtime;
 
@@ -28,6 +29,8 @@ namespace ishtar.emit
 
         public int ILOffset => _position;
 
+        public OpCode? GetLastOpCode() => _debug_list.LastOrDefault();
+
         internal ILGenerator(MethodBuilder method) : this(method, size: 16) { }
         internal ILGenerator(MethodBuilder method, int size)
         {
@@ -39,6 +42,9 @@ namespace ishtar.emit
 
         public ILGenerator Emit(OpCode opcode)
         {
+            if (opcode.Size != 0)
+                throw new InvalidOperationException();
+
             EnsureCapacity<OpCode>();
             InternalEmit(opcode);
             DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name}");
@@ -183,6 +189,9 @@ namespace ishtar.emit
         {
             if (new[] { OpCodes.LDF, OpCodes.STF, OpCodes.STSF, OpCodes.LDSF }.All(x => x != opcode))
                 throw new InvalidOpCodeException($"Opcode '{opcode.Name}' is not allowed.");
+
+            if (field is null)
+                throw new InvalidOperationException();
 
             if (this._methodBuilder.IsConstructor && opcode == OpCodes.STF) // shit
                 this.FieldMarkAsInited(field);
@@ -377,7 +386,7 @@ namespace ishtar.emit
 
             this.PutInteger4(tokenIdx);
             this.PutTypeName(ownerIdx);
-            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method}");
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} {method.Owner.Name.name}::{method}");
             return this;
         }
 

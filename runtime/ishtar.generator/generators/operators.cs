@@ -60,7 +60,7 @@ public static class G_Operators
             var args = new[] { (VeinComplexType)left_type, (VeinComplexType)right_type };
 
 
-            var method = left_type.FindMethod(name, args);
+            var method = left_type.FindMethod(name, args.ToList());
 
             if (method is null)
             {
@@ -120,7 +120,6 @@ public static class G_Operators
             context.LogError($"Member '{id}' is not found in '{gen._methodBuilder.classBuilder.Owner.Name}'.", id);
             throw new SkipStatementException();
         }
-
         if (bin is { Left: AccessExpressionSyntax { Left: ThisAccessExpression, Right: IdentifierExpression id1 } })
         {
             var accessTag = gen.GetAccessFlags(id1);
@@ -145,8 +144,10 @@ public static class G_Operators
             context.LogError($"Member '{id1}' is not found in '{gen._methodBuilder.classBuilder.Owner.Name}'.", id1);
             throw new SkipStatementException();
         }
-
-        if (bin is { Left: AccessExpressionSyntax { Left: SelfAccessExpression, Right: IdentifierExpression id3 } })
+        if (bin is
+                 {
+                     Left: AccessExpressionSyntax { Left: SelfAccessExpression, Right: IdentifierExpression id3 }
+                 })
         {
             var accessTag = gen.GetAccessFlags(id3);
 
@@ -156,17 +157,19 @@ public static class G_Operators
                 gen.EmitExpression(bin.Right).Emit(OpCodes.CALL, prop.Setter);
                 return;
             }
+
             if (accessTag == AccessFlags.STATIC_FIELD)
             {
                 var field = context.ResolveField(context.CurrentMethod.Owner, id3);
                 gen.EmitExpression(bin.Right).EmitStageField(field);
                 return;
             }
-            context.LogError($"Static member '{id3}' is not found in '{gen._methodBuilder.classBuilder.Owner.Name}'.", id3);
+
+            context.LogError($"Static member '{id3}' is not found in '{gen._methodBuilder.classBuilder.Owner.Name}'.",
+                id3);
             throw new SkipStatementException();
         }
-
-        if (bin is { Left: AccessExpressionSyntax access, Right: IdentifierExpression id2 })
+        if (bin is { Left: AccessExpressionSyntax access, Right: ExpressionSyntax id2 })
         {
             bool shot_load_self(bool yes = false)
             {
@@ -241,7 +244,7 @@ public static class G_Operators
                     targetClass = field.FieldType;
 
                     if (tag.isLast)
-                        gen.EmitExpression(id2).Emit(OpCodes.STF);
+                        gen.EmitExpression(id2).Emit(OpCodes.STF, field);
                     else
                         gen.Emit(OpCodes.LDF, field);
                 }
@@ -314,7 +317,8 @@ public static class G_Operators
 
             if (node.Operand is IdentifierExpression id)
             {
-                var method = ctx.CurrentMethod.Owner.FindMethod(id.ExpressionString, invokeMethod.Signature.Arguments.Select(x => x.ComplexType));
+                var method = ctx.FindCompatibleMethod(id, id.ExpressionString, ctx.CurrentMethod.Owner,
+                    invokeMethod.Signature.Arguments.Select(x => x.ComplexType).ToList());
 
                 gen.Emit(OpCodes.LDFN, method);
             }

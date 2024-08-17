@@ -270,13 +270,18 @@ namespace ishtar.emit
             if (ctor is not null)
                 return ctor;
 
-            var flags = MethodFlags.Public | MethodFlags.Special;
+            var flags = MethodFlags.Special;
 
             if (isStatic)
                 flags |= MethodFlags.Static;
 
+            if (!base.GetAllConstructors().Any())
+                flags |= MethodFlags.Public;
+            else
+                flags |= MethodFlags.Private;
+
             var returnType = isStatic ? VeinTypeCode.TYPE_VOID.AsClass(moduleBuilder) : this;
-            var args = isStatic || name == "dtor" ? Array.Empty<VeinArgumentRef>() : [new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, this)];
+            var args = isStatic || name == VeinMethod.METHOD_NAME_DECONSTRUCTOR ? Array.Empty<VeinArgumentRef>() : [new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, this)];
 
             ctor = DefineMethod(name, flags, returnType, args);
             moduleBuilder.InternString(ctor.Name);

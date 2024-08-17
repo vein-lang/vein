@@ -2,13 +2,12 @@ namespace ishtar;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using vein.reflection;
 using vein.runtime;
 using vein.syntax;
+using vein;
 using InvocationExpression = vein.syntax.InvocationExpression;
 
 public static class G_Types
@@ -157,6 +156,8 @@ public static class G_Types
     {
         if (exp.CanOptimizationApply())
             return exp.ForceOptimization().DetermineType(context);
+        if (exp is SizeOfFunctionExpression)
+            return VeinTypeCode.TYPE_I4.AsClass()(Types.Storage);
         if (exp is LiteralExpressionSyntax literal)
             return literal.GetTypeCode().AsClass()(Types.Storage);
         if (exp is ArrayCreationExpression arr)
@@ -191,8 +192,6 @@ public static class G_Types
             return context.ResolveType(t.Typeword);
         if (exp is NameOfFunctionExpression)
             return VeinTypeCode.TYPE_STRING.AsClass()(Types.Storage);
-        if (exp is SizeOfFunctionExpression)
-            return VeinTypeCode.TYPE_I4.AsClass()(Types.Storage);
         if (exp is BinaryExpressionSyntax bin)
         {
             if (bin.OperatorType.IsLogic())
@@ -289,7 +288,7 @@ public static class G_Types
         {
             var argTypes = accessArguments.Arguments.DetermineTypes(context).ToList();
 
-            var accessMethod = accessType.Class.FindMethod(VeinArray.ArrayAccessGetterMethodName, argTypes);
+            var accessMethod = accessType.Class.FindMethod(VeinArray.ArrayAccessGetterMethodName, argTypes.ToList());
 
             return accessMethod.ReturnType;
         }

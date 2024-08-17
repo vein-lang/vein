@@ -192,6 +192,8 @@ public static class VeinTypeCodeEx
             _ => false
         };
     }
+
+    public static bool HasFunction(this VeinTypeCode code) => code == TYPE_FUNCTION;
     public static bool HasFloat(this VeinTypeCode code) => code switch
     {
         TYPE_R2 => true,
