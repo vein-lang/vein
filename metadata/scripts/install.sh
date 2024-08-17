@@ -1,5 +1,12 @@
 #!/bin/bash
 
+for cmd in unzip jq curl; do
+  if ! command -v $cmd &> /dev/null; then
+    echo "Error: $cmd is not installed or not available in PATH."
+    exit 1
+  fi
+done
+
 OS="$(uname -s)"
 ARCH="$(uname -m)"
 RUNTIME=""
@@ -31,7 +38,6 @@ API_URL="https://releases.vein-lang.org/api/get-release"
 release_info=$(curl -s "$API_URL")
 download_url=$(echo "$release_info" | jq -r ".assets[] | select(.name == \"rune.$RUNTIME.zip\") | .browser_download_url")
 OUTPUT_DIR="$HOME/.vein"
-BIN_DIR="$OUTPUT_DIR/bin"
 
 download_file() {
     url="$1"
@@ -39,17 +45,16 @@ download_file() {
     curl -L -o "$output_file" "$url"
 }
 mkdir -p "$OUTPUT_DIR"
-mkdir -p "$BIN_DIR"
 
 ZIP_FILE="$OUTPUT_DIR/rune.$RUNTIME.zip"
 download_file "$download_url" "$ZIP_FILE"
 
-unzip -o "$ZIP_FILE" -d "$BIN_DIR"
+unzip -o "$ZIP_FILE" -d "$OUTPUT_DIR"
 
 rm "$ZIP_FILE"
 
-if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
-    echo "export PATH=\$PATH:$BIN_DIR" >> "$HOME/.bashrc"
+if [[ ":$PATH:" != *":$OUTPUT_DIR:"* ]]; then
+    echo "export PATH=\$PATH:$OUTPUT_DIR" >> "$HOME/.bashrc"
     source "$HOME/.bashrc"
 fi
 
@@ -58,7 +63,7 @@ if [ -f "$HOME/.zshrc" ]; then
     source "$HOME/.zshrc"
 fi
 
-"$BIN_DIR/rune" workload install vein.runtime
-"$BIN_DIR/rune" workload install vein.compiler
+"$OUTPUT_DIR/rune" workload install vein.runtime
+"$OUTPUT_DIR/rune" workload install vein.compiler
 
 echo "Installation complete. Please restart your terminal to use the new PATH."
