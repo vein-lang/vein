@@ -19,11 +19,6 @@ public class InstallWorkloadCommandSettings : CommandSettings
     [Description("A package name.")]
     [CommandArgument(0, "[PACKAGE]")]
     public required string PackageName { get; init; }
-
-    [Description("Package version")]
-    [CommandOption("--version")]
-    public string? PackageVersion { get; init; }
-
     [Description("Package version")]
     [CommandOption("--manifest", IsHidden = true)]
     public string? ManifestFile { get; init; }
@@ -41,11 +36,14 @@ public record WorkloadInstallingContext(
 public class InstallWorkloadCommand(ShardRegistryQuery query, ShardStorage storage, WorkloadDb workloadDb) : AsyncCommandWithProgress<InstallWorkloadCommandSettings>
 {
     public override async Task<int> ExecuteAsync(ProgressContext context, InstallWorkloadCommandSettings settings)
-        => await WorkloadRegistryLoader.InstallWorkloadAsync(new (query, storage, workloadDb,
-            new PackageKey(settings.PackageName),
-            settings.PackageVersion,
+    {
+        var version = settings.PackageName.Contains("@") ? settings.PackageName.Split("@").Last() : "latest";
+        return await WorkloadRegistryLoader.InstallWorkloadAsync(new(query, storage, workloadDb,
+            new PackageKey(settings.PackageName.Split("@").First()),
+            version,
             settings.ManifestFile,
             context));
+    }
 }
 
 

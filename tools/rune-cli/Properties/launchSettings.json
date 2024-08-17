@@ -6,7 +6,7 @@
     },
     "install workload with manifest": {
       "commandName": "Project",
-      "commandLineArgs": "build proj -O"
+      "commandLineArgs": "workload install vein.compiler@0.30.1"
     }
   }
 }

@@ -13,10 +13,6 @@ public class UpdateWorkloadCommandSettings : CommandSettings
     public required string PackageName { get; set; }
 
     [Description("Package version")]
-    [CommandOption("--version")]
-    public string? PackageVersion { get; set; }
-
-    [Description("Package version")]
     [CommandOption("--manifest", IsHidden = true)]
     public string? ManifestFile { get; set; }
 }
@@ -30,7 +26,7 @@ public class UpdateWorkloadCommand(ShardRegistryQuery query, ShardStorage storag
         var uninstallResult = await new UninstallWorkloadCommand().ExecuteAsync(context,
             new UninstallWorkloadCommandSettings()
             {
-                PackageName = settings.PackageName
+                PackageName = settings.PackageName.Split("@").First()
             });
         if (uninstallResult != 0)
             return uninstallResult;
@@ -38,8 +34,7 @@ public class UpdateWorkloadCommand(ShardRegistryQuery query, ShardStorage storag
             new InstallWorkloadCommandSettings()
             {
                 PackageName = settings.PackageName,
-                ManifestFile = settings.ManifestFile,
-                PackageVersion = settings.PackageVersion
+                ManifestFile = settings.ManifestFile
             });
         return installResult;
     }
