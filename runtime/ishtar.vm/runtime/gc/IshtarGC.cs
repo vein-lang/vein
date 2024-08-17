@@ -50,6 +50,8 @@ namespace ishtar.runtime.gc
     {
         public static IshtarGC* Create(VirtualMachine* v)
         {
+            using var tag = Profiler.Begin("vm:gc:create");
+
             var gc = AllocateImmortal<IshtarGC>(v);
             *gc = new IshtarGC(v);
 
@@ -165,6 +167,25 @@ namespace ishtar.runtime.gc
             return p;
         }
 
+        public byte* AllocSpanTable(CallFrame* frame, uint len)
+        {
+            using var _ = GCSync.Begin(mutex);
+
+            var allocator = allocatorPool.RentArray<byte>(out var p, (int)len, frame, AllocationKind.no_reference);
+
+            total_allocations++;
+            total_bytes_requested += allocator.TotalSize;
+
+            return p;
+        }
+        public void FreeSpanTable(CallFrame* frame, byte* spanTable)
+        {
+            using var _ = GCSync.Begin(mutex);
+
+            total_allocations--;
+            total_bytes_requested -= allocatorPool.Return(spanTable);
+        }
+
 
         public stackval* AllocateStack(CallFrame* frame, int size)
         {
@@ -232,6 +253,13 @@ namespace ishtar.runtime.gc
             total_bytes_requested += allocator.TotalSize;
 
             return (T*)p;
+        }
+
+        public void FreeUVStruct<T>(T* data, CallFrame* frame) where T : unmanaged
+        {
+            using var _ = GCSync.Begin(mutex);
+            total_allocations--;
+            total_bytes_requested -= allocatorPool.Return(data);
         }
 
         public void FreeRawValue(rawval* value)
@@ -347,112 +375,7 @@ namespace ishtar.runtime.gc
                 vm->FastFail(WNE.TYPE_LOAD, "Out of memory.", vm->Frames->GarbageCollector);
             return p;
         }
-
-        //public IshtarObject* AllocTypeInfoObject(RuntimeIshtarClass* @class, CallFrame* frame)
-        //{
-        //    using var _ = GCSync.Begin(this);
-
-        //    if (!@class->is_inited)
-        //        throw new NotImplementedException();
-
-        //    //IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_TYPE_BARRIER);
-
-        //    if (_types_cache.TryGetValue(@class->runtime_token, out nint value))
-        //        return (IshtarObject*)value;
-
-        //    var tt = KnowTypes.Type(frame);
-        //    var obj = AllocObject(tt, frame);
-        //    var gc = frame->GetGC();
-
-        //    obj->flags |= GCFlags.IMMORTAL;
-
-        //    obj->vtable[tt->Field["_unique_id"]->vtable_offset] = gc->ToIshtarObjectT(@class->runtime_token.ClassID, frame);
-        //    obj->vtable[tt->Field["_module_id"]->vtable_offset] = gc->ToIshtarObjectT(@class->runtime_token.ModuleID, frame);
-        //    obj->vtable[tt->Field["_flags"]->vtable_offset] = gc->ToIshtarObject((int)@class->Flags, frame);
-        //    obj->vtable[tt->Field["_name"]->vtable_offset] = gc->ToIshtarObject(@class->Name, frame);
-        //    obj->vtable[tt->Field["_namespace"]->vtable_offset] = gc->ToIshtarObject(@class->FullName->Namespace, frame);
-
-        //    _types_cache[@class->runtime_token] = (nint)obj;
-
-        //    //IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_TYPE_BARRIER);
-
-        //    return obj;
-        //}
-
-        //public IshtarObject* AllocFieldInfoObject(RuntimeIshtarField* field, CallFrame* frame)
-        //{
-        //    using var _ = GCSync.Begin(this);
-
-        //    var @class = field->Owner;
-        //    if (!@class->is_inited)
-        //        throw new NotImplementedException();
-
-        //    var name = field->Name;
-        //    var gc = frame->GetGC();
-
-        //    //IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_FIELD_BARRIER);
-
-        //    if (_fields_cache.ContainsKey(@class->runtime_token) && _fields_cache[@class->runtime_token].ContainsKey(name))
-        //        return (IshtarObject*)_fields_cache[@class->runtime_token][name];
-
-        //    var tt = KnowTypes.Field(frame);
-        //    var obj = AllocObject(tt, frame);
-
-        //    obj->flags |= GCFlags.IMMORTAL;
-
-        //    var field_owner = AllocTypeInfoObject(@class, frame);
-
-        //    obj->vtable[tt->Field["_target"]->vtable_offset] = field_owner;
-        //    obj->vtable[tt->Field["_name"]->vtable_offset] = gc->ToIshtarObject(name, frame);
-        //    obj->vtable[tt->Field["_vtoffset"]->vtable_offset] = gc->ToIshtarObject((long)field->vtable_offset, frame);
-
-        //    if (!_fields_cache.ContainsKey(@class->runtime_token))
-        //        _fields_cache[@class->runtime_token] = new();
-        //    _fields_cache[@class->runtime_token][name] = (nint)obj;
-
-        //    //IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_FIELD_BARRIER);
-
-        //    return obj;
-        //}
-
-
-        //public IshtarObject* AllocMethodInfoObject(RuntimeIshtarMethod* method, CallFrame* frame)
-        //{
-        //    using var _ = GCSync.Begin(this);
-
-        //    var @class = method->Owner;
-        //    if (!@class->is_inited)
-        //        throw new NotImplementedException();
-
-        //    var key = method->Name;
-        //    var gc = frame->GetGC();
-
-        //    //IshtarSync.EnterCriticalSection(ref @class.Owner.Interlocker.INIT_METHOD_BARRIER);
-
-        //    if (_fields_cache.ContainsKey(@class->runtime_token) && _fields_cache[@class->runtime_token].ContainsKey(key))
-        //        return (IshtarObject*)_fields_cache[@class->runtime_token][key];
-
-        //    var tt = KnowTypes.Function(frame);
-        //    var obj = AllocObject(tt, frame);
-
-        //    obj->flags |= GCFlags.IMMORTAL;
-
-        //    var method_owner = AllocTypeInfoObject(@class, frame);
-
-        //    obj->vtable[tt->Field["_target"]->vtable_offset] = method_owner;
-        //    obj->vtable[tt->Field["_name"]->vtable_offset] = gc->ToIshtarObject(method->RawName, frame);
-        //    obj->vtable[tt->Field["_quality_name"]->vtable_offset] = gc->ToIshtarObject(method->Name, frame);
-        //    obj->vtable[tt->Field["_vtoffset"]->vtable_offset] = gc->ToIshtarObject((long)method->vtable_offset, frame);
-
-        //    if (!_methods_cache.ContainsKey(@class->runtime_token))
-        //        _methods_cache[@class->runtime_token] = new();
-        //    _methods_cache[@class->runtime_token][key] = (nint)obj;
-
-        //    //IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_METHOD_BARRIER);
-
-        //    return obj;
-        //}
-
+        
         public IshtarObject* AllocObject(RuntimeIshtarClass* @class, CallFrame* frame)
         {
             using var _ = GCSync.Begin(mutex);
@@ -476,8 +399,9 @@ namespace ishtar.runtime.gc
             p->m1 = IshtarObject.magic1;
             p->m2 = IshtarObject.magic2;
             IshtarObject.CreationTrace[p->__gc_id] = Environment.StackTrace;
-            #endif
-            @class->computed_size = @class->computed_size;
+#endif
+
+            IshtarObject.debug_names_allocation[p->__gc_id] = @class->Name;
 
             total_allocations++;
             total_bytes_requested += allocator.TotalSize;
@@ -490,6 +414,10 @@ namespace ishtar.runtime.gc
 
         private static void _direct_finalizer(nint obj, nint __)
         {
+#if DEBUG
+            Debug.WriteLine($"Detected invalid object when calling _direct_finalizer");
+            Debugger.Break();
+#endif
             var o = (IshtarObject*)obj;
 
             if (!o->IsValidObject())
@@ -582,7 +510,10 @@ namespace ishtar.runtime.gc
 
             //IshtarSync.LeaveCriticalSection(ref clazz.Owner.Interlocker.GC_FINALIZER_BARRIER);
         }
-        
+
+        public void SystemStructRegisterFinalizer<T>(T* obj, delegate*<nint, nint, void> proc, CallFrame* frame) where T : unmanaged
+            => gcLayout.register_finalizer_no_order(obj, proc, frame);
+
         public void RegisterWeakLink(IshtarObject* obj, void** link, bool longLive)
             => gcLayout.create_weak_link(link, obj, longLive);
         public void UnRegisterWeakLink(void** link, bool longLive)
@@ -594,8 +525,8 @@ namespace ishtar.runtime.gc
 
         public void Collect() => gcLayout.collect();
 
-        
 
+        public bool is_registered_thread() => gcLayout.is_registered_thread();
         public void register_thread(GC_stack_base* attr) => gcLayout.register_thread(attr);
         public void unregister_thread() => gcLayout.unregister_thread();
         public bool get_stack_base(GC_stack_base* attr) => gcLayout.get_stack_base(attr);
@@ -650,7 +581,17 @@ namespace ishtar.runtime.gc
         public static void FreeConcurrentDictionary<TKey, TValue>(NativeConcurrentDictionary<TKey, TValue>* list)
             where TKey : unmanaged, IEquatable<TKey> where TValue : unmanaged
             => NativeConcurrentDictionary<TKey, TValue>.Free(list);
-        
+
+
+
+        public static NativeSortedSet<TValue>* AllocateSortedSet<TValue>(void* parent)
+            where TValue : unmanaged, INativeComparer<TValue>, IEq<TValue>
+            => NativeSortedSet<TValue>.Create(CreateAllocatorWithParent(parent));
+
+        public static void FreeConcurrentDictionary<TValue>(NativeSortedSet<TValue>* list)
+            where TValue : unmanaged, INativeComparer<TValue>, IEq<TValue>
+            => NativeSortedSet<TValue>.Free(list);
+
         public static T* AllocateImmortal<T>(void* parent) where T : unmanaged 
         {
             var p = (T*)gcLayout.alloc_immortal((uint)sizeof(T));
@@ -658,6 +599,11 @@ namespace ishtar.runtime.gc
             return p;
         }
 
+        public static void* AllocateAtomicImmortal(uint size) 
+        {
+            var p = gcLayout.alloc_atomic_immortal(size);
+            return p;
+        }
 
         public static T* AllocateUVImmortal<T>() where T : unmanaged
         {
@@ -710,6 +656,12 @@ namespace ishtar.runtime.gc
 
         private static readonly List<nint> allocatedImmortals = new();
         private static readonly Dictionary<nint, string> disposedImmortals = new();
+
+        public static void FreeAtomicImmortal(void* t)
+        {
+            gcLayout.free(&t);
+        }
+
         public static void FreeImmortal<T>(T* t) where T : unmanaged
         {
             lock (typeof(T))

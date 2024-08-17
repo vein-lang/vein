@@ -113,11 +113,14 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         public static extern void GC_use_threads_discovery();
 
         [DllImport(LIBNAME)]
-        public static extern void GC_register_my_thread(GC_stack_base* attr);
-
+        public static extern void GC_register_my_thread(in GC_stack_base* attr);
+        [DllImport(LIBNAME, EntryPoint = "GC_register_my_thread")]
+        public static extern void GC_register_my_thread2(in GC_stack_base attr);
 
         [DllImport(LIBNAME)]
-        public static extern int GC_get_stack_base(GC_stack_base* attr);
+        public static extern int GC_get_stack_base(in GC_stack_base* attr);
+        [DllImport(LIBNAME, EntryPoint = "GC_get_stack_base")]
+        public static extern int GC_get_stack_base2(out GC_stack_base attr);
 
         [DllImport(LIBNAME)]
         public static extern int GC_unregister_my_thread();
@@ -313,9 +316,19 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
 
     public void register_thread(GC_stack_base* attr) => Native.GC_register_my_thread(attr);
+
+    public bool is_registered_thread() => Native.GC_thread_is_registered();
+
     public void unregister_thread() => Native.GC_unregister_my_thread();
 
-    public bool get_stack_base(GC_stack_base* attr) => Native.GC_get_stack_base(attr) == 0;
+    public bool get_stack_base(GC_stack_base* attr)
+    {
+        var result = Native.GC_get_stack_base(attr);
+
+        if (result != 0)
+            Console.WriteLine($"get_stack_base: {result}");
+        return result == 0;
+    }
 
     private struct WeakImmortalRef(void** addr, void* obj)
     {
@@ -329,6 +342,15 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         if (!Native.GC_is_init_called())
             throw new GcNotLoaded();
         var ptr = (void*)Native.GC_malloc_uncollectable(size);
+        Native.GC_toggleref_add(ptr, 0);
+        return ptr;
+    }
+
+    public void* alloc_atomic_immortal(uint size)
+    {
+        if (!Native.GC_is_init_called())
+            throw new GcNotLoaded();
+        var ptr = (void*)Native.GC_malloc_atomic_uncollectable(size);
         Native.GC_toggleref_add(ptr, 0);
         return ptr;
     }

@@ -3,7 +3,6 @@ namespace ishtar.runtime.gc;
 public unsafe struct GC_stack_base
 {
     public void* mem_base;
-    public void* reg_base;
 }
 
 public unsafe interface GCLayout
@@ -17,6 +16,7 @@ public unsafe interface GCLayout
     public void unlink(void** link_addr, bool trackable);
     public void* alloc_atomic(uint size);
     public void* alloc_immortal(uint size);
+    public void* alloc_atomic_immortal(uint size);
     public void add_roots(void* ptr, int size);
     public void remove_roots(void* ptr, int size);
     public void clear_roots();
@@ -28,6 +28,7 @@ public unsafe interface GCLayout
     public void finalize_on_demand();
     public bool get_stack_base(GC_stack_base* attr);
     public void register_thread(GC_stack_base* attr);
+    public bool is_registered_thread();
     public void unregister_thread();
 
     public void register_finalizer_no_order(void* obj, delegate*<nint, nint, void> proc, CallFrame* frame);
