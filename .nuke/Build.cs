@@ -232,8 +232,10 @@ class Build : NukeBuild
             var runtimes = new[]
             {
                 "win-x64",
-                //"linux-x64",
-                //"osx-arm64"
+                "linux-x64",
+                "linux-arm64",
+                "osx-x64",
+                "osx-arm64"
             };
             runtimes.ForEach(runtime => {
                 var outputDir =  OutputDirectory / $"veinc" / runtime;
