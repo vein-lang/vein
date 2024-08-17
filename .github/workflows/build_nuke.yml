@@ -37,7 +37,7 @@ jobs:
         run: ./build.sh 
         env:
           VEIN_API_KEY: ${{ secrets.VEIN_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CODE_MAID_PAT: ${{ secrets.CODE_MAID_PAT }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
