@@ -48,7 +48,7 @@ using vein.project;
 
 [GitHubActions("build_nuke", GitHubActionsImage.UbuntuLatest, AutoGenerate = false,
     On = [GitHubActionsTrigger.Push],
-    ImportSecrets = ["VEIN_API_KEY", "GITHUB_TOKEN"],
+    ImportSecrets = ["VEIN_API_KEY", "CODE_MAID_PAT"],
     EnableGitHubToken = true)]
 class Build : NukeBuild
 {
@@ -103,7 +103,7 @@ class Build : NukeBuild
     Project VeinStd => Libs.GetProject("vein.std");
 
 
-    [Parameter] [Secret] readonly string GithubToken;
+    [Parameter] [Secret] readonly string CodeMaidPat;
     [Parameter] [Secret] readonly string VeinApiKey;
 
     AbsolutePath WorkloadRuntime => RootDirectory / "workloads" / "runtime";
@@ -197,7 +197,6 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Produces(OutputDirectory / "*.zip")
         .Executes(() => {
-            return;
             var runtimes = new[]
             {
                 "win-x64",
@@ -266,7 +265,6 @@ class Build : NukeBuild
                 "linux-x64",
                 "osx-arm64"
             };
-            return;
             runtimes.ForEach(runtime => {
                 var outputDir =  OutputDirectory / $"ishtar" / runtime / "debug";
                 outputDir.CreateOrCleanDirectory();
@@ -314,7 +312,6 @@ class Build : NukeBuild
         .DependsOn(Restore, BuildIshtarDebug)
         .Executes(() =>
         {
-            return;
             var runtimes = new[] {
                 "win-x64",
                 "linux-x64",
@@ -355,10 +352,10 @@ class Build : NukeBuild
     Target PublishRelease => _ => _
         .DependsOn(Pack, BuildVeinStd)
         .OnlyWhenDynamic(IsReleaseCommit)
-        .Requires(() => GithubToken)
+        .Requires(() => CodeMaidPat)
         .Executes(async () => {
             var client = new GitHubClient(new ProductHeaderValue("NukeBuild"));
-            var tokenAuth = new Credentials(GithubToken);
+            var tokenAuth = new Credentials(CodeMaidPat);
             client.Credentials = tokenAuth;
 
             var owner = "vein-lang";

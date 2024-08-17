@@ -6,13 +6,13 @@
     "build": {
       "type": "object",
       "properties": {
+        "CodeMaidPat": {
+          "type": "string",
+          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
+        },
         "Continue": {
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
-        },
-        "GithubToken": {
-          "type": "string",
-          "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "HasPublishWorkloads": {
           "type": "boolean"
