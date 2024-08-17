@@ -81,7 +81,7 @@ public unsafe struct IshtarJobContext(
     public uv_sem_t Locker = locker;
 }
 [CTypeExport("ishtar_job_t")]
-public readonly unsafe struct IshtarJob(uv_work_t* workerId, CallFrame* frame, IshtarJobContext* ctx) : IEq<IshtarJob>
+public readonly unsafe struct IshtarJob(uv_work_t* workerId, CallFrame* frame, IshtarJobContext* ctx) 
 {
     public readonly IshtarJobContext* ctx = ctx;
     public readonly uv_work_t* workerId = workerId;
@@ -117,7 +117,4 @@ public readonly unsafe struct IshtarJob(uv_work_t* workerId, CallFrame* frame, I
         uv_sleep(1);
         goto begin;
     }
-
-
-    public static bool Eq(IshtarJob* p1, IshtarJob* p2) => p1->workerId->handle.Equals(p2->workerId->handle);
 }

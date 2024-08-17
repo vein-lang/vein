@@ -1,5 +1,6 @@
 namespace ishtar.io;
 
+using collections;
 using runtime;
 using libuv;
 
@@ -7,11 +8,14 @@ using libuv;
 public readonly unsafe struct IshtarRawThread(
     LibUV.uv_thread_t threadId,
     delegate*<IshtarRawThread*, void> frame,
-    RuntimeIshtarModule* mainModule,
-    InternedString* name)
+    VirtualMachine* _vm,
+    void* _data,
+    InternedString* name) : IEq<IshtarRawThread>
 {
-    public readonly RuntimeIshtarModule* MainModule = mainModule;
+    public readonly VirtualMachine* vm = _vm;
     public readonly LibUV.uv_thread_t threadId = threadId;
     public readonly delegate*<IshtarRawThread*, void> callFrame = frame;
     public readonly InternedString* Name = name;
+    public readonly void* data = _data;
+    public static bool Eq(IshtarRawThread* p1, IshtarRawThread* p2) => p1->threadId.handle == p2->threadId.handle;
 }

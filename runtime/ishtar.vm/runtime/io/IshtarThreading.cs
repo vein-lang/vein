@@ -7,18 +7,30 @@ using static libuv.LibUV;
 
 
 [CTypeExport("ishtar_threading_t")]
-public unsafe struct IshtarThreading(VirtualMachine* vm)
+public readonly unsafe struct IshtarThreading(VirtualMachine* vm)
 {
-    public NativeList<IshtarThread>* threads = IshtarGC.AllocateList<IshtarThread>(vm);
+    public readonly NativeList<IshtarThread>* threads = IshtarGC.AllocateList<IshtarThread>(vm);
 
-    public IshtarRawThread* CreateRawThread(RuntimeIshtarModule* mainModule, delegate*<IshtarRawThread*, void> frame, string name)
+    public IshtarRawThread* CreateRawThread(delegate*<IshtarRawThread*, void> frame, void* data, string name)
     {
-        var thread = IshtarGC.AllocateImmortal<IshtarRawThread>(mainModule);
-        uv_thread_create(out var threadId, executeRaw, (IntPtr)thread);
-        *thread = new IshtarRawThread(threadId, frame, mainModule, StringStorage.Intern(name, mainModule));
-        return thread;
-    }
+        lock (locker)
+        {
+            var thread = IshtarGC.AllocateImmortal<IshtarRawThread>(vm);
+            //uv_thread_create(out var threadId, executeRaw, (IntPtr)thread);
+            
+            var t = new Thread((x) =>
+            {
+                executeRaw((nint)x!);
+            });
 
+            *thread = new IshtarRawThread(new uv_thread_t {handle = t.ManagedThreadId}, frame, vm, data, StringStorage.Intern(name, vm));
+
+            t.Start((IntPtr)thread);
+
+            return thread;
+        }
+    }
+    
     public IshtarThread* CreateThread(CallFrame* frame)
     {
         var thread = IshtarGC.AllocateImmortal<IshtarThread>(frame);
@@ -74,18 +86,28 @@ public unsafe struct IshtarThreading(VirtualMachine* vm)
         DestroyThread(threadData);
     }
 
+    private static readonly object locker = new();
     private static void executeRaw(nint arg)
     {
         var thread = (IshtarRawThread*)arg;
-        var stackbase = new GC_stack_base();
-
-        #if DEBUG
+#if DEBUG
         Thread.CurrentThread.Name = StringStorage.GetStringUnsafe(thread->Name);
-        #endif
-
-        BoehmGCLayout.Native.GC_get_stack_base(&stackbase);
-        BoehmGCLayout.Native.GC_register_my_thread(&stackbase);
+#endif
+        var stackbase = default(GC_stack_base);
+        if (!BoehmGCLayout.Native.GC_thread_is_registered())
+        {
+            BoehmGCLayout.Native.GC_get_stack_base2(out var gcInfo);
+            BoehmGCLayout.Native.GC_register_my_thread2(gcInfo);
+        }
         thread->callFrame(thread);
         BoehmGCLayout.Native.GC_unregister_my_thread();
+    }
+
+    public static void SetName(string s)
+    {
+#if DEBUG
+        if (string.IsNullOrEmpty(System.Threading.Thread.CurrentThread.Name))
+            System.Threading.Thread.CurrentThread.Name = s;
+#endif
     }
 }

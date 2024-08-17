@@ -3,17 +3,19 @@ using collections;
 using runtime;
 using runtime.gc;
 using System.Threading;
+using libuv;
 using vein.runtime;
 using static VirtualMachine;
 using static libuv.LibUV;
 
 [CTypeExport("ishtar_scheduler_t")]
-public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
+public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue, VirtualMachine* vm) : IDisposable
 {
     private ulong task_index;
     private void* async_header;
     private nint loop;
     private readonly NativeQueue<IshtarTask>* _queue = queue;
+    private readonly VirtualMachine* _vm = vm; 
 
 
     public nint getLoop() => loop;
@@ -21,9 +23,11 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
 
     public static TaskScheduler* Create(VirtualMachine* vm)
     {
+        using var tag = Profiler.Begin("vm:scheduler:create");
+
         var scheduler = IshtarGC.AllocateImmortal<TaskScheduler>(vm);
         var queue = IshtarGC.AllocateQueue<IshtarTask>(scheduler);
-        *scheduler = new TaskScheduler(queue);
+        *scheduler = new TaskScheduler(queue, vm);
 
         var asyncHeader = IshtarGC.AllocateImmortal<nint>(vm);
         scheduler->loop = uv_default_loop();
@@ -41,10 +45,10 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
         // TODO
     }
 
-    public static void enqueue(CallFrame* method)
+    public struct ishtar_worker_t
     {
-        //uv_work_t t;
-        //uv_queue_work((nint)async_header, ref t)
+        public VirtualMachine* vm;
+        public CallFrame* method;
     }
 
     public static void on_async(nint handler)
@@ -75,7 +79,7 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
         var taskIdx = Interlocked.Increment(ref task_index);
         var task = IshtarGC.AllocateImmortal<IshtarTask>(frame);
 
-        *task = new IshtarTask(frame, taskIdx);
+        *task = new IshtarTask(frame, taskIdx, TaskPriority.NORMAL);
 
         uv_sem_init(out task->Data->semaphore, 0);
 
@@ -95,17 +99,18 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
         IshtarGC.FreeQueue(_queue);
     }
 
+    public void runOnce() => uv_run(loop, uv_run_mode.UV_RUN_NOWAIT);
     public void run() => uv_run(loop, uv_run_mode.UV_RUN_DEFAULT);
     public void stop() => uv_stop(loop);
 
 
-    public void start_threading(RuntimeIshtarModule* entryModule)
+    public void start_threading(VirtualMachine* vm)
     {
         static void execute_scheduler(IshtarRawThread* thread)
         {
             GlobalPrintln("execute_scheduler:start");
 
-            var vm = thread->MainModule->vm;
+            var vm = thread->vm;
 
             var gcInfo = new GC_stack_base();
 
@@ -119,7 +124,7 @@ public unsafe struct TaskScheduler(NativeQueue<IshtarTask>* queue) : IDisposable
             GlobalPrintln("execute_scheduler:end");
         }
 
-        entryModule->vm->threading
-            .CreateRawThread(entryModule, &execute_scheduler, "IshtarScheduler::&execute");
+        vm->threading
+            .CreateRawThread(&execute_scheduler, null, "IshtarScheduler::&execute");
     }
 }
