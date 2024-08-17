@@ -16,6 +16,8 @@ public class UninstallWorkloadCommandSettings : CommandSettings
 }
 public class UninstallWorkloadCommand : AsyncCommandWithProgress<UninstallWorkloadCommandSettings>
 {
+    public const int PACKAGE_NOT_FOUND = -15;
+
     private static readonly DirectoryInfo WorkloadDirectory = SecurityStorage.RootFolder.SubDirectory("workloads");
     private readonly SymlinkCollector Symlink = new(SecurityStorage.RootFolder);
 
@@ -31,7 +33,7 @@ public class UninstallWorkloadCommand : AsyncCommandWithProgress<UninstallWorklo
         {
             task.FailTask();
             Log.Error($"Workload package [orange3]'{name}'[/] not installed.");
-            return -1;
+            return PACKAGE_NOT_FOUND;
         }
 
         var version = await WorkloadDirectory

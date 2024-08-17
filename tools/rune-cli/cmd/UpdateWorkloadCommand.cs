@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using static UninstallWorkloadCommand;
 
 [ExcludeFromCodeCoverage]
 public class UpdateWorkloadCommandSettings : CommandSettings
@@ -28,7 +29,7 @@ public class UpdateWorkloadCommand(ShardRegistryQuery query, ShardStorage storag
             {
                 PackageName = settings.PackageName.Split("@").First()
             });
-        if (uninstallResult != 0)
+        if (uninstallResult is not 0 and PACKAGE_NOT_FOUND)
             return uninstallResult;
         var installResult = await new InstallWorkloadCommand(query, storage, db).ExecuteAsync(context,
             new InstallWorkloadCommandSettings()
