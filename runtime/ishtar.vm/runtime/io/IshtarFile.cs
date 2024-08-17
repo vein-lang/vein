@@ -59,7 +59,7 @@ public unsafe struct IshtarFile
 
         buffers[0] = new uv_buf_t
         {
-            basePtr = (IntPtr)buffer,
+            basePtr = buffer,
             len = (IntPtr)fileSize
         };
 
