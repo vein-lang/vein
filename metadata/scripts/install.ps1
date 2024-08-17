@@ -19,11 +19,20 @@ try {
     DownloadFile $downloadUrl $zipFile
     Expand-Archive -Path $zipFile -DestinationPath $outputDir -Force > $null
     Remove-Item -Force $zipFile > $null
-    $env:Path += ";$outputDir"
-    [Environment]::SetEnvironmentVariable("Path", $env:Path, [EnvironmentVariableTarget]::User)
+    $currentPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User)
+    if (-not $currentPath.Contains("$outputDir\bin")) {
+        $env:Path += ";$outputDir\bin"
+        [Environment]::SetEnvironmentVariable("Path", $env:Path, [EnvironmentVariableTarget]::User)
+    }
 
-    Invoke-Expression "$outputDir\rune.exe workload install vein.runtime@0.30.2"
-    Invoke-Expression "$outputDir\rune.exe workload install vein.compiler@0.30.2"
+    $installWorkloads = Read-Host "Do you want to install vein.runtime and vein.compiler workloads? (y/n)"
+    if ($installWorkloads -eq 'y') {
+        Invoke-Expression "$outputDir\rune.exe workload install vein.runtime@0.30.3"
+        Invoke-Expression "$outputDir\rune.exe workload install vein.compiler@0.30.3"
+        Write-Output "Workloads installed."
+    } else {
+        Write-Output "Workloads installation skipped."
+    }
     Write-Output "Rune Installed, restart your teminal for use"
 }
 catch {

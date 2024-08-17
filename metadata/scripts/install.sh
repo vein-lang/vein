@@ -44,28 +44,34 @@ download_file() {
     output_file="$2"
     curl -L -o "$output_file" "$url"
 }
+
 mkdir -p "$OUTPUT_DIR"
 
 ZIP_FILE="$OUTPUT_DIR/rune.$RUNTIME.zip"
 download_file "$download_url" "$ZIP_FILE"
 
 unzip -o "$ZIP_FILE" -d "$OUTPUT_DIR"
-
 rm "$ZIP_FILE"
 
-if [[ ":$PATH:" != *":$OUTPUT_DIR:"* ]]; then
-    echo "export PATH=\$PATH:$OUTPUT_DIR" >> "$HOME/.bashrc"
+if [[ ":$PATH:" != *":$OUTPUT_DIR/bin:"* ]]; then
+    echo "export PATH=\$PATH:$OUTPUT_DIR/bin" >> "$HOME/.bashrc"
+    if [ -f "$HOME/.zshrc" ]; then
+        echo "export PATH=\$PATH:$OUTPUT_DIR/bin" >> "$HOME/.zshrc"
+    fi
     source "$HOME/.bashrc"
+    source "$HOME/.zshrc" 2>/dev/null
 fi
 
-if [ -f "$HOME/.zshrc" ]; then
-    echo "export PATH=\$PATH:$BIN_DIR" >> "$HOME/.zshrc"
-    source "$HOME/.zshrc"
-fi
 chmod +x "$OUTPUT_DIR/rune"
 chmod +x "$OUTPUT_DIR/bin/rune.sh"
 
-"$OUTPUT_DIR/rune" workload install vein.runtime@0.30.2
-"$OUTPUT_DIR/rune" workload install vein.compiler@0.30.2
+read -p "Do you want to install vein.runtime and vein.compiler workloads? (y/n): " install_workloads
+if [[ "$install_workloads" == "y" ]]; then
+    "$OUTPUT_DIR/rune" workload install vein.runtime@0.30.3
+    "$OUTPUT_DIR/rune" workload install vein.compiler@0.30.3
+    echo "Workloads installed."
+else
+    echo "Workloads installation skipped."
+fi
 
 echo "Installation complete. Please restart your terminal to use the new PATH."
