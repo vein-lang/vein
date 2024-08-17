@@ -62,6 +62,8 @@ if [ -f "$HOME/.zshrc" ]; then
     echo "export PATH=\$PATH:$BIN_DIR" >> "$HOME/.zshrc"
     source "$HOME/.zshrc"
 fi
+chmod +x "$OUTPUT_DIR/rune"
+chmod +x "$OUTPUT_DIR/bin/rune.sh"
 
 "$OUTPUT_DIR/rune" workload install vein.runtime
 "$OUTPUT_DIR/rune" workload install vein.compiler
