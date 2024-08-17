@@ -14,6 +14,7 @@ public unsafe struct IshtarFrames
         Jit = CallFrame.Create(vm->DefineEmptySystemMethod("#jit"), EntryPoint);
         GarbageCollector = CallFrame.Create(vm->DefineEmptySystemMethod("#gc"), EntryPoint);
         NativeLoader = CallFrame.Create(vm->DefineEmptySystemMethod("#ffi"), EntryPoint);
+        ThreadScheduler = CallFrame.Create(vm->DefineEmptySystemMethod("#scheduler"), EntryPoint);
     }
 
     public static IshtarFrames* Create(VirtualMachine* vm)
@@ -31,4 +32,5 @@ public unsafe struct IshtarFrames
     public readonly CallFrame* Jit;
     public readonly CallFrame* GarbageCollector;
     public readonly CallFrame* NativeLoader;
+    public readonly CallFrame* ThreadScheduler;
 }
