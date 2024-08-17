@@ -2,14 +2,14 @@ namespace ishtar;
 
 using io;
 using runtime.gc;
-using runtime.vin;
 using llmv;
 using runtime;
+using runtime.io;
 using static runtime.gc.BoehmGCLayout.Native;
 
 public unsafe partial struct VirtualMachine(VirtualMachine* self)
 {
-    public static bool hasInited;
+    private static bool hasInited;
     public static void static_init()
     {
         if (hasInited)
@@ -20,7 +20,7 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         GC_set_finalizer_notifier(on_gc_finalization);
         GC_init();
         GC_allow_register_threads();
-        libuv_gc_allocator.install();
+        //libuv_gc_allocator.install();
         hasInited = true;
     }
 
@@ -32,11 +32,10 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         vm->Name = StringStorage.Intern(name, vm);
         var vault = AppVault.Create(vm, name);
         
-
         vm->boot_cfg = readBootCfg();
 
         vm->Config = new AppConfig(vm->@ref->boot_cfg);
-        vm->trace = new IshtarTrace();
+        vm->trace = new IshtarTrace(vm);
 
         vm->trace.Setup();
 
@@ -51,14 +50,15 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         vm->Frames = IshtarFrames.Create(vm);
         vm->watcher = new IshtarWatchDog(vm);
 
-        vm->@ref->Jitter = new LLVMContext();
+        vm->@ref->Jitter = new LLVMContext(vm);
 
         vm->@ref->threading = new IshtarThreading(vm);
 
         vm->@ref->task_scheduler = vm->threading.CreateScheduler(vm);
 
+        vm->@ref->thread_pool = IshtarThreadPool.Create(vm);
+        
         vault.PostInit();
-
         return vm;
     }
 
@@ -79,5 +79,6 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         gc->Dispose();
         Vault.Dispose();
         StringStorage.Dispose();
+        tag.Complete();
     }
 }

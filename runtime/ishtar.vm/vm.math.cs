@@ -45,6 +45,7 @@ public unsafe partial struct VirtualMachine
             TYPE_R8 => comparer(first.data.f, second.data.f, operation),
             TYPE_R16 => comparer(first.data.d, second.data.d, operation),
             TYPE_RAW => comparer(first.data.p, second.data.p, operation),
+            TYPE_NULL => comparer(first.data.p, second.data.p, operation),
             _ => throw new ArgumentOutOfRangeException()
         };
 
@@ -83,6 +84,7 @@ public unsafe partial struct VirtualMachine
             TYPE_R8 => debug_comparer_get_symbol(first.data.f, second.data.f, operation),
             TYPE_R16 => debug_comparer_get_symbol(first.data.d, second.data.d, operation),
             TYPE_RAW => debug_comparer_get_symbol(first.data.p, second.data.p, operation),
+            TYPE_NULL => debug_comparer_get_symbol(first.data.p, second.data.p, operation),
             _ => throw new ArgumentOutOfRangeException()
         };
     }

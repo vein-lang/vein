@@ -33,26 +33,17 @@ public unsafe partial struct VirtualMachine
 
     private void exec_method_internal_native(CallFrame* frame)
     {
-        // TODO remove using AllocHGlobal
         var caller = (delegate*<CallFrame*, IshtarObject**, IshtarObject*>)
                 frame->method->PIInfo.compiled_func_ref;
         var args_len = frame->method->ArgLength;
 
-        var args = (IshtarObject**)Marshal.AllocHGlobal(sizeof(IshtarObject*) * args_len);
-
-        if (args == null)
-        {
-            FastFail(OUT_OF_MEMORY, "Cannot apply boxing memory.", frame);
-            return;
-        }
-
+        var args = stackalloc IshtarObject*[args_len];
+        
         for (var i = 0; i != args_len; i++)
             args[i] = IshtarMarshal.Boxing(frame, &frame->args[i]);
 
         var result = caller(frame, args);
-
-        Marshal.FreeHGlobal((nint)args);
-
+        
         if (frame->method->ReturnType->TypeCode == TYPE_VOID)
             return;
         if (frame->method->ReturnType->TypeCode == TYPE_NONE)
@@ -60,9 +51,24 @@ public unsafe partial struct VirtualMachine
             FastFail(STATE_CORRUPT, $"[exec_method_internal_native] ReturnValue from {frame->method->Name} has incorrect", frame);
             return;
         }
+
+        if (result->clazz->TypeCode == TYPE_NULL)
+        {
+            frame->returnValue = stackval.Allocate(frame, 1);
+            frame->returnValue.Ref->type = TYPE_NULL;
+            frame->returnValue.Ref->data.p = 0;
+            return;
+        }
+
+        if (result->clazz->TypeCode == TYPE_CLASS || result->clazz->TypeCode == TYPE_OBJECT)
+        {
+            frame->returnValue = stackval.Allocate(frame, 1);
+            frame->returnValue.Ref->type = frame->method->ReturnType->TypeCode;
+            frame->returnValue.Ref->data.p = (nint)result;
+            return;
+        }
         frame->returnValue = stackval.Allocate(frame, 1);
-        frame->returnValue.Ref->type = frame->method->ReturnType->TypeCode;
-        frame->returnValue.Ref->data.p = (nint)result;
+        *frame->returnValue.Ref = IshtarMarshal.UnBoxing(frame, result);
     }
 
     private void exec_method_native(CallFrame* frame)

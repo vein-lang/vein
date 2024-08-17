@@ -1,5 +1,6 @@
 namespace ishtar;
 
+using libuv;
 using vein.runtime;
 using static vein.runtime.VeinTypeCode;
 
@@ -42,12 +43,20 @@ public unsafe partial struct VirtualMachine
 
 
     public bool HasFaulted() => @ref->currentFault is not null;
+    public bool HasStopped() => HasFaulted() || @ref->hasStopRequired;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void FastFail(WNE type, string msg, CallFrame* frame)
     {
         watcher.FastFail(type, msg, frame);
         watcher.ValidateLastError();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Assert(UV_ERR error, WNE wne, string proc, CallFrame* frame)
+    {
+        if (error != UV_ERR.OK)
+            FastFail(wne, $"{proc} {error}", frame);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,7 +1,9 @@
 using System.Text;
 using ishtar;
+using ishtar.io;
 using vein.fs;
 using vein.runtime;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 unsafe
 {
@@ -14,9 +16,7 @@ unsafe
     var vm = VirtualMachine.Create("app");
     var vault = vm->Vault;
 
-#if DEBUG
-    Thread.CurrentThread.Name = $"ishtar::entry";
-#endif
+    IshtarThreading.SetName($"ishtar::entry");
 
     var masterModule = default(IshtarAssembly);
     var resolver = default(AssemblyResolver);
@@ -66,9 +66,9 @@ unsafe
 
     var watcher = Stopwatch.StartNew();
 
-    vm->task_scheduler->start_threading(module);
-    vm->task_scheduler->execute_method(frame);
-
+    vm->task_scheduler->start_threading(vm);
+    vm->exec_method(frame);
+    
     watcher.Stop();
     vm->trace.log($"Elapsed: {watcher.Elapsed}");
     frame->Dispose();
