@@ -6,6 +6,7 @@ using runtime.vin;
 using runtime;
 using llmv;
 using ishtar.runtime.io.ini;
+using ishtar.runtime.io;
 
 [CTypeExport("vm_t")]
 public unsafe partial struct VirtualMachine : IDisposable
@@ -25,6 +26,7 @@ public unsafe partial struct VirtualMachine : IDisposable
     public IshtarTypes* Types;
     public IshtarThreading threading;
     public TaskScheduler* task_scheduler;
+    public IshtarThreadPool* thread_pool;
     internal RuntimeIshtarModule* InternalModule;
     internal RuntimeIshtarClass* InternalClass;
     public IniRoot* boot_cfg;
@@ -32,4 +34,5 @@ public unsafe partial struct VirtualMachine : IDisposable
     public IshtarMasterFault* currentFault;
     public IshtarWatchDog watcher;
     public IshtarGC* gc;
+    public bool hasStopRequired;
 }

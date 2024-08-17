@@ -37,20 +37,24 @@ public unsafe partial struct VirtualMachine : IDisposable
     {
         if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
             ip = start + label.pos - 1;
-        else FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[jump_to] cannot find protected zone label", invocation);
+        else FastFail(PROTECTED_ZONE_LABEL_CORRUPT, "[jump_to] cannot find protected zone label", invocation);
     }
     uint* get_jumper(int index, uint* start, MetaMethodHeader* mh, CallFrame* invocation)
     {
         if (mh->labels_map->TryGetValue(mh->labels->Get(index), out var label))
             return start + label.pos - 1;
-        FastFail(WNE.PROTECTED_ZONE_LABEL_CORRUPT, "[get_jumper] cannot find protected zone label", invocation);
+        FastFail(PROTECTED_ZONE_LABEL_CORRUPT, "[get_jumper] cannot find protected zone label", invocation);
         return null;
     }
 
     public void exec_method(CallFrame* invocation)
     {
+        if (HasFaulted())
+            return;
         FastFail(invocation->method is null, ACCESS_VIOLATION, "unexpected call frame method pointer corrupted.", invocation);
         FastFail((invocation->method->Flags & MethodFlags.Abstract) != 0, EXECUTION_CORRUPTED, "unexpected call abstract method", invocation);
+        var tag = Profiler.Begin("vm:exec:begin");
+
         if (!@ref->Config.DisableValidationInvocationArgs)
         {
             var argsLen = invocation->method->ArgLength;
@@ -91,12 +95,14 @@ public unsafe partial struct VirtualMachine : IDisposable
         var end_stack = sp + mh->max_stack;
         uint* endfinally_ip = null;
         var zone = default(ProtectedZone*);
-
+        tag.Dispose();
         var stopwatch = new Stopwatch();
 
         while (true)
         {
             vm_cycle_start:
+            if (HasFaulted())
+                return;
             invocation->last_ip = (OpCodeValue)(ushort)*ip;
             println($".{invocation->last_ip} 0x{(nint)ip:X} [sp: {getStackLen()}]");
 
@@ -374,7 +380,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                     var value = sp;
                     var this_obj = (IshtarObject*)@this->data.p;
 
-                    if (!@ref->Config.SkipValidateStfType || !field->FieldType.IsGeneric)
+                    if (!@ref->Config.SkipValidateStfType && !field->FieldType.IsGeneric)
                     {
                         if ((value->type != TYPE_NULL) && field->FieldType.Class->TypeCode != value->type)
                         {
@@ -400,9 +406,10 @@ public unsafe partial struct VirtualMachine : IDisposable
 
                         this_obj->vtable[field->vtable_offset] = o;
                     }
+
                     ++ip;
                 }
-                    break;
+                break;
                 case LDF:
                 {
                     --sp;
@@ -490,11 +497,11 @@ public unsafe partial struct VirtualMachine : IDisposable
                     var fromClass = GetClass(typeIndex1, _module, invocation);
                     var toClass = GetClass(typeIndex2, _module, invocation);
 
-                    if (!fromClass->TypeCode.IsCompatibleNumber(toClass->TypeCode))
-                    {
-                        ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation);
-                        goto exception_handle;
-                    }
+                    //if (!fromClass->TypeCode.IsCompatibleNumber(toClass->TypeCode))
+                    //{
+                    //    ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation);
+                    //    goto exception_handle;
+                    //}
                     (sp - 1)->type = toClass->TypeCode;
                     ip++;
                 } break;
@@ -665,12 +672,17 @@ public unsafe partial struct VirtualMachine : IDisposable
                                 var sp_obj = IshtarMarshal.Boxing(invocation, sp);
 
                                 if (sp_obj == null)
-                                    continue;
-
+                                {
+                                    FastFail(STATE_CORRUPT, $"sp object is null", invocation);
+                                    return;
+                                }
                                 var sp_class = sp_obj->clazz;
 
                                 if (sp_class == null)
-                                    continue;
+                                {
+                                    FastFail(STATE_CORRUPT, $"sp class is null", invocation);
+                                    return;
+                                }
 
                                 if (sp_class->ID != arg_class->ID)
                                 {

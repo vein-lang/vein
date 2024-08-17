@@ -7,4 +7,7 @@ public static class Out
 
     public static print<Any>(value: Any): Void
         |> Out._println(value);
+    
+    [native("__internal__", "print_multiple_times")]
+    public extern static print_multiple_times(value: string, count: i32): Void;
 }

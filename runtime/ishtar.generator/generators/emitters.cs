@@ -8,6 +8,7 @@ using System.Linq;
 using Expressive;
 using System.Data;
 using lang.c;
+using vein;
 
 public static class G_Emitters
 {
@@ -176,6 +177,15 @@ public static class G_Emitters
         var type = context.ResolveType(typeAs.Generics.Single());
         var fromType = typeAs.Expression.Get().DetermineType(context);
 
+        if (!type.IsGeneric && !fromType.IsGeneric)
+        {
+            if (type.Class.FullName.Equals(fromType.Class.FullName))
+            {
+                context.LogWarning("useless construction, casting types of identical types", typeAs);
+                return gen; // no needed execute cast when type is equal
+            }
+        }
+
         return gen.EmitExpression(typeAs.Expression.Get()).Emit(OpCodes.CAST_G, fromType, type);
     }
 
@@ -236,7 +246,8 @@ public static class G_Emitters
             gen.Emit(OpCodes.NEWOBJ, type);
             foreach (var arg in args)
                 gen.EmitExpression(arg);
-            var ctor = type.FindMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, args.DetermineTypes(context));
+
+            var ctor = type.FindMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR, args.DetermineTypes(context).ToList());
 
             if (ctor is null)
             {

@@ -258,6 +258,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
         
 
         Log.EnqueueErrorsRange(Context.Errors);
+        Log.EnqueueWarnsRange(Context.Warnings);
         if (Log.State.errors.Count == 0)
             Status.VeinStatus($"Result assembly [orange]'{module.Name}, {module.Version}'[/].");
         if (_flags.PrintResultType)

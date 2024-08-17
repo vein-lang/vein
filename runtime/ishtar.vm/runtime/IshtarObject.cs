@@ -9,13 +9,28 @@ public unsafe struct IshtarObject
 {
     public IshtarObject() {}
 
+
     public static readonly IshtarObject Null = default;
     public static readonly IshtarObject* NullPointer = null;
 
-    public RuntimeIshtarClass* clazz;
+    public RuntimeIshtarClass* clazz
+    {
+        get => _class;
+        set
+        {
+            if (_class is not null)
+                throw new InvalidOperationException();
+            if (value is null)
+                throw new InvalidOperationException();
+            _class = value;
+        }
+    }
+
+    private void* reserved1;
+    private void* reserved2;
     public void** vtable;
     public GCFlags flags;
-
+    public RuntimeIshtarClass* _class;
     public uint vtable_size;
 
 #if DEBUG
@@ -26,9 +41,11 @@ public unsafe struct IshtarObject
 
     public long m1 = magic1;
     public long m2 = magic2;
-    public static readonly Dictionary<long, string> CreationTrace = new();
 
+    public static readonly Dictionary<long, string> CreationTrace = new();
+    public static Dictionary<long, string> debug_names_allocation = new Dictionary<long, string>();
     public string CreationTraceData => CreationTrace[__gc_id];
+    public string ClassTraceData => debug_names_allocation[__gc_id];
 #endif
 
     public bool IsDestroyedObject()

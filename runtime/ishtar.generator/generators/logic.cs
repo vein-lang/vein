@@ -67,7 +67,7 @@ public static class G_Logic
         else if (statement is QualifiedExpressionStatement { Value: InvocationExpression invoke })
         {
             var ctx = generator.ConsumeFromMetadata<GeneratorContext>("context");
-            generator.EmitCall(ctx.CurrentMethod.Owner, invoke);
+            generator.EmitCall(ctx.CurrentMethod.Owner, invoke, true);
         }
         else if (statement is QualifiedExpressionStatement { Value: AccessExpressionSyntax access })
             generator.EmitAccess(access);

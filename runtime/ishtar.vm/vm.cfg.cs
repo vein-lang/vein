@@ -8,6 +8,7 @@ public unsafe partial struct VirtualMachine
 {
     public static IniRoot* readBootCfg()
     {
+        using var tag = Profiler.Begin("vm:readBootCfg");
         var path = "";
 
         if (IshtarFile.exist("./obj/boot.ini"))

@@ -118,12 +118,12 @@ namespace vein.runtime
             var setterArgs = shadowField.IsStatic ? Array.Empty<VeinComplexType>() : [clazz];
             var getterArgs = shadowField.IsStatic ? [shadowField.FieldType] : new[] { (VeinComplexType)clazz, shadowField.FieldType };
 
-            var getMethod = clazz.FindMethod(GetterFnName(name), setterArgs, true);
+            var getMethod = clazz.FindMethod(GetterFnName(name), setterArgs.ToList(), true);
 
             if (getMethod is not null)
                 prop.Getter = getMethod;
 
-            var setMethod = clazz.FindMethod(SetterFnName(name), getterArgs, true);
+            var setMethod = clazz.FindMethod(SetterFnName(name), getterArgs.ToList(), true);
 
             if (getMethod is not null)
                 prop.Setter = setMethod;

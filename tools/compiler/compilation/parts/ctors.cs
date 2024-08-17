@@ -13,14 +13,22 @@ public partial class CompilationTask
         Context.Document = member.OwnerDocument;
         var doc = member.OwnerDocument;
 
-        if (@class.GetDefaultCtor() is not MethodBuilder ctor)
+        foreach (var constructor in @class.GetAllConstructors().Concat([@class.GetDefaultCtor()]))
         {
-            Log.Defer.Error($"[red bold]Class/struct '{@class.Name}' has problem with generate default ctor.[/]\n\t" +
-                $"{PleaseReportProblemInto()}",
-                null, doc);
-            return;
-        }
+            if (constructor is not MethodBuilder ctor)
+            {
+                Log.Defer.Error($"[red bold]Class/struct '{@class.Name}' has problem with generate default ctor.[/]\n\t" +
+                                $"{PleaseReportProblemInto()}",
+                    null, doc);
+                return;
+            }
 
+            GenerateCtor(@class, doc, member, ctor);
+        }
+    }
+
+    private void GenerateCtor(ClassBuilder @class, DocumentDeclaration doc, ClassDeclarationSyntax member, MethodBuilder ctor)
+    {
         Context.CurrentMethod = ctor;
 
         var gen = ctor.GetGenerator();
@@ -46,7 +54,7 @@ public partial class CompilationTask
             if (field.IsLiteral)
                 continue; // TODO
             var stx = member.Fields
-                    .SingleOrDefault(x => x.Field.Identifier.ExpressionString.Equals(field.Name));
+                .SingleOrDefault(x => x.Field.Identifier.ExpressionString.Equals(field.Name));
             if (stx is null && field.IsSpecial)
             {
                 pregen.Add((null, field));

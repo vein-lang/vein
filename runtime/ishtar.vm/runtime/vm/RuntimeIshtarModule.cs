@@ -255,6 +255,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
     public static RuntimeIshtarModule* Read(AppVault vault, byte[] arr, NativeList<RuntimeIshtarModule>* deps, ModuleResolverCallback resolver)
     {
+        using var tag = Profiler.Begin("vm:module:read");
         var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>(vault.vm);
 
         *module = new RuntimeIshtarModule(vault, "unnamed", module, new IshtarVersion());

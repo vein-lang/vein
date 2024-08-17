@@ -4,6 +4,7 @@ namespace vein.runtime
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Xml.Linq;
     using collections;
     using reflection;
     using static VeinTypeCode;
@@ -62,17 +63,28 @@ namespace vein.runtime
         public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor(VeinMethod.METHOD_NAME_DECONSTRUCTOR);
         public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor(VeinMethod.METHOD_NAME_CONSTRUCTOR);
 
+
+        public virtual List<VeinMethod> GetAllConstructors(bool isStatic = false) =>
+            Methods.Where(x => x.IsStatic == isStatic && x.RawName.Equals(VeinMethod.METHOD_NAME_CONSTRUCTOR) && (x.IsDeconstructor || x.IsConstructor))
+                .ToList();
+
         public virtual VeinMethod GetStaticCtor() => GetOrCreateTor("type_ctor", true);
 
 
         protected virtual VeinMethod GetOrCreateTor(string name, bool isStatic = false)
-            => Methods.FirstOrDefault(x => x.IsStatic == isStatic && x.RawName.Equals(name) && (x.IsDeconstructor || x.IsConstructor));
+            => Methods.FirstOrDefault(x =>
+                x.IsStatic == isStatic && x.RawName.Equals(name) &&
+                (x.IsDeconstructor || x.IsConstructor) &&
+                !x.Signature.Arguments.Where(VeinMethodSignature.NotThis).Any());
 
         public override string ToString()
             => $"{FullName}, {Flags}";
 
 
-        public VeinMethod FindMethod(string name, IEnumerable<VeinComplexType> user_types, bool includeThis = false) =>
+        public List<VeinMethod> GetFlattedMethods() => Methods.Concat(Parents.SelectMany(x => x.GetFlattedMethods())).ToList();
+
+
+        private VeinMethod FindMethod(string name, IEnumerable<VeinComplexType> user_types, bool includeThis = false) =>
             Methods.Concat(Parents.SelectMany(x => x.Methods))
                 .FirstOrDefault(x =>
                 {
@@ -133,7 +145,14 @@ namespace vein.runtime
                     if (!CheckGenericCompatibility(userType, methodType, t2cMap, t2tMap))
                         return false;
                 }
-                else if (!CheckObjectCompatibility(methodType, userType))
+                if (!userType.IsGeneric && !methodType.IsGeneric && userType.Class.TypeCode.HasNumber() && methodType.Class.TypeCode.HasNumber())
+                {
+                    if (methodType.Class.TypeCode.IsCompatibleNumber(userType.Class.TypeCode))
+                        continue;
+                    else
+                        return false;
+                }
+                if (!CheckObjectCompatibility(methodType, userType))
                 {
                     if (!CheckCompatibilityFunctionClass(userType, methodType))
                         return false;

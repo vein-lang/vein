@@ -14,6 +14,13 @@ public readonly unsafe struct IshtarWatchDog(VirtualMachine* vm)
         {
             var result = IshtarGC.AllocateImmortal<IshtarMasterFault>(frame);
             *result = new (type, StringStorage.Intern(msg, frame), frame);
+
+            if (vm->currentFault is null)
+            {
+                vm->currentFault = result;
+                return;
+            }
+
             Interlocked.Exchange(ref Unsafe.AsRef<nint>(vm->currentFault), (nint)result);
         }
     }

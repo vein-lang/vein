@@ -134,6 +134,14 @@ public unsafe class ForeignFunctionInterface
         VirtualMachine.Assert(@class->TypeCode == code, WNE.TYPE_MISMATCH, $"@class.{@class->TypeCode} == {code}", current);
     }
 
+    [Conditional("STATIC_VALIDATE_IL")]
+    public static void StaticTypeOf(CallFrame* current, IshtarObject* arg1, VeinTypeCode code)
+    {
+        StaticValidate(arg1, current);
+        var @class = (arg1)->clazz;
+        VirtualMachine.Assert(@class->TypeCode == code, WNE.TYPE_MISMATCH, $"@class.{@class->TypeCode} == {code}", current);
+    }
+
     public void GetMethod(string FullName, out PInvokeInfo nativeHeader)
     {
         if (method_table.TryGetValue(FullName, out var idx))

@@ -54,4 +54,5 @@ await Host.CreateDefaultBuilder(args)
     .RunConsoleAsync();
 
 watch.Stop();
+MarkupLine($":sparkles: Done in [lime]{watch.Elapsed.TotalSeconds:00.000}s[/].");
 return Environment.ExitCode;

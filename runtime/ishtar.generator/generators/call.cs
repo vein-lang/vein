@@ -9,7 +9,7 @@ using vein.syntax;
 
 public static class G_Call
 {
-    public static ILGenerator EmitCall(this ILGenerator gen, VeinClass @class, InvocationExpression invocation)
+    public static ILGenerator EmitCall(this ILGenerator gen, VeinClass @class, InvocationExpression invocation, bool emitThisWhenNotStatic = false)
     {
         var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
@@ -35,6 +35,8 @@ public static class G_Call
 
         var method = ctx.ResolveMethod(@class, invocation);
         var args = invocation.Arguments.Arguments;
+
+        gen.EmitThis(!method.IsStatic && emitThisWhenNotStatic);
 
         foreach (var arg in args)
             gen.EmitExpression(arg);

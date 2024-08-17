@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
+using vein;
+using vein.collections;
 using vein.extensions;
 using vein.reflection;
 using vein.runtime;
@@ -51,7 +54,8 @@ public class GeneratorContext(GeneratorContextConfig config)
     internal Dictionary<QualityTypeName, ClassBuilder> Classes { get; } = new();
     internal DocumentDeclaration Document { get; set; }
 
-    public List<CompilationEventData> Errors = new ();
+    public List<CompilationEventData> Errors { get; } = new ();
+    public List<CompilationEventData> Warnings { get; } = new ();
     public Dictionary<VeinMethod, VeinScope> Scopes { get; } = new();
 
     public VeinMethod CurrentMethod { get; set; }
@@ -61,6 +65,18 @@ public class GeneratorContext(GeneratorContextConfig config)
         var pos = exp.Transform.pos;
         var diff_err = exp.Transform.DiffErrorFull(Document);
         Errors.Add(new CompilationEventData(Document, exp,
+            $"""
+             [red bold]{err.EscapeMarkup().EscapeArgumentSymbols()}[/]
+             	at '[orange bold]{pos.Line} line, {pos.Column} column[/]'
+             	in '[orange bold]{Document.FileEntity}[/]'.{diff_err}
+             """));
+        return this;
+    }
+    public GeneratorContext LogWarning(string err, ExpressionSyntax exp)
+    {
+        var pos = exp.Transform.pos;
+        var diff_err = exp.Transform.DiffErrorFull(Document);
+        Warnings.Add(new CompilationEventData(Document, exp,
             $"""
              [red bold]{err.EscapeMarkup().EscapeArgumentSymbols()}[/]
              	at '[orange bold]{pos.Line} line, {pos.Column} column[/]'
@@ -361,7 +377,8 @@ public class GeneratorContext(GeneratorContextConfig config)
         IdentifierExpression id,
         InvocationExpression invocation)
     {
-        var method = targetType.FindMethod(id.ExpressionString, invocation.Arguments.DetermineTypes(this));
+        var method = this.FindCompatibleMethod(id, id.ExpressionString, targetType, invocation.Arguments.DetermineTypes(this).ToList(),
+            false);
         if (method is not null)
             return method;
         if (target is not null)
@@ -377,11 +394,84 @@ public class GeneratorContext(GeneratorContextConfig config)
         VeinClass targetType,
         InvocationExpression invocation)
     {
-        var args = invocation.Arguments.DetermineTypes(this);
-        var method = targetType.FindMethod($"{invocation.Name}", args);
+        var args = invocation.Arguments.DetermineTypes(this).ToList();
+        var method = this.FindCompatibleMethod(invocation, targetType, args, false);
         if (method is not null)
             return method;
         this.LogError($"The name '{invocation.Name}' does not exist in the current context.", invocation.Name);
+        throw new SkipStatementException();
+    }
+}
+
+
+public static class VeinMethodComparer
+{
+    private static IEnumerable<VeinMethod> GetAllMethodsIncludingParents(VeinClass clazz)
+    {
+        var allMethods = new List<VeinMethod>(clazz.Methods);
+
+        foreach (var parent in clazz.Parents)
+        {
+            foreach (var method in GetAllMethodsIncludingParents(parent))
+            {
+                if (!method.Flags.HasFlag(Override) && allMethods.Any(m => m.Name == method.Name))
+                    continue;
+                allMethods.Add(method);
+            }
+        }
+
+        return allMethods;
+    }
+
+    private static IReadOnlyList<VeinArgumentRef> GetArgs(this VeinMethod m, bool includeThis)
+        => m.Signature.Arguments.Where(z => includeThis || VeinMethodSignature.NotThis(z)).ToList();
+
+    public static VeinMethod? FindCompatibleMethod(this GeneratorContext gen, InvocationExpression invocation, VeinClass target, List<VeinComplexType> userArgs, bool includeThis = false)
+    {
+        var exp = (ExpressionSyntax)invocation;
+        return gen.FindCompatibleMethod(exp, invocation.Name.ExpressionString, target, userArgs, includeThis);
+    }
+
+    public static VeinMethod? FindCompatibleMethod(this GeneratorContext gen, ExpressionSyntax linkedExpression, string rawName, VeinClass target, List<VeinComplexType> userArgs, bool includeThis = false)
+    {
+        var matchingMethods = GetAllMethodsIncludingParents(target)
+            .Where(m => m.RawName.Equals(rawName))
+            .ToList();
+
+        if (!matchingMethods.Any())
+            return null;
+
+        // try to find method with exact match of argument types
+        var strictMatches = matchingMethods
+            .Where(m => m.GetArgs(includeThis).Count == userArgs.Count &&
+                        m.GetArgs(includeThis).Zip(userArgs, (methodArg, userArg) => methodArg.ComplexType.AreArgumentsStrictlyEqual(userArg)).All(x => x))
+            .ToList();
+
+        if (strictMatches.Count == 1)
+            return strictMatches.First();
+
+        if (strictMatches.Count > 1)
+        {
+            gen.LogError($"More than one method was found with an exact match of types for '{rawName}'", linkedExpression);
+            throw new SkipStatementException();
+        }
+
+        // If exact match is not found, look for it taking into weak type compatibility
+        var compatibleMatches = matchingMethods
+            .Where(m => m.GetArgs(includeThis).Count == userArgs.Count &&
+                        m.GetArgs(includeThis).Zip(userArgs, (methodArg, userArg) => methodArg.ComplexType.IsCompatible(userArg)).All(x => x))
+            .ToList();
+
+        if (compatibleMatches.Count == 1)
+            return compatibleMatches.First();
+
+        if (compatibleMatches.Count > 1)
+        {
+            gen.LogError($"More than one compatible method has been found for '{rawName}'", linkedExpression);
+            throw new SkipStatementException();
+        }
+
+        gen.LogError($"Compatible method '{rawName}' not found.", linkedExpression);
         throw new SkipStatementException();
     }
 }

@@ -33,11 +33,11 @@ public sealed unsafe class IshtarAllocatorPool(GCLayout? layout) : IIshtarAlloca
         return allocator;
     }
 
-    public IIshtarAllocator RentArray<T>(out T* output, int size, CallFrame* frame) where T : unmanaged
+    public IIshtarAllocator RentArray<T>(out T* output, int size, CallFrame* frame, AllocationKind kind = AllocationKind.reference) where T : unmanaged
     {
         var allocator = GetAllocator(frame);
 
-        output = (T*)allocator.AllocZeroed(sizeof(T) * size, AllocationKind.reference, frame);
+        output = (T*)allocator.AllocZeroed(sizeof(T) * size, kind, frame);
 
         if (allocator is IIshtarAllocatorIdentifier identifier)
             identifier.SetId((nint)output);

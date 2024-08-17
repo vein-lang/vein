@@ -42,4 +42,18 @@ public static unsafe class SlicedStringEx
         }
         return true;
     }
+    public static bool SlicedStringEquals(this SlicedString a, string target)
+    {
+        fixed (char* r = target)
+        {
+            var b = new SlicedString(r, (uint)target.Length);
+
+            if (a.Size != b.Size) return false;
+            for (uint i = 0; i < a.Size; i++)
+            {
+                if (a.Ptr[i] != b.Ptr[i]) return false;
+            }
+            return true;
+        }
+    }
 }

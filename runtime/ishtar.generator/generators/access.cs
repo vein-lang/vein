@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using emit;
 using Expressive;
+using vein;
 using vein.reflection;
 using vein.runtime;
 using vein.syntax;
@@ -323,7 +324,7 @@ public static class G_Access
                 if (varType.IsGeneric)
                     throw new NotSupportedException($"Temporarily is not possible to get method declaration from generic type");
 
-                method = varType.Class.FindMethod(VeinArray.ArrayAccessGetterMethodName, argTypes);
+                method = varType.Class.FindMethod(VeinArray.ArrayAccessGetterMethodName, argTypes.ToList());
 
                 gen.EmitLoadLocal(var_index);
             }
@@ -332,7 +333,7 @@ public static class G_Access
             {
                 var (arg, index) = ctx.GetCurrentArgument(accessId);
 
-                method = arg.Type.FindMethod(VeinArray.ArrayAccessGetterMethodName, argTypes);
+                method = arg.Type.FindMethod(VeinArray.ArrayAccessGetterMethodName, argTypes.ToList());
 
                 gen.EmitLoadArgument(index);
             }

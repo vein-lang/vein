@@ -6,7 +6,6 @@ using runtime;
 using vein;
 using vein.runtime;
 using collections;
-using ishtar;
 using runtime.gc;
 using runtime.vin;
 
@@ -27,6 +26,8 @@ public sealed unsafe class AppVault : AppVaultSync, IDisposable
 
     private AppVault(VirtualMachine* vm, string name)
     {
+        using var tag = Profiler.Begin("vm:vault:create");
+
         this.vm = vm;
         Name = name;
         
@@ -38,6 +39,8 @@ public sealed unsafe class AppVault : AppVaultSync, IDisposable
 
     public void PostInit()
     {
+        using var tag = Profiler.Begin("vm:init:post");
+
         FFI = new ForeignFunctionInterface(vm);
         NativeStorage = new NativeStorage(vm);
     }
@@ -152,6 +155,8 @@ public sealed unsafe class AppVault : AppVaultSync, IDisposable
 
     public RuntimeIshtarModule* DefineModule(string @internal)
     {
+        using var tag = Profiler.Begin("vm:vault:module:alloc");
+
         var module = IshtarGC.AllocateImmortalRoot<RuntimeIshtarModule>();
         *module = new RuntimeIshtarModule(this, @internal, module, new IshtarVersion());
 

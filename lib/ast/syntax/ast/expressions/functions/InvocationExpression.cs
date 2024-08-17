@@ -9,7 +9,7 @@ public class InvocationExpression(ExpressionSyntax name, IOption<ArgumentListExp
     : ExpressionSyntax, IPositionAware<InvocationExpression>
 {
     public ExpressionSyntax Name { get; set; } = name;
-    public ArgumentListExpression Arguments { get; set; } = args.GetOrDefault() ?? new ArgumentListExpression(Array.Empty<ExpressionSyntax>());
+    public ArgumentListExpression Arguments { get; set; } = args?.GetOrDefault() ?? new ArgumentListExpression(Array.Empty<ExpressionSyntax>());
     public bool NoReturn { get; private set; }
 
     public new InvocationExpression SetPos(Position startPos, int length)
@@ -23,6 +23,9 @@ public class InvocationExpression(ExpressionSyntax name, IOption<ArgumentListExp
         NoReturn = true;
         return this;
     }
+
+    public InvocationExpression(ExpressionSyntax name, InvocationExpression other) : this(name, (IOption<ArgumentListExpression>?)null!)
+        => Arguments = other.Arguments;
 
     public override string ToString() => $"{Name}({Arguments.Arguments.Select(x => x.ToString()).Join(", ")})";
 }

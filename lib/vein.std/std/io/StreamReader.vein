@@ -18,4 +18,13 @@ public class StreamReader : Stream {
     {
         
     }
+    override read(buffer: Span<u8>): i32 
+    {
+        Out.print("streamReader:read");
+        return _original.read(buffer);
+    }
+    override write(buffer: Span<u8>): void 
+    {
+        
+    }
 }

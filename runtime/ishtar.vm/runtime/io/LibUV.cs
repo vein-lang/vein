@@ -1,6 +1,8 @@
 namespace ishtar.libuv;
 
+using System;
 using System.Runtime.InteropServices;
+using collections;
 using static ishtar.libuv.LibUV;
 
 public static unsafe class LibUV
@@ -62,8 +64,15 @@ public static unsafe class LibUV
     public static extern void uv_timer_stop(nint handle);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern UV_ERR uv_queue_work(nint loop, ref uv_work_t req, uv_work_cb work_cb, uv_after_work_cb after_work_cb);
-    
+    public static extern UV_ERR uv_queue_work(nint loop, in uv_work_t* req,
+        delegate* <uv_work_t*, void> work_cb,
+        delegate* unmanaged[Cdecl]<uv_work_t*, int, void> after_work_cb);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl, EntryPoint = "uv_queue_work")]
+    public static extern UV_ERR uv_queue_work2(in nint loop, in uv_work_t* req,
+        in uv_work_cb work_cb,
+        in uv_after_work_cb after_work_cb);
+
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern UV_ERR uv_sem_init(out uv_sem_t sem, int value);
 
@@ -119,10 +128,15 @@ public static unsafe class LibUV
     public static extern UV_ERR uv_listen(uv_tcp_t* stream, int backlog, delegate*<uv_tcp_t*, int, void> cb);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern UV_ERR uv_read_start(ref uv_stream_t stream, uv_alloc_cb alloc_cb, uv_read_cb read_cb);
+    public static extern UV_ERR uv_read_start(uv_tcp_t* client,
+        delegate*<uv_tcp_t*, nint, uv_buf_t*, void> alloc_cb,
+        delegate*<uv_tcp_t*, nint, uv_buf_t*, void> read_cb);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern UV_ERR uv_accept(IntPtr server, IntPtr client);
+    public static extern UV_ERR uv_write(uv_buf_t* req, uv_tcp_t* handle, uv_buf_t* bufs, int bufcnt, delegate*<uv_tcp_t*, int, void> cb);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern UV_ERR uv_accept(uv_tcp_t* server, uv_tcp_t* client);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern uv_buf_t uv_buf_init(IntPtr basePtr, uint len);
@@ -157,22 +171,61 @@ public static unsafe class LibUV
     public static extern UV_ERR uv_fs_stat(IntPtr loop, uv_fs_t* req, char* path, uv_fs_cb cb);
 
 
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern UV_ERR uv_key_create(out uv_key_t key);
+    
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_key_delete(ref uv_key_t key);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_key_set(ref uv_key_t key, void* value);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr uv_key_get(ref uv_key_t key);
+
+
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern UV_ERR uv_cond_init(uv_cond_t* cond);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_cond_destroy(uv_cond_t* cond);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_cond_wait(uv_cond_t* cond, uv_mutex_t* mutex);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_cond_timedwait(uv_cond_t* cond, uv_mutex_t* mutex, ulong timeout);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_cond_signal(uv_cond_t* cond);
+
+
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int uv_cpu_info(uv_cpu_info_t* cpuInfos, out int coresCount);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_free_cpu_info(uv_cpu_info_t* cpuInfos, int coresCount);
+
     public delegate void uv_connection_cb(IntPtr server, int status);
     public delegate void uv_conn_alloc_cb(IntPtr handle, ulong suggested_size, out uv_buf_t buf);
-    public delegate void uv_read_cb(IntPtr stream, nint nread, ref uv_buf_t buf);
+    public delegate void uv_read_cb(uv_stream_t* stream, nint nread, uv_buf_t* buffer);
     public delegate void uv_async_cb(nint handle);
     public delegate void uv_close_cb(nint handle);
     public delegate void uv_timer_cb(nint handle);
     public delegate void uv_thread_cb(nint arg);
     public delegate void uv_after_work_cb(uv_work_t* req, int status);
     public delegate void uv_work_cb(uv_work_t* req);
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate nint uv_alloc_cb(nint size, nint align, nint zero_fill);
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void uv_alloc_cb(uv_handle_t* handle, nint size, uv_buf_t* buffer);
     public delegate void uv_free_cb(nint ptr);
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public unsafe delegate void uv_fs_cb(uv_fs_t* req);
-    
+
+
+    /*int uv_key_create(uv_key_t *key)
+       void uv_key_delete(uv_key_t *key)
+       void *uv_key_get(uv_key_t *key)
+       void uv_key_set(uv_key_t *key, void *value)*/
 
     public enum uv_run_mode
     {
@@ -204,7 +257,7 @@ public static unsafe class LibUV
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_buf_t
     {
-        public IntPtr basePtr;
+        public void* basePtr;
         public IntPtr len;
     }
 
@@ -218,11 +271,51 @@ public static unsafe class LibUV
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct uv_thread_t
+    public struct uv_thread_t : IEq<uv_thread_t>
+    {
+        public nint handle;
+
+        // todo
+        public static bool Eq(uv_thread_t* p1, uv_thread_t* p2) => ((nint)p1) == ((nint)p2);
+
+        public override string ToString() => $"[threadId {handle}]";
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct uv_cond_t : IEq<uv_cond_t>
     {
         public uv_handle_t handle;
 
-        public override string ToString() => $"[threadId {handle}]";
+        // todo
+        public static bool Eq(uv_cond_t* p1, uv_cond_t* p2) => ((nint)p1) == ((nint)p2);
+
+        public override string ToString() => $"[uv_cond {handle}]";
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct uv_key_t
+    {
+        public uv_handle_t handle;
+
+        public override string ToString() => $"[keyId {handle}]";
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct uv_cpu_info_t
+    {
+        public void* model;
+        public int speed; // mhz
+        public cpu_times_t times;
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct cpu_times_t
+        {
+            public ulong user;
+            public ulong nice;
+            public ulong sys;
+            public ulong idle;
+            public ulong irq;
+        }
     }
 
     public enum UvHandleType
@@ -247,28 +340,12 @@ public static unsafe class LibUV
         FILE
     }
 
-    /*  XX(ASYNC, async)                                                            \
-       XX(CHECK, check)                                                            \
-       XX(FS_EVENT, fs_event)                                                      \
-       XX(FS_POLL, fs_poll)                                                        \
-       XX(HANDLE, handle)                                                          \
-       XX(IDLE, idle)                                                              \
-       XX(NAMED_PIPE, pipe)                                                        \
-       XX(POLL, poll)                                                              \
-       XX(PREPARE, prepare)                                                        \
-       XX(PROCESS, process)                                                        \
-       XX(STREAM, stream)                                                          \
-       XX(TCP, tcp)                                                                \
-       XX(TIMER, timer)                                                            \
-       XX(TTY, tty)                                                                \
-       XX(UDP, udp)                                                                \
-       XX(SIGNAL, signal) */
 
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_tcp_t
     {
         public void* data;
-        public void* loop;
+        public nint loop;
         public UvHandleType uv_handle_type;
         public uv_stream_t stream;
 
@@ -278,8 +355,10 @@ public static unsafe class LibUV
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_stream_t
     {
-        public uv_handle_t handle;
-        public override string ToString() => $"[uv_stream_t {handle}]";
+        public void* data;
+        public nint loop;
+        public UvHandleType type;
+        public override string ToString() => $"[uv_stream_t handleType: {type}]";
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -295,12 +374,42 @@ public static unsafe class LibUV
         public uv_handle_t handle;
         public override string ToString() => $"[semId {handle}]";
     }
+    /*  UV_REQ_FIELDS
+       uv_loop_t* loop;
+       uv_work_cb work_cb;
+       uv_after_work_cb after_work_cb;*/
+    /*typedef enum {
+         UV_UNKNOWN_REQ = 0,
+       #define XX(uc, lc) UV_##uc,
+         UV_REQ_TYPE_MAP(XX)
+       #undef XX
+         UV_REQ_TYPE_PRIVATE
+         UV_REQ_TYPE_MAX
+       } uv_req_type;*/
+
+    public enum uv_req_type
+    {
+        UV_UNKNOWN_REQ = 0,
+        REQ,
+        CONNECT,
+        WRITE,
+        SHUTDOWN,
+        UDP_SEND,
+        FS,
+        WORK,
+        GETADDRINFO,
+        GETNAMEINFO,
+        RANDOM,
+        UV_REQ_TYPE_PRIVATE,
+        UV_REQ_TYPE_MAX
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_work_t
     {
-        public nint handle;
-        public override string ToString() => $"[workId 0x{handle:X}]";
+        public void* data;
+
+        public override string ToString() => $"[work]";
     }
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_os_sock_t

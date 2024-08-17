@@ -12,4 +12,25 @@ public static class GC
     private static extern _get_allocated(): i64;
     [native("__internal__", "i_call_GC_get_alive_objects")]
     private static extern _get_alive_Objects(): i64;
+
+
+    public static allocate_u8(len: i32): Span<u8> {
+        auto size = sizeof<u8>();
+        Out.print("sizeof<u8>");
+        Out.print(size);
+        Out.print("len: i32");
+        Out.print(len);
+        auto span = new Span<u8>(len, size);
+        self.alloc_block(span);
+        return span;
+    }
+    public static destroy_u8(span: Span<u8>): void {
+        self.dealloc_block(span._ptr);
+        span._isDestroyed = true;
+    }
+
+    [native("__internal__", "alloc_block")]
+    private static extern alloc_block(span: Object): void;
+    [native("__internal__", "dealloc_block")]
+    private static extern dealloc_block(ptr: raw): void;
 }
