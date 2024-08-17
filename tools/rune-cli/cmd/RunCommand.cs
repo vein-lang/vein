@@ -42,6 +42,9 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
 
         [vm:scheduler]
         defer_loop=true
+        
+        [vm:debug]
+        press_enter_to_exit=false
         """;
 
     public override async Task<int> ExecuteAsync(CommandContext context, RunSettings settings, VeinProject project)

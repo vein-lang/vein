@@ -22,6 +22,8 @@ public readonly unsafe struct AppConfig
     public bool NoTrace => rootCfg->GetGroup("vm").GetFlag("no_trace");
     public bool DeferThreadPool => rootCfg->GetGroup("vm:threading").GetFlag("defer");
     public long ThreadPoolSize => rootCfg->GetGroup("vm:threading").GetInt("size", -1);
+    public bool PressEnterToExit => rootCfg->GetGroup("vm:debug").GetFlag("press_enter_to_exit");
+
 
     public readonly AppConfig_Jit Jit;
 

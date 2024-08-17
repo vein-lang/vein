@@ -74,8 +74,12 @@ public unsafe partial struct VirtualMachine
     {
 #if DEBUG
         trace.log($"exit code is {exitCode}");
-        trace.log("Press ENTER to exit...");
-        while (System.Console.ReadKey().Key != ConsoleKey.Enter) Thread.Sleep(1);
+        if (Config.PressEnterToExit)
+        {
+            trace.log("Press ENTER to exit...");
+            while (System.Console.ReadKey().Key != ConsoleKey.Enter)
+                Thread.Sleep(1000);
+        }
 #endif
         Environment.Exit(exitCode);
     }
