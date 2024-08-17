@@ -12,16 +12,16 @@ using static Spectre.Console.AnsiConsole;
 using vein.json;
 [assembly: InternalsVisibleTo("veinc_test")]
 
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
 if (Environment.GetEnvironmentVariable("NO_CONSOLE") is not null)
     AnsiConsole.Console = RawConsole.Create();
 else if (Environment.GetEnvironmentVariable("FORK_CONSOLE") is not null)
     AnsiConsole.Console = RawConsole.CreateForkConsole();
-
-var watch = Stopwatch.StartNew();
-
-Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     System.Console.OutputEncoding = Encoding.Unicode;
+var watch = Stopwatch.StartNew();
+
 JsonConvert.DefaultSettings = () => new JsonSerializerSettings
 {
     NullValueHandling = NullValueHandling.Ignore,

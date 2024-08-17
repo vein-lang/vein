@@ -49,10 +49,10 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
         var list = new List<VeinModule>();
         var shardStorage = new ShardStorage();
 
-        Parallel.ForEach(collection, (target) =>
+        foreach (var target in collection)
         {
             if (target.Project.Dependencies.Packages.Count == 0)
-                return;
+                continue;
             var task = context.AddTask($"Collect modules for '{target.Project.Name}'...").IsIndeterminate();
             target.Resolver.AddSearchPath(target.Project.WorkDir);
 
@@ -86,12 +86,19 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
                 catch (Exception e)
                 {
                     Log.Error($"Failed to load dependencies.");
-                    Log.Error($"Try 'veinc restore'");
-                    throw;
+                    Log.Error($"Try 'rune restore'");
+                    throw e;
                 }
             }
             task.StopTask();
-        });
+        }
+
+        //Parallel.ForEach(collection, (target) =>
+        //{
+        //    if (target.Project.Dependencies.Packages.Count == 0)
+        //        return;
+            
+        //});
 
 
         await Parallel.ForEachAsync(collection, async (target, token) => {

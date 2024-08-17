@@ -19,6 +19,11 @@
     "compile std library": {
       "commandName": "Project",
       "commandLineArgs": "build ..\\..\\..\\..\\..\\lib\\vein.std\\std\\std.vproj --ignore-cache"
+    },
+    "test case": {
+      "commandName": "Project",
+      "commandLineArgs": "build",
+      "workingDirectory": "C:\\Users\\ls-mi\\.vein\\te"
     }
   }
 }

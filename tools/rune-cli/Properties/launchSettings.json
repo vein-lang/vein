@@ -5,8 +5,8 @@
     },
     "install workload with manifest": {
       "commandName": "Project",
-      "commandLineArgs": "build",
-      "workingDirectory": "C:\\git\\vein.lang\\lib\\vein.std\\std"
+      "commandLineArgs": "run",
+      "workingDirectory": "C:\\Users\\ls-mi\\.vein\\te"
     }
   }
 }
