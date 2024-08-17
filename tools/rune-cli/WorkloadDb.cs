@@ -12,7 +12,7 @@ public class WorkloadDb
     public async Task RegistryTool(PackageKey key, WorkloadPackageTool tool, DirectoryInfo baseFolder)
     {
         var db = await OpenAsync();
-        db.tools.TryAdd(key,  new Dictionary<string, FileInfo>());
+        db.tools.TryAdd(key,  new Dictionary<string, string>());
 
 
         var file = new FileInfo(Symlink.ToExec(tool.ExecPath));
@@ -20,7 +20,7 @@ public class WorkloadDb
         var name = string.IsNullOrEmpty(tool.OverrideName)
             ? Path.GetFileNameWithoutExtension(file.Name)
             : tool.OverrideName;
-        db.tools[key][name] = toolExec;
+        db.tools[key][name] = toolExec.FullName;
         await SaveAsync(db);
     }
 
@@ -40,7 +40,7 @@ public class WorkloadDb
         if (db.tools.TryGetValue(key, out var tools))
         {
             if (tools.TryGetValue(name, out var result))
-                return result;
+                return new FileInfo(result);
         }
         if (throwIfNotFound)
             throw new NotFoundToolException(name, key);
@@ -66,7 +66,7 @@ public class WorkloadDb
 
 public record WorkloadDatabase
 {
-    [JsonConverter(typeof(DictionaryWithPackageKeyConverter<Dictionary<string, FileInfo>>))]
-    public Dictionary<PackageKey, Dictionary<string, FileInfo>> tools = new();
+    [JsonConverter(typeof(DictionaryWithPackageKeyConverter<Dictionary<string, string>>))]
+    public Dictionary<PackageKey, Dictionary<string, string>> tools = new();
     public Dictionary<string, List<string>> sdks = new();
 }

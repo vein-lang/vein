@@ -3,7 +3,6 @@ $arch = if ([System.Environment]::Is64BitOperatingSystem) { "win-x64" } else { "
 $apiUrl = "https://releases.vein-lang.org/api/get-release"
 
 $outputDir = "$HOME\.vein"
-$binDir = "$outputDir\bin"
 
 function DownloadFile($url, $outputFile) {
     $webClient = New-Object System.Net.WebClient
@@ -14,19 +13,17 @@ try {
     $releaseInfo = Invoke-RestMethod -Uri $apiUrl
     $asset = $releaseInfo.assets | Where-Object { $_.name -eq "rune.$arch.zip" }
     $downloadUrl = $asset.browser_download_url
+    Write-Output $downloadUrl
     New-Item -ItemType Directory -Force -Path $outputDir > $null
-    New-Item -ItemType Directory -Force -Path $binDir > $null
     $zipFile = "$outputDir\rune.$arch.zip"
     DownloadFile $downloadUrl $zipFile
-    Expand-Archive -Path $zipFile -DestinationPath $binDir -Force > $null
+    Expand-Archive -Path $zipFile -DestinationPath $outputDir -Force > $null
     Remove-Item -Force $zipFile > $null
-    $env:Path += ";$binDir"
+    $env:Path += ";$outputDir"
     [Environment]::SetEnvironmentVariable("Path", $env:Path, [EnvironmentVariableTarget]::User)
 
-    & "$binDir\rune.exe" install workload vein.runtime --version latest
-    & "$binDir\rune.exe" install workload vein.compiler --version latest
-    
-
+    Invoke-Expression "$outputDir\rune.exe workload install vein.runtime"
+    Invoke-Expression "$outputDir\rune.exe workload install vein.compiler"
     Write-Output "Rune Installed, restart your teminal for use"
 }
 catch {

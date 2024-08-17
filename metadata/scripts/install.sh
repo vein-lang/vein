@@ -58,7 +58,7 @@ if [ -f "$HOME/.zshrc" ]; then
     source "$HOME/.zshrc"
 fi
 
-"$BIN_DIR/rune" install workload vein.runtime --version latest
-"$BIN_DIR/rune" install workload vein.compiler --version latest
+"$BIN_DIR/rune" workload install vein.runtime
+"$BIN_DIR/rune" workload install vein.compiler
 
 echo "Installation complete. Please restart your terminal to use the new PATH."

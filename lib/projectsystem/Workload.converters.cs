@@ -200,7 +200,7 @@ public class DictionaryWithPackageKeyConverter<T> : JsonConverter
 
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
-        var packages = (Dictionary<PackageKey, WorkloadPackage>)value;
+        var packages = (Dictionary<PackageKey, T>)value;
         writer.WriteStartObject();
 
         foreach (var kvp in packages)
