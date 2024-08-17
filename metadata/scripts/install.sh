@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$(id -u)" -eq 0 ]; then
+    echo "You cannot install vein-sdk from under the root." >&2
+    exit 1
+fi
+
 for cmd in unzip jq curl; do
   if ! command -v $cmd &> /dev/null; then
     echo "Error: $cmd is not installed or not available in PATH."

@@ -1,5 +1,10 @@
 $arch = if ([System.Environment]::Is64BitOperatingSystem) { "win-x64" } else { "win-arm64" }
 
+if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Host "You cannot install vein-sdk from under the administrator." -ForegroundColor Red
+    exit 1
+} 
+
 $apiUrl = "https://releases.vein-lang.org/api/get-release"
 
 $outputDir = "$HOME\.vein"
