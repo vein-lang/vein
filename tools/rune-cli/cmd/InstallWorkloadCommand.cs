@@ -95,15 +95,18 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
         var tagFolder = WorkloadDirectory
             .SubDirectory(name)
             .SubDirectory(version);
-
+        static void RecursiveDelete(DirectoryInfo baseDir)
+        {
+            if (!baseDir.Exists)
+                return;
+            foreach (var dir in baseDir.EnumerateDirectories()) RecursiveDelete(dir);
+            baseDir.Delete(true);
+        }
         if (tagFolder.Exists)
         {
-            task.FailTask();
-            Log.Error($"Workload package [orange3]'{name}@{version}'[/] already installed, maybe u need [gray]'workload uninstall'[/]?");
-            return -1;
+            RecursiveDelete(tagFolder);
+            tagFolder.Ensure();
         }
-
-
 
         var loader = new WorkloadRegistryLoader(query, storage, manifest, tagFolder, workloadDb, ctx);
 

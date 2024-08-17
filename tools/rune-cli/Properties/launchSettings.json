@@ -5,8 +5,7 @@
     },
     "install workload with manifest": {
       "commandName": "Project",
-      "commandLineArgs": "run",
-      "workingDirectory": "C:\\Users\\ls-mi\\.vein\\te"
+      "commandLineArgs": "workload install vein.runtime"
     }
   }
 }
