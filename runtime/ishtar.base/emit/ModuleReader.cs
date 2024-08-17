@@ -201,11 +201,13 @@ namespace ishtar.emit
                 var dep = resolver(name, ver);
                 module.Deps.Add(dep);
             }
+
+            var deferedMethods = new List<(VeinClass, byte[])>();
             // read class storage
             foreach (var _ in ..reader.ReadInt32())
             {
                 var body = reader.ReadBytes(reader.ReadInt32());
-                var @class = DecodeClass(body, module);
+                var @class = DecodeClass(body, module, deferedMethods);
 
                 if (@class.IsSpecial)
                 {
@@ -280,6 +282,12 @@ namespace ishtar.emit
                             ? module.FindType(parent.FullName, true)
                             : null;
                 }
+            }
+            // defer init methods
+            foreach (var (@class, body) in deferedMethods)
+            {
+                var method = DecodeMethod(body, @class, module);
+                @class.Methods.Add(method);
             }
             // restore unresolved types
             foreach (var @class in module.class_table)
@@ -363,7 +371,7 @@ namespace ishtar.emit
             }
         }
 
-        public static VeinClass DecodeClass(byte[] arr, ModuleReader module)
+        public static VeinClass DecodeClass(byte[] arr, ModuleReader module, List<(VeinClass, byte[])> deferMethods)
         {
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
@@ -379,7 +387,6 @@ namespace ishtar.emit
                 parents.Add(module.FindType(parentIdx, true, false));
             }
 
-            var len = binary.ReadInt32();
 
             var @class = new VeinClass(className, parents.ToArray(), module)
             {
@@ -387,13 +394,15 @@ namespace ishtar.emit
             };
             
             Debug.Assert(binary.ReadInt32() == 1923);
+            var len = binary.ReadInt32();
 
             foreach (var _ in ..len)
             {
                 var body =
                     binary.ReadBytes(binary.ReadInt32());
-                var method = DecodeMethod(body, @class, module);
-                @class.Methods.Add(method);
+                deferMethods.Add((@class, body));
+                //var method = DecodeMethod(body, @class, module);
+                //@class.Methods.Add(method);
             }
 
             Debug.Assert(binary.ReadInt32() == 8712);
@@ -408,7 +417,7 @@ namespace ishtar.emit
             foreach (var _ in ..binary.ReadInt32())
             {
                 var name = FieldName.Resolve(binary.ReadInt32(), module);
-                var type = binary.ReadComplexType(module);
+                var type = binary.ReadComplexType(module, false);
                 var flags = (FieldFlags) binary.ReadInt16();
                 var method = new VeinField(@class, name, flags, type);
                 @class.Fields.Add(method);

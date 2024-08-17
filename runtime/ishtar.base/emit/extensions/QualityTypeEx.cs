@@ -10,12 +10,12 @@ namespace ishtar.emit.extensions
     public delegate nint TypeNameGetter(int typeIndex);
     public static class QualityTypeEx
     {
-        public static VeinComplexType ReadComplexType(this BinaryReader bin, VeinModule module)
+        public static VeinComplexType ReadComplexType(this BinaryReader bin, VeinModule module, bool dropUnresolved = true)
         {
             var isGeneric = bin.ReadBoolean();
             if (isGeneric)
                 return bin.ReadGenericTypeName(module);
-            return module.FindType(bin.ReadTypeName(module), true);
+            return module.FindType(bin.ReadTypeName(module), true, dropUnresolved);
         }
 
 
@@ -40,9 +40,10 @@ namespace ishtar.emit.extensions
             foreach (var _ in ..size)
                 list.Add(bin.ReadGenericTypeName(module));
 
+
             var magic2 = bin.ReadInt64();
 
-            if (magic2 != 448)
+            if (magic2 != 428)
                 throw new InvalidOperationException($"Magic number invalid");
 
             return list;
