@@ -2,7 +2,7 @@ $arch = if ([System.Environment]::Is64BitOperatingSystem) { "win-x64" } else { "
 
 if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Host "You cannot install vein-sdk from under the administrator." -ForegroundColor Red
-    exit 1
+    return
 } 
 $env:RUNE_NOVID = "1";
 $env:VEINC_NOVID = "1";
@@ -69,18 +69,18 @@ try {
     Invoke-Expression "$outputDir\rune.exe telemetry"
 
     if ($LASTEXITCODE -ne 0) {
-        exit $LASTEXITCODE
+        return;
     }
 
     $installWorkloads = Read-Host "Do you want to install vein.runtime and vein.compiler workloads? (y/n)"
     if ($installWorkloads -eq 'y') {
         Invoke-Expression "$outputDir\rune.exe workload install vein.runtime@$tagVersion"
         if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
+            return;
         }
         Invoke-Expression "$outputDir\rune.exe workload install vein.compiler@$tagVersion"
         if ($LASTEXITCODE -ne 0) {
-            exit $LASTEXITCODE
+            return;
         }
         Write-Output "Workloads installed."
     } else {
