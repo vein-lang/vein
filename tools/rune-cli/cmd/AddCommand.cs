@@ -28,7 +28,7 @@ public class ProgressWithTask(ProgressTask task, string fmt) : IProgress<(int to
             new ProgressBarColumn(),
             new PercentageColumn(),
             new SpinnerColumn { Spinner = Spinner.Known.Dots8Bit, CompletedText = "✅", FailedText = "❌" },
-            new TaskDescriptionColumn { Alignment = Justify.Left }).AutoRefresh(true).StartAsync(async (x) => await actor(ProgressWithTask.Create(x, template)));
+            new TaskDescriptionColumn { Alignment = Justify.Left }).AutoRefresh(true).StartAsync(async (x) => await actor(Create(x, template)));
 }
 
 [ExcludeFromCodeCoverage]

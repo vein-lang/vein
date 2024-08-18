@@ -11,7 +11,7 @@ public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, Di
             FileName = compilerPath.FullName,
             Arguments = string.Join(" ", args),
             RedirectStandardOutput = true,
-            RedirectStandardError = false,
+            RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
             WorkingDirectory = baseFolder.FullName
@@ -30,7 +30,17 @@ public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, Di
                 await Console.Out.WriteAsync(new string(buffer, 0, charsRead));
         });
 
-        await Task.WhenAll(outputTask);
+        var errorTask = Task.Run(async () =>
+        {
+            _process.Start();
+            using var reader = _process.StandardError;
+            char[] buffer = new char[1024];
+            int charsRead;
+            while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                await Console.Error.WriteAsync(new string(buffer, 0, charsRead));
+        });
+
+        await Task.WhenAll(outputTask, errorTask);
 
         await _process.WaitForExitAsync();
 

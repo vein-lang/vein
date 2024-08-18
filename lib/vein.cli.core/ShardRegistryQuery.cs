@@ -77,14 +77,14 @@ public class ShardRegistryQuery
         await using (var file = package.OpenWrite())
         await using (var remote = await result.GetStreamAsync())
         {
-            var buffer = new byte[128];
+            var buffer = new byte[512];
             long totalBytesRead = 0L;
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
             int bytesRead;
             while ((bytesRead = await remote.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
             {
-                await Task.Delay(100, token);
+                await Task.Delay(10, token);
                 await file.WriteAsync(buffer, 0, bytesRead, token);
                 totalBytesRead += bytesRead;
                 var elapsed = stopwatch.Elapsed;
