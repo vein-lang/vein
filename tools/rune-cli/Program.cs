@@ -50,12 +50,12 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     }
 };
 
-using var _ = SentrySdk.Init(options => {
-    options.Dsn = "https://8e30064f219999c52e09c04f4bc7ebeb@o958881.ingest.us.sentry.io/4507797513699328";
+using var sentry = SentrySdk.Init(options => {
+    options.Dsn = "https://a035cc18b8bbf591aeaddd3a27fb5434@o958881.ingest.us.sentry.io/4507797531721728";
     options.Debug = true;
     options.AutoSessionTracking = true;
     options.TracesSampleRate = 1.0;
-    options.ProfilesSampleRate = 0.5;
+    options.ProfilesSampleRate = 1.0;
     options.DiagnosticLogger = new TraceDiagnosticLogger(SentryLevel.Debug);
     options.AddIntegration(new ProfilingIntegration(
         TimeSpan.FromMilliseconds(10)
@@ -70,7 +70,7 @@ SentrySdk.ConfigureScope(scope => {
     scope.SetTag("app.branch", BranchName);
     scope.SetTag("app.sha", ShortSha);
 });
-
+SentrySdk.CaptureMessage("Something went wrong");
 if (Environment.GetEnvironmentVariable("NO_CONSOLE") is not null)
     AnsiConsole.Console = RawConsole.Create();
 
