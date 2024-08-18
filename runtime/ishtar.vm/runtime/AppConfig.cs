@@ -27,7 +27,6 @@ public readonly unsafe struct AppConfig
 
     public readonly AppConfig_Jit Jit;
 
-
     public readonly struct AppConfig_Jit(IniRoot* rootCfg)
     {
         public bool Enabled => rootCfg->GetGroup("vm:jit").GetFlag("enable");
@@ -38,5 +37,7 @@ public readonly unsafe struct AppConfig
         public bool EnableTargetInfo => rootCfg->GetGroup("vm:jit").GetFlag("target_info");
         public bool EnableTargetMC => rootCfg->GetGroup("vm:jit").GetFlag("target_mc");
         public bool DeferContext => rootCfg->GetGroup("vm:jit").GetFlag("defer_context");
+        public bool WriteIR => rootCfg->GetGroup("vm:jit").GetFlag("ir_write");
+        public SlicedString IRPath => rootCfg->GetGroup("vm:jit").GetString("ir_path");
     }
 }

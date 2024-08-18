@@ -22,7 +22,8 @@ public readonly struct Profiler : IDisposable
     {
 #if PROFILER
         _watcher.Stop();
-        Console.WriteLine($"[{_tag}] elapsed {_watcher.ElapsedMilliseconds} ms");
+        if (Environment.GetEnvironmentVariable("VM_PROFILER") is not null)
+            Console.WriteLine($"[{_tag}] elapsed {_watcher.ElapsedMilliseconds} ms");
 #endif
     }
 

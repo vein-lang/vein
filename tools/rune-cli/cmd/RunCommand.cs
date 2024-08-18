@@ -10,13 +10,31 @@ using Spectre.Console.Cli;
 [ExcludeFromCodeCoverage]
 public class RunSettings : CommandSettings, IProjectSettingProvider
 {
+    [Description("Path to vproj file")]
+    [CommandArgument(0, "[PROJECT]")]
+    public string Project { get; set; }
+
+    [Description("Enable printing profiler timings")]
+    [CommandOption("--trace")]
+    public bool TraceEnable { get; set; }
+    [Description("Enable printing profiler timings")]
+    [CommandOption("--show-profiler-timings")]
+    public bool ProfilerDisplay { get; set; }
     [Description("Override generated boot config")]
     [CommandOption("--override-boot-cfg")]
     public string OverrideBootCfg { get; set; }
 
-    [Description("Path to vproj file")]
-    [CommandArgument(0, "[PROJECT]")]
-    public string Project { get; set; }
+    [Description("Skip validate arguments parameters in vein methods when pass to execute")]
+    [CommandOption("--sva")]
+    public bool SkipValidateArgs { get; set; }
+
+    [Description("Skip validate stage field opcode type")]
+    [CommandOption("--svst")]
+    public bool SkipValidateStfTypeOpCode { get; set; }
+
+    [Description("User defer jit context")]
+    [CommandOption("--jit-defer")]
+    public bool JitContextDeffer { get; set; } = true;
 }
 
 [ExcludeFromCodeCoverage]
@@ -26,10 +44,11 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
     private static readonly string bootCfg =
         """
         [vm]
-        skip_validate_args=true
+        skip_validate_args={SkipValidateArgs}
         use_console=true
-        no_trace=false
-
+        no_trace={TraceEnable}
+        skip_validate_stf_type={SkipValidateStfTypeOpCode}
+        
         [vm:jit]
         enable=true
         target="auto"
@@ -38,13 +57,19 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
         target_info=false
         target_mc=false
         asm_printer=false
-        defer_context=true
-
+        defer_context={JitContextDeffer}
+        ir_write=true
+        ir_path="obj\"
+        
         [vm:scheduler]
-        defer_loop=true
+        defer_loop=false
         
         [vm:debug]
         press_enter_to_exit=false
+        
+        [vm:threading]
+        size=4
+        defer=true
         """;
 
     public override async Task<int> ExecuteAsync(CommandContext context, RunSettings settings, VeinProject project)
@@ -86,7 +111,12 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             return -1;
         }
 
-        var boot_config_data = bootCfg;
+        var boot_config_data = bootCfg
+            .Replace($"{{{nameof(settings.TraceEnable)}}}", settings.TraceEnable.ToString().ToLowerInvariant())
+            .Replace($"{{{nameof(settings.SkipValidateArgs)}}}", settings.SkipValidateArgs.ToString().ToLowerInvariant())
+            .Replace($"{{{nameof(settings.SkipValidateStfTypeOpCode)}}}", settings.SkipValidateStfTypeOpCode.ToString().ToLowerInvariant())
+            .Replace($"{{{nameof(settings.JitContextDeffer)}}}", settings.JitContextDeffer.ToString().ToLowerInvariant())
+            .Replace(); // 
 
         if (!string.IsNullOrEmpty(settings.OverrideBootCfg))
         {
@@ -118,8 +148,14 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             .Ensure()
             .File("boot.ini")
             .WriteAllTextAsync(boot_config_data);
+
+        var envs = new Dictionary<string, string>();
+
+
+        if (settings.ProfilerDisplay)
+            envs.Add("VM_PROFILER", "true");
         
 
-        return await new VeinIshtarProxy(tool, [execFile.FullName], project.WorkDir).ExecuteAsync();
+        return await new VeinIshtarProxy(tool, [execFile.FullName], project.WorkDir, envs).ExecuteAsync();
     }
 }

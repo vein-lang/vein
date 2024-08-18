@@ -16,16 +16,17 @@ public readonly unsafe struct IshtarThreading(VirtualMachine* vm)
         lock (locker)
         {
             var thread = IshtarGC.AllocateImmortal<IshtarRawThread>(vm);
-            //uv_thread_create(out var threadId, executeRaw, (IntPtr)thread);
-            
-            var t = new Thread((x) =>
-            {
-                executeRaw((nint)x!);
-            });
+            uv_thread_create(out var threadId, executeRaw, (IntPtr)thread);
+            *thread = new IshtarRawThread(threadId, frame, vm, data, StringStorage.Intern(name, vm));
 
-            *thread = new IshtarRawThread(new uv_thread_t {handle = t.ManagedThreadId}, frame, vm, data, StringStorage.Intern(name, vm));
+            //var t = new Thread((x) =>
+            //{
+            //    executeRaw((nint)x!);
+            //});
 
-            t.Start((IntPtr)thread);
+            //*thread = new IshtarRawThread(new uv_thread_t {handle = t.ManagedThreadId}, frame, vm, data, StringStorage.Intern(name, vm));
+
+            //t.Start((IntPtr)thread);
 
             return thread;
         }

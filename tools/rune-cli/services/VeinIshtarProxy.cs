@@ -2,11 +2,17 @@ namespace vein.cmd;
 
 using System.Diagnostics;
 
-public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, DirectoryInfo baseFolder) : IDisposable
+public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, DirectoryInfo baseFolder, Dictionary<string, string> env) : IDisposable
 {
     private readonly Process _process = new()
     {
-        StartInfo = new()
+        StartInfo = CreateProcess(compilerPath, args, baseFolder, env)
+    };
+
+
+    private static ProcessStartInfo CreateProcess(FileInfo compilerPath, IEnumerable<string> args, DirectoryInfo baseFolder, Dictionary<string, string> env)
+    {
+        var p = new ProcessStartInfo
         {
             FileName = compilerPath.FullName,
             Arguments = string.Join(" ", args),
@@ -15,8 +21,11 @@ public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, Di
             UseShellExecute = false,
             CreateNoWindow = true,
             WorkingDirectory = baseFolder.FullName
-        }
-    };
+        };
+        foreach (var (k, v) in env)
+            p.EnvironmentVariables.Add(k, v);
+        return p;
+    }
 
     public async ValueTask<int> ExecuteAsync()
     {

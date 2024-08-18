@@ -228,12 +228,12 @@ namespace ishtar.emit
         string IBaker.BakeDebugString()
         {
             var str = new StringBuilder();
-            str.AppendLine($".namespace '{FullName.Namespace}'");
+            str.AppendLine($".namespace '{FullName.Namespace.@namespace}'");
             if (IsInterface) str.Append($".interface ");
             else if (IsValueType) str.Append($".struct ");
             else str.Append($".class ");
             str.Append($"'{FullName.Name}' {Flags.EnumerateFlags([ClassFlags.None, ClassFlags.Interface]).Join(' ').ToLowerInvariant()}");
-            str.AppendLine($" extends {Parents.Select(x => $"'{x.Name}'").Join(", ")}");
+            str.AppendLine($" extends {Parents.Select(x => $"'{x.FullName}'").Join(", ")}");
             str.AppendLine("{");
             foreach (var field in Fields)
             {

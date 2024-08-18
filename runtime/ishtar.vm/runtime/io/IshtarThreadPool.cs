@@ -2,8 +2,6 @@ namespace ishtar.runtime.io;
 
 using collections;
 using ishtar.io;
-using ishtar.runtime.gc;
-using libuv;
 using static gc.IshtarGC;
 using static IshtarMath;
 using static libuv.LibUV;
@@ -122,20 +120,12 @@ public readonly unsafe struct IshtarThreadPool(
         uv_mutex_lock(_mutex);
         uv_cond_signal(_cond);
         uv_mutex_unlock(_mutex);
-
-        for (int i = 0; i < _threadCount; i++)
+        for (int i = 0; i < _threads->Count; i++)
         {
             var t = _threads->Get(i);
             uv_thread_join(t->threadId);
         }
-
         uv_mutex_destroy(_mutex);
         uv_cond_destroy(_cond);
     }
-}
-
-
-public struct ishtar_cond_v
-{
-
 }

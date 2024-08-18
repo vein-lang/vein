@@ -20,7 +20,6 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         GC_set_finalizer_notifier(on_gc_finalization);
         GC_init();
         GC_allow_register_threads();
-        //libuv_gc_allocator.install();
         hasInited = true;
     }
 

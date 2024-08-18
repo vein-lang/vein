@@ -21,7 +21,12 @@ public unsafe partial struct VirtualMachine
         var source = IshtarFile.readAllFile(path);
 
         var parser = new IniParser(source, IshtarGC.CreateAllocatorWithParent(null));
+        
 
-        return parser.Parse();
+        var result = parser.Parse();
+
+        result->_cache_sliced = source.Ptr;
+
+        return result;
     }
 }

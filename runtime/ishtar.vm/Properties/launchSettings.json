@@ -1,18 +1,27 @@
 {
   "profiles": {
     "default run": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "environmentVariables": {
+        "VM_PROFILER": "1"
+      }
     },
     "WSL": {
       "commandName": "WSL2"
     },
-    "run std": {
+    "run tes": {
       "commandName": "Project",
-      "commandLineArgs": "..\\..\\..\\..\\..\\..\\lib\\vein.std\\std\\bin\\std.wll --sys::log::use-console=1"
+      "commandLineArgs": "C:\\Users\\ls-mi\\.vein\\workloads\\vein.runtime\\0.30.4\\vein-runtime-package\\bin\\tes.wll",
+      "environmentVariables": {
+        "VM_PROFILER": "1"
+      }
     },
     "run external_test": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\git\\std\\asd\\bin\\asd.wll --sys::log::use-console=1"
+      "commandLineArgs": "C:\\git\\std\\asd\\bin\\asd.wll",
+      "environmentVariables": {
+        "VM_PROFILER": "1"
+      }
     }
   }
 }

@@ -71,6 +71,9 @@ unsafe
     
     watcher.Stop();
     vm->trace.log($"Elapsed: {watcher.Elapsed}");
+
+    vm->hasStopRequired = true;
+    vm->thread_pool->Stop();
     frame->Dispose();
     vm->Dispose();
     return 0;

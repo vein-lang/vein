@@ -13,6 +13,7 @@ using vein.reflection;
 using vein.runtime;
 using static StringStorage;
 using ishtar.emit.extensions;
+using vein;
 
 [CTypeExport("ishtar_module_t")]
 public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIshtarModule* self, IshtarVersion version)
@@ -194,6 +195,11 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         if (dm is not null)
             return dm->FindType(type, true, dropUnresolvedException);
+        var list = new List<(int, RuntimeQualityTypeName)>();
+        types_table->ForEach((key, item) =>
+        {
+            list.Add((key, *item));
+        });
 
         throw new TypeNotFoundException($"'{type->ToString()}' not found in modules and dependency assemblies.");
     }
@@ -299,7 +305,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             var asmName = reader.ReadIshtarString();
             var ns = reader.ReadIshtarString();
             var name = reader.ReadIshtarString();
-            var t = new QualityTypeName(new NameSymbol(name), new NamespaceSymbol(ns), new ModuleNameSymbol(module->Name)).T(module);
+            var t = new QualityTypeName(new NameSymbol(name), new NamespaceSymbol(ns), new ModuleNameSymbol(asmName)).T(module);
 
             var predefined = module->vm->Types->ByQualityName(t);
             if (predefined is not null)
@@ -460,9 +466,6 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             });
         });
 
-
-        
-
         foreach (var body in deferClassBodies)
         {
             var clazz = body.Clazz;
@@ -505,7 +508,12 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         ValidateRuntimeTokens(module);
         module->LinkFFIMethods(module);
 #if DEBUG
-        module->vm->Jitter.GetExecutionModule().PrintToFile($"{module->Name}_ffi.ll");
+        if (module->vm->Config.Jit.WriteIR)
+        {
+            var path = module->vm->Config.Jit.IRPath.ToString();
+            module->vm->Jitter.GetExecutionModule().PrintToFile($"{path}{module->Name}.ir");
+        }
+        
 #endif
         InitVTables(module);
         

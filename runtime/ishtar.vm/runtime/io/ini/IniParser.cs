@@ -104,7 +104,7 @@ public unsafe struct IniGroup
 
             for (int i = 0; i < size; i++)
             {
-                if (kvs[i].value.type != IniDataType.Number)
+                if (kvs[i].value.type != IniDataType.String)
                     continue;
 
                 if (kvs[i].key.SlicedStringEquals(sliced))
@@ -120,6 +120,7 @@ public unsafe struct IniRoot
 {
     public IniGroup* groups;
     public uint size;
+    public char* _cache_sliced;
 
 
     public IniGroup GetGroup(string key)
@@ -314,8 +315,14 @@ public unsafe struct IniParser(SlicedString source, AllocatorBlock allocator)
         else switch (valueStr.Ptr[0])
         {
             case '"':
+                if (valueStr.Ptr[1] == '"')
+                {
+                    iniValue.type = IniDataType.String;
+                    iniValue.value.vs = default;
+                    break;
+                }
                 iniValue.type = IniDataType.String;
-                iniValue.value.vs = valueStr;
+                iniValue.value.vs = new SlicedString(valueStr, 1, valueStr.Size - 1);
                 break;
             case 't':
             case 'f':
