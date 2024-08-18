@@ -1,9 +1,16 @@
-$arch = if ([System.Environment]::Is64BitOperatingSystem) { "win-x64" } else { "win-arm64" }
+param (
+    [switch]$bypassRoot
+)
 
-if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Host "You cannot install vein-sdk from under the administrator." -ForegroundColor Red
-    return
-} 
+$arch = if ([System.Environment]::Is64BitOperatingSystem) { "win-x64" } else { "win-arm64" }
+if ($bypassRoot)
+{
+    if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+        Write-Host "You cannot install vein-sdk from under the administrator." -ForegroundColor Red
+        return
+    } 
+}
+
 $env:RUNE_NOVID = "1";
 $env:VEINC_NOVID = "1";
 
