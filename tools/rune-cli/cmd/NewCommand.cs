@@ -5,6 +5,7 @@ using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
 using System.IO;
+using NuGet.Versioning;
 using project;
 
 [ExcludeFromCodeCoverage]
@@ -24,8 +25,17 @@ public class NewCommand : Command<NewCommandSettings>
         var licenses = Resources.Licenses.ReadAllLines();
 
         var name = AnsiConsole.Ask("Project name?", curDir.Name);
+        ask_version:
         var version = AnsiConsole.Ask("Project version?", "1.0.0.0");
+
+        if (!NuGetVersion.TryParse(version, out _))
+        {
+            AnsiConsole.Markup($"Version [orange]'{version.EscapeMarkup()}'[/] is not valid semver version.");
+            goto ask_version;
+        }
+
         var author = AnsiConsole.Ask<string>("Enter your name:");
+        var github = AnsiConsole.Ask<string>("Enter your github username:", "");
         var license = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title("Choose [green]license[/]")
@@ -36,7 +46,7 @@ public class NewCommand : Command<NewCommandSettings>
         var project = new YAML.Project
         {
             Version = version,
-            Authors = [new(author, "")],
+            Authors = [new(author, github)],
             License = license
         };
 

@@ -49,6 +49,8 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, RunSettings settings, VeinProject project)
     {
+        using var tag = ScopeMetric.Begin("project.run")
+            .WithProject(project);
         var execFile = project.WorkDir.SubDirectory("bin").File($"{project.Name}.wll");
 
         if (!execFile.Exists)

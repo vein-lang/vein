@@ -30,4 +30,10 @@ public static class ScopeMetricExtensions
         metric.data.TryAdd("project.Version", project.Version.ToNormalizedString());
         return metric;
     }
+    public static ScopeMetric WithWorkload(this ScopeMetric metric, string key, string version)
+    {
+        metric.data.TryAdd("workload.Name", key);
+        metric.data.TryAdd("workload.Version", version);
+        return metric;
+    }
 }

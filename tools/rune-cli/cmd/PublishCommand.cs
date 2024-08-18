@@ -15,6 +15,8 @@ public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
     public override async Task<int> ExecuteAsync(CommandContext context, PublishCommandSettings settings,
         VeinProject project)
     {
+        using var tag = ScopeMetric.Begin("project.publish")
+            .WithProject(project);
         var store = new ShardStorage();
         var query = new ShardRegistryQuery(VEIN_GALLERY)
             .WithStorage(store);

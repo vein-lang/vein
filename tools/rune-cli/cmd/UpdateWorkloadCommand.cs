@@ -27,6 +27,8 @@ public class UpdateWorkloadCommand(ShardRegistryQuery query, ShardStorage storag
     {
         var packageName = settings.PackageName.Name;
         var packageVersion = settings.PackageName.Version;
+        using var tag = ScopeMetric.Begin("workload.update")
+            .WithWorkload(packageName, packageVersion);
         if (!WorkloadDirectory.SubDirectory(packageName).Exists)
         {
             var uninstallResult = await new UninstallWorkloadCommand().ExecuteAsync(context,
@@ -37,7 +39,7 @@ public class UpdateWorkloadCommand(ShardRegistryQuery query, ShardStorage storag
             if (uninstallResult is not 0 )
                 return uninstallResult;
         }
-        var installResult = await new InstallWorkloadCommand(query, storage, db).ExecuteAsync(context,
+        var installResult = await new InstallWorkloadCommand(query, storage, db).ExecuteAsync(null,
             new InstallWorkloadCommandSettings()
             {
                 PackageName = settings.PackageName,

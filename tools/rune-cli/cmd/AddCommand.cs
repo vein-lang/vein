@@ -8,6 +8,29 @@ using System.Linq;
 using System.Threading.Tasks;
 using Spectre.Console;
 
+public class ProgressWithTask(ProgressTask task, string fmt) : IProgress<(int total, int speed)>
+{
+    public void Report((int total, int speed) value)
+    {
+        if (!task.IsStarted)
+            task.StartTask();
+        if (value.total <= 99)
+            task.Description(fmt.Replace("{%bytes}", value.speed.FormatBytesPerSecond())).Value(value.total);
+        else
+            task.Description(fmt.Replace("{%bytes}", "")).Value(value.total);
+    }
+
+    public static ProgressWithTask Create(ProgressContext ctx, string template)
+        => new(ctx.AddTask(template, false), template);
+
+    public static async Task<T> Progress<T>(Func<IProgress<(int total, int speed)>, ValueTask<T>> actor, string template)
+        => await AnsiConsole.Progress().AutoClear(false).Columns(
+            new ProgressBarColumn(),
+            new PercentageColumn(),
+            new SpinnerColumn { Spinner = Spinner.Known.Dots8Bit, CompletedText = "✅", FailedText = "❌" },
+            new TaskDescriptionColumn { Alignment = Justify.Left }).AutoRefresh(true).StartAsync(async (x) => await actor(ProgressWithTask.Create(x, template)));
+}
+
 [ExcludeFromCodeCoverage]
 public class AddCommand(ShardRegistryQuery query) : AsyncCommandWithProject<AddCommandSettings>
 { public override async Task<int> ExecuteAsync(CommandContext context, AddCommandSettings settings, VeinProject project)
@@ -15,9 +38,12 @@ public class AddCommand(ShardRegistryQuery query) : AsyncCommandWithProject<AddC
         var name = settings.PackageName.Name;
         var version = settings.PackageName.Version;
 
+        var result = await ProgressWithTask.Progress(
+            (x) => query.DownloadShardAsync(name, version, CancellationToken.None, x),
+            $"downloading shard package [orange3]'{name}@{version}'[/] {{%bytes}}");
+
         project._project.Packages ??= new List<string>();
-        
-        var result = await query.DownloadShardAsync(name, version);
+
 
         if (result is null)
         {

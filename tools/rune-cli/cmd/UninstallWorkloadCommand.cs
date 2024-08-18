@@ -21,6 +21,8 @@ public class UninstallWorkloadCommand : AsyncCommandWithProgress<UninstallWorklo
 
     public override async Task<int> ExecuteAsync(ProgressContext context, UninstallWorkloadCommandSettings settings)
     {
+        using var tag = ScopeMetric.Begin("workload.uninstall")
+            .WithWorkload(settings.PackageName, "");
         using var task = context.AddTask($"delete [orange3]'{settings.PackageName}'[/] workload...")
             .IsIndeterminate();
         await Task.Delay(1000);

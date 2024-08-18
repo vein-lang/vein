@@ -19,6 +19,8 @@ public class RestoreCommand : AsyncCommandWithProject<RestoreCommandSettings>
     public override async Task<int> ExecuteAsync(CommandContext context, RestoreCommandSettings settings,
         VeinProject project)
     {
+        using var tag = ScopeMetric.Begin("project.restore")
+            .WithProject(project);
         if (ProgressContext == null)
             return await AnsiConsole
                 .Progress()

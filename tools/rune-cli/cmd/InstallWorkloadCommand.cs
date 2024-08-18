@@ -12,6 +12,7 @@ using project.shards;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using styles;
+using vein;
 
 [ExcludeFromCodeCoverage]
 public class InstallWorkloadCommandSettings : CommandSettings
@@ -30,34 +31,32 @@ public record WorkloadInstallingContext(
     WorkloadDb workloadDb,
     PackageKey PackageName,
     string? PackageVersion,
-    string? manifestFile,
-    ProgressContext ctx);
+    string? manifestFile);
 
-public class InstallWorkloadCommand(ShardRegistryQuery query, ShardStorage storage, WorkloadDb workloadDb) : AsyncCommandWithProgress<InstallWorkloadCommandSettings>
+public class InstallWorkloadCommand(ShardRegistryQuery query, ShardStorage storage, WorkloadDb workloadDb) : AsyncCommand<InstallWorkloadCommandSettings>
 {
-    public override async Task<int> ExecuteAsync(ProgressContext context, InstallWorkloadCommandSettings settings) =>
+    public override async Task<int> ExecuteAsync(CommandContext ctx, InstallWorkloadCommandSettings settings) =>
         await WorkloadRegistryLoader.InstallWorkloadAsync(new(query, storage, workloadDb,
             new PackageKey(settings.PackageName.Name),
             settings.PackageName.Version,
-            settings.ManifestFile,
-            context));
+            settings.ManifestFile));
 }
 
 
-public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage storage, WorkloadManifest manifest, DirectoryInfo directory, WorkloadDb workloadDb, ProgressContext ctx)
+public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage storage, WorkloadManifest manifest, DirectoryInfo directory, WorkloadDb workloadDb)
 {
     private readonly SymlinkCollector Symlink = new(SecurityStorage.RootFolder);
     private static readonly DirectoryInfo WorkloadDirectory = SecurityStorage.RootFolder.SubDirectory("workloads");
 
     public static async Task<int> InstallWorkloadAsync(WorkloadInstallingContext context)
     {
-        var (query, storage, workloadDb, PackageName, PackageVersion, manifestFile, ctx) = context;
-        using var task = ctx.AddTask($"fetch [orange3]'{PackageName.key}'[/] workload...")
-            .IsIndeterminate();
-
+        var (query, storage, workloadDb, PackageName, PackageVersion, manifestFile) = context;
         var name = PackageName.key;
         var version = PackageVersion ?? "latest";
         var manifest = default(WorkloadManifest);
+        using var tag = ScopeMetric.Begin("install.workload")
+            .WithWorkload(name, version);
+
 
         if (string.IsNullOrEmpty(manifestFile))
         {
@@ -65,20 +64,23 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
 
             if (result is null)
             {
-                task.FailTask();
                 Log.Error($"Workload package [orange3]'{name}@{version}'[/] not found in vein gallery.");
                 return -1;
             }
 
-            task.Description($"download [orange3]'{PackageName}'[/] workload...");
+            result = await ProgressWithTask.Progress(
+                (x) => query.DownloadShardAsync(result, CancellationToken.None, x),
+                $"download [orange3]'{name}@{version}'[/] workload... {{%bytes}}");
 
-            await query.DownloadShardAsync(result);
-
+            if (result is null)
+            {
+                Log.Error($"Workload package [orange3]'{name}@{version}'[/] not found in vein gallery.");
+                return -1;
+            }
             manifest = await storage.GetWorkloadManifestAsync(result);
 
             if (manifest is null)
             {
-                task.FailTask();
                 Log.Error($"Workload package [orange3]'{name}@{version}'[/] is corrupted.");
                 return -1;
             }
@@ -93,8 +95,8 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
 
 
         var tagFolder = WorkloadDirectory
-            .SubDirectory(name)
-            .SubDirectory(version);
+                    .SubDirectory(name)
+                    .SubDirectory(version);
         static void RecursiveDelete(DirectoryInfo baseDir)
         {
             if (!baseDir.Exists)
@@ -108,38 +110,31 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
             tagFolder.Ensure();
         }
 
-        var loader = new WorkloadRegistryLoader(query, storage, manifest, tagFolder, workloadDb, ctx);
+        var loader = new WorkloadRegistryLoader(query, storage, manifest, tagFolder, workloadDb);
 
         if (await loader.InstallManifestForCurrentOS())
         {
             // save latest version of installed
-            WorkloadDirectory
-                .SubDirectory(name).File("latest.version").WriteAllText(version);
+            await WorkloadDirectory
+                .SubDirectory(name).File("latest.version").WriteAllTextAsync(version);
             Log.Info($"[green]Success[/] install [orange3]'{name}@{version}'[/] workload into [orange3]'global'[/].");
             return 0;
         }
         Log.Error($"[red]Failed[/] install [orange3]'{name}@{version}'[/] workload.");
         tagFolder.Delete(true);
-        task.FailTask();
-
         return -1;
     }
-
-
-
 
 
     public async Task<bool> InstallManifestForCurrentOS()
     {
         await directory.Ensure().File("workload.manifest.json").WriteAllTextAsync(manifest.SaveAsString());
 
-        var enums = manifest.Workloads.Select(x => (x, ctx.AddTask($"Downloading workload '{x.Value.name.key}'"))).ToList();
         await Task.Delay(1000);
         var result = true;
 
-        foreach (var ((id, workload), task) in enums)
+        foreach (var (id, workload) in manifest.Workloads)
         {
-            using var _ = task.IsIndeterminate();
             try
             {
                 result &= await InstallWorkloadForCurrentOS(workload, directory);
@@ -148,7 +143,7 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
             {
                 Log.Error($"Failed install workload '[red]{e.Message.EscapeMarkup()}[/]'");
                 return false;
-            } 
+            }
             catch (SkipExecution)
             {
                 return false;
@@ -160,9 +155,6 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
                 return false;
             }
         }
-
-        enums.ForEach(x => x.Item2.StopTask());
-
         return result;
     }
 
@@ -171,7 +163,7 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
     {
         foreach (var (key, version) in package.Dependencies)
         {
-            var loader = await InstallWorkloadAsync(new WorkloadInstallingContext(query, storage, workloadDb, key, version.ToNormalizedString(), null, ctx));
+            var loader = await InstallWorkloadAsync(new WorkloadInstallingContext(query, storage, workloadDb, key, version.ToNormalizedString(), null));
 
             if (loader != 0) return false;
         }
@@ -181,12 +173,9 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
 
     private async Task<bool> InstallWorkloadForCurrentOS(Workload workload, DirectoryInfo targetFolder)
     {
-        var enums = workload.Packages.Select(x => (x, ctx.AddTask($"Processing '{x.key}' package..."))).ToList();
         var result = true;
-        foreach (var (x, task) in enums)
+        foreach (var x in workload.Packages)
         {
-            using var _ = task.IsIndeterminate();
-
             var package = manifest.Packages[x];
 
             result &= await InstallDependencies(package);
@@ -207,8 +196,6 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
                 _ => throw new PlatformNotSupportedException("unknown kind of workload")
             };
         }
-
-        enums.ForEach(x => x.Item2.StopTask());
 
         return result;
     }
@@ -252,7 +239,7 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
 
             foreach (var packageSdk in sdk.Definition.OfType<WorkloadPackageSdk>())
             {
-                
+
                 if (packageSdk.Aliases.TryGetValue(currentOs, out alias))
                 {
                     await workloadDb.RegistrySdkAsync(packageSdk.SdkTarget, alias.Replace("root://", ""), targetFolder);
@@ -263,7 +250,7 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
 
             await targetFolder.File("sdk.target").WriteAllTextAsync(pathBuilder.ToString());
 
-            
+
             return true;
         }
 
@@ -277,32 +264,27 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
         foreach (string newPath in Directory.GetFiles(sourcePath.FullName, "*.*", SearchOption.AllDirectories)) File.Copy(newPath, newPath.Replace(sourcePath.FullName, targetPath.FullName), true);
     }
 
-    private async Task<bool> InstallTool(WorkloadPackage pkg, DirectoryInfo targetFolder)
-    {
-        var tools = pkg.Definition.OfType<WorkloadPackageTool>().ToList();
+    private async Task<bool> InstallTool(WorkloadPackage pkg, DirectoryInfo targetFolder) =>
+        await ProgressWithTask.Progress(
+            async (x) => {
+                var tools = pkg.Definition.OfType<WorkloadPackageTool>().ToList();
 
-        using var task = ctx.AddTask($"Downloading '{pkg.name.key}@{manifest.Version.ToNormalizedString()}'");
-        
-        var packageFolder = await DownloadWorkloadAndInstallPackage(pkg, targetFolder, manifest.Version);
-        task.Description("linking tools...");
-        foreach (var tool in tools)
-        {
-            await workloadDb.RegistryTool(pkg.name, tool, packageFolder);
-            if (!tool.ExportSymlink)
-                continue;
-            var file = new FileInfo(Symlink.ToExec(tool.ExecPath));
-            var toolExec = packageFolder.Combine(file);
-            Symlink.GenerateSymlink(
-                string.IsNullOrEmpty(tool.OverrideName) ?
-                    Path.GetFileNameWithoutExtension(file.Name) :
-                    tool.OverrideName, toolExec);
-            await Task.Delay(500);
-        }
-
-        
-
-        return true;
-    }
+                var packageFolder = await DownloadWorkloadAndInstallPackage(pkg, targetFolder, manifest.Version, x);
+                foreach (var tool in tools)
+                {
+                    await workloadDb.RegistryTool(pkg.name, tool, packageFolder);
+                    if (!tool.ExportSymlink)
+                        continue;
+                    var file = new FileInfo(Symlink.ToExec(tool.ExecPath));
+                    var toolExec = packageFolder.Combine(file);
+                    Symlink.GenerateSymlink(
+                        string.IsNullOrEmpty(tool.OverrideName) ?
+                            Path.GetFileNameWithoutExtension(file.Name) :
+                            tool.OverrideName, toolExec);
+                    await Task.Delay(500);
+                }
+                return true;
+            }, $"unpack [orange3]'{pkg.name.key}'[/] tools {{%bytes}}");
 
     private async Task<bool> InstallTemplate(WorkloadPackage sdk, DirectoryInfo targetFolder) => false;
 
@@ -310,10 +292,10 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
 
 
     private async Task<DirectoryInfo> DownloadWorkloadAndInstallPackage(
-        WorkloadPackage package, DirectoryInfo targetFolder, NuGetVersion version)
+        WorkloadPackage package, DirectoryInfo targetFolder, NuGetVersion version, IProgress<(int total, int speed)> progress)
     {
         var currentOs = PlatformKey.GetCurrentPlatform();
-        
+
         if (!package.Aliases.TryGetValue(currentOs, out var alias))
             throw new PlatformNotSupportedException($"Aliases workload not found for '{currentOs}' platform");
 
@@ -345,7 +327,7 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
             {
                 var zipFile = await alias
                     .WithTimeout(60)
-                    .DownloadFileAsync(tempFolder.FullName, $"workload.{package.name.key}.zip")
+                    .DownloadFileAsync(tempFolder.FullName, $"workload.{package.name.key}.zip", progress: progress)
                     .ToFileAsync();
 
                 await using var zip = new PackageArchive(zipFile);
@@ -359,13 +341,13 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
             }
             return packageFolder;
         }
-        
+
         var shardManifest = await query.FindByName(alias, version.ToNormalizedString(), true);
 
         if (shardManifest is null)
             throw new PackageDefinedInWorkloadNotFoundException();
 
-        await query.DownloadShardAsync(shardManifest);
+        await query.DownloadShardAsync(shardManifest, CancellationToken.None, progress);
         var shardFile = query.GetLocalShardFile(shardManifest);
 
         var shard = await Shard.OpenAsync(shardFile);
