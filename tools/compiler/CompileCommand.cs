@@ -10,6 +10,10 @@ public class CompileCommand : AsyncCommandWithProject<CompileSettings>
 {
     public override async Task<int> ExecuteAsync(CommandContext ctx, CompileSettings settings, VeinProject project)
     {
+        SentrySdk.Metrics.Increment("command",
+            tags: new Dictionary<string, string> { { "region", "us-west-1" } });
+        using var _ = new ScopeMetric("compile").WithProject(project);
+
         Log.Info($"Project [orange]'{project.Name}'[/].");
 
         var targets = await CompilationTask.RunAsync(project.WorkDir, settings);
@@ -67,3 +71,5 @@ public class CompileCommand : AsyncCommandWithProject<CompileSettings>
     }
 
 }
+
+

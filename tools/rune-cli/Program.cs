@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using vein;
@@ -18,11 +19,15 @@ using static Spectre.Console.AnsiConsole;
 using static vein.GlobalVersion;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Sentry.Infrastructure;
 using Tomlyn.Extensions.Configuration;
 using vein.cli;
 using vein.services;
+using Sentry.Profiling;
 
 [assembly: InternalsVisibleTo("veinc_test")]
+
+
 
 await AppMutex.Begin();
 JsonConvert.DefaultSettings = () => new JsonSerializerSettings
@@ -45,12 +50,33 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     }
 };
 
+SentrySdk.Init(options => {
+    options.Dsn = "https://8e30064f219999c52e09c04f4bc7ebeb@o958881.ingest.us.sentry.io/4507797513699328";
+    options.Debug = true;
+    options.AutoSessionTracking = true;
+    options.TracesSampleRate = 1.0;
+    options.ProfilesSampleRate = 0.5;
+    options.DiagnosticLogger = new TraceDiagnosticLogger(SentryLevel.Debug);
+    options.AddIntegration(new ProfilingIntegration(
+        TimeSpan.FromMilliseconds(10)
+    ));
+    options.ExperimentalMetrics = new ExperimentalMetricsOptions
+    {
+        EnableCodeLocations = true
+    };
+});
+SentrySdk.ConfigureScope(scope => {
+    scope.SetTag("app.ver", AssemblySemFileVer);
+    scope.SetTag("app.branch", BranchName);
+    scope.SetTag("app.sha", ShortSha);
+});
+
 if (Environment.GetEnvironmentVariable("NO_CONSOLE") is not null)
     AnsiConsole.Console = RawConsole.Create();
 
 var skipIntro =
     SecurityStorage.HasKey("app:novid") ||
-    Environment.GetEnvironmentVariable("VEINC_NOVID") is not null;
+    Environment.GetEnvironmentVariable("RUNE_NOVID") is not null;
 
 var watch = Stopwatch.StartNew();
 
@@ -93,6 +119,8 @@ await Host.CreateDefaultBuilder(args)
         config.AddCommand<PublishCommand>("publish")
             .WithDescription("Publish shard package into vein gallery. (need set 'packable: true' in project or call 'vein package')")
             .WithExample(["--project ./foo.vproj"]);
+        config.AddCommand<TelemetryCommand>("telemetry")
+            .IsHidden();
         config.AddBranch("workload", x =>
         {
             x.AddCommand<ListInstalledWorkloadCommand>("list")
@@ -129,11 +157,11 @@ await Host.CreateDefaultBuilder(args)
         });
 
         config.SetExceptionHandler((ex) => {
-#if DEBUG
-            WriteException(ex);
-#else
+            SentrySdk.CaptureException(ex);
+
+            if (Environment.GetEnvironmentVariable("RUNE_EXCEPTION_SHOW") is not null)
+                WriteException(ex);
             File.WriteAllText($"rune-error-{DateTimeOffset.Now:s}.txt", ex.ToString());
-#endif
         });
     })
     .ConfigureServices(
@@ -150,7 +178,8 @@ await Host.CreateDefaultBuilder(args)
 watch.Stop();
 await AppMutex.End();
 
-MarkupLine($":sparkles: Done in [lime]{watch.Elapsed.TotalSeconds:00.000}s[/].");
+if (!skipIntro)
+    MarkupLine($":sparkles: Done in [lime]{watch.Elapsed.TotalSeconds:00.000}s[/].");
 return Environment.ExitCode;
 
 
