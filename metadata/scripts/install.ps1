@@ -4,21 +4,57 @@ if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]:
     Write-Host "You cannot install vein-sdk from under the administrator." -ForegroundColor Red
     exit 1
 } 
+$env:RUNE_NOVID = "1";
+$env:VEINC_NOVID = "1";
 
 $apiUrl = "https://releases.vein-lang.org/api/get-release"
 
 $outputDir = "$HOME\.vein"
 
-function DownloadFile($url, $outputFile) {
-    $webClient = New-Object System.Net.WebClient
-    $webClient.DownloadFile($url, $outputFile)
+function DownloadFile {
+    param (
+        [string]$url,
+        [string]$outputFile
+    )
+
+    $fileStream = $null
+    $stream = $null
+
+    try {
+        $request = [System.Net.HttpWebRequest]::Create($url)
+        $request.Method = "GET"
+        $response = $request.GetResponse()
+        $totalBytes = $response.ContentLength
+        $stream = $response.GetResponseStream()
+        $fileStream = [System.IO.File]::Create($outputFile)
+        $buffer = New-Object byte[] 8192
+        $totalReadBytes = 0
+        while ($true) {
+            $readBytes = $stream.Read($buffer, 0, $buffer.Length)
+            if ($readBytes -le 0) { break }
+            $fileStream.Write($buffer, 0, $readBytes)
+            $totalReadBytes += $readBytes
+            $percentComplete = [math]::Round(($totalReadBytes / $totalBytes) * 100, 2)
+            Write-Progress -Activity "Downloading $url" -Status "$percentComplete% Complete" -PercentComplete $percentComplete
+        }
+    } finally {
+        if ($fileStream) {
+            $fileStream.Close()
+        }
+        if ($stream) {
+            $stream.Close()
+        }
+        Write-Progress -Activity "Downloading $url" -Status "Download Complete" -Completed
+    }
 }
+
 
 try {
     $releaseInfo = Invoke-RestMethod -Uri $apiUrl
     $asset = $releaseInfo.assets | Where-Object { $_.name -eq "rune.$arch.zip" }
     $downloadUrl = $asset.browser_download_url
-    Write-Output $downloadUrl
+    $tagVersion = $releaseInfo.tag_name.Replace("v", "")
+    Write-Host $tagVersion
     New-Item -ItemType Directory -Force -Path $outputDir > $null
     $zipFile = "$outputDir\rune.$arch.zip"
     DownloadFile $downloadUrl $zipFile
@@ -30,10 +66,22 @@ try {
         [Environment]::SetEnvironmentVariable("Path", $env:Path, [EnvironmentVariableTarget]::User)
     }
 
+    Invoke-Expression "$outputDir\rune.exe telemetry"
+
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+
     $installWorkloads = Read-Host "Do you want to install vein.runtime and vein.compiler workloads? (y/n)"
     if ($installWorkloads -eq 'y') {
-        Invoke-Expression "$outputDir\rune.exe workload install vein.runtime@0.30.3"
-        Invoke-Expression "$outputDir\rune.exe workload install vein.compiler@0.30.3"
+        Invoke-Expression "$outputDir\rune.exe workload install vein.runtime@$tagVersion"
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
+        Invoke-Expression "$outputDir\rune.exe workload install vein.compiler@$tagVersion"
+        if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+        }
         Write-Output "Workloads installed."
     } else {
         Write-Output "Workloads installation skipped."

@@ -70,10 +70,12 @@ fi
 chmod +x "$OUTPUT_DIR/rune"
 chmod +x "$OUTPUT_DIR/bin/rune.sh"
 
+RUNE_NOVID=1 "$OUTPUT_DIR/rune" telemetry
+
 read -p "Do you want to install vein.runtime and vein.compiler workloads? (y/n): " install_workloads
 if [[ "$install_workloads" == "y" ]]; then
-    "$OUTPUT_DIR/rune" workload install vein.runtime@0.30.3
-    "$OUTPUT_DIR/rune" workload install vein.compiler@0.30.3
+    RUNE_NOVID=1 "$OUTPUT_DIR/rune" workload install vein.runtime@0.30.3
+    RUNE_NOVID=1 "$OUTPUT_DIR/rune" workload install vein.compiler@0.30.3
     echo "Workloads installed."
 else
     echo "Workloads installation skipped."
