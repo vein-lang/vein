@@ -41,8 +41,6 @@
     <DebugSymbols>True</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>$(DefineConstants);EXPERIMENTAL_JIT;BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS;ISHTAR_DEBUG_CONSOLE;PROFILER;</DefineConstants>
   </PropertyGroup>
 

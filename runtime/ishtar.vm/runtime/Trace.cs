@@ -9,7 +9,6 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
     private bool useConsole => vm->Config.UseConsole;
     private bool NoTrace => vm->Config.NoTrace;
 
-    [Conditional("DEBUG")]
     public void Setup()
     {
         if (useConsole)
@@ -18,8 +17,6 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
         IshtarSharedDebugData.Setup();
 #endif
     }
-
-    [Conditional("DEBUG")]
     public void log(string s)
     {
         if (useConsole)
@@ -33,7 +30,6 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
 #endif
     }
 
-    [Conditional("DEBUG")]
     public void error(string s)
     {
         if (useConsole)
@@ -160,12 +156,5 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void console_std_write(string s)
-    {
-#if DEBUG
-        debug_stdout_write(s);
-#else
-        Console.WriteLine(s);
-#endif
-    }
+    public void console_std_write(string s) => debug_stdout_write(s);
 }

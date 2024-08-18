@@ -53,11 +53,10 @@ public class ShardRegistryQuery
     }
 
     public async ValueTask<RegistryPackage?> DownloadShardAsync(RegistryPackage manifest,
-        CancellationToken token = default)
+        CancellationToken token = default, IProgress<(int total, int speed)>? progress = null)
     {
         if (_storage.IsAvailable(manifest))
             return manifest;
-
         var path = _storage.EnsureSpace(manifest);
         var name = manifest.Name;
         var version = manifest.Version.ToNormalizedString();
@@ -71,9 +70,41 @@ public class ShardRegistryQuery
             return null;
 
         var package = path.File(_storage.TemplateName(manifest));
+        var fileLengthTxt = result.Headers.FirstOrDefault(x => x.Name.Equals("Content-Length")).Value ?? "-1";
+        var fileLength = long.Parse(fileLengthTxt);
+
+        var lastReportedBytes = 0L;
         await using (var file = package.OpenWrite())
         await using (var remote = await result.GetStreamAsync())
-            await remote.CopyToAsync(file, token);
+        {
+            var buffer = new byte[128];
+            long totalBytesRead = 0L;
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+            int bytesRead;
+            while ((bytesRead = await remote.ReadAsync(buffer, 0, buffer.Length, token)) > 0)
+            {
+                await Task.Delay(100, token);
+                await file.WriteAsync(buffer, 0, bytesRead, token);
+                totalBytesRead += bytesRead;
+                var elapsed = stopwatch.Elapsed;
+                stopwatch.Restart();
+                if (fileLength > 0)
+                {
+                    int percentComplete = (int)((totalBytesRead * 100) / fileLength);
+                    int speed = (int)((totalBytesRead - lastReportedBytes) / elapsed.TotalSeconds);
+                    progress?.Report((percentComplete, speed));
+                    lastReportedBytes = totalBytesRead;
+                }
+                stopwatch.Restart();
+            }
+
+            if (fileLength <= 0)
+            {
+                int percentComplete = totalBytesRead > 0 ? 100 : 0;
+                progress?.Report((percentComplete, 0));
+            }
+        }
 
         var shard = await Shard.OpenAsync(package, token);
 
@@ -82,14 +113,14 @@ public class ShardRegistryQuery
         return manifest;
     }
     public async ValueTask<RegistryPackage?> DownloadShardAsync(string name, string? version,
-        CancellationToken token = default)
+        CancellationToken token = default, IProgress<(int total, int speed)>? progress = null)
     {
         var manifest = await FindByName(name, version, token: token);
 
         if (manifest is null)
             return null;
 
-        return await DownloadShardAsync(manifest, token);
+        return await DownloadShardAsync(manifest, token, progress);
     }
     public async ValueTask<RegistryPackage?> FindByName(string name, string? version, bool includeUnlisted = false,
         CancellationToken token = default)

@@ -2,16 +2,21 @@ namespace vein;
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
 using MoreLinq;
 using Newtonsoft.Json;
+using NuGet.Common;
 using NuGet.Packaging;
+using NuGet.Packaging.Core;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using project;
+using Spectre.Console;
 
 public class ShardStorage : IShardStorage
 {
@@ -163,63 +168,177 @@ public class ShardStorage : IShardStorage
         ToNugetFolder(packageId, version)
             .File("package.nupkg").Exists;
 
-    public async Task<DirectoryInfo> EnsureNuGetPackage(string packageId, NuGetVersion version)
+    public async Task<DirectoryInfo> EnsureNuGetPackage(string packageId, NuGetVersion version, IProgress<(int, int)>? progress = null)
     {
         var targetDirectory = ToNugetFolder(packageId, version);
         var selfFolder = targetDirectory.SubDirectory(".self");
         if (NuGetPackageHasInstalled(packageId, version))
             return selfFolder;
 
-        CancellationToken cancellationToken = CancellationToken.None;
-        var logger = NuGet.Common.NullLogger.Instance;
-        SourceCacheContext cache = new SourceCacheContext();
-        SourceRepository repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
-        FindPackageByIdResource resource = await repository.GetResourceAsync<FindPackageByIdResource>(cancellationToken);
+        await AnsiConsole.Progress().HideCompleted(true)
+            .StartAsync(async x =>
+            {
+                using MemoryStream packageStream = new MemoryStream();
 
-        using MemoryStream packageStream = new MemoryStream();
+                CancellationToken cancellationToken = CancellationToken.None;
+                var logger = NuGet.Common.NullLogger.Instance;
+                SourceCacheContext cache = new SourceCacheContext();
+                SourceRepository repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
+                FindPackageByIdResource resource = await repository.GetResourceAsync<FindPackageByIdResource>(cancellationToken);
+                
+                using var _ = x.AddTask($"download [orange3]{packageId}[/]");
+                await resource.CopyNupkgToStreamAsync(
+                    packageId,
+                    version,
+                    packageStream,
+                    cache,
+                    logger,
+                    cancellationToken);
 
-        await resource.CopyNupkgToStreamAsync(
-            packageId,
-            version,
-            packageStream,
-            cache,
-            logger,
-            cancellationToken);
+                using PackageArchiveReader packageReader = new PackageArchiveReader(packageStream);
+                NuspecReader nuspecReader = await packageReader.GetNuspecReaderAsync(cancellationToken);
 
-        using PackageArchiveReader packageReader = new PackageArchiveReader(packageStream);
-        NuspecReader nuspecReader = await packageReader.GetNuspecReaderAsync(cancellationToken);
+                EnsureSpace(nuspecReader);
+
+                var nuspecStream = targetDirectory.File("nuspec.config").OpenWrite();
+
+                await nuspecReader.Xml.SaveAsync(nuspecStream, SaveOptions.None, cancellationToken);
+
+                nuspecStream.Close();
+                await nuspecStream.DisposeAsync();
+
+                var NuPkgStream = targetDirectory.File("package.nupkg").OpenWrite();
+
+                await packageStream.CopyToAsync(NuPkgStream, cancellationToken);
+
+                NuPkgStream.Close();
+
+                await NuPkgStream.DisposeAsync();
+
+
+                var files = packageReader.GetFiles().ToList();
+
+                packageReader.CopyFiles(selfFolder.Ensure().FullName, files, (file, path, stream) =>
+                {
+                    new FileInfo(path)!.Directory!.Ensure();
+                    using var fi = File.OpenWrite(path);
+                    stream.CopyTo(fi);
+                    return path;
+                }, logger, cancellationToken, progress);
+
+            });
 
         
-        EnsureSpace(nuspecReader);
-
-        var nuspecStream = targetDirectory.File("nuspec.config").OpenWrite();
-
-        await nuspecReader.Xml.SaveAsync(nuspecStream, SaveOptions.None, cancellationToken);
-
-        nuspecStream.Close();
-        await nuspecStream.DisposeAsync();
-
-        var NuPkgStream = targetDirectory.File("package.nupkg").OpenWrite();
-
-        await packageStream.CopyToAsync(NuPkgStream, cancellationToken);
-
-        NuPkgStream.Close();
-
-        await NuPkgStream.DisposeAsync();
-
-        
-
-        var files = packageReader.GetFiles().ToList();
-        packageReader.CopyFiles(selfFolder.Ensure().FullName, files, (file, path, stream) =>
-        {
-            new FileInfo(path)!.Directory!.Ensure();
-            using var fi = File.OpenWrite(path);
-            stream.CopyTo(fi);
-            return path;
-        }, logger, cancellationToken);
-
 
         return selfFolder;
+    }
+}
+
+
+public static class A
+{
+    public static IEnumerable<string> CopyFiles(this PackageArchiveReader reader,
+        string destination,
+        IEnumerable<string> packageFiles,
+        ExtractPackageFileDelegate extractFile,
+        ILogger logger,
+        CancellationToken token,
+        IProgress<(int percentComplete, int speed)>? progress = null)
+    {
+        List<string> stringList = new List<string>();
+        PackageIdentity identity = reader.GetIdentity();
+        long totalFiles = packageFiles.Count();
+        long processedFiles = 0;
+
+        foreach (string packageFile in packageFiles)
+        {
+            token.ThrowIfCancellationRequested();
+            ZipArchiveEntry entry = reader.GetEntry(packageFile);
+            string sourceFile = entry.FullName;
+            if (sourceFile.StartsWith("/", StringComparison.Ordinal))
+                sourceFile = sourceFile.Substring(1);
+            string str = Uri.UnescapeDataString(sourceFile.Replace('/', Path.DirectorySeparatorChar));
+            destination = reader.NormalizeDirectoryPath(destination);
+            ValidatePackageEntry(destination, str, identity);
+            string targetPath = Path.Combine(destination, str);
+
+            using (Stream inner = entry.Open())
+            {
+                using (var fileStream = new SizedArchiveEntryStream(inner, entry.Length))
+                {
+                    string fileFullPath = extractFile(sourceFile, targetPath, fileStream);
+                    if (fileFullPath != null)
+                    {
+                        entry.UpdateFileTimeFromEntry(fileFullPath, logger);
+                        stringList.Add(fileFullPath);
+                    }
+                }
+            }
+
+            processedFiles++;
+            int percentComplete = (int)((processedFiles * 100) / totalFiles);
+            progress?.Report((percentComplete, 0)); // Speed calculation is omitted in this example
+        }
+
+        return stringList;
+    }
+
+    public static string NormalizeDirectoryPath(this PackageArchiveReader reader, string path)
+    {
+        if (!path.EndsWith(Path.DirectorySeparatorChar.ToString((IFormatProvider)CultureInfo.InvariantCulture), StringComparison.Ordinal))
+            path += Path.DirectorySeparatorChar.ToString();
+        return Path.GetFullPath(path);
+    }
+
+    public static void ValidatePackageEntry(
+        string normalizedDestination,
+        string normalizedFilePath,
+        PackageIdentity packageIdentity)
+    {
+        string fullPath = Path.GetFullPath(Path.Combine(normalizedDestination, normalizedFilePath));
+        if (!fullPath.StartsWith(normalizedDestination, PathUtility.GetStringComparisonBasedOnOS()) || fullPath.Length == normalizedDestination.Length)
+            throw new UnsafePackageEntryException(string.Format((IFormatProvider)CultureInfo.CurrentCulture, "ErrorUnsafePackageEntry", (object)packageIdentity, (object)normalizedFilePath));
+    }
+}
+
+public sealed class SizedArchiveEntryStream(Stream inner, long size) : Stream
+{
+    private bool _isDisposed;
+
+    public override long Length => size;
+
+    public override bool CanRead => inner.CanRead;
+
+    public override bool CanSeek => inner.CanSeek;
+
+    public override bool CanWrite => inner.CanWrite;
+
+    public override long Position
+    {
+        get => inner.Position;
+        set => inner.Position = value;
+    }
+
+    public override void Flush() => inner.Flush();
+
+    public override int Read(byte[] buffer, int offset, int count)
+        => inner.Read(buffer, offset, count);
+
+    public override long Seek(long offset, SeekOrigin origin)
+        => inner.Seek(offset, origin);
+
+    public override void SetLength(long value) => inner.SetLength(value);
+
+    public override void Write(byte[] buffer, int offset, int count)
+        => inner.Write(buffer, offset, count);
+
+    protected override void Dispose(bool disposing)
+    {
+        if (this._isDisposed)
+            return;
+        if (disposing)
+            inner.Dispose();
+        this._isDisposed = true;
     }
 }
 
