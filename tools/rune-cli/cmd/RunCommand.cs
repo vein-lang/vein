@@ -115,8 +115,7 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             .Replace($"{{{nameof(settings.TraceEnable)}}}", settings.TraceEnable.ToString().ToLowerInvariant())
             .Replace($"{{{nameof(settings.SkipValidateArgs)}}}", settings.SkipValidateArgs.ToString().ToLowerInvariant())
             .Replace($"{{{nameof(settings.SkipValidateStfTypeOpCode)}}}", settings.SkipValidateStfTypeOpCode.ToString().ToLowerInvariant())
-            .Replace($"{{{nameof(settings.JitContextDeffer)}}}", settings.JitContextDeffer.ToString().ToLowerInvariant())
-            .Replace(); // 
+            .Replace($"{{{nameof(settings.JitContextDeffer)}}}", settings.JitContextDeffer.ToString().ToLowerInvariant());
 
         if (!string.IsNullOrEmpty(settings.OverrideBootCfg))
         {
