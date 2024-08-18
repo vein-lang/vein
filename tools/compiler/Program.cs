@@ -23,7 +23,7 @@ else if (Environment.GetEnvironmentVariable("FORK_CONSOLE") is not null)
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     System.Console.OutputEncoding = Encoding.Unicode;
 
-SentrySdk.Init(options => {
+using var _ = SentrySdk.Init(options => {
     options.Dsn = "https://e3bce714623baf7826ff918cbd1795d8@o958881.ingest.us.sentry.io/4507797542141952";
     options.Debug = true;
     options.AutoSessionTracking = true;

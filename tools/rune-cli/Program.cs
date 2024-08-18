@@ -50,7 +50,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
     }
 };
 
-SentrySdk.Init(options => {
+using var _ = SentrySdk.Init(options => {
     options.Dsn = "https://8e30064f219999c52e09c04f4bc7ebeb@o958881.ingest.us.sentry.io/4507797513699328";
     options.Debug = true;
     options.AutoSessionTracking = true;

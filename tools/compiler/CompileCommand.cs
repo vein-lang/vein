@@ -12,6 +12,7 @@ public class CompileCommand : AsyncCommandWithProject<CompileSettings>
     {
         SentrySdk.Metrics.Increment("command",
             tags: new Dictionary<string, string> { { "region", "us-west-1" } });
+        throw new NotSupportedException();
         using var _ = new ScopeMetric("compile").WithProject(project);
 
         Log.Info($"Project [orange]'{project.Name}'[/].");
