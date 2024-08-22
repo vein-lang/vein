@@ -655,7 +655,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                     var method_args = gc->AllocateStack(child_frame, method->ArgLength);
                     for (int i = 0, y = method->ArgLength - 1; i != method->ArgLength; i++, y--)
                     {
-                        var _a = method->Arguments->Get(i); // TODO, type eq validate
+                        var _a = method->Arguments->Get((method->ArgLength - 1) - i); // TODO, type eq validate
                         --sp;
                         if (!@ref->Config.CallOpCodeSkipValidateArgs)
                         {
