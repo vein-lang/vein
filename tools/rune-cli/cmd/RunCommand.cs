@@ -97,10 +97,8 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             {
                 case "Yes":
                 {
-                    var result = await new BuildCommand(db).ExecuteAsync(new CommandContext(null, "", null, ["build"]), new CompileSettings
-                    {
-                        Project = settings.Project
-                    }, project);
+                    var result = await new BuildCommand(db).ExecuteAsync(new CommandContext(null, "", null, ["build", new FileInfo(settings.Project).FullName.Escapes('\"')]),
+                        new CompileSettings { Project = new FileInfo(settings.Project).FullName }, project);
 
                     if (result != 0)
                     {
