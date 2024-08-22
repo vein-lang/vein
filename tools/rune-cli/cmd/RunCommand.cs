@@ -93,19 +93,28 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
                         "Yes", "No", "I don't know"
                     ]));
 
-            if (ask == "Yes")
+            switch (ask)
             {
-                await new BuildCommand(db).ExecuteAsync(new CommandContext(null, "", null, ["build"]), new CompileSettings
+                case "Yes":
                 {
-                    Project = settings.Project
-                }, project);
-            }
-            else if (ask == "No")
-                return 0;
-            else
-            {
-                Log.Info("It's sad to be you...");
-                return -1;
+                    var result = await new BuildCommand(db).ExecuteAsync(new CommandContext(null, "", null, ["build"]), new CompileSettings
+                    {
+                        Project = settings.Project
+                    }, project);
+
+                    if (result != 0)
+                    {
+                        Log.Error($"Compilation failed");
+                        return -1;
+                    }
+
+                    break;
+                }
+                case "No":
+                    return 0;
+                default:
+                    Log.Info("It's sad to be you...");
+                    return -1;
             }
         }
 
@@ -162,6 +171,6 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             envs.Add("VM_PROFILER", "true");
         
 
-        return await new VeinIshtarProxy(tool, [execFile.FullName], project.WorkDir, envs).ExecuteAsync();
+        return await new VeinIshtarProxy(tool, [execFile.FullName.Escapes('\'')], project.WorkDir, envs).ExecuteAsync();
     }
 }

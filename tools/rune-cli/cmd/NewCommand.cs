@@ -17,25 +17,50 @@ public class NewCommandSettings : CommandSettings
 }
 
 [ExcludeFromCodeCoverage]
-public class NewCommand : Command<NewCommandSettings>
+public class NewCommand(ShardRegistryQuery query, ShardProxy shardProxy) : AsyncCommand<NewCommandSettings>
 {
-    public override int Execute(CommandContext context, NewCommandSettings settings)
+    public static ValidationResult ValidateFileName(string fileName)
     {
-        var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
-        var licenses = Resources.Licenses.ReadAllLines();
+        if (fileName.Contains(' '))
+            return ValidationResult.Error("Space symbol is not allowed");
 
-        var name = AnsiConsole.Ask("Project name?", curDir.Name);
-        ask_version:
-        var version = AnsiConsole.Ask("Project version?", "1.0.0.0");
-
-        if (!NuGetVersion.TryParse(version, out _))
+        var fi = default(FileInfo);
+        try
         {
-            AnsiConsole.Markup($"Version [orange]'{version.EscapeMarkup()}'[/] is not valid semver version.");
-            goto ask_version;
+            fi = new FileInfo(fileName);
+        }
+        catch (ArgumentException e)
+        {
+            return ValidationResult.Error(e.Message);
+        }
+        catch (PathTooLongException e)
+        {
+            return ValidationResult.Error(e.Message);
+        }
+        catch (NotSupportedException e)
+        {
+            return ValidationResult.Error(e.Message);
         }
 
-        var author = AnsiConsole.Ask<string>("Enter your name:");
-        var github = AnsiConsole.Ask<string>("Enter your github username:", "");
+        if (!ReferenceEquals(fi, null))
+            return ValidationResult.Success();
+
+        return ValidationResult.Error("unknown invalid");
+    }
+
+
+    public override async Task<int> ExecuteAsync(CommandContext context, NewCommandSettings settings)
+    {
+        var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
+        var srcDir = curDir.SubDirectory("src").Ensure();
+        var licenses = await Resources.Licenses.ReadAllLinesAsync();
+
+        var name = context.Ask("Project name?", curDir.Name, ValidateFileName);
+        var version = context.Ask("Project version?", "1.0.0.0", x => NuGetVersion.TryParse(x, out _));
+
+
+        var author = context.Ask<string>("Enter your name:", x => !string.IsNullOrEmpty(x));
+        var github = AnsiConsole.Ask<string>("Enter your github username:");
         var license = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title("Choose [green]license[/]")
@@ -52,8 +77,8 @@ public class NewCommand : Command<NewCommandSettings>
 
         if (!settings.DryRun)
         {
-            project.Save(curDir.File($"{name}.vproj"));
-            curDir.File("app.vein").WriteAllText(
+            project.Save(srcDir.File($"{name}.vproj"));
+            await srcDir.File("app.vein").WriteAllTextAsync(
                 $"""
                  #space "{name}"
                  #use "std"
@@ -66,9 +91,19 @@ public class NewCommand : Command<NewCommandSettings>
                  {"}"}
                  """
             );
+            var p = VeinProject.LoadFrom(srcDir.File($"{name}.vproj"));
+
+            var installStdResult = await shardProxy.Install(new RunePackageKey("std"), p);
+
+            if (installStdResult != 0)
+            {
+                Log.Warn($"[green]Success[/] created [orange]{name}[/] project, but install std library [red]failed[/].");
+                return 0;
+            }
         }
         Log.Info($"[green]Success[/] created [orange]{name}[/] project.");
 
         return 0;
     }
+
 }
