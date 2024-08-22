@@ -1,0 +1,12 @@
+global using System;
+global using System.ComponentModel;
+global using System.Diagnostics;
+global using System.IO;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using Newtonsoft.Json;
+global using NuGet.Versioning;
+global using Spectre.Console;
+global using Spectre.Console.Cli;
+global using vein.compiler.shared;
+global using vein.project;
