@@ -54,23 +54,24 @@ namespace vein.syntax
                 .Then(x => Parse.Char(';').Token().Return(x));
 
         protected internal virtual Parser<ExpressionSyntax> _shadow_QualifiedExpression =>
-            assignment.Or(non_assignment_expression);
+            assignment.Positioned().Or(non_assignment_expression.Positioned()).Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> QualifiedExpression =>
-            Parse.Ref(() => _shadow_QualifiedExpression);
+            Parse.Ref(() => _shadow_QualifiedExpression.Positioned()).Positioned();
         protected internal virtual Parser<ExpressionSyntax> assignment =>
             (
-                from exp in unary_expression
+                from exp in unary_expression.Positioned()
                 from op in assignment_operator
-                from exp2 in QualifiedExpression
+                from exp2 in QualifiedExpression.Positioned()
                 select new BinaryExpressionSyntax(exp, exp2, op)
             )
+            .Positioned()
             .Or(
-                from exp in unary_expression
+                from exp in unary_expression.Positioned()
                 from op in Parse.String("??=").Text().Token()
-                from exp2 in failable_expression
+                from exp2 in failable_expression.Positioned()
                 select new BinaryExpressionSyntax(exp, exp2, op)
-            );
+            ).Positioned();
 
         protected internal virtual Parser<string> assignment_operator =>
             Parse.String("<<=")
@@ -141,14 +142,14 @@ namespace vein.syntax
             Statement.AtLeastOnce();
 
         protected internal virtual Parser<ExpressionSyntax> conditional_expression =>
-            from operand in null_coalescing_expression
+            from operand in null_coalescing_expression.Positioned()
             from d in Parse.Char('?')
                 .Token()
-                .Then(_ => failable_expression
+                .Then(_ => failable_expression.Positioned()
                     .Then(x => Parse
                         .Char(':')
                         .Token()
-                        .Then(_ => failable_expression
+                        .Then(_ => failable_expression.Positioned()
                             .Select(z => (x, z)))))
                 .Token()
                 .Optional()
@@ -166,43 +167,43 @@ namespace vein.syntax
                 .Select(x => new FailOperationExpression(x));
 
         protected internal virtual Parser<ExpressionSyntax> null_coalescing_expression =>
-            from c in inclusive_or_expression
-            from a in Parse.String("??").Token().Then(_ => null_coalescing_expression.Or(fail_expression)).Optional()
+            from c in inclusive_or_expression.Positioned()
+            from a in Parse.String("??").Token().Then(_ => null_coalescing_expression.Positioned().Or(fail_expression.Positioned())).Positioned().Optional()
             select FlatIfEmptyOrNull(c, a, "??");
 
         protected internal virtual Parser<ExpressionSyntax> inclusive_or_expression =>
-            BinaryExpression(exclusive_or_expression, "|").Positioned();
+            BinaryExpression(exclusive_or_expression.Positioned(), "|").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> exclusive_or_expression =>
-            BinaryExpression(and_expression, "^").Positioned();
+            BinaryExpression(and_expression.Positioned(), "^").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> and_expression =>
-            BinaryExpression(equality_expression, "&").Positioned();
+            BinaryExpression(equality_expression.Positioned(), "&").Positioned();
 
 
         protected internal virtual Parser<ExpressionSyntax> equality_expression =>
-            BinaryExpression(relational_expression, "!=", "==").Positioned();
+            BinaryExpression(relational_expression.Positioned(), "!=", "==").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> relational_expression =>
-            BinaryExpression(shift_expression, ">=", "<=", ">", "<").Positioned();
+            BinaryExpression(shift_expression.Positioned(), ">=", "<=", ">", "<").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> shift_expression =>
-            BinaryExpression(additive_expression, "<<", ">>").Positioned();
+            BinaryExpression(additive_expression.Positioned(), "<<", ">>").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> additive_expression =>
-            BinaryExpression(multiplicative_expression, "+", "-").Positioned();
+            BinaryExpression(multiplicative_expression.Positioned(), "+", "-").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> multiplicative_expression =>
-            BinaryExpression(conditional_or_expression, "*", "/", "%").Positioned();
+            BinaryExpression(conditional_or_expression.Positioned(), "*", "/", "%").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> conditional_or_expression =>
-            BinaryExpression(conditional_and_expression, "||").Positioned();
+            BinaryExpression(conditional_and_expression.Positioned(), "||").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> conditional_and_expression =>
-            BinaryExpression(power_expression, "&&").Positioned();
+            BinaryExpression(power_expression.Positioned(), "&&").Positioned();
 
         protected internal virtual Parser<ExpressionSyntax> power_expression =>
-            BinaryExpression(range_expression, "^^").Positioned();
+            BinaryExpression(range_expression.Positioned(), "^^").Positioned();
         //protected internal virtual Parser<ExpressionSyntax> element_access2 =>
         //    BinaryExpression(element_access, "^^").Positioned();
 
@@ -213,11 +214,11 @@ namespace vein.syntax
             from cb in Parse.Char('}').Token()
             select new InvalidBinaryExpressionSyntax();
 
-        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, string op) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> =>
-            from c in t.Token()
+        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, string op) where T : ExpressionSyntax, IPositionAware<T> =>
+            from c in t.Positioned().Token()
             from data in
                 (from _op in Parse.String(op).Text().Token()
-                 from a in t.Token()
+                 from a in t.Positioned().Token()
                  select (_op, a)).Many()
             select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
 
@@ -229,11 +230,11 @@ namespace vein.syntax
                     select (_op, a)).Many()
             select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
 
-        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, params string[] ops) where T : ExpressionSyntax, IPositionAware<ExpressionSyntax> =>
-            from c in t.Token()
+        private Parser<ExpressionSyntax> BinaryExpression<T>(Parser<T> t, params string[] ops) where T : ExpressionSyntax, IPositionAware<T> =>
+            from c in t.Token().Positioned()
             from data in
                 (from _op in Parse.Regex(ops.Select(x => $"\\{x}").Join("|"), $"operators '{ops.Join(',')}'")
-                 from a in t.Token()
+                 from a in t.Token().Positioned()
                  select (_op, a)).Many()
             select FlatIfEmptyOrNull(c, data.EmptyIfNull().ToArray());
 
