@@ -1,7 +1,5 @@
 namespace vein.cmd;
 
-using System.Diagnostics;
-
 public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, DirectoryInfo baseFolder, Dictionary<string, string> env) : IDisposable
 {
     private readonly Process _process = new()

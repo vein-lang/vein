@@ -1,12 +1,7 @@
 namespace vein.cmd;
 
-using System.ComponentModel;
-using compiler.shared;
 using ishtar;
 using project;
-using Spectre.Console;
-using Spectre.Console.Cli;
-
 
 [ExcludeFromCodeCoverage]
 public class RunSettings : CommandSettings, IProjectSettingProvider
