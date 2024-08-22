@@ -1,14 +1,7 @@
 namespace vein.cmd;
 
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 using compilation;
-using project;
-using Spectre.Console;
-using Spectre.Console.Cli;
 
 public class RestoreCommand : AsyncCommandWithProject<RestoreCommandSettings>
 {

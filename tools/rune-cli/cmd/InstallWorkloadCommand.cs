@@ -1,16 +1,10 @@
 namespace vein.cmd;
 
-using System.ComponentModel;
 using System.Text;
-using System.Threading.Tasks;
 using Expressive;
 using Flurl.Http;
-using NuGet.Versioning;
 using Org.BouncyCastle.Bcpg;
-using project;
 using project.shards;
-using Spectre.Console;
-using Spectre.Console.Cli;
 using styles;
 using vein;
 

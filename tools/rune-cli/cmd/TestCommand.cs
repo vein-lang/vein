@@ -1,9 +1,5 @@
 namespace vein.cmd;
 
-using Spectre.Console.Cli;
-using System.ComponentModel;
-using project;
-
 [ExcludeFromCodeCoverage]
 public class TestCommandSettings : CommandSettings, IProjectSettingProvider
 {
