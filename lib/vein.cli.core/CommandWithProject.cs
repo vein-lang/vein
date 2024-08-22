@@ -8,7 +8,7 @@ public abstract class CommandWithProject<T> : Command<T> where T : CommandSettin
 {
     public sealed override int Execute(CommandContext ctx, T settings)
     {
-        if (settings.Project is null)
+        if (string.IsNullOrEmpty(settings.Project))
         {
             var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
 
@@ -19,13 +19,13 @@ public abstract class CommandWithProject<T> : Command<T> where T : CommandSettin
 
             if (!projects.Any())
             {
-                AnsiConsole.WriteLine($"Project not found in [orange]'{curDir.FullName}'[/] directory.");
+                AnsiConsole.MarkupLine($"Project not found in [orange]'{curDir.FullName}'[/] directory.");
                 return -1;
             }
 
             if (projects.Count() > 1)
             {
-                AnsiConsole.WriteLine($"Multiple project detected.\n");
+                AnsiConsole.MarkupLine($"Multiple project detected.\n");
 
                 foreach (var (item, index) in projects.Select((x, y) => (x, y)))
                     AnsiConsole.MarkupLine($"({index}) [orange]'{item.Name}'[/] in [orange]'{item.Directory.FullName}'[/] directory.");
@@ -48,7 +48,7 @@ public abstract class CommandWithProject<T> : Command<T> where T : CommandSettin
         var name = Path.GetFileName(settings.Project);
         if (!File.Exists(settings.Project))
         {
-            AnsiConsole.WriteLine($"Project [orange]'{name}'[/] not found.\nSearch folder: [orange]'{new FileInfo(settings.Project).FullName}'[/]");
+            AnsiConsole.MarkupLine($"Project [orange]'{name}'[/] not found.\nSearch folder: [orange]'{new FileInfo(settings.Project).FullName}'[/]");
             return -1;
         }
         var project = VeinProject.LoadFrom(new(Path.GetFullPath(settings.Project)));
@@ -57,7 +57,7 @@ public abstract class CommandWithProject<T> : Command<T> where T : CommandSettin
             return Execute(ctx, settings, project);
         if (!project.Sources.Any())
         {
-            AnsiConsole.WriteLine($"Project [orange]'{name}'[/] has empty.");
+            AnsiConsole.MarkupLine($"Project [orange]'{name}'[/] has empty.");
             return -1;
         }
 
