@@ -68,8 +68,9 @@ if (Environment.GetEnvironmentVariable("NO_CONSOLE") is not null)
     AnsiConsole.Console = RawConsole.Create();
 
 var skipIntro =
-    SecurityStorage.HasKey("app:novid") ||
-    Environment.GetEnvironmentVariable("RUNE_NOVID") is not null;
+    SecurityStorage.HasKey("app:novid") || // skip intro when setting is set
+    Environment.GetEnvironmentVariable("RUNE_NOVID") is not null || // skip intro when using 'RUNE_NOVID' env
+    (args.FirstOrDefault()?.Equals("run") ?? false); // skip intro when command is 'run'
 
 var watch = Stopwatch.StartNew();
 
