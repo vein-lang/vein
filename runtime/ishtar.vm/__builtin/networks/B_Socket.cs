@@ -4,6 +4,8 @@ using runtime.gc;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using vein.runtime;
 using static ForeignFunctionInterface;
 using static libuv.LibUV;
@@ -99,6 +101,138 @@ public unsafe struct ishtar_tcp_handle
 
         ishtarHandler->vm->exec_method(frame);
     }
+}
+
+
+public unsafe class S_Socket
+{
+    // temporary
+    private static readonly ConcurrentDictionary<nint, TcpListener> sockets = new();
+    private static readonly ConcurrentDictionary<nint, TcpClient> clients = new();
+
+    private static IshtarObject* socket_init_server_handle(CallFrame* current, IshtarObject** args)
+    {
+        var loop = current->vm->task_scheduler->getLoop();
+        var vault = AppVault.GetVault(current->vm);
+        var socketHandleName = vault.GlobalFindTypeName("[std]::std::SocketHandle");
+        var socketHandle = vault.GlobalFindType(socketHandleName, true, true);
+        var gc = current->GetGC();
+        StaticTypeOf(current, args, VeinTypeCode.TYPE_CLASS);
+
+        var ipEndpoint = new Vein_IpEndpoint(args[0]);
+
+        var handle = current->GetGC()->AllocObject(socketHandle, current);
+        var proxy = new Vein_SocketHandle(handle);
+
+
+        var tcpHandle = gc->AllocateSystemStruct<uv_tcp_t>(current);
+
+        var result = uv_tcp_init(loop, tcpHandle);
+
+
+        var ishtarHandler = gc->AllocateSystemStruct<ishtar_tcp_handle>(current);
+
+
+        ishtarHandler->vm = current->vm;
+        ishtarHandler->socketHandle = tcpHandle;
+        tcpHandle->data = ishtarHandler;
+
+        proxy.server_handle = tcpHandle;
+
+        if (result != OK)
+        {
+            current->ThrowException(KnowTypes.SocketFault(current), $"libuv_err {result}");
+            return null;
+        }
+
+        var addr = ipEndpoint.address;
+
+        var tcpHandler = new TcpListener(new IPAddress([addr.first, addr.second, addr.third, addr.fourth]), ipEndpoint.port);
+
+        if (sockets.TryAdd((nint)tcpHandle, tcpHandler))
+        {
+            current->ThrowException(KnowTypes.SocketFault(current), $"libuv_err {result}");
+            return null;
+        }
+
+        return handle;
+    }
+
+    private static IshtarObject* socket_accept_handle(CallFrame* current, IshtarObject** args)
+    {
+        StaticTypeOf(current, args[0], VeinTypeCode.TYPE_CLASS);
+        StaticTypeOf(current, args[1], VeinTypeCode.TYPE_CLASS);
+        var clientHandle = new Vein_ClientSocketHandle(args[0]);
+        var serverHandle = new Vein_SocketHandle(args[1]);
+
+
+        if (!sockets.TryGetValue((nint)serverHandle.server_handle, out var listener))
+            return current->vm->gc->ToIshtarObject((int)-1, current);
+
+        clients.TryAdd((nint)clientHandle.client_handle, listener.AcceptTcpClient());
+
+        var status = current->vm->gc->ToIshtarObject((int)0, current);
+        return status;
+    }
+
+    private static IshtarObject* tcp_listen_handle(CallFrame* current, IshtarObject** args)
+    {
+        Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+
+        var socketHandlerProxy = new Vein_SocketHandle(args[0]);
+        var nap = args[1]->GetInt32();
+        var caller = args[2];
+        var closure = new Vein_ClosureDelegate(caller);
+
+        Assert(caller != null,
+            WNE.GC_PREFIRED, "[caller] tcp_listen_handle argument invalid", current);
+        Assert(closure.Function != null,
+            WNE.GC_PREFIRED, "[caller] tcp_listen_handle.Function argument invalid", current);
+        Assert(!closure.Function->data.m->IsStatic,
+            closure.Scope != null, WNE.GC_PREFIRED, "closure scope null, but method is not static", current);
+
+        var ishtarHandle = (ishtar_tcp_handle*)socketHandlerProxy.server_handle->data;
+        ishtarHandle->OnConnection_Closure = caller;
+
+        if (!sockets.TryGetValue((nint)socketHandlerProxy.server_handle, out var listener))
+            return current->vm->gc->ToIshtarObject((int)-1, current);
+        
+        new Thread(() => {
+            var err = uv_listen(socketHandlerProxy.server_handle, nap, &ishtar_tcp_handle.OnConnection);
+
+            if (err != OK)
+            {
+                current->ThrowException(KnowTypes.SocketFault(current), $"libuv_err {err}");
+                return;
+            }
+        }).Start();
+
+       // Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+
+        return null;
+    }
+
+    public static void InitTable(ForeignFunctionInterface ffi)
+    {
+        //ffi.Add("socket_receive([std]::std::ClientHandle,[std]::std::Object) -> [std]::std::Int32",
+        //    ffi.AsNative(&socket_receive));
+        //ffi.Add("socket_send([std]::std::ClientHandle,[std]::std::Object) -> [std]::std::Void",
+        //    ffi.AsNative(&socket_send));
+        ffi.Add("socket_tcp_init_handle() -> [std]::std::Raw",
+            ffi.AsNative(&not_implemented));
+        ffi.Add("socket_accept_handle([std]::std::ClientHandle,[std]::std::SocketHandle) -> [std]::std::Int32",
+            ffi.AsNative(&socket_accept_handle));
+        ffi.Add("socket_tcp_bind_handle([std]::std::IpEndpoint) -> [std]::std::SocketHandle",
+            ffi.AsNative(&socket_init_server_handle));
+        ffi.Add("socket_tcp_bind_handle([std]::std::Raw,[std]::std::IpEndpoint) -> [std]::std::Void",
+            ffi.AsNative(&not_implemented));
+        ffi.Add("tcp_listen_handle([std]::std::SocketHandle,[std]::std::Int32,[std]::std::rawOnServerConnection) -> [std]::std::Void",
+            ffi.AsNative(&tcp_listen_handle));
+    }
+    private static IshtarObject* not_implemented(CallFrame* current, IshtarObject** args)
+        => throw new NotSupportedException();
 }
 
 public unsafe class B_Socket

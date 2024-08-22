@@ -11,7 +11,7 @@
     },
     "run tes": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\ls-mi\\.vein\\workloads\\vein.runtime\\0.30.4\\vein-runtime-package\\bin\\tes.wll",
+      "commandLineArgs": "..\\..\\..\\..\\..\\..\\lib\\vein.std\\std\\bin\\std.wll",
       "environmentVariables": {
         "VM_PROFILER": "1"
       }
