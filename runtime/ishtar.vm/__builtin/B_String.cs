@@ -1,20 +1,84 @@
 namespace ishtar
 {
+    using Microsoft.VisualBasic;
     using static vein.runtime.MethodFlags;
     using static vein.runtime.VeinTypeCode;
 
     public static unsafe class B_String
     {
-        public static IshtarObject* not_implemented(CallFrame* current, IshtarObject** args)
+        private static IshtarObject* not_implemented(CallFrame* current, IshtarObject** args)
+            => throw new NotImplementedException();
+        private static IshtarObject* format_1(CallFrame* current, IshtarObject** args)
+            => format(current, args[0], args + 1, 1);
+        private static IshtarObject* format_2(CallFrame* current, IshtarObject** args)
+            => format(current, args[0], args + 1, 2);
+        private static IshtarObject* format_3(CallFrame* current, IshtarObject** args)
+            => format(current, args[0], args + 1, 3);
+        private static IshtarObject* format_4(CallFrame* current, IshtarObject** args)
+            => format(current, args[0], args + 1, 4);
+        private static IshtarObject* format_5(CallFrame* current, IshtarObject** args)
+            => format(current, args[0], args + 1, 5);
+        private static IshtarObject* format_6(CallFrame* current, IshtarObject** args)
+            => format(current, args[0], args + 1, 6);
+
+        private static IshtarObject* format(CallFrame* current, IshtarObject* template, IshtarObject** args, int size)
         {
-            return default;
+            var template_str = template->_class->TypeCode is TYPE_STRING ?
+                IshtarMarshal.ToDotnetString(template, current) :
+                IshtarMarshal.ToDotnetString(IshtarMarshal.ToIshtarString(template, current), current);
+            var strings = new string[size];
+
+            for (int i = 0; i < size; i++) strings[i] = args[i]->_class->TypeCode is TYPE_STRING ?
+                IshtarMarshal.ToDotnetString(args[i], current) :
+                IshtarMarshal.ToDotnetString(IshtarMarshal.ToIshtarString(args[i], current), current);
+
+            return current->vm->gc->ToIshtarObject(string.Format(template_str, strings), current);
         }
 
+        private static IshtarObject* startsWith(CallFrame* current, IshtarObject** args)
+        {
+            var template_str = args[0]->_class->TypeCode is TYPE_STRING ?
+                IshtarMarshal.ToDotnetString(args[0], current) :
+                IshtarMarshal.ToDotnetString(IshtarMarshal.ToIshtarString(args[0], current), current);
+            var target = args[0]->_class->TypeCode is TYPE_STRING ?
+                IshtarMarshal.ToDotnetString(args[1], current) :
+                IshtarMarshal.ToDotnetString(IshtarMarshal.ToIshtarString(args[1], current), current);
+
+            return current->vm->gc->ToIshtarObject(template_str.StartsWith(target), current);
+        }
+        private static IshtarObject* endsWith(CallFrame* current, IshtarObject** args)
+        {
+            var template_str = args[0]->_class->TypeCode is TYPE_STRING ?
+                IshtarMarshal.ToDotnetString(args[0], current) :
+                IshtarMarshal.ToDotnetString(IshtarMarshal.ToIshtarString(args[0], current), current);
+            var target = args[0]->_class->TypeCode is TYPE_STRING ?
+                IshtarMarshal.ToDotnetString(args[1], current) :
+                IshtarMarshal.ToDotnetString(IshtarMarshal.ToIshtarString(args[1], current), current);
+
+            return current->vm->gc->ToIshtarObject(template_str.EndsWith(target), current);
+        }
 
         public static void InitTable(ForeignFunctionInterface ffi)
         {
             ffi.Add("i_call_String_fmt([std]::std::String,[std]::std::Object) -> [std]::std::String",
-                ffi.AsNative(&not_implemented));
+                ffi.AsNative(&format_1));
+            ffi.Add("i_call_String_fmt([std]::std::String,[std]::std::Object,[std]::std::Object) -> [std]::std::String",
+                ffi.AsNative(&format_2));
+            ffi.Add("i_call_String_fmt([std]::std::String,[std]::std::Object,[std]::std::Object,[std]::std::Object) -> [std]::std::String",
+                ffi.AsNative(&format_3));
+            ffi.Add("i_call_String_fmt([std]::std::String,[std]::std::Object,[std]::std::Object,[std]::std::Object,[std]::std::Object) -> [std]::std::String",
+                ffi.AsNative(&format_4));
+            ffi.Add("i_call_String_fmt([std]::std::String,[std]::std::Object,[std]::std::Object,[std]::std::Object,[std]::std::Object,[std]::std::Object) -> [std]::std::String",
+                ffi.AsNative(&format_5));
+            ffi.Add("i_call_String_fmt([std]::std::String,[std]::std::Object,[std]::std::Object,[std]::std::Object,[std]::std::Object,[std]::std::Object,[std]::std::Object) -> [std]::std::String",
+                ffi.AsNative(&format_6));
+
+            ffi.Add("i_call_String_StartsWith([std]::std::String,[std]::std::String) -> [std]::std::Boolean",
+                ffi.AsNative(&startsWith));
+            ffi.Add("i_call_String_EndsWith([std]::std::String,[std]::std::String) -> [std]::std::Boolean",
+                ffi.AsNative(&endsWith));
+
+            //method 'print_any([std]::std::Object) -> [std]::std::Void 
 
             ffi.Add("i_call_String_Concat", Private | Static | Extern, TYPE_STRING,
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
@@ -34,11 +98,6 @@ namespace ishtar
             ffi.Add("i_call_String_Trim_End", Private | Static | Extern, TYPE_STRING,
                     ("v1", TYPE_STRING))
                 ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&TrimEnd)
-                ;
-
-            ffi.Add("i_call_String_fmt", Private | Static | Extern, TYPE_STRING,
-                    ("template", TYPE_STRING), ("array", TYPE_ARRAY))
-                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&Fmt)
                 ;
 
             ffi.Add("i_call_String_Contains", Private | Static | Extern, TYPE_BOOLEAN,
