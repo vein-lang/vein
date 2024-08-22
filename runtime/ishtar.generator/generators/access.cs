@@ -136,6 +136,7 @@ public static class G_Access
     {
         var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
+
         if (access is { Left: IdentifierExpression id, Right: InvocationExpression invoke })
         {
             var flags = gen.GetAccessFlags(id);
@@ -359,6 +360,11 @@ public static class G_Access
 
             return gen;
         }
+
+        //if (access is { Left: IdentifierExpression id3, Right: AccessExpressionSyntax access3 })
+        //{
+        //    gen.EmitAccess()
+        //}
 
         throw new NotSupportedException();
     }

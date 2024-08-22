@@ -81,8 +81,10 @@ public static class G_Types
         return (lt, rt);
     }
 
-    public static VeinClass ExplicitConversion(VeinClass t1, VeinClass t2) =>
+    public static VeinClass ExplicitConversion(VeinClass t1, VeinClass t2)
+    {
         throw new Exception($"ExplicitConversion: {t1?.FullName.NameWithNS} and {t2?.FullName.NameWithNS}");
+    }
 
     public static VeinTypeCode GetTypeCodeFromNumber(NumericLiteralExpressionSyntax number) =>
         number switch
@@ -197,6 +199,11 @@ public static class G_Types
             if (bin.OperatorType.IsLogic())
                 return VeinTypeCode.TYPE_BOOLEAN.AsClass()(Types.Storage);
             var (lt, rt) = bin.Fusce(context);
+
+            var overloaded = context.GetOverloadedOperator(lt, rt, bin.OperatorType);
+
+            if (overloaded is not null)
+                return overloaded.ReturnType;
 
             return lt == rt ? lt : ExplicitConversion(lt, rt);
         }

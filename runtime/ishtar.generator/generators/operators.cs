@@ -10,9 +10,28 @@ using System.Linq;
 using vein;
 using vein.extensions;
 using static G_Access;
+using Expressive;
 
 public static class G_Operators
 {
+    public static VeinMethod? GetOverloadedOperator(this GeneratorContext ctx, VeinClass left, VeinClass right,
+        ExpressionType @operator)
+    {
+        var name = $"op_{@operator}";
+        var args = new[] { (VeinComplexType)left, (VeinComplexType)right };
+
+
+        var method = left.FindMethod(name, args.ToList());
+
+        if (method is null)
+            return null;
+        if (method is { IsSpecial: false } or { IsStatic: false })
+            return null;
+
+        return method;
+    }
+
+
     public static void EmitBinaryExpression(this ILGenerator gen, BinaryExpressionSyntax bin)
     {
         if (bin.OperatorType == ExpressionType.Assign)
@@ -64,7 +83,7 @@ public static class G_Operators
 
             if (method is null)
             {
-                context.LogError($"The operator '[red]{op}[/]' not implemented in '{left_type.FullName}'.", left);
+                context.LogError($"The operator '{op.GetSymbol()} (static {op}({string.Join(',', args.Select(x => x.ToTemplateString()))}))' not implemented in '{left_type.FullName}'.", left);
                 throw new SkipStatementException();
             }
 
