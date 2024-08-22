@@ -41,7 +41,7 @@ public unsafe class ForeignFunctionInterface
 
         B_Out.InitTable(this);
         B_IEEEConsts.InitTable(this);
-        //B_Sys.InitTable(this);
+        B_Sys.InitTable(this);
         B_File.InitTable(this);
         B_String.InitTable(this);
         //B_StringBuilder.InitTable(this);
