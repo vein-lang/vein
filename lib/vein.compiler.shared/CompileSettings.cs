@@ -41,4 +41,8 @@ public class CompileSettings : CommandSettings, IProjectSettingProvider
     [Description("Override generated version")]
     [CommandOption("--override-version", IsHidden = true)]
     public string OverrideVersion { get; set; }
+
+    [Description("Override generated version")]
+    [CommandOption("--display-diagnostic-trace", IsHidden = false)]
+    public bool DisplayDiagnosticTrace { get; set; }
 }

@@ -10,11 +10,6 @@ public class CompileCommand : AsyncCommandWithProject<CompileSettings>
 {
     public override async Task<int> ExecuteAsync(CommandContext ctx, CompileSettings settings, VeinProject project)
     {
-        SentrySdk.Metrics.Increment("command",
-            tags: new Dictionary<string, string> { { "region", "us-west-1" } });
-        throw new NotSupportedException();
-        using var _ = new ScopeMetric("compile").WithProject(project);
-
         Log.Info($"Project [orange]'{project.Name}'[/].");
 
         var targets = await CompilationTask.RunAsync(project.WorkDir, settings);
@@ -36,9 +31,8 @@ public class CompileCommand : AsyncCommandWithProject<CompileSettings>
         foreach (var error in Log.State.errors.Reverse())
         {
             MarkupLine(error.Markup());
-#if DEBUG
-            WriteException(error.DebugStackTrace);
-#endif
+            if (settings.DisplayDiagnosticTrace)
+                WriteException(error.DebugStackTrace);
         }
 
         if (new[] { Log.State.warnings.Count, targets.Sum(x => x.Logs.Warn.Count) }.Sum() > 0)
