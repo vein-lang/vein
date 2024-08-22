@@ -61,12 +61,7 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         return vm;
     }
 
-    private static void on_gc_finalization()
-    {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("on_gc_finalization");
-        Console.ResetColor();
-    }
+    private static void on_gc_finalization() => Console.WriteLine("\u001b[31mon_gc_finalization\u001b[0m");
 
     public void Dispose()
     {

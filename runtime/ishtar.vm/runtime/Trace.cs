@@ -46,19 +46,24 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void debug_stdout_write_line(string s)
+    {
+        if (useConsole)
+        {
+            Console.WriteLine(s);
+            return;
+        }
+#if ISHTAR_DEBUG_CONSOLE
+        IshtarSharedDebugData.StdOutPush(s);
+#endif
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void debug_stdout_write(string s)
     {
         if (useConsole)
         {
-            if (!NoTrace)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-            }
-            Console.WriteLine(s);
-            if (!NoTrace)
-            {
-                Console.ResetColor();
-            }
+            Console.Write(s);
             return;
         }
 #if ISHTAR_DEBUG_CONSOLE
@@ -155,6 +160,8 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
         };
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void console_std_write_line(string s) => debug_stdout_write_line(s);
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void console_std_write(string s) => debug_stdout_write(s);
 }

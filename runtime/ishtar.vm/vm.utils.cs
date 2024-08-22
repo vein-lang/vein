@@ -72,15 +72,13 @@ public unsafe partial struct VirtualMachine
 
     public void halt(int exitCode = -1)
     {
-#if DEBUG
-        trace.log($"exit code is {exitCode}");
+        trace.console_std_write_line($"exit code is {exitCode}");
         if (Config.PressEnterToExit)
         {
-            trace.log("Press ENTER to exit...");
+            trace.console_std_write_line("Press ENTER to exit...");
             while (System.Console.ReadKey().Key != ConsoleKey.Enter)
                 Thread.Sleep(1000);
         }
-#endif
         Environment.Exit(exitCode);
     }
 

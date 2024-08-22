@@ -8,6 +8,7 @@ namespace ishtar
     using static vein.runtime.VeinTypeCode;
     using static WNE;
     using runtime.gc;
+    using runtime.io;
 
 
     // ReSharper disable once TypeParameterCanBeVariant
@@ -534,6 +535,23 @@ namespace ishtar
                 if (x->ArgLength > 0)
                     return false;
                 if (!x->Name.Equals(name))
+                    return false;
+                return true;
+            });
+
+        public RuntimeIshtarMethod* GetSpecialEntryPoint(SlicedString name) =>
+            Methods->FirstOrNull(x => {
+                if (!x->IsStatic)
+                    return false;
+                if (x->IsSpecial)
+                    return false;
+                if (x->IsTypeConstructor)
+                    return false;
+                if (x->ArgLength > 0)
+                    return false;
+                if (x->ReturnType->TypeCode != TYPE_VOID)
+                    return false;
+                if (!name.SlicedStringEquals(x->RawName))
                     return false;
                 return true;
             });

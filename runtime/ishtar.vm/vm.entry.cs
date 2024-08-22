@@ -3,7 +3,6 @@ using ishtar;
 using ishtar.io;
 using vein.fs;
 using vein.runtime;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 unsafe
 {
@@ -51,11 +50,11 @@ unsafe
 
     module->class_table->ForEach(x => x->init_vtable(x->Owner->vm));
     
-    var entry_point = module->GetEntryPoint();
+    var entry_point = module->GetSpecialEntryPoint(vm->Config.EntryPoint);
 
     if (entry_point is null)
     {
-        vm->FastFail(WNE.MISSING_METHOD, $"Entry point in '{module->Name}' module is not defined.", vm->Frames->EntryPoint);
+        vm->FastFail(WNE.MISSING_METHOD, $"Entry point '{vm->Config.EntryPoint.ToString()}' in '{module->Name}' module is not defined.", vm->Frames->EntryPoint);
         return -280;
     }
 

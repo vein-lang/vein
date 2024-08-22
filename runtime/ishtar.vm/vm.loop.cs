@@ -53,7 +53,7 @@ public unsafe partial struct VirtualMachine : IDisposable
             return;
         FastFail(invocation->method is null, ACCESS_VIOLATION, "unexpected call frame method pointer corrupted.", invocation);
         FastFail((invocation->method->Flags & MethodFlags.Abstract) != 0, EXECUTION_CORRUPTED, "unexpected call abstract method", invocation);
-        var tag = Profiler.Begin("vm:exec:begin");
+        var tag = Profiler.Begin($"vm:exec:({invocation->method->RawName})");
 
         if (!@ref->Config.DisableValidationInvocationArgs)
         {

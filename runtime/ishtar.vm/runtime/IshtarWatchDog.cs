@@ -33,14 +33,13 @@ public readonly unsafe struct IshtarWatchDog(VirtualMachine* vm)
             var exception = vm->currentFault;
 
             CallFrame.FillStackTrace(exception->frame);
-            Console.ForegroundColor = ConsoleColor.Red;
-            var err = $"native exception was thrown.\n\t" +
-                      $"[{exception->code}]\n\t" +
+            var err = $"\u001b[31mnative exception was thrown.\n\t" +
+                      $"[\u001b[33m{exception->code}\u001b[31m]\n\t" +
                       $"'{StringStorage.GetStringUnsafe(exception->msg)}'";
             if (exception is not null && exception->frame is not null && !exception->frame->exception.IsDefault())
-                err += $"\n{exception->frame->exception.GetStackTrace()}";
-            vm->println(err);
-            Console.ForegroundColor = ConsoleColor.White;
+                err += $"\n{exception->frame->exception.GetStackTrace()}\u001b[0m";
+            vm->trace.console_std_write_line(err);
+            Console.ResetColor();
             vm->halt();
         }
     }
