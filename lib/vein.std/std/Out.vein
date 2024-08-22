@@ -2,9 +2,27 @@
 
 public static class Out
 {
-    [native("__internal__", "@_println")]
-    public extern static _println(value: Object): Void;
+    [native("__internal__", "print_ln_any")]
+    private extern static print_ln_any(value: Object): Void;
 
-    public static print<Any>(value: Any): Void
-        |> Out._println(value);
+
+    public static print(value: Object): Void
+        |> self.print_ln_any(value);
+}
+
+
+public static class Terminal {
+    [native("__internal__", "print_any")]
+    private extern static print_any(value: Object): Void;
+    public static pipe: TerminalPipe;
+
+    public static white: string = "w";
+    public static red: string = "r";
+}
+
+public class TerminalPipe {
+    [special]
+    public static op_Or(pipe: TerminalPipe, data: String): String {
+        return data;
+    }
 }

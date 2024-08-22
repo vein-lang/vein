@@ -1,0 +1,12 @@
+#space "std"
+
+
+internal class TestEntry {
+    public static fixture(): void {
+        StringTest.formatTest();
+        StringTest.startsWithTest();
+        StringTest.endsWithTest();
+        StringTest.containsTest();
+        StringTest.equalTest();
+    }
+}

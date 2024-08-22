@@ -16,10 +16,6 @@ public static class GC
 
     public static allocate_u8(len: i32): Span<u8> {
         auto size = sizeof<u8>();
-        Out.print("sizeof<u8>");
-        Out.print(size);
-        Out.print("len: i32");
-        Out.print(len);
         auto span = new Span<u8>(len, size);
         self.alloc_block(span);
         return span;

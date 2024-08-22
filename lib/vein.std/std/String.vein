@@ -15,10 +15,10 @@ public class String : Object
 
     [special]
     public static op_Add(v1: string, v2: string): string
-        |> self.Concat(v1, v2);
+        |> self.i_call_String_Concat(v1, v2);
     [special]
     public static op_Add(v1: string, v2: i32): string
-        |> self.Concat(v1, v2.toString());
+        |> self.i_call_String_Concat(v1, v2.toString());
 
     [special]
     public static op_NotEqual(v1: string, v2: string): bool
@@ -26,36 +26,44 @@ public class String : Object
 
     [special]
     public static op_Equal(v1: string, v2: string): bool
-        |> self.Equal(v1, v2);
+        |> self.i_call_String_Equal(v1, v2);
 
+    public static equal(v1: string, v2: string): bool 
+        |> v1 == v2;
 
-    // temporary using vm_bridge, todo: rework to using vein-code
+    public static contains(v1: string, v2: string): bool 
+        |> self.i_call_String_Contains(v1, v2);
+
+    public static endsWith(v1: string, v2: string): bool 
+        |> self.i_call_String_EndsWith(v1, v2);
+
+    public static startsWith(v1: string, v2: string): bool 
+        |> self.i_call_String_StartsWith(v1, v2);
+
+    [native("__internal__", "i_call_String_StartsWith")]
+    private extern static i_call_String_StartsWith(v1: string, v2: string): bool;
+    [native("__internal__", "i_call_String_EndsWith")]
+    private extern static i_call_String_EndsWith(v1: string, v2: string): bool;
+    [native("__internal__", "i_call_String_Contains")]
+    private extern static i_call_String_Contains(v1: string, v2: string): bool;
     [native("__internal__", "i_call_String_Concat")]
-    private extern static Concat(v1: string, v2: string): string;
-    // temporary using vm_bridge, todo: rework to using vein-code
+    private extern static i_call_String_Concat(v1: string, v2: string): string;
     [native("__internal__", "i_call_String_Equal")]
-    private extern static Equal(v1: string, v2: string): bool;
+    private extern static i_call_String_Equal(v1: string, v2: string): bool;
 
-
-    public static format(template: string, o1: Object): string
-    {
-        return self._fmt(template, new Object[1] { o1 });
-    }
-    public static format(template: string, o1: Object, o2: Object): string
-    {
-        return self._fmt(template, new Object[2] { o1, o2 });
-    }
-    public static format(template: string, o1: Object, o2: Object, o3: Object): string
-    {
-        return self._fmt(template,  new Object[3] { o1, o2, o3 });
-    }
-    public static format<any>(template: string, arr: Array<any>): string
-    {
-        return self._fmt(template, arr);
-    }
-
-    // temporary using vm_bridge, todo: rework to using vein-code
     [native("__internal__", "i_call_String_fmt")]
-    private static extern _fmt(t: string, arr: Object): string;
-
+    public static extern format(t: string, o1: Object): string;
+    [native("__internal__", "i_call_String_fmt")]
+    public static extern format(t: string, o1: Object, o2: Object): string;
+    [native("__internal__", "i_call_String_fmt")]
+    public static extern format(t: string, o1: Object, o2: Object, o3: Object): string;
+    [native("__internal__", "i_call_String_fmt")]
+    public static extern format(t: string, o1: Object, o2: Object, o3: Object, o4: Object): string;
+    [native("__internal__", "i_call_String_fmt")]
+    public static extern format(t: string, o1: Object, o2: Object, o3: Object, o4: Object, o5: Object): string;
+    [native("__internal__", "i_call_String_fmt")]
+    public static extern format(t: string, o1: Object, o2: Object, o3: Object, o4: Object, o5: Object, o6: Object): string;
 }
+
+
+global alias string <| String;

@@ -6,13 +6,15 @@ public class Testable : SocketServer
 
     public static master(): Void
     {
+        /*Out.print("xuita");
+
         auto t = new Testable();
 
         t.start(new IpEndpoint(new Ipv4Addr(as<u8>(127),as<u8>(0),as<u8>(0),as<u8>(1)), as<u16>(7283)));
 
         while(true) {
             Thread.Sleep(100000);
-        }
+        }*/
     }
 
 

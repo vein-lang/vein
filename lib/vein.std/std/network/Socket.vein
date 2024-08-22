@@ -1,0 +1,31 @@
+#space "std"
+
+
+public class Socket {
+    /*private _family: i32;
+    private _streamKind: i32;
+    private _protocol: i32;
+    private _addr: IpEndpoint;
+
+    private new(family: i32, streamKind: i32, protocol: i32) {
+        this._family = family;
+        this._streamKind = streamKind;
+        this._protocol = protocol;
+    }
+
+
+    public listen(addr: IpEndpoint, mttu: i32): bool {
+        this._addr = addr;
+        auto bind = self.socket_bind(this, _addr);
+        if (!bind) {
+            return false;
+        }
+        return self.socket_listen(this, mttu);
+    }
+
+    public accept(fn: SocketBeginAccept): bool {
+        return self.socket_accept(this, fn);
+    }*/
+}
+
+global alias SocketBeginAccept <| (sr: Socket): void;
