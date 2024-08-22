@@ -169,6 +169,12 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             envs.Add("VM_PROFILER", "true");
         
 
-        return await new VeinIshtarProxy(tool, [execFile.FullName.Escapes('\'')], project.WorkDir, envs).ExecuteAsync();
+        var ishtarExitCode = await new VeinIshtarProxy(tool, [execFile.FullName.Escapes('\"')], project.WorkDir, envs).ExecuteAsync();
+        AnsiConsole.WriteLine();
+        AnsiConsole.Write(ishtarExitCode != 0
+            ? new Rule($"[red bold]RUN FAILED[/]") { Style = Style.Parse("deeppink3 rapidblink") }
+            : new Rule($"[green bold]RUN SUCCESS[/]") { Style = Style.Parse("lime rapidblink") });
+
+        return ishtarExitCode;
     }
 }
