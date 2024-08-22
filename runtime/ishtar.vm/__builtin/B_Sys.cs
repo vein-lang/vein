@@ -33,8 +33,14 @@ public static unsafe class B_Sys
     public static IshtarObject* QueryPerformanceCounter(CallFrame* current, IshtarObject** _)
         => current->GetGC()->ToIshtarObject(Stopwatch.GetTimestamp(), current);
 
+
+    public static IshtarObject* get_top_frame_name(CallFrame* current, IshtarObject** _)
+        => current->GetGC()->ToIshtarObject(current->parent->parent->method->Name, current);
+
     public static void InitTable(ForeignFunctionInterface ffi)
     {
+        ffi.Add("get_top_frame_name() -> [std]::std::String", ffi.AsNative(&get_top_frame_name));
+
         //ffi.Add(ffi.vm->CreateInternalMethod("@value2string", Public | Static | Extern,
         //        new VeinArgumentRef("value", ffi.vm->Types->ValueTypeClass))
         //    ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&ValueToString));
