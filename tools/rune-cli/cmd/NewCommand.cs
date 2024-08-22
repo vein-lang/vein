@@ -1,12 +1,6 @@
 namespace vein.cmd;
 
 using resources;
-using Spectre.Console;
-using Spectre.Console.Cli;
-using System.ComponentModel;
-using System.IO;
-using NuGet.Versioning;
-using project;
 
 [ExcludeFromCodeCoverage]
 public class NewCommandSettings : CommandSettings

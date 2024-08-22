@@ -1,8 +1,5 @@
 namespace vein.cmd;
 
-using compiler.shared;
-using project;
-using Spectre.Console.Cli;
 using vein.project.shards;
 
 [ExcludeFromCodeCoverage]

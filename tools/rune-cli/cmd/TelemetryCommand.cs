@@ -1,8 +1,5 @@
 namespace vein.cmd;
 
-using Spectre.Console;
-using Spectre.Console.Cli;
-
 public class TelemetryCommand : Command
 {
     public override int Execute(CommandContext context)

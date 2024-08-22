@@ -6,6 +6,10 @@
     "install workload with manifest": {
       "commandName": "Project",
       "commandLineArgs": "workload install vein.runtime"
+    },
+    "run": {
+      "commandName": "Project",
+      "commandLineArgs": "run ..\\..\\..\\..\\..\\lib\\vein.std\\std\\std.vproj --sva"
     }
   }
 }

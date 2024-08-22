@@ -1,8 +1,5 @@
 namespace vein.cmd;
 
-using System.Diagnostics;
-using Spectre.Console;
-
 public class VeinCompilerProxy(FileInfo compilerPath, IEnumerable<string> args) : IDisposable
 {
     private readonly Process _process = new()

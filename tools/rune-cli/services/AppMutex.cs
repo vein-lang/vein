@@ -1,8 +1,5 @@
 namespace vein.services;
 
-using System.Diagnostics;
-using Spectre.Console;
-
 public static class AppMutex
 {
     private static FileInfo LockFile => SecurityStorage.RootFolder.File(".lock");

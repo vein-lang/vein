@@ -1,8 +1,5 @@
 namespace vein.cmd;
 
-using Spectre.Console;
-using Spectre.Console.Cli;
-
 public static class CommandEx
 {
     public static T Ask<T>(this CommandContext cmd, string prompt, T defaultValue, Func<T, ValidationResult>? validator) 

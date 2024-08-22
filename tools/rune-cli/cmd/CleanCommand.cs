@@ -1,10 +1,6 @@
 namespace vein.cmd;
 
-using System.IO;
-using System.Linq;
 using MoreLinq;
-using project;
-using Spectre.Console.Cli;
 using vein.extensions;
 
 

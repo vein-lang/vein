@@ -1,8 +1,5 @@
 namespace vein;
 
-using System.Diagnostics;
-using project;
-
 public class ScopeMetric(string metricName) : IDisposable
 {
     internal readonly Dictionary<string, string> data = new();

@@ -1,13 +1,5 @@
 namespace vein.cmd;
 
-using System;
-using System.ComponentModel;
-using System.Threading.Tasks;
-using NuGet.Versioning;
-using project;
-using Spectre.Console;
-using Spectre.Console.Cli;
-
 public class PublishCommand : AsyncCommandWithProject<PublishCommandSettings>
 {
     public static readonly Uri VEIN_GALLERY = new("https://api.vein-lang.org/");

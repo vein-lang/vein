@@ -1,10 +1,5 @@
 namespace vein.cmd;
 
-using System.ComponentModel;
-using Newtonsoft.Json;
-using project;
-using Spectre.Console;
-using Spectre.Console.Cli;
 using styles;
 
 [ExcludeFromCodeCoverage]

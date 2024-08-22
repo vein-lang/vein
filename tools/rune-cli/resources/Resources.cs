@@ -1,8 +1,5 @@
 namespace vein.resources;
 
-using System;
-using System.IO;
-
 public class Resources
 {
     public static FileInfo Font => new FileInfo($"{AppDomain.CurrentDomain.BaseDirectory}/resources/isometric1.flf");

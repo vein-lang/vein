@@ -1,10 +1,6 @@
 namespace vein.cmd;
 
-using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-using Spectre.Console;
-using Spectre.Console.Cli;
 using static UninstallWorkloadCommand;
 
 [ExcludeFromCodeCoverage]

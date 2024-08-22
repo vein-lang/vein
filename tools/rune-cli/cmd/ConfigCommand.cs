@@ -1,8 +1,5 @@
 namespace vein.cmd;
 
-using Spectre.Console.Cli;
-using System.ComponentModel;
-
 [ExcludeFromCodeCoverage]
 public class SetConfigCommandSettings : CommandSettings
 {

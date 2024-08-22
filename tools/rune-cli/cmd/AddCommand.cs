@@ -1,13 +1,6 @@
 namespace vein.cmd;
 
 using System.Collections.Generic;
-using project;
-using Spectre.Console.Cli;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
-using Spectre.Console;
-
 
 [ExcludeFromCodeCoverage]
 public class AddCommand(ShardRegistryQuery query) : AsyncCommandWithProject<AddCommandSettings>

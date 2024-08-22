@@ -1,8 +1,6 @@
 namespace vein;
 
 using collections;
-using Newtonsoft.Json;
-using project;
 
 public class NotFoundToolException(string tool, PackageKey key) : Exception($"Tool '{tool}' not found in '{key.key}', maybe not installed package?");
 

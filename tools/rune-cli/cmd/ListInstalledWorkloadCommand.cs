@@ -1,9 +1,5 @@
 namespace vein.cmd;
 
-using project;
-using Spectre.Console;
-using Spectre.Console.Cli;
-
 [ExcludeFromCodeCoverage]
 public class ListInstalledWorkloadCommand(ShardStorage storage) : AsyncCommandWithProgress<ListInstalledWorkloadCommand.ListWorkloadCommandSettings>
 {
