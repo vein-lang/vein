@@ -596,7 +596,9 @@ namespace ishtar
                 return true;
             return false;
         }
-        
+
+        internal void replace_owner(RuntimeIshtarModule* module) => Owner = module;
+
         public static bool Eq(RuntimeIshtarClass* p1, RuntimeIshtarClass* p2) => RuntimeQualityTypeName.Eq(p1->FullName, p2->FullName);
     }
 }

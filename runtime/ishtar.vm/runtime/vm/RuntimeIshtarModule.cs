@@ -7,13 +7,12 @@ using gc;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using io;
 using vein.exceptions;
 using vein.extensions;
 using vein.reflection;
 using vein.runtime;
 using static StringStorage;
-using ishtar.emit.extensions;
-using vein;
 
 [CTypeExport("ishtar_module_t")]
 public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIshtarModule* self, IshtarVersion version)
@@ -23,6 +22,8 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     public WeakRef<AppVault>* Vault { get; private set; } = WeakRef<AppVault>.Create(vault, self);
     public VirtualMachine* vm => Vault->Value.vm;
     public uint ID { get; internal set; }
+
+    public bool IsPredefined { get; init; }
 
     public IshtarVersion Version { get; private set; } = version;
 
@@ -259,6 +260,16 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         return clazz->GetSpecialEntryPoint(name);
     }
 
+    public RuntimeIshtarMethod* GetSpecialEntryPoint(SlicedString name)
+    {
+        var clazz = class_table->FirstOrNull(x => x->GetSpecialEntryPoint(name) is not null);
+
+        if (clazz is null)
+            return null;
+
+        return clazz->GetSpecialEntryPoint(name);
+    }
+
     public static RuntimeIshtarModule* Read(AppVault vault, byte[] arr, NativeList<RuntimeIshtarModule>* deps, ModuleResolverCallback resolver)
     {
         using var tag = Profiler.Begin("vm:module:read");
@@ -433,6 +444,10 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         });
 
         module->class_table->ForEach(@class => {
+            // fix case when calling predefined method
+            if (@class->Owner->IsPredefined && @class->Owner->Name.Equals(module->Name))
+                @class->replace_owner(module);
+
             @class->Methods->ForEach(method => {
                 if (!method->ReturnType->IsUnresolved)
                     return;
