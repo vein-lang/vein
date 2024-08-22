@@ -86,7 +86,10 @@ public readonly unsafe struct IshtarTypes(
         var module = IshtarGC.AllocateImmortal<RuntimeIshtarModule>(vault.vm->InternalModule);
 
 
-        *module = new RuntimeIshtarModule(vault, "std", module, new IshtarVersion(0, 0));
+        *module = new RuntimeIshtarModule(vault, "std", module, new IshtarVersion(0, 0))
+        {
+            IsPredefined = true
+        };
 
 
 
