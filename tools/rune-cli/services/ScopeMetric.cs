@@ -20,7 +20,6 @@ public class ScopeMetric(string metricName) : IDisposable
     public static ScopeMetric Begin(string name) => new ScopeMetric(name);
 }
 
-
 public static class ScopeMetricExtensions
 {
     public static ScopeMetric WithProject(this ScopeMetric metric, VeinProject project)

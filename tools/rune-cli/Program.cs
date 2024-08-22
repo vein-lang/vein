@@ -70,7 +70,6 @@ SentrySdk.ConfigureScope(scope => {
     scope.SetTag("app.branch", BranchName);
     scope.SetTag("app.sha", ShortSha);
 });
-SentrySdk.CaptureMessage("Something went wrong");
 if (Environment.GetEnvironmentVariable("NO_CONSOLE") is not null)
     AnsiConsole.Console = RawConsole.Create();
 
@@ -95,14 +94,13 @@ if (!skipIntro)
 AppFlags.RegisterArgs(ref args);
 
 await Host.CreateDefaultBuilder(args)
-    .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.None))
+    .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.None)).UseConsoleLifetime()
     .ConfigureAppConfiguration(x => x.AddTomlFile(ShardStorage.VeinRootFolder.File("rune.toml").FullName, true))
-    .UseConsoleLifetime()
     .UseSpectreConsole(config => {
-        config.Settings.ApplicationVersion
-        = $"Vein Rune CLI {AssemblySemFileVer}\nBranch: {BranchName}+{ShortSha}\nCall rune workloads list for view installed workloads and other version";
         config.AddCommand<RunCommand>("run")
             .WithDescription("Run project");
+        config.AddCommand<TestCommand>("test")
+            .WithDescription("Run test in project");
         config.AddCommand<NewCommand>("new")
             .WithDescription("Create new project.");
         config.AddCommand<BuildCommand>("build")
@@ -123,6 +121,7 @@ await Host.CreateDefaultBuilder(args)
             .IsHidden();
         config.AddBranch("workload", x =>
         {
+            x.SetDescription("Manage vein workloads");
             x.AddCommand<ListInstalledWorkloadCommand>("list")
                 .WithDescription($"Get list of installed workloads");
             x.AddCommand<InstallWorkloadCommand>("install")
@@ -140,7 +139,7 @@ await Host.CreateDefaultBuilder(args)
             x.AddCommand<UninstallWorkloadCommand>("remove")
                 .IsHidden()
                 .WithDescription("Uninstall workload.");
-        });
+        }).WithAlias("workloads");
         config.AddBranch("config", x =>
         {
             x.AddCommand<SetConfigCommand>("set")
@@ -161,7 +160,7 @@ await Host.CreateDefaultBuilder(args)
 
             if (Environment.GetEnvironmentVariable("RUNE_EXCEPTION_SHOW") is not null)
                 WriteException(ex);
-            File.WriteAllText($"rune-error-{DateTimeOffset.Now:s}.txt", ex.ToString());
+            File.WriteAllText($"rune-error-{DateTimeOffset.Now:yyyy-dd-M--HH-mm-ss}.txt", ex.ToString());
         });
     })
     .ConfigureServices(
@@ -172,6 +171,7 @@ await Host.CreateDefaultBuilder(args)
                     new(ctx.Configuration.GetValue("galleryUrl", "https://api.vein-lang.org/")!))
                 .WithStorage(x.GetRequiredService<ShardStorage>()));
             services.AddSingleton<WorkloadDb>();
+            services.AddSingleton<ShardProxy>();
         })
     .RunConsoleAsync();
 
