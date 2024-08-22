@@ -2,6 +2,7 @@ namespace vein.cmd;
 
 using System.ComponentModel;
 using compiler.shared;
+using ishtar;
 using project;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -35,6 +36,10 @@ public class RunSettings : CommandSettings, IProjectSettingProvider
     [Description("User defer jit context")]
     [CommandOption("--jit-defer")]
     public bool JitContextDeffer { get; set; } = true;
+
+    [Description("Override entry point method name (only static method, without arguments)")]
+    [CommandOption("--entry-point", IsHidden = true)]
+    public string EntryPoint { get; set; } = "master";
 }
 
 [ExcludeFromCodeCoverage]
@@ -48,6 +53,7 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
         use_console=true
         no_trace={TraceEnable}
         skip_validate_stf_type={SkipValidateStfTypeOpCode}
+        entry_point="{EntryPoint}"
         
         [vm:jit]
         enable=true
@@ -112,11 +118,12 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
         }
 
         var boot_config_data = bootCfg
-            .Replace($"{{{nameof(settings.TraceEnable)}}}", settings.TraceEnable.ToString().ToLowerInvariant())
+            .Replace($"{{{nameof(settings.TraceEnable)}}}", (!settings.TraceEnable).ToString().ToLowerInvariant())
             .Replace($"{{{nameof(settings.SkipValidateArgs)}}}", settings.SkipValidateArgs.ToString().ToLowerInvariant())
             .Replace($"{{{nameof(settings.SkipValidateStfTypeOpCode)}}}", settings.SkipValidateStfTypeOpCode.ToString().ToLowerInvariant())
+            .Replace($"{{{nameof(settings.EntryPoint)}}}", settings.EntryPoint)
             .Replace($"{{{nameof(settings.JitContextDeffer)}}}", settings.JitContextDeffer.ToString().ToLowerInvariant());
-
+        
         if (!string.IsNullOrEmpty(settings.OverrideBootCfg))
         {
             var fullyPath = "";
