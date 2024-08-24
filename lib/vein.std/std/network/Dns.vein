@@ -2,12 +2,26 @@
 
 
 public static class Dns {
+    public static resolve(domain: string): DomainDetails {
+        auto result = new DomainDetails(new Ipv4Addr(as<u8>(0),as<u8>(0),as<u8>(0),as<u8>(0)), domain);
+
+        self._resolve(domain, result);
+
+        return result;
+    }
     [native("__internal__", "_dns_query_domain_details")]
-    extern static resolveAsync(domain: string): Job<DomainDetails>;
+    private extern static _resolve(domain: string, data: DomainDetails): void;
 }
 
 
 public class DomainDetails {
     public ipv4: Ipv4Addr;
     public hostname: string;
+
+    new(ip: Ipv4Addr, h: string) {
+        this.ipv4 = ip;
+        this.hostname = h;
+    }
 }
+
+public class InvalidDomainException : Exception {}
