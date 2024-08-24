@@ -1,29 +1,5 @@
 namespace ishtar;
 
-using __builtin.networks;
-using static libuv.LibUV;
-
-public readonly unsafe struct Vein_SocketHandle(IshtarObject* o)
-{
-    public uv_tcp_t* server_handle
-    {
-        get => (uv_tcp_t*)o->vtable[o->clazz->Field["server_handle"]->vtable_offset];
-        set => o->vtable[o->clazz->Field["server_handle"]->vtable_offset] = value;
-    }
-}
-
-
-public readonly unsafe struct Vein_ClientSocketHandle(IshtarObject* o)
-{
-    public uv_tcp_t* client_handle
-    {
-        get => (uv_tcp_t*)o->vtable[o->clazz->Field[nameof(client_handle)]->vtable_offset];
-        set => o->vtable[o->clazz->Field[nameof(client_handle)]->vtable_offset] = value;
-    }
-
-    public ishtar_client_tcp_handle* IshtarHandle => (ishtar_client_tcp_handle*)client_handle->data;
-}
-
 public readonly unsafe struct Vein_Span_u8(IshtarObject* o)
 {
     /* private _ptr: raw;
