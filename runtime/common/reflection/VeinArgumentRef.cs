@@ -27,6 +27,7 @@ public class VeinArgumentRef(string name, VeinComplexType complexType)
     public bool IsThis => Name.Equals(THIS_ARGUMENT);
 
     public string ToTemplateString() => ComplexType!.ToTemplateString();
+    public string ToShortTemplateString() => ComplexType!.ToShortTemplateString();
 
 
     public static VeinArgumentRef Create(VeinCore types, (string name, VeinTypeCode code) data)

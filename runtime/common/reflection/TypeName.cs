@@ -72,6 +72,19 @@ public record struct NamespaceSymbol(string @namespace)
 {
     public static NamespaceSymbol Std = new("std");
     public static NamespaceSymbol Internal = new("@internal");
+
+
+    public bool IsMatched(IEnumerable<NamespaceSymbol> includes)
+        => includes.Any(IsNamespaceMatched);
+    private bool IsNamespaceMatched(NamespaceSymbol include)
+    {
+        var namespaceParts = this.@namespace.Split(QualityTypeName.NAME_DIVIDER);
+        var includeParts = include.@namespace.Split(QualityTypeName.NAME_DIVIDER);
+
+        if (includeParts.Length > namespaceParts.Length)
+            return false;
+        return !includeParts.Where((t, i) => !t.Equals(namespaceParts[i], StringComparison.Ordinal)).Any();
+    }
 }
 
 public record struct ModuleNameSymbol(string moduleName)

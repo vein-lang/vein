@@ -19,14 +19,14 @@ namespace vein.runtime
         internal VeinModule(ModuleNameSymbol name, VeinCore types) => (Name, Types) = (name, types);
         internal VeinModule(ModuleNameSymbol name, Version ver, VeinCore types) => (Name, Version, Types) = (name, ver, types);
 
-        protected internal List<Aspect> aspects { get; } = new();
-        protected internal ConstStorage const_table { get; set; } = new();
-        protected internal readonly List<VeinClass> class_table = new();
-        protected internal readonly List<VeinAlias> alias_table = new();
-        protected internal readonly Dictionary<int, string> strings_table = new();
-        protected internal readonly Dictionary<int, QualityTypeName> types_table = new();
-        protected internal readonly Dictionary<int, VeinTypeArg> generics_table = new();
-        protected internal readonly Dictionary<int, FieldName> fields_table = new();
+        public List<Aspect> aspects { get; } = new();
+        public ConstStorage const_table { get; set; } = new();
+        public readonly List<VeinClass> class_table = new();
+        public readonly List<VeinAlias> alias_table = new();
+        public readonly Dictionary<int, string> strings_table = new();
+        public readonly Dictionary<int, QualityTypeName> types_table = new();
+        public readonly Dictionary<int, VeinTypeArg> generics_table = new();
+        public readonly Dictionary<int, FieldName> fields_table = new();
         
         public string GetConstStringByIndex(int index) =>
             strings_table.GetValueOrDefault(index) ??

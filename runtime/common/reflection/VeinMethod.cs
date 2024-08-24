@@ -56,6 +56,10 @@ public record VeinComplexType
         _typeArg.ToTemplateString() :
         _class.FullName.ToString();
 
+    public string ToShortTemplateString() => IsGeneric ?
+        _typeArg.ToTemplateString() :
+        _class.Name.ToString();
+
     public virtual bool Equals(VeinComplexType other)
     {
         if (other is null) return false;
