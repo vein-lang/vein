@@ -40,6 +40,15 @@ public class String : Object
     public static startsWith(v1: string, v2: string): bool 
         |> self.i_call_String_StartsWith(v1, v2);
 
+    public static getSize(v1: string, encoding: i32): i32
+        |> self.i_call_String_getSize(v1, encoding);
+
+    public static copyTo(v1: string, buffer: Span<u8>, encoding: i32): void
+        |> self.i_call_String_copyTo(v1, buffer, encoding);
+
+    public static createFrom(buffer: Span<u8>, encoding: i32): void
+        |> self.i_call_String_createFrom(buffer, encoding);
+
     [native("__internal__", "i_call_String_StartsWith")]
     private extern static i_call_String_StartsWith(v1: string, v2: string): bool;
     [native("__internal__", "i_call_String_EndsWith")]
@@ -50,6 +59,13 @@ public class String : Object
     private extern static i_call_String_Concat(v1: string, v2: string): string;
     [native("__internal__", "i_call_String_Equal")]
     private extern static i_call_String_Equal(v1: string, v2: string): bool;
+
+    [native("__internal__", "i_call_String_getSize")]
+    private extern static i_call_String_getSize(v1: string, encoding: i32): i32;
+    [native("__internal__", "i_call_String_copyTo")]
+    private extern static i_call_String_copyTo(v1: string, buffer: Span<u8>, encoding: i32): void;
+    [native("__internal__", "i_call_String_createFrom")]
+    private extern static i_call_String_createFrom(buffer: Span<u8>, encoding: i32): void;
 
     [native("__internal__", "i_call_String_fmt")]
     public static extern format(t: string, o1: Object): string;
