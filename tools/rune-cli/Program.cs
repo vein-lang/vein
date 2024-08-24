@@ -22,7 +22,6 @@ using Sentry.Profiling;
 [assembly: InternalsVisibleTo("veinc_test")]
 
 
-
 await AppMutex.Begin();
 JsonConvert.DefaultSettings = () => new JsonSerializerSettings
 {
@@ -70,7 +69,8 @@ if (Environment.GetEnvironmentVariable("NO_CONSOLE") is not null)
 var skipIntro =
     SecurityStorage.HasKey("app:novid") || // skip intro when setting is set
     Environment.GetEnvironmentVariable("RUNE_NOVID") is not null || // skip intro when using 'RUNE_NOVID' env
-    (args.FirstOrDefault()?.Equals("run") ?? false); // skip intro when command is 'run'
+    (args.FirstOrDefault()?.Equals("run") ?? false) || // skip intro when command is 'run'
+    (args.FirstOrDefault()?.Equals("sys") ?? false);
 
 var watch = Stopwatch.StartNew();
 
@@ -148,6 +148,13 @@ await Host.CreateDefaultBuilder(args)
                 .WithDescription("Get all keys.");
             x.AddCommand<RemoveConfigCommand>("remove")
                 .WithDescription("Remove key from global config.");
+        });
+
+        config.AddBranch("sys", x =>
+        {
+            x.HideBranch();
+            x.AddCommand<WorkloadGetTool>("get-tool")
+                .IsHidden();
         });
 
         config.SetExceptionHandler((ex) => {
