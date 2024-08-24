@@ -11,14 +11,14 @@ public partial class VeinSyntax
 
     internal virtual Parser<DirectiveSyntax> UseSyntax =>
         (from start in DirectiveDeclarator(DirectiveType.Use)
-            from str in StringLiteralExpression.Token()
+            from str in StringLiteralExpression.Positioned().Token()
             select new UseSyntax
             {
                 Value = str
             }).Token().Named("use directive").Positioned();
     internal virtual Parser<DirectiveSyntax> SpaceSyntax =>
         (from start in DirectiveDeclarator(DirectiveType.Space)
-            from str in StringLiteralExpression.Token()
+            from str in StringLiteralExpression.Positioned().Token()
             select new SpaceSyntax
             {
                 Value = str
