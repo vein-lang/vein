@@ -15,6 +15,14 @@
     <ProjectReference Include="..\..\lib\version\version.csproj" />
     <ProjectReference Include="..\..\runtime\ishtar.generator\ishtar.generator.csproj" />
     <ProjectReference Include="..\..\lib\projectsystem\vein.project.csproj" />
+
+
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="StreamJsonRpc" Version="2.18.48" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="System.Diagnostics.CodeAnalysis" />

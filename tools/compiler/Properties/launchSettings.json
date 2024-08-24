@@ -24,6 +24,10 @@
       "commandName": "Project",
       "commandLineArgs": "build",
       "workingDirectory": "C:\\Users\\ls-mi\\.vein\\te"
+    },
+    "run lsp": {
+      "commandName": "Project",
+      "commandLineArgs": "lsp --port 7777"
     }
   }
 }
