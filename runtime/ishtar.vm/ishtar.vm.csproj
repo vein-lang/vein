@@ -80,7 +80,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="FFI\generated\" />
     <Folder Include="runtime\io\ini\" />
   </ItemGroup>
 

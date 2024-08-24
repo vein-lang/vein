@@ -13,6 +13,7 @@ public static unsafe partial class KnowTypes
     public static QualityTypeName NullPointerExceptionTypeName = create("std", "NullPointerException", "std");
     public static QualityTypeName IncorrectCastFaultTypeName = create("std", "IncorrectCastFault", "std");
     public static QualityTypeName SocketFaultTypeName = create("std", "SocketFault", "std");
+    public static QualityTypeName InvalidDomainExceptionTypeName = create("std", "InvalidDomainException", "std");
     public static QualityTypeName FreeImmortalObjectFaultTypeName =
         create("std", nameof(FreeImmortalObjectFault), "std");
     public static QualityTypeName TypeNotFoundFaultTypeName =
@@ -23,7 +24,7 @@ public static unsafe partial class KnowTypes
         create("std", nameof(PlatformIsNotSupportFault), "std");
     public static QualityTypeName IshtarFault = create("std", nameof(IshtarFault), "std");
 
-
+    
     private static QualityTypeName create(string @module, string name, string @namespace)
         => new QualityTypeName(new NameSymbol(name), new NamespaceSymbol(@namespace), new ModuleNameSymbol(module));
 
@@ -50,6 +51,9 @@ public static unsafe partial class KnowTypes
 
     public static RuntimeIshtarClass* SocketFault(CallFrame* frame)
         => findType(SocketFaultTypeName, frame);
+
+    public static RuntimeIshtarClass* InvalidDomainException(CallFrame* frame)
+        => findType(InvalidDomainExceptionTypeName, frame);
 
     public static RuntimeIshtarClass* Type(CallFrame* frame)
         => findType(TypeInfoTypeName, frame);
