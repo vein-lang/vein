@@ -2,30 +2,46 @@
 
 
 public class Socket {
-    /*private _family: i32;
+    private _family: i32;
     private _streamKind: i32;
     private _protocol: i32;
     private _addr: IpEndpoint;
+    private _handle: i64;
 
     private new(family: i32, streamKind: i32, protocol: i32) {
         this._family = family;
         this._streamKind = streamKind;
         this._protocol = protocol;
-    }
+        this._handle = 0;
+    } // 2, 1, 6
 
-
-    public listen(addr: IpEndpoint, mttu: i32): bool {
+    public listen(addr: IpEndpoint, mttu: i32): void {
         this._addr = addr;
-        auto bind = self.socket_bind(this, _addr);
-        if (!bind) {
-            return false;
-        }
-        return self.socket_listen(this, mttu);
+        self.socket_bind(this);
+        self.socket_listen(this, mttu);
+    }
+    public accept(): Socket {
+        auto client = new Socket(0,0,0);
+        self.socket_accept(this, client);
+        return client;
+    }
+    public send(data: Span<u8>, flags: i32): i32 
+        |> self.socket_write(this, data, flags);
+    public receive(data: Span<u8>, flags: i32): i32
+        |> self.socket_read(this, data, flags);
+    public shutdown(): void 
+    {
+
     }
 
-    public accept(fn: SocketBeginAccept): bool {
-        return self.socket_accept(this, fn);
-    }*/
+    [native("__internal__", "socket_bind")]
+    private static extern socket_bind(s: Socket): void;
+    [native("__internal__", "socket_listen")]
+    private static extern socket_listen(s: Socket, mttu: i32): void;
+    [native("__internal__", "socket_accept")]
+    private static extern socket_accept(s: Socket, c: Socket): void;
+    [native("__internal__", "socket_write")]
+    private static extern socket_write(s: Socket, data: Span<u8>, flags: i32): i32;
+    [native("__internal__", "socket_read")]
+    private static extern socket_read(s: Socket, data: Span<u8>, flags: i32): i32;
 }
-
-global alias SocketBeginAccept <| (sr: Socket): void;
