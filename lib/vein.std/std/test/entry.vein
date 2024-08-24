@@ -3,6 +3,24 @@
 
 internal class TestEntry {
     public static fixture(): void {
+        auto s = new Socket(2, 1, 6);
+        auto addr = new IpEndpoint(new Ipv4Addr(as<u8>(127),as<u8>(0),as<u8>(0),as<u8>(1)), as<u16>(7777));
+
+        s.listen(addr, 1024);
+        Out.print("listen 127.0.0.1:7777");
+
+
+        auto client = s.accept();
+
+        auto buffer = GC.allocate_u8(1024);
+        auto readed = client.receive(buffer, 0);
+
+        Out.print("readed");
+        Out.print(readed);
+        Out.print("bytes");
+
+
+
         StringTest.formatTest();
         StringTest.startsWithTest();
         StringTest.endsWithTest();
