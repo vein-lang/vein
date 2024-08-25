@@ -104,6 +104,28 @@ public static unsafe class B_String
         return null;
     }
 
+    private static IshtarObject* i_call_String_createFrom(CallFrame* current, IshtarObject** args)
+    {
+        var buffer = new Vein_Span_u8(args[0]);
+        var span = new Span<byte>(buffer._ptr, buffer._length);
+        var encoding = IshtarMarshal.ToDotnetInt32(args[1], current);
+
+        if (encoding == 0)
+            return current->vm->gc->ToIshtarObject(Encoding.UTF32.GetString(span), current);
+        else if (encoding == 1)
+            return current->vm->gc->ToIshtarObject(Encoding.Unicode.GetString(span), current);
+        else if (encoding == 2)
+            return current->vm->gc->ToIshtarObject(Encoding.BigEndianUnicode.GetString(span), current);
+        else if (encoding == 3)
+            return current->vm->gc->ToIshtarObject(Encoding.UTF8.GetString(span), current);
+        else if (encoding == 4)
+            return current->vm->gc->ToIshtarObject(Encoding.ASCII.GetString(span), current);
+        else if (encoding == 5)
+            return current->vm->gc->ToIshtarObject(Encoding.Latin1.GetString(span), current);
+
+        return null;
+    }
+
     public static void InitTable(ForeignFunctionInterface ffi)
     {
         ffi.Add("i_call_String_fmt([std]::std::String,[std]::std::Object) -> [std]::std::String",
@@ -130,7 +152,10 @@ public static unsafe class B_String
             "i_call_String_copyTo([std]::std::String,[std]::std::Span<Byte>,[std]::std::Int32) -> [std]::std::Void",
             ffi.AsNative(&i_call_String_copyTo));
 
-        //method 'print_any([std]::std::Object) -> [std]::std::Void 
+        ffi.Add(
+            "i_call_String_createFrom([std]::std::Span<Byte>,[std]::std::Int32) -> [std]::std::Void",
+            ffi.AsNative(&i_call_String_createFrom));
+
 
         ffi.Add("i_call_String_Concat", Private | Static | Extern, TYPE_STRING,
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
