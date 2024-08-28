@@ -14,6 +14,9 @@ public static class G_Emitters
 {
     public static ILGenerator EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
     {
+        if (!expr.HasOptimized && expr.CanOptimizationApply())
+            return gen.EmitExpression(expr.ForceOptimization());
+
         if (expr is EtherealFunctionExpression ethereal)
             return gen.EmitEtherealMacro(ethereal);
 

@@ -23,6 +23,8 @@ namespace ishtar
                 return false;
             if (exp is NullLiteralExpressionSyntax)
                 return false;
+            if (exp is LiteralExpressionSyntax)
+                return true;
             if (exp is EtherealFunctionExpression)
                 return false;
             if (exp is TypeExpression)
@@ -33,10 +35,30 @@ namespace ishtar
                 return false;
             if (exp is InvocationExpression)
                 return false;
+            if (exp is BinaryExpressionSyntax { Left: IdentifierExpression, Right: IdentifierExpression })
+                return false;
+            if (exp is BinaryExpressionSyntax { Left: IdentifierExpression })
+                return false;
+            if (exp is BinaryExpressionSyntax { Right: IdentifierExpression })
+                return false;
+            if (exp is BinaryExpressionSyntax { Right: AccessExpressionSyntax })
+                return false;
+            if (exp is BinaryExpressionSyntax { Left: AccessExpressionSyntax })
+                return false;
+            if (exp is UnaryExpressionSyntax { Operand: ThisAccessExpression })
+                return false;
+            if (exp is UnaryExpressionSyntax { Operand: IdentifierExpression })
+                return false;
+            if (exp is UnaryExpressionSyntax { Operand: AccessExpressionSyntax })
+                return false;
+            if (exp is BinaryExpressionSyntax { Left: BinaryExpressionSyntax e1, Right: BinaryExpressionSyntax c1 })
+                return e1.CanOptimizationApply() && c1.CanOptimizationApply();
+            if (exp is BinaryExpressionSyntax { Left: LiteralExpressionSyntax, Right: LiteralExpressionSyntax })
+                return true;
 
             try
             {
-                ForceOptimization(exp);
+                new Expressive.Expression(exp.ExpressionString).Evaluate();
                 return true;
             }
             catch (Exception e)
@@ -55,7 +77,8 @@ namespace ishtar
                 return ForceOptimization(arg.Value);
             if (exp is StringLiteralExpressionSyntax)
                 return exp.AsOptimized();
-
+            if (exp is LiteralExpressionSyntax)
+                return exp.AsOptimized();
             var result = new Expressive.Expression(exp.ExpressionString).Evaluate();
 
             if (result is float f)
