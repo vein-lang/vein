@@ -540,7 +540,7 @@ namespace ishtar.runtime.gc
             => BoehmGCLayout.Native.GC_free(ptr);
 
         private static void* IshtarGC_Realloc(void* ptr, uint newBytes)
-            => (void*)BoehmGCLayout.Native.GC_realloc((nint)ptr, newBytes);
+            => (void*)BoehmGCLayout.Native.GC_realloc((nint)ptr, (nint)newBytes);
 
 
         public static NativeList<T>* AllocateList<T>(void* parent, int initialCapacity = 16) where T : unmanaged, IEq<T> 

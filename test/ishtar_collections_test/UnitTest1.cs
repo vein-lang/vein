@@ -38,23 +38,13 @@ public unsafe class Tests
 
         if (boehm)
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &IshtarGC_Alloc,
-                alloc_primitives = &IshtarGC_AtomicAlloc,
-                free = &IshtarGC_Free,
-                realloc = &IshtarGC_Realloc
-            };
+            allocator = new AllocatorBlock(null, &IshtarGC_Free, &IshtarGC_Realloc, &IshtarGC_Alloc,
+                &IshtarGC_AtomicAlloc);
         }
         else
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &NativeMemory_AllocZeroed,
-                alloc_primitives = &NativeMemory_AllocZeroed,
-                free = &NativeMemory_Free,
-                realloc = &NativeMemory_Realloc
-            };
+            allocator = new AllocatorBlock(null, &NativeMemory_Free, &NativeMemory_Realloc, &NativeMemory_AllocZeroed,
+                &NativeMemory_AllocZeroed);
         }
 
         var list = NativeList<Magic>.Create(1, allocator);
@@ -106,23 +96,13 @@ public unsafe class Tests
 
         if (boehm)
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &IshtarGC_Alloc,
-                alloc_primitives = &IshtarGC_AtomicAlloc,
-                free = &IshtarGC_Free,
-                realloc = &IshtarGC_Realloc
-            };
+            allocator = new AllocatorBlock(null, &IshtarGC_Free, &IshtarGC_Realloc, &IshtarGC_Alloc,
+                &NativeMemory_AllocZeroed);
         }
         else
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &NativeMemory_AllocZeroed,
-                alloc_primitives = &NativeMemory_AllocZeroed,
-                free = &NativeMemory_Free,
-                realloc = &NativeMemory_Realloc
-            };
+            allocator = new AllocatorBlock(null, &NativeMemory_Free, &NativeMemory_Realloc, &NativeMemory_AllocZeroed,
+                &NativeMemory_AllocZeroed);
         }
 
         var queue = NativeQueue<Magic>.Create(1, allocator);
@@ -166,23 +146,13 @@ public unsafe class Tests
 
         if (boehm)
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &IshtarGC_Alloc,
-                alloc_primitives = &IshtarGC_AtomicAlloc,
-                free = &IshtarGC_Free,
-                realloc = &IshtarGC_Realloc
-            };
+            allocator = new AllocatorBlock(null, &IshtarGC_Free, &IshtarGC_Realloc, &IshtarGC_Alloc,
+                &IshtarGC_AtomicAlloc);
         }
         else
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &NativeMemory_AllocZeroed,
-                alloc_primitives = &NativeMemory_AllocZeroed,
-                free = &NativeMemory_Free,
-                realloc = &NativeMemory_Realloc
-            };
+            allocator = new AllocatorBlock(null, &NativeMemory_Free, &NativeMemory_Realloc, &NativeMemory_AllocZeroed,
+                &NativeMemory_AllocZeroed);
         }
 
         var list = AtomicNativeList<Magic>.Create(1, allocator);
@@ -235,23 +205,13 @@ public unsafe class Tests
 
         if (boehm)
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &IshtarGC_Alloc,
-                alloc_primitives = &IshtarGC_AtomicAlloc,
-                free = &IshtarGC_Free,
-                realloc = &IshtarGC_Realloc
-            };
+            allocator = new AllocatorBlock(null, &IshtarGC_Free, &IshtarGC_Realloc, &IshtarGC_Alloc,
+                &IshtarGC_AtomicAlloc);
         }
         else
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &NativeMemory_AllocZeroed,
-                alloc_primitives = &NativeMemory_AllocZeroed,
-                free = &NativeMemory_Free,
-                realloc = &NativeMemory_Realloc
-            };
+            allocator = new AllocatorBlock(null, &NativeMemory_Free, &NativeMemory_Realloc, &NativeMemory_AllocZeroed,
+                &NativeMemory_AllocZeroed);
         }
 
         var dict = NativeDictionary<int, Magic>.Create(16, allocator);
@@ -302,23 +262,13 @@ public unsafe class Tests
 
         if (boehm)
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &IshtarGC_Alloc,
-                alloc_primitives = &IshtarGC_AtomicAlloc,
-                free = &IshtarGC_Free,
-                realloc = &IshtarGC_Realloc
-            };
+            allocator = new AllocatorBlock(null, &IshtarGC_Free, &IshtarGC_Realloc, &IshtarGC_Alloc,
+                &IshtarGC_AtomicAlloc);
         }
         else
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &NativeMemory_AllocZeroed,
-                alloc_primitives = &NativeMemory_AllocZeroed,
-                free = &NativeMemory_Free,
-                realloc = &NativeMemory_Realloc
-            };
+            allocator = new AllocatorBlock(null, &NativeMemory_Free, &NativeMemory_Realloc, &NativeMemory_AllocZeroed,
+                &NativeMemory_AllocZeroed);
         }
 
         var dict = AtomicNativeDictionary<int, Magic>.Create(16, allocator);
@@ -354,23 +304,13 @@ public unsafe class Tests
 
         if (boehm)
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &IshtarGC_Alloc,
-                alloc_primitives = &IshtarGC_AtomicAlloc,
-                free = &IshtarGC_Free,
-                realloc = &IshtarGC_Realloc
-            };
+            allocator = new AllocatorBlock(null, &IshtarGC_Free, &IshtarGC_Realloc, &IshtarGC_Alloc,
+                &IshtarGC_AtomicAlloc);
         }
         else
         {
-            allocator = new AllocatorBlock
-            {
-                alloc = &NativeMemory_AllocZeroed,
-                alloc_primitives = &NativeMemory_AllocZeroed,
-                free = &NativeMemory_Free,
-                realloc = &NativeMemory_Realloc
-            };
+            allocator = new AllocatorBlock(null, &NativeMemory_Free, &NativeMemory_Realloc, &NativeMemory_AllocZeroed,
+                &NativeMemory_AllocZeroed);
         }
 
 
@@ -396,12 +336,12 @@ public unsafe class Tests
         Assert.IsTrue(target is null);
     }
 
-    public static void* NativeMemory_AllocZeroed(uint size)
+    public static void* NativeMemory_AllocZeroed(uint size, void* a)
         => NativeMemory.AllocZeroed(size);
 
-    public static void* IshtarGC_Alloc(uint size)
+    public static void* IshtarGC_Alloc(uint size, void* a)
         => BoehmGCLayout.Native.GC_malloc(size);
-    public static void* IshtarGC_AtomicAlloc(uint size)
+    public static void* IshtarGC_AtomicAlloc(uint size, void* a)
         => BoehmGCLayout.Native.GC_malloc_atomic(size);
 
     public static void NativeMemory_Free(void* ptr)
@@ -414,7 +354,7 @@ public unsafe class Tests
         => NativeMemory.Realloc(ptr, newBytes);
 
     public static void* IshtarGC_Realloc(void* ptr, uint newBytes)
-        => (void*)BoehmGCLayout.Native.GC_realloc((nint)ptr, newBytes);
+        => (void*)BoehmGCLayout.Native.GC_realloc((nint)ptr, (nint)newBytes);
 
     public static bool Comparer(Magic* p1, Magic* p2)
     {

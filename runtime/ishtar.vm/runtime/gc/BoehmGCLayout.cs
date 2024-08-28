@@ -153,7 +153,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         public static extern nint GC_malloc_uncollectable(uint size);
 
         [DllImport(LIBNAME)]
-        public static extern nint GC_realloc(nint oldPtr, uint newSize);
+        public static extern nint GC_realloc(nint oldPtr, nint newSize);
 
         // GC_finalize_all
 

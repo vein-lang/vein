@@ -24,7 +24,7 @@ public static unsafe class libuv_gc_allocator
     }
 
     private static IntPtr reallocFunc(IntPtr ptr, UIntPtr size)
-        => (nint)GC_realloc(ptr, (uint)size);
+        => (nint)GC_realloc(ptr, (nint)size);
 
     private static IntPtr mallocFunc(UIntPtr size)
     {
