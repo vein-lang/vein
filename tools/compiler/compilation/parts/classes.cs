@@ -149,6 +149,15 @@ public partial class CompilationTask
     {
         var classes = new List<(ClassBuilder clazz, MemberDeclarationSyntax member)>();
 
+        foreach (var aspect in doc.Aspects)
+        {
+            Status.VeinStatus($"Regeneration aspect [grey]'{aspect.Identifier}'[/]");
+            aspect.OwnerDocument = doc;
+            var result = CompileAspect(aspect, doc);
+            Context.Classes.Add(result.FullName, result);
+            classes.Add((result, aspect));
+        }
+
         foreach (var member in doc.Members)
         {
             if (member is ClassDeclarationSyntax clazz)
@@ -161,14 +170,6 @@ public partial class CompilationTask
 
                 Context.Classes.Add(result.FullName, result);
                 classes.Add((result, clazz));
-            }
-            else if (member is AspectDeclarationSyntax aspect)
-            {
-                Status.VeinStatus($"Regeneration aspect [grey]'{aspect.Identifier}'[/]");
-                aspect.OwnerDocument = doc;
-                var result = CompileAspect(aspect, doc);
-                Context.Classes.Add(result.FullName, result);
-                classes.Add((result, aspect));
             }
             else
                 Log.Defer.Warn($"[grey]Member[/] [yellow underline]'{member.GetType().Name.EscapeMarkup()}'[/] [grey]is not supported.[/]", member, doc);
