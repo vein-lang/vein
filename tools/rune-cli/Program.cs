@@ -14,10 +14,8 @@ using static vein.GlobalVersion;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Sentry.Infrastructure;
-using Tomlyn.Extensions.Configuration;
 using vein.cli;
 using vein.services;
-using Sentry.Profiling;
 
 [assembly: InternalsVisibleTo("veinc_test")]
 
@@ -50,9 +48,6 @@ using var sentry = SentrySdk.Init(options => {
     options.TracesSampleRate = 1.0;
     options.ProfilesSampleRate = 1.0;
     options.DiagnosticLogger = new TraceDiagnosticLogger(SentryLevel.Debug);
-    options.AddIntegration(new ProfilingIntegration(
-        TimeSpan.FromMilliseconds(10)
-    ));
     options.ExperimentalMetrics = new ExperimentalMetricsOptions
     {
         EnableCodeLocations = true
@@ -90,7 +85,6 @@ AppFlags.RegisterArgs(ref args);
 
 await Host.CreateDefaultBuilder(args)
     .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.None)).UseConsoleLifetime()
-    .ConfigureAppConfiguration(x => x.AddTomlFile(ShardStorage.VeinRootFolder.File("rune.toml").FullName, true))
     .UseSpectreConsole(config => {
         config.AddCommand<RunCommand>("run")
             .WithDescription("Run project");

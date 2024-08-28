@@ -7,17 +7,28 @@
     <Nullable>enable</Nullable>
     <RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebuggerSupport>false</DebuggerSupport>
+    <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+    <EventSourceSupport>false</EventSourceSupport>
+    <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+    <MetricsSupport>false</MetricsSupport>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <TrimMode>partial</TrimMode>
+    <PublishTrimmed>true</PublishTrimmed>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <DefineConstants>$(DefineConstants);DEBUG;</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="DeviceId" Version="6.6.0" />
-    <PackageReference Include="DeviceId.Linux" Version="6.4.0" />
-    <PackageReference Include="DeviceId.Mac" Version="6.3.0" />
-    <PackageReference Include="DeviceId.Windows" Version="6.6.0" />
-    <PackageReference Include="DeviceId.Windows.Wmi" Version="6.6.0" />
     <PackageReference Include="Flurl.Http" Version="4.0.2" />
     <PackageReference Include="Flurl.Http.Newtonsoft" Version="0.9.1" />
     <PackageReference Include="xunit.assert" Version="2.8.0" />
-    <PackageReference Include="Sentry.AspNetCore" Version="4.10.1" />
-    <PackageReference Include="Sentry.Profiling" Version="4.10.1" />
+    <PackageReference Include="Sentry" Version="4.10.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\lib\vein.cli.core\vein.cli.core.csproj" />
