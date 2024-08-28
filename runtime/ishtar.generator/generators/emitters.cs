@@ -5,17 +5,19 @@ using emit;
 using vein.runtime;
 using vein.syntax;
 using System.Linq;
-using Expressive;
-using System.Data;
-using lang.c;
 using vein;
 
 public static class G_Emitters
 {
     public static ILGenerator EmitExpression(this ILGenerator gen, ExpressionSyntax expr)
     {
-        if (!expr.HasOptimized && expr.CanOptimizationApply())
-            return gen.EmitExpression(expr.ForceOptimization());
+        var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+
+        if (!ctx.DisableOptimization)
+        {
+            if (!expr.HasOptimized && expr.CanOptimizationApply())
+                return gen.EmitExpression(expr.ForceOptimization());
+        }
 
         if (expr is EtherealFunctionExpression ethereal)
             return gen.EmitEtherealMacro(ethereal);
@@ -46,7 +48,6 @@ public static class G_Emitters
 
         if (expr is InvocationExpression inv)
         {
-            var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
             return gen.EmitCall(ctx.CurrentMethod.Owner, inv);
         }
 
