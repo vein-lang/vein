@@ -24,6 +24,7 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
+using GlobExpressions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -44,7 +45,11 @@ using vein.cmd;
 using vein.compiler.shared;
 using vein.json;
 using vein.project;
-
+using Nuke.Common.Tools.DotCover;
+using static Nuke.Common.Tools.DotCover.DotCoverTasks;
+using static Nuke.Common.IO.PathConstruction;
+using static Nuke.Common.Tools.DotCover.DotCoverTasks;
+using Sentry.Protocol;
 
 [GitHubActions("build_nuke", GitHubActionsImage.UbuntuLatest, AutoGenerate = false,
     On = [GitHubActionsTrigger.Push],
@@ -97,6 +102,10 @@ class Build : NukeBuild
     SolutionFolder Libs => Solution.GetSolutionFolder("libs");
     SolutionFolder Backends => Solution.GetSolutionFolder("backends");
 
+    Project Test_IshtarCollections => Solution.GetProject("ishtar_collections_test");
+    Project Test_Veinc => Solution.GetProject("veinc_test");
+
+
     Project Veinc => Tools.GetProject("veinc");
     Project RuneCLI => Tools.GetProject("rune-cli");
     Project Ishtar => Backends.GetProject("ishtar.vm");
@@ -109,14 +118,62 @@ class Build : NukeBuild
     AbsolutePath WorkloadRuntime => RootDirectory / "workloads" / "runtime";
     AbsolutePath WorkloadCompiler => RootDirectory / "workloads" / "compiler";
 
-    Target Clean => _ => _
-        .Before(Restore)
-        .Executes(() =>
-        {
-            OutputDirectory.CreateOrCleanDirectory();
-            DotNetClean(c => c
-                .SetProject(Solution));
+
+
+    const string TestResultsXmlSuffix = "_TestResults.xml";
+
+    IEnumerable<string> TestAssemblies => [OutputDirectory / "test" / "ishtar_collections_test.dll"];
+
+
+    Target TestWithCoverage => _ => _
+        .DependsOn(BuildTest)
+        .Executes(() => {
+            
+            DotCoverCover(GetDotCoverSettings, Environment.ProcessorCount);
         });
+    Target BuildTest => _ => _
+        .DependsOn(Restore)
+    .Executes(() => {
+            var outputDir = OutputDirectory / $"test";
+            outputDir.CreateOrCleanDirectory();
+            DotNetBuild(c => c
+                .SetProjectFile(Test_IshtarCollections)
+                .SetConfiguration(Configuration.Debug)
+                .SetOutputDirectory(outputDir)
+                .EnableNoRestore());
+            DotNetBuild(c => c
+                .SetProjectFile(Test_Veinc)
+                .SetConfiguration(Configuration.Debug)
+                .SetOutputDirectory(outputDir)
+                .EnableNoRestore());
+    });
+
+    IEnumerable<DotCoverCoverSettings> GetDotCoverSettings(DotCoverCoverSettings settings) =>
+        TestAssemblies.Select(testAssembly => new DotCoverCoverSettings()
+            .SetTargetExecutable(ToolPathResolver.GetPathExecutable("dotnet"))
+            .SetTargetWorkingDirectory(OutputDirectory)
+            .SetTargetArguments($"test --test-adapter-path:. {testAssembly}  --logger trx;LogFileName={testAssembly}{TestResultsXmlSuffix}")
+            .SetFilters(
+                "+:MyProject")
+            .SetAttributeFilters(
+                "System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute",
+                "System.CodeDom.Compiler.GeneratedCodeAttribute")
+            .SetOutputFile(GetDotCoverOutputFile(testAssembly)));
+
+
+    AbsolutePath GetDotCoverOutputFile(string testAssembly)
+        => OutputDirectory / $"dotCover_{Path.GetFileName(testAssembly)}.dcvr";
+
+
+
+    //Target Clean => _ => _
+    //    .Before(Restore)
+    //    .Executes(() =>
+    //    {
+    //        OutputDirectory.CreateOrCleanDirectory();
+    //        DotNetClean(c => c
+    //            .SetProject(Solution));
+    //    });
 
     Target Restore => _ => _
         .Executes(() => {
@@ -200,9 +257,6 @@ class Build : NukeBuild
             var runtimes = new[]
             {
                 "win-x64",
-                "linux-x64",
-                "linux-arm64",
-                "osx-x64",
                 "osx-arm64"
             };
             runtimes.ForEach(runtime => {
@@ -212,11 +266,12 @@ class Build : NukeBuild
                     .SetProject(RuneCLI)
                     .SetConfiguration(Configuration.Release)
                     .EnablePublishSingleFile()
+                    .SetPublishTrimmed(true)
+                    .SetFramework("net8.0")
                     .EnableSelfContained()
                     .SetRuntime(runtime)
                     .SetOutput(outputDir)
                 .EnableNoRestore());
-
                 Compress(outputDir, OutputDirectory / $"rune.{runtime}.zip", x => !x.HasExtension("xml", "pdb"));
             });
         });
@@ -232,9 +287,6 @@ class Build : NukeBuild
             var runtimes = new[]
             {
                 "win-x64",
-                "linux-x64",
-                "linux-arm64",
-                "osx-x64",
                 "osx-arm64"
             };
             runtimes.ForEach(runtime => {
@@ -245,10 +297,11 @@ class Build : NukeBuild
                     .SetConfiguration(Configuration.Release)
                     .EnablePublishSingleFile()
                     .EnableSelfContained()
+                    .SetPublishTrimmed(true)
+                    .SetFramework("net8.0")
                     .SetRuntime(runtime)
                     .SetOutput(outputDir)
                     .EnableNoRestore());
-
                 Compress(outputDir, OutputDirectory / $"veinc.compiler.{runtime}.zip");
             });
         });
@@ -264,7 +317,6 @@ class Build : NukeBuild
             var runtimes = new[]
             {
                 "win-x64",
-                "linux-x64",
                 "osx-arm64"
             };
             runtimes.ForEach(runtime => {
@@ -275,6 +327,8 @@ class Build : NukeBuild
                     .SetConfiguration(Configuration.Debug)
                     .EnablePublishSingleFile()
                     .EnableSelfContained()
+                    .SetFramework("net8.0")
+                    .SetPublishTrimmed(true)
                     .SetRuntime(runtime)
                     .SetOutput(outputDir)
                     .EnableNoRestore());
@@ -299,6 +353,8 @@ class Build : NukeBuild
                     .SetConfiguration(Configuration.Release)
                     .SetRuntime(runtime)
                     .SetPublishTrimmed(true)
+                    .SetFramework("net8.0")
+                    .SetPublishReadyToRun(true)
                     .EnableNoRestore());
 
                 // fucking nuke cannot work with native aot
@@ -316,7 +372,6 @@ class Build : NukeBuild
         {
             var runtimes = new[] {
                 "win-x64",
-                "linux-x64",
                 "osx-arm64"
             };
             runtimes.ForEach(runtime =>
@@ -394,7 +449,7 @@ class Build : NukeBuild
         });
 
     Target PublishWorkloads => _ => _
-        .DependsOn(Clean, PackIshtar, BuildVeinc)
+        .DependsOn(PackIshtar, BuildVeinc)
         .OnlyWhenDynamic(() => HasPublishWorkloads)
         .Executes(() => {
             Log.Information($"GOING EXECUTE WORKLOADS");
@@ -405,7 +460,7 @@ class Build : NukeBuild
         .Executes();
 
     Target Compile => _ => _
-        .DependsOn(Clean, PublishRelease, BuildVeinStd, PublishVeinStd)
+        .DependsOn(PublishRelease, BuildVeinStd, PublishVeinStd)
         .Produces(OutputDirectory / "*.zip")
         .Executes(() => {
             Log.Information($"Success building");

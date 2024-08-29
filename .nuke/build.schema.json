@@ -74,16 +74,17 @@
               "BuildIshtarDebug",
               "BuildIshtarNative",
               "BuildRune",
+              "BuildTest",
               "BuildVeinStd",
               "BuildVeinc",
-              "Clean",
               "Compile",
               "Pack",
               "PackIshtar",
               "PublishRelease",
               "PublishVeinStd",
               "PublishWorkloads",
-              "Restore"
+              "Restore",
+              "TestWithCoverage"
             ]
           }
         },
@@ -100,16 +101,17 @@
               "BuildIshtarDebug",
               "BuildIshtarNative",
               "BuildRune",
+              "BuildTest",
               "BuildVeinStd",
               "BuildVeinc",
-              "Clean",
               "Compile",
               "Pack",
               "PackIshtar",
               "PublishRelease",
               "PublishVeinStd",
               "PublishWorkloads",
-              "Restore"
+              "Restore",
+              "TestWithCoverage"
             ]
           }
         },
