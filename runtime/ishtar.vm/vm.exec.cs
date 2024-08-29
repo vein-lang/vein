@@ -43,6 +43,12 @@ public unsafe partial struct VirtualMachine
             args[i] = IshtarMarshal.Boxing(frame, &frame->args[i]);
 
         var result = caller(frame, args);
+
+        if (result is not null && frame->method->ReturnType->TypeCode == TYPE_VOID)
+        {
+            FastFail(STATE_CORRUPT, $"[exec_method_internal_native] ReturnValue from {frame->method->Name} has exits, but declaration return type is void", frame);
+            return;
+        }
         
         if (frame->method->ReturnType->TypeCode == TYPE_VOID)
             return;

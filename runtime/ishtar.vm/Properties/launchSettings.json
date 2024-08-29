@@ -16,6 +16,12 @@
         "VM_PROFILER": "1"
       }
     },
+    "run std socket test": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\..\\..\\..\\..\\lib\\vein.std\\std.socket.test\\bin\\std.socket.test.wll",
+      "environmentVariables": {
+      }
+    },
     "run external_test": {
       "commandName": "Project",
       "commandLineArgs": "C:\\git\\std\\asd\\bin\\asd.wll",

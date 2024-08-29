@@ -95,44 +95,44 @@ public static unsafe class IshtarObjectEx
 {
     public static byte GetUInt8(this IshtarObject value)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U1, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U1, WNE.TYPE_MISMATCH, "", &value);
 
         return (byte)value.vtable[value.clazz->Field["!!value"]->vtable_offset];
     }
     public static ushort GetUInt16(this IshtarObject value)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U2, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U2, WNE.TYPE_MISMATCH, "", &value);
 
         return (ushort)value.vtable[value.clazz->Field["!!value"]->vtable_offset];
     }
     public static uint GetUInt32(this IshtarObject value)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U4, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U4, WNE.TYPE_MISMATCH, "", &value);
 
         return (uint)value.vtable[value.clazz->Field["!!value"]->vtable_offset];
     }
     public static short GetInt16(this IshtarObject value)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I2, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I2, WNE.TYPE_MISMATCH, "", &value);
 
         return (short)value.vtable[value.clazz->Field["!!value"]->vtable_offset];
     }
     public static int GetInt32(this IshtarObject value)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I4, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I4, WNE.TYPE_MISMATCH, "", &value);
 
         return (int)value.vtable[value.clazz->Field["!!value"]->vtable_offset];
     }
 
     public static ulong GetUInt64(this IshtarObject value)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U8, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U8, WNE.TYPE_MISMATCH, "", &value);
 
         return (ulong)value.vtable[value.clazz->Field["!!value"]->vtable_offset];
     }
     public static long GetInt64(this IshtarObject value)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I8, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I8, WNE.TYPE_MISMATCH, "", &value);
 
         return (long)value.vtable[value.clazz->Field["!!value"]->vtable_offset];
     }
@@ -140,44 +140,44 @@ public static unsafe class IshtarObjectEx
 
     public static void SetUInt8(this IshtarObject value, byte v)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U1, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U1, WNE.TYPE_MISMATCH, "", &value);
 
         value.vtable[value.clazz->Field["!!value"]->vtable_offset] = (void*)v;
     }
     public static void SetUInt16(this IshtarObject value, ushort v)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U2, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U2, WNE.TYPE_MISMATCH, "", &value);
 
         value.vtable[value.clazz->Field["!!value"]->vtable_offset] = (void*)v;
     }
     public static void SetUInt32(this IshtarObject value, uint v)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U4, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U4, WNE.TYPE_MISMATCH, "", &value);
 
         value.vtable[value.clazz->Field["!!value"]->vtable_offset] = (void*)v;
     }
     public static void SetUInt64(this IshtarObject value, ulong v)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U8, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_U8, WNE.TYPE_MISMATCH, "", &value);
 
         value.vtable[value.clazz->Field["!!value"]->vtable_offset] = (void*)v;
     }
 
     public static void SetInt16(this IshtarObject value, short v)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I2, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I2, WNE.TYPE_MISMATCH, "", &value);
 
         value.vtable[value.clazz->Field["!!value"]->vtable_offset] = (void*)v;
     }
     public static void SetInt32(this IshtarObject value, int v)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I4, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I4, WNE.TYPE_MISMATCH, "", &value);
 
         value.vtable[value.clazz->Field["!!value"]->vtable_offset] = (void*)v;
     }
     public static void SetInt64(this IshtarObject value, long v)
     {
-        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I8, WNE.TYPE_MISMATCH, "");
+        VirtualMachine.Assert(value.clazz->TypeCode == VeinTypeCode.TYPE_I8, WNE.TYPE_MISMATCH, "", &value);
 
         value.vtable[value.clazz->Field["!!value"]->vtable_offset] = (void*)v;
     }

@@ -34,10 +34,7 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
     {
         if (useConsole)
         {
-            if (NoTrace) return;
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(s);
-            Console.ResetColor();
+            Console.WriteLine($"\u001b[31m{s}\u001b[0m");
             return;
         }
 #if ISHTAR_DEBUG_CONSOLE

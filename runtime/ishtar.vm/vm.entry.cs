@@ -50,7 +50,7 @@ unsafe
 
     module->class_table->ForEach(x => x->init_vtable(x->Owner->vm));
     
-    var entry_point = module->GetSpecialEntryPoint(vm->Config.EntryPoint);
+    var entry_point = module->GetSpecialEntryPoint(vm->Config.EntryPoint, vm->Config.EntryPointClass);
 
     if (entry_point is null)
     {

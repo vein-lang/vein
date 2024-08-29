@@ -28,8 +28,8 @@ public unsafe partial struct VirtualMachine : IDisposable
     public TaskScheduler* task_scheduler;
     public IshtarThreadPool* thread_pool;
     internal RuntimeIshtarModule* InternalModule;
-    internal RuntimeIshtarClass* InternalClass;
-    public IniRoot* boot_cfg;
+    private RuntimeIshtarClass* InternalClass;
+    private IniRoot* boot_cfg;
     public AppConfig Config;
     public IshtarMasterFault* currentFault;
     public IshtarWatchDog watcher;
