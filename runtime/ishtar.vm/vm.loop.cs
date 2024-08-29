@@ -134,26 +134,31 @@ public unsafe partial struct VirtualMachine : IDisposable
                     ++ip;
                     --sp;
                     A_OP(sp, 0, ip, invocation);
+                    sp++;
                     break;
                 case SUB:
                     ++ip;
                     --sp;
                     A_OP(sp, 1, ip, invocation);
+                    sp++;
                     break;
                 case MUL:
                     ++ip;
                     --sp;
                     A_OP(sp, 2, ip, invocation);
+                    sp++;
                     break;
                 case DIV:
                     ++ip;
                     --sp;
                     A_OP(sp, 3, ip, invocation);
+                    sp++;
                     break;
                 case MOD:
                     ++ip;
                     --sp;
                     A_OP(sp, 4, ip, invocation);
+                    sp++;
                     break;
                 case DUP:
                     *sp = sp[-1];
@@ -751,6 +756,10 @@ public unsafe partial struct VirtualMachine : IDisposable
                     {
                         var type_name = readTypeName(*++ip, _module, invocation);
                         var type = _module->FindType(type_name, true);
+
+                        Assert(type->TypeCode != TYPE_NONE, TYPE_MISMATCH, "in LOC_INIT not allowed using undefined type", invocation);
+                        Assert(type->TypeCode != TYPE_VOID, TYPE_MISMATCH, "in LOC_INIT not allowed using void type", invocation);
+
                         if (type->IsPrimitive)
                             locals[i].type = type->TypeCode;
                         else
