@@ -1128,6 +1128,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                 case LDLOC_2:
                 case LDLOC_3:
                 case LDLOC_4:
+                case LDLOC_5:
                     *sp = locals[(*ip) - (int)LDLOC_0];
                     println($"load from locals ({sp->type})");
                     ++ip;
@@ -1144,6 +1145,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                 case STLOC_2:
                 case STLOC_3:
                 case STLOC_4:
+                case STLOC_5:
                     --sp;
                     Assert(sp->type != TYPE_NONE, STATE_CORRUPT, $"{invocation->last_ip}", invocation);
                     Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, $"{invocation->last_ip}", invocation);
@@ -1170,7 +1172,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                     println($"*** DUMP ***");
                     println($"\tsp[-1] {sp[0].type}");
                     println($"\tsp[-1] {sp[0].data.l} {sp[0].data.l:X8}");
-                    println("*** BREAKED ***");
+                    println("*** BREAK ***");
                     Console.ReadKey();
                     break;
                 case RESERVED_2:
