@@ -28,6 +28,7 @@
     <Using Include="System.Diagnostics.CodeAnalysis" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TargetFramework>net8.0</TargetFramework>
     <DebuggerSupport>false</DebuggerSupport>
     <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
     <EventSourceSupport>false</EventSourceSupport>

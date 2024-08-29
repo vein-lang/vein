@@ -265,10 +265,6 @@ class Build : NukeBuild
                 DotNetPublish(c => c
                     .SetProject(RuneCLI)
                     .SetConfiguration(Configuration.Release)
-                    .EnablePublishSingleFile()
-                    .SetPublishTrimmed(true)
-                    .SetFramework("net8.0")
-                    .EnableSelfContained()
                     .SetRuntime(runtime)
                     .SetOutput(outputDir)
                 .EnableNoRestore());
@@ -295,10 +291,6 @@ class Build : NukeBuild
                 DotNetPublish(c => c
                     .SetProject(Veinc)
                     .SetConfiguration(Configuration.Release)
-                    .EnablePublishSingleFile()
-                    .EnableSelfContained()
-                    .SetPublishTrimmed(true)
-                    .SetFramework("net8.0")
                     .SetRuntime(runtime)
                     .SetOutput(outputDir)
                     .EnableNoRestore());
