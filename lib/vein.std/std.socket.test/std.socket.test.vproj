@@ -1,0 +1,7 @@
+version: 1.0.0.0
+author:
+- name: Yuuki
+  github: 0xF6
+license: MIT license
+packages:
+- ..\std\std.vproj

@@ -110,20 +110,34 @@ public static unsafe class B_String
         var span = new Span<byte>(buffer._ptr, buffer._length);
         var encoding = IshtarMarshal.ToDotnetInt32(args[1], current);
 
-        if (encoding == 0)
-            return current->vm->gc->ToIshtarObject(Encoding.UTF32.GetString(span), current);
-        else if (encoding == 1)
-            return current->vm->gc->ToIshtarObject(Encoding.Unicode.GetString(span), current);
-        else if (encoding == 2)
-            return current->vm->gc->ToIshtarObject(Encoding.BigEndianUnicode.GetString(span), current);
-        else if (encoding == 3)
-            return current->vm->gc->ToIshtarObject(Encoding.UTF8.GetString(span), current);
-        else if (encoding == 4)
-            return current->vm->gc->ToIshtarObject(Encoding.ASCII.GetString(span), current);
-        else if (encoding == 5)
-            return current->vm->gc->ToIshtarObject(Encoding.Latin1.GetString(span), current);
+        return encoding switch
+        {
+            0 => current->vm->gc->ToIshtarObject(Encoding.UTF32.GetString(span), current),
+            1 => current->vm->gc->ToIshtarObject(Encoding.Unicode.GetString(span), current),
+            2 => current->vm->gc->ToIshtarObject(Encoding.BigEndianUnicode.GetString(span), current),
+            3 => current->vm->gc->ToIshtarObject(Encoding.UTF8.GetString(span), current),
+            4 => current->vm->gc->ToIshtarObject(Encoding.ASCII.GetString(span), current),
+            5 => current->vm->gc->ToIshtarObject(Encoding.Latin1.GetString(span), current),
+            _ => null
+        };
+    }
 
-        return null;
+    private static IshtarObject* i_call_String_createFromWithSize(CallFrame* current, IshtarObject** args)
+    {
+        var buffer = new Vein_Span_u8(args[0]);
+        var size = IshtarMarshal.ToDotnetInt32(args[1], current);
+        var encoding = IshtarMarshal.ToDotnetInt32(args[2], current);
+
+        return encoding switch
+        {
+            0 => current->vm->gc->ToIshtarObject(Encoding.UTF32.GetString(buffer._ptr, size), current),
+            1 => current->vm->gc->ToIshtarObject(Encoding.Unicode.GetString(buffer._ptr, size), current),
+            2 => current->vm->gc->ToIshtarObject(Encoding.BigEndianUnicode.GetString(buffer._ptr, size), current),
+            3 => current->vm->gc->ToIshtarObject(Encoding.UTF8.GetString(buffer._ptr, size), current),
+            4 => current->vm->gc->ToIshtarObject(Encoding.ASCII.GetString(buffer._ptr, size), current),
+            5 => current->vm->gc->ToIshtarObject(Encoding.Latin1.GetString(buffer._ptr, size), current),
+            _ => null
+        };
     }
 
     public static void InitTable(ForeignFunctionInterface ffi)
@@ -153,34 +167,27 @@ public static unsafe class B_String
             ffi.AsNative(&i_call_String_copyTo));
 
         ffi.Add(
-            "i_call_String_createFrom([std]::std::Span<Byte>,[std]::std::Int32) -> [std]::std::Void",
+            "i_call_String_createFrom([std]::std::Span<Byte>,[std]::std::Int32) -> [std]::std::String",
             ffi.AsNative(&i_call_String_createFrom));
-
+        ffi.Add(
+            "i_call_String_createFromWithSize([std]::std::Span<Byte>,[std]::std::Int32,[std]::std::Int32) -> [std]::std::String",
+            ffi.AsNative(&i_call_String_createFromWithSize));
 
         ffi.Add("i_call_String_Concat", Private | Static | Extern, TYPE_STRING,
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
-                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&Concat)
-            ;
-
+                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&Concat);
         ffi.Add("i_call_String_Equal", Private | Static | Extern, TYPE_BOOLEAN,
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
-                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&StrEqual)
-            ;
-
+                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&StrEqual);
         ffi.Add("i_call_String_Trim_Start", Private | Static | Extern, TYPE_STRING,
                     ("v1", TYPE_STRING))
-                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&TrimStart)
-            ;
-
+                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&TrimStart);
         ffi.Add("i_call_String_Trim_End", Private | Static | Extern, TYPE_STRING,
                     ("v1", TYPE_STRING))
-                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&TrimEnd)
-            ;
-
+                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&TrimEnd);
         ffi.Add("i_call_String_Contains", Private | Static | Extern, TYPE_BOOLEAN,
                     ("v1", TYPE_STRING), ("v2", TYPE_STRING))
-                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&Contains)
-            ;
+                ->AsNative((delegate*<CallFrame*, IshtarObject**, IshtarObject*>)&Contains);
     }
 
 

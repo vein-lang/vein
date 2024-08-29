@@ -2,7 +2,7 @@
 
 
 
-public class BitConvert : Object
+public static class BitConvert
 {
     /*
     public static Tou8s(str: string): u8[]

@@ -1,30 +1,42 @@
 #space "std"
 
 
-public class StringTest {
-    public static formatTest(): void {
+[fixture]
+private static class StringTest 
+{
+    [test]
+    public static formatTest(): void 
+    {
         auto name = "Alice";
         auto age = 30;
         auto formattedString = string.format("Name: {0}, Age: {1}", name, age);
         Assert.equal(formattedString, "Name: Alice, Age: 30");
     }
 
-    public static startsWithTest(): void {
+    [test]
+    public static startsWithTest(): void 
+    {
         auto str = "Hello, World!";
         Assert.isTrue(string.startsWith(str, "Hello"));
     }
 
-    public static endsWithTest(): void {
+    [test]
+    public static endsWithTest(): void 
+    {
         auto str = "Hello, World!";
         Assert.isTrue(string.endsWith(str, "World!"));
     }
 
-    public static containsTest(): void {
+    [test]
+    public static containsTest(): void 
+    {
         auto str = "Hello, World!";
         Assert.isTrue(string.contains(str, "World"));
     }
 
-    public static equalTest(): void {
+    [test]
+    public static equalTest(): void 
+    {
         auto str1 = "Hello";
         auto str2 = "Hello";
         Assert.isTrue(string.equal(str1, str2));

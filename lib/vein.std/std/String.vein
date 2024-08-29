@@ -46,8 +46,11 @@ public class String : Object
     public static copyTo(v1: string, buffer: Span<u8>, encoding: i32): void
         |> self.i_call_String_copyTo(v1, buffer, encoding);
 
-    public static createFrom(buffer: Span<u8>, encoding: i32): void
+    public static createFrom(buffer: Span<u8>, encoding: i32): String
         |> self.i_call_String_createFrom(buffer, encoding);
+
+    public static createFrom(buffer: Span<u8>, size: i32, encoding: i32): String
+        |> self.i_call_String_createFrom(buffer, size, encoding);
 
     [native("__internal__", "i_call_String_StartsWith")]
     private extern static i_call_String_StartsWith(v1: string, v2: string): bool;
@@ -65,7 +68,9 @@ public class String : Object
     [native("__internal__", "i_call_String_copyTo")]
     private extern static i_call_String_copyTo(v1: string, buffer: Span<u8>, encoding: i32): void;
     [native("__internal__", "i_call_String_createFrom")]
-    private extern static i_call_String_createFrom(buffer: Span<u8>, encoding: i32): void;
+    private extern static i_call_String_createFrom(buffer: Span<u8>, encoding: i32): string;
+    [native("__internal__", "i_call_String_createFromWithSize")]
+    private extern static i_call_String_createFrom(buffer: Span<u8>, size: i32, encoding: i32): string;
 
     [native("__internal__", "i_call_String_fmt")]
     public static extern format(t: string, o1: Object): string;

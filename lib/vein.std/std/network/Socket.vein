@@ -14,7 +14,10 @@ public class Socket {
         this._protocol = protocol;
         this._handle = 0;
     } // 2, 1, 6
-
+    public connect(addr: IpEndpoint): void {
+        this._addr = addr;
+        self.socket_connect(this);
+    }
     public listen(addr: IpEndpoint, mttu: i32): void {
         this._addr = addr;
         self.socket_bind(this);
@@ -29,10 +32,8 @@ public class Socket {
         |> self.socket_write(this, data, flags);
     public receive(data: Span<u8>, flags: i32): i32
         |> self.socket_read(this, data, flags);
-    public shutdown(): void 
-    {
-
-    }
+    public shutdown(flags: i32): void 
+        |> self.socket_shutdown(this, flags);
 
     [native("__internal__", "socket_bind")]
     private static extern socket_bind(s: Socket): void;
@@ -44,4 +45,17 @@ public class Socket {
     private static extern socket_write(s: Socket, data: Span<u8>, flags: i32): i32;
     [native("__internal__", "socket_read")]
     private static extern socket_read(s: Socket, data: Span<u8>, flags: i32): i32;
+    [native("__internal__", "socket_shutdown")]
+    private static extern socket_shutdown(s: Socket, flags: i32): void;
+    [native("__internal__", "socket_connect")]
+    private static extern socket_connect(s: Socket): void;
+}
+
+
+
+public class SocketFault : Exception
+{
+    public new();
+    public new(msg: string)
+        |> this.message = msg;
 }

@@ -1,0 +1,24 @@
+#space "http"
+#use "std"
+
+class App {
+   public static master(): void
+   {
+        auto ipAddr = new Ipv4Addr(as<u8>(0),as<u8>(0),as<u8>(0),as<u8>(0));
+        auto addr = new IpEndpoint(ipAddr, as<u16>(8000));
+        auto server = new Socket(2, 1, 6);
+        server.listen(addr, 128);
+        auto buffer = GC.allocate_u8(1024);
+        Out.print("Listening on ::8000");
+        auto client = server.accept();
+        while (true) {
+            Thread.Sleep(500);
+            auto bytesReceived = client.receive(buffer, 0);
+            if (bytesReceived > 0) {
+                client.send(buffer, 0);
+                auto received = String.createFrom(buffer, 4);
+                Out.print(received);
+            }
+        }
+   }
+}

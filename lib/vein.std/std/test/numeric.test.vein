@@ -1,0 +1,66 @@
+#space "std"
+
+
+[fixture]
+private static class NumericTest 
+{
+    [test]
+    public static i32_mod(): void 
+    {
+        let two = 2;
+        Assert.equal(2 % two, 0);
+        Assert.equal(4 % two, 0);
+        Assert.equal(6 % two, 0);
+        Assert.equal(8 % two, 0);
+        Assert.equal(12 % two, 0);
+        Assert.equal(15 % two, 1);
+    }
+
+    [test]
+    public static i32_add(): void 
+    {
+        let two = 2;
+        Assert.equal(2 + two, 4);
+        Assert.equal(4 + two, 6);
+        Assert.equal(6 + two, 8);
+        Assert.equal(8 + two, 10);
+        Assert.equal(12 + two, 14);
+        Assert.equal(15 + two, 17);
+    }
+
+    [test]
+    public static i32_sub(): void 
+    {
+        let two = 2;
+        Assert.equal(2 - two, 0);
+        Assert.equal(4 - two, 2);
+        Assert.equal(6 - two, 4);
+        Assert.equal(8 - two, 6);
+        Assert.equal(12 - two, 10);
+        Assert.equal(15 - two, 13);
+    }
+
+    [test]
+    public static i32_div(): void 
+    {
+        let two = 2;
+        Assert.equal(2 / two, 1);
+        Assert.equal(4 / two, 2);
+        Assert.equal(6 / two, 3);
+        Assert.equal(8 / two, 4);
+        Assert.equal(12 / two, 6);
+        Assert.equal(15 / two, 7);
+    }
+
+    [test]
+    public static i32_mul(): void 
+    {
+        let two = 2;
+        Assert.equal(2 * two, 4);
+        Assert.equal(4 * two, 8);
+        Assert.equal(6 * two, 12);
+        Assert.equal(8 * two, 16);
+        Assert.equal(12 * two, 24);
+        Assert.equal(15 * two, 30);
+    }
+}
