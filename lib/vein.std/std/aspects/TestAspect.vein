@@ -1,0 +1,5 @@
+#space "std"
+
+public aspect test();
+
+public aspect fixture();

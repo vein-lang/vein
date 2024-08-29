@@ -204,7 +204,7 @@ namespace vein.syntax
             {
                 Directives = directives,
                 Members = members.Select(x => x.WithTrailingComments(trailingComments)),
-                //Aliases = aliases.GetOrEmpty()
+                Aliases = aliases.GetOrEmpty()
             };
 
         public virtual Parser<DocumentDeclaration> CompilationUnitV2 =>

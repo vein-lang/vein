@@ -1,0 +1,90 @@
+#space "std"
+
+
+public static class Assert
+{
+    public static equal(s1: string, s2: string): void {
+        if (s1 == s2) {
+            return;
+        }
+        fail new AssertException("equal: assertion failed");
+    }
+
+    public static equal(s1: i32, s2: i32): void {
+        Out.print(string.format("{0} == {1}", s1, s2));
+        if (s1 == s2) {
+            return;
+        }
+        fail new AssertException("equal: assertion failed");
+    }
+
+    public static equal(s1: i64, s2: i64): void {
+        if (s1 == s2) {
+            return;
+        }
+        fail new AssertException("equal: assertion failed");
+    }
+
+    public static equal(s1: i16, s2: i16): void {
+        if (s1 == s2) {
+            return;
+        }
+        fail new AssertException("equal: assertion failed");
+    }
+
+    public static equal(s1: u32, s2: u32): void {
+        if (s1 == s2) {
+            return;
+        }
+        fail new AssertException("equal: assertion failed");
+    }
+
+    public static equal(s1: u64, s2: u64): void {
+        if (s1 == s2) {
+            return;
+        }
+        fail new AssertException("equal: assertion failed");
+    }
+
+    public static equal(s1: u16, s2: u16): void {
+        if (s1 == s2) {
+            return;
+        }
+        fail new AssertException("equal: assertion failed");
+    }
+
+    public static isTrue(s1: bool): void {
+        if (s1) {
+            return;
+        }
+        fail new AssertException("isTrue: assertion failed");
+    }
+    public static isFalse(s1: bool): void {
+        if (!s1) {
+            return;
+        }
+        fail new AssertException("isFalse: assertion failed");
+    }
+
+    public static isNull(s1: Object): void {
+        if (s1 == null) {
+            return;
+        }
+        fail new AssertException("isNull: assertion failed");
+    }
+
+    public static isNotNull(s1: Object): void {
+        if (s1 != null) {
+            return;
+        }
+        fail new AssertException("isNotNull: assertion failed");
+    }
+}
+
+public class AssertException {
+    public message: string;
+
+    new(msg: string) {
+        this.message = msg;
+    }
+}
