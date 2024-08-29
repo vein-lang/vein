@@ -149,6 +149,8 @@ namespace vein.reflection
                 var aspect = new AspectOfClass(aspectName, new NameSymbol(aspectClass));
                 foreach (var (key, value) in groupClass)
                 {
+                    if (key.fullName.EndsWith("@"))
+                        continue;
                     var index = key.fullName.Split("._").Last();
                     aspect.DefineArgument(int.Parse(index), value);
                 }
@@ -162,6 +164,8 @@ namespace vein.reflection
                 var aspect = new AspectOfMethod(aspectName, new NameSymbol(aspectClass), aspectMethod);
                 foreach (var (key, value) in groupMethod)
                 {
+                    if (key.fullName.EndsWith("@"))
+                        continue;
                     var index = key.fullName.Split("._").Last();
                     aspect.DefineArgument(int.Parse(index), value);
                 }
@@ -175,6 +179,8 @@ namespace vein.reflection
                 var aspect = new AspectOfField(aspectName, new NameSymbol(aspectClass), aspectField);
                 foreach (var (key, value) in groupMethod)
                 {
+                    if (key.fullName.EndsWith("@"))
+                        continue;
                     var index = key.fullName.Split("._").Last();
                     aspect.DefineArgument(int.Parse(index), value);
                 }

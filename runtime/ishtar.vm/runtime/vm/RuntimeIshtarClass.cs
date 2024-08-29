@@ -154,7 +154,7 @@ namespace ishtar
 
         internal void ReplaceParent(RuntimeIshtarClass* parent)
         {
-            VirtualMachine.Assert(Parent->IsUnresolved, TYPE_LOAD, "Replace Parent is possible only if type already unresolved");
+            VirtualMachine.Assert(Parent->IsUnresolved || (Parent->Flags & ClassFlags.Predefined) != 0, TYPE_LOAD, "Replace Parent is possible only if type already unresolved or predefined");
             Parent = parent;
         }
         
@@ -543,15 +543,9 @@ namespace ishtar
             Methods->FirstOrNull(x => {
                 if (!x->IsStatic)
                     return false;
-                if (x->IsSpecial)
-                    return false;
                 if (x->IsTypeConstructor)
                     return false;
-                if (x->ArgLength > 0)
-                    return false;
-                if (x->ReturnType->TypeCode != TYPE_VOID)
-                    return false;
-                if (!name.SlicedStringEquals(x->RawName))
+                if (!name.SlicedStringEquals(x->Name))
                     return false;
                 return true;
             });

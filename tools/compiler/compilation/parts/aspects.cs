@@ -80,24 +80,33 @@ public partial class CompilationTask
         DocumentDeclaration doc, IAspectable aspectable,
         AspectTarget target)
     {
-        foreach (var annotation in aspects.TrimNull().Where(annotation => annotation.Args.Length != 0))
+        if (aspects.Count == 0)
+            return;
+
+        foreach (var annotation in aspects.TrimNull())
         {
             var aspect = new Aspect(annotation.Name.ToString(), target);
-            foreach (var (exp, index) in annotation.Args.Select((x, y) => (x, y)))
-            {
 
-                if (exp.CanOptimizationApply())
+            if (annotation.Args.Length != 0)
+            {
+                foreach (var (exp, index) in annotation.Args.Select((x, y) => (x, y)))
                 {
-                    var optimized = exp.ForceOptimization();
-                    var converter = optimized.GetTypeCode().GetConverter();
-                    var calculated = converter(optimized.ExpressionString);
-                    module.WriteToConstStorage($"{nameGenerator(annotation)}_{index}",
-                        calculated);
-                    aspect.DefineArgument(index, calculated);
+
+                    if (exp.CanOptimizationApply())
+                    {
+                        var optimized = exp.ForceOptimization();
+                        var converter = optimized.GetTypeCode().GetConverter();
+                        var calculated = converter(optimized.ExpressionString);
+                        module.WriteToConstStorage($"{nameGenerator(annotation)}_{index}",
+                            calculated);
+                        aspect.DefineArgument(index, calculated);
+                    }
+                    else
+                        Log.Defer.Error("[red bold]Aspects require compile-time constant.[/]", annotation, doc);
                 }
-                else
-                    Log.Defer.Error("[red bold]Aspects require compile-time constant.[/]", annotation, doc);
             }
+            else
+                module.WriteToConstStorage($"{nameGenerator(annotation)}@", 0);
             aspectable.Aspects.Add(aspect);
         }
     }

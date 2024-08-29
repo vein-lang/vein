@@ -270,6 +270,23 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         return clazz->GetSpecialEntryPoint(name);
     }
 
+    public RuntimeIshtarMethod* GetSpecialEntryPoint(SlicedString name, SlicedString className)
+    {
+        if (className.IsNull())
+            return GetSpecialEntryPoint(name);
+        if (className.Size == 0)
+            return GetSpecialEntryPoint(name);
+
+        var n = className.ToString();
+
+        var clazz = class_table->FirstOrNull(x => x->FullName->NameWithNS.Equals(n));
+
+        if (clazz is null)
+            return null;
+
+        return clazz->GetSpecialEntryPoint(name);
+    }
+
     public static RuntimeIshtarModule* Read(AppVault vault, byte[] arr, NativeList<RuntimeIshtarModule>* deps, ModuleResolverCallback resolver)
     {
         using var tag = Profiler.Begin("vm:module:read");
@@ -1252,6 +1269,8 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
 
             foreach (var (key, value) in lst)
             {
+                if (key.Fullname.EndsWith("@"))
+                    continue;
                 var index = key.Fullname.Split("._").Last();
 
                 var arg = IshtarGC.AllocateImmortal<RuntimeAspectArgument>(asp);
@@ -1282,6 +1301,8 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
 
             foreach (var (key, value) in groupMethod)
             {
+                if (key.Fullname.EndsWith("@"))
+                    continue;
                 var index = key.Fullname.Split("._").Last();
 
                 var arg = IshtarGC.AllocateImmortal<RuntimeAspectArgument>(asp);
@@ -1309,6 +1330,8 @@ public unsafe struct RuntimeAspect : IEq<RuntimeAspect>, IDisposable
 
             foreach (var (key, value) in groupMethod)
             {
+                if (key.Fullname.EndsWith("@"))
+                    continue;
                 var index = key.Fullname.Split("._").Last();
 
                 var arg = IshtarGC.AllocateImmortal<RuntimeAspectArgument>(asp);

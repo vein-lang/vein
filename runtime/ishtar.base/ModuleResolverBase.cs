@@ -48,6 +48,14 @@ public abstract class ModuleResolverBase : IAssemblyResolver
         return mod;
     }
 
+    public virtual VeinModule Resolve(IshtarAssembly assembly, IReadOnlyList<VeinModule> deps)
+    {
+        var mod = ModuleReader.Read(assembly.Sections.First().data, deps,
+            (s, v) => ResolveDep(s, v, deps));
+        debug($"Dependency [orange]'{mod.Name}@{mod.Version}'[/] is resolved. [gray][[from artifacts]][/]");
+        return mod;
+    }
+
     public virtual VeinModule ResolveDep(IDependency package, IReadOnlyList<VeinModule> deps)
         => ResolveDep(package.Name, package.Version, deps);
 
