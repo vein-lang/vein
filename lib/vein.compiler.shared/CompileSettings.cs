@@ -15,8 +15,8 @@ public class CompileSettings : CommandSettings, IProjectSettingProvider
     [CommandOption("--print-result-types")]
     public bool PrintResultType { get; set; }
 
-    [Description("Display exported types table")]
-    [CommandOption("--disable-optimization|-O")]
+    [Description("Disable optimization")]
+    [CommandOption("--deopt")]
     public bool DisableOptimization { get; set; }
 
     [Description("Compile into single file")]
