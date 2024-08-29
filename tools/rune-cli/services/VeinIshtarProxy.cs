@@ -1,21 +1,21 @@
 namespace vein.cmd;
 
-public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, DirectoryInfo baseFolder, Dictionary<string, string> env) : IDisposable
+public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, DirectoryInfo baseFolder, Dictionary<string, string> env, bool redirectStdout) : IDisposable
 {
     private readonly Process _process = new()
     {
-        StartInfo = CreateProcess(compilerPath, args, baseFolder, env)
+        StartInfo = CreateProcess(compilerPath, args, baseFolder, env, redirectStdout)
     };
 
 
-    private static ProcessStartInfo CreateProcess(FileInfo compilerPath, IEnumerable<string> args, DirectoryInfo baseFolder, Dictionary<string, string> env)
+    private static ProcessStartInfo CreateProcess(FileInfo compilerPath, IEnumerable<string> args, DirectoryInfo baseFolder, Dictionary<string, string> env, bool redirectStdout)
     {
         var p = new ProcessStartInfo
         {
             FileName = compilerPath.FullName,
             Arguments = string.Join(" ", args),
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
+            RedirectStandardOutput = redirectStdout,
+            RedirectStandardError = redirectStdout,
             UseShellExecute = false,
             CreateNoWindow = true,
             WorkingDirectory = baseFolder.FullName
@@ -32,31 +32,33 @@ public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, Di
 
         void ConsoleOnCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
         {
-            cts.Cancel();
+            cts.Cancel(false);
             _process.Kill();
         }
-
-        var outputTask = Task.Run(async () =>
+        _process.Start();
+        if (redirectStdout)
         {
-            _process.Start();
-            using var reader = _process.StandardOutput;
-            char[] buffer = new char[1024];
-            int charsRead;
-            while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                await Console.Out.WriteAsync(new string(buffer, 0, charsRead));
-        }, cts.Token);
+            var outputTask = Task.Run(async () =>
+            {
+                using var reader = _process.StandardOutput;
+                char[] buffer = new char[1024];
+                int charsRead;
+                while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    await Console.Out.WriteAsync(new string(buffer, 0, charsRead));
+            }, cts.Token);
 
-        var errorTask = Task.Run(async () =>
-        {
-            _process.Start();
-            using var reader = _process.StandardError;
-            char[] buffer = new char[1024];
-            int charsRead;
-            while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                await Console.Error.WriteAsync(new string(buffer, 0, charsRead));
-        }, cts.Token);
+            var errorTask = Task.Run(async () =>
+            {
+                _process.Start();
+                using var reader = _process.StandardError;
+                char[] buffer = new char[1024];
+                int charsRead;
+                while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    await Console.Error.WriteAsync(new string(buffer, 0, charsRead));
+            }, cts.Token);
 
-        await Task.WhenAll(outputTask, errorTask);
+            await Task.WhenAll(outputTask, errorTask);
+        }
 
         await _process.WaitForExitAsync(cts.Token);
 

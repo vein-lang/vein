@@ -34,7 +34,15 @@ public class RunSettings : CommandSettings, IProjectSettingProvider
 
     [Description("Override entry point method name (only static method, without arguments)")]
     [CommandOption("--entry-point", IsHidden = true)]
-    public string EntryPoint { get; set; } = "master";
+    public string EntryPoint { get; set; } = "master() -> [std]::std::Void";
+
+    [Description("Override entry point class name")]
+    [CommandOption("--entry-point-class", IsHidden = true)]
+    public string EntryPointClass { get; set; } = "";
+
+    [Description("Disable redirect stdout")]
+    [CommandOption("--no-stdout")]
+    public bool DoNotRedirectOutput { get; set; }
 }
 
 [ExcludeFromCodeCoverage]
@@ -49,6 +57,7 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
         no_trace={TraceEnable}
         skip_validate_stf_type={SkipValidateStfTypeOpCode}
         entry_point="{EntryPoint}"
+        entry_point_class="{EntryPointClass}"
         
         [vm:jit]
         enable=true
@@ -67,6 +76,7 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
         
         [vm:debug]
         press_enter_to_exit=false
+        snapshot_path="obj\"
         
         [vm:threading]
         size=4
@@ -124,6 +134,7 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             .Replace($"{{{nameof(settings.SkipValidateArgs)}}}", settings.SkipValidateArgs.ToString().ToLowerInvariant())
             .Replace($"{{{nameof(settings.SkipValidateStfTypeOpCode)}}}", settings.SkipValidateStfTypeOpCode.ToString().ToLowerInvariant())
             .Replace($"{{{nameof(settings.EntryPoint)}}}", settings.EntryPoint)
+            .Replace($"{{{nameof(settings.EntryPointClass)}}}", settings.EntryPointClass)
             .Replace($"{{{nameof(settings.JitContextDeffer)}}}", settings.JitContextDeffer.ToString().ToLowerInvariant());
         
         if (!string.IsNullOrEmpty(settings.OverrideBootCfg))
@@ -151,12 +162,16 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
 
             boot_config_data = await file.ReadToEndAsync();
         }
-        await project.WorkDir
-            .SubDirectory("obj")
-            .Ensure()
-            .File("boot.ini")
-            .WriteAllTextAsync(boot_config_data);
+        try
+        {
+            await project.WorkDir
+                .SubDirectory("obj")
+                .Ensure()
+                .File("boot.ini")
+                .WriteAllTextAsync(boot_config_data);
 
+        }
+        catch { }
         var envs = new Dictionary<string, string>();
 
 
@@ -164,11 +179,15 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             envs.Add("VM_PROFILER", "true");
         
 
-        var ishtarExitCode = await new VeinIshtarProxy(tool, [execFile.FullName.Escapes('\"')], project.WorkDir, envs).ExecuteAsync();
-        AnsiConsole.WriteLine();
-        AnsiConsole.Write(ishtarExitCode != 0
-            ? new Rule($"[red bold]RUN FAILED[/]") { Style = Style.Parse("deeppink3 rapidblink") }
-            : new Rule($"[green bold]RUN SUCCESS[/]") { Style = Style.Parse("lime rapidblink") });
+        var ishtarExitCode = await new VeinIshtarProxy(tool, [execFile.FullName.Escapes('\"')], project.WorkDir, envs, !settings.DoNotRedirectOutput).ExecuteAsync();
+
+        if (!settings.DoNotRedirectOutput)
+        {
+            AnsiConsole.WriteLine();
+            AnsiConsole.Write(ishtarExitCode != 0
+                ? new Rule($"[red bold]RUN FAILED[/]") { Style = Style.Parse("deeppink3 rapidblink") }
+                : new Rule($"[green bold]RUN SUCCESS[/]") { Style = Style.Parse("lime rapidblink") });
+        }
 
         return ishtarExitCode;
     }
