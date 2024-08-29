@@ -13,6 +13,7 @@ using vein.cli;
 using static Spectre.Console.AnsiConsole;
 using vein.json;
 using Log = Serilog.Log;
+using static vein.GlobalVersion;
 
 [assembly: InternalsVisibleTo("veinc_test")]
 
@@ -66,12 +67,16 @@ await Host.CreateDefaultBuilder(args)
     .UseConsoleLifetime()
     .UseSpectreConsole(config =>
     {
+        config.SetApplicationName("vein-compiler");
+        config.SetApplicationCulture(CultureInfo.InvariantCulture);
+        config.SetApplicationVersion($"{AssemblySemFileVer}-{BranchName}+{ShortSha}");
         config.AddCommand<CompileCommand>("build")
             .WithDescription("Build current project.");
         config.AddCommand<LspRunCommand>("lsp")
             .WithDescription("run lsp server");
 
-        config.SetExceptionHandler((ex) => {
+        config.SetExceptionHandler((ex, resolver) =>
+        {
             if (!string.IsNullOrEmpty(redirectLogger))
                 Log.Logger.Error(ex, "");
             WriteException(ex);

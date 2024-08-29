@@ -10,6 +10,10 @@
     "run": {
       "commandName": "Project",
       "commandLineArgs": "run ..\\..\\..\\..\\..\\lib\\vein.std\\std\\std.vproj --sva"
+    },
+    "test": {
+      "commandName": "Project",
+      "commandLineArgs": "test ..\\..\\..\\..\\..\\lib\\vein.std\\std\\std.vproj --parallel"
     }
   }
 }

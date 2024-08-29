@@ -85,7 +85,12 @@ AppFlags.RegisterArgs(ref args);
 
 await Host.CreateDefaultBuilder(args)
     .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.None)).UseConsoleLifetime()
-    .UseSpectreConsole(config => {
+    .UseSpectreConsole(config =>
+    {
+        config.SetApplicationCulture(CultureInfo.InvariantCulture);
+        config.SetApplicationName("rune-cli");
+        config.SetApplicationVersion($"{AssemblySemFileVer}-{BranchName}+{ShortSha}");
+
         config.AddCommand<RunCommand>("run")
             .WithDescription("Run project");
         config.AddCommand<TestCommand>("test")
@@ -151,7 +156,8 @@ await Host.CreateDefaultBuilder(args)
                 .IsHidden();
         });
 
-        config.SetExceptionHandler((ex) => {
+        config.SetExceptionHandler((ex, resolver) =>
+        {
             SentrySdk.CaptureException(ex);
 
             if (Environment.GetEnvironmentVariable("RUNE_EXCEPTION_SHOW") is not null)

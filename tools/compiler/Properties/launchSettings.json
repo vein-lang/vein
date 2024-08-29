@@ -20,6 +20,10 @@
       "commandName": "Project",
       "commandLineArgs": "build ..\\..\\..\\..\\..\\lib\\vein.std\\std\\std.vproj --ignore-cache"
     },
+    "compile std library - socket test": {
+      "commandName": "Project",
+      "commandLineArgs": "build ..\\..\\..\\..\\..\\lib\\vein.std\\std.socket.test\\std.socket.test.vproj --ignore-cache"
+    },
     "test case": {
       "commandName": "Project",
       "commandLineArgs": "build",
