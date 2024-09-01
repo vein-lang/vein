@@ -8,12 +8,32 @@ public class NewCommandSettings : CommandSettings
     [Description("Command execution is not affect files.")]
     [CommandOption("--dry-run")]
     public bool DryRun { get; set; }
+
+    [Description("Project name")]
+    [CommandArgument(0, "[NAME]")]
+    public string ProjectName { get; set; }
+
+    [Description("Do not create subdirectory 'projectName'.")]
+    [CommandOption("--dcs")]
+    public bool DoNotCreateSubDirectory { get; set; }
+
+    [Description("Force use interactive creation project")]
+    [CommandOption("--interactive|-i")]
+    public bool Interactive { get; set; }
+
+    [Description("Set framework target name")]
+    [CommandOption("--framework|-f", IsHidden = true)]
+    public string FrameworkName { get; set; }
+
+    [Description("Set template")]
+    [CommandOption("--template|-t", IsHidden = true)]
+    public string TemplateName { get; set; }
 }
 
 [ExcludeFromCodeCoverage]
 public class NewCommand(ShardRegistryQuery query, ShardProxy shardProxy) : AsyncCommand<NewCommandSettings>
 {
-    public static ValidationResult ValidateFileName(string fileName)
+    private static ValidationResult ValidateFileName(string fileName)
     {
         if (fileName.Contains(' '))
             return ValidationResult.Error("Space symbol is not allowed");
@@ -46,28 +66,66 @@ public class NewCommand(ShardRegistryQuery query, ShardProxy shardProxy) : Async
     public override async Task<int> ExecuteAsync(CommandContext context, NewCommandSettings settings)
     {
         var curDir = new DirectoryInfo(Directory.GetCurrentDirectory());
-        var srcDir = curDir.SubDirectory("src").Ensure();
         var licenses = await Resources.Licenses.ReadAllLinesAsync();
+        var project = default(YAML.Project);
+        var srcDir = default(DirectoryInfo);
+        var name = "";
 
-        var name = context.Ask("Project name?", curDir.Name, ValidateFileName);
-        var version = context.Ask("Project version?", "1.0.0.0", x => NuGetVersion.TryParse(x, out _));
+        if (string.IsNullOrEmpty(settings.ProjectName))
+            settings.Interactive = true;
 
-
-        var author = context.Ask<string>("Enter your name:", x => !string.IsNullOrEmpty(x));
-        var github = AnsiConsole.Ask<string>("Enter your github username:");
-        var license = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Choose [green]license[/]")
-                .PageSize(10)
-                .MoreChoicesText("[grey](Move up and down to reveal more licenses)[/]")
-                .AddChoices(licenses));
-
-        var project = new YAML.Project
+        if (settings.Interactive)
         {
-            Version = version,
-            Authors = [new(author, github)],
-            License = license
-        };
+            name = context.Ask<string>("Project name?", "", ValidateFileName);
+            var version = context.Ask("Project version?", "0.0.0", x => NuGetVersion.TryParse(x, out _));
+
+            srcDir = settings.DoNotCreateSubDirectory ?
+                curDir.Ensure() :
+                curDir.SubDirectory(name).Ensure();
+
+            var author = context.Ask<string>("Enter your name:", x => !string.IsNullOrEmpty(x));
+            var github = AnsiConsole.Ask<string>("Enter your github username:");
+            var license = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Choose [green]license[/]")
+                    .PageSize(10)
+                    .MoreChoicesText("[grey](Move up and down to reveal more licenses)[/]")
+                    .AddChoices(licenses));
+
+            project = new YAML.Project
+            {
+                Version = version,
+                Authors = [new(author, github)],
+                License = license
+            };
+        }
+        else
+        {
+            name = settings.ProjectName;
+            var version = "0.0.0";
+
+            srcDir = settings.DoNotCreateSubDirectory ?
+                curDir.Ensure() :
+                curDir.SubDirectory(name).Ensure();
+
+            var author = context.Ask<string>("Enter your name:", x => !string.IsNullOrEmpty(x));
+            var github = AnsiConsole.Ask<string>("Enter your github username:");
+            var license = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Choose [green]license[/]")
+                    .PageSize(10)
+                    .MoreChoicesText("[grey](Move up and down to reveal more licenses)[/]")
+                    .AddChoices(licenses));
+
+            project = new YAML.Project
+            {
+                Version = version,
+                Authors = [new(author, github)],
+                License = license
+            };
+        }
+
+        
 
         if (!settings.DryRun)
         {
