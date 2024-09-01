@@ -71,7 +71,9 @@ await Host.CreateDefaultBuilder(args)
         config.SetApplicationCulture(CultureInfo.InvariantCulture);
         config.SetApplicationVersion($"{AssemblySemFileVer}-{BranchName}+{ShortSha}");
         config.AddCommand<CompileCommand>("build")
-            .WithDescription("Build current project.");
+            .WithDescription("Build current project.")
+            .WithAlias("pack")
+            .WithAlias("package");
         config.AddCommand<LspRunCommand>("lsp")
             .WithDescription("run lsp server");
 
