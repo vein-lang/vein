@@ -158,11 +158,20 @@ await Host.CreateDefaultBuilder(args)
 
         config.SetExceptionHandler((ex, resolver) =>
         {
+            if (ex is CommandParseException exc)
+            {
+                MarkupLine($"[red]{exc.Message}[/]");
+                return;
+            }
+
+            MarkupLine($"([orange]{ex.GetType().FullName!.Split('.').Last().ToLowerInvariant().Replace("exception", "")}[/]) [red]{ex.Message}[/]");
+
             SentrySdk.CaptureException(ex);
 
             if (Environment.GetEnvironmentVariable("RUNE_EXCEPTION_SHOW") is not null)
                 WriteException(ex);
-            File.WriteAllText($"rune-error-{DateTimeOffset.Now:yyyy-dd-M--HH-mm-ss}.txt", ex.ToString());
+            if (Directory.Exists("./obj"))
+                File.WriteAllText($"./obj/rune-error-{DateTimeOffset.Now:yyyy-dd-M--HH-mm-ss}.txt", ex.ToString());
         });
     })
     .ConfigureServices(
