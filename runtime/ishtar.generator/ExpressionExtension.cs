@@ -82,7 +82,11 @@ namespace ishtar
             var result = new Expressive.Expression(exp.ExpressionString).Evaluate();
 
             if (result is float f)
-                return new SingleLiteralExpressionSyntax(f).AsOptimized();
+                return float.IsInfinity(f) ? exp.AsOptimized() : new SingleLiteralExpressionSyntax(f).AsOptimized();
+
+            if (result is double d)
+                return double.IsInfinity(d) ? exp.AsOptimized() : new DoubleLiteralExpressionSyntax(d).AsOptimized();
+
             return new VeinSyntax().LiteralExpression.Positioned().End().Parse($"{result}").AsOptimized();
         }
 
