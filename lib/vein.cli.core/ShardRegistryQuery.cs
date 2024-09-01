@@ -56,7 +56,10 @@ public class ShardRegistryQuery
         CancellationToken token = default, IProgress<(int total, int speed)>? progress = null)
     {
         if (_storage.IsAvailable(manifest))
+        {
+            progress?.Report((100, 0));
             return manifest;
+        }
         var path = _storage.EnsureSpace(manifest);
         var name = manifest.Name;
         var version = manifest.Version.ToNormalizedString();
@@ -67,7 +70,10 @@ public class ShardRegistryQuery
             .GetAsync(cancellationToken: token);
 
         if (result is { StatusCode: 404 })
+        {
+            progress?.Report((100, 0));
             return null;
+        }
 
         var package = path.File(_storage.TemplateName(manifest));
         var fileLengthTxt = result.Headers.FirstOrDefault(x => x.Name.Equals("Content-Length")).Value ?? "-1";
