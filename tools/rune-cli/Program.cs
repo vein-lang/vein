@@ -19,7 +19,6 @@ using vein.services;
 
 [assembly: InternalsVisibleTo("veinc_test")]
 
-
 await AppMutex.Begin();
 JsonConvert.DefaultSettings = () => new JsonSerializerSettings
 {
@@ -65,7 +64,8 @@ var skipIntro =
     SecurityStorage.HasKey("app:novid") || // skip intro when setting is set
     Environment.GetEnvironmentVariable("RUNE_NOVID") is not null || // skip intro when using 'RUNE_NOVID' env
     (args.FirstOrDefault()?.Equals("run") ?? false) || // skip intro when command is 'run'
-    (args.FirstOrDefault()?.Equals("sys") ?? false);
+    (args.FirstOrDefault()?.Equals("sys") ?? false) ||
+    (args.FirstOrDefault()?.Equals("--version") ?? false);
 
 var watch = Stopwatch.StartNew();
 
@@ -78,38 +78,47 @@ ILGenerator.DoNotGenDebugInfo = false;
 if (!skipIntro)
 {
     MarkupLine($"[grey]Vein's Rune CLI[/] [red]{AssemblySemFileVer}-{BranchName}+{ShortSha}[/]");
-    MarkupLine($"[grey]Copyright (C)[/] [cyan3]2024[/] [bold]Vein[/].\n\n");
+    MarkupLine($"[grey]Copyright (C)[/] [cyan3]2024[/] [bold]Vein[/].\n");
 }
 
 AppFlags.RegisterArgs(ref args);
 
 await Host.CreateDefaultBuilder(args)
-    .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.None)).UseConsoleLifetime()
+    .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.None))
+    .UseConsoleLifetime()
     .UseSpectreConsole(config =>
     {
         config.SetApplicationCulture(CultureInfo.InvariantCulture);
         config.SetApplicationName("rune-cli");
         config.SetApplicationVersion($"{AssemblySemFileVer}-{BranchName}+{ShortSha}");
-
+        
         config.AddCommand<RunCommand>("run")
-            .WithDescription("Run project");
+            .WithDescription("Run project")
+            .WithAlias("start");
         config.AddCommand<TestCommand>("test")
             .WithDescription("Run test in project");
         config.AddCommand<NewCommand>("new")
-            .WithDescription("Create new project.");
+            .WithDescription("Create new project.")
+            .WithAlias("create");
         config.AddCommand<BuildCommand>("build")
             .WithDescription("Build current project.");
         config.AddCommand<PackageCommand>("package")
-            .WithDescription("Prepare and build project to publish into package registry.");
+            .WithDescription("Prepare and build project to publish into package registry.")
+            .WithAlias("pack");
         config.AddCommand<CleanCommand>("clean")
-            .WithDescription("Clean project cache");
+            .WithDescription("Clean project cache")
+            .WithAlias("clear")
+            .WithAlias("prune");
         config.AddCommand<RestoreCommand>("restore")
             .WithDescription("Restore dependencies in project.");
         config.AddCommand<AddCommand>("add")
             .WithDescription("Find and add package into project from registry")
-            .WithExample(["add std@0.12.1"]);
+            .WithExample(["add std@0.12.1"])
+            .WithAlias("install")
+            // ReSharper disable once StringLiteralTypo
+            .WithAlias("instal");
         config.AddCommand<PublishCommand>("publish")
-            .WithDescription("Publish shard package into vein gallery. (need set 'packable: true' in project or call 'vein package')")
+            .WithDescription("Publish shard package into vein gallery.")
             .WithExample(["--project ./foo.vproj"]);
         config.AddCommand<TelemetryCommand>("telemetry")
             .IsHidden();
@@ -119,23 +128,21 @@ await Host.CreateDefaultBuilder(args)
             x.AddCommand<ListInstalledWorkloadCommand>("list")
                 .WithDescription($"Get list of installed workloads");
             x.AddCommand<InstallWorkloadCommand>("install")
-                .WithDescription("Install workload into global");
-            x.AddCommand<InstallWorkloadCommand>("add")
-                .IsHidden()
-                .WithDescription("Install workload into global");
+                .WithDescription("Install workload into global")
+                .WithAlias("add")
+                // ReSharper disable once StringLiteralTypo
+                .WithAlias("instal");
             x.AddCommand<UpdateWorkloadCommand>("update")
-                .WithDescription("Update workload.");
+                .WithDescription("Update workload.")
+                .WithAlias("upgrade");
             x.AddCommand<UninstallWorkloadCommand>("uninstall")
-                .WithDescription("Uninstall workload.");
-            x.AddCommand<UninstallWorkloadCommand>("delete")
-                .IsHidden()
-                .WithDescription("Uninstall workload.");
-            x.AddCommand<UninstallWorkloadCommand>("remove")
-                .IsHidden()
-                .WithDescription("Uninstall workload.");
+                .WithDescription("Uninstall workload.")
+                .WithAlias("remove")
+                .WithAlias("delete");
         }).WithAlias("workloads");
         config.AddBranch("config", x =>
         {
+            x.SetDescription("Manage vein configurations");
             x.AddCommand<SetConfigCommand>("set")
                 .WithExample(["set foo:bar value"])
                 .WithExample(["set foo:zoo 'a sample value'"])
@@ -147,7 +154,8 @@ await Host.CreateDefaultBuilder(args)
                 .WithDescription("Get all keys.");
             x.AddCommand<RemoveConfigCommand>("remove")
                 .WithDescription("Remove key from global config.");
-        });
+        })
+        .WithAlias("cfg");
 
         config.AddBranch("sys", x =>
         {
@@ -189,8 +197,9 @@ await Host.CreateDefaultBuilder(args)
 watch.Stop();
 await AppMutex.End();
 
-if (!skipIntro)
-    MarkupLine($":sparkles: Done in [lime]{watch.Elapsed.TotalSeconds:00.000}s[/].");
+if (Environment.ExitCode == 0) if (!skipIntro)
+    MarkupLine($"\n:sparkles: Done in [lime]{watch.Elapsed.TotalSeconds:00.000}s[/].");
+
 return Environment.ExitCode;
 
 
