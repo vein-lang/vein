@@ -35,35 +35,40 @@ public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, Di
             cts.Cancel(false);
             _process.Kill();
         }
-        _process.Start();
+        
         if (redirectStdout)
         {
-            var outputTask = Task.Run(async () =>
+            async ValueTask redirect(StreamReader reader)
             {
-                using var reader = _process.StandardOutput;
                 char[] buffer = new char[1024];
                 int charsRead;
                 while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
                     await Console.Out.WriteAsync(new string(buffer, 0, charsRead));
+            }
+
+            var outputTask = Task.Run(async () =>
+            {
+                using var reader = _process.StandardOutput;
+                await redirect(reader);
             }, cts.Token);
 
             var errorTask = Task.Run(async () =>
             {
-                _process.Start();
                 using var reader = _process.StandardError;
-                char[] buffer = new char[1024];
-                int charsRead;
-                while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                    await Console.Error.WriteAsync(new string(buffer, 0, charsRead));
+                await redirect(reader);
             }, cts.Token);
+
+            _process.Start();
 
             await Task.WhenAll(outputTask, errorTask);
         }
+        else
+            _process.Start();
 
         await _process.WaitForExitAsync(cts.Token);
 
         Console.CancelKeyPress -= ConsoleOnCancelKeyPress;
-
+        
         return _process.ExitCode;   
     }
 
