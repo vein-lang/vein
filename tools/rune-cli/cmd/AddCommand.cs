@@ -10,23 +10,29 @@ public class AddCommand(ShardRegistryQuery query) : AsyncCommandWithProject<AddC
         var name = settings.PackageName.Name;
         var version = settings.PackageName.Version;
 
-        var result = await ProgressWithTask.Progress(
-            (x) => query.DownloadShardAsync(name, version, CancellationToken.None, x),
-            $"downloading shard package [orange3]'{name}@{version}'[/] {{%bytes}}");
-
-        project._project.Packages ??= new List<string>();
-
+        
+        var result = await ProgressWithTask.ProgressIndeterminate(async () =>
+                await query.FindByName(name, version, settings.IncludeUnlisted), $"search [orange3]'{name}@{version}'[/] package in package registry...");
 
         if (result is null)
         {
             Log.Error($"Shard package [orange3]'{name}@{version}'[/] not found in vein gallery.");
             return -1;
         }
-
         var package_tag = $"{name}@{result.Version.ToNormalizedString()}";
+        project._project.Packages ??= new List<string>();
 
         if (project._project.Packages.Contains(package_tag))
+        {
+            Log.Info($"Shard package [orange3]'{name}@{result.Version.ToNormalizedString()}'[/] already installed.");
             return 0;
+        }
+        await ProgressWithTask.Progress(
+            (x) => query.DownloadShardAsync(result, CancellationToken.None, x),
+            $"downloading shard package [orange3]'{name}@{result.Version.ToNormalizedString()}'[/] {{%bytes}}");
+
+        
+        
 
         // remove old versions of package
         if (project._project.Packages.Any(x => x.StartsWith($"{name}@")))
@@ -53,12 +59,12 @@ public class AddCommand(ShardRegistryQuery query) : AsyncCommandWithProject<AddC
 
         if (exit_code != 0)
         {
-            Log.Error($"[red]Failed[/] add [orange3]'{name}@{version}'[/] into [orange3]'{project.Name}'[/] project.");
+            Log.Error($"[red]Failed[/] add [orange3]'{name}@{result.Version.ToNormalizedString()}'[/] into [orange3]'{project.Name}'[/] project.");
             project._project.Packages.Remove(package_tag);
             project._project.Save(project.ProjectFile);
             return -1;
         }
-        Log.Info($"[green]Success[/] add [orange3]'{name}@{version}'[/] into [orange3]'{project.Name}'[/] project.");
+        Log.Info($"[green]Success[/] add [orange3]'{name}@{result.Version.ToNormalizedString()}'[/] into [orange3]'{project.Name}'[/] project.");
         return 0;
     }
 }
@@ -69,9 +75,14 @@ public class AddCommandSettings : CommandSettings, IProjectSettingProvider
     [Description("Package name")]
     [CommandArgument(0, "[NAME]")]
     public required RunePackageKey PackageName { get; set; }
+
     [Description("Path to project")]
     [CommandOption("--project")]
     public string Project { get; set; }
+
+    [Description("Include unlisted package")]
+    [CommandOption("--unlisted")]
+    public bool IncludeUnlisted { get; set; }
 }
 
 
