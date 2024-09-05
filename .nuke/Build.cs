@@ -217,6 +217,7 @@ class Build : NukeBuild
             catch (Exception e)
             {
                 Log.Error(e.ToString());
+                throw;
             }
         });
 
