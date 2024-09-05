@@ -2,6 +2,7 @@ namespace vein.syntax
 {
     using System;
     using System.Linq;
+    using System.Numerics;
     using Sprache;
     using stl;
     using vein.extensions;
@@ -50,7 +51,7 @@ namespace vein.syntax
         }
 
         private NumericLiteralExpressionSyntax TryParse<T, Z>(string str, Func<string, Z> parser)
-            where Z : IFormattable, IConvertible, IComparable<Z>, IEquatable<Z>, IComparable
+            where Z : IFormattable, IConvertible, IComparable<Z>, IEquatable<Z>, IComparable, INumber<Z>
             where T : NumericLiteralExpressionSyntax<Z>
         {
             if (string.IsNullOrEmpty(str))
