@@ -27,18 +27,54 @@
     description: Load constant into stack.
     variations: [F4, F2, STR]
     override-size: 4
-    I4:
-      description: Load int32 constant into stack.
+    I1:
+      description: Load int8 constant into stack.
       range: true
-      override-size: 4
+      override-size: 1
+    U1:
+      description: Load uint8 constant into stack.
+      range: true
+      override-size: 1
     I2:
       description: Load int16 constant into stack.
       range: true
       override-size: 2
+    I4:
+      description: Load int32 constant into stack.
+      range: true
+      override-size: 4
     I8:
       description: Load int64 constant into stack.
       range: true
       override-size: 8
+    U2:
+      description: Load uint16 constant into stack.
+      range: true
+      override-size: 2
+    U4:
+      description: Load uint32 constant into stack.
+      range: true
+      override-size: 4
+    U8:
+      description: Load uint64 constant into stack.
+      range: true
+      override-size: 8
+    U16:
+      description: Load uint128 constant into stack.
+      range: true
+      override-size: 16
+    I16:
+      description: Load int128 constant into stack.
+      range: true
+      override-size: 16
+    U32:
+      description: Load uint256 constant into stack.
+      range: true
+      override-size: 32
+    I32:
+      description: Load int256 constant into stack.
+      range: true
+      override-size: 32
     F8:
       description: Load float64 constant into stack.
       override-size: 8

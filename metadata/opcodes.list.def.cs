@@ -6,7 +6,7 @@ namespace ishtar
 	using System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 26;
+		internal static int SetVersion = 28;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -169,54 +169,103 @@ namespace ishtar
 		/// </summary>
 		public static readonly OpCode LDC_STR = new (0x16, 0x0100001F);
 		/// <summary>
-		/// Load int32 constant into stack.
+		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_0 = new (0x17, 0x0000001F);
+		public static readonly OpCode LDC_I1_0 = new (0x78, 0x0000001F);
 		/// <summary>
-		/// Load int32 constant into stack.
+		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_1 = new (0x18, 0x0000001F);
+		public static readonly OpCode LDC_I1_1 = new (0x79, 0x0000001F);
 		/// <summary>
-		/// Load int32 constant into stack.
+		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_2 = new (0x19, 0x0000001F);
+		public static readonly OpCode LDC_I1_2 = new (0x7A, 0x0000001F);
 		/// <summary>
-		/// Load int32 constant into stack.
+		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_3 = new (0x1A, 0x0000001F);
+		public static readonly OpCode LDC_I1_3 = new (0x7B, 0x0000001F);
 		/// <summary>
-		/// Load int32 constant into stack.
+		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_4 = new (0x1B, 0x0000001F);
+		public static readonly OpCode LDC_I1_4 = new (0x7C, 0x0000001F);
 		/// <summary>
-		/// Load int32 constant into stack.
+		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_5 = new (0x1C, 0x0000001F);
+		public static readonly OpCode LDC_I1_5 = new (0x7D, 0x0000001F);
 		/// <summary>
-		/// Load int32 constant into stack.
-		/// size: 4
+		/// Load int8 constant into stack.
+		/// size: 1
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_S = new (0x1D, 0x0100001F);
+		public static readonly OpCode LDC_I1_S = new (0x7E, 0x0040001F);
+		/// <summary>
+		/// Load uint8 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U1_0 = new (0x7F, 0x0000001F);
+		/// <summary>
+		/// Load uint8 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U1_1 = new (0x80, 0x0000001F);
+		/// <summary>
+		/// Load uint8 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U1_2 = new (0x81, 0x0000001F);
+		/// <summary>
+		/// Load uint8 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U1_3 = new (0x82, 0x0000001F);
+		/// <summary>
+		/// Load uint8 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U1_4 = new (0x83, 0x0000001F);
+		/// <summary>
+		/// Load uint8 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U1_5 = new (0x84, 0x0000001F);
+		/// <summary>
+		/// Load uint8 constant into stack.
+		/// size: 1
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U1_S = new (0x85, 0x0040001F);
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// size: 0
@@ -267,6 +316,55 @@ namespace ishtar
 		/// </summary>
 		public static readonly OpCode LDC_I2_S = new (0x24, 0x0080001F);
 		/// <summary>
+		/// Load int32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I4_0 = new (0x17, 0x0000001F);
+		/// <summary>
+		/// Load int32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I4_1 = new (0x18, 0x0000001F);
+		/// <summary>
+		/// Load int32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I4_2 = new (0x19, 0x0000001F);
+		/// <summary>
+		/// Load int32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I4_3 = new (0x1A, 0x0000001F);
+		/// <summary>
+		/// Load int32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I4_4 = new (0x1B, 0x0000001F);
+		/// <summary>
+		/// Load int32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I4_5 = new (0x1C, 0x0000001F);
+		/// <summary>
+		/// Load int32 constant into stack.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I4_S = new (0x1D, 0x0100001F);
+		/// <summary>
 		/// Load int64 constant into stack.
 		/// size: 0
 		/// flow: 0
@@ -315,6 +413,349 @@ namespace ishtar
 		/// chain: 0
 		/// </summary>
 		public static readonly OpCode LDC_I8_S = new (0x2B, 0x0200001F);
+		/// <summary>
+		/// Load uint16 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U2_0 = new (0x86, 0x0000001F);
+		/// <summary>
+		/// Load uint16 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U2_1 = new (0x87, 0x0000001F);
+		/// <summary>
+		/// Load uint16 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U2_2 = new (0x88, 0x0000001F);
+		/// <summary>
+		/// Load uint16 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U2_3 = new (0x89, 0x0000001F);
+		/// <summary>
+		/// Load uint16 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U2_4 = new (0x8A, 0x0000001F);
+		/// <summary>
+		/// Load uint16 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U2_5 = new (0x8B, 0x0000001F);
+		/// <summary>
+		/// Load uint16 constant into stack.
+		/// size: 2
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U2_S = new (0x8C, 0x0080001F);
+		/// <summary>
+		/// Load uint32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U4_0 = new (0x8D, 0x0000001F);
+		/// <summary>
+		/// Load uint32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U4_1 = new (0x8E, 0x0000001F);
+		/// <summary>
+		/// Load uint32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U4_2 = new (0x8F, 0x0000001F);
+		/// <summary>
+		/// Load uint32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U4_3 = new (0x90, 0x0000001F);
+		/// <summary>
+		/// Load uint32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U4_4 = new (0x91, 0x0000001F);
+		/// <summary>
+		/// Load uint32 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U4_5 = new (0x92, 0x0000001F);
+		/// <summary>
+		/// Load uint32 constant into stack.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U4_S = new (0x93, 0x0100001F);
+		/// <summary>
+		/// Load uint64 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U8_0 = new (0x94, 0x0000001F);
+		/// <summary>
+		/// Load uint64 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U8_1 = new (0x95, 0x0000001F);
+		/// <summary>
+		/// Load uint64 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U8_2 = new (0x96, 0x0000001F);
+		/// <summary>
+		/// Load uint64 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U8_3 = new (0x97, 0x0000001F);
+		/// <summary>
+		/// Load uint64 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U8_4 = new (0x98, 0x0000001F);
+		/// <summary>
+		/// Load uint64 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U8_5 = new (0x99, 0x0000001F);
+		/// <summary>
+		/// Load uint64 constant into stack.
+		/// size: 8
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U8_S = new (0x9A, 0x0200001F);
+		/// <summary>
+		/// Load uint128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U16_0 = new (0x9B, 0x0000001F);
+		/// <summary>
+		/// Load uint128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U16_1 = new (0x9C, 0x0000001F);
+		/// <summary>
+		/// Load uint128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U16_2 = new (0x9D, 0x0000001F);
+		/// <summary>
+		/// Load uint128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U16_3 = new (0x9E, 0x0000001F);
+		/// <summary>
+		/// Load uint128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U16_4 = new (0x9F, 0x0000001F);
+		/// <summary>
+		/// Load uint128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U16_5 = new (0xA0, 0x0000001F);
+		/// <summary>
+		/// Load uint128 constant into stack.
+		/// size: 16
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U16_S = new (0xA1, 0x0400001F);
+		/// <summary>
+		/// Load int128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I16_0 = new (0xA2, 0x0000001F);
+		/// <summary>
+		/// Load int128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I16_1 = new (0xA3, 0x0000001F);
+		/// <summary>
+		/// Load int128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I16_2 = new (0xA4, 0x0000001F);
+		/// <summary>
+		/// Load int128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I16_3 = new (0xA5, 0x0000001F);
+		/// <summary>
+		/// Load int128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I16_4 = new (0xA6, 0x0000001F);
+		/// <summary>
+		/// Load int128 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I16_5 = new (0xA7, 0x0000001F);
+		/// <summary>
+		/// Load int128 constant into stack.
+		/// size: 16
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I16_S = new (0xA8, 0x0400001F);
+		/// <summary>
+		/// Load uint256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U32_0 = new (0xA9, 0x0000001F);
+		/// <summary>
+		/// Load uint256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U32_1 = new (0xAA, 0x0000001F);
+		/// <summary>
+		/// Load uint256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U32_2 = new (0xAB, 0x0000001F);
+		/// <summary>
+		/// Load uint256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U32_3 = new (0xAC, 0x0000001F);
+		/// <summary>
+		/// Load uint256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U32_4 = new (0xAD, 0x0000001F);
+		/// <summary>
+		/// Load uint256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U32_5 = new (0xAE, 0x0000001F);
+		/// <summary>
+		/// Load uint256 constant into stack.
+		/// size: 32
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_U32_S = new (0xAF, 0x0800001F);
+		/// <summary>
+		/// Load int256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I32_0 = new (0xB0, 0x0000001F);
+		/// <summary>
+		/// Load int256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I32_1 = new (0xB1, 0x0000001F);
+		/// <summary>
+		/// Load int256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I32_2 = new (0xB2, 0x0000001F);
+		/// <summary>
+		/// Load int256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I32_3 = new (0xB3, 0x0000001F);
+		/// <summary>
+		/// Load int256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I32_4 = new (0xB4, 0x0000001F);
+		/// <summary>
+		/// Load int256 constant into stack.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I32_5 = new (0xB5, 0x0000001F);
+		/// <summary>
+		/// Load int256 constant into stack.
+		/// size: 32
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDC_I32_S = new (0xB6, 0x0800001F);
 		/// <summary>
 		/// Load float64 constant into stack.
 		/// size: 8
@@ -873,13 +1314,20 @@ namespace ishtar
 			{OpCodeValue.LDC_F4, LDC_F4},
 			{OpCodeValue.LDC_F2, LDC_F2},
 			{OpCodeValue.LDC_STR, LDC_STR},
-			{OpCodeValue.LDC_I4_0, LDC_I4_0},
-			{OpCodeValue.LDC_I4_1, LDC_I4_1},
-			{OpCodeValue.LDC_I4_2, LDC_I4_2},
-			{OpCodeValue.LDC_I4_3, LDC_I4_3},
-			{OpCodeValue.LDC_I4_4, LDC_I4_4},
-			{OpCodeValue.LDC_I4_5, LDC_I4_5},
-			{OpCodeValue.LDC_I4_S, LDC_I4_S},
+			{OpCodeValue.LDC_I1_0, LDC_I1_0},
+			{OpCodeValue.LDC_I1_1, LDC_I1_1},
+			{OpCodeValue.LDC_I1_2, LDC_I1_2},
+			{OpCodeValue.LDC_I1_3, LDC_I1_3},
+			{OpCodeValue.LDC_I1_4, LDC_I1_4},
+			{OpCodeValue.LDC_I1_5, LDC_I1_5},
+			{OpCodeValue.LDC_I1_S, LDC_I1_S},
+			{OpCodeValue.LDC_U1_0, LDC_U1_0},
+			{OpCodeValue.LDC_U1_1, LDC_U1_1},
+			{OpCodeValue.LDC_U1_2, LDC_U1_2},
+			{OpCodeValue.LDC_U1_3, LDC_U1_3},
+			{OpCodeValue.LDC_U1_4, LDC_U1_4},
+			{OpCodeValue.LDC_U1_5, LDC_U1_5},
+			{OpCodeValue.LDC_U1_S, LDC_U1_S},
 			{OpCodeValue.LDC_I2_0, LDC_I2_0},
 			{OpCodeValue.LDC_I2_1, LDC_I2_1},
 			{OpCodeValue.LDC_I2_2, LDC_I2_2},
@@ -887,6 +1335,13 @@ namespace ishtar
 			{OpCodeValue.LDC_I2_4, LDC_I2_4},
 			{OpCodeValue.LDC_I2_5, LDC_I2_5},
 			{OpCodeValue.LDC_I2_S, LDC_I2_S},
+			{OpCodeValue.LDC_I4_0, LDC_I4_0},
+			{OpCodeValue.LDC_I4_1, LDC_I4_1},
+			{OpCodeValue.LDC_I4_2, LDC_I4_2},
+			{OpCodeValue.LDC_I4_3, LDC_I4_3},
+			{OpCodeValue.LDC_I4_4, LDC_I4_4},
+			{OpCodeValue.LDC_I4_5, LDC_I4_5},
+			{OpCodeValue.LDC_I4_S, LDC_I4_S},
 			{OpCodeValue.LDC_I8_0, LDC_I8_0},
 			{OpCodeValue.LDC_I8_1, LDC_I8_1},
 			{OpCodeValue.LDC_I8_2, LDC_I8_2},
@@ -894,6 +1349,55 @@ namespace ishtar
 			{OpCodeValue.LDC_I8_4, LDC_I8_4},
 			{OpCodeValue.LDC_I8_5, LDC_I8_5},
 			{OpCodeValue.LDC_I8_S, LDC_I8_S},
+			{OpCodeValue.LDC_U2_0, LDC_U2_0},
+			{OpCodeValue.LDC_U2_1, LDC_U2_1},
+			{OpCodeValue.LDC_U2_2, LDC_U2_2},
+			{OpCodeValue.LDC_U2_3, LDC_U2_3},
+			{OpCodeValue.LDC_U2_4, LDC_U2_4},
+			{OpCodeValue.LDC_U2_5, LDC_U2_5},
+			{OpCodeValue.LDC_U2_S, LDC_U2_S},
+			{OpCodeValue.LDC_U4_0, LDC_U4_0},
+			{OpCodeValue.LDC_U4_1, LDC_U4_1},
+			{OpCodeValue.LDC_U4_2, LDC_U4_2},
+			{OpCodeValue.LDC_U4_3, LDC_U4_3},
+			{OpCodeValue.LDC_U4_4, LDC_U4_4},
+			{OpCodeValue.LDC_U4_5, LDC_U4_5},
+			{OpCodeValue.LDC_U4_S, LDC_U4_S},
+			{OpCodeValue.LDC_U8_0, LDC_U8_0},
+			{OpCodeValue.LDC_U8_1, LDC_U8_1},
+			{OpCodeValue.LDC_U8_2, LDC_U8_2},
+			{OpCodeValue.LDC_U8_3, LDC_U8_3},
+			{OpCodeValue.LDC_U8_4, LDC_U8_4},
+			{OpCodeValue.LDC_U8_5, LDC_U8_5},
+			{OpCodeValue.LDC_U8_S, LDC_U8_S},
+			{OpCodeValue.LDC_U16_0, LDC_U16_0},
+			{OpCodeValue.LDC_U16_1, LDC_U16_1},
+			{OpCodeValue.LDC_U16_2, LDC_U16_2},
+			{OpCodeValue.LDC_U16_3, LDC_U16_3},
+			{OpCodeValue.LDC_U16_4, LDC_U16_4},
+			{OpCodeValue.LDC_U16_5, LDC_U16_5},
+			{OpCodeValue.LDC_U16_S, LDC_U16_S},
+			{OpCodeValue.LDC_I16_0, LDC_I16_0},
+			{OpCodeValue.LDC_I16_1, LDC_I16_1},
+			{OpCodeValue.LDC_I16_2, LDC_I16_2},
+			{OpCodeValue.LDC_I16_3, LDC_I16_3},
+			{OpCodeValue.LDC_I16_4, LDC_I16_4},
+			{OpCodeValue.LDC_I16_5, LDC_I16_5},
+			{OpCodeValue.LDC_I16_S, LDC_I16_S},
+			{OpCodeValue.LDC_U32_0, LDC_U32_0},
+			{OpCodeValue.LDC_U32_1, LDC_U32_1},
+			{OpCodeValue.LDC_U32_2, LDC_U32_2},
+			{OpCodeValue.LDC_U32_3, LDC_U32_3},
+			{OpCodeValue.LDC_U32_4, LDC_U32_4},
+			{OpCodeValue.LDC_U32_5, LDC_U32_5},
+			{OpCodeValue.LDC_U32_S, LDC_U32_S},
+			{OpCodeValue.LDC_I32_0, LDC_I32_0},
+			{OpCodeValue.LDC_I32_1, LDC_I32_1},
+			{OpCodeValue.LDC_I32_2, LDC_I32_2},
+			{OpCodeValue.LDC_I32_3, LDC_I32_3},
+			{OpCodeValue.LDC_I32_4, LDC_I32_4},
+			{OpCodeValue.LDC_I32_5, LDC_I32_5},
+			{OpCodeValue.LDC_I32_S, LDC_I32_S},
 			{OpCodeValue.LDC_F8, LDC_F8},
 			{OpCodeValue.LDC_F16, LDC_F16},
 			{OpCodeValue.RESERVED_0, RESERVED_0},

@@ -98,33 +98,61 @@ public enum OpCodeValue : ushort
 	/// </summary>
 	LDC_STR = 0x16,
 	/// <summary>
-	/// Load int32 constant into stack.
+	/// Load int8 constant into stack.
 	/// </summary>
-	LDC_I4_0 = 0x17,
+	LDC_I1_0 = 0x78,
 	/// <summary>
-	/// Load int32 constant into stack.
+	/// Load int8 constant into stack.
 	/// </summary>
-	LDC_I4_1 = 0x18,
+	LDC_I1_1 = 0x79,
 	/// <summary>
-	/// Load int32 constant into stack.
+	/// Load int8 constant into stack.
 	/// </summary>
-	LDC_I4_2 = 0x19,
+	LDC_I1_2 = 0x7A,
 	/// <summary>
-	/// Load int32 constant into stack.
+	/// Load int8 constant into stack.
 	/// </summary>
-	LDC_I4_3 = 0x1A,
+	LDC_I1_3 = 0x7B,
 	/// <summary>
-	/// Load int32 constant into stack.
+	/// Load int8 constant into stack.
 	/// </summary>
-	LDC_I4_4 = 0x1B,
+	LDC_I1_4 = 0x7C,
 	/// <summary>
-	/// Load int32 constant into stack.
+	/// Load int8 constant into stack.
 	/// </summary>
-	LDC_I4_5 = 0x1C,
+	LDC_I1_5 = 0x7D,
 	/// <summary>
-	/// Load int32 constant into stack.
+	/// Load int8 constant into stack.
 	/// </summary>
-	LDC_I4_S = 0x1D,
+	LDC_I1_S = 0x7E,
+	/// <summary>
+	/// Load uint8 constant into stack.
+	/// </summary>
+	LDC_U1_0 = 0x7F,
+	/// <summary>
+	/// Load uint8 constant into stack.
+	/// </summary>
+	LDC_U1_1 = 0x80,
+	/// <summary>
+	/// Load uint8 constant into stack.
+	/// </summary>
+	LDC_U1_2 = 0x81,
+	/// <summary>
+	/// Load uint8 constant into stack.
+	/// </summary>
+	LDC_U1_3 = 0x82,
+	/// <summary>
+	/// Load uint8 constant into stack.
+	/// </summary>
+	LDC_U1_4 = 0x83,
+	/// <summary>
+	/// Load uint8 constant into stack.
+	/// </summary>
+	LDC_U1_5 = 0x84,
+	/// <summary>
+	/// Load uint8 constant into stack.
+	/// </summary>
+	LDC_U1_S = 0x85,
 	/// <summary>
 	/// Load int16 constant into stack.
 	/// </summary>
@@ -154,6 +182,34 @@ public enum OpCodeValue : ushort
 	/// </summary>
 	LDC_I2_S = 0x24,
 	/// <summary>
+	/// Load int32 constant into stack.
+	/// </summary>
+	LDC_I4_0 = 0x17,
+	/// <summary>
+	/// Load int32 constant into stack.
+	/// </summary>
+	LDC_I4_1 = 0x18,
+	/// <summary>
+	/// Load int32 constant into stack.
+	/// </summary>
+	LDC_I4_2 = 0x19,
+	/// <summary>
+	/// Load int32 constant into stack.
+	/// </summary>
+	LDC_I4_3 = 0x1A,
+	/// <summary>
+	/// Load int32 constant into stack.
+	/// </summary>
+	LDC_I4_4 = 0x1B,
+	/// <summary>
+	/// Load int32 constant into stack.
+	/// </summary>
+	LDC_I4_5 = 0x1C,
+	/// <summary>
+	/// Load int32 constant into stack.
+	/// </summary>
+	LDC_I4_S = 0x1D,
+	/// <summary>
 	/// Load int64 constant into stack.
 	/// </summary>
 	LDC_I8_0 = 0x25,
@@ -181,6 +237,202 @@ public enum OpCodeValue : ushort
 	/// Load int64 constant into stack.
 	/// </summary>
 	LDC_I8_S = 0x2B,
+	/// <summary>
+	/// Load uint16 constant into stack.
+	/// </summary>
+	LDC_U2_0 = 0x86,
+	/// <summary>
+	/// Load uint16 constant into stack.
+	/// </summary>
+	LDC_U2_1 = 0x87,
+	/// <summary>
+	/// Load uint16 constant into stack.
+	/// </summary>
+	LDC_U2_2 = 0x88,
+	/// <summary>
+	/// Load uint16 constant into stack.
+	/// </summary>
+	LDC_U2_3 = 0x89,
+	/// <summary>
+	/// Load uint16 constant into stack.
+	/// </summary>
+	LDC_U2_4 = 0x8A,
+	/// <summary>
+	/// Load uint16 constant into stack.
+	/// </summary>
+	LDC_U2_5 = 0x8B,
+	/// <summary>
+	/// Load uint16 constant into stack.
+	/// </summary>
+	LDC_U2_S = 0x8C,
+	/// <summary>
+	/// Load uint32 constant into stack.
+	/// </summary>
+	LDC_U4_0 = 0x8D,
+	/// <summary>
+	/// Load uint32 constant into stack.
+	/// </summary>
+	LDC_U4_1 = 0x8E,
+	/// <summary>
+	/// Load uint32 constant into stack.
+	/// </summary>
+	LDC_U4_2 = 0x8F,
+	/// <summary>
+	/// Load uint32 constant into stack.
+	/// </summary>
+	LDC_U4_3 = 0x90,
+	/// <summary>
+	/// Load uint32 constant into stack.
+	/// </summary>
+	LDC_U4_4 = 0x91,
+	/// <summary>
+	/// Load uint32 constant into stack.
+	/// </summary>
+	LDC_U4_5 = 0x92,
+	/// <summary>
+	/// Load uint32 constant into stack.
+	/// </summary>
+	LDC_U4_S = 0x93,
+	/// <summary>
+	/// Load uint64 constant into stack.
+	/// </summary>
+	LDC_U8_0 = 0x94,
+	/// <summary>
+	/// Load uint64 constant into stack.
+	/// </summary>
+	LDC_U8_1 = 0x95,
+	/// <summary>
+	/// Load uint64 constant into stack.
+	/// </summary>
+	LDC_U8_2 = 0x96,
+	/// <summary>
+	/// Load uint64 constant into stack.
+	/// </summary>
+	LDC_U8_3 = 0x97,
+	/// <summary>
+	/// Load uint64 constant into stack.
+	/// </summary>
+	LDC_U8_4 = 0x98,
+	/// <summary>
+	/// Load uint64 constant into stack.
+	/// </summary>
+	LDC_U8_5 = 0x99,
+	/// <summary>
+	/// Load uint64 constant into stack.
+	/// </summary>
+	LDC_U8_S = 0x9A,
+	/// <summary>
+	/// Load uint128 constant into stack.
+	/// </summary>
+	LDC_U16_0 = 0x9B,
+	/// <summary>
+	/// Load uint128 constant into stack.
+	/// </summary>
+	LDC_U16_1 = 0x9C,
+	/// <summary>
+	/// Load uint128 constant into stack.
+	/// </summary>
+	LDC_U16_2 = 0x9D,
+	/// <summary>
+	/// Load uint128 constant into stack.
+	/// </summary>
+	LDC_U16_3 = 0x9E,
+	/// <summary>
+	/// Load uint128 constant into stack.
+	/// </summary>
+	LDC_U16_4 = 0x9F,
+	/// <summary>
+	/// Load uint128 constant into stack.
+	/// </summary>
+	LDC_U16_5 = 0xA0,
+	/// <summary>
+	/// Load uint128 constant into stack.
+	/// </summary>
+	LDC_U16_S = 0xA1,
+	/// <summary>
+	/// Load int128 constant into stack.
+	/// </summary>
+	LDC_I16_0 = 0xA2,
+	/// <summary>
+	/// Load int128 constant into stack.
+	/// </summary>
+	LDC_I16_1 = 0xA3,
+	/// <summary>
+	/// Load int128 constant into stack.
+	/// </summary>
+	LDC_I16_2 = 0xA4,
+	/// <summary>
+	/// Load int128 constant into stack.
+	/// </summary>
+	LDC_I16_3 = 0xA5,
+	/// <summary>
+	/// Load int128 constant into stack.
+	/// </summary>
+	LDC_I16_4 = 0xA6,
+	/// <summary>
+	/// Load int128 constant into stack.
+	/// </summary>
+	LDC_I16_5 = 0xA7,
+	/// <summary>
+	/// Load int128 constant into stack.
+	/// </summary>
+	LDC_I16_S = 0xA8,
+	/// <summary>
+	/// Load uint256 constant into stack.
+	/// </summary>
+	LDC_U32_0 = 0xA9,
+	/// <summary>
+	/// Load uint256 constant into stack.
+	/// </summary>
+	LDC_U32_1 = 0xAA,
+	/// <summary>
+	/// Load uint256 constant into stack.
+	/// </summary>
+	LDC_U32_2 = 0xAB,
+	/// <summary>
+	/// Load uint256 constant into stack.
+	/// </summary>
+	LDC_U32_3 = 0xAC,
+	/// <summary>
+	/// Load uint256 constant into stack.
+	/// </summary>
+	LDC_U32_4 = 0xAD,
+	/// <summary>
+	/// Load uint256 constant into stack.
+	/// </summary>
+	LDC_U32_5 = 0xAE,
+	/// <summary>
+	/// Load uint256 constant into stack.
+	/// </summary>
+	LDC_U32_S = 0xAF,
+	/// <summary>
+	/// Load int256 constant into stack.
+	/// </summary>
+	LDC_I32_0 = 0xB0,
+	/// <summary>
+	/// Load int256 constant into stack.
+	/// </summary>
+	LDC_I32_1 = 0xB1,
+	/// <summary>
+	/// Load int256 constant into stack.
+	/// </summary>
+	LDC_I32_2 = 0xB2,
+	/// <summary>
+	/// Load int256 constant into stack.
+	/// </summary>
+	LDC_I32_3 = 0xB3,
+	/// <summary>
+	/// Load int256 constant into stack.
+	/// </summary>
+	LDC_I32_4 = 0xB4,
+	/// <summary>
+	/// Load int256 constant into stack.
+	/// </summary>
+	LDC_I32_5 = 0xB5,
+	/// <summary>
+	/// Load int256 constant into stack.
+	/// </summary>
+	LDC_I32_S = 0xB6,
 	/// <summary>
 	/// Load float64 constant into stack.
 	/// </summary>
