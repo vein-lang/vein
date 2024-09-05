@@ -1,0 +1,16 @@
+name: vein.runtime.core
+version: '0.31.0'
+author:
+  - name: LLVM Project
+    github: 'llvm'
+  - name: BDWGC Author (Ivan Maidanski)
+    github: 'ivmai'
+  - name: libuv project
+    github: 'libuv'
+license: Apache-2.0 WITH LLVM-exception license, MIT-style, CC-BY-4.0, and other
+packable: true
+hasWorkload: true
+description: Package with core libraries ishtar runtime
+urls:
+  HomepageUrl: https://github.com/vein-lang/vein
+  Repository: https://github.com/vein-lang/vein
