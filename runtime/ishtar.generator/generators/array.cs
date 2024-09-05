@@ -74,7 +74,7 @@ public static class B_Array
         if (size is not NumericLiteralExpressionSyntax)
             return null; // skip optimized type generation when size is variable and etc
 
-        var size_value = size.ForceOptimization().Eval<int>();
+        var size_value = context.ForceOptimization(size).Eval<int>();
 
         if (ctor.FillArgs.Length != 0 && ctor.FillArgs.Length != size_value)
             throw new NotSupportedException($"Incorrect array size.");

@@ -156,8 +156,8 @@ public static class G_Types
 
     public static VeinComplexType DetermineType(this ExpressionSyntax exp, GeneratorContext context)
     {
-        if (exp.CanOptimizationApply())
-            return exp.ForceOptimization().DetermineType(context);
+        if (context.CanOptimizationApply(exp))
+            return context.ForceOptimization(exp).DetermineType(context);
         if (exp is SizeOfFunctionExpression)
             return VeinTypeCode.TYPE_I4.AsClass()(Types.Storage);
         if (exp is LiteralExpressionSyntax literal)

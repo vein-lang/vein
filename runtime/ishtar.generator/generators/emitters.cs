@@ -15,8 +15,8 @@ public static class G_Emitters
 
         if (!ctx.DisableOptimization)
         {
-            if (!expr.HasOptimized && expr.CanOptimizationApply())
-                return gen.EmitExpression(expr.ForceOptimization());
+            if (!expr.HasOptimized && ctx.CanOptimizationApply(expr))
+                return gen.EmitExpression(ctx.ForceOptimization(expr));
         }
 
         if (expr is EtherealFunctionExpression ethereal)
