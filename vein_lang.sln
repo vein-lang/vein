@@ -71,6 +71,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "build", ".nuke\build.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "vein.compiler.shared", "lib\vein.compiler.shared\vein.compiler.shared.csproj", "{59A5A3DB-506E-47CA-B688-4478BFBE39A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "astv2.test", "test\astv2.test\astv2.test.csproj", "{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -379,6 +381,18 @@ Global
 		{59A5A3DB-506E-47CA-B688-4478BFBE39A4}.Release|x64.Build.0 = Release|Any CPU
 		{59A5A3DB-506E-47CA-B688-4478BFBE39A4}.Release|x86.ActiveCfg = Release|Any CPU
 		{59A5A3DB-506E-47CA-B688-4478BFBE39A4}.Release|x86.Build.0 = Release|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Debug|x64.Build.0 = Debug|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Debug|x86.Build.0 = Debug|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Release|x64.ActiveCfg = Release|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Release|x64.Build.0 = Release|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Release|x86.ActiveCfg = Release|Any CPU
+		{3D8A01D8-4058-4C85-8174-2FFA24DCA6D0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -83,3 +83,9 @@ output/
 workloads/compiler/bin/
 
 workloads/runtime/bin/
+
+runtime/sacred.vm/.zig-cache/
+
+runtime/sacred.vm/zig-cache/
+
+runtime/sacred.vm/zig-out/

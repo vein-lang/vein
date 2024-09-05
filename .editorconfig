@@ -37,3 +37,7 @@ csharp_style_var_elsewhere=true:silent
 # Dotnet 
 dotnet_diagnostic.CS0168.severity = none
 
+[*.{cs,vb}]
+dotnet_diagnostic.CA2252.severity = none
+dotnet_analyzer_diagnostic.category-Usage.severity = none
+
