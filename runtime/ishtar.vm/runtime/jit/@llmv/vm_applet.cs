@@ -41,11 +41,11 @@ public unsafe struct comparer_applet
         var m = (LLVMModuleRef)parsedModule;
         m.Dump();
         var passManager = LLVMPassManagerRef.Create();
-        passManager.AddBasicAliasAnalysisPass();
-        passManager.AddInstructionCombiningPass();
-        passManager.AddReassociatePass();
-        passManager.AddGVNPass();
-        passManager.AddCFGSimplificationPass();
+        //passManager.AddBasicAliasAnalysisPass();
+        //passManager.AddInstructionCombiningPass();
+        //passManager.AddReassociatePass();
+        //passManager.AddGVNPass();
+        //passManager.AddCFGSimplificationPass();
         passManager.Run(module);
         var target = LLVMTargetRef.Targets.ToList().First(x => x.Name.Equals("x86-64"));
         var targetMachine = target.CreateTargetMachine(target.Name, "generic", "",
