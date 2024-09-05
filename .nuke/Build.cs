@@ -316,7 +316,7 @@ class Build : NukeBuild
                 outputDir.CreateOrCleanDirectory();
                 DotNetPublish(c => c
                     .SetProject(Ishtar)
-                    .SetConfiguration(Configuration.Debug)
+                    .SetConfiguration(Configuration.Release)
                     .EnablePublishSingleFile()
                     .EnableSelfContained()
                     .SetFramework("net8.0")
