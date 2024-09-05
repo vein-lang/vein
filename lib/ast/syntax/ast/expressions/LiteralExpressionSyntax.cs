@@ -116,7 +116,10 @@ namespace vein.syntax
     {
         protected NumericLiteralExpressionSyntax(T value)
         {
-            this.Token = value.ToString("N", CultureInfo.InvariantCulture);
+            if (value is IConvertible convertible)
+                this.Token = convertible.ToString(CultureInfo.InvariantCulture);
+            else 
+                this.Token = value.ToString("", CultureInfo.InvariantCulture);
             this.Value = value;
         }
 
