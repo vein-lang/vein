@@ -82,6 +82,18 @@ namespace ishtar.emit
             return this;
         }
 
+        public ILGenerator Emit(OpCode opcode, ushort arg)
+        {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
+            EnsureCapacity<OpCode>(sizeof(short));
+            InternalEmit(opcode);
+            BinaryPrimitives.WriteUInt16LittleEndian(_ilBody.AsSpan(_position), arg);
+            _position += sizeof(short);
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.ushort");
+            return this;
+        }
+
         public ILGenerator Emit(OpCode opcode, int arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
@@ -93,6 +105,19 @@ namespace ishtar.emit
             DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.int");
             return this;
         }
+
+        public ILGenerator Emit(OpCode opcode, uint arg)
+        {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
+            EnsureCapacity<OpCode>(sizeof(int));
+            InternalEmit(opcode);
+            BinaryPrimitives.WriteUInt32LittleEndian(_ilBody.AsSpan(_position), arg);
+            _position += sizeof(int);
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.uint");
+            return this;
+        }
+
         public ILGenerator Emit(OpCode opcode, long arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
