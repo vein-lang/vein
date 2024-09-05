@@ -1,3 +1,6 @@
 [submodule "lib/spectre.console"]
 	path = lib/spectre.console
 	url = https://github.com/vein-lang/spectre.console.git
+[submodule "runtime/sacred.vm/lib/libuv"]
+	path = runtime/sacred.vm/lib/libuv
+	url = https://github.com/libuv/libuv.git
