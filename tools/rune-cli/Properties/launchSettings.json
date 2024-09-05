@@ -14,6 +14,19 @@
     "test": {
       "commandName": "Project",
       "commandLineArgs": "test ..\\..\\..\\..\\..\\lib\\vein.std\\std\\std.vproj --parallel"
+    },
+    "package": {
+      "commandName": "Project",
+      "commandLineArgs": "package",
+      "workingDirectory": "C:\\git\\vein.lang\\lib\\vein.std\\std"
+    },
+    "add": {
+      "commandName": "Project",
+      "commandLineArgs": "add std@latest --project ..\\..\\..\\..\\..\\lib\\vein.std\\std\\std.vproj"
+    },
+    "install vein.core": {
+      "commandName": "Project",
+      "commandLineArgs": "workload install vein.runtime.core"
     }
   }
 }
