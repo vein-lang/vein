@@ -1,11 +1,8 @@
 namespace vein.cmd;
 
 using System.Text;
-using Expressive;
 using Flurl.Http;
-using Org.BouncyCastle.Bcpg;
 using project.shards;
-using styles;
 using vein;
 
 [ExcludeFromCodeCoverage]
@@ -135,6 +132,7 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
             }
             catch (PlatformNotSupportedException e)
             {
+                SentrySdk.CaptureException(e);
                 Log.Error($"Failed install workload '[red]{e.Message.EscapeMarkup()}[/]'");
                 return false;
             }
@@ -144,6 +142,7 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
             }
             catch (Exception e)
             {
+                SentrySdk.CaptureException(e);
                 Log.Error($"bad workload package");
                 AnsiConsole.WriteException(e);
                 return false;
@@ -159,7 +158,10 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
         {
             var loader = await InstallWorkloadAsync(new WorkloadInstallingContext(query, storage, workloadDb, key, version.ToNormalizedString(), null));
 
-            if (loader != 0) return false;
+            if (loader != 0)
+            {
+                return false;
+            }
         }
 
         return true;
@@ -175,7 +177,10 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
             result &= await InstallDependencies(package);
 
             if (!result)
+            {
+                AnsiConsole.MarkupLine($"[red]Failed[/] install dependency for '{workload.name.key}' workload");
                 return false;
+            }
 
             result &= package.Kind switch
             {
@@ -247,6 +252,8 @@ public class WorkloadRegistryLoader(ShardRegistryQuery query, ShardStorage stora
 
             return true;
         }
+        else
+            AnsiConsole.MarkupLine($"Scheme alias [gray]{alias}[/] is not supported");
 
         return false;
     }
