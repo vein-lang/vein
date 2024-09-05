@@ -41,7 +41,7 @@ JsonConvert.DefaultSettings = () => new JsonSerializerSettings
 };
 
 using var sentry = SentrySdk.Init(options => {
-    options.Dsn = "https://a035cc18b8bbf591aeaddd3a27fb5434@o958881.ingest.us.sentry.io/4507797531721728";
+    options.Dsn = "https://fe5578b281431bec826490a2ff7f3bfe@o1093028.ingest.us.sentry.io/4507896459034624";
     options.Debug = true;
     options.AutoSessionTracking = true;
     options.TracesSampleRate = 1.0;
@@ -113,7 +113,7 @@ await Host.CreateDefaultBuilder(args)
             .WithDescription("Restore dependencies in project.");
         config.AddCommand<AddCommand>("add")
             .WithDescription("Find and add package into project from registry")
-            .WithExample(["add std@0.12.1"])
+            .WithExample(["add std@latest", "add std@next"])
             .WithAlias("install")
             // ReSharper disable once StringLiteralTypo
             .WithAlias("instal");
