@@ -38,25 +38,17 @@ public class VeinIshtarProxy(FileInfo compilerPath, IEnumerable<string> args, Di
         
         if (redirectStdout)
         {
-            async ValueTask redirect(StreamReader reader)
+            async ValueTask redirect(Func<StreamReader> getReader)
             {
+                using var reader = getReader();
                 char[] buffer = new char[1024];
                 int charsRead;
                 while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
                     await Console.Out.WriteAsync(new string(buffer, 0, charsRead));
             }
 
-            var outputTask = Task.Run(async () =>
-            {
-                using var reader = _process.StandardOutput;
-                await redirect(reader);
-            }, cts.Token);
-
-            var errorTask = Task.Run(async () =>
-            {
-                using var reader = _process.StandardError;
-                await redirect(reader);
-            }, cts.Token);
+            var outputTask = Task.Run(() => redirect(() => _process.StandardOutput), cts.Token);
+            var errorTask = Task.Run(() => redirect(() =>  _process.StandardError), cts.Token);
 
             _process.Start();
 
