@@ -68,7 +68,17 @@ public sealed class TypeIsFunctionExpression(List<TypeExpression> generics, IOpt
 public sealed class TypeAsFunctionExpression(List<TypeExpression> generics, IOption<ExpressionSyntax> expression)
     : EtherealFunctionExpression(generics, expression), IPositionAware<TypeAsFunctionExpression>
 {
-    public override bool IsRuntimeRequired => true;
+    public override bool IsRuntimeRequired
+    {
+        get
+        {
+            if (!expression.IsDefined)
+                return true;
+            if (expression.Get() is LiteralExpressionSyntax)
+                return false;
+            return true;
+        }
+    }
     public new TypeAsFunctionExpression SetPos(Position startPos, int length)
     {
         base.SetPos(startPos, length);
