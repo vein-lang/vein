@@ -9,6 +9,23 @@ unsafe
     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         Console.OutputEncoding = Encoding.Unicode;
+    if (appCfg.UseNativeLoader)
+    {
+        NativeLibrary.SetDllImportResolver(Assembly.GetExecutingAssembly(), Resolver);
+        NativeLibrary.SetDllImportResolver(typeof(LLVMSharp.Interop.LLVM).Assembly, Resolver);
+    }
+    
+    IntPtr Resolver(string libname, Assembly assembly, DllImportSearchPath? search_path)
+    {
+        var path = appCfg.LibraryPath(libname);
+
+        if (NativeLibrary.TryLoad(path.ToString(), out var handle))
+            return handle;
+
+        Console.WriteLine($"failed load '{libname}'");
+        Environment.Exit(-1);
+        return 0;
+    }
 
     VirtualMachine.static_init();
 
