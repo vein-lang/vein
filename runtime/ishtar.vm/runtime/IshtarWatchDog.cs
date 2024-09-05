@@ -1,5 +1,6 @@
 namespace ishtar;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using runtime.gc;
 

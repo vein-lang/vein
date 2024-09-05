@@ -5,7 +5,7 @@ using io.ini;
 
 public readonly unsafe struct AppConfig
 {
-    private readonly IniRoot* rootCfg;
+    public readonly IniRoot* rootCfg;
 
     public AppConfig(IniRoot* cfg)
     {
@@ -26,6 +26,8 @@ public readonly unsafe struct AppConfig
     public SlicedString SnapshotPath => rootCfg->GetGroup("vm:debug").GetString("snapshot_path");
     public SlicedString EntryPoint => rootCfg->GetGroup("vm").GetString("entry_point");
     public SlicedString EntryPointClass => rootCfg->GetGroup("vm").GetString("entry_point_class");
+    public SlicedString LibraryPath(string name) => rootCfg->GetGroup("vm:core").GetString(name);
+    public bool UseNativeLoader => rootCfg->GetGroup("vm:core").GetFlag("use_loader");
 
 
     public readonly AppConfig_Jit Jit;
