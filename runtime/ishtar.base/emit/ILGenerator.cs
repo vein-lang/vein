@@ -130,6 +130,31 @@ namespace ishtar.emit
             return this;
         }
 
+        public ILGenerator Emit(OpCode opcode, Int128 arg)
+        {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
+            EnsureCapacity<OpCode>(sizeof(long));
+            InternalEmit(opcode);
+            BinaryPrimitives.WriteInt128LittleEndian(_ilBody.AsSpan(_position), arg);
+            _position += sizeof(long);
+            _position += sizeof(long);
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.int128");
+            return this;
+        }
+        public ILGenerator Emit(OpCode opcode, UInt128 arg)
+        {
+            using var _ = ILCapacityValidator.Begin(ref _position, opcode);
+
+            EnsureCapacity<OpCode>(sizeof(long));
+            InternalEmit(opcode);
+            BinaryPrimitives.WriteUInt128LittleEndian(_ilBody.AsSpan(_position), arg);
+            _position += sizeof(long);
+            _position += sizeof(long);
+            DebugAppendLine($"/* ::{_position:0000} */ .{opcode.Name} 0x{arg:X8}.uint128");
+            return this;
+        }
+
         public ILGenerator Emit(OpCode opcode, ulong arg)
         {
             using var _ = ILCapacityValidator.Begin(ref _position, opcode);
