@@ -1,8 +1,5 @@
 namespace ishtar.runtime.io.ini;
 
-using collections;
-using gc;
-
 public enum IniDataType : byte
 {
     Number,
@@ -141,18 +138,26 @@ public unsafe struct IniRoot
 }
 
 
-public unsafe struct IniParser(SlicedString source, AllocatorBlock allocator)
+public unsafe struct IniParser(SlicedString source)
 {
     private uint _currentPosition = 0;
 
+
+    private T* realloc<T>(T* data, uint newElSize) where T : unmanaged
+        => (T*)NativeMemory.Realloc(data, (nuint)sizeof(T) * newElSize);
+
+    private T* alloc<T>(uint newElSize) where T : unmanaged
+        => (T*)NativeMemory.AllocZeroed((nuint)sizeof(T) * newElSize);
+
+
     public IniRoot* Parse()
     {
-        var root = IshtarGC.AllocateImmortal<IniRoot>(null);
+        var root = alloc<IniRoot>(1);
 
         *root = new IniRoot
         {
             size = 0,
-            groups = IshtarGC.AllocateImmortal<IniGroup>(5, null)
+            groups = alloc<IniGroup>(5)
         };
 
         while (_currentPosition < source.Size)
@@ -162,7 +167,7 @@ public unsafe struct IniParser(SlicedString source, AllocatorBlock allocator)
             if (_currentPosition < source.Size && source.Ptr[_currentPosition] == '[')
             {
                 if (root->size >= 5)
-                    root->groups = allocator.realloc<IniGroup>(root->groups, root->size + 5);
+                    root->groups = realloc(root->groups, root->size + 5);
 
                 ParseSection(&root->groups[root->size]);
                 root->size++;
@@ -182,7 +187,7 @@ public unsafe struct IniParser(SlicedString source, AllocatorBlock allocator)
     private void ParseSection(IniGroup* group)
     {
         group->size = 0;
-        group->kvs = IshtarGC.AllocateImmortal<IniKeyValue>(10, null);
+        group->kvs = alloc<IniKeyValue>(10);
 
         _currentPosition++; // Skip '['
         uint start = _currentPosition;
@@ -258,13 +263,13 @@ public unsafe struct IniParser(SlicedString source, AllocatorBlock allocator)
         if (!isArray)
             return default;
         if (group->size >= 10)
-            group->kvs = allocator.realloc<IniKeyValue>(group->kvs, group->size + 10);
+            group->kvs = realloc(group->kvs, group->size + 10);
 
         group->kvs[group->size].key = key;
         group->kvs[group->size].value.type = IniDataType.ArrayNumber;
         group->kvs[group->size].value.value.array = new IniArray()
         {
-            arr = IshtarGC.AllocateImmortal<IniValue_Union>(10, null),
+            arr = alloc<IniValue_Union>(10),
             size = 0,
             type = IniDataType.Number
         };
@@ -284,7 +289,7 @@ public unsafe struct IniParser(SlicedString source, AllocatorBlock allocator)
         
         if (array.size >= 10)
         {
-            array.arr = allocator.realloc<IniValue_Union>(array.arr, array.size + 10);
+            array.arr = realloc(array.arr, array.size + 10);
         }
 
         var parsedValue = ParseValue(value);

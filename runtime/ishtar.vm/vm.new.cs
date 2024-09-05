@@ -23,7 +23,7 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         hasInited = true;
     }
 
-    public static VirtualMachine* Create(string name)
+    public static VirtualMachine* Create(string name, AppConfig appCfg)
     {
         using var tag = Profiler.Begin("vm:create");
         var vm = IshtarGC.AllocateImmortal<VirtualMachine>(null);
@@ -31,9 +31,9 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         vm->Name = StringStorage.Intern(name, vm);
         var vault = AppVault.Create(vm, name);
         
-        vm->boot_cfg = readBootCfg();
+        vm->boot_cfg = appCfg.rootCfg;
 
-        vm->Config = new AppConfig(vm->@ref->boot_cfg);
+        vm->Config = appCfg;
         vm->trace = new IshtarTrace(vm);
 
         vm->trace.Setup();

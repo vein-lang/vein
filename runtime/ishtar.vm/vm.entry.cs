@@ -1,6 +1,8 @@
+using System.Reflection;
 using System.Text;
 using ishtar;
 using ishtar.io;
+using ishtar.runtime;
 using vein.fs;
 using vein.runtime;
 
@@ -9,6 +11,10 @@ unsafe
     Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         Console.OutputEncoding = Encoding.Unicode;
+    var bootCfg = VirtualMachine.readBootCfg();
+    var appCfg = new AppConfig(bootCfg);
+
+    // todo, move to custom logic with nmap\loadlibraryN
     if (appCfg.UseNativeLoader)
     {
         NativeLibrary.SetDllImportResolver(Assembly.GetExecutingAssembly(), Resolver);
@@ -29,7 +35,7 @@ unsafe
 
     VirtualMachine.static_init();
 
-    var vm = VirtualMachine.Create("app");
+    var vm = VirtualMachine.Create("app", appCfg);
     var vault = vm->Vault;
 
     IshtarThreading.SetName($"ishtar::entry");

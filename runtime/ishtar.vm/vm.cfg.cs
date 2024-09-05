@@ -20,7 +20,7 @@ public unsafe partial struct VirtualMachine
 
         var source = IshtarFile.readAllFile(path);
 
-        var parser = new IniParser(source, IshtarGC.CreateAllocatorWithParent(null));
+        var parser = new IniParser(source);
         
 
         var result = parser.Parse();
