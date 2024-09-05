@@ -81,6 +81,12 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
         [vm:threading]
         size=4
         defer=true
+        
+        [vm:core]
+        use_loader={IsRelease}
+        libgc="{GlobalPathLibGC}libgc"
+        libuv="{GlobalPathLibUV}libuv"
+        libLLVM="{GlobalPathLibLLVM}libLLVM"
         """;
 
     public override async Task<int> ExecuteAsync(CommandContext context, RunSettings settings, VeinProject project)
@@ -129,14 +135,32 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             return -1;
         }
 
+
+        var libgc = await db.TakeSdkTarget("ishtar.libgc");
+        var libuv = await db.TakeSdkTarget("ishtar.libuv");
+        var llvm = await db.TakeSdkTarget("ishtar.llvm");
+
+
+
         var boot_config_data = bootCfg
             .Replace($"{{{nameof(settings.TraceEnable)}}}", (!settings.TraceEnable).ToString().ToLowerInvariant())
             .Replace($"{{{nameof(settings.SkipValidateArgs)}}}", settings.SkipValidateArgs.ToString().ToLowerInvariant())
             .Replace($"{{{nameof(settings.SkipValidateStfTypeOpCode)}}}", settings.SkipValidateStfTypeOpCode.ToString().ToLowerInvariant())
             .Replace($"{{{nameof(settings.EntryPoint)}}}", settings.EntryPoint)
             .Replace($"{{{nameof(settings.EntryPointClass)}}}", settings.EntryPointClass)
-            .Replace($"{{{nameof(settings.JitContextDeffer)}}}", settings.JitContextDeffer.ToString().ToLowerInvariant());
-        
+            .Replace($"{{{nameof(settings.JitContextDeffer)}}}", settings.JitContextDeffer.ToString().ToLowerInvariant())
+#if DEBUG
+            .Replace($"{{IsRelease}}", "false")
+#else
+            .Replace($"{{IsRelease}}", "true")
+#endif
+            .Replace($"{{GlobalPathLibGC}}", libgc!.FullName)
+            .Replace($"{{GlobalPathLibUV}}", libuv!.FullName)
+            .Replace($"{{GlobalPathLibLLVM}}", llvm!.FullName)
+
+            ; 
+
+
         if (!string.IsNullOrEmpty(settings.OverrideBootCfg))
         {
             var fullyPath = "";
