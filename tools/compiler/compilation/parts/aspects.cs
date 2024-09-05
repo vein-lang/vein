@@ -91,10 +91,10 @@ public partial class CompilationTask
             {
                 foreach (var (exp, index) in annotation.Args.Select((x, y) => (x, y)))
                 {
-
-                    if (exp.CanOptimizationApply())
+                    
+                    if (this.Context.CanOptimizationApply(exp))
                     {
-                        var optimized = exp.ForceOptimization();
+                        var optimized = this.Context.ForceOptimization(exp);
                         var converter = optimized.GetTypeCode().GetConverter();
                         var calculated = converter(optimized.ExpressionString);
                         module.WriteToConstStorage($"{nameGenerator(annotation)}_{index}",

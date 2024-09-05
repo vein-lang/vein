@@ -22,7 +22,7 @@
     },
     "compile std library - socket test": {
       "commandName": "Project",
-      "commandLineArgs": "build ..\\..\\..\\..\\..\\lib\\vein.std\\std.socket.test\\std.socket.test.vproj --ignore-cache"
+      "commandLineArgs": "build ..\\..\\..\\..\\..\\lib\\vein.std\\std.socket.test\\std.socket.test.vproj --ignore-cache --deopt"
     },
     "test case": {
       "commandName": "Project",

@@ -13,9 +13,11 @@ public class CopyDependencies : CompilerPipeline
 
         foreach (var dependency in Target.Dependencies.SelectMany(x => x.Artifacts))
         {
-            if (dependency.Kind is ArtifactKind.BINARY)
-                File.Copy(dependency.Path.FullName,
-                    Path.Combine(OutputDirectory.FullName, Path.GetFileName(dependency.Path.FullName)));
+            if (dependency.Kind is not ArtifactKind.BINARY)
+                continue;
+            var t = Path.Combine(OutputDirectory.FullName, Path.GetFileName(dependency.Path.FullName));
+            if (File.Exists(t)) File.Delete(t);
+            File.Copy(dependency.Path.FullName, t);
         }
     }
     public override bool CanApply(CompileSettings flags) => true;

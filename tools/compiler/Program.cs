@@ -33,7 +33,7 @@ var redirectLogger = Environment.GetEnvironmentVariable("LOG_WRITE_TO_FILE");
 if (!string.IsNullOrEmpty(redirectLogger) && new DirectoryInfo(redirectLogger).Exists)
 {
     var logFile = new DirectoryInfo(redirectLogger).Ensure().File("vein.lsp.log");
-    Serilog.Log.Logger = new LoggerConfiguration()
+    Log.Logger = new LoggerConfiguration()
         .Enrich.FromLogContext()
         .WriteTo.File(logFile.FullName)
         .MinimumLevel.Verbose()
