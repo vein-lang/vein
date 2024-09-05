@@ -4,6 +4,7 @@ namespace vein.syntax
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Numerics;
 
     public abstract class LiteralExpressionSyntax(string token = null, LiteralType type = LiteralType.Null)
         : ExpressionSyntax, IPositionAware<LiteralExpressionSyntax>
@@ -111,11 +112,11 @@ namespace vein.syntax
         public UndefinedIntegerNumericLiteral(string val) => this.Value = this.Token = this.ExpressionString = val;
     }
     public abstract class NumericLiteralExpressionSyntax<T> : NumericLiteralExpressionSyntax
-        where T : IFormattable, IConvertible, IComparable<T>, IEquatable<T>, IComparable
+        where T : IFormattable, IComparable<T>, IEquatable<T>, IComparable, INumber<T>
     {
         protected NumericLiteralExpressionSyntax(T value)
         {
-            this.Token = value.ToString(CultureInfo.InvariantCulture);
+            this.Token = value.ToString("N", CultureInfo.InvariantCulture);
             this.Value = value;
         }
 
@@ -135,6 +136,8 @@ namespace vein.syntax
     public sealed class UInt32LiteralExpressionSyntax(uint value) : NumericLiteralExpressionSyntax<uint>(value);
     public sealed class Int64LiteralExpressionSyntax(long value) : NumericLiteralExpressionSyntax<long>(value);
     public sealed class UInt64LiteralExpressionSyntax(ulong value) : NumericLiteralExpressionSyntax<ulong>(value);
+    public sealed class Int128LiteralExpressionSyntax(ulong value) : NumericLiteralExpressionSyntax<Int128>(value);
+    public sealed class UInt128LiteralExpressionSyntax(ulong value) : NumericLiteralExpressionSyntax<UInt128>(value);
 
     public sealed class InfinityLiteralExpressionSyntax()
         : NumericLiteralExpressionSyntax<float>(float.PositiveInfinity), IPositionAware<InfinityLiteralExpressionSyntax>
