@@ -3,6 +3,7 @@ namespace vein;
 using collections;
 
 public class NotFoundToolException(string tool, PackageKey key) : Exception($"Tool '{tool}' not found in '{key.key}', maybe not installed package?");
+public class SdkTargetException(string sdkTarget) : Exception($"SdkTarget '{sdkTarget}' not found, maybe not installed package?");
 
 public class WorkloadDb
 {
@@ -42,6 +43,17 @@ public class WorkloadDb
         }
         if (throwIfNotFound)
             throw new NotFoundToolException(name, key);
+        return null;
+    }
+
+    public async Task<FileInfo?> TakeSdkTarget(string target, bool throwIfNotFound = true)
+    {
+        var db = await OpenAsync();
+
+        if (db.sdks.TryGetValue(target, out var tools))
+            return new FileInfo(tools.Last());
+        if (throwIfNotFound)
+            throw new SdkTargetException(target);
         return null;
     }
 
