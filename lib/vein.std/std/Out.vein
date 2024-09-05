@@ -14,6 +14,10 @@ public static class Out
 public static class Terminal {
     [native("__internal__", "print_any")]
     private extern static print_any(value: Object): Void;
+
+    [native("__internal__", "@_readline")]
+    public extern static readline(): string;
+
     public static pipe: TerminalPipe;
 
     public static white: string = "w";

@@ -1,4 +1,4 @@
-namespace vein.ast.v2.syntax;
+namespace vein.ast;
 
 using Superpower.Model;
 

@@ -4,4 +4,5 @@ author:
   github: 0xF6
 license: MIT license
 packages:
-- ..\std\std.vproj
+- .\std.socket.test.vproj
+- std@0.30.9.3

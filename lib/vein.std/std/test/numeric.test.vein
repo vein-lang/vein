@@ -63,4 +63,36 @@ private static class NumericTest
         Assert.equal(12 * two, 24);
         Assert.equal(15 * two, 30);
     }
+
+
+
+    [test]
+    public static i16_mod(): void 
+    {
+        let two = as<i16>(2);
+        Assert.equal(as<i16>(2) % two, as<i16>(0));
+        Assert.equal(as<i16>(4) % two, as<i16>(0));
+        Assert.equal(as<i16>(6) % two, as<i16>(0));
+        Assert.equal(as<i16>(8) % two, as<i16>(0));
+        Assert.equal(as<i16>(12) % two, as<i16>(0));
+        Assert.equal(as<i16>(15) % two, as<i16>(1));
+
+        if (as<i16>(0) == as<i16>(12) % as<i16>(2)) {
+            Out.print("suka 12 % 2 == 0");
+        } else {
+            Out.print("blyat 12 % 2 != 0");
+        }
+    }
+
+    [test]
+    public static i16_mul(): void 
+    {
+        let two = as<i16>(2);
+        Assert.equal(as<i16>(2) * two, as<i16>(4));
+        Assert.equal(as<i16>(4) * two, as<i16>(8));
+        Assert.equal(as<i16>(6) * two, as<i16>(12));
+        Assert.equal(as<i16>(8) * two, as<i16>(16));
+        Assert.equal(as<i16>(12) * two, as<i16>(24));
+        Assert.equal(as<i16>(15) * two, as<i16>(30));
+    }
 }
