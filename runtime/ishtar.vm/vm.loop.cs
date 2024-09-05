@@ -190,6 +190,28 @@ public unsafe partial struct VirtualMachine : IDisposable
                     ++sp;
                     ++ip;
                     break;
+                case LDC_I1_0:
+                case LDC_I1_1:
+                case LDC_I1_2:
+                case LDC_I1_3:
+                case LDC_I1_4:
+                case LDC_I1_5:
+                    sp->type = TYPE_I1;
+                    sp->data.i = (int)(*ip) - (int)LDC_I1_0;
+                    ++ip;
+                    ++sp;
+                    break;
+                case LDC_U1_0:
+                case LDC_U1_1:
+                case LDC_U1_2:
+                case LDC_U1_3:
+                case LDC_U1_4:
+                case LDC_U1_5:
+                    sp->type = TYPE_U1;
+                    sp->data.i = (int)(*ip) - (int)LDC_U1_0;
+                    ++ip;
+                    ++sp;
+                    break;
                 case LDC_I2_0:
                 case LDC_I2_1:
                 case LDC_I2_2:
@@ -198,6 +220,17 @@ public unsafe partial struct VirtualMachine : IDisposable
                 case LDC_I2_5:
                     sp->type = TYPE_I2;
                     sp->data.i = (int)(*ip) - (int)LDC_I2_0;
+                    ++ip;
+                    ++sp;
+                    break;
+                case LDC_U2_0:
+                case LDC_U2_1:
+                case LDC_U2_2:
+                case LDC_U2_3:
+                case LDC_U2_4:
+                case LDC_U2_5:
+                    sp->type = TYPE_U2;
+                    sp->data.i = (int)(*ip) - (int)LDC_U2_0;
                     ++ip;
                     ++sp;
                     break;
@@ -211,6 +244,28 @@ public unsafe partial struct VirtualMachine : IDisposable
                     sp->data.i = (int)(*ip) - (int)LDC_I4_0;
                     ++ip;
                     ++sp;
+                    break;
+                case LDC_U4_0:
+                case LDC_U4_1:
+                case LDC_U4_2:
+                case LDC_U4_3:
+                case LDC_U4_4:
+                case LDC_U4_5:
+                    sp->type = TYPE_U4;
+                    sp->data.i = (int)(*ip) - (int)LDC_U4_0;
+                    ++ip;
+                    ++sp;
+                    break;
+                case LDC_U8_0:
+                case LDC_U8_1:
+                case LDC_U8_2:
+                case LDC_U8_3:
+                case LDC_U8_4:
+                case LDC_U8_5:
+                    sp->type = TYPE_U8;
+                    sp->data.l = (*ip) - (long)LDC_U8_0;
+                    ++sp;
+                    ++ip;
                     break;
                 case LDC_I8_0:
                 case LDC_I8_1:
@@ -260,10 +315,31 @@ public unsafe partial struct VirtualMachine : IDisposable
                     ++sp;
                 }
                     break;
+                case LDC_I1_S:
+                    ++ip;
+                    sp->type = TYPE_I1;
+                    sp->data.b = (sbyte)(*ip);
+                    ++ip;
+                    ++sp;
+                    break;
+                case LDC_U1_S:
+                    ++ip;
+                    sp->type = TYPE_U1;
+                    sp->data.ub = (byte)(*ip);
+                    ++ip;
+                    ++sp;
+                    break;
                 case LDC_I2_S:
                     ++ip;
                     sp->type = TYPE_I2;
-                    sp->data.i = (int)(*ip);
+                    sp->data.s = (short)(*ip);
+                    ++ip;
+                    ++sp;
+                    break;
+                case LDC_U2_S:
+                    ++ip;
+                    sp->type = TYPE_U2;
+                    sp->data.us = (ushort)(*ip);
                     ++ip;
                     ++sp;
                     break;
@@ -271,6 +347,13 @@ public unsafe partial struct VirtualMachine : IDisposable
                     ++ip;
                     sp->type = TYPE_I4;
                     sp->data.i = (int)(*ip);
+                    ++ip;
+                    ++sp;
+                    break;
+                case LDC_U4_S:
+                    ++ip;
+                    sp->type = TYPE_U4;
+                    sp->data.ui = (*ip);
                     ++ip;
                     ++sp;
                     break;
@@ -284,8 +367,18 @@ public unsafe partial struct VirtualMachine : IDisposable
                     sp->data.l = t2 << 32 | t1;
                     ++ip;
                     ++sp;
-                }
-                    break;
+                } break;
+                case LDC_U8_S:
+                {
+                    ++ip;
+                    sp->type = TYPE_U8;
+                    var t1 = (ulong)*ip;
+                    ++ip;
+                    var t2 = (ulong)*ip;
+                    sp->data.ul = t2 << 32 | t1;
+                    ++ip;
+                    ++sp;
+                } break;
                 case LD_TYPE:
                     ++ip;
                     sp->type = TYPE_TOKEN;
