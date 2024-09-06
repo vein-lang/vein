@@ -1,0 +1,86 @@
+@import url(https://cdn.jsdelivr.net/npm/firacode@6.2.0/distr/fira_code.css);
+@import url(https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css);
+
+:root {
+    --vp-c-left-color: #a21013;
+    --vp-c-right-color: #a21013;
+
+    --vp-home-hero-image-background-image: linear-gradient(
+        130deg,
+        var(--vp-c-left-color) 50%,
+        var(--vp-c-right-color) 50%
+    ) !important;
+    --vp-home-hero-image-filter: blur(180px) !important;
+
+    --vs-background: 30, 32, 35;
+    --vs-text: 255, 255, 255;
+    --vs-gray-1: 24, 25, 28;
+    --vs-gray-2: 20, 20, 23;
+    --vs-gray-3: 15, 16, 19;
+    --vs-gray-4: 10, 11, 14;
+    --vs-shadow-opacity: .3;
+    --vs-dark: 0, 0, 0;
+    --vs-background-opacity: .6;
+    --vs-theme-bg: #18191c;
+    --vs-theme-color: #fff;
+    --vs-theme-layout: #1e2023;
+    --vs-theme-bg2: #141417;
+    --vs-theme-code: #141417;
+    --vs-theme-code2: #161619;
+}
+
+code { 
+    font-family: 'Fira Code VF', monospace  !important; 
+}
+@keyframes levitate {
+    0%  { transform: translateY(0)     }
+    30% { transform: translateY(-10px) }
+    50% { transform: translateY(4px)   }
+    70% { transform: translateY(-15px) }
+    to  { transform: translateY(0)     }
+}
+.container>.image>.image-container {
+    animation: levitate 10s ease 1s infinite reverse
+}
+
+
+.VPTeamMembers.medium .container {
+    grid-template-columns: repeat(auto-fit, minmax(256px, 1fr)) !important;
+}
+
+.vp-doc .VPHomeSponsors, .vp-doc .VPTeamPage {
+    margin-right: var(--vp-offset, calc(51% - 50vw)) !important;
+}
+
+#VPSidebarNav > div:nth-child(4) > section > div.items > section.VPSidebarItem.level-1.has-active > div.items > div:nth-child(19) > div > a > .text {
+    color: #2c2c2c !important;
+    cursor: not-allowed;
+}
+#VPSidebarNav > div:nth-child(4) > section > div.items > section.VPSidebarItem.level-1.has-active > div.items > div:nth-child(18) > div > a > .text {
+    color: #2c2c2c !important;
+    cursor: not-allowed;
+}
+
+#VPSidebarNav > div:nth-child(4) > section > div.items > section.VPSidebarItem.level-1.has-active > div.items > div:nth-child(23) > div > a > .text {
+    color: #2c2c2c !important;
+    cursor: not-allowed;
+}
+
+#VPSidebarNav > div:nth-child(4) > section > div.items > section.VPSidebarItem.level-1.has-active > div.items > div:nth-child(17) > div > a > .text {
+    color: #2c2c2c !important;
+    cursor: not-allowed;
+}
+
+[class*=vs-] {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    outline: none;
+    list-style: none;
+}
+[class*=vs-] {
+    border: 0;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    outline: none;
+    list-style: none;
+}

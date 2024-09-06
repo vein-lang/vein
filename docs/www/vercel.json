@@ -1,0 +1,21 @@
+{
+    "cleanUrls": true,
+    "framework": "vitepress",
+    "redirects": [
+        { 
+            "source": "/install.ps1", 
+            "destination": "https://raw.githubusercontent.com/vein-lang/vein/master/metadata/scripts/install.ps1", 
+            "permanent": false 
+        },
+        { 
+            "source": "/install.sh", 
+            "destination": "https://raw.githubusercontent.com/vein-lang/vein/master/metadata/scripts/install.sh", 
+            "permanent": false 
+        },
+        { 
+            "source": "/ytag.js", 
+            "destination": "https://mc.yandex.ru/metrika/tag.js", 
+            "permanent": true 
+        }
+    ]
+}

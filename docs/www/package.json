@@ -1,0 +1,15 @@
+{
+    "scripts": {
+        "dev": "vitepress dev",
+        "build": "vitepress build",
+        "preview": "vitepress preview"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "1.8.0",
+        "vitepress": "^1.3.2"
+    },
+    "dependencies": {
+        "tslib": "^2.6.3",
+        "vitepress-plugin-autobar": "^1.0.8"
+    }
+}
