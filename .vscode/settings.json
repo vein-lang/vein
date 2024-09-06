@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "*.def": "cpp",
-        "cstddef": "cpp"
-    }
-}
