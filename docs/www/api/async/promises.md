@@ -13,7 +13,6 @@ Synchronously waits for the promise to complete.
 promiseInstance.Wait();
 ```
 
-
 ### TryWait
 Attempts to wait for the promise to complete within the specified `TimeSpan`. Returns `true` if the promise is resolved within the time, otherwise returns `false`.
 
