@@ -7,7 +7,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Xml.Linq;
-using MoreLinq;
 using Newtonsoft.Json;
 using NuGet.Common;
 using NuGet.Packaging;
@@ -88,7 +87,7 @@ public class ShardStorage : IShardStorage
 
     public void Prune() =>
         ShardRootFolder.EnumerateFiles("*.*", SearchOption.AllDirectories)
-            .Pipe(x => x.Delete());
+            .ForEach(x => x.Delete());
 
     public List<NuGetVersion> GetAvailableVersions(string name) =>
         ShardRootFolder

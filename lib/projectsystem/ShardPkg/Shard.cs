@@ -6,10 +6,8 @@ using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
-using MoreLinq;
 using Newtonsoft.Json;
 using NuGet.Versioning;
-using PgpCore;
 
 public class Shard : IDisposable, IAsyncDisposable
 {
@@ -215,7 +213,6 @@ public class ShardBuilder
     internal readonly PackageManifest _manifest;
     internal readonly Action<string> _logger;
     internal PackageCertificate _cert;
-    internal EncryptionKeys _key;
     internal ShardFileStorage _store { get; }
     internal Dictionary<FileInfo, string> signatures { get; } = new();
 
@@ -227,17 +224,17 @@ public class ShardBuilder
         _store = new ShardFileStorage(this);
     }
 
-    public ShardBuilder WithCertificate(string publicKey)
-    {
-        if (string.IsNullOrEmpty(publicKey))
-            throw new ArgumentNullException(nameof(publicKey));
-        if (!publicKey.StartsWith("-----BEGIN PGP PUBLIC KEY BLOCK-----"))
-            throw new ArgumentException("Armor invalid", nameof(publicKey));
-        _cert = new PackageCertificate(publicKey);
-        _key = new EncryptionKeys(publicKey, null, null);
-        _logger($"PGP key '{_key.PublicKey.KeyId:X}' success loaded.");
-        return this;
-    }
+    //public ShardBuilder WithCertificate(string publicKey)
+    //{
+    //    if (string.IsNullOrEmpty(publicKey))
+    //        throw new ArgumentNullException(nameof(publicKey));
+    //    if (!publicKey.StartsWith("-----BEGIN PGP PUBLIC KEY BLOCK-----"))
+    //        throw new ArgumentException("Armor invalid", nameof(publicKey));
+    //    _cert = new PackageCertificate(publicKey);
+    //    _key = new EncryptionKeys(publicKey, null, null);
+    //    _logger($"PGP key '{_key.PublicKey.KeyId:X}' success loaded.");
+    //    return this;
+    //}
 
     public ShardFileStorage Storage() => _store;
 
@@ -297,7 +294,7 @@ public class ShardFileStorage : IStorageEntity
 
     public IStorageEntity Files(FileInfo[] paths)
     {
-        paths.Pipe(x => _entities.Add(new StorageFile(this, x))).Consume();
+        paths.ForEach(x => _entities.Add(new StorageFile(this, x)));
         return this;
     }
 
@@ -313,9 +310,9 @@ public class ShardFileStorage : IStorageEntity
 }
 
 
-public record struct StorageFolder(ShardFileStorage storage, string Name) : IStorageEntity
+public readonly record struct StorageFolder(ShardFileStorage storage, string Name) : IStorageEntity
 {
-    internal List<IStorageEntity> _entities = new();
+    private readonly List<IStorageEntity> _entities = [];
 
     public IStorageEntity File(FileInfo path)
         => this.File(path, true);
@@ -331,7 +328,7 @@ public record struct StorageFolder(ShardFileStorage storage, string Name) : ISto
     {
         var en = _entities;
         var st = storage;
-        paths.Pipe(x => en.Add(new StorageFile(st, x))).Consume();
+        paths.ForEach(x => en.Add(new StorageFile(st, x)));
         return this;
     }
 
@@ -349,7 +346,7 @@ public record struct StorageFolder(ShardFileStorage storage, string Name) : ISto
         => _entities;
 }
 
-public record struct StorageFile(ShardFileStorage storage, FileInfo info) : IStorageEntity
+public readonly record struct StorageFile(ShardFileStorage storage, FileInfo info) : IStorageEntity
 {
     public string Name => info.Name;
 
