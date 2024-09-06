@@ -12,6 +12,12 @@ on:
       - '**.ps1'
       - '**.sh'
       - '**.cmd'
+      - '**.js'
+      - '**.ts'
+      - '**.mts'
+      - '**.mjs'
+      - '**.lock'
+      - 'docs/**'
     branches: [ master ]
   pull_request:
     branches: [ master ]
@@ -26,6 +32,10 @@ jobs:
         with:
             submodules: true
       - run: git fetch --prune --unshallow --tags
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          dotnet-quality: 'preview'
       - name: 'Cache: .nuke/temp, ~/.nuget/packages'
         uses: actions/cache@v3
         with:
