@@ -25,11 +25,20 @@ unsafe
     {
         var path = appCfg.LibraryPath(libname);
 
-        if (NativeLibrary.TryLoad(path.ToString(), out var handle))
+        try
+        {
+            if (!NativeLibrary.TryLoad(path.ToString(), out var handle))
+                Console.WriteLine($"[TryLoad] failed load '{libname}', path: '{path.ToString()}', pinvokeErr: {Marshal.GetLastPInvokeError()}, msg: {Marshal.GetLastPInvokeErrorMessage()}" +
+                                  $"sysErr: {Marshal.GetLastSystemError()}, win32Err: {Marshal.GetLastWin32Error()}");
             return handle;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"failed load '{libname}', path: '{path.ToString()}', pinvokeErr: {Marshal.GetLastPInvokeError()}, msg: {Marshal.GetLastPInvokeErrorMessage()}" +
+                              $"sysErr: {Marshal.GetLastSystemError()}, win32Err: {Marshal.GetLastWin32Error()}");
+            return 0;
+        }
 
-        Console.WriteLine($"failed load '{libname}'");
-        Environment.Exit(-1);
         return 0;
     }
 

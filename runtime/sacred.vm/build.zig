@@ -13,8 +13,12 @@ pub fn build(b: *std.Build) void {
 
     const libuv_source_dir = "lib/libuv/src";
     const libuv_include_dir = "lib/libuv/include";
-    const libuv = b.addStaticLibrary(.{});
-    libuv.addIncludePath(libuv_include_dir);
+    const libuv = b.addStaticLibrary(.{
+        .name = "libuv",
+        .target = target,
+        .optimize = optimize,
+    });
+    libuv.addIncludePath(.{ .src_path = libuv_include_dir });
 
     if (target.os.tag == .windows) {
         libuv.addCSourceFiles(&.{

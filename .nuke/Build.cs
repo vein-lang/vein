@@ -304,7 +304,7 @@ class Build : NukeBuild
 
     #region Ishtar
 
-    Target BuildIshtarDebug => _ => _
+    Target BuildIshtar => _ => _
         .DependsOn(Restore)
         .Executes(() => {
             var runtimes = new[]
@@ -312,19 +312,22 @@ class Build : NukeBuild
                 "win-x64",
                 "osx-arm64"
             };
+            DotNetClean(c => c
+                        .SetProject(Ishtar));
             runtimes.ForEach(runtime => {
                 var outputDir =  OutputDirectory / $"ishtar" / runtime;
                 outputDir.CreateOrCleanDirectory();
                 DotNetPublish(c => c
                     .SetProject(Ishtar)
-                    .SetConfiguration(Configuration.Release)
-                    .EnablePublishSingleFile()
-                    .EnableSelfContained()
-                    .SetFramework("net8.0")
-                    .SetPublishTrimmed(true)
+                    .ResetConfiguration()
                     .SetRuntime(runtime)
+                    .SetConfiguration(Configuration.Release)
+                    .SetPublishTrimmed(true)
                     .SetOutput(outputDir)
-                    .EnableNoRestore());
+                    .SetPublishReadyToRun(true)
+                    .DisableNoRestore()
+                    .EnableDeterministic()
+                );
             });
         });
 
@@ -347,7 +350,6 @@ class Build : NukeBuild
                     .SetRuntime(runtime)
                     .SetPublishTrimmed(true)
                     .SetFramework("net8.0")
-                    .SetPublishReadyToRun(true)
                     .EnableNoRestore());
 
                 // fucking nuke cannot work with native aot
@@ -360,7 +362,7 @@ class Build : NukeBuild
 
 
     Target PackIshtar => _ => _
-        .DependsOn(Restore, BuildIshtarDebug)
+        .DependsOn(Restore, BuildIshtar)
         .Executes(() =>
         {
             var runtimes = new[] {

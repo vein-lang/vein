@@ -71,7 +71,7 @@
           "items": {
             "type": "string",
             "enum": [
-              "BuildIshtarDebug",
+              "BuildIshtar",
               "BuildIshtarNative",
               "BuildRune",
               "BuildTest",
@@ -98,7 +98,7 @@
           "items": {
             "type": "string",
             "enum": [
-              "BuildIshtarDebug",
+              "BuildIshtar",
               "BuildIshtarNative",
               "BuildRune",
               "BuildTest",
