@@ -6,8 +6,7 @@
 		<RootNamespace>ishtar.base</RootNamespace>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="ExpressiveParser" Version="2.5.0" />
-		<PackageReference Include="morelinq" Version="3.4.2" />
+		<PackageReference Include="ExpressiveParser" Version="3.0.1" />
 		<PackageReference Include="BinaryTools.Elf" Version="0.3.0" />
 	</ItemGroup>
 	<ItemGroup>
