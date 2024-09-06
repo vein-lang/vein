@@ -2,7 +2,6 @@ namespace vein;
 
 using System.Text;
 using compilation;
-using MoreLinq;
 using static Spectre.Console.AnsiConsole;
 
 
@@ -23,16 +22,16 @@ public static class Log
 
     }
 
-    public static void EnqueueErrorsRange(IEnumerable<CompilationEventData> s) => s.Pipe(x => State.errors.Enqueue(x)).Consume();
-    public static void EnqueueInfosRange(IEnumerable<CompilationEventData> s) => s.Pipe(x => State.infos.Enqueue(x)).Consume();
-    public static void EnqueueWarnsRange(IEnumerable<CompilationEventData> s) => s.Pipe(x => State.warnings.Enqueue(x)).Consume();
+    public static void EnqueueErrorsRange(IEnumerable<CompilationEventData> s) => s.ForEach(x => State.errors.Enqueue(x));
+    public static void EnqueueInfosRange(IEnumerable<CompilationEventData> s) => s.ForEach(x => State.infos.Enqueue(x));
+    public static void EnqueueWarnsRange(IEnumerable<CompilationEventData> s) => s.ForEach(x => State.warnings.Enqueue(x));
 
 
     public static void Info(string s) => MarkupLine($"[aqua]INFO[/]: {s}");
     public static void Warn(string s) => MarkupLine($"[orange]WARN[/]: {s}");
     public static void Error(string s) => MarkupLine($"[red]ERROR[/]: {s}");
     public static void Error(Exception s) => WriteException(s);
-
+    
     public static void Info(string s, CompilationTarget t) => t.Logs.Info.Enqueue($"[aqua]INFO[/]: {s}");
     public static void Warn(string s, CompilationTarget t) => t.Logs.Warn.Enqueue($"[orange]WARN[/]: {s}");
     public static void Error(string s, CompilationTarget t) => t.Logs.Error.Enqueue($"[red]ERROR[/]: {s}");

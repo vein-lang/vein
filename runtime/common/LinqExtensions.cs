@@ -9,4 +9,13 @@ public static class LinqExtensions
     {
         foreach (var v in enumerator) actor(v);
     }
+
+    public static IEnumerable<T> Pipe<T>(this IEnumerable<T> enumerator, Action<T> actor)
+    {
+        foreach (var v in enumerator)
+        {
+            actor(v);
+            yield return v;
+        }
+    }
 }

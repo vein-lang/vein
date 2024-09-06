@@ -91,3 +91,5 @@ runtime/sacred.vm/zig-cache/
 runtime/sacred.vm/zig-out/
 
 bench/
+
+ReleaseAot/

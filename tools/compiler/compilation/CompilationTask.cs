@@ -1,8 +1,7 @@
 namespace vein.compilation;
 
-using MoreLinq;
-using vein;
 using extensions;
+using vein;
 using pipes;
 using project;
 using stl;
@@ -131,8 +130,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
                 .SelectMany(x => x.Artifacts)
                 .OfType<BinaryArtifact>()
                 .Select(x => target.Resolver.ResolveDep(x, list))
-                .Pipe(list.Add)
-                .Consume();
+                .ForEach(list.Add);
 
             target.LoadedModules.AddRange(list);
 
@@ -255,8 +253,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
                 .Pipe(GenerateStaticCtor)
                 .Pipe(ValidateInheritance)
                 .ToList()
-                .Pipe(x => x.clazz.Methods.OfExactType<MethodBuilder>().Pipe(PostgenerateBody).Consume())
-                .Consume();
+                .Pipe(x => x.clazz.Methods.OfExactType<MethodBuilder>().ForEach(PostgenerateBody));
 
             Cache.SaveAstAsset(Target);
         }

@@ -63,8 +63,41 @@ private static class NumericTest
         Assert.equal(12 * two, 24);
         Assert.equal(15 * two, 30);
     }
+    [test]
+    public static fib_test(): void {
+        Fib(15);
+        return;
+    }
 
+    public static Fib(n: i32): i32
+    {
+        if (n < 2)
+        {
+            return n;
+        }
+        else
+        {
+            let n1 = Fib(n - 1);
+            let n2 = Fib(n - 2);
+            let n3 = n1 + n2;
+            return n3;
+        }
+    }
+    /*public static Fib(x: i32): i32 {
+        if (x == 0) {
+            return 0;
+        }
 
+        let prev = 0;
+        let next = 1;
+        for (let i = 1; i < x; i++)
+        {
+            let sum = prev + next;
+            prev = next;
+            next = sum;
+        }
+        return next;
+    }*/
 
     [test]
     public static i16_mod(): void 

@@ -2,7 +2,6 @@ namespace vein.compilation;
 
 using System.Security.Cryptography;
 using System.Text;
-using MoreLinq;
 
 [ExcludeFromCodeCoverage]
 public class Cache
@@ -59,7 +58,7 @@ public class Cache
         var cacheFolder = target.Project.CacheDir.SubDirectory("ast");
 
         if (!cacheFolder.Exists) cacheFolder.Create();
-        cacheFolder.EnumerateFiles("*.ast.json").Pipe(x => x.Delete()).Consume();
+        cacheFolder.EnumerateFiles("*.ast.json").ForEach(x => x.Delete());
 
         foreach (var (key, val) in target.AST)
         {

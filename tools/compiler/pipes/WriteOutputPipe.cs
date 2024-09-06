@@ -1,7 +1,6 @@
 namespace vein.pipes;
 
 using fs;
-using MoreLinq;
 
 [ExcludeFromCodeCoverage]
 public class WriteOutputPipe : CompilerPipeline

@@ -2,8 +2,6 @@ namespace vein.compilation;
 
 using exceptions;
 using extensions;
-using MoreLinq;
-using vein.reflection;
 using static runtime.MethodFlags;
 
 public partial class CompilationTask
@@ -47,14 +45,13 @@ public partial class CompilationTask
         owners
             .Select(owner => FetchType(@class, owner, doc))
             .Where(p => !@class.Parents.Contains(p))
-            .Pipe(p => @class.Parents.Add(p)).Consume();
+            .ForEach(p => @class.Parents.Add(p));
         @class
             .Parents
             .ToArray() // copy emumerable 
             .SelectMany(x => x.Parents)
             .Where(x => @class.Parents.Any(z => z.FullName == x.FullName))
-            .Pipe(v => @class.Parents.Remove(v))
-            .Consume();
+            .ForEach(v => @class.Parents.Remove(v));
     }
     private ClassFlags GenerateClassFlags(ClassDeclarationSyntax clazz)
     {

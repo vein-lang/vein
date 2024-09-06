@@ -1,6 +1,5 @@
 namespace vein.compilation;
 
-using MoreLinq;
 using static runtime.VeinTypeCode;
 
 public partial class CompilationTask
@@ -38,8 +37,7 @@ public partial class CompilationTask
 
         // emit calling based ctors
         @class.Parents.Select(z => z.GetDefaultCtor()).Where(z => z != null)
-            .Pipe(z => gen.EmitThis().Emit(OpCodes.CALL, z))
-            .Consume();
+            .ForEach(z => gen.EmitThis().Emit(OpCodes.CALL, z));
 
 
         var pregen = new List<(ExpressionSyntax exp, VeinField field)>();
