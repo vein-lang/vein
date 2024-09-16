@@ -1,6 +1,5 @@
 namespace vein.cmd;
 
-using MoreLinq;
 using vein.extensions;
 
 
@@ -15,7 +14,7 @@ public class CleanCommand : Command
             .Where(x => x.CacheDir.Exists)
             .Count(out var len)
             .Pipe(x => x.CacheDir.Delete(true))
-            .Consume();
+            .ToList();
 
         Log.Info($"[green]Success[/] cleaned [orange]{len}[/] projects.");
 
