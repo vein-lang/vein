@@ -32,7 +32,7 @@ namespace ishtar_test
                 _corlib ??= LoadCorLib();
 
                 if (_module is null)
-                    return _module = new VeinModuleBuilder("tst", Types) { Deps = [_corlib] };
+                    return _module = new VeinModuleBuilder(new ModuleNameSymbol("tst"), Types) { Deps = [_corlib] };
                 return _module;
             }
         }
@@ -60,7 +60,7 @@ namespace ishtar_test
 
         public void OnCodeBuild(Action<ILGenerator, dynamic> ctor)
         {
-            Class = Module.DefineClass($"test/testClass_{testCase}_{uid}");
+            Class = Module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
             ClassCtor?.Invoke(Class, _context);
             var _method = Class.DefineMethod($"master_{testCase}_{uid}", MethodFlags.Public | MethodFlags.Static,
                 VeinTypeCode.TYPE_OBJECT.AsClass()(Types));
@@ -103,33 +103,28 @@ namespace ishtar_test
 
         private readonly NativeList<RuntimeIshtarModule>* _deps;
         private RuntimeIshtarModule* _corlib;
-        public VirtualMachine VM { get; }
+        public VirtualMachine* VM { get; }
 
 
-        private static nint _gcHandle;
         public IshtarExecutionContext(VeinModuleBuilder veinModule, string testCase, string uid)
         {
-            if (_gcHandle == 0 && RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                _gcHandle = NativeLibrary.Load("libgc.so");
-            BoehmGCLayout.Native.GC_init();
-
+            var bootCfg = VirtualMachine.readBootCfg();
+            var appCfg = new AppConfig(bootCfg);
+            VirtualMachine.static_init();
             _veinModule = veinModule;
             _testCase = testCase;
             _uid = uid;
             _deps = IshtarGC.AllocateList<RuntimeIshtarModule>(null);
-            VM = VirtualMachine.Create($"test-app-{uid}-{testCase}");
-
-            if (VM.watcher is DefaultWatchDog)
-                VM.watcher = new TestWatchDog();
+            VM = VirtualMachine.Create($"test-app-{uid}-{testCase}", appCfg);
             _corlib = LoadCorLib();
         }
 
         public void Compile()
         {
-            var resolver = VM.Vault.GetResolver();
+            var resolver = VM->Vault.GetResolver();
 
             var runtimeModule = resolver.Resolve(new IshtarAssembly(_veinModule));
-            entryPointMethod = runtimeModule->GetSpecialEntryPoint($"master_{_testCase}_{_uid}()");
+            entryPointMethod = runtimeModule->GetSpecialEntryPoint($"master_{_testCase}_{_uid}() -> [std]::std::Object");
 
             var args_ = stackalloc stackval[1];
 
@@ -141,7 +136,7 @@ namespace ishtar_test
 
         public IshtarExecutionContext Execute()
         {
-            VM.exec_method(entryPointFrame);
+            VM->exec_method(entryPointFrame);
             return this;
         }
 
@@ -159,7 +154,7 @@ namespace ishtar_test
 
         private RuntimeIshtarModule* LoadCorLib()
         {
-            var resolver = VM.Vault.GetResolver();
+            var resolver = VM->Vault.GetResolver();
             resolver.AddSearchPath(new DirectoryInfo("./"));
             return resolver.ResolveDep("std", new IshtarVersion(0, 0), _deps);
         }
@@ -170,7 +165,7 @@ namespace ishtar_test
         {
             if (isDisposed) return;
             isDisposed = true;
-            VM?.Dispose();
+            VM->Dispose();
             IshtarGC.FreeList(_deps);
         }
     }
@@ -193,6 +188,8 @@ namespace ishtar_test
             _disposables.Add(ctx);
             return ctx.Compile();
         }
+
+        public static void Equals<T>(T t1, T t2) => Assert.That(t1, Is.EqualTo(t2));
 
         public void Dispose()
         {

@@ -1,92 +1,91 @@
-namespace ishtar_test
+namespace ishtar_test;
+
+using System;
+using ishtar;
+using vein.runtime;
+using NUnit.Framework;
+
+public unsafe class OverrideTest : IshtarTestBase
 {
-    using System;
-    using ishtar;
-    using vein.runtime;
-    using NUnit.Framework;
+    //[Test]
+    //[Parallelizable(ParallelScope.None)]
+    //public void TestValidCall()
+    //{
+    //    var module = new RuntimeIshtarModule(GetVM().Vault, _module.Name);
 
-    public unsafe class OverrideTest : IshtarTestBase
+    //    var b1 = new RuntimeIshtarClass("tst%foo/bar1", VeinTypeCode.TYPE_OBJECT.AsRuntimeClass(Types), module);
+
+    //    var m1 = b1.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(Types), MethodFlags.Public | MethodFlags.Virtual);
+
+    //    m1.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo1));
+
+    //    var b2 = new RuntimeIshtarClass("tst%foo/bar2", b1, module);
+
+    //    var m2 = b2.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(Types), MethodFlags.Public | MethodFlags.Override);
+
+    //    m2.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo2));
+
+    //    b2.init_vtable(GetVM());
+
+
+    //    ((delegate*<void>)b2.Method["soq()"].PIInfo.Addr)();
+
+
+
+    //    var result = GC->AllocObject(b2, GetVM().Frames->EntryPoint);
+
+    //    var pointer = result->vtable[m2.vtable_offset];
+
+    //    var d2 = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(pointer);
+    //    ((delegate*<void>)d2.PIInfo.Addr)();
+    //}
+
+
+    [Test]
+    [Parallelizable(ParallelScope.None)]
+    public void TestNotValidCall()
     {
-        //[Test]
-        //[Parallelizable(ParallelScope.None)]
-        //public void TestValidCall()
-        //{
-        //    var module = new RuntimeIshtarModule(GetVM().Vault, _module.Name);
+        //var module = new RuntimeIshtarModule(AppVault.CurrentVault, _module.Name);
 
-        //    var b1 = new RuntimeIshtarClass("tst%foo/bar1", VeinTypeCode.TYPE_OBJECT.AsRuntimeClass(Types), module);
+        //var b1 = new RuntimeIshtarClass("tst%foo/bar1", VeinTypeCode.TYPE_OBJECT.AsRuntimeClass(), module);
 
-        //    var m1 = b1.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(Types), MethodFlags.Public | MethodFlags.Virtual);
+        //var m1 = b1.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Virtual);
 
-        //    m1.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo1));
+        //m1.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo1));
 
-        //    var b2 = new RuntimeIshtarClass("tst%foo/bar2", b1, module);
+        //var b2 = new RuntimeIshtarClass("tst%foo/bar2", b1, module);
 
-        //    var m2 = b2.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(Types), MethodFlags.Public | MethodFlags.Override);
+        //var m2 = b2.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Override);
 
-        //    m2.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo2));
+        //m2.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo2));
 
-        //    b2.init_vtable(GetVM());
+        //b2.init_vtable();
 
+        //var result1 = IshtarGC->AllocObject(b1);
+        //var result2 = IshtarGC->AllocObject(b2);
 
-        //    ((delegate*<void>)b2.Method["soq()"].PIInfo.Addr)();
+        //var offset = b1.Method["soq()"].vtable_offset;
 
+        //var w1 = b1.dvtable.vtable[offset];
+        //var w2 = b2.dvtable.vtable[offset];
 
-
-        //    var result = GC.AllocObject(b2, GetVM().Frames.EntryPoint);
-
-        //    var pointer = result->vtable[m2.vtable_offset];
-
-        //    var d2 = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(pointer);
-        //    ((delegate*<void>)d2.PIInfo.Addr)();
-        //}
+        //var p1 = result1->vtable[offset];
+        //var p2 = result2->vtable[offset];
 
 
-        [Test]
-        [Parallelizable(ParallelScope.None)]
-        public void TestNotValidCall()
-        {
-            //var module = new RuntimeIshtarModule(AppVault.CurrentVault, _module.Name);
+        //var cp1 = b1.vtable[offset];
+        //var cp2 = b2.vtable[offset];
 
-            //var b1 = new RuntimeIshtarClass("tst%foo/bar1", VeinTypeCode.TYPE_OBJECT.AsRuntimeClass(), module);
+        //var d1 = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(p1);
+        //var d2 = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(p2);
 
-            //var m1 = b1.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Virtual);
-
-            //m1.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo1));
-
-            //var b2 = new RuntimeIshtarClass("tst%foo/bar2", b1, module);
-
-            //var m2 = b2.DefineMethod("soq", VeinTypeCode.TYPE_VOID.AsRuntimeClass(), MethodFlags.Public | MethodFlags.Override);
-
-            //m2.PIInfo = PInvokeInfo.New(((delegate*<void>)&Foo2));
-
-            //b2.init_vtable();
-
-            //var result1 = IshtarGC.AllocObject(b1);
-            //var result2 = IshtarGC.AllocObject(b2);
-
-            //var offset = b1.Method["soq()"].vtable_offset;
-
-            //var w1 = b1.dvtable.vtable[offset];
-            //var w2 = b2.dvtable.vtable[offset];
-
-            //var p1 = result1->vtable[offset];
-            //var p2 = result2->vtable[offset];
-
-
-            //var cp1 = b1.vtable[offset];
-            //var cp2 = b2.vtable[offset];
-
-            //var d1 = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(p1);
-            //var d2 = IshtarUnsafe.AsRef<RuntimeIshtarMethod>(p2);
-
-            //Assert.AreEqual((nint)p1, (nint)cp1);
-            //Assert.AreEqual((nint)p2, (nint)cp2);
-            //Assert.NotNull(d1);
-            //Assert.NotNull(d2);
-        }
-
-        public static void Foo1() => Assert.False(true);
-
-        public static void Foo2() => Console.WriteLine("Foo2");
+        //Equals((nint)p1, (nint)cp1);
+        //Equals((nint)p2, (nint)cp2);
+        //Assert.NotNull(d1);
+        //Assert.NotNull(d2);
     }
+
+    public static void Foo1() => Assert.Fail();
+
+    public static void Foo2() => Console.WriteLine("Foo2");
 }

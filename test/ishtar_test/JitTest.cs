@@ -54,7 +54,7 @@
 //    //    var proc = LoadNativeLibrary("_sample_2");
 //    //    var argsLen = 1;
 
-//    //    var data = GetVM().GC.AllocateStack(Frame, argsLen);
+//    //    var data = GetVM().GC->AllocateStack(Frame, argsLen);
 
 //    //    data[0] = new stackval();
 //    //    data[0].type = VeinTypeCode.TYPE_I4;
@@ -64,7 +64,7 @@
 
 //    //    ((delegate*<void>)qwe)();
 
-//    //    GetVM().GC.FreeStack(Frame, data, argsLen);
+//    //    GetVM().GC->FreeStack(Frame, data, argsLen);
 //    //}
 
 //    //[Test]
@@ -98,7 +98,7 @@
 //    //    var argsLen = 5;
 
 
-//    //    var data = vm.GC.AllocateStack(Frame, argsLen);
+//    //    var data = vm.GC->AllocateStack(Frame, argsLen);
 
 //    //    for (int i = 0; i != argsLen; i++)
 //    //    {
@@ -109,7 +109,7 @@
 
 //    //    ((delegate*<void>)Jit.WrapNativeCallStaticVoid(proc, args, data, null, VeinTypeCode.TYPE_I4))();
 
-//    //    vm.GC.FreeStack(Frame, data, argsLen);
+//    //    vm.GC->FreeStack(Frame, data, argsLen);
 //    //}
 
 //    //[Test]
@@ -141,7 +141,7 @@
 //    //    var vm = GetVM();
 //    //    var argsLen = 5;
 
-//    //    var data = vm.GC.AllocateStack(Frame, argsLen);
+//    //    var data = vm.GC->AllocateStack(Frame, argsLen);
 
 //    //    for (int i = 0; i != argsLen; i++)
 //    //    {
@@ -152,7 +152,7 @@
 
 //    //    ((delegate*<void>)Jit.WrapNativeCallStaticVoid(proc, args, data, null, VeinTypeCode.TYPE_I4))();
 
-//    //    vm.GC.FreeStack(Frame, data, argsLen);
+//    //    vm.GC->FreeStack(Frame, data, argsLen);
 //    //}
 
 //    //[Test]
@@ -167,7 +167,7 @@
 //    //    var proc = LoadNativeLibrary("_sample_3");
 //    //    var vm = GetVM();
 //    //    var argLen = 1;
-//    //    var data = GetVM().GC.AllocateStack(Frame, argLen);
+//    //    var data = GetVM().GC->AllocateStack(Frame, argLen);
         
 
 //    //    data[0] = new stackval();
@@ -176,10 +176,10 @@
 
 //    //    var qwe = Jit.WrapNativeCallStaticVoid(proc, [new VeinArgumentRef("i1", vm.Types.Int32Class)], data, null, VeinTypeCode.TYPE_I4);
 
-//    //    vm.GC.FreeStack(Frame, data, argLen);
+//    //    vm.GC->FreeStack(Frame, data, argLen);
 
 
-//    //    Assert.AreEqual(228, ((delegate*<int>)qwe)());
+//    //    Equals(228, ((delegate*<int>)qwe)());
 //    //}
 
 //    //[Test]
@@ -196,7 +196,7 @@
 
 //    //    var qwe = Jit.WrapNativeCall(proc, [new VeinArgumentRef("i1", vm.Types.Int32Class)], null, VeinTypeCode.TYPE_I4);
 
-//    //    Assert.AreEqual(228, ((delegate*<int, int>)qwe)(228));
+//    //    Equals(228, ((delegate*<int, int>)qwe)(228));
 //    //}
 
 //    //[Test]
@@ -211,7 +211,7 @@
 //    //    var proc = LoadNativeLibrary("_sample_3");
 
 
-//    //    var data = GetVM().GC.AllocateStack(Frame, 1);
+//    //    var data = GetVM().GC->AllocateStack(Frame, 1);
 
 //    //    data[0] = new stackval();
 //    //    data[0].type = VeinTypeCode.TYPE_I4;
@@ -226,9 +226,9 @@
 
 //    //    var outMem = (int*)retMem;
 
-//    //    GetVM().GC.FreeStack(Frame, data, 1);
+//    //    GetVM().GC->FreeStack(Frame, data, 1);
 
-//    //    Assert.AreEqual(228, outMem[0]);
+//    //    Equals(228, outMem[0]);
 //    //}
 
 //    //[Test]
@@ -251,7 +251,7 @@
 
 //    //    var outMem = (int*)retMem;
         
-//    //    Assert.AreEqual(228, outMem[0]);
+//    //    Equals(228, outMem[0]);
 //    //}
 
 //    //[Test]
@@ -273,7 +273,7 @@
 
 //    //    var outMem = (long*)retMem;
 
-//    //    Assert.AreEqual(666_666_666_666, outMem[0]);
+//    //    Equals(666_666_666_666, outMem[0]);
 //    //}
 
 //    //[Test]
@@ -296,7 +296,7 @@
 
 //    //    var outMem = (float*)retMem;
 
-//    //    Assert.AreEqual(MathF.Tau + MathF.E + MathF.PI + 1 + 2, outMem[0]);
+//    //    Equals(MathF.Tau + MathF.E + MathF.PI + 1 + 2, outMem[0]);
 //    //}
 
 //    private static nint LoadNativeLibrary(string procedure)

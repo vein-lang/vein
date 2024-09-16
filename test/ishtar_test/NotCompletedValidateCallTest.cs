@@ -9,7 +9,7 @@ public unsafe class NotCompletedValidateCallTest : IshtarTestBase
     {
         using var scope = CreateScope();
         scope.OnClassBuild((x, storage) => {
-            var type = x.Owner.FindType("std%vein/lang/Out", true);
+            var type = x.Owner.FindType(new NameSymbol("Out"), [NamespaceSymbol.Std], true);
 
             storage.method = type.FindMethod("@_println");
         });
@@ -23,7 +23,7 @@ public unsafe class NotCompletedValidateCallTest : IshtarTestBase
         var ctx = scope.Compile();
         var errors = new StringBuilder();
 
-        ctx.VM.Vault.Modules->ForEach(x =>
+        ctx.VM->Vault.Modules->ForEach(x =>
         {
             x->class_table->ForEach(z =>
             {
@@ -34,6 +34,6 @@ public unsafe class NotCompletedValidateCallTest : IshtarTestBase
             });
         });
 
-        Assert.AreEqual("", errors.ToString());
+        Equals("", errors.ToString());
     }
 }

@@ -30,7 +30,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
 
         var result = scope.Compile().Execute().Validate();
 
-        Assert.AreEqual(result->returnValue[0].data.i, 225 * 2);
+        Equals(result->returnValue[0].data.i, 225 * 2);
     }
 
     [Test]
@@ -61,7 +61,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
 
         var result = scope.Compile().Execute().Validate();
 
-        Assert.AreEqual(result->returnValue[0].data.i, 2 * 2 * 2);
+        Equals(result->returnValue[0].data.i, 2 * 2 * 2);
     }
 
     [Test]
@@ -88,7 +88,7 @@ public unsafe class MethodExecuteTest : IshtarTestBase
 
         var result = scope.Compile().Execute().Validate();
 
-        Assert.AreEqual(result->last_ip, OpCodeValue.RET);
+        Equals(result->last_ip, OpCodeValue.RET);
     }
 
 }

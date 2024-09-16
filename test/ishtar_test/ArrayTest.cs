@@ -25,7 +25,7 @@
 //            });
 
 
-//            Assert.AreEqual(VeinTypeCode.TYPE_ARRAY, result.returnValue[0].type);
+//            Equals(VeinTypeCode.TYPE_ARRAY, result.returnValue[0].type);
 //        }
 
 //        [Test]
@@ -50,8 +50,8 @@
 //                x.Emit(OpCodes.RET);
 //            });
 
-//            Assert.AreEqual(VeinTypeCode.TYPE_I4, result.returnValue[0].type);
-//            Assert.AreEqual(3, result.returnValue[0].data.i);
+//            Equals(VeinTypeCode.TYPE_I4, result.returnValue[0].type);
+//            Equals(3, result.returnValue[0].data.i);
 //        }
 
 //        [Test]
@@ -76,8 +76,8 @@
 //                x.Emit(OpCodes.RET);
 //            });
 
-//            Assert.AreEqual(VeinTypeCode.TYPE_U8, result.returnValue[0].type);
-//            Assert.AreEqual(5, result.returnValue[0].data.i);
+//            Equals(VeinTypeCode.TYPE_U8, result.returnValue[0].type);
+//            Equals(5, result.returnValue[0].data.i);
 //        }
 
 
@@ -102,9 +102,9 @@
 //        //        x.Emit(OpCodes.RET);
 //        //    });
 
-//        //    Assert.AreEqual(VeinTypeCode.TYPE_STRING, result.returnValue[0].type);
+//        //    Equals(VeinTypeCode.TYPE_STRING, result.returnValue[0].type);
 //        //    var str = IshtarMarshal.ToDotnetString((IshtarObject*)result.returnValue[0].data.p, result);
-//        //    Assert.AreEqual("foo and bar", str);
+//        //    Equals("foo and bar", str);
 //        //}
 //    }
 //}
