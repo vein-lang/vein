@@ -23,7 +23,7 @@
     <PublishTrimmed>true</PublishTrimmed>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
-    <DefineConstants>$(DefineConstants);DEBUG;</DefineConstants>
+    <DefineConstants>$(DefineConstants);DEBUG;USE_LOADER</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Flurl.Http" Version="4.0.2" />

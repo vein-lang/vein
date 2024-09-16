@@ -84,9 +84,9 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
         
         [vm:core]
         use_loader={IsRelease}
-        libgc="{GlobalPathLibGC}libgc"
-        libuv="{GlobalPathLibUV}libuv"
-        libLLVM="{GlobalPathLibLLVM}libLLVM"
+        libgc="{GlobalPathLibGC}"
+        libuv="{GlobalPathLibUV}"
+        libLLVM="{GlobalPathLibLLVM}"
         """;
 
     public override async Task<int> ExecuteAsync(CommandContext context, RunSettings settings, VeinProject project)
@@ -149,7 +149,7 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             .Replace($"{{{nameof(settings.EntryPoint)}}}", settings.EntryPoint)
             .Replace($"{{{nameof(settings.EntryPointClass)}}}", settings.EntryPointClass)
             .Replace($"{{{nameof(settings.JitContextDeffer)}}}", settings.JitContextDeffer.ToString().ToLowerInvariant())
-#if DEBUG
+#if !USE_LOADER
             .Replace($"{{IsRelease}}", "false")
 #else
             .Replace($"{{IsRelease}}", "true")
@@ -157,7 +157,6 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
             .Replace($"{{GlobalPathLibGC}}", libgc!.FullName)
             .Replace($"{{GlobalPathLibUV}}", libuv!.FullName)
             .Replace($"{{GlobalPathLibLLVM}}", llvm!.FullName)
-
             ; 
 
 
@@ -209,7 +208,7 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
         {
             AnsiConsole.WriteLine();
             AnsiConsole.Write(ishtarExitCode != 0
-                ? new Rule($"[red bold]RUN FAILED[/]") { Style = Style.Parse("deeppink3 rapidblink") }
+                ? new Rule($"[red bold]RUN FAILED ({ishtarExitCode})[/]") { Style = Style.Parse("deeppink3 rapidblink") }
                 : new Rule($"[green bold]RUN SUCCESS[/]") { Style = Style.Parse("lime rapidblink") });
         }
 
