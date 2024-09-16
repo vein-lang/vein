@@ -19,7 +19,10 @@ public unsafe partial struct VirtualMachine : IDisposable
         if (msg is null) return;
 
         if (clazz->FindField("message") is null)
-            throw new InvalidOperationException($"Class '{clazz->FullName->NameWithNS}' is not contained 'message' field.");
+        {
+            FastFail(TYPE_MISMATCH, $"Class '{clazz->FullName->NameWithNS}' is not contained 'message' field.", invocation);
+            return;
+        }
 
         exception->vtable[clazz->Field["message"]->vtable_offset]
             = gc->ToIshtarObject(msg, invocation);
@@ -108,7 +111,7 @@ public unsafe partial struct VirtualMachine : IDisposable
 
             if (!invocation->exception.IsDefault() && invocation->level == 0)
                 return;
-            FastFail(ip == end, END_EXECUTE_MEMORY, "unexpected end of executable memory.", invocation);
+            FastFail(ip >= end, END_EXECUTE_MEMORY, "unexpected end of executable memory.", invocation);
             FastFail(sp >= end_stack, OVERFLOW, "stack overflow detected.", invocation);
             FastFail(sp < sp_start, OVERFLOW, "incorrect sp address beyond sp_start was detected", invocation);
 
@@ -281,40 +284,23 @@ public unsafe partial struct VirtualMachine : IDisposable
                 case LDC_F4:
                     ++ip;
                     sp->type = TYPE_R4;
-                    // TODO remove using Int32BitsToSingle
-                    sp->data.f_r4 = BitConverter.Int32BitsToSingle((int)(*ip));
+                    sp->data.f_r4 = *(float*)*ip;
                     ++ip;
                     ++sp;
                     break;
                 case LDC_F8:
-                {
                     ++ip;
                     sp->type = TYPE_R8;
-                    var t1 = (long)*ip;
+                    var f8_l = (long)*ip++;
                     ++ip;
-                    var t2 = (long)*ip;
-                    // TODO remove using Int64BitsToDouble
-                    sp->data.f = BitConverter.Int64BitsToDouble(t2 << 32 | t1 & 0xffffffffL);
+                    var f8_r = (long)*ip;
+                    var f8_full = f8_r << 32 | f8_l & 0xffffffffL;
+                    sp->data.f = *(double*)&f8_full;
                     ++ip;
                     ++sp;
-                }
                     break;
                 case LDC_F16:
-                {
-                    ++ip;
-                    sp->type = TYPE_R16;
-                    var bits = (int)*ip;
-                    var items = new int[bits];
-                    ++ip;
-                    foreach (var i in ..bits)
-                    {
-                        items[i] = (int)*ip;
-                        ++ip;
-                    }
-                    sp->data.d = new decimal(items);
-                    ++sp;
-                }
-                    break;
+                    goto default; // TODO
                 case LDC_I1_S:
                     ++ip;
                     sp->type = TYPE_I1;
