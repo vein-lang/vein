@@ -13,7 +13,7 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
     public static void static_init()
     {
         if (hasInited)
-            throw new NotSupportedException();
+            return;
         using var tag = Profiler.Begin("vm:init");
         GC_set_find_leak(true);
         GC_set_all_interior_pointers(true);

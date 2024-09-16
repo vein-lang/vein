@@ -528,8 +528,6 @@ namespace ishtar
         public RuntimeIshtarMethod* GetSpecialEntryPoint(string name) =>
             Methods->FirstOrNull(x =>
             {
-                if (!name.EndsWith(")"))
-                    throw new InvalidOperationException($"Trying summon method, but methodName is not completed {name}");
                 if (!x->IsStatic)
                     return false;
                 if (x->ArgLength > 0)
