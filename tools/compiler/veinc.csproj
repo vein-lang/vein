@@ -2,6 +2,7 @@
   <PropertyGroup>
     <AssemblyName>veinc</AssemblyName>
     <RootNamespace>vein</RootNamespace>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -28,7 +29,6 @@
     <Using Include="System.Diagnostics.CodeAnalysis" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <TargetFramework>net9.0</TargetFramework>
     <DebuggerSupport>false</DebuggerSupport>
     <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
     <EventSourceSupport>false</EventSourceSupport>

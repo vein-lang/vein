@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);STATIC_VALIDATE_IL;DEBUG_VTABLE;VALIDATE_RUNTIME_TOKEN;DEBUG</DefineConstants>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <InvariantGlobalization>true</InvariantGlobalization>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
