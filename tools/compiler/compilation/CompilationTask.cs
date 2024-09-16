@@ -253,7 +253,8 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
                 .Pipe(GenerateStaticCtor)
                 .Pipe(ValidateInheritance)
                 .ToList()
-                .Pipe(x => x.clazz.Methods.OfExactType<MethodBuilder>().ForEach(PostgenerateBody));
+                .Pipe(x => x.clazz.Methods.OfExactType<MethodBuilder>().ForEach(PostgenerateBody))
+                .ToList();
 
             Cache.SaveAstAsset(Target);
         }
