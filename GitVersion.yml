@@ -5,4 +5,4 @@ merge-message-formats: {}
 commit-message-incrementing: Enabled
 patch-version-bump-message: "^(add|bump|drop|mv|move|update|expose|remove|refactoring|additional|use|improvement|fix|refactor)(.+)?"
 tag-prefix: 'IGNORE'
-next-version: "0.30.9"
+next-version: "0.30.10"
