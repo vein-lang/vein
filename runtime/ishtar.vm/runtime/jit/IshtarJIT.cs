@@ -1,6 +1,7 @@
 namespace ishtar;
 
 using Iced.Intel;
+using llmv;
 using vein.runtime;
 using static Iced.Intel.AssemblerRegisters;
 
@@ -592,31 +593,33 @@ public unsafe class IshtarJIT(VirtualMachine* vm)
 
         throw null; // coloring
 
-        foreach (var instr in decoder)
-        {
-            output.List.Clear();
-            formatter.Format(instr, output);
-            foreach (var (text, kind) in output.List)
-            {
-                Console.ForegroundColor = GetColor(kind);
-                Console.Write(text);
-            }
-            Console.WriteLine();
-        }
-        Console.ResetColor();
+        //foreach (var instr in decoder)
+        //{
+        //    output.List.Clear();
+        //    formatter.Format(instr, output);
+        //    foreach (var (text, kind) in output.List)
+        //    {
+        //        Console.ForegroundColor = GetColor(kind);
+        //        Console.Write(text);
+        //    }
+        //    Console.WriteLine();
+        //}
+        //Console.ResetColor();
 
 
-        var asm_size = (uint)asm_code.Length;
-        void* asm_mem = NativeApi.VirtualAlloc(null, asm_size,  NativeApi.AllocationType.Commit,  NativeApi.MemoryProtection.ReadWrite);
-        Marshal.Copy(asm_code, 0, new IntPtr(asm_mem), asm_code.Length);
-        FlushInstructions(asm_mem, asm_size);
-        if (!NativeApi.VirtualProtect(asm_mem, asm_size, NativeApi.Protection.PAGE_EXECUTE_READ, out _))
-        {
-            vm->FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", vm->Frames->Jit);
-            return null;
-        }
-        return asm_mem; 
+        //var asm_size = (uint)asm_code.Length;
+        //void* asm_mem = NativeApi.VirtualAlloc(null, asm_size,  NativeApi.AllocationType.Commit,  NativeApi.MemoryProtection.ReadWrite);
+        //Marshal.Copy(asm_code, 0, new IntPtr(asm_mem), asm_code.Length);
+        //FlushInstructions(asm_mem, asm_size);
+        //if (!NativeApi.VirtualProtect(asm_mem, asm_size, NativeApi.Protection.PAGE_EXECUTE_READ, out _))
+        //{
+        //    vm->FastFail(WNE.STATE_CORRUPT, "virtual protect failed set PAGE_EXECUTE_READ", vm->Frames->Jit);
+        //    return null;
+        //}
+        //return asm_mem; 
     }
+
     public static void FlushInstructions(void* ipBaseAddr, uint size)
-        => NativeApi.FlushInstructionCache((void*)Process.GetCurrentProcess().Handle, ipBaseAddr, size);
+        => throw new LLVMContext.DeOptimizationDetected();
+    //=> NativeApi.FlushInstructionCache((void*)Process.GetCurrentProcess().Handle, ipBaseAddr, size);
 }

@@ -9,7 +9,7 @@ public enum SlicedStringFlags
     TEMP = 1 << 3,
 }
 
-public readonly unsafe struct SlicedString(char* ptr, uint size)
+public readonly unsafe struct SlicedString(char* ptr, uint size) : IEquatable<SlicedString>
 {
     public SlicedString(SlicedString other, uint from, uint to) : this(other.Ptr + from, to - from)
         => Flags = SlicedStringFlags.CHILD | other.Flags;
@@ -23,6 +23,12 @@ public readonly unsafe struct SlicedString(char* ptr, uint size)
         => new(ptr, 0, (int)size);
 
     public bool IsNull() => ptr == null;
+
+    public bool Equals(SlicedString other) => Ptr == other.Ptr && Size == other.Size && Flags == other.Flags;
+
+    public override bool Equals(object obj) => obj is SlicedString other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(unchecked((int)(long)Ptr), Size, (int)Flags);
 }
 public static unsafe class SlicedStringEx
 {
