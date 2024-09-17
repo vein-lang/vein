@@ -1,5 +1,5 @@
 name: vein.runtime.core
-version: '0.31.0'
+version: '0.30.11'
 author:
   - name: LLVM Project
     github: 'llvm'

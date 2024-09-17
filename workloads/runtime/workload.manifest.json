@@ -1,6 +1,6 @@
 {
     "name": "vein.runtime",
-    "version": "0.31.0",
+    "version": "0.30.11",
     "workloads": {
         "vein-compiler": {
             "name": "vein-runtime",
@@ -19,8 +19,8 @@
             "name": "vein-runtime-package",
             "kind": "tool",
             "aliases": {
-                "win-x64": "https://github.com/vein-lang/vein/releases/download/v0.31.0/vein.runtime.win-x64.zip",
-                "osx-arm64": "https://github.com/vein-lang/vein/releases/download/v0.31.0/vein.runtime.osx-arm64.zip"
+                "win-x64": "https://github.com/vein-lang/vein/releases/download/v0.30.11/vein.runtime.win-x64.zip",
+                "osx-arm64": "https://github.com/vein-lang/vein/releases/download/v0.30.11/vein.runtime.osx-arm64.zip"
             },
             "definition": [
                 {
@@ -29,7 +29,7 @@
                 }
             ],
             "dependencies":{
-                "vein.runtime.core": "0.31.0"
+                "vein.runtime.core": "0.30.11"
             }
         }
     }
