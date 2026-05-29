@@ -34,14 +34,11 @@ namespace ishtar
 
         public static void Dispose()
         {
-            //foreach (var (id, ptr) in storage_d_hglobal)
-            //    Marshal.FreeHGlobal(ptr);
-            //storage_d_hglobal.Clear();
-            //foreach (var (id, ptr) in storage_r)
-            //    IshtarGC.FreeImmortal((InternedString*)ptr);
-            //storage_r.Clear();
-            //storage_d.Clear();
-            //storage_l.Clear();
+            storage_r.Clear();
+            storage_l.Clear();
+            storage_d.Clear();
+            storage_d_hglobal.Clear();
+            _indexer = 0;
         }
 
         public static string GetString(InternedString* p, CallFrame* frame)
