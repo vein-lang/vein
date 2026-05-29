@@ -211,21 +211,21 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = i2 - i1;
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        if (i2 == 0)
+                        if (i1 == 0)
                         {
                             // TODO
                             frame->vm->FastFail(WNE.ACCESS_VIOLATION, $"YOUR JUST OPEN A BLACKHOLE!!! [DivideByZeroError]", frame);
                         }
-                        i1 /= i2;
+                        i1 = i2 / i1;
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = i2 % i1;
                         break;
                 }
             });
@@ -238,16 +238,16 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = i2 - i1;
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        i1 /= i2;
+                        i1 = i2 / i1;
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = i2 % i1;
                         break;
                 }
             });
@@ -260,16 +260,16 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = (short)(i2 - i1);
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        i1 /= i2;
+                        i1 = (short)(i2 / i1);
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = (short)(i2 % i1);
                         break;
                 }
             });
@@ -282,16 +282,16 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = (sbyte)(i2 - i1);
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        i1 /= i2;
+                        i1 = (sbyte)(i2 / i1);
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = (sbyte)(i2 % i1);
                         break;
                 }
             });
@@ -304,16 +304,16 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = i2 - i1;
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        i1 /= i2;
+                        i1 = i2 / i1;
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = i2 % i1;
                         break;
                 }
             });
@@ -326,16 +326,16 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = (byte)(i2 - i1);
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        i1 /= i2;
+                        i1 = (byte)(i2 / i1);
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = (byte)(i2 % i1);
                         break;
                 }
             });
@@ -348,16 +348,16 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = (ushort)(i2 - i1);
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        i1 /= i2;
+                        i1 = (ushort)(i2 / i1);
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = (ushort)(i2 % i1);
                         break;
                 }
             });
@@ -370,16 +370,16 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = i2 - i1;
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        i1 /= i2;
+                        i1 = i2 / i1;
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = i2 % i1;
                         break;
                 }
             });
@@ -392,16 +392,16 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = i2 - i1;
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        i1 /= i2;
+                        i1 = i2 / i1;
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = i2 % i1;
                         break;
                 }
             });
@@ -414,16 +414,16 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = i2 - i1;
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        i1 /= i2;
+                        i1 = i2 / i1;
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = i2 % i1;
                         break;
                 }
             });
@@ -436,16 +436,16 @@ public unsafe partial struct VirtualMachine
                         i1 += i2;
                         break;
                     case 1:
-                        i1 -= i2;
+                        i1 = i2 - i1;
                         break;
                     case 2:
                         i1 *= i2;
                         break;
                     case 3:
-                        i1 /= i2;
+                        i1 = i2 / i1;
                         break;
                     case 4:
-                        i1 %= i2;
+                        i1 = i2 % i1;
                         break;
                 }
             });

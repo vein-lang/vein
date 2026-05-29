@@ -73,6 +73,10 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         gc->Dispose();
         Vault.Dispose();
         StringStorage.Dispose();
+#if DEBUG
+        IshtarObject.CreationTrace.Clear();
+        IshtarObject.debug_names_allocation.Clear();
+#endif
         tag.Complete();
     }
 }
