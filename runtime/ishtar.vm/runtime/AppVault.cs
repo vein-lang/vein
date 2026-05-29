@@ -34,7 +34,7 @@ public sealed unsafe class AppVault : AppVaultSync, IDisposable
         TokenGranted = new TokenInterlocker(this, this);
         ThreadID = Thread.CurrentThread.ManagedThreadId;
         Modules = IshtarGC.AllocateList<RuntimeIshtarModule>(vm);
-        virtual_machines.Add(vm->Name->ID, this);
+        virtual_machines[vm->Name->ID] = this;
     }
 
     public void PostInit()
@@ -148,6 +148,7 @@ public sealed unsafe class AppVault : AppVaultSync, IDisposable
     {
         VirtualMachine.GlobalPrintln($"Disposed vault '{Name}'");
 
+        virtual_machines.Remove(vm->Name->ID);
         Modules->ForEach(x => x->Dispose());
         Modules->Clear();
         IshtarGC.FreeList(Modules);
