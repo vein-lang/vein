@@ -1,360 +1,546 @@
 namespace ishtar;
 
+using Iced.Intel;
 using vein.runtime;
+using static Iced.Intel.AssemblerRegisters;
 
 /// <summary>
-/// Marshals calls from the VM's stackval-based calling convention to native function pointers.
-/// Replacement for the LLVM JIT compilation pipeline — acts as a managed DllImport analog.
+/// JIT-compiles native call trampolines using Iced.
+/// Each unique native function signature gets a compiled trampoline that:
+/// - Reads arguments from a stackval* array
+/// - Places them in correct ABI registers (Windows x64 or System V)
+/// - Calls the native function
+/// - Stores the return value into a stackval* result
+///
+/// Trampoline C-level signature: void trampoline(stackval* args, stackval* result)
 /// </summary>
-public unsafe struct NativeCallMarshaller
+public static unsafe class NativeCallMarshaller
 {
+    // stackval layout: [stack_union data (16 bytes)][VeinTypeCode type (4 bytes)][padding (4 bytes)]
+    // sizeof(stackval) = 24 on x64 (16 + 4 + 4 padding for alignment)
+    // We compute this at startup to be safe
+    private static readonly int StackValSize = sizeof(stackval);
+    private static readonly int StackValDataOffset = 0; // data is first field
+    private static readonly int StackValTypeOffset = sizeof(stack_union); // type follows data
+
+    private static bool IsWindows => OperatingSystem.IsWindows();
+
     /// <summary>
-    /// Links an external native method by loading the native library and resolving the symbol.
-    /// Generates a compiled_func_ref that can be called as delegate*&lt;stackval*, int, stackval&gt;.
+    /// Links an external native method by loading the native library, resolving the symbol,
+    /// and JIT-compiling a trampoline for the method's signature.
     /// </summary>
     public static void LinkNativeMethod(RuntimeIshtarMethod* method, string moduleName, string fnName)
     {
         var moduleHandle = NativeLibrary.Load(moduleName);
         var symbolHandle = NativeLibrary.GetExport(moduleHandle, fnName);
 
+        var trampoline = CompileTrampoline(method, symbolHandle);
+
         method->PIInfo = new PInvokeInfo
         {
             module_handle = moduleHandle,
             symbol_handle = symbolHandle,
+            compiled_func_ref = (nint)trampoline,
             isInternal = false
         };
     }
 
     /// <summary>
-    /// Execute an external native call by marshalling stackval arguments to native types,
-    /// invoking the native function, and marshalling the return value back.
+    /// Execute an external native call via its pre-compiled trampoline.
     /// </summary>
     public static stackval Invoke(CallFrame* frame)
     {
-        var method = frame->method;
-        ref var pinfo = ref method->PIInfo;
-        var fnPtr = pinfo.symbol_handle;
-        var argCount = method->ArgLength;
-        var returnTypeCode = method->ReturnType->TypeCode;
-
-        // Fast path for common signatures
-        if (argCount == 0)
-            return InvokeNoArgs(fnPtr, returnTypeCode);
-
-        // General path: marshal arguments via platform invoke
-        return InvokeWithArgs(fnPtr, frame->args, argCount, method, returnTypeCode);
-    }
-
-    private static stackval InvokeNoArgs(nint fnPtr, VeinTypeCode returnTypeCode)
-    {
-        var result = new stackval();
-
-        switch (returnTypeCode)
-        {
-            case VeinTypeCode.TYPE_VOID:
-                ((delegate* unmanaged[Cdecl]<void>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_VOID;
-                break;
-            case VeinTypeCode.TYPE_I1:
-                result.data.b = ((delegate* unmanaged[Cdecl]<sbyte>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_I1;
-                break;
-            case VeinTypeCode.TYPE_U1:
-                result.data.ub = ((delegate* unmanaged[Cdecl]<byte>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_U1;
-                break;
-            case VeinTypeCode.TYPE_I2:
-                result.data.s = ((delegate* unmanaged[Cdecl]<short>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_I2;
-                break;
-            case VeinTypeCode.TYPE_U2:
-                result.data.us = ((delegate* unmanaged[Cdecl]<ushort>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_U2;
-                break;
-            case VeinTypeCode.TYPE_I4:
-                result.data.i = ((delegate* unmanaged[Cdecl]<int>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_I4;
-                break;
-            case VeinTypeCode.TYPE_U4:
-                result.data.ui = ((delegate* unmanaged[Cdecl]<uint>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_U4;
-                break;
-            case VeinTypeCode.TYPE_I8:
-                result.data.l = ((delegate* unmanaged[Cdecl]<long>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_I8;
-                break;
-            case VeinTypeCode.TYPE_U8:
-                result.data.ul = ((delegate* unmanaged[Cdecl]<ulong>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_U8;
-                break;
-            case VeinTypeCode.TYPE_R4:
-                result.data.f_r4 = ((delegate* unmanaged[Cdecl]<float>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_R4;
-                break;
-            case VeinTypeCode.TYPE_R8:
-                result.data.f = ((delegate* unmanaged[Cdecl]<double>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_R8;
-                break;
-            case VeinTypeCode.TYPE_RAW:
-                result.data.p = ((delegate* unmanaged[Cdecl]<nint>)fnPtr)();
-                result.type = VeinTypeCode.TYPE_RAW;
-                break;
-            default:
-                result.data.p = ((delegate* unmanaged[Cdecl]<nint>)fnPtr)();
-                result.type = returnTypeCode;
-                break;
-        }
-
-        return result;
-    }
-
-    private static stackval InvokeWithArgs(nint fnPtr, stackval* args, int argCount,
-        RuntimeIshtarMethod* method, VeinTypeCode returnTypeCode)
-    {
-        // Pack arguments into nint-sized slots for the generic invoker
-        var nativeArgs = stackalloc nint[argCount];
-
-        for (var i = 0; i < argCount; i++)
-        {
-            var arg = &args[i];
-            nativeArgs[i] = MarshalArgToNative(arg);
-        }
+        var trampoline = (delegate* unmanaged[SuppressGCTransition]<stackval*, stackval*, void>)
+            frame->method->PIInfo.compiled_func_ref;
 
         var result = new stackval();
-        result.type = returnTypeCode;
-
-        switch (argCount)
-        {
-            case 1:
-                InvokeN1(fnPtr, nativeArgs, returnTypeCode, &result);
-                break;
-            case 2:
-                InvokeN2(fnPtr, nativeArgs, returnTypeCode, &result);
-                break;
-            case 3:
-                InvokeN3(fnPtr, nativeArgs, returnTypeCode, &result);
-                break;
-            case 4:
-                InvokeN4(fnPtr, nativeArgs, returnTypeCode, &result);
-                break;
-            default:
-                InvokeNGeneric(fnPtr, nativeArgs, argCount, returnTypeCode, &result);
-                break;
-        }
-
+        trampoline(frame->args, &result);
         return result;
-    }
-
-    private static nint MarshalArgToNative(stackval* arg)
-    {
-        return arg->type switch
-        {
-            VeinTypeCode.TYPE_I1 => arg->data.b,
-            VeinTypeCode.TYPE_U1 => arg->data.ub,
-            VeinTypeCode.TYPE_I2 => arg->data.s,
-            VeinTypeCode.TYPE_U2 => arg->data.us,
-            VeinTypeCode.TYPE_I4 => arg->data.i,
-            VeinTypeCode.TYPE_U4 => (nint)arg->data.ui,
-            VeinTypeCode.TYPE_I8 => (nint)arg->data.l,
-            VeinTypeCode.TYPE_U8 => (nint)arg->data.ul,
-            VeinTypeCode.TYPE_R4 => *(nint*)&arg->data.f_r4,
-            VeinTypeCode.TYPE_R8 => *(nint*)&arg->data.f,
-            VeinTypeCode.TYPE_RAW => arg->data.p,
-            VeinTypeCode.TYPE_STRING => arg->data.p,
-            VeinTypeCode.TYPE_CLASS => arg->data.p,
-            _ => arg->data.p
-        };
-    }
-
-    private static void StoreResult(nint rawResult, VeinTypeCode returnTypeCode, stackval* result)
-    {
-        switch (returnTypeCode)
-        {
-            case VeinTypeCode.TYPE_VOID:
-                break;
-            case VeinTypeCode.TYPE_I1:
-                result->data.b = (sbyte)rawResult;
-                break;
-            case VeinTypeCode.TYPE_U1:
-                result->data.ub = (byte)rawResult;
-                break;
-            case VeinTypeCode.TYPE_I2:
-                result->data.s = (short)rawResult;
-                break;
-            case VeinTypeCode.TYPE_U2:
-                result->data.us = (ushort)rawResult;
-                break;
-            case VeinTypeCode.TYPE_I4:
-                result->data.i = (int)rawResult;
-                break;
-            case VeinTypeCode.TYPE_U4:
-                result->data.ui = (uint)rawResult;
-                break;
-            case VeinTypeCode.TYPE_I8:
-                result->data.l = (long)rawResult;
-                break;
-            case VeinTypeCode.TYPE_U8:
-                result->data.ul = (ulong)rawResult;
-                break;
-            case VeinTypeCode.TYPE_R4:
-                result->data.f_r4 = *(float*)&rawResult;
-                break;
-            case VeinTypeCode.TYPE_R8:
-                result->data.f = *(double*)&rawResult;
-                break;
-            default:
-                result->data.p = rawResult;
-                break;
-        }
-    }
-
-    private static void InvokeN1(nint fnPtr, nint* args, VeinTypeCode ret, stackval* result)
-    {
-        if (ret == VeinTypeCode.TYPE_VOID)
-        {
-            ((delegate* unmanaged[Cdecl]<nint, void>)fnPtr)(args[0]);
-            return;
-        }
-        if (ret is VeinTypeCode.TYPE_R4)
-        {
-            result->data.f_r4 = ((delegate* unmanaged[Cdecl]<nint, float>)fnPtr)(args[0]);
-            return;
-        }
-        if (ret is VeinTypeCode.TYPE_R8)
-        {
-            result->data.f = ((delegate* unmanaged[Cdecl]<nint, double>)fnPtr)(args[0]);
-            return;
-        }
-        var r = ((delegate* unmanaged[Cdecl]<nint, nint>)fnPtr)(args[0]);
-        StoreResult(r, ret, result);
-    }
-
-    private static void InvokeN2(nint fnPtr, nint* args, VeinTypeCode ret, stackval* result)
-    {
-        if (ret == VeinTypeCode.TYPE_VOID)
-        {
-            ((delegate* unmanaged[Cdecl]<nint, nint, void>)fnPtr)(args[0], args[1]);
-            return;
-        }
-        if (ret is VeinTypeCode.TYPE_R4)
-        {
-            result->data.f_r4 = ((delegate* unmanaged[Cdecl]<nint, nint, float>)fnPtr)(args[0], args[1]);
-            return;
-        }
-        if (ret is VeinTypeCode.TYPE_R8)
-        {
-            result->data.f = ((delegate* unmanaged[Cdecl]<nint, nint, double>)fnPtr)(args[0], args[1]);
-            return;
-        }
-        var r = ((delegate* unmanaged[Cdecl]<nint, nint, nint>)fnPtr)(args[0], args[1]);
-        StoreResult(r, ret, result);
-    }
-
-    private static void InvokeN3(nint fnPtr, nint* args, VeinTypeCode ret, stackval* result)
-    {
-        if (ret == VeinTypeCode.TYPE_VOID)
-        {
-            ((delegate* unmanaged[Cdecl]<nint, nint, nint, void>)fnPtr)(args[0], args[1], args[2]);
-            return;
-        }
-        if (ret is VeinTypeCode.TYPE_R4)
-        {
-            result->data.f_r4 = ((delegate* unmanaged[Cdecl]<nint, nint, nint, float>)fnPtr)(args[0], args[1], args[2]);
-            return;
-        }
-        if (ret is VeinTypeCode.TYPE_R8)
-        {
-            result->data.f = ((delegate* unmanaged[Cdecl]<nint, nint, nint, double>)fnPtr)(args[0], args[1], args[2]);
-            return;
-        }
-        var r = ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint>)fnPtr)(args[0], args[1], args[2]);
-        StoreResult(r, ret, result);
-    }
-
-    private static void InvokeN4(nint fnPtr, nint* args, VeinTypeCode ret, stackval* result)
-    {
-        if (ret == VeinTypeCode.TYPE_VOID)
-        {
-            ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, void>)fnPtr)(args[0], args[1], args[2], args[3]);
-            return;
-        }
-        if (ret is VeinTypeCode.TYPE_R4)
-        {
-            result->data.f_r4 = ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, float>)fnPtr)(args[0], args[1], args[2], args[3]);
-            return;
-        }
-        if (ret is VeinTypeCode.TYPE_R8)
-        {
-            result->data.f = ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, double>)fnPtr)(args[0], args[1], args[2], args[3]);
-            return;
-        }
-        var r = ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, nint>)fnPtr)(args[0], args[1], args[2], args[3]);
-        StoreResult(r, ret, result);
     }
 
     /// <summary>
-    /// Fallback for functions with more than 4 arguments.
-    /// Uses a trampoline approach via marshalled delegate.
+    /// Compiles a trampoline for the given method signature and target address.
+    /// The trampoline follows: void(stackval* args, stackval* result)
     /// </summary>
-    private static void InvokeNGeneric(nint fnPtr, nint* args, int argCount, VeinTypeCode ret, stackval* result)
+    private static void* CompileTrampoline(RuntimeIshtarMethod* method, nint targetFn)
     {
-        // For 5+ args we use a switch-based dispatch up to a reasonable maximum
-        switch (argCount)
+        var argCount = method->ArgLength;
+        var returnType = method->ReturnType->TypeCode;
+
+        // Collect argument type codes
+        var argTypes = stackalloc VeinTypeCode[argCount];
+        for (var i = 0; i < argCount; i++)
+            argTypes[i] = method->Arguments->Get(i)->Type.Class->TypeCode;
+
+        return CompileTrampoline(targetFn, argTypes, argCount, returnType);
+    }
+
+    /// <summary>
+    /// Test-friendly overload: compiles a trampoline from raw type codes.
+    /// </summary>
+    internal static void* CompileTrampoline(nint targetFn, VeinTypeCode* argTypes, int argCount, VeinTypeCode returnType)
+    {
+        var asm = new Assembler(64);
+
+        if (IsWindows)
+            EmitWindows(asm, targetFn, argTypes, argCount, returnType);
+        else
+            EmitSysV(asm, targetFn, argTypes, argCount, returnType);
+
+        // Assemble to machine code
+        using var stream = new MemoryStream();
+        asm.Assemble(new StreamCodeWriter(stream), 0);
+        var code = stream.ToArray();
+
+        return ExecutableMemory.Alloc(code);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Windows x64 calling convention
+    // Integer args: RCX, RDX, R8, R9 then stack
+    // Float args: XMM0, XMM1, XMM2, XMM3 then stack
+    // Each arg position uses EITHER int reg OR xmm (not both)
+    // Shadow space: 32 bytes minimum
+    // ═══════════════════════════════════════════════════════════════════════
+
+    private static void EmitWindows(Assembler asm, nint targetFn, VeinTypeCode* argTypes, int argCount, VeinTypeCode returnType)
+    {
+        // Input: RCX = stackval* args, RDX = stackval* result
+        // We save these in non-volatile registers
+
+        // Prologue
+        asm.push(rbp);
+        asm.mov(rbp, rsp);
+        asm.push(rbx);        // save rbx (callee-saved)
+        asm.push(rsi);        // save rsi (callee-saved on Windows)
+        asm.push(rdi);        // save rdi (callee-saved on Windows)
+
+        // Save input pointers into callee-saved regs
+        asm.mov(rsi, rcx);    // rsi = stackval* args
+        asm.mov(rdi, rdx);    // rdi = stackval* result
+
+        // Calculate stack space needed:
+        // - 32 bytes shadow space (always)
+        // - 8 bytes per stack argument beyond the first 4
+        // After ret addr + 4 pushes: RSP is 8-off from 16-aligned
+        // Need sub rsp, N where N ≡ 8 mod 16
+        var stackArgs = Math.Max(0, argCount - 4);
+        var stackSpace = 32 + (stackArgs * 8);
+        if ((stackSpace % 16) == 0)
+            stackSpace += 8;
+        asm.sub(rsp, stackSpace);
+
+        // Load arguments from stackval array into ABI locations
+        AssemblerRegister64[] winIntRegs = [rcx, rdx, r8, r9];
+        AssemblerRegisterXMM[] winXmmRegs = [xmm0, xmm1, xmm2, xmm3];
+
+        for (var i = 0; i < argCount; i++)
         {
-            case 5:
+            var argOffset = i * StackValSize + StackValDataOffset;
+
+            if (i < 4)
             {
-                if (ret == VeinTypeCode.TYPE_VOID)
+                // First 4 args go to register (int or xmm based on type)
+                if (IsFloatType(argTypes[i]))
                 {
-                    ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, nint, void>)fnPtr)(
-                        args[0], args[1], args[2], args[3], args[4]);
-                    return;
+                    if (argTypes[i] == VeinTypeCode.TYPE_R4)
+                        asm.movss(winXmmRegs[i], __dword_ptr[rsi + argOffset]);
+                    else
+                        asm.movsd(winXmmRegs[i], __qword_ptr[rsi + argOffset]);
                 }
-                var r = ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, nint, nint>)fnPtr)(
-                    args[0], args[1], args[2], args[3], args[4]);
-                StoreResult(r, ret, result);
-                break;
+                else
+                {
+                    asm.mov(winIntRegs[i], __qword_ptr[rsi + argOffset]);
+                }
             }
-            case 6:
+            else
             {
-                if (ret == VeinTypeCode.TYPE_VOID)
+                // Stack arguments (at rsp + 32 + (i-4)*8)
+                var stackOffset = 32 + (i - 4) * 8;
+                if (IsFloatType(argTypes[i]))
                 {
-                    ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, nint, nint, void>)fnPtr)(
-                        args[0], args[1], args[2], args[3], args[4], args[5]);
-                    return;
+                    asm.movsd(xmm4, __qword_ptr[rsi + argOffset]);
+                    asm.movsd(__qword_ptr[rsp + stackOffset], xmm4);
                 }
-                var r = ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, nint, nint, nint>)fnPtr)(
-                    args[0], args[1], args[2], args[3], args[4], args[5]);
-                StoreResult(r, ret, result);
-                break;
+                else
+                {
+                    asm.mov(rax, __qword_ptr[rsi + argOffset]);
+                    asm.mov(__qword_ptr[rsp + stackOffset], rax);
+                }
             }
-            case 7:
+        }
+
+        // Call the native function
+        asm.mov(rax, targetFn);
+        asm.call(rax);
+
+        // Store return value into result stackval
+        EmitStoreReturn(asm, rdi, returnType);
+
+        // Epilogue
+        asm.add(rsp, stackSpace);
+        asm.pop(rdi);
+        asm.pop(rsi);
+        asm.pop(rbx);
+        asm.pop(rbp);
+        asm.ret();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // System V AMD64 calling convention (Linux, macOS)
+    // Integer args: RDI, RSI, RDX, RCX, R8, R9 then stack
+    // Float args: XMM0-XMM7 then stack
+    // Int and float registers are tracked independently
+    // Red zone: 128 bytes below RSP (we don't use it — we create a proper frame)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    private static void EmitSysV(Assembler asm, nint targetFn, VeinTypeCode* argTypes, int argCount, VeinTypeCode returnType)
+    {
+        // Input (SysV ABI): RDI = stackval* args, RSI = stackval* result
+
+        // Prologue
+        asm.push(rbp);
+        asm.mov(rbp, rsp);
+        asm.push(rbx);        // callee-saved
+        asm.push(r12);        // callee-saved
+        asm.push(r13);        // callee-saved
+
+        // Save input pointers into callee-saved regs
+        asm.mov(r12, rdi);    // r12 = stackval* args
+        asm.mov(r13, rsi);    // r13 = stackval* result
+
+        // Count how many int regs and xmm regs we need
+        var intRegIdx = 0;
+        var xmmRegIdx = 0;
+        var stackArgCount = 0;
+        for (var i = 0; i < argCount; i++)
+        {
+            if (IsFloatType(argTypes[i]))
             {
-                if (ret == VeinTypeCode.TYPE_VOID)
-                {
-                    ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, nint, nint, nint, void>)fnPtr)(
-                        args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
-                    return;
-                }
-                var r = ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, nint, nint, nint, nint>)fnPtr)(
-                    args[0], args[1], args[2], args[3], args[4], args[5], args[6]);
-                StoreResult(r, ret, result);
-                break;
+                if (xmmRegIdx >= 8) stackArgCount++;
+                else xmmRegIdx++;
             }
-            case 8:
+            else
             {
-                if (ret == VeinTypeCode.TYPE_VOID)
-                {
-                    ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, nint, nint, nint, nint, void>)fnPtr)(
-                        args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
-                    return;
-                }
-                var r = ((delegate* unmanaged[Cdecl]<nint, nint, nint, nint, nint, nint, nint, nint, nint>)fnPtr)(
-                    args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7]);
-                StoreResult(r, ret, result);
-                break;
+                if (intRegIdx >= 6) stackArgCount++;
+                else intRegIdx++;
             }
+        }
+
+        // Allocate stack space for overflow args, 16-byte aligned
+        // After entry (ret addr on stack): RSP is 8-off from 16-aligned
+        // After push rbp, rbx, r12, r13 (4 pushes = 32 bytes): RSP is 8-off again (8+32=40)
+        // We need sub rsp, N where N ≡ 8 mod 16 to realign
+        var stackSpace = stackArgCount * 8;
+        // Ensure (40 + stackSpace) % 16 == 0 → stackSpace % 16 == 8
+        if ((stackSpace % 16) == 0)
+            stackSpace += 8;
+
+        asm.sub(rsp, stackSpace);
+
+        // Load arguments from stackval array into ABI locations
+        AssemblerRegister64[] sysVIntRegs = [rdi, rsi, rdx, rcx, r8, r9];
+        AssemblerRegisterXMM[] sysVXmmRegs = [xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7];
+
+        intRegIdx = 0;
+        xmmRegIdx = 0;
+        var stackSlot = 0;
+
+        for (var i = 0; i < argCount; i++)
+        {
+            var argOffset = i * StackValSize + StackValDataOffset;
+
+            if (IsFloatType(argTypes[i]))
+            {
+                if (xmmRegIdx < 8)
+                {
+                    if (argTypes[i] == VeinTypeCode.TYPE_R4)
+                        asm.movss(sysVXmmRegs[xmmRegIdx], __dword_ptr[r12 + argOffset]);
+                    else
+                        asm.movsd(sysVXmmRegs[xmmRegIdx], __qword_ptr[r12 + argOffset]);
+                    xmmRegIdx++;
+                }
+                else
+                {
+                    asm.movsd(xmm15, __qword_ptr[r12 + argOffset]);
+                    asm.movsd(__qword_ptr[rsp + stackSlot * 8], xmm15);
+                    stackSlot++;
+                }
+            }
+            else
+            {
+                if (intRegIdx < 6)
+                {
+                    asm.mov(sysVIntRegs[intRegIdx], __qword_ptr[r12 + argOffset]);
+                    intRegIdx++;
+                }
+                else
+                {
+                    asm.mov(rax, __qword_ptr[r12 + argOffset]);
+                    asm.mov(__qword_ptr[rsp + stackSlot * 8], rax);
+                    stackSlot++;
+                }
+            }
+        }
+
+        // Call the native function
+        asm.mov(rax, targetFn);
+        asm.call(rax);
+
+        // Store return value into result stackval
+        EmitStoreReturn(asm, r13, returnType);
+
+        // Epilogue
+        asm.add(rsp, stackSpace);
+        asm.pop(r13);
+        asm.pop(r12);
+        asm.pop(rbx);
+        asm.pop(rbp);
+        asm.ret();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Store return value from RAX/XMM0 into the result stackval
+    // ═══════════════════════════════════════════════════════════════════════
+
+    private static void EmitStoreReturn(Assembler asm, AssemblerRegister64 resultPtr, VeinTypeCode returnType)
+    {
+        var dataOff = StackValDataOffset;
+        var typeOff = StackValTypeOffset;
+
+        switch (returnType)
+        {
+            case VeinTypeCode.TYPE_VOID:
+                asm.mov(__dword_ptr[resultPtr + typeOff], (int)VeinTypeCode.TYPE_VOID);
+                break;
+            case VeinTypeCode.TYPE_R4:
+                asm.movss(__dword_ptr[resultPtr + dataOff], xmm0);
+                asm.mov(__dword_ptr[resultPtr + typeOff], (int)VeinTypeCode.TYPE_R4);
+                break;
+            case VeinTypeCode.TYPE_R8:
+                asm.movsd(__qword_ptr[resultPtr + dataOff], xmm0);
+                asm.mov(__dword_ptr[resultPtr + typeOff], (int)VeinTypeCode.TYPE_R8);
+                break;
             default:
-                throw new NotSupportedException($"Native calls with {argCount} arguments are not supported. Maximum is 8.");
+                // Integer/pointer return in RAX
+                asm.mov(__qword_ptr[resultPtr + dataOff], rax);
+                asm.mov(__dword_ptr[resultPtr + typeOff], (int)returnType);
+                break;
+        }
+    }
+
+    private static bool IsFloatType(VeinTypeCode type)
+        => type is VeinTypeCode.TYPE_R4 or VeinTypeCode.TYPE_R8 or VeinTypeCode.TYPE_R2;
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // Reverse trampoline: native code calls back into Vein VM
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Compiles a reverse trampoline that native code can call as a function pointer.
+    /// When called, it packs native ABI arguments into stackval[] and invokes
+    /// a managed callback that dispatches into the VM interpreter.
+    ///
+    /// Returns a native function pointer safe to pass to C libraries as a callback.
+    /// </summary>
+    /// <param name="vm">VM instance for interpreter dispatch</param>
+    /// <param name="method">The Vein method to invoke when the callback fires</param>
+    /// <param name="managedHandler">
+    /// A pinned managed function pointer: void handler(stackval* args, int argCount, stackval* result, nint userData)
+    /// </param>
+    /// <param name="userData">Opaque pointer passed to the handler (e.g., method pointer)</param>
+    public static void* CompileReverseTrampoline(
+        VeinTypeCode* argTypes, int argCount, VeinTypeCode returnType,
+        nint managedHandler, nint userData)
+    {
+        var asm = new Assembler(64);
+
+        if (IsWindows)
+            EmitReverseWindows(asm, argTypes, argCount, returnType, managedHandler, userData);
+        else
+            EmitReverseSysV(asm, argTypes, argCount, returnType, managedHandler, userData);
+
+        using var stream = new MemoryStream();
+        asm.Assemble(new StreamCodeWriter(stream), 0);
+        var code = stream.ToArray();
+
+        return ExecutableMemory.Alloc(code);
+    }
+
+    /// <summary>
+    /// Reverse trampoline for Windows x64.
+    /// Native caller passes args in RCX/RDX/R8/R9/XMM0-3/stack.
+    /// We pack them into a local stackval[] on the stack, then call the managed handler.
+    /// </summary>
+    private static void EmitReverseWindows(Assembler asm, VeinTypeCode* argTypes, int argCount,
+        VeinTypeCode returnType, nint managedHandler, nint userData)
+    {
+        // We need space for: argCount * sizeof(stackval) for the arg array
+        //                   + sizeof(stackval) for the result
+        //                   + 32 bytes shadow space for our call to managedHandler
+        var argsArraySize = argCount * StackValSize;
+        var resultSize = StackValSize;
+        var frameSize = argsArraySize + resultSize + 32;
+        if ((frameSize % 16) != 0)
+            frameSize += 8;
+
+        asm.push(rbp);
+        asm.mov(rbp, rsp);
+        asm.sub(rsp, frameSize);
+
+        // Layout on stack:
+        // [rsp + 0..31]               = shadow space for handler call
+        // [rsp + 32 .. 32+argsArray]  = stackval args[]
+        // [rsp + 32+argsArray]        = stackval result
+
+        var argsBase = 32;
+        var resultBase = 32 + argsArraySize;
+
+        // Store incoming native arguments into our stackval array
+        AssemblerRegister64[] winIntRegs = [rcx, rdx, r8, r9];
+        AssemblerRegisterXMM[] winXmmRegs = [xmm0, xmm1, xmm2, xmm3];
+
+        for (var i = 0; i < argCount && i < 4; i++)
+        {
+            var slotOff = argsBase + i * StackValSize;
+            if (IsFloatType(argTypes[i]))
+            {
+                if (argTypes[i] == VeinTypeCode.TYPE_R4)
+                    asm.movss(__dword_ptr[rsp + slotOff + StackValDataOffset], winXmmRegs[i]);
+                else
+                    asm.movsd(__qword_ptr[rsp + slotOff + StackValDataOffset], winXmmRegs[i]);
+            }
+            else
+            {
+                asm.mov(__qword_ptr[rsp + slotOff + StackValDataOffset], winIntRegs[i]);
+            }
+            asm.mov(__dword_ptr[rsp + slotOff + StackValTypeOffset], (int)argTypes[i]);
+        }
+
+        // Stack args from caller's frame (at rbp + 16 + 32 + i*8 for i>=4)
+        for (var i = 4; i < argCount; i++)
+        {
+            var slotOff = argsBase + i * StackValSize;
+            var callerStackOff = 16 + 32 + (i - 4) * 8; // skip return addr + shadow
+            asm.mov(rax, __qword_ptr[rbp + callerStackOff]);
+            asm.mov(__qword_ptr[rsp + slotOff + StackValDataOffset], rax);
+            asm.mov(__dword_ptr[rsp + slotOff + StackValTypeOffset], (int)argTypes[i]);
+        }
+
+        // Call managedHandler(stackval* args, int argCount, stackval* result, nint userData)
+        asm.lea(rcx, __[rsp + argsBase]);           // arg0: args ptr
+        asm.mov(edx, argCount);                      // arg1: argCount
+        asm.lea(r8, __[rsp + resultBase]);           // arg2: result ptr
+        asm.mov(r9, userData);                       // arg3: userData
+        asm.mov(rax, managedHandler);
+        asm.call(rax);
+
+        // Return the result value to native caller
+        EmitLoadReturn(asm, rsp + resultBase, returnType);
+
+        asm.add(rsp, frameSize);
+        asm.pop(rbp);
+        asm.ret();
+    }
+
+    /// <summary>
+    /// Reverse trampoline for System V AMD64.
+    /// </summary>
+    private static void EmitReverseSysV(Assembler asm, VeinTypeCode* argTypes, int argCount,
+        VeinTypeCode returnType, nint managedHandler, nint userData)
+    {
+        var argsArraySize = argCount * StackValSize;
+        var resultSize = StackValSize;
+        var frameSize = argsArraySize + resultSize;
+        if ((frameSize % 16) != 0)
+            frameSize += 8;
+
+        asm.push(rbp);
+        asm.mov(rbp, rsp);
+        asm.push(r12);
+        asm.push(r13);
+        asm.sub(rsp, frameSize);
+
+        var argsBase = 0;
+        var resultBase = argsArraySize;
+
+        // Store incoming native arguments into stackval array
+        AssemblerRegister64[] sysVIntRegs = [rdi, rsi, rdx, rcx, r8, r9];
+        AssemblerRegisterXMM[] sysVXmmRegs = [xmm0, xmm1, xmm2, xmm3, xmm4, xmm5, xmm6, xmm7];
+
+        var intIdx = 0;
+        var xmmIdx = 0;
+
+        for (var i = 0; i < argCount; i++)
+        {
+            var slotOff = argsBase + i * StackValSize;
+            if (IsFloatType(argTypes[i]))
+            {
+                if (xmmIdx < 8)
+                {
+                    if (argTypes[i] == VeinTypeCode.TYPE_R4)
+                        asm.movss(__dword_ptr[rsp + slotOff + StackValDataOffset], sysVXmmRegs[xmmIdx]);
+                    else
+                        asm.movsd(__qword_ptr[rsp + slotOff + StackValDataOffset], sysVXmmRegs[xmmIdx]);
+                    xmmIdx++;
+                }
+                else
+                {
+                    // TODO: load from caller's stack frame
+                }
+            }
+            else
+            {
+                if (intIdx < 6)
+                {
+                    asm.mov(__qword_ptr[rsp + slotOff + StackValDataOffset], sysVIntRegs[intIdx]);
+                    intIdx++;
+                }
+                else
+                {
+                    // TODO: load from caller's stack frame
+                }
+            }
+            asm.mov(__dword_ptr[rsp + slotOff + StackValTypeOffset], (int)argTypes[i]);
+        }
+
+        // Call managedHandler(stackval* args, int argCount, stackval* result, nint userData)
+        asm.lea(rdi, __[rsp + argsBase]);           // arg0: args ptr
+        asm.mov(esi, argCount);                      // arg1: argCount
+        asm.lea(rdx, __[rsp + resultBase]);          // arg2: result ptr
+        asm.mov(rcx, userData);                      // arg3: userData
+        asm.mov(rax, managedHandler);
+        asm.call(rax);
+
+        // Return result
+        EmitLoadReturn(asm, rsp + resultBase, returnType);
+
+        asm.add(rsp, frameSize);
+        asm.pop(r13);
+        asm.pop(r12);
+        asm.pop(rbp);
+        asm.ret();
+    }
+
+    /// <summary>
+    /// Load a return value from a stackval on the stack into RAX or XMM0 for return to native.
+    /// </summary>
+    private static void EmitLoadReturn(Assembler asm, AssemblerMemoryOperand resultMem, VeinTypeCode returnType)
+    {
+        switch (returnType)
+        {
+            case VeinTypeCode.TYPE_VOID:
+                break;
+            case VeinTypeCode.TYPE_R4:
+                asm.movss(xmm0, __dword_ptr[resultMem]);
+                break;
+            case VeinTypeCode.TYPE_R8:
+                asm.movsd(xmm0, __qword_ptr[resultMem]);
+                break;
+            default:
+                asm.mov(rax, __qword_ptr[resultMem]);
+                break;
         }
     }
 }
+
