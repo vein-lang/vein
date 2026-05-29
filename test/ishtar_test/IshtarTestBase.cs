@@ -1,3 +1,8 @@
+using NUnit.Framework;
+
+[assembly: NonParallelizable]
+[assembly: FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
+
 namespace ishtar_test
 {
     using ishtar;
