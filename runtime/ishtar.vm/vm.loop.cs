@@ -298,7 +298,20 @@ public unsafe partial struct VirtualMachine : IDisposable
                     ++sp;
                     break;
                 case LDC_F16:
-                    goto default; // TODO
+                    ++ip;
+                    sp->type = TYPE_R16;
+                    var bitsLen = (int)*ip;
+                    ++ip;
+                    // ReSharper disable once StackAllocInsideLoop
+                    var bits = stackalloc int[4];
+                    for (var i = 0; i < bitsLen && i < 4; i++)
+                    {
+                        bits[i] = (int)*ip;
+                        ++ip;
+                    }
+                    sp->data.d = new decimal(new ReadOnlySpan<int>(bits, bitsLen));
+                    ++sp;
+                    break;
                 case LDC_I1_S:
                     ++ip;
                     sp->type = TYPE_I1;
