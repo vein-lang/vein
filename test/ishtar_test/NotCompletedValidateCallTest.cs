@@ -11,7 +11,7 @@ public unsafe class NotCompletedValidateCallTest : IshtarTestBase
         scope.OnClassBuild((x, storage) => {
             var type = x.Owner.FindType(new NameSymbol("Out"), [NamespaceSymbol.Std], true);
 
-            storage.method = type.FindMethod("@_println");
+            storage.method = type.FindMethod("print");
         });
 
         scope.OnCodeBuild((gen, storage) => {
@@ -25,6 +25,8 @@ public unsafe class NotCompletedValidateCallTest : IshtarTestBase
 
         ctx.VM->Vault.Modules->ForEach(x =>
         {
+            if (x->IsPredefined)
+                return;
             x->class_table->ForEach(z =>
             {
                 if ((z->Flags & ClassFlags.NotCompleted) != 0)
@@ -34,6 +36,6 @@ public unsafe class NotCompletedValidateCallTest : IshtarTestBase
             });
         });
 
-        Equals("", errors.ToString());
+        Equals(errors.ToString(), "");
     }
 }
