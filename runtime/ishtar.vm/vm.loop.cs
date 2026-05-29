@@ -118,8 +118,6 @@ public unsafe partial struct VirtualMachine : IDisposable
             if (!assert_violation_zone_writes(invocation, stack, STACK_VIOLATION_LEVEL_SIZE))
                 continue;
 
-            Thread.Sleep(1);
-
             if (stopwatch.IsRunning)
             {
                 stopwatch.Stop();
