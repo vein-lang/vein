@@ -643,4 +643,176 @@ public class AInstructionTestBase : IshtarTestBase
     }
 
     #endregion
+
+    #region Physics/Engineering Formula Tests
+
+    // These tests simulate real-world formulas using multi-step stack operations.
+    // Instructions are interleaved: double = LDC_F8, OpCodeValue = arithmetic op.
+    // This is how a real stack machine encodes expressions.
+
+    static IEnumerable<TestCaseData> PhysicsFormulaCases_F64()
+    {
+        // Ohm's law: V = I * R
+        // I=2.5A, R=100Ω → V=250V
+        yield return new TestCaseData(
+            new object[] { 2.5, 100.0, OpCodeValue.MUL },
+            250.0
+        ).SetName("Ohm_V=IR");
+
+        // Power: P = V² / R = V * V / R
+        // V=220, R=100 → P=484
+        yield return new TestCaseData(
+            new object[] { 220.0, 220.0, OpCodeValue.MUL, 100.0, OpCodeValue.DIV },
+            484.0
+        ).SetName("Power_P=V²/R");
+
+        // Electrical energy: E = P * t
+        // P=1500W, t=3600s → E=5400000J
+        yield return new TestCaseData(
+            new object[] { 1500.0, 3600.0, OpCodeValue.MUL },
+            5400000.0
+        ).SetName("Energy_E=Pt");
+
+        // Series resistance: R_total = R1 + R2 + R3
+        // R1=10, R2=20, R3=30 → 60
+        yield return new TestCaseData(
+            new object[] { 10.0, 20.0, OpCodeValue.ADD, 30.0, OpCodeValue.ADD },
+            60.0
+        ).SetName("Resistance_Series_R1+R2+R3");
+
+        // Gravitational force: F = G * m1 * m2 / r²
+        // G=6.674, m1=100, m2=200, r=10
+        yield return new TestCaseData(
+            new object[] { 6.674, 100.0, OpCodeValue.MUL, 200.0, OpCodeValue.MUL, 10.0, 10.0, OpCodeValue.MUL, OpCodeValue.DIV },
+            6.674 * 100.0 * 200.0 / (10.0 * 10.0)
+        ).SetName("Gravity_F=Gm1m2/r²");
+
+        // Kinetic energy: KE = m * v * v / 2
+        // m=10kg, v=3m/s → KE = 45
+        yield return new TestCaseData(
+            new object[] { 10.0, 3.0, 3.0, OpCodeValue.MUL, OpCodeValue.MUL, 2.0, OpCodeValue.DIV },
+            45.0
+        ).SetName("KineticEnergy_KE=mv²/2");
+
+        // Potential energy: PE = m * g * h
+        // m=5kg, g=9.81, h=20m
+        yield return new TestCaseData(
+            new object[] { 5.0, 9.81, OpCodeValue.MUL, 20.0, OpCodeValue.MUL },
+            5.0 * 9.81 * 20.0
+        ).SetName("PotentialEnergy_PE=mgh");
+
+        // Free fall: 2*g*h (pre-sqrt)
+        // g=9.81, h=45
+        yield return new TestCaseData(
+            new object[] { 2.0, 9.81, OpCodeValue.MUL, 45.0, OpCodeValue.MUL },
+            2.0 * 9.81 * 45.0
+        ).SetName("FreeFall_2gh");
+
+        // Coulomb's law: F = k * q1 * q2 / r²
+        // k=9.0, q1=2.0, q2=3.0, r=1.5
+        yield return new TestCaseData(
+            new object[] { 9.0, 2.0, OpCodeValue.MUL, 3.0, OpCodeValue.MUL, 1.5, 1.5, OpCodeValue.MUL, OpCodeValue.DIV },
+            9.0 * 2.0 * 3.0 / (1.5 * 1.5)
+        ).SetName("Coulomb_F=kq1q2/r²");
+
+        // Parallel resistance: R_total = (R1*R2)/(R1+R2)
+        // R1=6, R2=3 → R_total = 18/9 = 2
+        yield return new TestCaseData(
+            new object[] { 6.0, 3.0, OpCodeValue.MUL, 6.0, 3.0, OpCodeValue.ADD, OpCodeValue.DIV },
+            2.0
+        ).SetName("Resistance_Parallel_(R1*R2)/(R1+R2)");
+
+        // Momentum: p = m * v
+        // m=75kg, v=12m/s → p=900
+        yield return new TestCaseData(
+            new object[] { 75.0, 12.0, OpCodeValue.MUL },
+            900.0
+        ).SetName("Momentum_p=mv");
+
+        // Work: W = F * d
+        // F=500N, d=10m → W=5000J
+        yield return new TestCaseData(
+            new object[] { 500.0, 10.0, OpCodeValue.MUL },
+            5000.0
+        ).SetName("Work_W=Fd");
+
+        // Pressure: P = F / A
+        // F=1000N, A=0.5m² → P=2000Pa
+        yield return new TestCaseData(
+            new object[] { 1000.0, 0.5, OpCodeValue.DIV },
+            2000.0
+        ).SetName("Pressure_P=F/A");
+
+        // Density: ρ = m / V
+        // m=500kg, V=0.25m³ → ρ=2000 kg/m³
+        yield return new TestCaseData(
+            new object[] { 500.0, 0.25, OpCodeValue.DIV },
+            2000.0
+        ).SetName("Density_ρ=m/V");
+
+        // Average velocity: v_avg = (v1 + v2) / 2
+        // v1=20, v2=80 → 50
+        yield return new TestCaseData(
+            new object[] { 20.0, 80.0, OpCodeValue.ADD, 2.0, OpCodeValue.DIV },
+            50.0
+        ).SetName("AvgVelocity_(v1+v2)/2");
+
+        // Capacitor energy: E = C * V * V / 2
+        // C=0.001F, V=100V → E = 5
+        yield return new TestCaseData(
+            new object[] { 0.001, 100.0, 100.0, OpCodeValue.MUL, OpCodeValue.MUL, 2.0, OpCodeValue.DIV },
+            0.001 * 100.0 * 100.0 / 2.0
+        ).SetName("CapacitorEnergy_CV²/2");
+
+        // Transformer: V2 = V1 * N2 / N1
+        // V1=220, N2=10, N1=100 → V2=22
+        yield return new TestCaseData(
+            new object[] { 220.0, 10.0, OpCodeValue.MUL, 100.0, OpCodeValue.DIV },
+            22.0
+        ).SetName("Transformer_V2=V1*N2/N1");
+
+        // Centripetal acceleration: a = v² / r = v * v / r
+        // v=30m/s, r=15m → a=60 m/s²
+        yield return new TestCaseData(
+            new object[] { 30.0, 30.0, OpCodeValue.MUL, 15.0, OpCodeValue.DIV },
+            60.0
+        ).SetName("Centripetal_a=v²/r");
+
+        // Heat transfer: Q = m * c * ΔT
+        // m=2kg, c=4186 J/(kg·K), ΔT=50K → Q=418600
+        yield return new TestCaseData(
+            new object[] { 2.0, 4186.0, OpCodeValue.MUL, 50.0, OpCodeValue.MUL },
+            2.0 * 4186.0 * 50.0
+        ).SetName("HeatTransfer_Q=mcΔT");
+    }
+
+    [Test]
+    [TestCaseSource(nameof(PhysicsFormulaCases_F64))]
+    [Parallelizable(ParallelScope.None)]
+    public unsafe void Arithmetic_Physics_F64(object[] instructions, double expected)
+    {
+        using var scope = CreateScope();
+
+        scope.OnCodeBuild((gen, _) => {
+            foreach (var instr in instructions)
+            {
+                if (instr is double d)
+                    gen.Emit(OpCodes.LDC_F8, d);
+                else if (instr is OpCodeValue op)
+                    gen.Emit(OpCodes.all[op]);
+            }
+
+            gen.Emit(OpCodes.RET);
+        });
+
+        var result = scope
+            .Compile()
+            .Execute()
+            .Validate();
+
+        Equals(VeinTypeCode.TYPE_R8, result->returnValue[0].type);
+        Equals(expected, result->returnValue[0].data.f);
+    }
+
+    #endregion
 }
