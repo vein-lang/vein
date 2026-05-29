@@ -46,8 +46,8 @@ public static class G_Operators
         var right = bin.Right;
         var op = bin.OperatorType;
 
-        gen.EmitExpression(right);
         gen.EmitExpression(left);
+        gen.EmitExpression(right);
 
         var left_type_u = left.DetermineType(context);
         var right_type_u = right.DetermineType(context);
