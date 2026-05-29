@@ -289,7 +289,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                 case LDC_F8:
                     ++ip;
                     sp->type = TYPE_R8;
-                    var f8_l = (long)*ip++;
+                    var f8_l = (long)*ip;
                     ++ip;
                     var f8_r = (long)*ip;
                     var f8_full = f8_r << 32 | f8_l & 0xffffffffL;
@@ -397,7 +397,6 @@ public unsafe partial struct VirtualMachine : IDisposable
                     --sp;
                     sp->validate(invocation, TYPE_ARRAY);
                     var arr = sp->data.p;
-                    ++sp;
                     (*sp) = IshtarMarshal.UnBoxing(invocation, ((IshtarArray*)arr)->Get(*ip++, invocation));
                     ++sp;
                 }
@@ -408,7 +407,6 @@ public unsafe partial struct VirtualMachine : IDisposable
                     --sp;
                     sp->validate(invocation, TYPE_ARRAY);
                     var arr = sp->data.p;
-                    ++sp;
                     sp->type = TYPE_U8;
                     sp->data.ul = ((IshtarArray*)arr)->length;
                     ++sp;
@@ -590,6 +588,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                 case SEH_ENTER:
                     ip++;
                     zone = mh->exception_handler_list->Get((int)(*ip));
+                    ip++;
                     break;
                 case SEH_LEAVE:
                 case SEH_LEAVE_S:
