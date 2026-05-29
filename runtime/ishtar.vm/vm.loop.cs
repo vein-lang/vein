@@ -81,10 +81,10 @@ public unsafe partial struct VirtualMachine : IDisposable
 
         var ip = mh->code;
 
-        // todo, revert to stackalloc
-        var stack = stackval.Allocate(invocation, mh->max_stack);
-
         const int STACK_VIOLATION_LEVEL_SIZE = 32;
+
+        // todo, revert to stackalloc
+        var stack = stackval.Allocate(invocation, (short)(mh->max_stack + STACK_VIOLATION_LEVEL_SIZE));
             
         create_violation_zone_for_stack(stack, STACK_VIOLATION_LEVEL_SIZE);
 

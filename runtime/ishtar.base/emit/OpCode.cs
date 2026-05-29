@@ -8,15 +8,23 @@ namespace ishtar.emit
     {
         private readonly OpCodeValue value;
         private readonly int flags;
+        private readonly sbyte _stackDelta;
 
-        internal OpCode(int value, int flags) : this((OpCodeValue)value, flags)
+        internal OpCode(int value, int flags, sbyte stackDelta = 0) : this((OpCodeValue)value, flags, stackDelta)
         {
         }
-        internal OpCode(OpCodeValue value, int flags)
+        internal OpCode(OpCodeValue value, int flags, sbyte stackDelta = 0)
         {
             this.value = value;
             this.flags = flags;
+            this._stackDelta = stackDelta;
         }
+
+        /// <summary>
+        /// Net change in evaluation stack depth when this opcode is executed.
+        /// Positive = pushes, negative = pops.
+        /// </summary>
+        public int StackDelta => _stackDelta;
 
         #region Equality members
 

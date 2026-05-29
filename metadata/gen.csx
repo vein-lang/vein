@@ -14,7 +14,8 @@ record OpCode(
     string name,
     byte? override_size,
     string description, string note = null,
-    string flow = null, string chain = null);
+    string flow = null, string chain = null,
+    string stack_delta = null);
 
 var deserializer =
     new DeserializerBuilder()
@@ -45,7 +46,7 @@ bool hasKey(object obj, string name)
     var dict = (IDictionary) obj;
     return dict.Contains(name);
 }
-IEnumerable<OpCode> fillData(string name, IDictionary<object, object> kv)
+IEnumerable<OpCode> fillData(string name, IDictionary<object, object> kv, string parentStackDelta = null)
 {
     var desc = getKeyAndRemove<string>(kv, "description");
     var note = getKeyAndRemove<string>(kv, "note");
@@ -53,15 +54,16 @@ IEnumerable<OpCode> fillData(string name, IDictionary<object, object> kv)
     var chain = getKeyAndRemove<string>(kv, "chain");
     var size_str = getKeyAndRemove<string>(kv, "override-size");
     var range_str = getKeyAndRemove<string>(kv, "range");
+    var sd = getKeyAndRemove<string>(kv, "stack-delta") ?? parentStackDelta;
     var size = size_str is not null ? byte.Parse(size_str) : (byte)0;
     if (range_str is null)
-        yield return new OpCode(name, size, desc, note);
+        yield return new OpCode(name, size, desc, note, stack_delta: sd);
     else if(bool.Parse(range_str))
     {
         foreach (var i in Enumerable.Range(0, 6))
-            yield return new OpCode($"{name}.{i}", 0, desc);
+            yield return new OpCode($"{name}.{i}", 0, desc, stack_delta: sd);
         if (!hasKey(kv, $"S"))
-            yield return new OpCode($"{name}.S", size == (byte)0 ? (byte)1 : size, desc);
+            yield return new OpCode($"{name}.S", size == (byte)0 ? (byte)1 : size, desc, stack_delta: sd);
     }
 }
 foreach (var v in (IList)obj)
@@ -74,6 +76,7 @@ foreach (var v in (IList)obj)
 
     var result = fillData(name, value).ToArray();
     var hasSaved = getKeyAndRemove<string>(value, "use-root") == "true";
+    var parentSd = result.FirstOrDefault()?.stack_delta;
 
     AddRange(result);
 
@@ -82,7 +85,7 @@ foreach (var v in (IList)obj)
     {
         var res = result.First();
         AddRange(variations.Select(s =>
-            new OpCode($"{name}.{s}", res.override_size, res.description)));
+            new OpCode($"{name}.{s}", res.override_size, res.description, stack_delta: res.stack_delta)));
     }
 
     if (value.Any())
@@ -90,7 +93,7 @@ foreach (var v in (IList)obj)
         foreach (var o in value)
         {
             var (key1, value1) = o;
-            result = fillData($"{name}.{(string) key1}", (IDictionary<object, object>) value1).ToArray();
+            result = fillData($"{name}.{(string) key1}", (IDictionary<object, object>) value1, parentSd).ToArray();
             AddRange(result);
         }
     }
@@ -201,8 +204,9 @@ void gen_cs_props(StringBuilder builder)
         if (!ops_values.ContainsKey(i.x.name))
             ops_values.Add(i.x.name, global_index++);
 
+        var sd = i.x.stack_delta is not null ? int.Parse(i.x.stack_delta) : 0;
         builder.AppendLine($"\t\tpublic static readonly OpCode {i.name.Replace(".", "_")} "+
-        $"= new (0x{ops_values[i.x.name]:X2}, 0x{CreateFlag(i.override_size ?? 0, i.Item4, i.Item5):X8});");
+        $"= new (0x{ops_values[i.x.name]:X2}, 0x{CreateFlag(i.override_size ?? 0, i.Item4, i.Item5):X8}, {sd});");
     }
     builder.AppendLine("\n\t\tpublic static readonly Dictionary<OpCodeValue, OpCode> all = new ()");
     builder.AppendLine("\t\t{");

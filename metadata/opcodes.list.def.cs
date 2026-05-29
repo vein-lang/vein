@@ -6,1288 +6,1288 @@ namespace ishtar
 	using System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 28;
+		internal static int SetVersion = 30;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode NOP = new (0x00, 0x0000001F);
+		public static readonly OpCode NOP = new (0x00, 0x0000001F, 0);
 		/// <summary>
 		/// Add operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode ADD = new (0x01, 0x0000001F);
+		public static readonly OpCode ADD = new (0x01, 0x0000001F, -1);
 		/// <summary>
 		/// Substract operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode SUB = new (0x02, 0x0000001F);
+		public static readonly OpCode SUB = new (0x02, 0x0000001F, -1);
 		/// <summary>
 		/// Divide operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode DIV = new (0x03, 0x0000001F);
+		public static readonly OpCode DIV = new (0x03, 0x0000001F, -1);
 		/// <summary>
 		/// Multiple operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode MUL = new (0x04, 0x0000001F);
+		public static readonly OpCode MUL = new (0x04, 0x0000001F, -1);
 		/// <summary>
 		/// Modulo operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode MOD = new (0x05, 0x0000001F);
+		public static readonly OpCode MOD = new (0x05, 0x0000001F, -1);
 		/// <summary>
 		/// Load into stack from argument.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDARG_0 = new (0x06, 0x0000001F);
+		public static readonly OpCode LDARG_0 = new (0x06, 0x0000001F, 1);
 		/// <summary>
 		/// Load into stack from argument.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDARG_1 = new (0x07, 0x0000001F);
+		public static readonly OpCode LDARG_1 = new (0x07, 0x0000001F, 1);
 		/// <summary>
 		/// Load into stack from argument.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDARG_2 = new (0x08, 0x0000001F);
+		public static readonly OpCode LDARG_2 = new (0x08, 0x0000001F, 1);
 		/// <summary>
 		/// Load into stack from argument.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDARG_3 = new (0x09, 0x0000001F);
+		public static readonly OpCode LDARG_3 = new (0x09, 0x0000001F, 1);
 		/// <summary>
 		/// Load into stack from argument.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDARG_4 = new (0x0A, 0x0000001F);
+		public static readonly OpCode LDARG_4 = new (0x0A, 0x0000001F, 1);
 		/// <summary>
 		/// Load into stack from argument.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDARG_5 = new (0x0B, 0x0000001F);
+		public static readonly OpCode LDARG_5 = new (0x0B, 0x0000001F, 1);
 		/// <summary>
 		/// Load into stack from argument by index.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDARG_S = new (0x0C, 0x0100001F);
+		public static readonly OpCode LDARG_S = new (0x0C, 0x0100001F, 1);
 		/// <summary>
 		/// Stage into argument from stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STARG_0 = new (0x0D, 0x0000001F);
+		public static readonly OpCode STARG_0 = new (0x0D, 0x0000001F, -1);
 		/// <summary>
 		/// Stage into argument from stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STARG_1 = new (0x0E, 0x0000001F);
+		public static readonly OpCode STARG_1 = new (0x0E, 0x0000001F, -1);
 		/// <summary>
 		/// Stage into argument from stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STARG_2 = new (0x0F, 0x0000001F);
+		public static readonly OpCode STARG_2 = new (0x0F, 0x0000001F, -1);
 		/// <summary>
 		/// Stage into argument from stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STARG_3 = new (0x10, 0x0000001F);
+		public static readonly OpCode STARG_3 = new (0x10, 0x0000001F, -1);
 		/// <summary>
 		/// Stage into argument from stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STARG_4 = new (0x11, 0x0000001F);
+		public static readonly OpCode STARG_4 = new (0x11, 0x0000001F, -1);
 		/// <summary>
 		/// Stage into argument from stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STARG_5 = new (0x12, 0x0000001F);
+		public static readonly OpCode STARG_5 = new (0x12, 0x0000001F, -1);
 		/// <summary>
 		/// Stage into argument from stack by index.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STARG_S = new (0x13, 0x0100001F);
+		public static readonly OpCode STARG_S = new (0x13, 0x0100001F, -1);
 		/// <summary>
 		/// Load constant into stack.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_F4 = new (0x14, 0x0100001F);
+		public static readonly OpCode LDC_F4 = new (0x14, 0x0100001F, 1);
 		/// <summary>
 		/// Load constant into stack.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_F2 = new (0x15, 0x0100001F);
+		public static readonly OpCode LDC_F2 = new (0x15, 0x0100001F, 1);
 		/// <summary>
 		/// Load constant into stack.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_STR = new (0x16, 0x0100001F);
+		public static readonly OpCode LDC_STR = new (0x16, 0x0100001F, 1);
 		/// <summary>
 		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I1_0 = new (0x78, 0x0000001F);
+		public static readonly OpCode LDC_I1_0 = new (0x78, 0x0000001F, 1);
 		/// <summary>
 		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I1_1 = new (0x79, 0x0000001F);
+		public static readonly OpCode LDC_I1_1 = new (0x79, 0x0000001F, 1);
 		/// <summary>
 		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I1_2 = new (0x7A, 0x0000001F);
+		public static readonly OpCode LDC_I1_2 = new (0x7A, 0x0000001F, 1);
 		/// <summary>
 		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I1_3 = new (0x7B, 0x0000001F);
+		public static readonly OpCode LDC_I1_3 = new (0x7B, 0x0000001F, 1);
 		/// <summary>
 		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I1_4 = new (0x7C, 0x0000001F);
+		public static readonly OpCode LDC_I1_4 = new (0x7C, 0x0000001F, 1);
 		/// <summary>
 		/// Load int8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I1_5 = new (0x7D, 0x0000001F);
+		public static readonly OpCode LDC_I1_5 = new (0x7D, 0x0000001F, 1);
 		/// <summary>
 		/// Load int8 constant into stack.
 		/// size: 1
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I1_S = new (0x7E, 0x0040001F);
+		public static readonly OpCode LDC_I1_S = new (0x7E, 0x0040001F, 1);
 		/// <summary>
 		/// Load uint8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U1_0 = new (0x7F, 0x0000001F);
+		public static readonly OpCode LDC_U1_0 = new (0x7F, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U1_1 = new (0x80, 0x0000001F);
+		public static readonly OpCode LDC_U1_1 = new (0x80, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U1_2 = new (0x81, 0x0000001F);
+		public static readonly OpCode LDC_U1_2 = new (0x81, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U1_3 = new (0x82, 0x0000001F);
+		public static readonly OpCode LDC_U1_3 = new (0x82, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U1_4 = new (0x83, 0x0000001F);
+		public static readonly OpCode LDC_U1_4 = new (0x83, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint8 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U1_5 = new (0x84, 0x0000001F);
+		public static readonly OpCode LDC_U1_5 = new (0x84, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint8 constant into stack.
 		/// size: 1
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U1_S = new (0x85, 0x0040001F);
+		public static readonly OpCode LDC_U1_S = new (0x85, 0x0040001F, 1);
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I2_0 = new (0x1E, 0x0000001F);
+		public static readonly OpCode LDC_I2_0 = new (0x1E, 0x0000001F, 1);
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I2_1 = new (0x1F, 0x0000001F);
+		public static readonly OpCode LDC_I2_1 = new (0x1F, 0x0000001F, 1);
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I2_2 = new (0x20, 0x0000001F);
+		public static readonly OpCode LDC_I2_2 = new (0x20, 0x0000001F, 1);
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I2_3 = new (0x21, 0x0000001F);
+		public static readonly OpCode LDC_I2_3 = new (0x21, 0x0000001F, 1);
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I2_4 = new (0x22, 0x0000001F);
+		public static readonly OpCode LDC_I2_4 = new (0x22, 0x0000001F, 1);
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I2_5 = new (0x23, 0x0000001F);
+		public static readonly OpCode LDC_I2_5 = new (0x23, 0x0000001F, 1);
 		/// <summary>
 		/// Load int16 constant into stack.
 		/// size: 2
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I2_S = new (0x24, 0x0080001F);
+		public static readonly OpCode LDC_I2_S = new (0x24, 0x0080001F, 1);
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_0 = new (0x17, 0x0000001F);
+		public static readonly OpCode LDC_I4_0 = new (0x17, 0x0000001F, 1);
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_1 = new (0x18, 0x0000001F);
+		public static readonly OpCode LDC_I4_1 = new (0x18, 0x0000001F, 1);
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_2 = new (0x19, 0x0000001F);
+		public static readonly OpCode LDC_I4_2 = new (0x19, 0x0000001F, 1);
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_3 = new (0x1A, 0x0000001F);
+		public static readonly OpCode LDC_I4_3 = new (0x1A, 0x0000001F, 1);
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_4 = new (0x1B, 0x0000001F);
+		public static readonly OpCode LDC_I4_4 = new (0x1B, 0x0000001F, 1);
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_5 = new (0x1C, 0x0000001F);
+		public static readonly OpCode LDC_I4_5 = new (0x1C, 0x0000001F, 1);
 		/// <summary>
 		/// Load int32 constant into stack.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I4_S = new (0x1D, 0x0100001F);
+		public static readonly OpCode LDC_I4_S = new (0x1D, 0x0100001F, 1);
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I8_0 = new (0x25, 0x0000001F);
+		public static readonly OpCode LDC_I8_0 = new (0x25, 0x0000001F, 1);
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I8_1 = new (0x26, 0x0000001F);
+		public static readonly OpCode LDC_I8_1 = new (0x26, 0x0000001F, 1);
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I8_2 = new (0x27, 0x0000001F);
+		public static readonly OpCode LDC_I8_2 = new (0x27, 0x0000001F, 1);
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I8_3 = new (0x28, 0x0000001F);
+		public static readonly OpCode LDC_I8_3 = new (0x28, 0x0000001F, 1);
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I8_4 = new (0x29, 0x0000001F);
+		public static readonly OpCode LDC_I8_4 = new (0x29, 0x0000001F, 1);
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I8_5 = new (0x2A, 0x0000001F);
+		public static readonly OpCode LDC_I8_5 = new (0x2A, 0x0000001F, 1);
 		/// <summary>
 		/// Load int64 constant into stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I8_S = new (0x2B, 0x0200001F);
+		public static readonly OpCode LDC_I8_S = new (0x2B, 0x0200001F, 1);
 		/// <summary>
 		/// Load uint16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U2_0 = new (0x86, 0x0000001F);
+		public static readonly OpCode LDC_U2_0 = new (0x86, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U2_1 = new (0x87, 0x0000001F);
+		public static readonly OpCode LDC_U2_1 = new (0x87, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U2_2 = new (0x88, 0x0000001F);
+		public static readonly OpCode LDC_U2_2 = new (0x88, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U2_3 = new (0x89, 0x0000001F);
+		public static readonly OpCode LDC_U2_3 = new (0x89, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U2_4 = new (0x8A, 0x0000001F);
+		public static readonly OpCode LDC_U2_4 = new (0x8A, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint16 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U2_5 = new (0x8B, 0x0000001F);
+		public static readonly OpCode LDC_U2_5 = new (0x8B, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint16 constant into stack.
 		/// size: 2
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U2_S = new (0x8C, 0x0080001F);
+		public static readonly OpCode LDC_U2_S = new (0x8C, 0x0080001F, 1);
 		/// <summary>
 		/// Load uint32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U4_0 = new (0x8D, 0x0000001F);
+		public static readonly OpCode LDC_U4_0 = new (0x8D, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U4_1 = new (0x8E, 0x0000001F);
+		public static readonly OpCode LDC_U4_1 = new (0x8E, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U4_2 = new (0x8F, 0x0000001F);
+		public static readonly OpCode LDC_U4_2 = new (0x8F, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U4_3 = new (0x90, 0x0000001F);
+		public static readonly OpCode LDC_U4_3 = new (0x90, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U4_4 = new (0x91, 0x0000001F);
+		public static readonly OpCode LDC_U4_4 = new (0x91, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint32 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U4_5 = new (0x92, 0x0000001F);
+		public static readonly OpCode LDC_U4_5 = new (0x92, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint32 constant into stack.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U4_S = new (0x93, 0x0100001F);
+		public static readonly OpCode LDC_U4_S = new (0x93, 0x0100001F, 1);
 		/// <summary>
 		/// Load uint64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U8_0 = new (0x94, 0x0000001F);
+		public static readonly OpCode LDC_U8_0 = new (0x94, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U8_1 = new (0x95, 0x0000001F);
+		public static readonly OpCode LDC_U8_1 = new (0x95, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U8_2 = new (0x96, 0x0000001F);
+		public static readonly OpCode LDC_U8_2 = new (0x96, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U8_3 = new (0x97, 0x0000001F);
+		public static readonly OpCode LDC_U8_3 = new (0x97, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U8_4 = new (0x98, 0x0000001F);
+		public static readonly OpCode LDC_U8_4 = new (0x98, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint64 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U8_5 = new (0x99, 0x0000001F);
+		public static readonly OpCode LDC_U8_5 = new (0x99, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint64 constant into stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U8_S = new (0x9A, 0x0200001F);
+		public static readonly OpCode LDC_U8_S = new (0x9A, 0x0200001F, 1);
 		/// <summary>
 		/// Load uint128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U16_0 = new (0x9B, 0x0000001F);
+		public static readonly OpCode LDC_U16_0 = new (0x9B, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U16_1 = new (0x9C, 0x0000001F);
+		public static readonly OpCode LDC_U16_1 = new (0x9C, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U16_2 = new (0x9D, 0x0000001F);
+		public static readonly OpCode LDC_U16_2 = new (0x9D, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U16_3 = new (0x9E, 0x0000001F);
+		public static readonly OpCode LDC_U16_3 = new (0x9E, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U16_4 = new (0x9F, 0x0000001F);
+		public static readonly OpCode LDC_U16_4 = new (0x9F, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U16_5 = new (0xA0, 0x0000001F);
+		public static readonly OpCode LDC_U16_5 = new (0xA0, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint128 constant into stack.
 		/// size: 16
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U16_S = new (0xA1, 0x0400001F);
+		public static readonly OpCode LDC_U16_S = new (0xA1, 0x0400001F, 1);
 		/// <summary>
 		/// Load int128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I16_0 = new (0xA2, 0x0000001F);
+		public static readonly OpCode LDC_I16_0 = new (0xA2, 0x0000001F, 1);
 		/// <summary>
 		/// Load int128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I16_1 = new (0xA3, 0x0000001F);
+		public static readonly OpCode LDC_I16_1 = new (0xA3, 0x0000001F, 1);
 		/// <summary>
 		/// Load int128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I16_2 = new (0xA4, 0x0000001F);
+		public static readonly OpCode LDC_I16_2 = new (0xA4, 0x0000001F, 1);
 		/// <summary>
 		/// Load int128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I16_3 = new (0xA5, 0x0000001F);
+		public static readonly OpCode LDC_I16_3 = new (0xA5, 0x0000001F, 1);
 		/// <summary>
 		/// Load int128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I16_4 = new (0xA6, 0x0000001F);
+		public static readonly OpCode LDC_I16_4 = new (0xA6, 0x0000001F, 1);
 		/// <summary>
 		/// Load int128 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I16_5 = new (0xA7, 0x0000001F);
+		public static readonly OpCode LDC_I16_5 = new (0xA7, 0x0000001F, 1);
 		/// <summary>
 		/// Load int128 constant into stack.
 		/// size: 16
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I16_S = new (0xA8, 0x0400001F);
+		public static readonly OpCode LDC_I16_S = new (0xA8, 0x0400001F, 1);
 		/// <summary>
 		/// Load uint256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U32_0 = new (0xA9, 0x0000001F);
+		public static readonly OpCode LDC_U32_0 = new (0xA9, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U32_1 = new (0xAA, 0x0000001F);
+		public static readonly OpCode LDC_U32_1 = new (0xAA, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U32_2 = new (0xAB, 0x0000001F);
+		public static readonly OpCode LDC_U32_2 = new (0xAB, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U32_3 = new (0xAC, 0x0000001F);
+		public static readonly OpCode LDC_U32_3 = new (0xAC, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U32_4 = new (0xAD, 0x0000001F);
+		public static readonly OpCode LDC_U32_4 = new (0xAD, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U32_5 = new (0xAE, 0x0000001F);
+		public static readonly OpCode LDC_U32_5 = new (0xAE, 0x0000001F, 1);
 		/// <summary>
 		/// Load uint256 constant into stack.
 		/// size: 32
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_U32_S = new (0xAF, 0x0800001F);
+		public static readonly OpCode LDC_U32_S = new (0xAF, 0x0800001F, 1);
 		/// <summary>
 		/// Load int256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I32_0 = new (0xB0, 0x0000001F);
+		public static readonly OpCode LDC_I32_0 = new (0xB0, 0x0000001F, 1);
 		/// <summary>
 		/// Load int256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I32_1 = new (0xB1, 0x0000001F);
+		public static readonly OpCode LDC_I32_1 = new (0xB1, 0x0000001F, 1);
 		/// <summary>
 		/// Load int256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I32_2 = new (0xB2, 0x0000001F);
+		public static readonly OpCode LDC_I32_2 = new (0xB2, 0x0000001F, 1);
 		/// <summary>
 		/// Load int256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I32_3 = new (0xB3, 0x0000001F);
+		public static readonly OpCode LDC_I32_3 = new (0xB3, 0x0000001F, 1);
 		/// <summary>
 		/// Load int256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I32_4 = new (0xB4, 0x0000001F);
+		public static readonly OpCode LDC_I32_4 = new (0xB4, 0x0000001F, 1);
 		/// <summary>
 		/// Load int256 constant into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I32_5 = new (0xB5, 0x0000001F);
+		public static readonly OpCode LDC_I32_5 = new (0xB5, 0x0000001F, 1);
 		/// <summary>
 		/// Load int256 constant into stack.
 		/// size: 32
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_I32_S = new (0xB6, 0x0800001F);
+		public static readonly OpCode LDC_I32_S = new (0xB6, 0x0800001F, 1);
 		/// <summary>
 		/// Load float64 constant into stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_F8 = new (0x2C, 0x0200001F);
+		public static readonly OpCode LDC_F8 = new (0x2C, 0x0200001F, 1);
 		/// <summary>
 		/// Load float128 constant into stack.
 		/// size: 20
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDC_F16 = new (0x2D, 0x0500001F);
+		public static readonly OpCode LDC_F16 = new (0x2D, 0x0500001F, 1);
 		/// <summary>
 		/// Reserved operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode RESERVED_0 = new (0x2E, 0x0000001F);
+		public static readonly OpCode RESERVED_0 = new (0x2E, 0x0000001F, 0);
 		/// <summary>
 		/// Reserved operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode RESERVED_1 = new (0x2F, 0x0000001F);
+		public static readonly OpCode RESERVED_1 = new (0x2F, 0x0000001F, 0);
 		/// <summary>
 		/// Reserved operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode RESERVED_2 = new (0x30, 0x0000001F);
+		public static readonly OpCode RESERVED_2 = new (0x30, 0x0000001F, 0);
 		/// <summary>
 		/// Return operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode RET = new (0x31, 0x0000001F);
+		public static readonly OpCode RET = new (0x31, 0x0000001F, -1);
 		/// <summary>
 		/// Call operation.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CALL = new (0x32, 0x0200001F);
+		public static readonly OpCode CALL = new (0x32, 0x0200001F, 0);
 		/// <summary>
 		/// Call operation (abstract and virtual only).
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CALL_V = new (0x77, 0x0200001F);
+		public static readonly OpCode CALL_V = new (0x77, 0x0200001F, 0);
 		/// <summary>
 		/// Call operation (load pointer from stack).
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CALL_SP = new (0x72, 0x0000001F);
+		public static readonly OpCode CALL_SP = new (0x72, 0x0000001F, 0);
 		/// <summary>
 		/// Load function pointer into stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDFN = new (0x73, 0x0200001F);
+		public static readonly OpCode LDFN = new (0x73, 0x0200001F, 1);
 		/// <summary>
 		/// Load NULL into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDNULL = new (0x33, 0x0000001F);
+		public static readonly OpCode LDNULL = new (0x33, 0x0000001F, 1);
 		/// <summary>
 		/// Load value from field in instance into stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDF = new (0x34, 0x0200001F);
+		public static readonly OpCode LDF = new (0x34, 0x0200001F, 1);
 		/// <summary>
 		/// Load value from static field into stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDSF = new (0x35, 0x0200001F);
+		public static readonly OpCode LDSF = new (0x35, 0x0200001F, 1);
 		/// <summary>
 		/// Stage into instance field value from stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STF = new (0x36, 0x0200001F);
+		public static readonly OpCode STF = new (0x36, 0x0200001F, -1);
 		/// <summary>
 		/// Stage into static field value from stack.
 		/// size: 8
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STSF = new (0x37, 0x0200001F);
+		public static readonly OpCode STSF = new (0x37, 0x0200001F, -1);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDLOC_0 = new (0x38, 0x0000001F);
+		public static readonly OpCode LDLOC_0 = new (0x38, 0x0000001F, 1);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDLOC_1 = new (0x39, 0x0000001F);
+		public static readonly OpCode LDLOC_1 = new (0x39, 0x0000001F, 1);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDLOC_2 = new (0x3A, 0x0000001F);
+		public static readonly OpCode LDLOC_2 = new (0x3A, 0x0000001F, 1);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDLOC_3 = new (0x3B, 0x0000001F);
+		public static readonly OpCode LDLOC_3 = new (0x3B, 0x0000001F, 1);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDLOC_4 = new (0x3C, 0x0000001F);
+		public static readonly OpCode LDLOC_4 = new (0x3C, 0x0000001F, 1);
 		/// <summary>
 		/// Load from locals into stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDLOC_5 = new (0x3D, 0x0000001F);
+		public static readonly OpCode LDLOC_5 = new (0x3D, 0x0000001F, 1);
 		/// <summary>
 		/// 
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDLOC_S = new (0x3E, 0x0100001F);
+		public static readonly OpCode LDLOC_S = new (0x3E, 0x0100001F, 1);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STLOC_0 = new (0x3F, 0x0000001F);
+		public static readonly OpCode STLOC_0 = new (0x3F, 0x0000001F, -1);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STLOC_1 = new (0x40, 0x0000001F);
+		public static readonly OpCode STLOC_1 = new (0x40, 0x0000001F, -1);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STLOC_2 = new (0x41, 0x0000001F);
+		public static readonly OpCode STLOC_2 = new (0x41, 0x0000001F, -1);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STLOC_3 = new (0x42, 0x0000001F);
+		public static readonly OpCode STLOC_3 = new (0x42, 0x0000001F, -1);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STLOC_4 = new (0x43, 0x0000001F);
+		public static readonly OpCode STLOC_4 = new (0x43, 0x0000001F, -1);
 		/// <summary>
 		/// Load from stack into locals.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STLOC_5 = new (0x44, 0x0000001F);
+		public static readonly OpCode STLOC_5 = new (0x44, 0x0000001F, -1);
 		/// <summary>
 		/// 
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STLOC_S = new (0x45, 0x0100001F);
+		public static readonly OpCode STLOC_S = new (0x45, 0x0100001F, -1);
 		/// <summary>
 		/// Initialization locals stack.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LOC_INIT = new (0x46, 0x0100001F);
+		public static readonly OpCode LOC_INIT = new (0x46, 0x0100001F, 0);
 		/// <summary>
 		/// (part of LOD.INIT) Initialization locals slot as derrived type.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LOC_INIT_X = new (0x47, 0x0100001F);
+		public static readonly OpCode LOC_INIT_X = new (0x47, 0x0100001F, 0);
 		/// <summary>
 		/// Duplicate memory from stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode DUP = new (0x48, 0x0000001F);
+		public static readonly OpCode DUP = new (0x48, 0x0000001F, 1);
 		/// <summary>
 		/// Pop value from stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode POP = new (0x69, 0x0000001F);
+		public static readonly OpCode POP = new (0x69, 0x0000001F, -1);
 		/// <summary>
 		/// Allocate memory block.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode ALLOC_BLOCK = new (0x6A, 0x0100001F);
+		public static readonly OpCode ALLOC_BLOCK = new (0x6A, 0x0100001F, 0);
 		/// <summary>
 		/// Leave from protected zone.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode SEH_LEAVE_S = new (0x6C, 0x0100001F);
+		public static readonly OpCode SEH_LEAVE_S = new (0x6C, 0x0100001F, 0);
 		/// <summary>
 		/// Leave from protected zone.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode SEH_LEAVE = new (0x6D, 0x0000001F);
+		public static readonly OpCode SEH_LEAVE = new (0x6D, 0x0000001F, 0);
 		/// <summary>
 		/// End of finally statement.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode SEH_FINALLY = new (0x6E, 0x0000001F);
+		public static readonly OpCode SEH_FINALLY = new (0x6E, 0x0000001F, 0);
 		/// <summary>
 		/// End of filter statement.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode SEH_FILTER = new (0x6F, 0x0000001F);
+		public static readonly OpCode SEH_FILTER = new (0x6F, 0x0000001F, 0);
 		/// <summary>
 		/// Enter protected zone.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode SEH_ENTER = new (0x70, 0x0100001F);
+		public static readonly OpCode SEH_ENTER = new (0x70, 0x0100001F, 0);
 		/// <summary>
 		/// Free memory at point in stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode DELETE = new (0x6B, 0x0000001F);
+		public static readonly OpCode DELETE = new (0x6B, 0x0000001F, -1);
 		/// <summary>
 		/// XOR Operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode XOR = new (0x49, 0x0000001F);
+		public static readonly OpCode XOR = new (0x49, 0x0000001F, -1);
 		/// <summary>
 		/// OR Operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode OR = new (0x4A, 0x0000001F);
+		public static readonly OpCode OR = new (0x4A, 0x0000001F, -1);
 		/// <summary>
 		/// AND Operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode AND = new (0x4B, 0x0000001F);
+		public static readonly OpCode AND = new (0x4B, 0x0000001F, -1);
 		/// <summary>
 		/// Shift Right Operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode SHR = new (0x4C, 0x0000001F);
+		public static readonly OpCode SHR = new (0x4C, 0x0000001F, -1);
 		/// <summary>
 		/// Shift Left Operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode SHL = new (0x4D, 0x0000001F);
+		public static readonly OpCode SHL = new (0x4D, 0x0000001F, -1);
 		/// <summary>
 		/// Convertation operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CONV_R4 = new (0x4E, 0x0000001F);
+		public static readonly OpCode CONV_R4 = new (0x4E, 0x0000001F, 0);
 		/// <summary>
 		/// Convertation operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CONV_R8 = new (0x4F, 0x0000001F);
+		public static readonly OpCode CONV_R8 = new (0x4F, 0x0000001F, 0);
 		/// <summary>
 		/// Convertation operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CONV_I4 = new (0x50, 0x0000001F);
+		public static readonly OpCode CONV_I4 = new (0x50, 0x0000001F, 0);
 		/// <summary>
 		/// Throw exception operation.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode THROW = new (0x51, 0x0000001F);
+		public static readonly OpCode THROW = new (0x51, 0x0000001F, -1);
 		/// <summary>
 		/// New object Operation.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode NEWOBJ = new (0x52, 0x0100001F);
+		public static readonly OpCode NEWOBJ = new (0x52, 0x0100001F, 1);
 		/// <summary>
 		/// Cast to T
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CAST = new (0x71, 0x0100001F);
+		public static readonly OpCode CAST = new (0x71, 0x0100001F, 0);
 		/// <summary>
 		/// Cast from T1 to T2
 		/// size: 10
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CAST_G = new (0x75, 0x0280001F);
+		public static readonly OpCode CAST_G = new (0x75, 0x0280001F, 0);
 		/// <summary>
 		/// Allocate array onto evaluation stack by specified size and type.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode NEWARR = new (0x53, 0x0000001F);
+		public static readonly OpCode NEWARR = new (0x53, 0x0000001F, 0);
 		/// <summary>
 		/// Load size of Array onto evaluation stack.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDLEN = new (0x54, 0x0000001F);
+		public static readonly OpCode LDLEN = new (0x54, 0x0000001F, 1);
 		/// <summary>
 		/// 
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LDELEM_S = new (0x55, 0x0100001F);
+		public static readonly OpCode LDELEM_S = new (0x55, 0x0100001F, -1);
 		/// <summary>
 		/// 
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode STELEM_S = new (0x56, 0x0100001F);
+		public static readonly OpCode STELEM_S = new (0x56, 0x0100001F, -3);
 		/// <summary>
 		/// Load type token.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LD_TYPE = new (0x57, 0x0100001F);
+		public static readonly OpCode LD_TYPE = new (0x57, 0x0100001F, 1);
 		/// <summary>
 		/// Load generic type argument token.
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LD_TYPE_G = new (0x74, 0x0100001F);
+		public static readonly OpCode LD_TYPE_G = new (0x74, 0x0100001F, 1);
 		/// <summary>
 		/// Take value from stack and load type.
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode LD_TYPE_E = new (0x76, 0x0000001F);
+		public static readonly OpCode LD_TYPE_E = new (0x76, 0x0000001F, 0);
 		/// <summary>
 		/// Compare two value, when first value is less than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a <= b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_LQ = new (0x58, 0x0000001F);
+		public static readonly OpCode EQL_LQ = new (0x58, 0x0000001F, -1);
 		/// <summary>
 		/// Compare two value, when first value is less second value stage 1 (int32) into stack, otherwise 0 (int32). (a < b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_L = new (0x59, 0x0000001F);
+		public static readonly OpCode EQL_L = new (0x59, 0x0000001F, -1);
 		/// <summary>
 		/// Compare two value, when first value is greater than or equal to second value stage 1 (int32) into stack, otherwise 0 (int32). (a >= b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_HQ = new (0x5A, 0x0000001F);
+		public static readonly OpCode EQL_HQ = new (0x5A, 0x0000001F, -1);
 		/// <summary>
 		/// Compare two value, when first value is greater second value stage 1 (int32) into stack, otherwise 0 (int32). (a > b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_H = new (0x5B, 0x0000001F);
+		public static readonly OpCode EQL_H = new (0x5B, 0x0000001F, -1);
 		/// <summary>
 		/// Compare two value, when two integer/float is equal stage 1 (int32) into stack, otherwise 0 (int32). (a == b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_NQ = new (0x5C, 0x0000001F);
+		public static readonly OpCode EQL_NQ = new (0x5C, 0x0000001F, -1);
 		/// <summary>
 		/// Compare two value, when two integer/float is not equal stage 1 (int32) into stack, otherwise 0 (int32). (a != b)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_NN = new (0x5D, 0x0000001F);
+		public static readonly OpCode EQL_NN = new (0x5D, 0x0000001F, -1);
 		/// <summary>
 		/// Compare two value, when value has false, null or zero stage 1 (int32) into stack, otherwise 0 (int32). (!a)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_F = new (0x5E, 0x0000001F);
+		public static readonly OpCode EQL_F = new (0x5E, 0x0000001F, 0);
 		/// <summary>
 		/// Compare two value, when value has true or either differs from null or from zero stage 1 (int32) into stack, otherwise 0 (int32). (a)
 		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode EQL_T = new (0x5F, 0x0000001F);
+		public static readonly OpCode EQL_T = new (0x5F, 0x0000001F, 0);
 		/// <summary>
 		/// Control flow, jump onto label. (unconditional)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP = new (0x60, 0x0100001F);
+		public static readonly OpCode JMP = new (0x60, 0x0100001F, 0);
 		/// <summary>
 		/// Control flow, jump onto label when first value is less than or equal to second value. (a <= b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_LQ = new (0x61, 0x0100001F);
+		public static readonly OpCode JMP_LQ = new (0x61, 0x0100001F, -2);
 		/// <summary>
 		/// Control flow, jump onto label when first value is less second value. (a < b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_L = new (0x62, 0x0100001F);
+		public static readonly OpCode JMP_L = new (0x62, 0x0100001F, -2);
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater than or equal to second value. (a >= b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_HQ = new (0x63, 0x0100001F);
+		public static readonly OpCode JMP_HQ = new (0x63, 0x0100001F, -2);
 		/// <summary>
 		/// Control flow, jump onto label when first value is greater second value. (a > b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_H = new (0x64, 0x0100001F);
+		public static readonly OpCode JMP_H = new (0x64, 0x0100001F, -2);
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is equal. (a == b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_NQ = new (0x65, 0x0100001F);
+		public static readonly OpCode JMP_NQ = new (0x65, 0x0100001F, -2);
 		/// <summary>
 		/// Control flow, jump onto label when two integer/float is not equal. (a != b)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_NN = new (0x66, 0x0100001F);
+		public static readonly OpCode JMP_NN = new (0x66, 0x0100001F, -2);
 		/// <summary>
 		/// Control flow, jump onto label when value has false, null or zero. (!a)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_F = new (0x67, 0x0100001F);
+		public static readonly OpCode JMP_F = new (0x67, 0x0100001F, -1);
 		/// <summary>
 		/// Control flow, jump onto label when value has true or either differs from null or from zero. (a)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode JMP_T = new (0x68, 0x0100001F);
+		public static readonly OpCode JMP_T = new (0x68, 0x0100001F, -1);
 
 		public static readonly Dictionary<OpCodeValue, OpCode> all = new ()
 		{

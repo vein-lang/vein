@@ -24,6 +24,9 @@ public sealed class ILGenerator
     private readonly StringBuilder _diagnosticDebugBuilder = new ();
     public static bool DoNotGenDebugInfo = true;
 
+    private int _currentStackDepth;
+    private int _maxStackDepth;
+
     internal int LocalsSize { get; set; }
 
     public int ILOffset => _position;
@@ -604,7 +607,7 @@ public sealed class ILGenerator
     /// </summary>
     public int[] GetLabels() => _labels;
 
-    public byte GetStackSize() => 64; // todo calculate stack size
+    public byte GetStackSize() => (byte)Math.Clamp(_maxStackDepth + 4, 4, 255);
 
     internal byte[] BakeByteArray()
     {
@@ -683,7 +686,16 @@ public sealed class ILGenerator
         _position += sizeof(ushort);
         _opcodes.Add(num);
         _debug_list.Add(opcode);
-        //this.UpdateStackSize(opcode, opcode.StackChange());
+        UpdateStackSize(opcode.StackDelta);
+    }
+
+    private void UpdateStackSize(int delta)
+    {
+        _currentStackDepth += delta;
+        if (_currentStackDepth < 0)
+            _currentStackDepth = 0;
+        if (_currentStackDepth > _maxStackDepth)
+            _maxStackDepth = _currentStackDepth;
     }
     internal void EnsureCapacity<_>(params int[] sizes) where _ : struct
     {
