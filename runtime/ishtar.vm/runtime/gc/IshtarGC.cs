@@ -87,12 +87,12 @@ namespace ishtar.runtime.gc
         public long total_allocations
         {
             get => (long)TotalAllocation;
-            set => TotalAllocation = checked((ulong)value);
+            set => TotalAllocation = value < 0 ? 0 : (ulong)value;
         }
 
         public long total_bytes_requested
         {
-            set => TotalBytesAllocated = checked((ulong)value);
+            set => TotalBytesAllocated = value < 0 ? 0 : (ulong)value;
             get => (long)TotalBytesAllocated;
         }
 
