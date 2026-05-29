@@ -145,7 +145,11 @@ namespace ishtar.runtime.gc
         public stackval* AllocValue(CallFrame* frame)
         {
             using var _ = GCSync.Begin(mutex);
+            return AllocValue_Unlocked(frame);
+        }
 
+        private stackval* AllocValue_Unlocked(CallFrame* frame)
+        {
             var allocator = allocatorPool.Rent<stackval>(out var p, AllocationKind.no_reference, frame);
 
             total_allocations++;
@@ -225,7 +229,7 @@ namespace ishtar.runtime.gc
 
             if (!@class.IsPrimitive)
                 return null;
-            var p = AllocValue(frame);
+            var p = AllocValue_Unlocked(frame);
             p->type = @class.TypeCode;
             p->data.l = 0;
             return p;
@@ -315,7 +319,7 @@ namespace ishtar.runtime.gc
 
             if (!arr->is_inited) arr->init_vtable(vm);
 
-            var obj = AllocObject(arr, frame);
+            var obj = AllocObject_Unlocked(arr, frame);
 
             var allocator = allocatorPool.Rent<IshtarArray>(out var arr_obj, AllocationKind.reference, frame);
 
@@ -347,17 +351,13 @@ namespace ishtar.runtime.gc
 
             // fill array block memory
             for (var i = 0UL; i != size; i++)
-                ((void**)obj->vtable[arr->Field["!!value"]->vtable_offset])[i] = AllocObject(@class, frame);
+                ((void**)obj->vtable[arr->Field["!!value"]->vtable_offset])[i] = AllocObject_Unlocked(@class, frame);
 
             // exit from critical zone
             //IshtarSync.LeaveCriticalSection(ref @class.Owner.Interlocker.INIT_ARRAY_BARRIER);
 
 
-#if DEBUG
             arr_obj->__gc_id = (long)alive_objects++;
-#else
-            GCStats.alive_objects++;
-#endif
 
             total_bytes_requested += allocator.TotalSize;
             total_allocations++;
@@ -379,7 +379,11 @@ namespace ishtar.runtime.gc
         public IshtarObject* AllocObject(RuntimeIshtarClass* @class, CallFrame* frame)
         {
             using var _ = GCSync.Begin(mutex);
+            return AllocObject_Unlocked(@class, frame);
+        }
 
+        private IshtarObject* AllocObject_Unlocked(RuntimeIshtarClass* @class, CallFrame* frame)
+        {
             var allocator = allocatorPool.Rent<IshtarObject>(out var p,
                 AllocationKind.reference, frame);
 
@@ -395,13 +399,12 @@ namespace ishtar.runtime.gc
             p->clazz = @class;
             p->vtable_size = (uint)@class->computed_size;
             p->__gc_id = (long)alive_objects++;
-            #if DEBUG
+#if DEBUG
             p->m1 = IshtarObject.magic1;
             p->m2 = IshtarObject.magic2;
             IshtarObject.CreationTrace[p->__gc_id] = Environment.StackTrace;
-#endif
-
             IshtarObject.debug_names_allocation[p->__gc_id] = @class->Name;
+#endif
 
             total_allocations++;
             total_bytes_requested += allocator.TotalSize;
@@ -414,18 +417,14 @@ namespace ishtar.runtime.gc
 
         private static void _direct_finalizer(nint obj, nint __)
         {
-#if DEBUG
-            Debug.WriteLine($"Detected invalid object when calling _direct_finalizer");
-            Debugger.Break();
-#endif
             var o = (IshtarObject*)obj;
 
             if (!o->IsValidObject())
             {
-                #if DEBUG
+#if DEBUG
                 Debug.WriteLine($"Detected invalid object when calling _direct_finalizer");
                 Debugger.Break();
-                #endif
+#endif
                 return;
             }
 
