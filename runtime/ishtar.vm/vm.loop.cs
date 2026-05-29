@@ -282,7 +282,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                 case LDC_F4:
                     ++ip;
                     sp->type = TYPE_R4;
-                    sp->data.f_r4 = *(float*)*ip;
+                    sp->data.f_r4 = *(float*)ip;
                     ++ip;
                     ++sp;
                     break;
