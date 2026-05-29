@@ -135,31 +135,26 @@ public unsafe partial struct VirtualMachine : IDisposable
                     ++ip;
                     --sp;
                     A_OP(sp, 0, ip, invocation);
-                    sp++;
                     break;
                 case SUB:
                     ++ip;
                     --sp;
                     A_OP(sp, 1, ip, invocation);
-                    sp++;
                     break;
                 case MUL:
                     ++ip;
                     --sp;
                     A_OP(sp, 2, ip, invocation);
-                    sp++;
                     break;
                 case DIV:
                     ++ip;
                     --sp;
                     A_OP(sp, 3, ip, invocation);
-                    sp++;
                     break;
                 case MOD:
                     ++ip;
                     --sp;
                     A_OP(sp, 4, ip, invocation);
-                    sp++;
                     break;
                 case DUP:
                     *sp = sp[-1];
