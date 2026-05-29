@@ -167,9 +167,7 @@ public unsafe class ForeignFunctionInterface
     public static void LinkExternalNativeLibrary(string importModule, string fnName,
         RuntimeIshtarMethod* importCaller)
     {
-        var jitter = importCaller->Owner->Owner->vm->Jitter;
-
-        jitter.CompileFFI(importCaller, importModule, fnName);
+        NativeCallMarshaller.LinkNativeMethod(importCaller, importModule, fnName);
     }
 
 

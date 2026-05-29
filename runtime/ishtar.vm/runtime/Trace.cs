@@ -149,8 +149,8 @@ internal readonly unsafe struct IshtarTrace(VirtualMachine* vm)
             Header = new
             {
                 method->PIInfo.compiled_func_ref,
-                extern_function_declaration = method->PIInfo.extern_function_declaration.Name,
-                jitted_wrapper = method->PIInfo.jitted_wrapper.Name,
+                method->PIInfo.symbol_handle,
+                method->PIInfo.isInternal,
                 code_size = method->Header == null ? 0 : method->Header->code_size,
                 body = method->Header == null ? "empty" : readBytes(method->Header->code, method->Header->code_size)
             }

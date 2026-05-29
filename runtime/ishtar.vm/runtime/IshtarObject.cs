@@ -1,6 +1,5 @@
 namespace ishtar;
 
-using LLVMSharp;
 using vein.runtime;
 
 [CTypeExport("ishtar_object_t")]

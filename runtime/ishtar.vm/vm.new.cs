@@ -2,7 +2,6 @@ namespace ishtar;
 
 using io;
 using runtime.gc;
-using llmv;
 using runtime;
 using runtime.io;
 using static runtime.gc.BoehmGCLayout.Native;
@@ -48,8 +47,6 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
 
         vm->Frames = IshtarFrames.Create(vm);
         vm->watcher = new IshtarWatchDog(vm);
-
-        vm->@ref->Jitter = new LLVMContext(vm);
 
         vm->@ref->threading = new IshtarThreading(vm);
 

@@ -4,7 +4,6 @@ using io;
 using runtime.gc;
 using runtime.vin;
 using runtime;
-using llmv;
 using ishtar.runtime.io.ini;
 using ishtar.runtime.io;
 
@@ -22,7 +21,6 @@ public unsafe partial struct VirtualMachine : IDisposable
 
     public IshtarFrames* Frames;
     internal IshtarTrace trace;
-    internal LLVMContext Jitter;
     public IshtarTypes* Types;
     public IshtarThreading threading;
     public TaskScheduler* task_scheduler;

@@ -539,14 +539,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         DistributionAspects(module);
         ValidateRuntimeTokens(module);
         module->LinkFFIMethods(module);
-#if DEBUG
-        if (module->vm->Config.Jit.WriteIR)
-        {
-            var path = module->vm->Config.Jit.IRPath.ToString();
-            module->vm->Jitter.GetExecutionModule().PrintToFile($"{path}{module->Name}.ir");
-        }
-        
-#endif
+
         InitVTables(module);
         
 

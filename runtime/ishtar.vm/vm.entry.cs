@@ -18,7 +18,6 @@ unsafe
     if (appCfg.UseNativeLoader)
     {
         NativeLibrary.SetDllImportResolver(Assembly.GetExecutingAssembly(), Resolver);
-        NativeLibrary.SetDllImportResolver(typeof(LLVMSharp.Interop.LLVM).Assembly, Resolver);
     }
     
     IntPtr Resolver(string libname, Assembly assembly, DllImportSearchPath? search_path)

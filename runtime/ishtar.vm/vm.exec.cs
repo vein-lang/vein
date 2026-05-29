@@ -8,21 +8,10 @@ public unsafe partial struct VirtualMachine
 {
     private void exec_method_external_native(CallFrame* frame)
     {
-        var executionEngine = Jitter.GetExecutionEngine();
+        var result = NativeCallMarshaller.Invoke(frame);
 
-
-        ref var pinfo = ref frame->method->PIInfo;
-        if (pinfo.compiled_func_ref == default)
-            pinfo.create_bindings(executionEngine);
-
-        Jitter.PrintAsm(frame->method);
-
-        var caller = (delegate*<stackval*, int, stackval>)
-                pinfo.compiled_func_ref;
-
-        var result = caller(frame->args, frame->method->ArgLength);
         Assert(result.type == frame->method->ReturnType->TypeCode, TYPE_MISMATCH,
-            $"jit generated incorrect return type for '{frame->method->Name}'");
+            $"native call returned incorrect type for '{frame->method->Name}'");
 
         if (frame->method->ReturnType->TypeCode is TYPE_VOID)
             return;

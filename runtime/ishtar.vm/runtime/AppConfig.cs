@@ -10,7 +10,6 @@ public readonly unsafe struct AppConfig
     public AppConfig(IniRoot* cfg)
     {
         rootCfg = cfg;
-        Jit =  new AppConfig_Jit(rootCfg);
     }
     
     public bool UseDebugAllocator => rootCfg->GetGroup("vm").GetFlag("has_debug_allocator");
@@ -28,21 +27,4 @@ public readonly unsafe struct AppConfig
     public SlicedString EntryPointClass => rootCfg->GetGroup("vm").GetString("entry_point_class");
     public SlicedString LibraryPath(string name) => rootCfg->GetGroup("vm:core").GetString(name);
     public bool UseNativeLoader => rootCfg->GetGroup("vm:core").GetFlag("use_loader");
-
-
-    public readonly AppConfig_Jit Jit;
-
-    public readonly struct AppConfig_Jit(IniRoot* rootCfg)
-    {
-        public bool Enabled => rootCfg->GetGroup("vm:jit").GetFlag("enable");
-        public bool IsAutoTarget => rootCfg->GetGroup("vm:jit").GetString("target").SlicedStringEquals("auto");
-        public bool EnableAsmParser => rootCfg->GetGroup("vm:jit").GetFlag("asm_parser");
-        public bool EnableAsmPrinter => rootCfg->GetGroup("vm:jit").GetFlag("asm_printer");
-        public bool EnableDisassembler => rootCfg->GetGroup("vm:jit").GetFlag("disassembler");
-        public bool EnableTargetInfo => rootCfg->GetGroup("vm:jit").GetFlag("target_info");
-        public bool EnableTargetMC => rootCfg->GetGroup("vm:jit").GetFlag("target_mc");
-        public bool DeferContext => rootCfg->GetGroup("vm:jit").GetFlag("defer_context");
-        public bool WriteIR => rootCfg->GetGroup("vm:jit").GetFlag("ir_write");
-        public SlicedString IRPath => rootCfg->GetGroup("vm:jit").GetString("ir_path");
-    }
 }

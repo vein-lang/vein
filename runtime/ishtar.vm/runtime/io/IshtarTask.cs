@@ -3,7 +3,6 @@ namespace ishtar.io;
 using collections;
 using runtime.gc;
 using libuv;
-using LLVMSharp;
 
 [CTypeExport("ishtar_task_t")]
 public readonly unsafe struct IshtarTask(CallFrame* frame, ulong index, TaskPriority priority) : IEq<IshtarTask>, IDisposable, INativeComparer<IshtarTask>

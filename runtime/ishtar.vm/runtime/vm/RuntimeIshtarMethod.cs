@@ -5,7 +5,6 @@ namespace ishtar
     using collections;
     using emit;
     using runtime.gc;
-    using LLVMSharp;
 
     public unsafe struct RuntimeMethodArgument(
         RuntimeComplexType type,
