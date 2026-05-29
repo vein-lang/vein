@@ -2,7 +2,6 @@
   <PropertyGroup>
     <AssemblyName>veinc</AssemblyName>
     <RootNamespace>vein</RootNamespace>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

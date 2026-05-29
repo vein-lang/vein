@@ -1,0 +1,51 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/backends/">
+    <Project Path="runtime/ishtar.base/ishtar.base.csproj" />
+    <Project Path="runtime/ishtar.generator/ishtar.generator.csproj" />
+    <Project Path="runtime/ishtar.vm/ishtar.vm.csproj" />
+  </Folder>
+  <Folder Name="/libs/">
+    <Project Path="lib/ast/vein.ast.csproj" />
+    <Project Path="lib/capi/capi.csproj" />
+    <Project Path="lib/ishtar.debug.console/ishtar.debug.csproj" />
+    <Project Path="lib/projectsystem/vein.project.csproj" />
+    <Project Path="lib/spectre.console/src/Spectre.Console.Cli/Spectre.Console.Cli.csproj" />
+    <Project Path="lib/spectre.console/src/Spectre.Console/Spectre.Console.csproj" />
+    <Project Path="lib/vein.ast.v2/vein.ast.v2.csproj" />
+    <Project Path="lib/vein.cli.core/vein.cli.core.csproj" />
+    <Project Path="lib/vein.compiler.shared/vein.compiler.shared.csproj" />
+    <Project Path="lib/vein.std/vein.std.csproj" />
+    <Project Path="runtime/common/vein.common.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path=".gitmodules" />
+    <File Path="Directory.Build.props" />
+    <File Path="GitVersion.yml" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="spell.sh" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path=".nuke/build.csproj">
+      <Build Solution="*|Any CPU" Project="false" />
+    </Project>
+    <Project Path="lib/version/version.csproj" />
+    <Project Path="metadata/metadata.csproj" />
+    <Project Path="tools/cgen/cgen.csproj" />
+    <Project Path="tools/compiler/veinc.csproj" />
+    <Project Path="tools/installer/installer.csproj" />
+    <Project Path="tools/rune-cli/rune-cli.csproj" />
+  </Folder>
+  <Project Path="test/astv2.test/astv2.test.csproj" />
+  <Project Path="test/ishtar_collections_test/ishtar_collections_test.csproj" />
+  <Project Path="test/ishtar_test/ishtar_test.csproj" />
+  <Project Path="test/sample_native_library/sample_native_library.csproj" />
+  <Project Path="test/vc_test/veinc_test.csproj" />
+</Solution>
