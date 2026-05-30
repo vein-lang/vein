@@ -80,6 +80,21 @@ public unsafe partial struct VirtualMachine
             exec_method_internal_native(frame);
     }
 
+    private void exec_method_jitted(CallFrame* frame)
+    {
+        var compiled = (delegate* unmanaged[SuppressGCTransition]<stackval*, stackval*, void>)
+            (void*)frame->method->PIInfo.compiled_func_ref;
+
+        var result = new stackval();
+        compiled(frame->args, &result);
+
+        if (frame->method->ReturnType->TypeCode is TYPE_VOID)
+            return;
+
+        frame->returnValue = stackval.Allocate(frame, 1);
+        *frame->returnValue.Ref = result;
+    }
+
     private void create_violation_zone_for_stack(SmartPointer<stackval> stack, int size)
     {
         for (int i = 0; i < size; i++)

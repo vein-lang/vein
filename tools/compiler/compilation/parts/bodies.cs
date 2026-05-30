@@ -25,6 +25,29 @@ public partial class CompilationTask
             generator.Emit(OpCodes.RET);
         if (generator._opcodes.Any() && generator._opcodes.Last() != OpCodes.RET.Value && !method.ReturnType.IsGeneric && method.ReturnType.Class.TypeCode == TYPE_VOID)
             generator.Emit(OpCodes.RET);
+
+        if (IsJitEligible(method))
+            method.Flags |= MethodFlags.Jit;
+    }
+
+    private static bool IsJitEligible(MethodBuilder method)
+    {
+        if (method.IsExtern) return false;
+        if (method.IsAbstract) return false;
+        if (method.Signature.IsGeneric) return false;
+
+        var gen = method.GetGenerator();
+
+        // no body
+        if (!gen._opcodes.Any()) return false;
+
+        // too large (> 4K opcodes)
+        if (gen._opcodes.Count > 4096) return false;
+
+        // has exception handlers
+        if (gen.GetExceptions().Length > 0) return false;
+
+        return true;
     }
 
     private void GenerateBody(MethodBuilder method, BlockSyntax block, DocumentDeclaration doc)

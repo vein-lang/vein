@@ -1,6 +1,8 @@
 namespace ishtar;
 
 using emit;
+using ishtar.jit;
+using ishtar.runtime.gc;
 using runtime;
 using vein.extensions;
 using vein.runtime;
@@ -56,6 +58,26 @@ public unsafe partial struct VirtualMachine : IDisposable
             return;
         FastFail(invocation->method is null, ACCESS_VIOLATION, "unexpected call frame method pointer corrupted.", invocation);
         FastFail((invocation->method->Flags & MethodFlags.Abstract) != 0, EXECUTION_CORRUPTED, "unexpected call abstract method", invocation);
+
+        if (invocation->method->IsJitted)
+        {
+            exec_method_jitted(invocation);
+            return;
+        }
+
+        // Eager JIT: compiler marked this method as JIT-eligible, compile on first call
+        if (!@ref->Config.DisableJIT &&
+            (invocation->method->Flags & MethodFlags.Jit) != 0 && invocation->method->PIInfo.compiled_func_ref == 0)
+        {
+            var allocator = IshtarGC.CreateAllocatorWithParent(invocation->method);
+            if (jit.MethodCompiler.TryJitCompile(invocation->method, allocator))
+            {
+                exec_method_jitted(invocation);
+                return;
+            }
+            // Compilation failed — fall through to interpreter
+        }
+
         var tag = Profiler.Begin($"vm:exec:({invocation->method->RawName})");
 
         if (!@ref->Config.DisableValidationInvocationArgs)
@@ -798,7 +820,9 @@ public unsafe partial struct VirtualMachine : IDisposable
                     child_frame->args = method_args;
 
 
-                    if (method->IsExtern)
+                    if (method->IsJitted)
+                        exec_method_jitted(child_frame);
+                    else if (method->IsExtern)
                         exec_method_native(child_frame);
                     else
                         task_scheduler->execute_method(child_frame);

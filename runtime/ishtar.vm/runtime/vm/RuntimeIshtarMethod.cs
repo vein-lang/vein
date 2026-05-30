@@ -249,6 +249,16 @@ namespace ishtar
         public MetaMethodHeader* Header;
         public PInvokeInfo PIInfo;
 
+        /// <summary>
+        /// Size of JIT-compiled native code in bytes. Used for ExecutableMemory.Free.
+        /// </summary>
+        public uint JitCodeSize;
+
+        /// <summary>
+        /// Number of times this method has been called (used for JIT tiering).
+        /// </summary>
+        public uint CallCount;
+
         public ulong vtable_offset;
 
         private readonly InternedString* _name;
@@ -279,7 +289,14 @@ namespace ishtar
             if (_self is null)
                 return;
             DiagnosticDtorTraces[(nint)_self] = Environment.StackTrace;
-            
+
+            if (IsJitted && PIInfo.compiled_func_ref != 0)
+            {
+                ExecutableMemory.Free((void*)PIInfo.compiled_func_ref, JitCodeSize);
+                PIInfo.compiled_func_ref = 0;
+                JitCodeSize = 0;
+            }
+
             if (Header is not null)
                 IshtarGC.FreeImmortal(Header);
             (Arguments)->ForEach(x => x->Dispose());
@@ -314,6 +331,12 @@ namespace ishtar
         public bool IsTypeConstructor => RawName.Equals("type_ctor") || RawName.Equals("#type_ctor");
         public bool IsDeconstructor => RawName.Equals("dtor");
         public bool IsSpecial => Flags.HasFlag(MethodFlags.Special);
+        public bool IsJitted => Flags.HasFlag(MethodFlags.Jit);
+
+        public void SetJitted()
+        {
+            Flags |= MethodFlags.Jit;
+        }
 
         #endregion
 

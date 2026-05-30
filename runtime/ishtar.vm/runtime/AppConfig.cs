@@ -19,6 +19,7 @@ public readonly unsafe struct AppConfig
     public bool DisableValidationInvocationArgs => rootCfg->GetGroup("vm").GetFlag("has_disabled_validation_inv_args");
     public bool UseConsole => rootCfg->GetGroup("vm").GetFlag("use_console");
     public bool NoTrace => rootCfg->GetGroup("vm").GetFlag("no_trace");
+    public bool DisableJIT => rootCfg->GetGroup("vm").GetFlag("disable_jit");
     public bool DeferThreadPool => rootCfg->GetGroup("vm:threading").GetFlag("defer");
     public long ThreadPoolSize => rootCfg->GetGroup("vm:threading").GetInt("size", -1);
     public bool PressEnterToExit => rootCfg->GetGroup("vm:debug").GetFlag("press_enter_to_exit");
