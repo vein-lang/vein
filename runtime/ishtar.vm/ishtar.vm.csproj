@@ -62,8 +62,33 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(Configuration)'=='Debug'">
-    <PackageReference Include="ishtar.bdwgc" Version="8.2.6.40" GeneratePathProperty="true" />
     <PackageReference Include="ishtar.libuv" Version="1.48.0.21" GeneratePathProperty="true" />
+  </ItemGroup>
+
+  <!-- Boehm GC native library: copy DLL for Debug/Release (P/Invoke), link static lib for AOT -->
+  <PropertyGroup>
+    <BdwgcOutputDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\runtime\bdwgc\.output\x64'))</BdwgcOutputDir>
+  </PropertyGroup>
+
+  <Target Name="_CheckBdwgcBuilt" BeforeTargets="Build;Publish">
+    <Error Condition="!Exists('$(BdwgcOutputDir)')"
+           Text="Boehm GC output directory not found: $(BdwgcOutputDir). Run .\build.bdwgc.ps1 from the repository root." />
+    <Error Condition="('$(Configuration)'=='Debug' Or '$(Configuration)'=='Release') And !Exists('$(BdwgcOutputDir)\libgc.dll')"
+           Text="libgc.dll not found in $(BdwgcOutputDir). Run .\build.bdwgc.ps1 from the repository root." />
+    <Error Condition="('$(Configuration)'=='ReleaseAot' Or '$(Configuration)'=='LegacyRelease') And !Exists('$(BdwgcOutputDir)\libgc-static.lib')"
+           Text="libgc-static.lib not found in $(BdwgcOutputDir). Run .\build.bdwgc.ps1 from the repository root." />
+  </Target>
+
+  <ItemGroup Condition="'$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'">
+    <None Include="$(BdwgcOutputDir)\libgc.dll" Condition="Exists('$(BdwgcOutputDir)\libgc.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libgc.dll</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)'=='ReleaseAot' Or '$(Configuration)'=='LegacyRelease'">
+    <NativeLibrary Include="$(BdwgcOutputDir)\libgc-static.lib" Condition="Exists('$(BdwgcOutputDir)\libgc-static.lib')" />
+    <DirectPInvoke Include="libgc" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Iced" Version="1.21.0" />

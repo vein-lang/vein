@@ -42,28 +42,24 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         [DllImport(LIBNAME)]
         public static extern bool GC_is_heap_ptr(void* ptr);
         [DllImport(LIBNAME)]
-        public static extern void* GC_malloc(uint size);
+        public static extern void* GC_malloc(nuint size);
 
         [DllImport(LIBNAME)]
-        public static extern void GC_register_finalizer_for_ptr(void* ptr, delegate*<void> finalizer);
+        public static extern void* GC_malloc_atomic(nuint size);
         [DllImport(LIBNAME)]
-        public static extern void* GC_malloc_atomic(uint size);
-        [DllImport(LIBNAME)]
-        public static extern void GC_collect();
-        [DllImport(LIBNAME)]
-        public static extern void GC_dump(void* file);
+        public static extern void GC_dump();
         [DllImport(LIBNAME)]
         public static extern int GC_try_to_collect(delegate* unmanaged[Cdecl]<int> stop_func);
         [DllImport(LIBNAME)]
-        public static extern void GC_general_register_disappearing_link(void** location, void* obj);
+        public static extern int GC_general_register_disappearing_link(void** location, void* obj);
 
         // GC_API int GC_CALL GC_unregister_long_link(void * * link)
         [DllImport(LIBNAME)]
-        public static extern void GC_unregister_long_link(void** location);
+        public static extern int GC_unregister_long_link(void** location);
 
         // GC_API int GC_CALL GC_unregister_disappearing_link(void * * link)
         [DllImport(LIBNAME)]
-        public static extern void GC_unregister_disappearing_link(void** location);
+        public static extern int GC_unregister_disappearing_link(void** location);
 
         /* Another versions of the above follow.  It ignores            */
         /* self-cycles, i.e. pointers from a finalizable object to      */
@@ -107,7 +103,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
         // GC_API int GC_CALL GC_register_long_link(void** /* link */, const void * /* obj */) GC_ATTR_NONNULL(1) GC_ATTR_NONNULL(2);
         [DllImport(LIBNAME)]
-        public static extern void GC_register_long_link(void** link, void* obj);
+        public static extern int GC_register_long_link(void** link, void* obj);
 
         [DllImport(LIBNAME)]
         public static extern void GC_use_threads_discovery();
@@ -131,7 +127,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         /* requested.                                                           */
         //GC_API size_t GC_CALL GC_size(const void * /* obj_addr */) GC_ATTR_NONNULL(1);
         [DllImport(LIBNAME)]
-        public static extern uint GC_size(void* ptr);
+        public static extern nuint GC_size(void* ptr);
 
         [DllImport(LIBNAME)]
         public static extern void GC_gcollect();
@@ -145,12 +141,12 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         [DllImport(LIBNAME)]
         public static extern void GC_set_stop_func(GC_stop_func ptr);
 
-        // GC_API GC_ATTR_MALLOC void * GC_CALL GC_debug_malloc_atomic_uncollectable(size_t lb, GC_EXTRA_PARAMS)
+        // GC_API GC_ATTR_MALLOC void * GC_CALL GC_malloc_atomic_uncollectable(size_t size_in_bytes)
         [DllImport(LIBNAME)]
-        public static extern nint GC_malloc_atomic_uncollectable(uint size);
+        public static extern nint GC_malloc_atomic_uncollectable(nuint size);
 
         [DllImport(LIBNAME)]
-        public static extern nint GC_malloc_uncollectable(uint size);
+        public static extern nint GC_malloc_uncollectable(nuint size);
 
         [DllImport(LIBNAME)]
         public static extern nint GC_realloc(nint oldPtr, nint newSize);
@@ -197,16 +193,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
 
 
         [DllImport(LIBNAME)]
-        public static extern nint GC_is_visible(void* ptr);
-
-
-
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void GC_is_visible_print_proc_func(void* ptr);
-
-        [DllImport(LIBNAME)]
-        public static extern nint GC_is_visible_print_proc(GC_is_visible_print_proc_func proc);
+        public static extern void* GC_is_visible(void* ptr);
 
 
         /* Allocate an object of size lb bytes.  The client guarantees that as  */
@@ -224,7 +211,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         /* or if the collector is not configured to recognize all interior      */
         /* pointers, the threshold is normally much higher.                     */
         [DllImport(LIBNAME)]
-        public static extern void* GC_malloc_ignore_off_page(uint size);
+        public static extern void* GC_malloc_ignore_off_page(nuint size);
     }
 
 
