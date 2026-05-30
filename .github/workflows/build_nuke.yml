@@ -34,7 +34,7 @@ jobs:
       - run: git fetch --prune --unshallow --tags
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '10.0.x'
           dotnet-quality: 'preview'
       - name: 'Cache: .nuke/temp, ~/.nuget/packages'
         uses: actions/cache@v3

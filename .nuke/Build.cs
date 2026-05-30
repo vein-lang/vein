@@ -244,7 +244,7 @@ class Build : NukeBuild
                 DotNetPublish(c => c
                     .SetProject(RuneCLI)
                     .SetConfiguration(Configuration.Release)
-                    .SetFramework("net9.0")
+                    .SetFramework("net10.0")
                     .SetRuntime(runtime)
                     .SetOutput(outputDir)
                 .EnableNoRestore());
@@ -272,7 +272,7 @@ class Build : NukeBuild
                     .SetProject(Veinc)
                     .SetConfiguration(Configuration.Release)
                     .SetRuntime(runtime)
-                    .SetFramework("net9.0")
+                    .SetFramework("net10.0")
                     .SetOutput(outputDir)
                     .EnableNoRestore());
                 Compress(outputDir, OutputDirectory / $"veinc.compiler.{runtime}.zip");
@@ -302,10 +302,10 @@ class Build : NukeBuild
                     .ResetConfiguration()
                     .SetRuntime(runtime)
                     .SetConfiguration(Configuration.Release)
-                    .SetPublishTrimmed(true)
-                    .SetFramework("net9.0")
+                    .SetProperty("PublishTrimmed", "true")
+                    .SetFramework("net10.0")
                     .SetOutput(outputDir)
-                    .SetPublishReadyToRun(true)
+                    .SetProperty("PublishReadyToRun", "true")
                     .DisableNoRestore()
                     .EnableDeterministic()
                 );
@@ -329,8 +329,8 @@ class Build : NukeBuild
                     .SetProject(Ishtar)
                     .SetConfiguration(Configuration.Release)
                     .SetRuntime(runtime)
-                    .SetPublishTrimmed(true)
-                    .SetFramework("net9.0")
+                    .SetProperty("PublishTrimmed", "true")
+                    .SetFramework("net10.0")
                     .EnableNoRestore());
 
                 // fucking nuke cannot work with native aot
