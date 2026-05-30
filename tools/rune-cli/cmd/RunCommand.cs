@@ -84,7 +84,6 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
         
         [vm:core]
         use_loader={IsRelease}
-        libuv="{GlobalPathLibUV}"
         """;
 
     public override async Task<int> ExecuteAsync(CommandContext context, RunSettings settings, VeinProject project)
@@ -134,7 +133,6 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
         }
 
 
-        var libuv = await db.TakeSdkTarget("ishtar.libuv");
         var llvm = await db.TakeSdkTarget("ishtar.llvm");
 
 
@@ -151,7 +149,6 @@ public class RunCommand(WorkloadDb db) : AsyncCommandWithProject<RunSettings>
 #else
             .Replace($"{{IsRelease}}", "true")
 #endif
-            .Replace($"{{GlobalPathLibUV}}", libuv!.FullName)
             .Replace($"{{GlobalPathLibLLVM}}", llvm!.FullName)
             ; 
 

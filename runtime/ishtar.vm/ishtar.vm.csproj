@@ -61,8 +61,30 @@
     <DefineConstants>$(DefineConstants);BOEHM_GC;VALIDATE_RUNTIME_TOKEN;USE_MANAGED_COLLECTIONS;PROFILER;</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(Configuration)'=='Debug'">
-    <PackageReference Include="ishtar.libuv" Version="1.48.0.21" GeneratePathProperty="true" />
+  <!-- libuv native library: copy DLL for Debug/Release (P/Invoke), link static lib for AOT -->
+  <PropertyGroup>
+    <LibuvOutputDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\runtime\libuv\.output\x64'))</LibuvOutputDir>
+  </PropertyGroup>
+
+  <Target Name="_CheckLibuvBuilt" BeforeTargets="Build;Publish">
+    <Error Condition="!Exists('$(LibuvOutputDir)')"
+           Text="libuv output directory not found: $(LibuvOutputDir). Run .\build.libuv.ps1 from the repository root." />
+    <Error Condition="('$(Configuration)'=='Debug' Or '$(Configuration)'=='Release') And !Exists('$(LibuvOutputDir)\libuv.dll')"
+           Text="libuv.dll not found in $(LibuvOutputDir). Run .\build.libuv.ps1 from the repository root." />
+    <Error Condition="('$(Configuration)'=='ReleaseAot' Or '$(Configuration)'=='LegacyRelease') And !Exists('$(LibuvOutputDir)\libuv-static.lib')"
+           Text="libuv-static.lib not found in $(LibuvOutputDir). Run .\build.libuv.ps1 from the repository root." />
+  </Target>
+
+  <ItemGroup Condition="'$(Configuration)'=='Debug' Or '$(Configuration)'=='Release'">
+    <None Include="$(LibuvOutputDir)\libuv.dll" Condition="Exists('$(LibuvOutputDir)\libuv.dll')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>libuv.dll</Link>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)'=='ReleaseAot' Or '$(Configuration)'=='LegacyRelease'">
+    <NativeLibrary Include="$(LibuvOutputDir)\libuv-static.lib" Condition="Exists('$(LibuvOutputDir)\libuv-static.lib')" />
+    <DirectPInvoke Include="libuv" />
   </ItemGroup>
 
   <!-- Boehm GC native library: copy DLL for Debug/Release (P/Invoke), link static lib for AOT -->
