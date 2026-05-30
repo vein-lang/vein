@@ -1,55 +1,33 @@
 using System;
-using System.Linq;
-using Nuke.Common;
-using Nuke.Common.CI;
-using Nuke.Common.Execution;
-using Nuke.Common.Git;
-using Nuke.Common.IO;
-using Nuke.Common.ProjectModel;
-using Nuke.Common.Tooling;
-using Nuke.Common.Tools.DotNet;
-using Nuke.Common.Utilities.Collections;
-using Octokit;
-using Serilog;
-using static Nuke.Common.EnvironmentInfo;
-using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.IO.PathConstruction;
-using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.Tools.DotNet.DotNetTasks;
-using Project = Nuke.Common.ProjectModel.Project;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Runtime.InteropServices;
-using GlobExpressions;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using NuGet.Versioning;
 using Nuke.Common;
-using Nuke.Common.ProjectModel;
-using Nuke.Common.Tools.DotNet;
-using Nuke.Common.IO;
-using Nuke.Common.Utilities.Collections;
-using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.Tools.DotNet.DotNetTasks;
-using Nuke.Common.Utilities.Collections;
-using static Nuke.Common.Tools.NSwag.NSwagTasks;
 using Nuke.Common.CI.GitHubActions;
+using Nuke.Common.Git;
+using Nuke.Common.IO;
+using Nuke.Common.ProjectModel;
+using Nuke.Common.Tooling;
+using Nuke.Common.Tools.DotCover;
+using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.Git;
 using Nuke.Common.Tools.GitVersion;
+using Nuke.Common.Utilities.Collections;
+using Octokit;
+using Serilog;
 using vein.cmd;
 using vein.compiler.shared;
 using vein.json;
 using vein.project;
-using Nuke.Common.Tools.DotCover;
 using static Nuke.Common.Tools.DotCover.DotCoverTasks;
-using static Nuke.Common.IO.PathConstruction;
-using static Nuke.Common.Tools.DotCover.DotCoverTasks;
-using Sentry.Protocol;
+using static Nuke.Common.Tools.DotNet.DotNetTasks;
+using Project = Nuke.Common.ProjectModel.Project;
 
 [GitHubActions("build_nuke", GitHubActionsImage.UbuntuLatest, AutoGenerate = false,
     On = [GitHubActionsTrigger.Push],
@@ -359,7 +337,7 @@ class Build : NukeBuild
                 var targetDir =
                     Ishtar.Directory / "bin" / Configuration.Release /
                                 Ishtar.GetProperty("TargetFramework") / runtime / "native";
-                CopyDirectoryRecursively(targetDir, outputDir, DirectoryExistsPolicy.Merge);
+                targetDir.Copy(outputDir, ExistsPolicy.MergeAndOverwrite);
             });
         });
 
