@@ -794,4 +794,124 @@ public unsafe class JitCodegenTest
 
     private static void* NativeMemory_Realloc(void* ptr, uint newSize)
         => NativeMemory.Realloc(ptr, newSize);
+
+    // ═══════════════════════════════════════════════════════════════════
+    // TCO: tail-recursive factorial as loop via StoreArg + Branch
+    //   factorial_iter(n, acc):
+    //     loop: n = LoadArg 0, acc = LoadArg 1
+    //           if n <= 1: return acc
+    //           StoreArg 0, n - 1
+    //           StoreArg 1, acc * n
+    //           Branch → loop
+    // ═══════════════════════════════════════════════════════════════════
+
+    [TestCase(1L, ExpectedResult = 1L)]
+    [TestCase(2L, ExpectedResult = 2L)]
+    [TestCase(5L, ExpectedResult = 120L)]
+    [TestCase(10L, ExpectedResult = 3628800L)]
+    [TestCase(12L, ExpectedResult = 479001600L)]
+    [TestCase(20L, ExpectedResult = 2432902008176640000L)]
+    public long TailRecursiveFactorial(long n)
+    {
+        var argTypes = stackalloc IRType[2];
+        argTypes[0] = IRType.I4; // n
+        argTypes[1] = IRType.I4; // acc
+        var fn = IRFunction.Create(_allocator, 2, argTypes, IRType.I4);
+
+        // Block 0: entry — branches to loop_header
+        var entryBlock = fn->AddBlock();
+        var brToLoop = IRInstruction.CreateBranch(0, 1); // → block 1
+        var brToLoopId = fn->AddInstruction(brToLoop);
+        fn->AppendToBlock(entryBlock, brToLoopId);
+
+        // Block 1: loop_header — LoadArg, compare, branch
+        var loopBlock = fn->AddBlock();
+
+        // %0 = LoadArg 0 (n)
+        var nVal = fn->AllocValue(IRType.I4, loopBlock, fn->InstructionCount);
+        var loadN = new IRInstruction { Op = IROp.LoadArg, ResultId = nVal, Immediate = 0, OperandCount = 0, BranchTarget0 = -1, BranchTarget1 = -1 };
+        var loadNId = fn->AddInstruction(loadN);
+        fn->AppendToBlock(loopBlock, loadNId);
+        fn->Values[nVal].DefInstrIndex = loadNId;
+
+        // %1 = LoadArg 1 (acc)
+        var accVal = fn->AllocValue(IRType.I4, loopBlock, fn->InstructionCount);
+        var loadAcc = new IRInstruction { Op = IROp.LoadArg, ResultId = accVal, Immediate = 1, OperandCount = 0, BranchTarget0 = -1, BranchTarget1 = -1 };
+        var loadAccId = fn->AddInstruction(loadAcc);
+        fn->AppendToBlock(loopBlock, loadAccId);
+        fn->Values[accVal].DefInstrIndex = loadAccId;
+
+        // %2 = Const 1
+        var oneVal = fn->AllocValue(IRType.I4, loopBlock, fn->InstructionCount);
+        var constOne = IRInstruction.CreateConst(0, oneVal, 1, IRType.I4);
+        var constOneId = fn->AddInstruction(constOne);
+        fn->AppendToBlock(loopBlock, constOneId);
+        fn->Values[oneVal].DefInstrIndex = constOneId;
+
+        // %3 = CmpLe(n, 1) — if n <= 1
+        var cmpVal = fn->AllocValue(IRType.Bool, loopBlock, fn->InstructionCount);
+        var cmpInstr = IRInstruction.CreateBinary(0, IROp.CmpLe, cmpVal, nVal, oneVal);
+        var cmpId = fn->AddInstruction(cmpInstr);
+        fn->AppendToBlock(loopBlock, cmpId);
+        fn->Values[cmpVal].DefInstrIndex = cmpId;
+
+        // BranchTrue %3 → returnBlock (2), else → tailCallBlock (3)
+        var condBr = IRInstruction.CreateCondBranch(0, IROp.BranchTrue, cmpVal, 2, 3);
+        var condBrId = fn->AddInstruction(condBr);
+        fn->AppendToBlock(loopBlock, condBrId);
+
+        // Block 2: returnBlock — return acc
+        var returnBlock = fn->AddBlock();
+        var retInstr = IRInstruction.CreateReturn(0, accVal);
+        var retId = fn->AddInstruction(retInstr);
+        fn->AppendToBlock(returnBlock, retId);
+
+        // Block 3: tailCallBlock — StoreArg(0, n-1), StoreArg(1, acc*n), Branch → loop
+        var tailBlock = fn->AddBlock();
+
+        // %4 = Sub(n, 1) → n - 1
+        var nMinus1 = fn->AllocValue(IRType.I4, tailBlock, fn->InstructionCount);
+        var subInstr = IRInstruction.CreateBinary(0, IROp.Sub, nMinus1, nVal, oneVal);
+        var subId = fn->AddInstruction(subInstr);
+        fn->AppendToBlock(tailBlock, subId);
+        fn->Values[nMinus1].DefInstrIndex = subId;
+
+        // %5 = Mul(acc, n) → acc * n
+        var accMulN = fn->AllocValue(IRType.I4, tailBlock, fn->InstructionCount);
+        var mulInstr = IRInstruction.CreateBinary(0, IROp.Mul, accMulN, accVal, nVal);
+        var mulId = fn->AddInstruction(mulInstr);
+        fn->AppendToBlock(tailBlock, mulId);
+        fn->Values[accMulN].DefInstrIndex = mulId;
+
+        // StoreArg 0, %4 (n = n-1)
+        var storeN = new IRInstruction { Op = IROp.StoreArg, ResultId = -1, Immediate = 0, OperandCount = 1, BranchTarget0 = -1, BranchTarget1 = -1 };
+        storeN.Operands[0] = nMinus1;
+        var storeNId = fn->AddInstruction(storeN);
+        fn->AppendToBlock(tailBlock, storeNId);
+
+        // StoreArg 1, %5 (acc = acc*n)
+        var storeAcc = new IRInstruction { Op = IROp.StoreArg, ResultId = -1, Immediate = 1, OperandCount = 1, BranchTarget0 = -1, BranchTarget1 = -1 };
+        storeAcc.Operands[0] = accMulN;
+        var storeAccId = fn->AddInstruction(storeAcc);
+        fn->AppendToBlock(tailBlock, storeAccId);
+
+        // Branch → loopBlock (1)
+        var backBr = IRInstruction.CreateBranch(0, 1);
+        var backBrId = fn->AddInstruction(backBr);
+        fn->AppendToBlock(tailBlock, backBrId);
+
+        // Compile and execute
+        var code = X64CodeGenerator.Compile(fn);
+        var compiled = (delegate* unmanaged[SuppressGCTransition]<stackval*, stackval*, void>)code;
+
+        var args = stackalloc stackval[2];
+        args[0].data.l = n;   // n
+        args[1].data.l = 1;   // acc = 1
+
+        var result = new stackval();
+        compiled(args, &result);
+
+        IRFunction.Free(fn);
+        return result.data.l;
+    }
 }

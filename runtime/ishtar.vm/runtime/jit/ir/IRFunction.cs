@@ -200,6 +200,15 @@ public unsafe struct IRFunction : IEq<IRFunction>, IEquatable<IRFunction>
         Blocks[toBlock].Predecessors->Add(predRef);
     }
 
+    /// <summary>Get the last instruction in a block, or null if the block is empty.</summary>
+    public IRInstruction* GetLastInstructionInBlock(int blockIdx)
+    {
+        var blk = &Blocks[blockIdx];
+        if (blk->Instructions->Count == 0) return null;
+        var lastRef = blk->Instructions->Get(blk->Instructions->Count - 1);
+        return &Instructions[lastRef->Id];
+    }
+
     /// <summary>Replace all uses of a value with another value across all instructions.</summary>
     public void ReplaceAllUses(int oldValueId, int newValueId)
     {

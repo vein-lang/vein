@@ -95,7 +95,7 @@ unsafe
     frame->args = args_;
 
     var watcher = Stopwatch.StartNew();
-
+    vm->trace.log($"execute entrypoint {entry_point->Name}");
     vm->task_scheduler->start_threading(vm);
     vm->exec_method(frame);
     

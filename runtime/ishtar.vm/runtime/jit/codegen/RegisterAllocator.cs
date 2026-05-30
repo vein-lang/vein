@@ -110,6 +110,10 @@ public static unsafe class RegisterAllocator
         for (var i = 0; i < TotalIntRegs; i++) intRegFreeUntil[i] = 0;
         for (var i = 0; i < TotalFloatRegs; i++) floatRegFreeUntil[i] = 0;
 
+        // Reserve r14 (index 10) and r15 (index 11) — used as args/result pointers
+        intRegFreeUntil[10] = int.MaxValue;
+        intRegFreeUntil[11] = int.MaxValue;
+
         for (var idx = 0; idx < valueCount; idx++)
         {
             var valId = order[idx];
@@ -151,7 +155,98 @@ public static unsafe class RegisterAllocator
             }
         }
 
+        // Post-pass: any value in a scratch register whose interval spans a Call/CallIndirect must be spilled
+        // (calls clobber all scratch registers)
+        SpillScratchAcrossCalls(fn, &result, intervals);
+
         return result;
+    }
+
+    /// <summary>
+    /// Find all Call/CallIndirect positions. Any value in a scratch register whose live interval
+    /// spans a call must be reassigned to a callee-saved register (which survives the call).
+    /// If no callee-saved register is available, the value is spilled.
+    /// </summary>
+    private static void SpillScratchAcrossCalls(IRFunction* fn, AllocResult* result, LiveInterval* intervals)
+    {
+        // Collect call positions
+        const int maxCalls = 64;
+        var callPositions = stackalloc int[maxCalls];
+        var callCount = 0;
+
+        var pos = 0;
+        for (var b = 0; b < fn->BlockCount; b++)
+        {
+            var block = &fn->Blocks[b];
+            var instrCount = block->Instructions->Count;
+            for (var i = 0; i < instrCount; i++)
+            {
+                var instrId = block->Instructions->Get(i)->Id;
+                var instr = &fn->Instructions[instrId];
+                if (instr->IsDead) { pos++; continue; }
+                if ((instr->Op == IROp.Call || instr->Op == IROp.CallIndirect) && callCount < maxCalls)
+                    callPositions[callCount++] = pos;
+                pos++;
+            }
+        }
+
+        if (callCount == 0) return;
+
+        // Track which callee-saved registers are in use (indices 7=rbx, 8=r12, 9=r13; 10,11 reserved)
+        var calleeSavedUsed = stackalloc bool[TotalIntRegs];
+        for (var i = 0; i < TotalIntRegs; i++) calleeSavedUsed[i] = false;
+        for (var v = 0; v < result->ValueCount; v++)
+        {
+            var a = &result->Allocations[v];
+            if (a->RegIndex >= ScratchIntCount)
+                calleeSavedUsed[a->RegIndex] = true;
+        }
+
+        for (var v = 0; v < result->ValueCount; v++)
+        {
+            var alloc = &result->Allocations[v];
+            if (alloc->RegIndex < 0) continue; // already spilled
+            if (alloc->IsFloat) continue;
+            if (alloc->RegIndex >= ScratchIntCount) continue; // callee-saved — survives calls
+
+            // Check if this value's interval spans any call
+            var interval = &intervals[v];
+            if (interval->Start < 0) continue;
+
+            var spansCall = false;
+            for (var c = 0; c < callCount; c++)
+            {
+                if (interval->Start < callPositions[c] && interval->End > callPositions[c])
+                {
+                    spansCall = true;
+                    break;
+                }
+            }
+
+            if (!spansCall) continue;
+
+            // Try to reassign to an available callee-saved register (7=rbx, 8=r12, 9=r13)
+            var reassigned = false;
+            for (var reg = ScratchIntCount; reg < TotalIntRegs; reg++)
+            {
+                if (reg == 10 || reg == 11) continue; // reserved for r14/r15
+                if (calleeSavedUsed[reg]) continue;
+
+                // Reassign
+                alloc->RegIndex = (short)reg;
+                alloc->IsCalleeSaved = true;
+                calleeSavedUsed[reg] = true;
+                result->CalleeSavedMask |= (1 << reg);
+                reassigned = true;
+                break;
+            }
+
+            if (!reassigned)
+            {
+                // No callee-saved reg available — must spill
+                Spill(fn, result, v);
+            }
+        }
     }
 
     private struct LiveInterval

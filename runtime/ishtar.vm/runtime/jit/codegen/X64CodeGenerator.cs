@@ -45,6 +45,10 @@ public static unsafe class X64CodeGenerator
         asm.push(rbp);
         asm.mov(rbp, rsp);
 
+        // Always save r14/r15 — we unconditionally overwrite them with args/result pointers
+        asm.push(r14);
+        asm.push(r15);
+
         // Push callee-saved registers
         for (var i = RegisterAllocator.GetCalleeSavedStart(); i < RegisterAllocator.GetTotalIntRegs(); i++)
         {
@@ -85,6 +89,10 @@ public static unsafe class X64CodeGenerator
             if ((alloc->CalleeSavedMask & (1 << i)) != 0)
                 asm.pop(RegisterAllocator.GetIntReg(i));
         }
+
+        // Restore r14/r15 (always saved in prologue)
+        asm.pop(r15);
+        asm.pop(r14);
 
         asm.pop(rbp);
         asm.ret();
@@ -170,6 +178,10 @@ public static unsafe class X64CodeGenerator
                 EmitLoadArg(asm, fn, instr, alloc);
                 break;
 
+            case IROp.StoreArg:
+                EmitStoreArg(asm, fn, instr, alloc);
+                break;
+
             case IROp.Return:
                 EmitReturn(asm, fn, instr, alloc);
                 break;
@@ -191,6 +203,10 @@ public static unsafe class X64CodeGenerator
 
             case IROp.Call:
                 EmitCall(asm, fn, instr, alloc);
+                break;
+
+            case IROp.CallIndirect:
+                EmitCallIndirect(asm, fn, instr, alloc);
                 break;
         }
     }
@@ -362,11 +378,9 @@ public static unsafe class X64CodeGenerator
         var rhs = LoadOperandGPR(asm, fn, alloc, instr->GetOperand(1), rcx);
         var dst = ResolveDestGPR(asm, alloc, instr->ResultId);
 
-        // If dst overlaps lhs or rhs, we must cmp BEFORE zeroing dst
-        // But xor clobbers flags, so: save operands if needed, xor, then cmp with saved values
+        // If dst overlaps lhs or rhs, we must save them before zeroing dst
         if (dst == lhs || dst == rhs)
         {
-            // Save operands to scratch regs if they'd be clobbered
             var cmpL = lhs;
             var cmpR = rhs;
             if (dst == lhs) { asm.mov(r10, lhs); cmpL = r10; }
@@ -380,18 +394,33 @@ public static unsafe class X64CodeGenerator
             asm.cmp(lhs, rhs);
         }
 
+        // Use the low byte of dst for setCC — avoids clobbering rax when dst != rax
+        var dstByte = GetLowByteReg(dst);
         switch (instr->Op)
         {
-            case IROp.CmpEq: asm.sete(al); break;
-            case IROp.CmpNe: asm.setne(al); break;
-            case IROp.CmpLt: asm.setl(al); break;
-            case IROp.CmpLe: asm.setle(al); break;
-            case IROp.CmpGt: asm.setg(al); break;
-            case IROp.CmpGe: asm.setge(al); break;
+            case IROp.CmpEq: asm.sete(dstByte); break;
+            case IROp.CmpNe: asm.setne(dstByte); break;
+            case IROp.CmpLt: asm.setl(dstByte); break;
+            case IROp.CmpLe: asm.setle(dstByte); break;
+            case IROp.CmpGt: asm.setg(dstByte); break;
+            case IROp.CmpGe: asm.setge(dstByte); break;
         }
-        // If dst is not rax, movzx the result
-        if (dst != rax)
-            asm.movzx(dst, al);
+        // No movzx needed — xor already zeroed upper bytes of dst
+    }
+
+    private static AssemblerRegister8 GetLowByteReg(AssemblerRegister64 reg)
+    {
+        if (reg == rax) return al;
+        if (reg == rcx) return cl;
+        if (reg == rdx) return dl;
+        if (reg == rbx) return bl;
+        if (reg == r8)  return r8b;
+        if (reg == r9)  return r9b;
+        if (reg == r10) return r10b;
+        if (reg == r11) return r11b;
+        if (reg == r12) return r12b;
+        if (reg == r13) return r13b;
+        return al; // fallback
     }
 
     private static void EmitLoadArg(Assembler asm, IRFunction* fn, IRInstruction* instr,
@@ -415,6 +444,31 @@ public static unsafe class X64CodeGenerator
         {
             var dst = ResolveDestGPR(asm, alloc, instr->ResultId);
             asm.mov(dst, __qword_ptr[r14 + offset]);
+        }
+    }
+
+    private static void EmitStoreArg(Assembler asm, IRFunction* fn, IRInstruction* instr,
+        RegisterAllocator.AllocResult* alloc)
+    {
+        // Write to args array: r14[argIndex * sizeof(stackval)] = operand
+        var argIdx = (int)instr->Immediate;
+        var offset = argIdx * sizeof(stackval);
+
+        var srcId = instr->GetOperand(0);
+        var srcType = fn->Values[srcId].Type;
+
+        if (IRTypeMap.IsFloat(srcType))
+        {
+            var src = LoadOperandXMM(asm, fn, alloc, srcId, xmm0);
+            if (srcType == IRType.R4)
+                asm.movss(__dword_ptr[r14 + offset], src);
+            else
+                asm.movsd(__qword_ptr[r14 + offset], src);
+        }
+        else
+        {
+            var src = LoadOperandGPR(asm, fn, alloc, srcId, rax);
+            asm.mov(__qword_ptr[r14 + offset], src);
         }
     }
 
@@ -458,6 +512,10 @@ public static unsafe class X64CodeGenerator
                 asm.pop(RegisterAllocator.GetIntReg(i));
         }
 
+        // Restore r14/r15 (always saved in prologue)
+        asm.pop(r15);
+        asm.pop(r14);
+
         asm.pop(rbp);
         asm.ret();
     }
@@ -487,30 +545,165 @@ public static unsafe class X64CodeGenerator
     private static void EmitCall(Assembler asm, IRFunction* fn, IRInstruction* instr,
         RegisterAllocator.AllocResult* alloc)
     {
-        // Indirect call via MethodRef pointer
+        var argCount = (int)instr->Immediate;
+        // stackval layout: 8 bytes data (used portion), 16 bytes total union, 4 bytes type, 4 padding = 24
+        const int stackValSize = 24; // sizeof(stackval)
+        const int typeFieldOffset = 16; // offsetof(stackval, type) = sizeof(stack_union)
+
+        // Allocate space on stack for: args array + result stackval
+        // Total = (argCount + 1) * stackValSize, aligned to 16
+        var totalSize = (argCount + 1) * stackValSize;
+        totalSize = (totalSize + 15) & ~15; // align to 16
+
+        asm.sub(rsp, totalSize);
+
+        // Fill args array: [rsp + 0] .. [rsp + (argCount-1)*stackValSize]
+        for (var i = 0; i < argCount; i++)
+        {
+            var argValId = instr->GetOperand(i);
+            var argType = fn->Values[argValId].Type;
+            var argOffset = i * stackValSize;
+
+            if (IRTypeMap.IsFloat(argType))
+            {
+                var src = LoadOperandXMM(asm, fn, alloc, argValId, xmm0);
+                if (argType == IRType.R4)
+                    asm.movss(__dword_ptr[rsp + argOffset], src);
+                else
+                    asm.movsd(__qword_ptr[rsp + argOffset], src);
+            }
+            else
+            {
+                var src = LoadOperandGPR(asm, fn, alloc, argValId, rax);
+                asm.mov(__qword_ptr[rsp + argOffset], src);
+            }
+
+            // Write type tag
+            asm.mov(__dword_ptr[rsp + argOffset + typeFieldOffset], (int)MapIRTypeToVein(argType));
+        }
+
+        // Result slot is at [rsp + argCount * stackValSize]
+        var resultOffset = argCount * stackValSize;
+
+        // Set up calling convention: void(stackval* args, stackval* result)
+        if (OperatingSystem.IsWindows())
+        {
+            asm.lea(rcx, __[rsp]);                      // args
+            asm.lea(rdx, __[rsp + resultOffset]);       // result
+        }
+        else
+        {
+            asm.lea(rdi, __[rsp]);                      // args
+            asm.lea(rsi, __[rsp + resultOffset]);       // result
+        }
+
+        // Call target (MethodRef stores the native function pointer)
         asm.mov(rax, instr->MethodRef);
         asm.call(rax);
 
-        // If has result, move RAX/XMM0 to destination
+        // Extract result
         if (instr->ResultId >= 0)
         {
             var resultType = fn->Values[instr->ResultId].Type;
             if (IRTypeMap.IsFloat(resultType))
             {
                 var dst = ResolveDestXMM(alloc, instr->ResultId);
-                if (dst != xmm0)
-                {
-                    if (resultType == IRType.R4) asm.movss(dst, xmm0);
-                    else asm.movsd(dst, xmm0);
-                }
+                if (resultType == IRType.R4)
+                    asm.movss(dst, __dword_ptr[rsp + resultOffset]);
+                else
+                    asm.movsd(dst, __qword_ptr[rsp + resultOffset]);
             }
             else
             {
                 var dst = ResolveDestGPR(asm, alloc, instr->ResultId);
-                if (dst != rax)
-                    asm.mov(dst, rax);
+                asm.mov(dst, __qword_ptr[rsp + resultOffset]);
             }
         }
+
+        // Restore stack
+        asm.add(rsp, totalSize);
+    }
+
+    /// <summary>
+    /// Emit an indirect call: MethodRef holds the ADDRESS of the function pointer (e.g. &amp;method-&gt;PIInfo.compiled_func_ref).
+    /// Used for self-recursive calls where the pointer is filled after compilation.
+    /// </summary>
+    private static void EmitCallIndirect(Assembler asm, IRFunction* fn, IRInstruction* instr,
+        RegisterAllocator.AllocResult* alloc)
+    {
+        var argCount = (int)instr->Immediate;
+        const int stackValSize = 24;
+        const int typeFieldOffset = 16;
+
+        var totalSize = (argCount + 1) * stackValSize;
+        totalSize = (totalSize + 15) & ~15;
+
+        asm.sub(rsp, totalSize);
+
+        // Fill args
+        for (var i = 0; i < argCount; i++)
+        {
+            var argValId = instr->GetOperand(i);
+            var argType = fn->Values[argValId].Type;
+            var argOffset = i * stackValSize;
+
+            if (IRTypeMap.IsFloat(argType))
+            {
+                var src = LoadOperandXMM(asm, fn, alloc, argValId, xmm0);
+                if (argType == IRType.R4)
+                    asm.movss(__dword_ptr[rsp + argOffset], src);
+                else
+                    asm.movsd(__qword_ptr[rsp + argOffset], src);
+            }
+            else
+            {
+                var src = LoadOperandGPR(asm, fn, alloc, argValId, rax);
+                asm.mov(__qword_ptr[rsp + argOffset], src);
+            }
+
+            asm.mov(__dword_ptr[rsp + argOffset + typeFieldOffset], (int)MapIRTypeToVein(argType));
+        }
+
+        var resultOffset = argCount * stackValSize;
+
+        // Set up calling convention
+        if (OperatingSystem.IsWindows())
+        {
+            asm.lea(rcx, __[rsp]);
+            asm.lea(rdx, __[rsp + resultOffset]);
+        }
+        else
+        {
+            asm.lea(rdi, __[rsp]);
+            asm.lea(rsi, __[rsp + resultOffset]);
+        }
+
+        // Indirect call: MethodRef = address of the function pointer slot
+        // mov rax, &slot; mov rax, [rax]; call rax
+        asm.mov(rax, instr->MethodRef);
+        asm.mov(rax, __qword_ptr[rax]);
+        asm.call(rax);
+
+        // Extract result
+        if (instr->ResultId >= 0)
+        {
+            var resultType = fn->Values[instr->ResultId].Type;
+            if (IRTypeMap.IsFloat(resultType))
+            {
+                var dst = ResolveDestXMM(alloc, instr->ResultId);
+                if (resultType == IRType.R4)
+                    asm.movss(dst, __dword_ptr[rsp + resultOffset]);
+                else
+                    asm.movsd(dst, __qword_ptr[rsp + resultOffset]);
+            }
+            else
+            {
+                var dst = ResolveDestGPR(asm, alloc, instr->ResultId);
+                asm.mov(dst, __qword_ptr[rsp + resultOffset]);
+            }
+        }
+
+        asm.add(rsp, totalSize);
     }
 
     // ═══════════════════════════════════════════════════════════════════

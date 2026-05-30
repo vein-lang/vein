@@ -255,6 +255,16 @@ namespace ishtar
         public uint JitCodeSize;
 
         /// <summary>
+        /// True if JIT compilation was attempted and rejected — do not retry.
+        /// </summary>
+        public bool JitRejected;
+
+        /// <summary>
+        /// Reason code why JIT was rejected (set when JitRejected = true).
+        /// </summary>
+        public JitRejectCode JitRejectReasonCode;
+
+        /// <summary>
         /// Number of times this method has been called (used for JIT tiering).
         /// </summary>
         public uint CallCount;
@@ -331,7 +341,11 @@ namespace ishtar
         public bool IsTypeConstructor => RawName.Equals("type_ctor") || RawName.Equals("#type_ctor");
         public bool IsDeconstructor => RawName.Equals("dtor");
         public bool IsSpecial => Flags.HasFlag(MethodFlags.Special);
-        public bool IsJitted => Flags.HasFlag(MethodFlags.Jit);
+        /// <summary>
+        /// True only when the method has BOTH the Jit flag AND a compiled native pointer.
+        /// The compiler may set MethodFlags.Jit as a hint, but IsJitted is false until TryJitCompile succeeds.
+        /// </summary>
+        public bool IsJitted => Flags.HasFlag(MethodFlags.Jit) && PIInfo.compiled_func_ref != 0;
 
         public void SetJitted()
         {
@@ -513,5 +527,20 @@ namespace ishtar
         private static bool NotThis(VeinArgumentRef @ref) =>
             !@ref.Name.Equals(VeinArgumentRef.THIS_ARGUMENT);
         // end TODO
+    }
+
+    public enum JitRejectCode : byte
+    {
+        None = 0,
+        Extern,
+        Abstract,
+        NullHeader,
+        NullBytecode,
+        EmptyBytecode,
+        BytecodeTooLarge,
+        HasExceptionHandlers,
+        UnsupportedOpcode,
+        UnresolvableCalls,
+        CallTargetCompilationFailed,
     }
 }

@@ -68,7 +68,7 @@ public unsafe partial struct VirtualMachine
         watcher.ValidateLastError();
     }
 
-    [Conditional("DEBUG")]
+    //[Conditional("DEBUG")]
     public void println(string str) => trace.log(str);
 
     public void halt(int exitCode = -1)

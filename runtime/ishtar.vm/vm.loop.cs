@@ -61,21 +61,24 @@ public unsafe partial struct VirtualMachine : IDisposable
 
         if (invocation->method->IsJitted)
         {
+            println($".jit> {invocation->method->Owner->Name}::{invocation->method->Name} [jitted]");
             exec_method_jitted(invocation);
             return;
         }
 
         // Eager JIT: compiler marked this method as JIT-eligible, compile on first call
-        if (!@ref->Config.DisableJIT &&
+        if (!@ref->Config.DisableJIT && !invocation->method->JitRejected &&
             (invocation->method->Flags & MethodFlags.Jit) != 0 && invocation->method->PIInfo.compiled_func_ref == 0)
         {
             var allocator = IshtarGC.CreateAllocatorWithParent(invocation->method);
             if (jit.MethodCompiler.TryJitCompile(invocation->method, allocator))
             {
+                println($".jit> {invocation->method->Owner->Name}::{invocation->method->Name} jitted success, call now...");
                 exec_method_jitted(invocation);
                 return;
             }
-            // Compilation failed — fall through to interpreter
+            // Compilation failed — print reason
+            println($".jit-reject> {invocation->method->Owner->Name}::{invocation->method->Name} — {invocation->method->JitRejectReasonCode}");
         }
 
         var tag = Profiler.Begin($"vm:exec:({invocation->method->RawName})");
@@ -821,7 +824,10 @@ public unsafe partial struct VirtualMachine : IDisposable
 
 
                     if (method->IsJitted)
+                    {
+                        println($".call jit> {method->Owner->Name}::{method->Name} [jitted]");
                         exec_method_jitted(child_frame);
+                    }
                     else if (method->IsExtern)
                         exec_method_native(child_frame);
                     else
@@ -904,8 +910,8 @@ public unsafe partial struct VirtualMachine : IDisposable
                     --sp;
                     var second = *sp;
 
-                    *sp = _comparer(first, second, invocation->last_ip, invocation);
-                    println($"$$$ {invocation->last_ip} : {debug_comparer_get_symbol(first, second, invocation->last_ip)} == {sp->data.i == 1}");
+                    *sp = _comparer(second, first, invocation->last_ip, invocation);
+                    println($"$$$ {invocation->last_ip} : {debug_comparer_get_symbol(second, first, invocation->last_ip)} == {sp->data.i == 1}");
                     sp++;
                 }
                     break;
