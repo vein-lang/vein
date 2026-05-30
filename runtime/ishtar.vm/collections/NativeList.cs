@@ -55,11 +55,6 @@ public unsafe struct NativeList<T> : IDisposable where T : unmanaged, IEq<T>
         if (count == capacity)
             EnsureCapacity(capacity * 2);
 
-#if DEBUG
-        if (IndexOf(value) != -1)
-            throw new DuplicateItemException("");
-#endif
-
         items[count++] = value;
     }
 
