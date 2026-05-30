@@ -302,10 +302,10 @@ class Build : NukeBuild
                     .ResetConfiguration()
                     .SetRuntime(runtime)
                     .SetConfiguration(Configuration.Release)
-                    .SetProperty("PublishTrimmed", "true")
+                    .EnablePublishTrimmed()
+                    .EnablePublishReadyToRun()
                     .SetFramework("net10.0")
                     .SetOutput(outputDir)
-                    .SetProperty("PublishReadyToRun", "true")
                     .DisableNoRestore()
                     .EnableDeterministic()
                 );
