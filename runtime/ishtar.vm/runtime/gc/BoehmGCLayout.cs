@@ -53,7 +53,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         [DllImport(LIBNAME)]
         public static extern void GC_dump(void* file);
         [DllImport(LIBNAME)]
-        public static extern int GC_try_to_collect(int zero);
+        public static extern int GC_try_to_collect(delegate* unmanaged[Cdecl]<int> stop_func);
         [DllImport(LIBNAME)]
         public static extern void GC_general_register_disappearing_link(void** location, void* obj);
 
@@ -113,12 +113,12 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         public static extern void GC_use_threads_discovery();
 
         [DllImport(LIBNAME)]
-        public static extern void GC_register_my_thread(in GC_stack_base* attr);
+        public static extern int GC_register_my_thread(GC_stack_base* attr);
         [DllImport(LIBNAME, EntryPoint = "GC_register_my_thread")]
-        public static extern void GC_register_my_thread2(in GC_stack_base attr);
+        public static extern int GC_register_my_thread2(in GC_stack_base attr);
 
         [DllImport(LIBNAME)]
-        public static extern int GC_get_stack_base(in GC_stack_base* attr);
+        public static extern int GC_get_stack_base(GC_stack_base* attr);
         [DllImport(LIBNAME, EntryPoint = "GC_get_stack_base")]
         public static extern int GC_get_stack_base2(out GC_stack_base attr);
 
@@ -143,7 +143,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         /* in case of the getter) to avoid data race.                           */
         // GC_API void GC_CALL GC_set_stop_func(GC_stop_func /* stop_func */) GC_ATTR_NONNULL(1);
         [DllImport(LIBNAME)]
-        public static extern uint GC_set_stop_func(GC_stop_func ptr);
+        public static extern void GC_set_stop_func(GC_stop_func ptr);
 
         // GC_API GC_ATTR_MALLOC void * GC_CALL GC_debug_malloc_atomic_uncollectable(size_t lb, GC_EXTRA_PARAMS)
         [DllImport(LIBNAME)]
@@ -161,7 +161,7 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         public static extern void GC_finalize_all();
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void GC_stop_func();
+        public delegate int GC_stop_func();
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void GC_finalizer_notifier_func();
 
@@ -187,10 +187,10 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         public static extern bool GC_is_marked(void* ptr);
 
         [DllImport(LIBNAME)]
-        public static extern bool GC_add_roots(void* hi, void* low);
+        public static extern void GC_add_roots(void* low_address, void* high_address_plus_1);
         
         [DllImport(LIBNAME)]
-        public static extern void GC_remove_roots(void* hi, void* low);
+        public static extern void GC_remove_roots(void* low_address, void* high_address_plus_1);
 
         [DllImport(LIBNAME)]
         public static extern bool GC_thread_is_registered();
@@ -342,7 +342,6 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         if (!Native.GC_is_init_called())
             throw new GcNotLoaded();
         var ptr = (void*)Native.GC_malloc_uncollectable(size);
-        Native.GC_toggleref_add(ptr, 0);
         return ptr;
     }
 
@@ -351,7 +350,6 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
         if (!Native.GC_is_init_called())
             throw new GcNotLoaded();
         var ptr = (void*)Native.GC_malloc_atomic_uncollectable(size);
-        Native.GC_toggleref_add(ptr, 0);
         return ptr;
     }
 
@@ -384,11 +382,14 @@ public unsafe class BoehmGCLayout : GCLayout, GCLayout_Debug
     }
 
 
+    [UnmanagedCallersOnly(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+    private static int _always_continue_stop_func() => 0;
+
     public bool try_collect()
     {
         if (!Native.GC_is_init_called())
             throw new GcNotLoaded();
-        return Native.GC_try_to_collect(0) == 1;
+        return Native.GC_try_to_collect(&_always_continue_stop_func) == 1;
     }
 
     public void collect()

@@ -431,11 +431,15 @@ namespace ishtar.runtime.gc
             var vm = o->clazz->Owner->vm;
             var gc = vm->gc;
 
-            using var _ = GCSync.Begin(gc->mutex);
+            // NOTE: Do NOT acquire gc->mutex here.
+            // This finalizer is called from GC_invoke_finalizers() which may be triggered
+            // inside GC_malloc(). If the calling thread already holds the mutex (from any
+            // Alloc* method), acquiring it again would deadlock (non-recursive mutex).
 
             var frame = vm->Frames->GarbageCollector;
 
-            gc->ObjectRegisterFinalizer(o, null, frame);
+            // Unregister finalizer (prevents double-call)
+            gcLayout.register_finalizer_no_order(o, null, frame);
 
             if (vm->Config.DisabledFinalization)
                 return;
@@ -453,9 +457,10 @@ namespace ishtar.runtime.gc
 
             gc->total_allocations--;
             gc->alive_objects--;
+            gc->total_bytes_requested -= allocatorPool.Return(o);
 
-
-            gcLayout.free((void**)&o);
+            // Do NOT call gcLayout.free() here — the GC is already reclaiming this object.
+            // Calling GC_free on an object being finalized is undefined behavior.
         }
 
 
@@ -606,7 +611,7 @@ namespace ishtar.runtime.gc
 
         public static T* AllocateUVImmortal<T>() where T : unmanaged
         {
-            var p = (T*)gcLayout.alloc_immortal((uint)sizeof(nint));
+            var p = (T*)gcLayout.alloc_immortal((uint)sizeof(T));
             return p;
         }
 
