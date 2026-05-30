@@ -1,4 +1,4 @@
 {
   "$schema": "./build.schema.json",
-  "Solution": "vein_lang.sln"
+  "Solution": "vein_lang.slnx"
 }
