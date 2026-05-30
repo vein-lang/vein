@@ -49,7 +49,7 @@ public static unsafe class LibUV
     public static extern void uv_close(nint handle, uv_close_cb cb);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong uv_thread_self();
+    public static extern nint uv_thread_self();
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern nint uv_default_loop();
@@ -61,7 +61,7 @@ public static unsafe class LibUV
     public static extern UV_ERR uv_timer_start(nint handle, uv_timer_cb cb, ulong timeout, ulong repeat);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uv_timer_stop(nint handle);
+    public static extern int uv_timer_stop(nint handle);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern UV_ERR uv_queue_work(nint loop, in uv_work_t* req,
@@ -195,7 +195,7 @@ public static unsafe class LibUV
     public static extern void uv_cond_wait(uv_cond_t* cond, uv_mutex_t* mutex);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern void uv_cond_timedwait(uv_cond_t* cond, uv_mutex_t* mutex, ulong timeout);
+    public static extern int uv_cond_timedwait(uv_cond_t* cond, uv_mutex_t* mutex, ulong timeout);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern void uv_cond_signal(uv_cond_t* cond);
@@ -203,7 +203,7 @@ public static unsafe class LibUV
 
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int uv_cpu_info(uv_cpu_info_t* cpuInfos, out int coresCount);
+    public static extern int uv_cpu_info(uv_cpu_info_t** cpuInfos, out int coresCount);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern void uv_free_cpu_info(uv_cpu_info_t* cpuInfos, int coresCount);
@@ -281,23 +281,24 @@ public static unsafe class LibUV
         public override string ToString() => $"[threadId {handle}]";
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    // uv_cond_t on Win64 is a union, max size = 64 bytes (for ABI compat)
+    [StructLayout(LayoutKind.Sequential, Size = 64)]
     public struct uv_cond_t : IEq<uv_cond_t>
     {
-        public uv_handle_t handle;
+        private nint _opaque;
 
         // todo
         public static bool Eq(uv_cond_t* p1, uv_cond_t* p2) => ((nint)p1) == ((nint)p2);
 
-        public override string ToString() => $"[uv_cond {handle}]";
+        public override string ToString() => $"[uv_cond 0x{_opaque:X}]";
     }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct uv_key_t
     {
-        public uv_handle_t handle;
+        public uint tls_index;
 
-        public override string ToString() => $"[keyId {handle}]";
+        public override string ToString() => $"[keyId {tls_index}]";
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -419,11 +420,12 @@ public static unsafe class LibUV
         public override string ToString() => $"[workId 0x{Sock:X}]";
     }
 
-    [StructLayout(LayoutKind.Sequential)]
+    // CRITICAL_SECTION on Win64 = 40 bytes
+    [StructLayout(LayoutKind.Sequential, Size = 40)]
     public struct uv_mutex_t
     {
-        private nint handle;
-        public override string ToString() => $"[mutexId 0x{handle:X}]";
+        private nint _opaque;
+        public override string ToString() => $"[mutexId 0x{_opaque:X}]";
     }
 
     [StructLayout(LayoutKind.Sequential)]

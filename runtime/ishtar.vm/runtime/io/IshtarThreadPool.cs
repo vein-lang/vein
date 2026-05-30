@@ -27,7 +27,7 @@ public readonly unsafe struct IshtarThreadPool(
     public static IshtarThreadPool* Create(VirtualMachine* vm)
     {
         using var tag = Profiler.Begin("vm:threadpool:create");
-        uv_cpu_info_t cpuInfo;
+        uv_cpu_info_t* cpuInfo;
         uv_cpu_info(&cpuInfo, out var coresCount);
 
         var overrideSize = (int)vm->Config.ThreadPoolSize;
