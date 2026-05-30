@@ -2,6 +2,7 @@
 
 
 public static class Dns {
+    /*
     public static resolve(domain: string): DomainDetails {
         auto result = new DomainDetails(new Ipv4Addr(as<u8>(0),as<u8>(0),as<u8>(0),as<u8>(0)), domain);
 
@@ -9,6 +10,7 @@ public static class Dns {
 
         return result;
     }
+    */
     [native("__internal__", "_dns_query_domain_details")]
     private extern static _resolve(domain: string, data: DomainDetails): void;
 }
