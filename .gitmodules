@@ -4,3 +4,6 @@
 [submodule "runtime/sacred.vm/lib/libuv"]
 	path = runtime/sacred.vm/lib/libuv
 	url = https://github.com/libuv/libuv.git
+[submodule "runtime/bdwgc"]
+	path = runtime/bdwgc
+	url = https://github.com/bdwgc/bdwgc.git
