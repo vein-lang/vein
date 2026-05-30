@@ -21,5 +21,6 @@ namespace vein.runtime
         Special     = 1 << 9,
         Async       = 1 << 10,
         Generic     = 1 << 11,
+        Jit         = 1 << 12,
     }
 }
