@@ -1518,6 +1518,153 @@ public unsafe partial struct VirtualMachine : IDisposable
                     }
                 }
                     break;
+                case BOX:
+                {
+                    // Box a value type: top of stack is value, convert to heap-allocated object reference
+                    ++ip;
+                    var typeIdx = *ip;
+                    ++ip;
+                    --sp;
+                    var boxClass = GetClass(typeIdx, _module, invocation);
+                    var boxed = gc->AllocObject(boxClass, invocation);
+                    // Copy the stack value into the boxed object's !!value field or vtable
+                    var valField = boxClass->FindField("!!value");
+                    if (valField is not null)
+                    {
+                        var boxedVal = IshtarMarshal.Boxing(invocation, sp);
+                        boxed->vtable[valField->vtable_offset] = boxedVal;
+                    }
+                    sp->type = TYPE_CLASS;
+                    sp->data.p = (nint)boxed;
+                    ++sp;
+                }
+                    break;
+                case UNBOX:
+                {
+                    // Unbox: top of stack is object reference, extract value
+                    ++ip;
+                    var typeIdx = *ip;
+                    ++ip;
+                    --sp;
+                    var unboxClass = GetClass(typeIdx, _module, invocation);
+                    var obj = (IshtarObject*)sp->data.p;
+                    if (obj == null)
+                    {
+                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
+                        goto exception_handle;
+                    }
+                    var unboxField = unboxClass->FindField("!!value");
+                    if (unboxField is not null)
+                    {
+                        var unboxedObj = (IshtarObject*)obj->vtable[unboxField->vtable_offset];
+                        var val = IshtarMarshal.UnBoxing(invocation, unboxedObj);
+                        *sp = val;
+                    }
+                    else
+                    {
+                        sp->type = unboxClass->TypeCode;
+                        sp->data.p = (nint)obj;
+                    }
+                    ++sp;
+                }
+                    break;
+                case INITSTRUCT:
+                {
+                    // Zero-initialize a struct on the evaluation stack
+                    ++ip;
+                    var typeIdx = *ip;
+                    ++ip;
+                    var structClass = GetClass(typeIdx, _module, invocation);
+                    // For bittable structs: allocate a zeroed buffer of StructSize bytes
+                    // For now, we allocate an IshtarObject like NEWOBJ but zero-fill vtable
+                    var structObj = gc->AllocObject(structClass, invocation);
+                    sp->type = TYPE_CLASS;
+                    sp->data.p = (nint)structObj;
+                    ++sp;
+                }
+                    break;
+                case CPSTRUCT:
+                {
+                    // Copy struct value (top of stack) — creates a shallow copy
+                    ++ip;
+                    var typeIdx = *ip;
+                    ++ip;
+                    --sp;
+                    var cpClass = GetClass(typeIdx, _module, invocation);
+                    var srcObj = (IshtarObject*)sp->data.p;
+                    if (srcObj == null)
+                    {
+                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
+                        goto exception_handle;
+                    }
+                    var copyObj = gc->AllocObject(cpClass, invocation);
+                    IshtarUnsafe.CopyBlock(copyObj->vtable, srcObj->vtable,
+                        (uint)cpClass->computed_size * (uint)sizeof(void*));
+                    sp->type = TYPE_CLASS;
+                    sp->data.p = (nint)copyObj;
+                    ++sp;
+                }
+                    break;
+                case LDSTRUCT_F:
+                {
+                    // Load field from struct value on stack
+                    --sp;
+                    var fieldIdx = *++ip;
+                    var @class = GetClass(*++ip, _module, invocation);
+                    var field = GetField(fieldIdx, @class, _module, invocation);
+                    var @this = sp;
+
+                    if (@this->type == TYPE_NONE || @this->type == TYPE_NULL)
+                    {
+                        CallFrame.FillStackTrace(invocation);
+                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
+                        goto exception_handle;
+                    }
+                    var this_obj = (IshtarObject*)@this->data.p;
+                    var obj = (IshtarObject*)this_obj->vtable[field->vtable_offset];
+                    if (field->FieldType.Class->TypeCode is TYPE_RAW)
+                    {
+                        sp->type = TYPE_RAW;
+                        sp->data.p = (nint)obj;
+                    }
+                    else
+                    {
+                        var value = IshtarMarshal.UnBoxing(invocation, obj);
+                        *sp = value;
+                    }
+                    ++ip;
+                    ++sp;
+                }
+                    break;
+                case STSTRUCT_F:
+                {
+                    // Store into field of struct value on stack
+                    --sp;
+                    var fieldIdx = *++ip;
+                    var @class = GetClass(*++ip, _module, invocation);
+                    var field = GetField(fieldIdx, @class, _module, invocation);
+                    var @this = sp;
+                    --sp;
+                    if (@this->type == TYPE_NONE || @this->type == TYPE_NULL)
+                    {
+                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
+                        goto exception_handle;
+                    }
+                    var value = sp;
+                    var this_obj = (IshtarObject*)@this->data.p;
+
+                    if (value->type == TYPE_NULL)
+                        this_obj->vtable[field->vtable_offset] = null;
+                    else if (value->type == TYPE_RAW)
+                        this_obj->vtable[field->vtable_offset] = (void*)value->data.p;
+                    else
+                    {
+                        var o = IshtarMarshal.Boxing(invocation, value);
+                        this_obj->vtable[field->vtable_offset] = o;
+                    }
+                    ++ip;
+                }
+                    break;
                 default:
                     CallFrame.FillStackTrace(invocation);
 
