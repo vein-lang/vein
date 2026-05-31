@@ -54,6 +54,8 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         vm->@ref->task_scheduler = vm->threading.CreateScheduler(vm);
 
         vm->@ref->thread_pool = IshtarThreadPool.Create(vm);
+
+        vm->@ref->job_scheduler = JobScheduler.Create(vm);
         
         vault.PostInit();
         return vm;

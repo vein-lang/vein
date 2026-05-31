@@ -25,6 +25,7 @@ public unsafe partial struct VirtualMachine : IDisposable
     public IshtarThreading threading;
     public TaskScheduler* task_scheduler;
     public IshtarThreadPool* thread_pool;
+    public JobScheduler* job_scheduler;
     internal RuntimeIshtarModule* InternalModule;
     private RuntimeIshtarClass* InternalClass;
     private IniRoot* boot_cfg;

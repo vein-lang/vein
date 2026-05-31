@@ -1,6 +1,7 @@
 namespace ishtar;
 
 using emit;
+using io;
 using ishtar.jit;
 using ishtar.runtime.gc;
 using runtime;
@@ -125,6 +126,45 @@ public unsafe partial struct VirtualMachine : IDisposable
         var zone = default(ProtectedZone*);
         tag.Dispose();
         var stopwatch = new Stopwatch();
+
+        // --- Async Resume: restore saved state if this is a resumed frame ---
+        if (invocation->resumeState != null)
+        {
+            var rs = invocation->resumeState;
+            invocation->resumeState = null;
+
+            // Restore IP to the saved position
+            ip = rs->savedIP;
+
+            // Restore eval stack snapshot
+            if (rs->evalStackDepth > 0)
+            {
+                Buffer.MemoryCopy(rs->evalStack, sp_start,
+                    rs->evalStackDepth * sizeof(stackval),
+                    rs->evalStackDepth * sizeof(stackval));
+                sp = sp_start + rs->evalStackDepth;
+            }
+
+            // Push the awaited job's result onto the eval stack
+            if (invocation->awaitResult.type != TYPE_VOID)
+            {
+                *sp = invocation->awaitResult;
+                sp++;
+            }
+
+            // Restore locals
+            if (rs->localsCount > 0)
+            {
+                locals = stackval.Allocate(invocation, (ushort)rs->localsCount);
+                Buffer.MemoryCopy(rs->locals, locals.Ref,
+                    rs->localsCount * sizeof(stackval),
+                    rs->localsCount * sizeof(stackval));
+            }
+
+            // Free the suspended frame (state is now restored into locals)
+            FreeSuspendedFrame(rs);
+        }
+        // --- End Async Resume ---
 
         while (true)
         {
@@ -448,6 +488,20 @@ public unsafe partial struct VirtualMachine : IDisposable
                 case RET:
                     ++ip;
                     --sp;
+
+                    // Async RET: resolve the ownerJob instead of storing returnValue
+                    if (invocation->asyncJob != null)
+                    {
+                        if (invocation->method->ReturnType->TypeCode == TYPE_VOID)
+                            invocation->asyncJob->SetCompleted();
+                        else
+                            invocation->asyncJob->SetResult(*sp);
+                        stack.Dispose();
+                        locals.Dispose();
+                        return;
+                    }
+
+                    // Synchronous RET (existing behavior)
                     invocation->returnValue = stackval.Allocate(invocation, 1);
                     invocation->returnValue[0] = *sp;
                     stack.Dispose();
@@ -822,43 +876,92 @@ public unsafe partial struct VirtualMachine : IDisposable
 
                     child_frame->args = method_args;
 
+                    var isAsyncMethod = (method->Flags & MethodFlags.Async) != 0;
 
-                    if (method->IsJitted)
+                    if (isAsyncMethod)
                     {
-                        println($".call jit> {method->Owner->Name}::{method->Name} [jitted]");
-                        exec_method_jitted(child_frame);
-                    }
-                    else if (method->IsExtern)
-                        exec_method_native(child_frame);
-                    else
-                        task_scheduler->execute_method(child_frame);
+                        // Async method call: create a Job, attach to frame, execute
+                        // The method may complete synchronously or suspend at AWAIT
+                        var job = IshtarAsyncJob.Create(@ref);
+                        child_frame->asyncJob = job;
 
-                    if (!child_frame->exception.IsDefault())
-                    {
+                        // Create a Job<T> IshtarObject to push onto caller's stack
+                        var jobClass = method->ReturnType; // This is Job<T>
+                        var jobObj = gc->AllocObject(jobClass, invocation);
+                        SetJobOnObject(jobObj, job, invocation);
+                        job->owner = jobObj;
+
+                        // Execute the async method body
+                        // It will either:
+                        // a) Complete synchronously (no pending AWAIT hit) → job is Completed after return
+                        // b) Suspend at AWAIT → job stays Pending, frame is saved as continuation
+                        if (method->IsExtern)
+                            exec_method_native(child_frame);
+                        else
+                            exec_method(child_frame);
+
+                        // If method completed synchronously without suspending,
+                        // check if it resolved the job via RET
+                        if (!child_frame->exception.IsDefault() && job->state == JobState.Pending)
+                        {
+                            // Method threw without resolving the job — fault it
+                            job->SetException(child_frame->exception);
+                        }
+                        else if (job->state == JobState.Pending && child_frame->exception.IsDefault())
+                        {
+                            // Method completed synchronously (hit async RET which resolved the job)
+                            // Job should already be resolved by the async RET handler — nothing to do
+                        }
+
+                        // Push the Job<T> object onto caller's eval stack regardless of job state
                         sp->type = TYPE_CLASS;
-                        sp->data.p = (nint)child_frame->exception.value;
-                        invocation->exception = child_frame->exception;
+                        sp->data.p = (nint)jobObj;
+                        sp++;
 
+                        println($".call.async after {method->Owner->Name}::{method->Name}, sp: {getStackLen()}");
                         gc->FreeStack(child_frame, method_args, method->ArgLength);
                         child_frame->Dispose();
-                        goto exception_handle;
                     }
-
-                    if (method->ReturnType->TypeCode != TYPE_VOID)
+                    else
                     {
-                        invocation->assert(!child_frame->returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
-                        *sp = child_frame->returnValue[0];
-                        Assert(sp->type != TYPE_NONE, STATE_CORRUPT, "returnValue from child frame is bad", child_frame);
-                        Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, "returnValue from child frame is bad", child_frame);
-                        child_frame->returnValue.Dispose();
+                        // Synchronous method call (existing behavior)
+                        if (method->IsJitted)
+                        {
+                            println($".call jit> {method->Owner->Name}::{method->Name} [jitted]");
+                            exec_method_jitted(child_frame);
+                        }
+                        else if (method->IsExtern)
+                            exec_method_native(child_frame);
+                        else
+                            task_scheduler->execute_method(child_frame);
 
-                        sp++;
+                        if (!child_frame->exception.IsDefault())
+                        {
+                            sp->type = TYPE_CLASS;
+                            sp->data.p = (nint)child_frame->exception.value;
+                            invocation->exception = child_frame->exception;
+
+                            gc->FreeStack(child_frame, method_args, method->ArgLength);
+                            child_frame->Dispose();
+                            goto exception_handle;
+                        }
+
+                        if (method->ReturnType->TypeCode != TYPE_VOID)
+                        {
+                            invocation->assert(!child_frame->returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
+                            *sp = child_frame->returnValue[0];
+                            Assert(sp->type != TYPE_NONE, STATE_CORRUPT, "returnValue from child frame is bad", child_frame);
+                            Assert(sp->type <= TYPE_NULL, STATE_CORRUPT, "returnValue from child frame is bad", child_frame);
+                            child_frame->returnValue.Dispose();
+
+                            sp++;
+                        }
+
+                        println($".call after {method->Owner->Name}::{method->Name}, sp: {getStackLen()}");
+                        gc->FreeStack(child_frame, method_args, method->ArgLength);
+                        child_frame->Dispose();
+                        gc->Collect();
                     }
-
-                    println($".call after {method->Owner->Name}::{method->Name}, sp: {getStackLen()}");
-                    gc->FreeStack(child_frame, method_args, method->ArgLength);
-                    child_frame->Dispose();
-                    gc->Collect();
                 } break;
                 case LOC_INIT:
                 {
@@ -1314,6 +1417,95 @@ public unsafe partial struct VirtualMachine : IDisposable
                     sp->data.p = (nint)gc->ToIshtarObject(str, invocation);
                     ++sp;
                     ++ip;
+                }
+                    break;
+                case AWAIT:
+                {
+                    ++ip;
+                    --sp;
+
+                    // Top of eval stack is a Job<T> object (IshtarObject* with class=Job<T>)
+                    var jobObj = (IshtarObject*)sp->data.p;
+                    var job = GetJobFromObject(jobObj, invocation);
+
+                    if (job == null)
+                    {
+                        FastFail(STATE_CORRUPT, "AWAIT: object on stack is not a Job or is null", invocation);
+                        break;
+                    }
+
+                    // Fast path: job already completed — push result and continue
+                    if (job->state == JobState.Completed)
+                    {
+                        if (job->result.type != TYPE_VOID)
+                        {
+                            *sp = job->result;
+                            sp++;
+                        }
+                        break;
+                    }
+
+                    // Fast path: job already faulted — propagate exception
+                    if (job->state == JobState.Faulted)
+                    {
+                        sp->type = TYPE_CLASS;
+                        sp->data.p = (nint)job->exception.value;
+                        invocation->exception = job->exception;
+                        goto exception_handle;
+                    }
+
+                    // Check if inside SEH — not supported, crash
+                    if (zone != null)
+                    {
+                        FastFail(EXECUTION_CORRUPTED, "AWAIT inside try/catch/finally is not yet supported", invocation);
+                        break;
+                    }
+
+                    // Slow path: job is pending — suspend this frame
+                    var stackDepth = (int)(sp - sp_start);
+                    var localsCount = locals.IsNull() ? 0 : (int)locals.size;
+
+                    // Determine the ownerJob for this async method
+                    // It was stored in the invocation frame when the async method was entered
+                    var ownerJob = invocation->asyncJob;
+
+                    var suspended = CaptureFrame(
+                        invocation->method,
+                        ip, // resume point: right after the AWAIT opcode
+                        sp_start,
+                        stackDepth,
+                        locals.IsNull() ? null : locals.Ref,
+                        localsCount,
+                        invocation->parent,
+                        args,
+                        mh->max_stack,
+                        ownerJob,
+                        job);
+
+                    if (job->TryRegisterContinuation(suspended))
+                    {
+                        // Frame is suspended — do NOT dispose stack/locals, 
+                        // they're snapshotted in SuspendedFrame.
+                        // Return without cleanup — the frame will be resumed later.
+                        return;
+                    }
+                    else
+                    {
+                        // Job completed between our check and registration — continue synchronously
+                        FreeSuspendedFrame(suspended);
+                        if (job->state == JobState.Completed && job->result.type != TYPE_VOID)
+                        {
+                            *sp = job->result;
+                            sp++;
+                        }
+                        else if (job->state == JobState.Faulted)
+                        {
+                            sp->type = TYPE_CLASS;
+                            sp->data.p = (nint)job->exception.value;
+                            invocation->exception = job->exception;
+                            goto exception_handle;
+                        }
+                    }
                 }
                     break;
                 default:
