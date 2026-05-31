@@ -65,6 +65,7 @@ namespace ishtar
         public bool is_inited = false;
         public void** vtable = null;
         public ulong vtable_size = 0;
+        private bool _isComputingBittable = false;
 
         public void Dispose()
         {
@@ -112,9 +113,14 @@ namespace ishtar
         public bool IsInternal => Flags.HasFlag(ClassFlags.Internal);
         public bool IsAspect => Flags.HasFlag(ClassFlags.Aspect);
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE and not TYPE_STRING;
-        public bool IsValueType => IsPrimitive || Walk(x => x->Name == "ValueType");
+        public bool IsValueType => IsPrimitive || IsStruct || Walk(x => x->Name == "ValueType");
         public bool IsUnresolved => Flags.HasFlag(ClassFlags.Unresolved);
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
+        public bool IsStruct => Flags.HasFlag(ClassFlags.Struct);
+        public bool IsBittable { get; set; }
+        public int StructSize { get; set; }
+        public VeinStructLayoutKind LayoutKind { get; set; }
+        public byte PackSize { get; set; }
 
         #endregion
 
@@ -475,6 +481,34 @@ namespace ishtar
                 dvtable.vtable_size = dvtable.computed_size - Parent->computed_size;
 #endif
             }
+
+            if (IsStruct)
+                IsBittable = ComputeIsBittable();
+        }
+
+        private bool ComputeIsBittable()
+        {
+            if (!IsStruct && !IsPrimitive)
+                return false;
+            if (IsPrimitive)
+                return true;
+            if (_isComputingBittable)
+                return false; // cycle detected
+
+            _isComputingBittable = true;
+            for (var i = 0; i != Fields->Count; i++)
+            {
+                var field = Fields->Get(i);
+                if ((field->Flags & FieldFlags.Static) != 0) continue;
+                var fieldType = field->FieldType.Class;
+                if (fieldType is null) { _isComputingBittable = false; return false; }
+                if (fieldType->IsPrimitive) continue;
+                if (fieldType->IsStruct && fieldType->ComputeIsBittable()) continue;
+                _isComputingBittable = false;
+                return false;
+            }
+            _isComputingBittable = false;
+            return true;
         }
 
         

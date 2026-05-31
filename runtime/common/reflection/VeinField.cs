@@ -141,6 +141,16 @@ namespace vein.runtime
         public VeinClass Owner { get; set; } = owner;
         public List<Aspect> Aspects { get; } = new();
 
+        /// <summary>
+        /// Byte offset within the struct layout. Only meaningful for struct fields.
+        /// </summary>
+        public int Offset { get; set; }
+
+        /// <summary>
+        /// Size in bytes of this field. Computed from field type for struct layout.
+        /// </summary>
+        public int Size { get; set; }
+
         public override string Name
         {
             get => FullName.Name;

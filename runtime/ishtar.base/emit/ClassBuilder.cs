@@ -201,7 +201,7 @@ namespace ishtar.emit
             using var binary = new BinaryWriter(mem);
 
             binary.WriteTypeName(this.FullName, moduleBuilder);
-            binary.Write((short)Flags);
+            binary.Write((int)Flags);
 
             binary.Write((short)Parents.Count);
             foreach (var parent in Parents)
@@ -221,6 +221,19 @@ namespace ishtar.emit
                 binary.Write(moduleBuilder.InternFieldName(field.FullName));
                 binary.WriteComplexType(field.FieldType, moduleBuilder);
                 binary.Write((short)field.Flags);
+                if (IsStruct)
+                {
+                    binary.Write(field.Offset);
+                    binary.Write(field.Size);
+                }
+            }
+
+            if (IsStruct)
+            {
+                binary.Write(4089); // struct layout magic
+                binary.Write((byte)LayoutKind);
+                binary.Write(PackSize);
+                binary.Write(StructSize);
             }
             return mem.ToArray();
         }

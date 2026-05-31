@@ -22,6 +22,11 @@ public partial class CompilationTask
             @class.Flags |= ClassFlags.Public;
         }
 
+        if (member.IsStruct)
+        {
+            @class.Flags |= ClassFlags.Struct;
+        }
+
         var owners = member.Inheritances;
 
         // ignore core base types
@@ -38,6 +43,16 @@ public partial class CompilationTask
             else
             {
                 owners.Add(new TypeSyntax(NameSymbol.Object)
+                    .SetPos<TypeSyntax>(member.Identifier.Transform));
+            }
+        }
+        else if (member.IsStruct)
+        {
+            // Struct may have Object from pre-definition — remove non-interface class parents.
+            @class.Parents.RemoveAll(p => !p.IsInterface && p.Name != NameSymbol.ValueType);
+            if (!@class.Parents.Any(p => p.Name == NameSymbol.ValueType))
+            {
+                owners.Add(new TypeSyntax(NameSymbol.ValueType)
                     .SetPos<TypeSyntax>(member.Identifier.Transform));
             }
         }

@@ -1518,6 +1518,129 @@ public unsafe partial struct VirtualMachine : IDisposable
                     }
                 }
                     break;
+                case BOX:
+                {
+                    // Box a value type: top of stack is value, convert to heap-allocated object reference
+                    ++ip;
+                    var typeIdx = *ip;
+                    ++ip;
+                    --sp;
+                    var boxClass = GetClass(typeIdx, _module, invocation);
+                    var boxed = gc->AllocObject(boxClass, invocation);
+                    // Store value directly into the boxed object's !!value vtable slot
+                    var valField = boxClass->FindField("!!value");
+                    if (valField is not null)
+                    {
+                        if (sp->type == TYPE_R16)
+                        {
+                            FastFail(STATE_CORRUPT, "BOX: TYPE_R16 is not supported", invocation);
+                            return;
+                        }
+                        boxed->vtable[valField->vtable_offset] = (void*)sp->data.p;
+                    }
+                    sp->type = TYPE_CLASS;
+                    sp->data.p = (nint)boxed;
+                    ++sp;
+                }
+                    break;
+                case UNBOX:
+                {
+                    // Unbox: top of stack is object reference, extract value
+                    ++ip;
+                    var typeIdx = *ip;
+                    ++ip;
+                    --sp;
+                    var unboxClass = GetClass(typeIdx, _module, invocation);
+                    var obj = (IshtarObject*)sp->data.p;
+                    if (obj == null)
+                    {
+                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
+                        goto exception_handle;
+                    }
+
+                    if (obj->clazz == null || obj->clazz->ID != unboxClass->ID)
+                    {
+                        CallFrame.FillStackTrace(invocation);
+                        ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation,
+                            $"Cannot unbox '{obj->clazz->Name}' as '{unboxClass->Name}'.");
+                        goto exception_handle;
+                    }
+
+                    var unboxField = obj->clazz->FindField("!!value");
+                    if (unboxField is not null)
+                    {
+                        var fieldType = unboxField->FieldType.Class->TypeCode;
+                        if (fieldType == TYPE_R16)
+                        {
+                            FastFail(STATE_CORRUPT, "UNBOX: TYPE_R16 is not supported", invocation);
+                            return;
+                        }
+                        sp->type = fieldType;
+                        sp->data.p = (nint)obj->vtable[unboxField->vtable_offset];
+                    }
+                    else
+                    {
+                        sp->type = unboxClass->TypeCode;
+                        sp->data.p = (nint)obj;
+                    }
+                    ++sp;
+                }
+                    break;
+                case INITSTRUCT:
+                {
+                    // Zero-initialize a struct on the evaluation stack
+                    ++ip;
+                    var typeIdx = *ip;
+                    ++ip;
+                    var structClass = GetClass(typeIdx, _module, invocation);
+
+                    var structObj = gc->AllocObject(structClass, invocation);
+
+                    // AllocObject() copies the class vtable where instance field slots default to null.
+                    // For INITSTRUCT we want default-zero semantics for primitive fields.
+                    for (var i = 0; i != structClass->Fields->Count; i++)
+                    {
+                        var f = structClass->Fields->Get(i);
+                        if ((f->Flags & FieldFlags.Static) != 0) continue;
+
+                        var ft = f->FieldType.Class;
+                        if (ft is null) continue;
+
+                        if (ft->IsPrimitive && ft->TypeCode != TYPE_RAW)
+                        {
+                            var zero = new stackval { type = ft->TypeCode };
+                            structObj->vtable[f->vtable_offset] = IshtarMarshal.Boxing(invocation, &zero);
+                        }
+                    }
+
+                    sp->type = TYPE_CLASS;
+                    sp->data.p = (nint)structObj;
+                    ++sp;
+                }
+                    break;
+                case CPSTRUCT:
+                {
+                    // Copy struct value (top of stack) — creates a shallow copy
+                    ++ip;
+                    var typeIdx = *ip;
+                    ++ip;
+                    --sp;
+                    var cpClass = GetClass(typeIdx, _module, invocation);
+                    var srcObj = (IshtarObject*)sp->data.p;
+                    if (srcObj == null)
+                    {
+                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
+                        goto exception_handle;
+                    }
+                    var copyObj = gc->AllocObject(cpClass, invocation);
+                    IshtarUnsafe.CopyBlock(copyObj->vtable, srcObj->vtable,
+                        (uint)cpClass->computed_size * (uint)sizeof(void*));
+                    sp->type = TYPE_CLASS;
+                    sp->data.p = (nint)copyObj;
+                    ++sp;
+                }
+                    break;
+
                 default:
                     CallFrame.FillStackTrace(invocation);
 

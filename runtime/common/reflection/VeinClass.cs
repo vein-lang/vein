@@ -24,6 +24,10 @@ namespace vein.runtime
         public VeinModule Owner { get; set; }
         public List<Aspect> Aspects { get; } = new();
         public List<VeinTypeArg> TypeArgs { get; init; } = new();
+
+        public VeinStructLayoutKind LayoutKind { get; set; } = VeinStructLayoutKind.Auto;
+        public byte PackSize { get; set; }
+        public int StructSize { get; set; }
 #if DEBUG
         protected VeinClass() => CreationPlace = Environment.StackTrace;
 #else
@@ -56,9 +60,33 @@ namespace vein.runtime
         public bool IsInternal => Flags.HasFlag(ClassFlags.Internal);
         public bool IsAspect => Flags.HasFlag(ClassFlags.Aspect);
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE and not TYPE_STRING;
-        public bool IsValueType => IsPrimitive || this.Walk(x => x.Name == NameSymbol.ValueType);
+        public bool IsStruct => Flags.HasFlag(ClassFlags.Struct);
+        public bool IsValueType => IsPrimitive || IsStruct || this.Walk(x => x.Name == NameSymbol.ValueType);
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
         public bool IsGenericType => TypeArgs.Any();
+
+        public bool IsBittable => ComputeIsBittable(new HashSet<VeinClass>(ReferenceEqualityComparer.Instance));
+
+        private bool ComputeIsBittable(HashSet<VeinClass> visited)
+        {
+            if (!IsStruct && !IsPrimitive)
+                return false;
+            if (IsPrimitive)
+                return true;
+            if (!visited.Add(this))
+                return false; // cycle detected
+            var result = Fields.Where(f => !f.IsStatic).All(f =>
+            {
+                var fieldClass = f.FieldType.Class;
+                if (fieldClass is null)
+                    return false;
+                if (fieldClass.IsPrimitive)
+                    return true;
+                return fieldClass != null && fieldClass.ComputeIsBittable(visited);
+            });
+            visited.Remove(this);
+            return result;
+        }
 
         public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor(VeinMethod.METHOD_NAME_DECONSTRUCTOR);
         public virtual VeinMethod GetDefaultCtor() => GetOrCreateTor(VeinMethod.METHOD_NAME_CONSTRUCTOR);

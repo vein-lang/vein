@@ -72,6 +72,12 @@ public enum IROp
     IsInst,         // type check (null if fail)
     Null,           // null constant
 
+    // ─── Struct Operations ─────────────────────────────────────
+    InitStruct,     // allocate + zero-init struct (MethodRef = class ptr)
+    CopyStruct,     // deep-copy struct (MethodRef = class ptr, operand[0] = src)
+    Box,            // box value type (MethodRef = class ptr, operand[0] = value)
+    Unbox,          // unbox object to value (MethodRef = class ptr, operand[0] = obj)
+
     // ─── Misc ──────────────────────────────────────────────────
     Nop,
     Dup,

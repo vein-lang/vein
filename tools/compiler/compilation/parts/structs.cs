@@ -1,0 +1,131 @@
+namespace vein.compilation;
+
+using static runtime.VeinTypeCode;
+
+public partial class CompilationTask
+{
+    public void ValidateStruct((ClassBuilder @class, MemberDeclarationSyntax member) x)
+    {
+        if (x.member is not ClassDeclarationSyntax member)
+            return;
+        if (!member.IsStruct)
+            return;
+
+        var @class = x.@class;
+
+        ValidateStructNoInheritance(@class, member);
+        ValidateStructSealed(@class, member);
+        ComputeStructLayout(@class, member);
+    }
+
+    private void ValidateStructNoInheritance(ClassBuilder @class, ClassDeclarationSyntax member)
+    {
+        foreach (var parent in @class.Parents)
+        {
+            // ValueType is the required base for all structs — always allowed
+            if (parent.Name == NameSymbol.ValueType)
+                continue;
+
+            // Interfaces are allowed
+            if (parent.IsInterface)
+                continue;
+
+            if (parent.IsStruct)
+            {
+                Log.Defer.Error(
+                    $"Struct [red]'{@class.Name.name.EscapeMarkup()}'[/] cannot inherit from another struct [red]'{parent.Name.name.EscapeMarkup()}'[/]. Only interface implementations are allowed.",
+                    member.Identifier, member.OwnerDocument);
+            }
+            else
+            {
+                Log.Defer.Error(
+                    $"Struct [red]'{@class.Name.name.EscapeMarkup()}'[/] cannot inherit from class [red]'{parent.Name.name.EscapeMarkup()}'[/]. Structs can only implement interfaces.",
+                    member.Identifier, member.OwnerDocument);
+            }
+        }
+    }
+
+    private void ValidateStructSealed(ClassBuilder @class, ClassDeclarationSyntax member)
+    {
+        if (@class.IsAbstract)
+        {
+            Log.Defer.Error(
+                $"Struct [red]'{@class.Name.name.EscapeMarkup()}'[/] cannot be abstract.",
+                member.Identifier, member.OwnerDocument);
+        }
+    }
+
+    private void ComputeStructLayout(ClassBuilder @class, ClassDeclarationSyntax member)
+        => ComputeStructLayout(@class, new HashSet<VeinClass>(ReferenceEqualityComparer.Instance));
+
+    private void ComputeStructLayout(VeinClass @class, HashSet<VeinClass> computing)
+    {
+        if (@class.StructSize > 0)
+            return; // already computed
+
+        if (!computing.Add(@class))
+            return; // cycle detected — leave size at 0, will fall back to pointer size
+
+        @class.LayoutKind = VeinStructLayoutKind.Sequential;
+        @class.PackSize = 0; // natural alignment
+
+        var offset = 0;
+        var maxAlignment = 1;
+        foreach (var field in @class.Fields.Where(f => !f.IsStatic))
+        {
+            var size = ComputeFieldSize(field, computing);
+            field.Size = size;
+
+            // Align offset to field's natural alignment (min of field alignment and pointer size)
+            var alignment = Math.Min(size, 8);
+            if (field.FieldType.Class is { IsStruct: true } nested)
+            {
+                alignment = Math.Min(
+                    nested.Fields.Where(f => !f.IsStatic)
+                        .Select(f => Math.Min(f.Size > 0 ? f.Size : ComputeFieldSize(f, computing), 8))
+                        .DefaultIfEmpty(1)
+                        .Max(),
+                    8);
+            }
+            if (alignment <= 0)
+                alignment = 1;
+            maxAlignment = Math.Max(maxAlignment, alignment);
+
+            offset = (offset + alignment - 1) / alignment * alignment;
+
+            field.Offset = offset;
+            offset += size;
+        }
+
+        // Final struct size aligned to largest field alignment
+        @class.StructSize = (offset + maxAlignment - 1) / maxAlignment * maxAlignment;
+        computing.Remove(@class);
+    }
+
+    private int ComputeFieldSize(VeinField field, HashSet<VeinClass> computing)
+    {
+        var fieldClass = field.FieldType.Class;
+        if (fieldClass is null)
+            return 8; // pointer size fallback
+
+        // Reference types always occupy pointer size in struct layout
+        if (fieldClass.TypeCode is VeinTypeCode.TYPE_CLASS or VeinTypeCode.TYPE_STRING
+            or VeinTypeCode.TYPE_OBJECT or VeinTypeCode.TYPE_ARRAY)
+            return 8;
+
+        // Primitives have known native sizes
+        if (fieldClass.IsPrimitive)
+            return fieldClass.TypeCode.GetNativeSize();
+
+        // Nested struct — compute its layout on-demand if not yet done
+        if (fieldClass.IsStruct)
+        {
+            if (fieldClass.StructSize == 0)
+                ComputeStructLayout(fieldClass, computing);
+            return fieldClass.StructSize > 0 ? fieldClass.StructSize : 8;
+        }
+
+        // Fallback — pointer size
+        return 8;
+    }
+}

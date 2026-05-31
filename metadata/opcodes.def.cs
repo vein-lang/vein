@@ -741,5 +741,21 @@ public enum OpCodeValue : ushort
 	/// Await operation.
 	/// </summary>
 	AWAIT = 0xB7,
+	/// <summary>
+	/// Box a value type into an object reference.
+	/// </summary>
+	BOX = 0xB8,
+	/// <summary>
+	/// Unbox an object reference back to value type.
+	/// </summary>
+	UNBOX = 0xB9,
+	/// <summary>
+	/// Initialize zero-filled struct on the evaluation stack.
+	/// </summary>
+	INITSTRUCT = 0xBA,
+	/// <summary>
+	/// Copy struct value (memcpy for bittable types).
+	/// </summary>
+	CPSTRUCT = 0xBB,
 
 }

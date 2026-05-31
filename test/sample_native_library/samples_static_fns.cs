@@ -161,6 +161,42 @@ namespace sample_native_library
         [UnmanagedCallersOnly(EntryPoint = "_sample_7_direct")]
         public static unsafe void DirectCall(long i1) => ((long*)(0xB0BC))[0] = ((delegate*<long, long>)(void*)(0xDEAD))(666_666_666_666);
 
+        // ═══════════════════════════════════════════════════════════════════
+        // Struct-related exports for trampoline tests
+        // ═══════════════════════════════════════════════════════════════════
+
+        /// <summary>Accepts a struct pointer, returns sum of fields.</summary>
+        [UnmanagedCallersOnly(EntryPoint = "_struct_sum_fields")]
+        public static unsafe int StructSumFields(AB* ptr)
+            => ptr->s1 + ptr->s2;
+
+        /// <summary>Modifies struct fields through pointer.</summary>
+        [UnmanagedCallersOnly(EntryPoint = "_struct_modify")]
+        public static unsafe void StructModify(AB* ptr, int newS1, int newS2)
+        {
+            ptr->s1 = newS1;
+            ptr->s2 = newS2;
+        }
+
+        /// <summary>Accepts struct by value (8 bytes, fits in register on Windows).</summary>
+        [UnmanagedCallersOnly(EntryPoint = "_struct_byval_sum")]
+        public static int StructByValSum(AB val)
+            => val.s1 + val.s2;
+
+        /// <summary>Returns a struct pointer (allocated pinned).</summary>
+        [UnmanagedCallersOnly(EntryPoint = "_struct_create")]
+        public static unsafe AB* StructCreate(int s1, int s2)
+        {
+            var ptr = (AB*)NativeMemory.AllocZeroed((nuint)sizeof(AB));
+            ptr->s1 = s1;
+            ptr->s2 = s2;
+            return ptr;
+        }
+
+        /// <summary>Accepts pointer + int, returns field sum + extra.</summary>
+        [UnmanagedCallersOnly(EntryPoint = "_struct_ptr_plus_int")]
+        public static unsafe int StructPtrPlusInt(AB* ptr, int extra)
+            => ptr->s1 + ptr->s2 + extra;
 
         // For fucking aot, it required entry point
         static void Main(string[] args)

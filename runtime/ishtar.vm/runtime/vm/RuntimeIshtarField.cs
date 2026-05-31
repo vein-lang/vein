@@ -26,6 +26,16 @@ namespace ishtar
         public string Name => FullName->Name;
         public ulong vtable_offset;
 
+        /// <summary>
+        /// Byte offset within struct layout (for struct fields only).
+        /// </summary>
+        public int struct_offset;
+
+        /// <summary>
+        /// Size in bytes of this field (for struct fields only).
+        /// </summary>
+        public int struct_size;
+
         public FieldFlags Flags { get; set; }
 
         public RuntimeFieldName* FullName { get; set; }

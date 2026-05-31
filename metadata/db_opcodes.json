@@ -182,5 +182,9 @@
   "LDC.I32.4": 180,
   "LDC.I32.5": 181,
   "LDC.I32.S": 182,
-  "AWAIT": 183
+  "AWAIT": 183,
+  "BOX": 184,
+  "UNBOX": 185,
+  "INITSTRUCT": 186,
+  "CPSTRUCT": 187
 }

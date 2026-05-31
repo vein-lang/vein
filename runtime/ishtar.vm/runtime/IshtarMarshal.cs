@@ -261,6 +261,20 @@ namespace ishtar
             return BitConverter.Int32BitsToSingle((int)(int*)obj->vtable[clazz->Field["!!value"]->vtable_offset]);
         }
 
+        public static double ToDotnetDouble(IshtarObject* obj, CallFrame* frame)
+        {
+            ForeignFunctionInterface.StaticTypeOf(frame, &obj, TYPE_R8);
+            var clazz = obj->clazz;
+            return BitConverter.Int64BitsToDouble((long)(long*)obj->vtable[clazz->Field["!!value"]->vtable_offset]);
+        }
+
+        public static Half ToDotnetHalf(IshtarObject* obj, CallFrame* frame)
+        {
+            ForeignFunctionInterface.StaticTypeOf(frame, &obj, TYPE_R2);
+            var clazz = obj->clazz;
+            return BitConverter.Int16BitsToHalf((short)(short*)obj->vtable[clazz->Field["!!value"]->vtable_offset]);
+        }
+
         public static string ToDotnetString(IshtarObject* obj, CallFrame* frame)
         {
             ForeignFunctionInterface.StaticTypeOf(frame, &obj, TYPE_STRING);
@@ -359,7 +373,13 @@ namespace ishtar
                 case TYPE_R4:
                     val.data.f_r4 = ToDotnetFloat(obj, frame);
                     break;
-                case TYPE_R8 or TYPE_R2 or TYPE_R16:
+                case TYPE_R8:
+                    val.data.f = ToDotnetDouble(obj, frame);
+                    break;
+                case TYPE_R2:
+                    val.data.hf = ToDotnetHalf(obj, frame);
+                    break;
+                case TYPE_R16:
                     frame->vm->FastFail(WNE.ACCESS_VIOLATION,
                         "Unboxing operation error.\n" +
                         $"Scalar value type '{val.type}' cannot be extracted.\n" +
@@ -423,10 +443,16 @@ namespace ishtar
                 case TYPE_R4:
                 val.data.f_r4 = float.Parse(value);
                 break;
+                case TYPE_R8:
+                val.data.f = double.Parse(value);
+                break;
+                case TYPE_R2:
+                val.data.hf = Half.Parse(value);
+                break;
                 case TYPE_STRING:
                 val.data.p = (nint)StringStorage.Intern(value, frame);
                 break;
-                case TYPE_R8 or TYPE_R2 or TYPE_R16:
+                case TYPE_R16:
                 frame->vm->FastFail(WNE.ACCESS_VIOLATION,
                     "Unboxing operation error.\n" +
                     $"Scalar value type '{val.type}' cannot be extracted.\n" +
@@ -508,6 +534,8 @@ namespace ishtar
                 TYPE_CHAR => (int*)p->data.i,
 
                 TYPE_R4 => (int*)BitConverter.SingleToInt32Bits(p->data.f_r4),
+                TYPE_R8 => (long*)BitConverter.DoubleToInt64Bits(p->data.f),
+                TYPE_R2 => (short*)BitConverter.HalfToInt16Bits(p->data.hf),
 
                 _ => &*p
             };

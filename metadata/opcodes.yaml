@@ -327,3 +327,19 @@
 - AWAIT:
     description: Await operation.
     stack-delta: -1
+- BOX:
+    description: Box a value type into an object reference.
+    stack-delta: 0
+    override-size: 4
+- UNBOX:
+    description: Unbox an object reference back to value type.
+    stack-delta: 0
+    override-size: 4
+- INITSTRUCT:
+    description: Initialize zero-filled struct on the evaluation stack.
+    stack-delta: 1
+    override-size: 4
+- CPSTRUCT:
+    description: Copy struct value (memcpy for bittable types).
+    stack-delta: 0
+    override-size: 4
