@@ -1553,10 +1553,24 @@ public unsafe partial struct VirtualMachine : IDisposable
                         ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
                         goto exception_handle;
                     }
-                    var unboxField = unboxClass->FindField("!!value");
+
+                    if (obj->clazz == null || obj->clazz->ID != unboxClass->ID)
+                    {
+                        CallFrame.FillStackTrace(invocation);
+                        ForceThrow(KnowTypes.IncorrectCastFault(invocation), sp, invocation,
+                            $"Cannot unbox '{obj->clazz->Name}' as '{unboxClass->Name}'.");
+                        goto exception_handle;
+                    }
+
+                    var unboxField = obj->clazz->FindField("!!value");
                     if (unboxField is not null)
                     {
                         var unboxedObj = (IshtarObject*)obj->vtable[unboxField->vtable_offset];
+                        if (unboxedObj == null)
+                        {
+                            ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
+                            goto exception_handle;
+                        }
                         var val = IshtarMarshal.UnBoxing(invocation, unboxedObj);
                         *sp = val;
                     }
