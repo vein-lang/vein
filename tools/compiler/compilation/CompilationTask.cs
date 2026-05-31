@@ -252,6 +252,7 @@ public partial class CompilationTask(CompilationTarget target, CompileSettings f
                 .Pipe(GenerateCtor)
                 .Pipe(GenerateStaticCtor)
                 .Pipe(ValidateInheritance)
+                .Pipe(ValidateStruct)
                 .ToList()
                 .Pipe(x => x.clazz.Methods.OfExactType<MethodBuilder>().ForEach(PostgenerateBody))
                 .ToList();
