@@ -76,8 +76,17 @@ public partial class CompilationTask
             var size = ComputeFieldSize(field, computing);
             field.Size = size;
 
-            // Align offset to field's natural alignment (min of field size and pointer size)
+            // Align offset to field's natural alignment (min of field alignment and pointer size)
             var alignment = Math.Min(size, 8);
+            if (field.FieldType.Class is { IsStruct: true } nested)
+            {
+                alignment = Math.Min(
+                    nested.Fields.Where(f => !f.IsStatic)
+                        .Select(f => Math.Min(f.Size > 0 ? f.Size : ComputeFieldSize(f, computing), 8))
+                        .DefaultIfEmpty(1)
+                        .Max(),
+                    8);
+            }
             if (alignment <= 0)
                 alignment = 1;
             maxAlignment = Math.Max(maxAlignment, alignment);
