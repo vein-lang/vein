@@ -201,9 +201,15 @@ public static unsafe class MethodCompiler
                 case OpCodeValue.JMP:
                 case OpCodeValue.JMP_T:
                 case OpCodeValue.JMP_F:
+                case OpCodeValue.INITSTRUCT:
+                case OpCodeValue.CPSTRUCT:
+                case OpCodeValue.BOX:
+                case OpCodeValue.UNBOX:
                     ip++;
                     break;
                 case OpCodeValue.LDC_I8_S:
+                case OpCodeValue.STF:
+                case OpCodeValue.LDF:
                     ip += 2;
                     break;
                 case OpCodeValue.LOC_INIT:
@@ -414,9 +420,15 @@ public static unsafe class MethodCompiler
                 case OpCodeValue.JMP:
                 case OpCodeValue.JMP_T:
                 case OpCodeValue.JMP_F:
+                case OpCodeValue.INITSTRUCT:
+                case OpCodeValue.CPSTRUCT:
+                case OpCodeValue.BOX:
+                case OpCodeValue.UNBOX:
                     ip++;
                     break;
                 case OpCodeValue.LDC_I8_S:
+                case OpCodeValue.STF:
+                case OpCodeValue.LDF:
                     ip += 2;
                     break;
                 case OpCodeValue.LOC_INIT:
@@ -550,6 +562,20 @@ public static unsafe class MethodCompiler
                 case OpCodeValue.LDLEN:
                     break;
 
+                // Struct operations (1 operand: typeIdx)
+                case OpCodeValue.INITSTRUCT:
+                case OpCodeValue.CPSTRUCT:
+                case OpCodeValue.BOX:
+                case OpCodeValue.UNBOX:
+                    ip++; // skip typeIdx
+                    break;
+
+                // Field operations (2 operands: fieldIdx + classIdx)
+                case OpCodeValue.STF:
+                case OpCodeValue.LDF:
+                    ip += 2; // skip fieldIdx + classIdx
+                    break;
+
                 default:
                     // Unsupported opcode found
                     return false;
@@ -660,6 +686,18 @@ public static unsafe class MethodCompiler
                     ip += locCount;
                     break;
                 }
+
+                case OpCodeValue.INITSTRUCT:
+                case OpCodeValue.CPSTRUCT:
+                case OpCodeValue.BOX:
+                case OpCodeValue.UNBOX:
+                    ip++;
+                    break;
+
+                case OpCodeValue.STF:
+                case OpCodeValue.LDF:
+                    ip += 2;
+                    break;
 
                 default:
                     return opcode.ToString();

@@ -595,6 +595,182 @@ public static unsafe class BytecodeToIRBuilder
                     break;
                 }
 
+                // ─── Struct Operations ────────────────────────────────
+                case OpCodeValue.INITSTRUCT:
+                {
+                    var typeIdx = (int)*ip; ip++;
+                    if (module == null) break;
+
+                    RuntimeIshtarClass* structClass = null;
+                    if (module->types_table->TryGetValue(typeIdx, out var typeName))
+                        structClass = module->FindType(typeName, true, false);
+                    if (structClass == null || structClass->IsUnresolved) break;
+
+                    var valId = fn->AllocValue(IRType.Ptr, currentBlock, fn->InstructionCount);
+                    var instr = new IRInstruction();
+                    instr.Op = IROp.InitStruct;
+                    instr.ResultId = valId;
+                    instr.MethodRef = (nint)structClass;
+                    instr.OperandCount = 0;
+                    instr.BranchTarget0 = -1;
+                    instr.BranchTarget1 = -1;
+                    var instrId = fn->AddInstruction(instr);
+                    fn->AppendToBlock(currentBlock, instrId);
+                    fn->Values[valId].DefInstrIndex = instrId;
+                    stack[sp++] = valId;
+                    break;
+                }
+
+                case OpCodeValue.CPSTRUCT:
+                {
+                    var typeIdx = (int)*ip; ip++;
+                    if (module == null) break;
+
+                    RuntimeIshtarClass* cpClass = null;
+                    if (module->types_table->TryGetValue(typeIdx, out var typeName))
+                        cpClass = module->FindType(typeName, true, false);
+                    if (cpClass == null || cpClass->IsUnresolved) break;
+
+                    var srcId = stack[--sp];
+                    var valId = fn->AllocValue(IRType.Ptr, currentBlock, fn->InstructionCount);
+                    var instr = new IRInstruction();
+                    instr.Op = IROp.CopyStruct;
+                    instr.ResultId = valId;
+                    instr.MethodRef = (nint)cpClass;
+                    instr.OperandCount = 1;
+                    instr.Operands[0] = srcId;
+                    instr.BranchTarget0 = -1;
+                    instr.BranchTarget1 = -1;
+                    var instrId = fn->AddInstruction(instr);
+                    fn->AppendToBlock(currentBlock, instrId);
+                    fn->Values[valId].DefInstrIndex = instrId;
+                    stack[sp++] = valId;
+                    break;
+                }
+
+                case OpCodeValue.STF:
+                {
+                    var fieldIdx = (int)*ip; ip++;
+                    var classIdx = (int)*ip; ip++;
+                    if (module == null) break;
+
+                    RuntimeIshtarClass* ownerClass = null;
+                    if (module->types_table->TryGetValue(classIdx, out var ownerName))
+                        ownerClass = module->FindType(ownerName, true, false);
+                    if (ownerClass == null || ownerClass->IsUnresolved) break;
+
+                    var fieldName = module->GetFieldNameByIndex(fieldIdx);
+                    var field = ownerClass->FindField(fieldName->Name);
+                    if (field == null) break;
+
+                    // Stack: value pushed first, then this on top
+                    var thisId = stack[--sp];
+                    var valueId2 = stack[--sp];
+
+                    var stfInstr = new IRInstruction();
+                    stfInstr.Op = IROp.StoreField;
+                    stfInstr.ResultId = -1;
+                    stfInstr.MethodRef = (nint)field;
+                    stfInstr.OperandCount = 2;
+                    stfInstr.Operands[0] = valueId2;
+                    stfInstr.Operands[1] = thisId;
+                    stfInstr.BranchTarget0 = -1;
+                    stfInstr.BranchTarget1 = -1;
+                    var stfInstrId = fn->AddInstruction(stfInstr);
+                    fn->AppendToBlock(currentBlock, stfInstrId);
+                    break;
+                }
+
+                case OpCodeValue.LDF:
+                {
+                    var fieldIdx = (int)*ip; ip++;
+                    var classIdx = (int)*ip; ip++;
+                    if (module == null) break;
+
+                    RuntimeIshtarClass* ownerClass = null;
+                    if (module->types_table->TryGetValue(classIdx, out var ownerName))
+                        ownerClass = module->FindType(ownerName, true, false);
+                    if (ownerClass == null || ownerClass->IsUnresolved) break;
+
+                    var fieldName = module->GetFieldNameByIndex(fieldIdx);
+                    var field = ownerClass->FindField(fieldName->Name);
+                    if (field == null) break;
+
+                    var thisId = stack[--sp];
+                    var fieldTypeCode = field->FieldType.Class->TypeCode;
+                    var resultIRType = IRTypeMap.FromVein(fieldTypeCode);
+
+                    var ldfValId = fn->AllocValue(resultIRType, currentBlock, fn->InstructionCount);
+                    var ldfInstr = new IRInstruction();
+                    ldfInstr.Op = IROp.LoadField;
+                    ldfInstr.ResultId = ldfValId;
+                    ldfInstr.MethodRef = (nint)field;
+                    ldfInstr.OperandCount = 1;
+                    ldfInstr.Operands[0] = thisId;
+                    ldfInstr.BranchTarget0 = -1;
+                    ldfInstr.BranchTarget1 = -1;
+                    var ldfInstrId = fn->AddInstruction(ldfInstr);
+                    fn->AppendToBlock(currentBlock, ldfInstrId);
+                    fn->Values[ldfValId].DefInstrIndex = ldfInstrId;
+                    stack[sp++] = ldfValId;
+                    break;
+                }
+
+                case OpCodeValue.BOX:
+                {
+                    var typeIdx = (int)*ip; ip++;
+                    if (module == null) break;
+
+                    RuntimeIshtarClass* boxClass = null;
+                    if (module->types_table->TryGetValue(typeIdx, out var typeName))
+                        boxClass = module->FindType(typeName, true, false);
+                    if (boxClass == null || boxClass->IsUnresolved) break;
+
+                    var boxValueId = stack[--sp];
+                    var boxResultId = fn->AllocValue(IRType.Ptr, currentBlock, fn->InstructionCount);
+                    var boxInstr = new IRInstruction();
+                    boxInstr.Op = IROp.Box;
+                    boxInstr.ResultId = boxResultId;
+                    boxInstr.MethodRef = (nint)boxClass;
+                    boxInstr.OperandCount = 1;
+                    boxInstr.Operands[0] = boxValueId;
+                    boxInstr.BranchTarget0 = -1;
+                    boxInstr.BranchTarget1 = -1;
+                    var boxInstrId = fn->AddInstruction(boxInstr);
+                    fn->AppendToBlock(currentBlock, boxInstrId);
+                    fn->Values[boxResultId].DefInstrIndex = boxInstrId;
+                    stack[sp++] = boxResultId;
+                    break;
+                }
+
+                case OpCodeValue.UNBOX:
+                {
+                    var typeIdx = (int)*ip; ip++;
+                    if (module == null) break;
+
+                    RuntimeIshtarClass* unboxClass = null;
+                    if (module->types_table->TryGetValue(typeIdx, out var typeName))
+                        unboxClass = module->FindType(typeName, true, false);
+                    if (unboxClass == null || unboxClass->IsUnresolved) break;
+
+                    var unboxObjId = stack[--sp];
+                    var unboxResultType = IRTypeMap.FromVein(unboxClass->TypeCode);
+                    var unboxResultId = fn->AllocValue(unboxResultType, currentBlock, fn->InstructionCount);
+                    var unboxInstr = new IRInstruction();
+                    unboxInstr.Op = IROp.Unbox;
+                    unboxInstr.ResultId = unboxResultId;
+                    unboxInstr.MethodRef = (nint)unboxClass;
+                    unboxInstr.OperandCount = 1;
+                    unboxInstr.Operands[0] = unboxObjId;
+                    unboxInstr.BranchTarget0 = -1;
+                    unboxInstr.BranchTarget1 = -1;
+                    var unboxInstrId = fn->AddInstruction(unboxInstr);
+                    fn->AppendToBlock(currentBlock, unboxInstrId);
+                    fn->Values[unboxResultId].DefInstrIndex = unboxInstrId;
+                    stack[sp++] = unboxResultId;
+                    break;
+                }
+
                 default:
                     // Unhandled opcode — emit Nop and skip operands
                     // TODO: handle remaining opcodes as the JIT matures

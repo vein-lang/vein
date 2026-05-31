@@ -82,11 +82,11 @@ public unsafe partial struct VirtualMachine
 
     private void exec_method_jitted(CallFrame* frame)
     {
-        var compiled = (delegate* unmanaged[SuppressGCTransition]<stackval*, stackval*, void>)
+        var compiled = (delegate* unmanaged[SuppressGCTransition]<stackval*, stackval*, CallFrame*, void>)
             (void*)frame->method->PIInfo.compiled_func_ref;
 
         var result = new stackval();
-        compiled(frame->args, &result);
+        compiled(frame->args, &result, frame);
 
         if (frame->method->ReturnType->TypeCode is TYPE_VOID)
             return;

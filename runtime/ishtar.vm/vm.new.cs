@@ -20,6 +20,7 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         GC_init();
         GC_allow_register_threads();
         libuv_gc_allocator.install();
+        jit.JitHelpers.Initialize();
         hasInited = true;
     }
 

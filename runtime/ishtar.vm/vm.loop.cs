@@ -1527,12 +1527,14 @@ public unsafe partial struct VirtualMachine : IDisposable
                     --sp;
                     var boxClass = GetClass(typeIdx, _module, invocation);
                     var boxed = gc->AllocObject(boxClass, invocation);
-                    // Copy the stack value into the boxed object's !!value field or vtable
+                    // Store value directly into the boxed object's !!value vtable slot
                     var valField = boxClass->FindField("!!value");
                     if (valField is not null)
                     {
-                        var boxedVal = IshtarMarshal.Boxing(invocation, sp);
-                        boxed->vtable[valField->vtable_offset] = boxedVal;
+                        if (sp->type == TYPE_R16)
+                            boxed->vtable[valField->vtable_offset] = IshtarMarshal.Boxing(invocation, sp);
+                        else
+                            boxed->vtable[valField->vtable_offset] = (void*)sp->data.p;
                     }
                     sp->type = TYPE_CLASS;
                     sp->data.p = (nint)boxed;
@@ -1565,14 +1567,22 @@ public unsafe partial struct VirtualMachine : IDisposable
                     var unboxField = obj->clazz->FindField("!!value");
                     if (unboxField is not null)
                     {
-                        var unboxedObj = (IshtarObject*)obj->vtable[unboxField->vtable_offset];
-                        if (unboxedObj == null)
+                        var fieldType = unboxField->FieldType.Class->TypeCode;
+                        if (fieldType == TYPE_R16)
                         {
-                            ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
-                            goto exception_handle;
+                            var unboxedObj = (IshtarObject*)obj->vtable[unboxField->vtable_offset];
+                            if (unboxedObj == null)
+                            {
+                                ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
+                                goto exception_handle;
+                            }
+                            *sp = IshtarMarshal.UnBoxing(invocation, unboxedObj);
                         }
-                        var val = IshtarMarshal.UnBoxing(invocation, unboxedObj);
-                        *sp = val;
+                        else
+                        {
+                            sp->type = fieldType;
+                            sp->data.p = (nint)obj->vtable[unboxField->vtable_offset];
+                        }
                     }
                     else
                     {

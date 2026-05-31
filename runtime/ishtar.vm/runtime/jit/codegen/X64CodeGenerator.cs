@@ -45,7 +45,8 @@ public static unsafe class X64CodeGenerator
         asm.push(rbp);
         asm.mov(rbp, rsp);
 
-        // Always save r14/r15 — we unconditionally overwrite them with args/result pointers
+        // Always save r13/r14/r15 — we unconditionally overwrite them with args/result/frame pointers
+        asm.push(r13);
         asm.push(r14);
         asm.push(r15);
 
@@ -62,18 +63,20 @@ public static unsafe class X64CodeGenerator
             asm.sub(rsp, spillSize);
 
         // Save input pointers:
-        // On Windows: RCX = args, RDX = result → save to callee-saved regs
-        // On SysV:    RDI = args, RSI = result
-        // We use R14 = args, R15 = result (callee-saved, always available)
+        // On Windows: RCX = args, RDX = result, R8 = frame
+        // On SysV:    RDI = args, RSI = result, RDX = frame
+        // We use R14 = args, R15 = result, R13 = frame (all callee-saved)
         if (OperatingSystem.IsWindows())
         {
             asm.mov(r14, rcx);  // args
             asm.mov(r15, rdx);  // result
+            asm.mov(r13, r8);   // frame
         }
         else
         {
             asm.mov(r14, rdi);  // args
             asm.mov(r15, rsi);  // result
+            asm.mov(r13, rdx);  // frame
         }
     }
 
@@ -90,9 +93,10 @@ public static unsafe class X64CodeGenerator
                 asm.pop(RegisterAllocator.GetIntReg(i));
         }
 
-        // Restore r14/r15 (always saved in prologue)
+        // Restore r13/r14/r15 (always saved in prologue)
         asm.pop(r15);
         asm.pop(r14);
+        asm.pop(r13);
 
         asm.pop(rbp);
         asm.ret();
@@ -207,6 +211,30 @@ public static unsafe class X64CodeGenerator
 
             case IROp.CallIndirect:
                 EmitCallIndirect(asm, fn, instr, alloc);
+                break;
+
+            case IROp.InitStruct:
+                EmitInitStruct(asm, fn, instr, alloc);
+                break;
+
+            case IROp.CopyStruct:
+                EmitCopyStruct(asm, fn, instr, alloc);
+                break;
+
+            case IROp.StoreField:
+                EmitStoreField(asm, fn, instr, alloc);
+                break;
+
+            case IROp.LoadField:
+                EmitLoadField(asm, fn, instr, alloc);
+                break;
+
+            case IROp.Box:
+                EmitBox(asm, fn, instr, alloc);
+                break;
+
+            case IROp.Unbox:
+                EmitUnbox(asm, fn, instr, alloc);
                 break;
         }
     }
@@ -512,9 +540,10 @@ public static unsafe class X64CodeGenerator
                 asm.pop(RegisterAllocator.GetIntReg(i));
         }
 
-        // Restore r14/r15 (always saved in prologue)
+        // Restore r13/r14/r15 (always saved in prologue)
         asm.pop(r15);
         asm.pop(r14);
+        asm.pop(r13);
 
         asm.pop(rbp);
         asm.ret();
@@ -585,16 +614,18 @@ public static unsafe class X64CodeGenerator
         // Result slot is at [rsp + argCount * stackValSize]
         var resultOffset = argCount * stackValSize;
 
-        // Set up calling convention: void(stackval* args, stackval* result)
+        // Set up calling convention: void(stackval* args, stackval* result, CallFrame* frame)
         if (OperatingSystem.IsWindows())
         {
             asm.lea(rcx, __[rsp]);                      // args
             asm.lea(rdx, __[rsp + resultOffset]);       // result
+            asm.mov(r8, r13);                           // frame
         }
         else
         {
             asm.lea(rdi, __[rsp]);                      // args
             asm.lea(rsi, __[rsp + resultOffset]);       // result
+            asm.mov(rdx, r13);                          // frame
         }
 
         // Call target (MethodRef stores the native function pointer)
@@ -671,11 +702,13 @@ public static unsafe class X64CodeGenerator
         {
             asm.lea(rcx, __[rsp]);
             asm.lea(rdx, __[rsp + resultOffset]);
+            asm.mov(r8, r13);   // frame
         }
         else
         {
             asm.lea(rdi, __[rsp]);
             asm.lea(rsi, __[rsp + resultOffset]);
+            asm.mov(rdx, r13);  // frame
         }
 
         // Indirect call: MethodRef = address of the function pointer slot
@@ -704,6 +737,301 @@ public static unsafe class X64CodeGenerator
         }
 
         asm.add(rsp, totalSize);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // Struct operation emitters (call into JitHelpers via R13=frame)
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// INITSTRUCT: call Helper_InitStruct(RuntimeIshtarClass* clazz, CallFrame* frame) → IshtarObject*
+    /// MethodRef = class pointer, result = allocated object pointer
+    /// </summary>
+    private static void EmitInitStruct(Assembler asm, IRFunction* fn, IRInstruction* instr,
+        RegisterAllocator.AllocResult* alloc)
+    {
+        // Align stack for call (16-byte alignment)
+        asm.sub(rsp, 32); // shadow space (Windows) / alignment
+
+        if (OperatingSystem.IsWindows())
+        {
+            asm.mov(rcx, instr->MethodRef);  // arg0: class ptr
+            asm.mov(rdx, r13);               // arg1: frame
+        }
+        else
+        {
+            asm.mov(rdi, instr->MethodRef);  // arg0: class ptr
+            asm.mov(rsi, r13);               // arg1: frame
+        }
+
+        asm.mov(rax, JitHelpers.Table.InitStruct);
+        asm.call(rax);
+
+        asm.add(rsp, 32);
+
+        // Result in RAX → move to destination register
+        var dst = ResolveDestGPR(asm, alloc, instr->ResultId);
+        if (dst != rax) asm.mov(dst, rax);
+    }
+
+    /// <summary>
+    /// CPSTRUCT: call Helper_CopyStruct(IshtarObject* src, RuntimeIshtarClass* clazz, CallFrame* frame) → IshtarObject*
+    /// MethodRef = class pointer, operand[0] = source object
+    /// </summary>
+    private static void EmitCopyStruct(Assembler asm, IRFunction* fn, IRInstruction* instr,
+        RegisterAllocator.AllocResult* alloc)
+    {
+        var src = LoadOperandGPR(asm, fn, alloc, instr->GetOperand(0), r11);
+
+        asm.sub(rsp, 32);
+
+        if (OperatingSystem.IsWindows())
+        {
+            asm.mov(rcx, src);               // arg0: source obj
+            asm.mov(rdx, instr->MethodRef);  // arg1: class ptr
+            asm.mov(r8, r13);                // arg2: frame
+        }
+        else
+        {
+            asm.mov(rdi, src);               // arg0: source obj
+            asm.mov(rsi, instr->MethodRef);  // arg1: class ptr
+            asm.mov(rdx, r13);               // arg2: frame
+        }
+
+        asm.mov(rax, JitHelpers.Table.CopyStruct);
+        asm.call(rax);
+
+        asm.add(rsp, 32);
+
+        var dst = ResolveDestGPR(asm, alloc, instr->ResultId);
+        if (dst != rax) asm.mov(dst, rax);
+    }
+
+    /// <summary>
+    /// STF: call Helper_StoreField(IshtarObject* obj, RuntimeIshtarField* field, stackval* value, CallFrame* frame)
+    /// operand[0] = value (written to temp stackval on stack), operand[1] = object pointer
+    /// MethodRef = field pointer, Immediate = value's VeinTypeCode
+    /// </summary>
+    private static void EmitStoreField(Assembler asm, IRFunction* fn, IRInstruction* instr,
+        RegisterAllocator.AllocResult* alloc)
+    {
+        const int stackValSize = 24;
+        const int typeFieldOffset = 16;
+
+        var valueId = instr->GetOperand(0);
+        var objId = instr->GetOperand(1);
+        var valueType = fn->Values[valueId].Type;
+
+        // Allocate temp stackval on stack + shadow space
+        var frameSize = stackValSize + 32;
+        if ((frameSize % 16) != 0) frameSize += 8;
+        asm.sub(rsp, frameSize);
+
+        // Write value into temp stackval at [rsp + 32]
+        var svOffset = 32;
+        if (IRTypeMap.IsFloat(valueType))
+        {
+            var src = LoadOperandXMM(asm, fn, alloc, valueId, xmm0);
+            if (valueType == IRType.R4)
+                asm.movss(__dword_ptr[rsp + svOffset], src);
+            else
+                asm.movsd(__qword_ptr[rsp + svOffset], src);
+        }
+        else
+        {
+            var src = LoadOperandGPR(asm, fn, alloc, valueId, rax);
+            asm.mov(__qword_ptr[rsp + svOffset], src);
+        }
+        asm.mov(__dword_ptr[rsp + svOffset + typeFieldOffset], (int)MapIRTypeToVein(valueType));
+
+        var obj = LoadOperandGPR(asm, fn, alloc, objId, r11);
+
+        if (OperatingSystem.IsWindows())
+        {
+            asm.mov(rcx, obj);                       // arg0: object
+            asm.mov(rdx, instr->MethodRef);          // arg1: field ptr
+            asm.lea(r8, __[rsp + svOffset]);         // arg2: &stackval
+            asm.mov(r9, r13);                        // arg3: frame
+        }
+        else
+        {
+            asm.mov(rdi, obj);                       // arg0: object
+            asm.mov(rsi, instr->MethodRef);          // arg1: field ptr
+            asm.lea(rdx, __[rsp + svOffset]);        // arg2: &stackval
+            asm.mov(rcx, r13);                       // arg3: frame
+        }
+
+        asm.mov(rax, JitHelpers.Table.StoreField);
+        asm.call(rax);
+
+        asm.add(rsp, frameSize);
+    }
+
+    /// <summary>
+    /// LDF: call Helper_LoadField(IshtarObject* obj, RuntimeIshtarField* field, CallFrame* frame, stackval* result)
+    /// operand[0] = object pointer, MethodRef = field pointer
+    /// Result loaded from the output stackval's data field.
+    /// </summary>
+    private static void EmitLoadField(Assembler asm, IRFunction* fn, IRInstruction* instr,
+        RegisterAllocator.AllocResult* alloc)
+    {
+        const int stackValSize = 24;
+
+        var objId = instr->GetOperand(0);
+        var resultType = fn->Values[instr->ResultId].Type;
+
+        // Allocate output stackval on stack + shadow space
+        var frameSize = stackValSize + 32;
+        if ((frameSize % 16) != 0) frameSize += 8;
+        asm.sub(rsp, frameSize);
+
+        var svOffset = 32;
+        var obj = LoadOperandGPR(asm, fn, alloc, objId, r11);
+
+        if (OperatingSystem.IsWindows())
+        {
+            asm.mov(rcx, obj);                       // arg0: object
+            asm.mov(rdx, instr->MethodRef);          // arg1: field ptr
+            asm.mov(r8, r13);                        // arg2: frame
+            asm.lea(r9, __[rsp + svOffset]);         // arg3: &result stackval
+        }
+        else
+        {
+            asm.mov(rdi, obj);                       // arg0: object
+            asm.mov(rsi, instr->MethodRef);          // arg1: field ptr
+            asm.mov(rdx, r13);                       // arg2: frame
+            asm.lea(rcx, __[rsp + svOffset]);        // arg3: &result stackval
+        }
+
+        asm.mov(rax, JitHelpers.Table.LoadField);
+        asm.call(rax);
+
+        // Load result from stackval at [rsp + svOffset]
+        if (IRTypeMap.IsFloat(resultType))
+        {
+            var dst = ResolveDestXMM(alloc, instr->ResultId);
+            if (resultType == IRType.R4)
+                asm.movss(dst, __dword_ptr[rsp + svOffset]);
+            else
+                asm.movsd(dst, __qword_ptr[rsp + svOffset]);
+        }
+        else
+        {
+            var dst = ResolveDestGPR(asm, alloc, instr->ResultId);
+            asm.mov(dst, __qword_ptr[rsp + svOffset]);
+        }
+
+        asm.add(rsp, frameSize);
+    }
+
+    /// <summary>
+    /// BOX: call Helper_Box(stackval* value, RuntimeIshtarClass* clazz, CallFrame* frame) → IshtarObject*
+    /// operand[0] = value, MethodRef = class pointer
+    /// </summary>
+    private static void EmitBox(Assembler asm, IRFunction* fn, IRInstruction* instr,
+        RegisterAllocator.AllocResult* alloc)
+    {
+        const int stackValSize = 24;
+        const int typeFieldOffset = 16;
+
+        var valueId = instr->GetOperand(0);
+        var valueType = fn->Values[valueId].Type;
+
+        var frameSize = stackValSize + 32;
+        if ((frameSize % 16) != 0) frameSize += 8;
+        asm.sub(rsp, frameSize);
+
+        var svOffset = 32;
+        if (IRTypeMap.IsFloat(valueType))
+        {
+            var src = LoadOperandXMM(asm, fn, alloc, valueId, xmm0);
+            if (valueType == IRType.R4)
+                asm.movss(__dword_ptr[rsp + svOffset], src);
+            else
+                asm.movsd(__qword_ptr[rsp + svOffset], src);
+        }
+        else
+        {
+            var src = LoadOperandGPR(asm, fn, alloc, valueId, rax);
+            asm.mov(__qword_ptr[rsp + svOffset], src);
+        }
+        asm.mov(__dword_ptr[rsp + svOffset + typeFieldOffset], (int)MapIRTypeToVein(valueType));
+
+        if (OperatingSystem.IsWindows())
+        {
+            asm.lea(rcx, __[rsp + svOffset]);    // arg0: &stackval
+            asm.mov(rdx, instr->MethodRef);      // arg1: class ptr
+            asm.mov(r8, r13);                    // arg2: frame
+        }
+        else
+        {
+            asm.lea(rdi, __[rsp + svOffset]);    // arg0: &stackval
+            asm.mov(rsi, instr->MethodRef);      // arg1: class ptr
+            asm.mov(rdx, r13);                   // arg2: frame
+        }
+
+        asm.mov(rax, JitHelpers.Table.Box);
+        asm.call(rax);
+
+        asm.add(rsp, frameSize);
+
+        var dst = ResolveDestGPR(asm, alloc, instr->ResultId);
+        if (dst != rax) asm.mov(dst, rax);
+    }
+
+    /// <summary>
+    /// UNBOX: call Helper_Unbox(IshtarObject* obj, RuntimeIshtarClass* clazz, CallFrame* frame, stackval* result)
+    /// operand[0] = object, MethodRef = class pointer
+    /// </summary>
+    private static void EmitUnbox(Assembler asm, IRFunction* fn, IRInstruction* instr,
+        RegisterAllocator.AllocResult* alloc)
+    {
+        const int stackValSize = 24;
+
+        var objId = instr->GetOperand(0);
+        var resultType = fn->Values[instr->ResultId].Type;
+
+        var frameSize = stackValSize + 32;
+        if ((frameSize % 16) != 0) frameSize += 8;
+        asm.sub(rsp, frameSize);
+
+        var svOffset = 32;
+        var obj = LoadOperandGPR(asm, fn, alloc, objId, r11);
+
+        if (OperatingSystem.IsWindows())
+        {
+            asm.mov(rcx, obj);                       // arg0: object
+            asm.mov(rdx, instr->MethodRef);          // arg1: class ptr
+            asm.mov(r8, r13);                        // arg2: frame
+            asm.lea(r9, __[rsp + svOffset]);         // arg3: &result stackval
+        }
+        else
+        {
+            asm.mov(rdi, obj);                       // arg0: object
+            asm.mov(rsi, instr->MethodRef);          // arg1: class ptr
+            asm.mov(rdx, r13);                       // arg2: frame
+            asm.lea(rcx, __[rsp + svOffset]);        // arg3: &result stackval
+        }
+
+        asm.mov(rax, JitHelpers.Table.Unbox);
+        asm.call(rax);
+
+        // Load result
+        if (IRTypeMap.IsFloat(resultType))
+        {
+            var dst = ResolveDestXMM(alloc, instr->ResultId);
+            if (resultType == IRType.R4)
+                asm.movss(dst, __dword_ptr[rsp + svOffset]);
+            else
+                asm.movsd(dst, __qword_ptr[rsp + svOffset]);
+        }
+        else
+        {
+            var dst = ResolveDestGPR(asm, alloc, instr->ResultId);
+            asm.mov(dst, __qword_ptr[rsp + svOffset]);
+        }
+
+        asm.add(rsp, frameSize);
     }
 
     // ═══════════════════════════════════════════════════════════════════
