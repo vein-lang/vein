@@ -50,7 +50,7 @@ public partial class CompilationTask
         {
             // Struct may have Object from pre-definition — remove non-interface class parents.
             @class.Parents.RemoveAll(p => !p.IsInterface && p.Name != NameSymbol.ValueType);
-            if (!owners.Any() && !@class.Parents.Any(p => p.Name == NameSymbol.ValueType))
+            if (!@class.Parents.Any(p => p.Name == NameSymbol.ValueType))
             {
                 owners.Add(new TypeSyntax(NameSymbol.ValueType)
                     .SetPos<TypeSyntax>(member.Identifier.Transform));
