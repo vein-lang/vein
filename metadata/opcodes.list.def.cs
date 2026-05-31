@@ -6,7 +6,7 @@ namespace ishtar
 	using System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 30;
+		internal static int SetVersion = 31;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -1288,6 +1288,13 @@ namespace ishtar
 		/// chain: 0
 		/// </summary>
 		public static readonly OpCode JMP_T = new (0x68, 0x0100001F, -1);
+		/// <summary>
+		/// Await operation.
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode AWAIT = new (0xB7, 0x0000001F, -1);
 
 		public static readonly Dictionary<OpCodeValue, OpCode> all = new ()
 		{
@@ -1474,6 +1481,7 @@ namespace ishtar
 			{OpCodeValue.JMP_NN, JMP_NN},
 			{OpCodeValue.JMP_F, JMP_F},
 			{OpCodeValue.JMP_T, JMP_T},
+			{OpCodeValue.AWAIT, AWAIT},
 		};
 	}
 }
