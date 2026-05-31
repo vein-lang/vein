@@ -909,8 +909,14 @@ public unsafe partial struct VirtualMachine : IDisposable
                         }
                         else if (job->state == JobState.Pending && child_frame->exception.IsDefault())
                         {
-                            // Method completed synchronously (hit async RET which resolved the job)
-                            // Job should already be resolved by the async RET handler — nothing to do
+                            // Method suspended at AWAIT — do NOT free args or dispose child_frame.
+                            // Ownership of method_args is transferred to the SuspendedFrame
+                            // which will be freed after resume completes.
+                            sp->type = TYPE_CLASS;
+                            sp->data.p = (nint)jobObj;
+                            sp++;
+                            println($".call.async suspended {method->Owner->Name}::{method->Name}, sp: {getStackLen()}");
+                            break;
                         }
 
                         // Push the Job<T> object onto caller's eval stack regardless of job state
@@ -1478,6 +1484,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                         localsCount,
                         invocation->parent,
                         args,
+                        invocation->method->ArgLength,
                         mh->max_stack,
                         ownerJob,
                         job);

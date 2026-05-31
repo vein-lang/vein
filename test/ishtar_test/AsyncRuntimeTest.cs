@@ -217,7 +217,7 @@ public unsafe class AsyncRuntimeTest : IshtarTestBase
         var frame = _vm->CaptureFrame(
             null, &fakeIP, evalStack, 3,
             locals, 2,
-            null, args, 16,
+            null, args, 0, 16,
             ownerJob, awaitedJob);
 
         Assert.That((nint)frame->savedIP, Is.EqualTo((nint)(&fakeIP)));
@@ -251,7 +251,7 @@ public unsafe class AsyncRuntimeTest : IshtarTestBase
         var frame = _vm->CaptureFrame(
             null, null, evalStack, 1,
             null, 0,
-            null, null, 8,
+            null, null, 0, 8,
             null, null);
 
         // Mutate original — captured copy should be unaffected
@@ -268,7 +268,7 @@ public unsafe class AsyncRuntimeTest : IshtarTestBase
         var frame = _vm->CaptureFrame(
             null, null, null, 0,
             null, 0,
-            null, null, 8,
+            null, null, 0, 8,
             null, null);
 
         Assert.That((nint)frame->evalStack, Is.EqualTo(nint.Zero));

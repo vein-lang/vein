@@ -21,6 +21,7 @@ public unsafe partial struct VirtualMachine
         int localsCount,
         CallFrame* parent,
         stackval* args,
+        int argLength,
         int maxStack,
         IshtarAsyncJob* ownerJob,
         IshtarAsyncJob* awaitedJob)
@@ -38,6 +39,7 @@ public unsafe partial struct VirtualMachine
         frame->savedIP = ip;
         frame->parent = parent;
         frame->args = args;
+        frame->argLength = argLength;
         frame->maxStack = maxStack;
         frame->ownerJob = ownerJob;
         frame->awaitedJob = awaitedJob;
@@ -104,6 +106,10 @@ public unsafe partial struct VirtualMachine
 
         if (!resumeFrame->exception.IsDefault() && ownerJob != null && ownerJob->state == JobState.Pending)
             ownerJob->SetException(resumeFrame->exception);
+
+        // Free the args that were kept alive for the suspended frame
+        if (suspended->args != null && suspended->argLength > 0)
+            @ref->gc->FreeStack(resumeFrame, suspended->args, suspended->argLength);
 
         resumeFrame->Dispose();
     }

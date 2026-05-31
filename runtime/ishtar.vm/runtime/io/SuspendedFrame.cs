@@ -26,6 +26,7 @@ public unsafe struct SuspendedFrame : IEq<SuspendedFrame>
     public IshtarAsyncJob* ownerJob;
     public IshtarAsyncJob* awaitedJob;
     public stackval* args;
+    public int argLength;
     public int maxStack;
     public SuspendedFrame* next;
     public VirtualMachine* vm;
