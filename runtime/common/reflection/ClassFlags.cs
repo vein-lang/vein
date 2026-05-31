@@ -6,7 +6,7 @@ namespace vein.runtime
     [Flags]
     [CTypeExport("class_flag_t")]
     [CEnumPrefix("CLASS_")]
-    public enum ClassFlags : short
+    public enum ClassFlags : int
     {
         None        = 0,
         Public      = 1 << 1,
@@ -23,5 +23,6 @@ namespace vein.runtime
         Predefined  = 1 << 12,
         NotCompleted= 1 << 13,
         Amorphous   = 1 << 14,
+        Struct      = 1 << 15,
     }
 }

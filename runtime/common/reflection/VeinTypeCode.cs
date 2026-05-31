@@ -37,6 +37,7 @@ public static class VeinTypeCodeEx
     public static byte GetNativeSize(this VeinTypeCode type_code) => type_code switch
     {
         TYPE_BOOLEAN => sizeof(int),
+        TYPE_CHAR => sizeof(short),
         TYPE_I1 => sizeof(byte),
         TYPE_U1 => sizeof(byte),
         TYPE_I2 => sizeof(short),
@@ -45,6 +46,7 @@ public static class VeinTypeCodeEx
         TYPE_U4 => sizeof(int),
         TYPE_I8 => sizeof(long),
         TYPE_U8 => sizeof(long),
+        TYPE_R2 => sizeof(short),
         TYPE_R4 => sizeof(float),
         TYPE_R8 => sizeof(double),
         TYPE_R16 => sizeof(decimal),

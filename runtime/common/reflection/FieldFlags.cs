@@ -18,6 +18,7 @@ namespace vein.runtime
         Override    = 1 << 7,
         Special     = 1 << 8,
         Readonly    = 1 << 9,
-        Internal    = 1 << 10
+        Internal    = 1 << 10,
+        HasExplicitOffset = 1 << 11
     }
 }
