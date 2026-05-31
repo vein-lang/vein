@@ -904,7 +904,10 @@ public unsafe partial struct VirtualMachine : IDisposable
                         // check if it resolved the job via RET
                         if (!child_frame->exception.IsDefault() && job->state == JobState.Pending)
                         {
-                            // Method threw without resolving the job — fault it
+                            // Method threw synchronously (before any AWAIT) — capture the fault
+                            // into the Job rather than propagating to the caller. This is the
+                            // standard async contract: the caller observes the exception only
+                            // when it AWAITs the returned Job, not at the call site.
                             job->SetException(child_frame->exception);
                         }
                         else if (job->state == JobState.Pending && child_frame->exception.IsDefault())
