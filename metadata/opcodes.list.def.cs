@@ -6,7 +6,7 @@ namespace ishtar
 	using System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 31;
+		internal static int SetVersion = 32;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -1295,6 +1295,48 @@ namespace ishtar
 		/// chain: 0
 		/// </summary>
 		public static readonly OpCode AWAIT = new (0xB7, 0x0000001F, -1);
+		/// <summary>
+		/// Box a value type into an object reference.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode BOX = new (0xB8, 0x0100001F, 0);
+		/// <summary>
+		/// Unbox an object reference back to value type.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode UNBOX = new (0xB9, 0x0100001F, 0);
+		/// <summary>
+		/// Initialize zero-filled struct on the evaluation stack.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode INITSTRUCT = new (0xBA, 0x0100001F, 1);
+		/// <summary>
+		/// Copy struct value (memcpy for bittable types).
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode CPSTRUCT = new (0xBB, 0x0100001F, 0);
+		/// <summary>
+		/// Load field from struct value on stack by field token.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode LDSTRUCT_F = new (0xBC, 0x0100001F, 0);
+		/// <summary>
+		/// Store into field of struct value on stack by field token.
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode STSTRUCT_F = new (0xBD, 0x0100001F, -1);
 
 		public static readonly Dictionary<OpCodeValue, OpCode> all = new ()
 		{
@@ -1482,6 +1524,12 @@ namespace ishtar
 			{OpCodeValue.JMP_F, JMP_F},
 			{OpCodeValue.JMP_T, JMP_T},
 			{OpCodeValue.AWAIT, AWAIT},
+			{OpCodeValue.BOX, BOX},
+			{OpCodeValue.UNBOX, UNBOX},
+			{OpCodeValue.INITSTRUCT, INITSTRUCT},
+			{OpCodeValue.CPSTRUCT, CPSTRUCT},
+			{OpCodeValue.LDSTRUCT_F, LDSTRUCT_F},
+			{OpCodeValue.STSTRUCT_F, STSTRUCT_F},
 		};
 	}
 }
