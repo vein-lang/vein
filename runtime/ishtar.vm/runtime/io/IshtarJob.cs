@@ -48,7 +48,9 @@ public unsafe struct IshtarAsyncJob : IEq<IshtarAsyncJob>
         job->owner = ownerObject;
         job->vm = vm;
         job->@lock = IshtarGC.AllocateImmortal<uv_mutex_t>(job);
-        uv_mutex_init(job->@lock);
+        var rc = uv_mutex_init(job->@lock);
+        if (rc != 0)
+            vm->FastFail(WNE.STATE_CORRUPT, $"uv_mutex_init failed: {rc}", vm->Frames->EntryPoint);
         return job;
     }
 
@@ -64,7 +66,9 @@ public unsafe struct IshtarAsyncJob : IEq<IshtarAsyncJob>
         job->owner = null;
         job->vm = vm;
         job->@lock = IshtarGC.AllocateImmortal<uv_mutex_t>(job);
-        uv_mutex_init(job->@lock);
+        var rc = uv_mutex_init(job->@lock);
+        if (rc != 0)
+            vm->FastFail(WNE.STATE_CORRUPT, $"uv_mutex_init failed: {rc}", vm->Frames->EntryPoint);
         return job;
     }
 

@@ -66,6 +66,7 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
     public void Dispose()
     {
         using var tag = Profiler.Begin("vm:dispose");
+        job_scheduler->Dispose();
         task_scheduler->Dispose();
         InternalModule->Dispose();
         IshtarGC.FreeImmortalRoot(InternalModule);
