@@ -61,6 +61,7 @@ public partial class CompilationTask
         @class.PackSize = 0; // natural alignment
 
         var offset = 0;
+        var maxAlignment = 1;
         foreach (var field in @class.Fields.Where(f => !f.IsStatic))
         {
             var size = ComputeFieldSize(field);
@@ -68,16 +69,18 @@ public partial class CompilationTask
 
             // Align offset to field's natural alignment (min of field size and pointer size)
             var alignment = Math.Min(size, 8);
-            if (alignment > 0)
-                offset = (offset + alignment - 1) / alignment * alignment;
+            if (alignment <= 0)
+                alignment = 1;
+            maxAlignment = Math.Max(maxAlignment, alignment);
+
+            offset = (offset + alignment - 1) / alignment * alignment;
 
             field.Offset = offset;
             offset += size;
         }
 
         // Final struct size aligned to largest field alignment
-        @class.StructSize = offset;
-    }
+        @class.StructSize = (offset + maxAlignment - 1) / maxAlignment * maxAlignment;
 
     private int ComputeFieldSize(VeinField field)
     {
