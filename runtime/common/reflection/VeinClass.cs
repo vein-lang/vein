@@ -65,7 +65,7 @@ namespace vein.runtime
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
         public bool IsGenericType => TypeArgs.Any();
 
-        public bool IsBittable => ComputeIsBittable(new HashSet<VeinClass>());
+        public bool IsBittable => ComputeIsBittable(new HashSet<VeinClass>(ReferenceEqualityComparer.Instance));
 
         private bool ComputeIsBittable(HashSet<VeinClass> visited)
         {
