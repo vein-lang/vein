@@ -40,6 +40,26 @@ public static unsafe class X64CodeGenerator
         return ExecutableMemory.Alloc(machineCode);
     }
 
+    /// <summary>
+    /// Compute total RSP adjustment after all pushes: spill frame + alignment padding.
+    /// Ensures RSP is 16-byte aligned before any call instruction.
+    /// Entry RSP%16==8 (return address pushed by caller). After (4 + N) pushes where
+    /// 4 = rbp/r13/r14/r15 and N = callee-saved from mask, RSP is aligned only if (4+N) is odd.
+    /// When (4+N) is even (i.e. N is even), we need 8 extra bytes of padding.
+    /// </summary>
+    private static int ComputeFrameAdjustment(RegisterAllocator.AllocResult* alloc)
+    {
+        var calleeSavedCount = 0;
+        for (var i = RegisterAllocator.GetCalleeSavedStart(); i < RegisterAllocator.GetTotalIntRegs(); i++)
+        {
+            if ((alloc->CalleeSavedMask & (1 << i)) != 0)
+                calleeSavedCount++;
+        }
+        // 4 fixed pushes + N callee-saved; need odd total for 16-byte alignment
+        var alignPad = (calleeSavedCount % 2 == 0) ? 8 : 0;
+        return alloc->SpillFrameSize + alignPad;
+    }
+
     private static void EmitPrologue(Assembler asm, RegisterAllocator.AllocResult* alloc)
     {
         asm.push(rbp);
@@ -57,10 +77,10 @@ public static unsafe class X64CodeGenerator
                 asm.push(RegisterAllocator.GetIntReg(i));
         }
 
-        // Allocate spill frame
-        var spillSize = alloc->SpillFrameSize;
-        if (spillSize > 0)
-            asm.sub(rsp, spillSize);
+        // Allocate spill frame + alignment padding (ensures 16-byte RSP alignment for calls)
+        var frameAdj = ComputeFrameAdjustment(alloc);
+        if (frameAdj > 0)
+            asm.sub(rsp, frameAdj);
 
         // Save input pointers:
         // On Windows: RCX = args, RDX = result, R8 = frame
@@ -82,9 +102,9 @@ public static unsafe class X64CodeGenerator
 
     private static void EmitEpilogue(Assembler asm, RegisterAllocator.AllocResult* alloc)
     {
-        var spillSize = alloc->SpillFrameSize;
-        if (spillSize > 0)
-            asm.add(rsp, spillSize);
+        var frameAdj = ComputeFrameAdjustment(alloc);
+        if (frameAdj > 0)
+            asm.add(rsp, frameAdj);
 
         // Pop callee-saved registers (reverse order)
         for (var i = RegisterAllocator.GetTotalIntRegs() - 1; i >= RegisterAllocator.GetCalleeSavedStart(); i--)
@@ -530,9 +550,9 @@ public static unsafe class X64CodeGenerator
 
         // Emit epilogue inline (each return block gets its own)
         // We can't reference alloc in a Label-based epilogue, so emit inline
-        var spillSize = alloc->SpillFrameSize;
-        if (spillSize > 0)
-            asm.add(rsp, spillSize);
+        var frameAdj = ComputeFrameAdjustment(alloc);
+        if (frameAdj > 0)
+            asm.add(rsp, frameAdj);
 
         for (var i = 11; i >= 7; i--) // callee-saved indices in reverse
         {
