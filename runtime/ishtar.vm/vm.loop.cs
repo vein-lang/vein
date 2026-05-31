@@ -1605,66 +1605,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                     ++sp;
                 }
                     break;
-                case LDSTRUCT_F:
-                {
-                    // Load field from struct value on stack
-                    --sp;
-                    var fieldIdx = *++ip;
-                    var @class = GetClass(*++ip, _module, invocation);
-                    var field = GetField(fieldIdx, @class, _module, invocation);
-                    var @this = sp;
 
-                    if (@this->type == TYPE_NONE || @this->type == TYPE_NULL)
-                    {
-                        CallFrame.FillStackTrace(invocation);
-                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
-                        goto exception_handle;
-                    }
-                    var this_obj = (IshtarObject*)@this->data.p;
-                    var obj = (IshtarObject*)this_obj->vtable[field->vtable_offset];
-                    if (field->FieldType.Class->TypeCode is TYPE_RAW)
-                    {
-                        sp->type = TYPE_RAW;
-                        sp->data.p = (nint)obj;
-                    }
-                    else
-                    {
-                        var value = IshtarMarshal.UnBoxing(invocation, obj);
-                        *sp = value;
-                    }
-                    ++ip;
-                    ++sp;
-                }
-                    break;
-                case STSTRUCT_F:
-                {
-                    // Store into field of struct value on stack
-                    --sp;
-                    var fieldIdx = *++ip;
-                    var @class = GetClass(*++ip, _module, invocation);
-                    var field = GetField(fieldIdx, @class, _module, invocation);
-                    var @this = sp;
-                    --sp;
-                    if (@this->type == TYPE_NONE || @this->type == TYPE_NULL)
-                    {
-                        ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
-                        goto exception_handle;
-                    }
-                    var value = sp;
-                    var this_obj = (IshtarObject*)@this->data.p;
-
-                    if (value->type == TYPE_NULL)
-                        this_obj->vtable[field->vtable_offset] = null;
-                    else if (value->type == TYPE_RAW)
-                        this_obj->vtable[field->vtable_offset] = (void*)value->data.p;
-                    else
-                    {
-                        var o = IshtarMarshal.Boxing(invocation, value);
-                        this_obj->vtable[field->vtable_offset] = o;
-                    }
-                    ++ip;
-                }
-                    break;
                 default:
                     CallFrame.FillStackTrace(invocation);
 

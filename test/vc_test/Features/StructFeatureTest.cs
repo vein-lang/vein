@@ -257,8 +257,6 @@ public class StructFeatureTest : TestContext
         Assert.AreEqual(0xB9, (int)OpCodes.UNBOX.Value);
         Assert.AreEqual(0xBA, (int)OpCodes.INITSTRUCT.Value);
         Assert.AreEqual(0xBB, (int)OpCodes.CPSTRUCT.Value);
-        Assert.AreEqual(0xBC, (int)OpCodes.LDSTRUCT_F.Value);
-        Assert.AreEqual(0xBD, (int)OpCodes.STSTRUCT_F.Value);
     }
 
     [Test]
@@ -267,8 +265,6 @@ public class StructFeatureTest : TestContext
         var gen = CreateGenerator();
 
         gen.Emit(OpCodes.INITSTRUCT, 42);
-        gen.Emit(OpCodes.LDSTRUCT_F, 1);
-        gen.Emit(OpCodes.STSTRUCT_F, 2);
         gen.Emit(OpCodes.CPSTRUCT, 42);
         gen.Emit(OpCodes.BOX, 42);
         gen.Emit(OpCodes.UNBOX, 42);
@@ -277,16 +273,12 @@ public class StructFeatureTest : TestContext
 
         Assert.AreEqual(OpCodes.INITSTRUCT.Value, result[0]);
         Assert.AreEqual((uint)42, result[1]);
-        Assert.AreEqual(OpCodes.LDSTRUCT_F.Value, result[2]);
-        Assert.AreEqual((uint)1, result[3]);
-        Assert.AreEqual(OpCodes.STSTRUCT_F.Value, result[4]);
-        Assert.AreEqual((uint)2, result[5]);
-        Assert.AreEqual(OpCodes.CPSTRUCT.Value, result[6]);
+        Assert.AreEqual(OpCodes.CPSTRUCT.Value, result[2]);
+        Assert.AreEqual((uint)42, result[3]);
+        Assert.AreEqual(OpCodes.BOX.Value, result[4]);
+        Assert.AreEqual((uint)42, result[5]);
+        Assert.AreEqual(OpCodes.UNBOX.Value, result[6]);
         Assert.AreEqual((uint)42, result[7]);
-        Assert.AreEqual(OpCodes.BOX.Value, result[8]);
-        Assert.AreEqual((uint)42, result[9]);
-        Assert.AreEqual(OpCodes.UNBOX.Value, result[10]);
-        Assert.AreEqual((uint)42, result[11]);
     }
 
     #endregion
