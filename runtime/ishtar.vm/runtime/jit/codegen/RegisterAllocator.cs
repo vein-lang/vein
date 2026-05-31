@@ -9,7 +9,8 @@ using static Iced.Intel.AssemblerRegisters;
 ///
 /// Available registers (callee-saved excluded from scratch pool):
 ///   Scratch (caller-saved): RAX, RCX, RDX, R8-R11
-///   Callee-saved (if needed): RBX, R12-R15, RSI, RDI
+///   Callee-saved (if needed): RBX, R12
+///   Reserved (not allocatable): R13 (frame), R14 (args), R15 (result), RSP, RBP
 ///   Float: XMM0-XMM15 (all caller-saved on Windows, XMM0-7 on SysV)
 ///
 /// Strategy:
@@ -110,7 +111,8 @@ public static unsafe class RegisterAllocator
         for (var i = 0; i < TotalIntRegs; i++) intRegFreeUntil[i] = 0;
         for (var i = 0; i < TotalFloatRegs; i++) floatRegFreeUntil[i] = 0;
 
-        // Reserve r14 (index 10) and r15 (index 11) — used as args/result pointers
+        // Reserve r13 (index 9), r14 (index 10), r15 (index 11) — used as frame/args/result pointers
+        intRegFreeUntil[9] = int.MaxValue;
         intRegFreeUntil[10] = int.MaxValue;
         intRegFreeUntil[11] = int.MaxValue;
 
@@ -192,7 +194,7 @@ public static unsafe class RegisterAllocator
 
         if (callCount == 0) return;
 
-        // Track which callee-saved registers are in use (indices 7=rbx, 8=r12, 9=r13; 10,11 reserved)
+        // Track which callee-saved registers are in use (indices 7=rbx, 8=r12; 9-11 reserved)
         var calleeSavedUsed = stackalloc bool[TotalIntRegs];
         for (var i = 0; i < TotalIntRegs; i++) calleeSavedUsed[i] = false;
         for (var v = 0; v < result->ValueCount; v++)
@@ -229,7 +231,7 @@ public static unsafe class RegisterAllocator
             var reassigned = false;
             for (var reg = ScratchIntCount; reg < TotalIntRegs; reg++)
             {
-                if (reg == 10 || reg == 11) continue; // reserved for r14/r15
+                if (reg >= 9) continue; // reserved for r13/r14/r15 (frame/args/result)
                 if (calleeSavedUsed[reg]) continue;
 
                 // Reassign
