@@ -1,6 +1,8 @@
 #space "std"
 
 class Job<T> {
+    private _nativeHandle: raw;
+
     public Wait(): void;
     public TryWait(time: TimeSpan): bool;
 
