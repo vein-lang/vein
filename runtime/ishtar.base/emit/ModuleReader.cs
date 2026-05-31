@@ -376,7 +376,7 @@ namespace ishtar.emit
             using var mem = new MemoryStream(arr);
             using var binary = new BinaryReader(mem);
             var className = binary.ReadTypeName(module);
-            var flags = (ClassFlags)binary.ReadInt16();
+            var flags = (ClassFlags)binary.ReadInt32();
 
             var parentLen = binary.ReadInt16();
 
@@ -409,6 +409,14 @@ namespace ishtar.emit
 
             DecodeField(binary, @class, module);
 
+            if (@class.IsStruct)
+            {
+                Debug.Assert(binary.ReadInt32() == 4089);
+                @class.LayoutKind = (VeinStructLayoutKind)binary.ReadByte();
+                @class.PackSize = binary.ReadByte();
+                @class.StructSize = binary.ReadInt32();
+            }
+
             return @class;
         }
 
@@ -419,8 +427,13 @@ namespace ishtar.emit
                 var name = FieldName.Resolve(binary.ReadInt32(), module);
                 var type = binary.ReadComplexType(module, false);
                 var flags = (FieldFlags) binary.ReadInt16();
-                var method = new VeinField(@class, name, flags, type);
-                @class.Fields.Add(method);
+                var field = new VeinField(@class, name, flags, type);
+                if (@class.IsStruct)
+                {
+                    field.Offset = binary.ReadInt32();
+                    field.Size = binary.ReadInt32();
+                }
+                @class.Fields.Add(field);
             }
         }
 

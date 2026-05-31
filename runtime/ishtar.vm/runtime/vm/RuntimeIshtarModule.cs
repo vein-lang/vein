@@ -511,6 +511,11 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             foreach (var bodyField in body.Fields)
             {
                 var field = clazz->DefineField(bodyField.FieldName, bodyField.Flags, bodyField.FieldType);
+                if (clazz->IsStruct)
+                {
+                    field->struct_offset = bodyField.StructOffset;
+                    field->struct_size = bodyField.StructSize;
+                }
                 VirtualMachine.GlobalPrintln($"constructed field: [{field->Name} at {field->Owner->FullName->NameWithNS}] ");
             }
 
@@ -686,7 +691,7 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         using var mem = new MemoryStream(arr);
         using var binary = new BinaryReader(mem);
         var className = binary.ReadTypeName(ishtarModule);
-        var flags = (ClassFlags)binary.ReadInt16();
+        var flags = (ClassFlags)binary.ReadInt32();
 
         var parentLen = binary.ReadInt16();
 
@@ -739,6 +744,14 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         var fieldsData = DecodeField(binary, @class, ishtarModule);
 
+        if (@class->IsStruct)
+        {
+            Debug.Assert(binary.ReadInt32() == 4089);
+            @class->LayoutKind = (VeinStructLayoutKind)binary.ReadByte();
+            @class->PackSize = binary.ReadByte();
+            @class->StructSize = binary.ReadInt32();
+        }
+
         return new DeferClassBodyData(@class, methods, fieldsData);
     }
 
@@ -749,11 +762,13 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         public List<DeferClassFieldData> Fields { get; } = fields;
     }
 
-    public class DeferClassFieldData(RuntimeFieldName* fieldName, RuntimeComplexType fieldType, FieldFlags flags)
+    public class DeferClassFieldData(RuntimeFieldName* fieldName, RuntimeComplexType fieldType, FieldFlags flags, int structOffset = 0, int structSize = 0)
     {
         public RuntimeFieldName* FieldName { get; } = fieldName;
         public RuntimeComplexType FieldType { get; } = fieldType;
         public FieldFlags Flags { get; } = flags;
+        public int StructOffset { get; } = structOffset;
+        public int StructSize { get; } = structSize;
     }
 
     public List<DeferClassFieldData> DecodeField(BinaryReader binary, RuntimeIshtarClass* @class, RuntimeIshtarModule* ishtarModule)
@@ -765,7 +780,15 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             var type = binary.ReadComplexType(ishtarModule);
             var flags = (FieldFlags) binary.ReadInt16();
 
-            lst.Add(new DeferClassFieldData(name, type, flags));
+            var structOffset = 0;
+            var structSize = 0;
+            if (@class->IsStruct)
+            {
+                structOffset = binary.ReadInt32();
+                structSize = binary.ReadInt32();
+            }
+
+            lst.Add(new DeferClassFieldData(name, type, flags, structOffset, structSize));
         }
 
         return lst;
