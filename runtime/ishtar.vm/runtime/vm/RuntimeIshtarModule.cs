@@ -716,8 +716,9 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             {
                 foreach (var _ in ..(parentLen - 1))
                 {
-                    var _1 = binary.ReadTypeName(ishtarModule);
-                    var _2 = ishtarModule->FindType(parentIdx, true, false);
+                    var ifaceIdx = binary.ReadTypeName(ishtarModule);
+                    var iface = ishtarModule->FindType(ifaceIdx, true, false);
+                    @class->AddInterface(iface);
                 }
             }
         }

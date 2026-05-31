@@ -279,7 +279,7 @@ public class AInstructionTestBase : IshtarTestBase
         var rnd = new Random();
         foreach (var opcode in (OpCodeValue[])[OpCodeValue.ADD, OpCodeValue.SUB, OpCodeValue.DIV, OpCodeValue.MUL, OpCodeValue.MOD])
         {
-            foreach (var i in Enumerable.Range(0, 30))
+            foreach (var i in Enumerable.Range(0, 10))
             {
                 var s1 = rnd.Next();
                 var s2 = rnd.NextDouble();

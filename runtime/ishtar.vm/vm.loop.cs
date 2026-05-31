@@ -772,18 +772,32 @@ public unsafe partial struct VirtualMachine : IDisposable
                         }
 
                         ++ip;
-                        Assert(shiftSp->type == targetMethod->Owner->TypeCode, TYPE_MISMATCH, "call.v fail", invocation);
                         var targetObj = (IshtarObject*)shiftSp->data.p;
 
                         Assert(shiftSp->type == TYPE_CLASS, targetObj != null, GC_MOVED_UNMOVABLE_MEMORY, "closure scope deleted", invocation);
 
-                        if (!IshtarObject.IsAssignableFrom(invocation, targetObj->clazz, targetMethod->Owner))
+                        if (targetMethod->Owner->IsInterface)
                         {
-                            Assert(false, TYPE_MISMATCH, "call.v fail", invocation);
-                            return;
+                            // Interface dispatch: find implementation by name in the actual class
+                            method = targetObj->clazz->FindMethod(targetMethod->Name);
+                            if (method == null)
+                            {
+                                FastFail(true, MISSING_METHOD,
+                                    $"Interface method '{targetMethod->Name}' not found in '{targetObj->clazz->Name}'",
+                                    invocation);
+                                return;
+                            }
                         }
+                        else
+                        {
+                            if (!IshtarObject.IsAssignableFrom(invocation, targetObj->clazz, targetMethod->Owner))
+                            {
+                                Assert(false, TYPE_MISMATCH, "call.v fail", invocation);
+                                return;
+                            }
 
-                        method = (RuntimeIshtarMethod*)targetObj->vtable[targetMethod->vtable_offset];
+                            method = (RuntimeIshtarMethod*)targetObj->vtable[targetMethod->vtable_offset];
+                        }
                     }
                     else if (invocation->last_ip == CALL_SP)
                     {

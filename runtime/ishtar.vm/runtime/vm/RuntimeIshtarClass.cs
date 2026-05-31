@@ -37,7 +37,9 @@ namespace ishtar
         [field: CTypeOverride("void*")]
         public NativeList<RuntimeIshtarField>* Fields { get; private set; }
         [field: CTypeOverride("void*")]
-        public NativeList<RuntimeAspect>* Aspects { get; private set; } 
+        public NativeList<RuntimeAspect>* Aspects { get; private set; }
+        [field: CTypeOverride("void*")]
+        public NativeList<RuntimeIshtarClass>* Interfaces { get; private set; }
         
         public RuntimeIshtarModule* Owner { get; private set; }
         public RuntimeIshtarClass* Parent { get; private set; }
@@ -89,6 +91,13 @@ namespace ishtar
             IshtarGC.FreeList(Methods);
             IshtarGC.FreeList(Fields);
             IshtarGC.FreeList(Aspects);
+
+            if (Interfaces is not null)
+            {
+                Interfaces->Clear();
+                IshtarGC.FreeList(Interfaces);
+                Interfaces = null;
+            }
 
             Methods = null;
             Fields = null;
@@ -147,6 +156,7 @@ namespace ishtar
             Methods = IshtarGC.AllocateList<RuntimeIshtarMethod>(_selfReference);
             Fields = IshtarGC.AllocateList<RuntimeIshtarField>(_selfReference);
             Aspects = IshtarGC.AllocateList<RuntimeAspect>(_selfReference);
+            Interfaces = IshtarGC.AllocateList<RuntimeIshtarClass>(_selfReference);
             Magic1 = 45;
             Magic2 = 75;
             _selfReference = self;
@@ -162,6 +172,33 @@ namespace ishtar
         {
             VirtualMachine.Assert(Parent->IsUnresolved || (Parent->Flags & ClassFlags.Predefined) != 0, TYPE_LOAD, "Replace Parent is possible only if type already unresolved or predefined");
             Parent = parent;
+        }
+
+        internal void AddInterface(RuntimeIshtarClass* iface)
+        {
+            if (Interfaces is null)
+                Interfaces = IshtarGC.AllocateList<RuntimeIshtarClass>(_selfReference);
+            Interfaces->Add(iface);
+        }
+
+        public bool ImplementsInterface(RuntimeIshtarClass* iface)
+        {
+            if (Interfaces is not null)
+            {
+                for (var i = 0; i != Interfaces->Count; i++)
+                {
+                    var impl = Interfaces->Get(i);
+                    if (RuntimeQualityTypeName.Eq(impl->FullName, iface->FullName))
+                        return true;
+                    if (impl->ImplementsInterface(iface))
+                        return true;
+                }
+            }
+
+            if (Parent is not null)
+                return Parent->ImplementsInterface(iface);
+
+            return false;
         }
         
 
@@ -304,6 +341,16 @@ namespace ishtar
 #endif
             }
 
+            // Initialize interfaces (they need valid vtables for their own methods)
+            if (Interfaces is not null)
+            {
+                for (var i = 0; i != Interfaces->Count; i++)
+                {
+                    var iface = Interfaces->Get(i);
+                    iface->init_vtable(vm, fr);
+                }
+            }
+
             computed_size += (ulong)this.Methods->Count;
             computed_size += (ulong)this.Fields->Count;
             
@@ -376,14 +423,60 @@ namespace ishtar
 #endif
 
                 if (Parent is null)
+                {
+                    // Still validate Override methods against interfaces
+                    if ((method->Flags & MethodFlags.Override) != 0 && Interfaces is not null)
+                    {
+                        RuntimeIshtarMethod* ifaceMatch = null;
+                        for (var j = 0; j != Interfaces->Count; j++)
+                        {
+                            ifaceMatch = Interfaces->Get(j)->FindMethod(method->Name);
+                            if (ifaceMatch is not null) break;
+                        }
+
+                        if (ifaceMatch is null)
+                            vm->FastFail(MISSING_METHOD,
+                                $"Method '{method->Name}' mark as OVERRIDE," +
+                                $" but no parent class or interface" +
+                                $" contains virtual/abstract method.", frame);
+                    }
+                    else if ((method->Flags & MethodFlags.Override) != 0)
+                    {
+                        vm->FastFail(MISSING_METHOD,
+                            $"Method '{method->Name}' mark as OVERRIDE," +
+                            $" but no parent class exists.", frame);
+                    }
                     continue;
+                }
                 {
                     var w = Parent->FindMethod(method->Name);
                     if (w == null && (method->Flags & MethodFlags.Override) != 0)
-                        vm->FastFail(MISSING_METHOD,
-                            $"Method '{method->Name}' mark as OVERRIDE," +
-                            $" but parent class '{Parent->Name}'" +
-                            $" no contained virtual/abstract method.", frame);
+                    {
+                        // Check interfaces for override target
+                        if (Interfaces is not null)
+                        {
+                            RuntimeIshtarMethod* ifaceMatch = null;
+                            for (var j = 0; j != Interfaces->Count; j++)
+                            {
+                                ifaceMatch = Interfaces->Get(j)->FindMethod(method->Name);
+                                if (ifaceMatch is not null) break;
+                            }
+
+                            if (ifaceMatch is null)
+                                vm->FastFail(MISSING_METHOD,
+                                    $"Method '{method->Name}' mark as OVERRIDE," +
+                                    $" but no parent class or interface" +
+                                    $" contains virtual/abstract method.", frame);
+                        }
+                        else
+                        {
+                            vm->FastFail(MISSING_METHOD,
+                                $"Method '{method->Name}' mark as OVERRIDE," +
+                                $" but parent class '{Parent->Name}'" +
+                                $" no contained virtual/abstract method.", frame);
+                        }
+                        continue;
+                    }
 
                     if (w is null)
                         continue;
@@ -589,6 +682,16 @@ namespace ishtar
 
             if (method is not null)
                 return method;
+
+            if (Interfaces is not null)
+            {
+                for (var i = 0; i != Interfaces->Count; i++)
+                {
+                    var ifaceMethod = Interfaces->Get(i)->FindMethod(fullyName, true);
+                    if (ifaceMethod is not null)
+                        return ifaceMethod;
+                }
+            }
 
             if (Parent is null)
                 return null;

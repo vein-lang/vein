@@ -71,9 +71,9 @@ public unsafe struct IshtarObject
 
     public static IshtarObject* IsInstanceOfByRef(CallFrame* frame, IshtarObject* c, RuntimeIshtarClass* @class)
     {
-        // temporary cast to\from interface is not support
-        frame->ThrowException(KnowTypes.IncorrectCastFault(frame));
-        return c;
+        if (c->clazz->ImplementsInterface(@class))
+            return c;
+        return null;
     }
 
     public static bool IsAssignableFrom(CallFrame* frame, RuntimeIshtarClass* c1, RuntimeIshtarClass* c2)
@@ -82,9 +82,10 @@ public unsafe struct IshtarObject
         if (!c2->is_inited) c2->init_vtable(frame->vm);
         // TODO: Array detection
         // TODO: Generic detection
-        // TODO: Interfrace detection
         if (c1->FullName == frame->vm->Types->ObjectClass->FullName)
             return true;
+        if (c1->IsInterface)
+            return c2->ImplementsInterface(c1);
         return c1->IsInner(c2);
     }
 }
