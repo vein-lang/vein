@@ -56,7 +56,16 @@ public partial class CompilationTask
     }
 
     private void ComputeStructLayout(ClassBuilder @class, ClassDeclarationSyntax member)
+        => ComputeStructLayout(@class, new HashSet<VeinClass>(ReferenceEqualityComparer.Instance));
+
+    private void ComputeStructLayout(VeinClass @class, HashSet<VeinClass> computing)
     {
+        if (@class.StructSize > 0)
+            return; // already computed
+
+        if (!computing.Add(@class))
+            return; // cycle detected — leave size at 0, will fall back to pointer size
+
         @class.LayoutKind = VeinStructLayoutKind.Sequential;
         @class.PackSize = 0; // natural alignment
 
@@ -64,7 +73,7 @@ public partial class CompilationTask
         var maxAlignment = 1;
         foreach (var field in @class.Fields.Where(f => !f.IsStatic))
         {
-            var size = ComputeFieldSize(field);
+            var size = ComputeFieldSize(field, computing);
             field.Size = size;
 
             // Align offset to field's natural alignment (min of field size and pointer size)
@@ -81,8 +90,10 @@ public partial class CompilationTask
 
         // Final struct size aligned to largest field alignment
         @class.StructSize = (offset + maxAlignment - 1) / maxAlignment * maxAlignment;
+        computing.Remove(@class);
+    }
 
-    private int ComputeFieldSize(VeinField field)
+    private int ComputeFieldSize(VeinField field, HashSet<VeinClass> computing)
     {
         var fieldClass = field.FieldType.Class;
         if (fieldClass is null)
@@ -97,9 +108,13 @@ public partial class CompilationTask
         if (fieldClass.IsPrimitive)
             return fieldClass.TypeCode.GetNativeSize();
 
-        // Nested bittable struct — use its computed size
+        // Nested struct — compute its layout on-demand if not yet done
         if (fieldClass.IsStruct)
+        {
+            if (fieldClass.StructSize == 0)
+                ComputeStructLayout(fieldClass, computing);
             return fieldClass.StructSize > 0 ? fieldClass.StructSize : 8;
+        }
 
         // Fallback — pointer size
         return 8;

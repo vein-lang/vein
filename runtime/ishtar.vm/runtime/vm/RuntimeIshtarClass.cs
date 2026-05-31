@@ -65,6 +65,7 @@ namespace ishtar
         public bool is_inited = false;
         public void** vtable = null;
         public ulong vtable_size = 0;
+        private bool _isComputingBittable = false;
 
         public void Dispose()
         {
@@ -491,16 +492,22 @@ namespace ishtar
                 return false;
             if (IsPrimitive)
                 return true;
+            if (_isComputingBittable)
+                return false; // cycle detected
+
+            _isComputingBittable = true;
             for (var i = 0; i != Fields->Count; i++)
             {
                 var field = Fields->Get(i);
                 if ((field->Flags & FieldFlags.Static) != 0) continue;
                 var fieldType = field->FieldType.Class;
-                if (fieldType is null) return false;
+                if (fieldType is null) { _isComputingBittable = false; return false; }
                 if (fieldType->IsPrimitive) continue;
-                if (fieldType->IsStruct && fieldType->IsBittable) continue;
+                if (fieldType->IsStruct && fieldType->ComputeIsBittable()) continue;
+                _isComputingBittable = false;
                 return false;
             }
+            _isComputingBittable = false;
             return true;
         }
 
