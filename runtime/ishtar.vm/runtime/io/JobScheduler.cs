@@ -27,6 +27,7 @@ public unsafe struct JobScheduler : IDisposable
     private VirtualMachine* _vm;
     private NativeQueue<SuspendedFrame>* _resumptionQueue;
     private uv_mutex_t* _queueMutex;
+    private bool _loopRunning;
 
     public nint Loop => loop;
 
@@ -113,6 +114,8 @@ public unsafe struct JobScheduler : IDisposable
     /// </summary>
     public void StartThread(VirtualMachine* vm)
     {
+        _loopRunning = true;
+
         static void execute_scheduler(IshtarRawThread* thread)
         {
             GlobalPrintln("job_scheduler:start");
@@ -134,13 +137,16 @@ public unsafe struct JobScheduler : IDisposable
 
     public void Dispose()
     {
-        Stop();
+        if (_loopRunning)
+        {
+            Stop();
 
-        // Close the async handle so the loop has no active handles
-        uv_close((nint)asyncWakeup, null);
+            // Close the async handle so the loop has no active handles
+            uv_close((nint)asyncWakeup, null);
 
-        // Drain pending callbacks (processes the close callback)
-        uv_run(loop, uv_run_mode.UV_RUN_NOWAIT);
+            // Drain pending callbacks (processes the close callback)
+            uv_run(loop, uv_run_mode.UV_RUN_NOWAIT);
+        }
 
         uv_loop_close(loop);
         uv_loop_delete(loop);
