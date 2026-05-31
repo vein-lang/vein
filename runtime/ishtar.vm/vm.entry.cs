@@ -97,12 +97,14 @@ unsafe
     var watcher = Stopwatch.StartNew();
     vm->trace.log($"execute entrypoint {entry_point->Name}");
     vm->task_scheduler->start_threading(vm);
+    vm->job_scheduler->StartThread(vm);
     vm->exec_method(frame);
     
     watcher.Stop();
     vm->trace.log($"Elapsed: {watcher.Elapsed}");
 
     vm->hasStopRequired = true;
+    vm->job_scheduler->Stop();
     vm->thread_pool->Stop();
     frame->Dispose();
     vm->Dispose();

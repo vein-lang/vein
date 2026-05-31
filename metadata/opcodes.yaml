@@ -324,3 +324,6 @@
       stack-delta: -1
       override-size: 4
       description: Control flow, jump onto label when value has true or either differs from null or from zero. (a)
+- AWAIT:
+    description: Await operation.
+    stack-delta: -1

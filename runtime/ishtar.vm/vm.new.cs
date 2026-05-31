@@ -54,6 +54,8 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         vm->@ref->task_scheduler = vm->threading.CreateScheduler(vm);
 
         vm->@ref->thread_pool = IshtarThreadPool.Create(vm);
+
+        vm->@ref->job_scheduler = JobScheduler.Create(vm);
         
         vault.PostInit();
         return vm;
@@ -64,6 +66,7 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
     public void Dispose()
     {
         using var tag = Profiler.Begin("vm:dispose");
+        job_scheduler->Dispose();
         task_scheduler->Dispose();
         InternalModule->Dispose();
         IshtarGC.FreeImmortalRoot(InternalModule);

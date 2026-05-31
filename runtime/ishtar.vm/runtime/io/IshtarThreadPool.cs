@@ -14,7 +14,8 @@ public readonly unsafe struct IshtarThreadPool(
     uv_mutex_t* mutex,
     uv_cond_t* cond,
     int threadCount,
-    IshtarThreadPool* self)
+    IshtarThreadPool* self,
+    NativeQueue<SuspendedFrame>* resumptionQueue)
 {
     private readonly VirtualMachine* _vm = vm;
     private readonly NativeSortedSet<IshtarTask>* _tasks = tasks;
@@ -23,6 +24,7 @@ public readonly unsafe struct IshtarThreadPool(
     private readonly uv_cond_t* _cond = cond;
     private readonly int _threadCount = threadCount;
     private readonly IshtarThreadPool* _self = self;
+    private readonly NativeQueue<SuspendedFrame>* _resumptions = resumptionQueue;
 
     public static IshtarThreadPool* Create(VirtualMachine* vm)
     {
@@ -40,11 +42,12 @@ public readonly unsafe struct IshtarThreadPool(
         var threads = AllocateList<IshtarRawThread>(pool, thread_count);
         var mutex = AllocateImmortal<uv_mutex_t>(pool);
         var cond = AllocateImmortal<uv_cond_t>(pool);
+        var resumptions = AllocateQueue<SuspendedFrame>(pool);
 
         vm->Assert(uv_mutex_init(mutex), THREAD_POOL_CORRUPTED, "uv_mutex_init", vm->Frames->ThreadScheduler);
         vm->Assert(uv_cond_init(cond), THREAD_POOL_CORRUPTED, "uv_cond_init", vm->Frames->ThreadScheduler);
 
-        *pool = new IshtarThreadPool(vm, tasks, threads, mutex, cond, thread_count, pool);
+        *pool = new IshtarThreadPool(vm, tasks, threads, mutex, cond, thread_count, pool, resumptions);
 
         if (!vm->Config.DeferThreadPool)
             pool->populate();
@@ -57,18 +60,27 @@ public readonly unsafe struct IshtarThreadPool(
         var pool = (IshtarThreadPool*)arg->data;
         var vm = pool->_vm;
         var queue = pool->_tasks;
+        var resumptions = pool->_resumptions;
         
         while (true)
         {
             uv_mutex_lock(pool->_mutex);
 
-            while (queue->Count == 0 && !vm->HasStopped())
+            while (queue->Count == 0 && resumptions->Count == 0 && !vm->HasStopped())
                 uv_cond_timedwait(pool->_cond, pool->_mutex, 10000);
 
-            if (vm->HasStopped() && queue->Count == 0)
+            if (vm->HasStopped() && queue->Count == 0 && resumptions->Count == 0)
             {
                 uv_mutex_unlock(pool->_mutex);
                 break;
+            }
+
+            // Priority: resume suspended frames first (they're already mid-execution)
+            if (resumptions->TryDequeue(out var suspended))
+            {
+                uv_mutex_unlock(pool->_mutex);
+                vm->exec_method_resume(suspended);
+                continue;
             }
 
             var task = queue->min();
@@ -127,5 +139,19 @@ public readonly unsafe struct IshtarThreadPool(
         }
         uv_mutex_destroy(_mutex);
         uv_cond_destroy(_cond);
+    }
+
+    /// <summary>
+    /// Queue a suspended frame for resumption on a worker thread.
+    /// Thread-safe: can be called from any thread.
+    /// </summary>
+    public void QueueResumption(SuspendedFrame* frame)
+    {
+        if (_threads->Count == 0) populate();
+
+        uv_mutex_lock(_mutex);
+        _resumptions->Enqueue(frame);
+        uv_cond_signal(_cond);
+        uv_mutex_unlock(_mutex);
     }
 }

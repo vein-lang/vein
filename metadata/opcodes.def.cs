@@ -737,5 +737,9 @@ public enum OpCodeValue : ushort
 	/// Control flow, jump onto label when value has true or either differs from null or from zero. (a)
 	/// </summary>
 	JMP_T = 0x68,
+	/// <summary>
+	/// Await operation.
+	/// </summary>
+	AWAIT = 0xB7,
 
 }

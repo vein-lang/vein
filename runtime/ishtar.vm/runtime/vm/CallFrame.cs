@@ -1,6 +1,7 @@
 namespace ishtar
 {
     using System.Text;
+    using io;
     using runtime.gc;
 
     public static unsafe class CallFrameEx
@@ -30,6 +31,24 @@ namespace ishtar
         public stackval* args;
         public OpCodeValue last_ip;
         public VirtualMachine* vm => method->Owner->Owner->vm;
+
+        /// <summary>
+        /// For async methods: the IshtarJob that this method will resolve on RET.
+        /// Null for synchronous methods.
+        /// </summary>
+        public IshtarAsyncJob* asyncJob;
+
+        /// <summary>
+        /// Non-null when this frame is being resumed after suspension.
+        /// Contains the saved IP, stack snapshot, and locals to restore.
+        /// </summary>
+        public SuspendedFrame* resumeState;
+
+        /// <summary>
+        /// The result from the awaited Job that triggered resumption.
+        /// Pushed onto the eval stack after state is restored.
+        /// </summary>
+        public stackval awaitResult;
 
         public CallFrameException exception;
 
