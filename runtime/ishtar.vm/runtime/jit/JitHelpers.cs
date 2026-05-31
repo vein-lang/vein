@@ -38,7 +38,27 @@ public static unsafe class JitHelpers
     /// </summary>
     [UnmanagedCallersOnly]
     public static IshtarObject* Helper_InitStruct(RuntimeIshtarClass* clazz, CallFrame* frame)
-        => frame->vm->gc->AllocObject(clazz, frame);
+    {
+        var obj = frame->vm->gc->AllocObject(clazz, frame);
+
+        // Ensure default-zero semantics for primitive instance fields (matches VM INITSTRUCT).
+        for (var i = 0; i != clazz->Fields->Count; i++)
+        {
+            var f = clazz->Fields->Get(i);
+            if ((f->Flags & FieldFlags.Static) != 0) continue;
+
+            var ft = f->FieldType.Class;
+            if (ft is null) continue;
+
+            if (ft->IsPrimitive && ft->TypeCode != TYPE_RAW)
+            {
+                var zero = new stackval { type = ft->TypeCode };
+                obj->vtable[f->vtable_offset] = IshtarMarshal.Boxing(frame, &zero);
+            }
+        }
+
+        return obj;
+    }
 
     /// <summary>
     /// CPSTRUCT: Deep-copy a struct object (allocate new + copy vtable contents).
