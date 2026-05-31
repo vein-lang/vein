@@ -117,9 +117,11 @@ public static unsafe class JitHelpers
         if (valField is not null)
         {
             if (value->type == TYPE_R16)
-                boxed->vtable[valField->vtable_offset] = IshtarMarshal.Boxing(frame, value);
-            else
-                boxed->vtable[valField->vtable_offset] = (void*)value->data.p;
+            {
+                frame->vm->FastFail(WNE.STATE_CORRUPT, "BOX: TYPE_R16 is not supported", frame);
+                return null;
+            }
+            boxed->vtable[valField->vtable_offset] = (void*)value->data.p;
         }
         return boxed;
     }
@@ -145,14 +147,11 @@ public static unsafe class JitHelpers
             var fieldType = unboxField->FieldType.Class->TypeCode;
             if (fieldType == TYPE_R16)
             {
-                var unboxedObj = (IshtarObject*)obj->vtable[unboxField->vtable_offset];
-                *result = IshtarMarshal.UnBoxing(frame, unboxedObj);
+                frame->vm->FastFail(WNE.STATE_CORRUPT, "UNBOX: TYPE_R16 is not supported", frame);
+                return;
             }
-            else
-            {
-                result->type = fieldType;
-                result->data.p = (nint)obj->vtable[unboxField->vtable_offset];
-            }
+            result->type = fieldType;
+            result->data.p = (nint)obj->vtable[unboxField->vtable_offset];
         }
         else
         {

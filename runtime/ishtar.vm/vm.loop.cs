@@ -1532,9 +1532,11 @@ public unsafe partial struct VirtualMachine : IDisposable
                     if (valField is not null)
                     {
                         if (sp->type == TYPE_R16)
-                            boxed->vtable[valField->vtable_offset] = IshtarMarshal.Boxing(invocation, sp);
-                        else
-                            boxed->vtable[valField->vtable_offset] = (void*)sp->data.p;
+                        {
+                            FastFail(STATE_CORRUPT, "BOX: TYPE_R16 is not supported", invocation);
+                            return;
+                        }
+                        boxed->vtable[valField->vtable_offset] = (void*)sp->data.p;
                     }
                     sp->type = TYPE_CLASS;
                     sp->data.p = (nint)boxed;
@@ -1570,19 +1572,11 @@ public unsafe partial struct VirtualMachine : IDisposable
                         var fieldType = unboxField->FieldType.Class->TypeCode;
                         if (fieldType == TYPE_R16)
                         {
-                            var unboxedObj = (IshtarObject*)obj->vtable[unboxField->vtable_offset];
-                            if (unboxedObj == null)
-                            {
-                                ForceThrow(KnowTypes.NullPointerException(invocation), sp, invocation);
-                                goto exception_handle;
-                            }
-                            *sp = IshtarMarshal.UnBoxing(invocation, unboxedObj);
+                            FastFail(STATE_CORRUPT, "UNBOX: TYPE_R16 is not supported", invocation);
+                            return;
                         }
-                        else
-                        {
-                            sp->type = fieldType;
-                            sp->data.p = (nint)obj->vtable[unboxField->vtable_offset];
-                        }
+                        sp->type = fieldType;
+                        sp->data.p = (nint)obj->vtable[unboxField->vtable_offset];
                     }
                     else
                     {
