@@ -75,17 +75,17 @@ namespace vein.runtime
                 return true;
             if (!visited.Add(this))
                 return false; // cycle detected
-            return Fields.Where(f => !f.IsStatic).All(f =>
+            var result = Fields.Where(f => !f.IsStatic).All(f =>
             {
                 var fieldClass = f.FieldType.Class;
                 if (fieldClass is null)
                     return false;
                 if (fieldClass.IsPrimitive)
                     return true;
-                if (fieldClass is VeinClass vc)
-                    return vc.ComputeIsBittable(visited);
-                return false;
+                return fieldClass != null && fieldClass.ComputeIsBittable(visited);
             });
+            visited.Remove(this);
+            return result;
         }
 
         public virtual VeinMethod GetDefaultDtor() => GetOrCreateTor(VeinMethod.METHOD_NAME_DECONSTRUCTOR);
