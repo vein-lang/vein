@@ -1599,9 +1599,26 @@ public unsafe partial struct VirtualMachine : IDisposable
                     var typeIdx = *ip;
                     ++ip;
                     var structClass = GetClass(typeIdx, _module, invocation);
-                    // For bittable structs: allocate a zeroed buffer of StructSize bytes
-                    // For now, we allocate an IshtarObject like NEWOBJ but zero-fill vtable
+
                     var structObj = gc->AllocObject(structClass, invocation);
+
+                    // AllocObject() copies the class vtable where instance field slots default to null.
+                    // For INITSTRUCT we want default-zero semantics for primitive fields.
+                    for (var i = 0; i != structClass->Fields->Count; i++)
+                    {
+                        var f = structClass->Fields->Get(i);
+                        if ((f->Flags & FieldFlags.Static) != 0) continue;
+
+                        var ft = f->FieldType.Class;
+                        if (ft is null) continue;
+
+                        if (ft->IsPrimitive && ft->TypeCode != TYPE_RAW)
+                        {
+                            var zero = new stackval { type = ft->TypeCode };
+                            structObj->vtable[f->vtable_offset] = IshtarMarshal.Boxing(invocation, &zero);
+                        }
+                    }
+
                     sp->type = TYPE_CLASS;
                     sp->data.p = (nint)structObj;
                     ++sp;
