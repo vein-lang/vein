@@ -6,7 +6,7 @@ namespace ishtar
 	using System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 32;
+		internal static int SetVersion = 34;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -1323,20 +1323,6 @@ namespace ishtar
 		/// chain: 0
 		/// </summary>
 		public static readonly OpCode CPSTRUCT = new (0xBB, 0x0100001F, 0);
-		/// <summary>
-		/// Load field from struct value on stack by field token.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode LDSTRUCT_F = new (0xBC, 0x0100001F, 0);
-		/// <summary>
-		/// Store into field of struct value on stack by field token.
-		/// size: 4
-		/// flow: 0
-		/// chain: 0
-		/// </summary>
-		public static readonly OpCode STSTRUCT_F = new (0xBD, 0x0100001F, -1);
 
 		public static readonly Dictionary<OpCodeValue, OpCode> all = new ()
 		{
@@ -1528,8 +1514,6 @@ namespace ishtar
 			{OpCodeValue.UNBOX, UNBOX},
 			{OpCodeValue.INITSTRUCT, INITSTRUCT},
 			{OpCodeValue.CPSTRUCT, CPSTRUCT},
-			{OpCodeValue.LDSTRUCT_F, LDSTRUCT_F},
-			{OpCodeValue.STSTRUCT_F, STSTRUCT_F},
 		};
 	}
 }

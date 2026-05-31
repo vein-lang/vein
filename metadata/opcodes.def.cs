@@ -757,13 +757,5 @@ public enum OpCodeValue : ushort
 	/// Copy struct value (memcpy for bittable types).
 	/// </summary>
 	CPSTRUCT = 0xBB,
-	/// <summary>
-	/// Load field from struct value on stack by field token.
-	/// </summary>
-	LDSTRUCT_F = 0xBC,
-	/// <summary>
-	/// Store into field of struct value on stack by field token.
-	/// </summary>
-	STSTRUCT_F = 0xBD,
 
 }

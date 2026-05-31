@@ -343,11 +343,3 @@
     description: Copy struct value (memcpy for bittable types).
     stack-delta: 0
     override-size: 4
-- LDSTRUCT_F:
-    description: Load field from struct value on stack by field token.
-    stack-delta: 0
-    override-size: 4
-- STSTRUCT_F:
-    description: Store into field of struct value on stack by field token.
-    stack-delta: -1
-    override-size: 4
