@@ -281,22 +281,27 @@ public unsafe class AsyncRuntimeTest : IshtarTestBase
 
     #region AWAIT Integration Tests (bytecode level)
 
-    [Test]
-    public void Await_CompletedJob_PushesResult_Synchronously()
+    private static (VeinModuleBuilder module, VeinCore types, ClassBuilder jobClass) CreateTestModule(string uid)
     {
-        var uid = Guid.NewGuid().ToString("N");
-        var testCase = "AwaitI4";
         var types = new VeinCore();
-
         var corlibResolver = new IshtarTestModuleResolver();
         corlibResolver.AddSearchPath(new DirectoryInfo("./"));
         var corlib = corlibResolver.ResolveDep("std", new Version(0, 0), new List<VeinModule>());
-
         var module = new VeinModuleBuilder(new ModuleNameSymbol($"tst_{uid}"), types) { Deps = [corlib] };
 
         var jobClass = module.DefineClass(
             new QualityTypeName(new NameSymbol("FakeJob"), NamespaceSymbol.Internal, module.Name));
         jobClass.DefineField("_nativeHandle", FieldFlags.Special, types.RawClass);
+
+        return (module, types, jobClass);
+    }
+
+    [Test]
+    public void Await_CompletedJob_PushesResult_Synchronously()
+    {
+        var uid = Guid.NewGuid().ToString("N");
+        var testCase = "AwaitI4";
+        var (module, types, jobClass) = CreateTestModule(uid);
 
         var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
 
@@ -328,28 +333,16 @@ public unsafe class AsyncRuntimeTest : IshtarTestBase
     {
         var uid = Guid.NewGuid().ToString("N");
         var testCase = "AwaitVoid";
-        var types = new VeinCore();
-
-        var corlibResolver = new IshtarTestModuleResolver();
-        corlibResolver.AddSearchPath(new DirectoryInfo("./"));
-        var corlib = corlibResolver.ResolveDep("std", new Version(0, 0), new List<VeinModule>());
-
-        var module = new VeinModuleBuilder(new ModuleNameSymbol($"tst_{uid}"), types) { Deps = [corlib] };
-
-        var jobClass = module.DefineClass(
-            new QualityTypeName(new NameSymbol("FakeJob"), NamespaceSymbol.Internal, module.Name));
-        jobClass.DefineField("_nativeHandle", FieldFlags.Special, types.RawClass);
+        var (module, types, jobClass) = CreateTestModule(uid);
 
         var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
 
-        // async void method
         var asyncMethod = cls.DefineMethod("noop_async",
             MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
             (VeinComplexType)(VeinClass)jobClass);
         asyncMethod.GetGenerator()
             .Emit(OpCodes.RET);
 
-        // master: CALL noop_async → AWAIT → LDC_I4 99 → RET
         var master = cls.DefineMethod($"master_{testCase}_{uid}",
             MethodFlags.Public | MethodFlags.Static,
             VeinTypeCode.TYPE_OBJECT.AsClass()(types));
@@ -365,6 +358,386 @@ public unsafe class AsyncRuntimeTest : IshtarTestBase
             Assert.Fail($"Fault: [{frame->exception.value->clazz->Name}]");
 
         Assert.That(frame->returnValue[0].data.i, Is.EqualTo(99));
+    }
+
+    [Test]
+    public void Await_TwoSequentialAwaits_AddsResults()
+    {
+        var uid = Guid.NewGuid().ToString("N");
+        var testCase = "TwoAwaits";
+        var (module, types, jobClass) = CreateTestModule(uid);
+
+        var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
+
+        // async method returning 10
+        var asyncA = cls.DefineMethod("get_ten",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        asyncA.GetGenerator()
+            .Emit(OpCodes.LDC_I4_S, 10)
+            .Emit(OpCodes.RET);
+
+        // async method returning 32
+        var asyncB = cls.DefineMethod("get_thirtytwo",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        asyncB.GetGenerator()
+            .Emit(OpCodes.LDC_I4_S, 32)
+            .Emit(OpCodes.RET);
+
+        // master: call A → await → call B → await → ADD → RET
+        var master = cls.DefineMethod($"master_{testCase}_{uid}",
+            MethodFlags.Public | MethodFlags.Static,
+            VeinTypeCode.TYPE_OBJECT.AsClass()(types));
+        master.GetGenerator()
+            .Emit(OpCodes.CALL, asyncA)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.CALL, asyncB)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.ADD)
+            .Emit(OpCodes.RET);
+
+        var frame = CompileAndExec(module, testCase, uid);
+
+        if (frame->exception.value != null)
+            Assert.Fail($"Fault: [{frame->exception.value->clazz->Name}]");
+
+        Assert.That(frame->returnValue[0].data.i, Is.EqualTo(42));
+    }
+
+    [Test]
+    public void Await_AsyncChain_InnerAsyncCompleteSynchronously()
+    {
+        // outer async calls inner async, awaits, multiplies result by 2
+        var uid = Guid.NewGuid().ToString("N");
+        var testCase = "AsyncChain";
+        var (module, types, jobClass) = CreateTestModule(uid);
+
+        var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
+
+        // inner async: returns 7
+        var inner = cls.DefineMethod("inner_async",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        inner.GetGenerator()
+            .Emit(OpCodes.LDC_I4_S, 7)
+            .Emit(OpCodes.RET);
+
+        // outer async: call inner → await → push 3 → MUL → RET (result = 7 * 3 = 21)
+        var outer = cls.DefineMethod("outer_async",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        outer.GetGenerator()
+            .Emit(OpCodes.CALL, inner)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.LDC_I4_S, 3)
+            .Emit(OpCodes.MUL)
+            .Emit(OpCodes.RET);
+
+        // master: call outer → await → RET
+        var master = cls.DefineMethod($"master_{testCase}_{uid}",
+            MethodFlags.Public | MethodFlags.Static,
+            VeinTypeCode.TYPE_OBJECT.AsClass()(types));
+        master.GetGenerator()
+            .Emit(OpCodes.CALL, outer)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.RET);
+
+        var frame = CompileAndExec(module, testCase, uid);
+
+        if (frame->exception.value != null)
+            Assert.Fail($"Fault: [{frame->exception.value->clazz->Name}]");
+
+        Assert.That(frame->returnValue[0].data.i, Is.EqualTo(21));
+    }
+
+    [Test]
+    public void Await_PreserveStackBelowAwait()
+    {
+        // push 100, then call async → await (returns 5), then ADD → result = 105
+        var uid = Guid.NewGuid().ToString("N");
+        var testCase = "StackPreserve";
+        var (module, types, jobClass) = CreateTestModule(uid);
+
+        var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
+
+        var asyncFive = cls.DefineMethod("get_five",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        asyncFive.GetGenerator()
+            .Emit(OpCodes.LDC_I4_5)
+            .Emit(OpCodes.RET);
+
+        // master: LDC 100 → CALL get_five → AWAIT → ADD → RET
+        var master = cls.DefineMethod($"master_{testCase}_{uid}",
+            MethodFlags.Public | MethodFlags.Static,
+            VeinTypeCode.TYPE_OBJECT.AsClass()(types));
+        master.GetGenerator()
+            .Emit(OpCodes.LDC_I4_S, 100)
+            .Emit(OpCodes.CALL, asyncFive)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.ADD)
+            .Emit(OpCodes.RET);
+
+        var frame = CompileAndExec(module, testCase, uid);
+
+        if (frame->exception.value != null)
+            Assert.Fail($"Fault: [{frame->exception.value->clazz->Name}]");
+
+        Assert.That(frame->returnValue[0].data.i, Is.EqualTo(105));
+    }
+
+    [Test]
+    public void Await_AsyncReturnsLargeValue()
+    {
+        // async returns 1_000_000, master multiplies by 2
+        var uid = Guid.NewGuid().ToString("N");
+        var testCase = "LargeVal";
+        var (module, types, jobClass) = CreateTestModule(uid);
+
+        var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
+
+        var asyncBig = cls.DefineMethod("get_million",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        asyncBig.GetGenerator()
+            .Emit(OpCodes.LDC_I4_S, 1_000_000)
+            .Emit(OpCodes.RET);
+
+        var master = cls.DefineMethod($"master_{testCase}_{uid}",
+            MethodFlags.Public | MethodFlags.Static,
+            VeinTypeCode.TYPE_OBJECT.AsClass()(types));
+        master.GetGenerator()
+            .Emit(OpCodes.CALL, asyncBig)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.LDC_I4_S, 2)
+            .Emit(OpCodes.MUL)
+            .Emit(OpCodes.RET);
+
+        var frame = CompileAndExec(module, testCase, uid);
+
+        if (frame->exception.value != null)
+            Assert.Fail($"Fault: [{frame->exception.value->clazz->Name}]");
+
+        Assert.That(frame->returnValue[0].data.i, Is.EqualTo(2_000_000));
+    }
+
+    [Test]
+    public void Await_ThreeChainedAwaits_Arithmetic()
+    {
+        // (await a + await b) * await c
+        // a=3, b=4, c=5 → (3+4)*5 = 35
+        var uid = Guid.NewGuid().ToString("N");
+        var testCase = "ThreeChain";
+        var (module, types, jobClass) = CreateTestModule(uid);
+
+        var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
+
+        var asyncA = cls.DefineMethod("get_a",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        asyncA.GetGenerator().Emit(OpCodes.LDC_I4_3).Emit(OpCodes.RET);
+
+        var asyncB = cls.DefineMethod("get_b",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        asyncB.GetGenerator().Emit(OpCodes.LDC_I4_4).Emit(OpCodes.RET);
+
+        var asyncC = cls.DefineMethod("get_c",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        asyncC.GetGenerator().Emit(OpCodes.LDC_I4_5).Emit(OpCodes.RET);
+
+        // master: call a → await → call b → await → ADD → call c → await → MUL → RET
+        var master = cls.DefineMethod($"master_{testCase}_{uid}",
+            MethodFlags.Public | MethodFlags.Static,
+            VeinTypeCode.TYPE_OBJECT.AsClass()(types));
+        master.GetGenerator()
+            .Emit(OpCodes.CALL, asyncA)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.CALL, asyncB)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.ADD)
+            .Emit(OpCodes.CALL, asyncC)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.MUL)
+            .Emit(OpCodes.RET);
+
+        var frame = CompileAndExec(module, testCase, uid);
+
+        if (frame->exception.value != null)
+            Assert.Fail($"Fault: [{frame->exception.value->clazz->Name}]");
+
+        Assert.That(frame->returnValue[0].data.i, Is.EqualTo(35));
+    }
+
+    [Test]
+    public void Await_DuplicateJobObject_BothAwaitsSeeResult()
+    {
+        // call async once, DUP the job object, AWAIT twice — both should give 77
+        var uid = Guid.NewGuid().ToString("N");
+        var testCase = "DupAwait";
+        var (module, types, jobClass) = CreateTestModule(uid);
+
+        var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
+
+        var asyncVal = cls.DefineMethod("get_val",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        asyncVal.GetGenerator()
+            .Emit(OpCodes.LDC_I4_S, 77)
+            .Emit(OpCodes.RET);
+
+        // master: call → DUP → AWAIT → swap → AWAIT → ADD → RET = 77 + 77 = 154
+        var master = cls.DefineMethod($"master_{testCase}_{uid}",
+            MethodFlags.Public | MethodFlags.Static,
+            VeinTypeCode.TYPE_OBJECT.AsClass()(types));
+        master.GetGenerator()
+            .Emit(OpCodes.CALL, asyncVal)
+            .Emit(OpCodes.DUP)
+            .Emit(OpCodes.AWAIT)  // awaits first copy, pushes 77
+            .Emit(OpCodes.CALL, asyncVal) // push new job (just to create separation)
+            .Emit(OpCodes.AWAIT)  // awaits second, pushes 77
+            .Emit(OpCodes.ADD)    // 77 + 77
+            .Emit(OpCodes.RET);
+
+        var frame = CompileAndExec(module, testCase, uid);
+
+        if (frame->exception.value != null)
+            Assert.Fail($"Fault: [{frame->exception.value->clazz->Name}]");
+
+        Assert.That(frame->returnValue[0].data.i, Is.EqualTo(154));
+    }
+
+    [Test]
+    public void Await_AsyncReturnsZero()
+    {
+        // Edge case: async returns 0 (should not be confused with void/null)
+        var uid = Guid.NewGuid().ToString("N");
+        var testCase = "RetZero";
+        var (module, types, jobClass) = CreateTestModule(uid);
+
+        var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
+
+        var asyncZero = cls.DefineMethod("get_zero",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        asyncZero.GetGenerator()
+            .Emit(OpCodes.LDC_I4_0)
+            .Emit(OpCodes.RET);
+
+        var master = cls.DefineMethod($"master_{testCase}_{uid}",
+            MethodFlags.Public | MethodFlags.Static,
+            VeinTypeCode.TYPE_OBJECT.AsClass()(types));
+        master.GetGenerator()
+            .Emit(OpCodes.CALL, asyncZero)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.LDC_I4_1)
+            .Emit(OpCodes.ADD)  // 0 + 1 = 1
+            .Emit(OpCodes.RET);
+
+        var frame = CompileAndExec(module, testCase, uid);
+
+        if (frame->exception.value != null)
+            Assert.Fail($"Fault: [{frame->exception.value->clazz->Name}]");
+
+        Assert.That(frame->returnValue[0].data.i, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void Await_NestedAsyncThreeDeep()
+    {
+        // level3 returns 2, level2 awaits level3 and adds 3 (=5),
+        // level1 awaits level2 and multiplies by 4 (=20)
+        var uid = Guid.NewGuid().ToString("N");
+        var testCase = "Nested3";
+        var (module, types, jobClass) = CreateTestModule(uid);
+
+        var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
+
+        var level3 = cls.DefineMethod("level3",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        level3.GetGenerator()
+            .Emit(OpCodes.LDC_I4_2)
+            .Emit(OpCodes.RET);
+
+        var level2 = cls.DefineMethod("level2",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        level2.GetGenerator()
+            .Emit(OpCodes.CALL, level3)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.LDC_I4_3)
+            .Emit(OpCodes.ADD)
+            .Emit(OpCodes.RET);
+
+        var level1 = cls.DefineMethod("level1",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        level1.GetGenerator()
+            .Emit(OpCodes.CALL, level2)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.LDC_I4_4)
+            .Emit(OpCodes.MUL)
+            .Emit(OpCodes.RET);
+
+        var master = cls.DefineMethod($"master_{testCase}_{uid}",
+            MethodFlags.Public | MethodFlags.Static,
+            VeinTypeCode.TYPE_OBJECT.AsClass()(types));
+        master.GetGenerator()
+            .Emit(OpCodes.CALL, level1)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.RET);
+
+        var frame = CompileAndExec(module, testCase, uid);
+
+        if (frame->exception.value != null)
+            Assert.Fail($"Fault: [{frame->exception.value->clazz->Name}]");
+
+        Assert.That(frame->returnValue[0].data.i, Is.EqualTo(20));
+    }
+
+    [Test]
+    public void Await_VoidThenValue_StackCorrect()
+    {
+        // await void async (no result pushed), then await value async, verify
+        var uid = Guid.NewGuid().ToString("N");
+        var testCase = "VoidThenVal";
+        var (module, types, jobClass) = CreateTestModule(uid);
+
+        var cls = module.DefineClass(new NameSymbol($"testClass_{testCase}_{uid}"), NamespaceSymbol.Internal);
+
+        var asyncVoid = cls.DefineMethod("void_op",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinComplexType)(VeinClass)jobClass);
+        asyncVoid.GetGenerator()
+            .Emit(OpCodes.RET);
+
+        var asyncVal = cls.DefineMethod("get_55",
+            MethodFlags.Public | MethodFlags.Static | MethodFlags.Async,
+            (VeinClass)jobClass);
+        asyncVal.GetGenerator()
+            .Emit(OpCodes.LDC_I4_S, 55)
+            .Emit(OpCodes.RET);
+
+        // master: call void_op → await → call get_55 → await → RET (should be 55)
+        var master = cls.DefineMethod($"master_{testCase}_{uid}",
+            MethodFlags.Public | MethodFlags.Static,
+            VeinTypeCode.TYPE_OBJECT.AsClass()(types));
+        master.GetGenerator()
+            .Emit(OpCodes.CALL, asyncVoid)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.CALL, asyncVal)
+            .Emit(OpCodes.AWAIT)
+            .Emit(OpCodes.RET);
+
+        var frame = CompileAndExec(module, testCase, uid);
+
+        if (frame->exception.value != null)
+            Assert.Fail($"Fault: [{frame->exception.value->clazz->Name}]");
+
+        Assert.That(frame->returnValue[0].data.i, Is.EqualTo(55));
     }
 
     #endregion
