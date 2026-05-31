@@ -572,9 +572,10 @@ public unsafe class AsyncRuntimeTest : IshtarTestBase
     }
 
     [Test]
-    public void Await_DuplicateJobObject_BothAwaitsSeeResult()
+    public void Await_SameJobAwaitedTwice_BothSeeResult()
     {
-        // call async once, DUP the job object, AWAIT twice — both should give 77
+        // Verify that two AWAITs on the same completed Job both observe the result.
+        // CALL → DUP → STLOC_0 → AWAIT (first copy) → LDLOC_0 → AWAIT (second copy) → ADD → RET
         var uid = Guid.NewGuid().ToString("N");
         var testCase = "DupAwait";
         var (module, types, jobClass) = CreateTestModule(uid);
@@ -588,17 +589,21 @@ public unsafe class AsyncRuntimeTest : IshtarTestBase
             .Emit(OpCodes.LDC_I4_S, 77)
             .Emit(OpCodes.RET);
 
-        // master: call → DUP → AWAIT → swap → AWAIT → ADD → RET = 77 + 77 = 154
+        // master: CALL → DUP → STLOC_0 → AWAIT → LDLOC_0 → AWAIT → ADD → RET
+        // Both AWAITs consume the same Job object; both should push 77.
         var master = cls.DefineMethod($"master_{testCase}_{uid}",
             MethodFlags.Public | MethodFlags.Static,
             VeinTypeCode.TYPE_OBJECT.AsClass()(types));
-        master.GetGenerator()
-            .Emit(OpCodes.CALL, asyncVal)
-            .Emit(OpCodes.DUP)
-            .Emit(OpCodes.AWAIT)  // awaits first copy, pushes 77
-            .Emit(OpCodes.CALL, asyncVal) // push new job (just to create separation)
-            .Emit(OpCodes.AWAIT)  // awaits second, pushes 77
-            .Emit(OpCodes.ADD)    // 77 + 77
+        var gen = master.GetGenerator();
+        gen.EnsureLocal("savedJob", (VeinClass)jobClass);
+        gen
+            .Emit(OpCodes.CALL, asyncVal)   // [Job]
+            .Emit(OpCodes.DUP)              // [Job, Job]
+            .Emit(OpCodes.STLOC_0)          // [Job]         local0 = Job
+            .Emit(OpCodes.AWAIT)            // [77]          await first copy
+            .Emit(OpCodes.LDLOC_0)          // [77, Job]     reload same Job
+            .Emit(OpCodes.AWAIT)            // [77, 77]      await second copy (already completed)
+            .Emit(OpCodes.ADD)              // [154]
             .Emit(OpCodes.RET);
 
         var frame = CompileAndExec(module, testCase, uid);

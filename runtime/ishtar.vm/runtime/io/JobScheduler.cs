@@ -135,7 +135,21 @@ public unsafe struct JobScheduler : IDisposable
     public void Dispose()
     {
         Stop();
+
+        // Close the async handle so the loop has no active handles
+        uv_close((nint)asyncWakeup, null);
+
+        // Drain pending callbacks (processes the close callback)
+        uv_run(loop, uv_run_mode.UV_RUN_NOWAIT);
+
         uv_loop_close(loop);
+        uv_loop_delete(loop);
+
+        // Free the async handle allocation
+        IshtarGC.FreeAtomicImmortal(asyncWakeup);
+
+        // Free the resumption queue and mutex
+        IshtarGC.FreeQueue(_resumptionQueue);
         uv_mutex_destroy(_queueMutex);
         IshtarGC.FreeImmortal(_queueMutex);
     }

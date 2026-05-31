@@ -107,8 +107,15 @@ public unsafe partial struct VirtualMachine
         if (!resumeFrame->exception.IsDefault() && ownerJob != null && ownerJob->state == JobState.Pending)
             ownerJob->SetException(resumeFrame->exception);
 
-        // Free the args that were kept alive for the suspended frame
-        if (suspended->args != null && suspended->argLength > 0)
+        // Determine if the method re-suspended at another AWAIT.
+        // If it did, the new SuspendedFrame now owns the args pointer — do NOT free.
+        var didComplete = ownerJob != null
+            ? ownerJob->state != JobState.Pending
+            : !resumeFrame->returnValue.IsNull();
+        var didReSuspend = !didComplete && resumeFrame->exception.IsDefault();
+
+        // Only free args when the method actually finished (completed or faulted)
+        if (!didReSuspend && suspended->args != null && suspended->argLength > 0)
             @ref->gc->FreeStack(resumeFrame, suspended->args, suspended->argLength);
 
         resumeFrame->Dispose();

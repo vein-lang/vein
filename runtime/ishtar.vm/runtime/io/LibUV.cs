@@ -46,6 +46,12 @@ public static unsafe class LibUV
     public static extern UV_ERR uv_loop_close(nint loop);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_loop_delete(nint loop);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_walk(nint loop, uv_walk_cb walk_cb, nint arg);
+
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern void uv_close(nint handle, uv_close_cb cb);
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
@@ -213,6 +219,7 @@ public static unsafe class LibUV
     public delegate void uv_read_cb(uv_stream_t* stream, nint nread, uv_buf_t* buffer);
     public delegate void uv_async_cb(nint handle);
     public delegate void uv_close_cb(nint handle);
+    public delegate void uv_walk_cb(nint handle, nint arg);
     public delegate void uv_timer_cb(nint handle);
     public delegate void uv_thread_cb(nint arg);
     public delegate void uv_after_work_cb(uv_work_t* req, int status);
