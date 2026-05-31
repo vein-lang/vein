@@ -141,6 +141,15 @@ public static unsafe class JitHelpers
             return;
         }
 
+        if (obj->clazz == null || obj->clazz->ID != clazz->ID)
+        {
+            var actual = obj->clazz == null ? "<null>" : obj->clazz->Name;
+            frame->vm->FastFail(ishtar.WNE.TYPE_MISMATCH,
+                $"Cannot unbox '{actual}' as '{clazz->Name}'.", frame);
+            result->type = TYPE_NONE;
+            result->data.p = 0;
+            return;
+        }
         var unboxField = obj->clazz->FindField("!!value");
         if (unboxField is not null)
         {
