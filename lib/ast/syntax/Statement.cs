@@ -91,6 +91,11 @@ namespace vein.syntax
         protected internal virtual Parser<StatementSyntax> embedded_statement =>
             Block.Or(simple_embedded_statement);
 
+        protected internal virtual Parser<UnsafeBlockSyntax> UnsafeStatement =>
+            from _ in KeywordExpression("unsafe").Token()
+            from body in Block.Positioned()
+            select new UnsafeBlockSyntax { Body = body };
+
         protected internal virtual Parser<StatementSyntax> simple_embedded_statement =>
             Parse.Char(';').Token().Return((StatementSyntax)new EmptyStatementSyntax())
             .Or(IfStatement.Positioned())
@@ -101,6 +106,7 @@ namespace vein.syntax
             .Or(foreach_statement.Positioned())
             .Or(FailStatement.Positioned())
             .Or(DeleteStatement.Positioned())
+            .Or(UnsafeStatement.Positioned())
             .Or(QualifiedExpression.Then(x => Parse.Char(';').Token()
                 .Return(new QualifiedExpressionStatement(x))).Positioned());
 

@@ -60,7 +60,8 @@ namespace vein.syntax
                     Keyword("static")).Or(
                     Keyword("const")).Or(
                     Keyword("global")).Or(
-                    Keyword("extern"))
+                    Keyword("extern")).Or(
+                    Keyword("unsafe"))
                 .Text()
              select new ModificatorSyntax(mod))
             .Token()
@@ -81,10 +82,13 @@ namespace vein.syntax
             (from type in NonGenericType
              from parameters in TypeParameters.Optional()
              from arraySpecifier in Parse.Char('[').Token().Then(_ => Parse.Char(']').Token()).Optional()
+             from pointerSpecifier in Parse.Char('*').Token().Optional()
              select new TypeSyntax(type)
              {
                  TypeParameters = parameters.GetOrElse(Enumerable.Empty<TypeSyntax>()).ToList(),
                  IsArray = arraySpecifier.IsDefined,
+                 IsPointer = pointerSpecifier.IsDefined,
+                 PointerRank = pointerSpecifier.IsDefined ? 1 : 0,
              }).Token().Positioned();
 
         internal virtual Parser<IEnumerable<TypeSyntax>> TypeParameters =>
