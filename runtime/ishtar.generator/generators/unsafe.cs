@@ -134,10 +134,16 @@ public static void EmitUnsafeBlock(this ILGenerator gen, UnsafeBlockSyntax unsaf
             throw new SkipStatementException();
         }
 
-        gen.EmitExpression(assign.Right);
-        gen.EmitExpression(ptrDeref.Operand);
-        gen.Emit(OpCodes.STIND, (int)VeinTypeCode.TYPE_I4);
+var ptrType = ptrDeref.Operand.DetermineType(ctx);
+if (ptrType.IsGeneric || ptrType.Class.TypeCode != VeinTypeCode.TYPE_RAW)
+{
+    ctx.LogError($"Cannot store through non-pointer type '{ptrType}'", assign.Left);
+    throw new SkipStatementException();
+}
 
+gen.EmitExpression(assign.Right);
+gen.EmitExpression(ptrDeref.Operand);
+gen.Emit(OpCodes.STIND, (int)VeinTypeCode.TYPE_I4);
         return gen;
     }
 }
