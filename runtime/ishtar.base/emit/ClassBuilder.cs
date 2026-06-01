@@ -195,7 +195,7 @@ namespace ishtar.emit
 
         byte[] IBaker.BakeByteArray()
         {
-            if (Methods.Count == 0 && Fields.Count == 0)
+            if (Methods.Count == 0 && Fields.Count == 0 && Parents.Count == 0)
                 return [];
             using var mem = new MemoryStream();
             using var binary = new BinaryWriter(mem);

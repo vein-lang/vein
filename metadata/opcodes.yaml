@@ -216,7 +216,6 @@
     description: Cast to T
     stack-delta: 0
     use-root: true
-    override-size: 4
     G:
       override-size: 10
       description: Cast from T1 to T2
