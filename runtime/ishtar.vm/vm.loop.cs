@@ -1655,6 +1655,98 @@ public unsafe partial struct VirtualMachine : IDisposable
                 }
                     break;
 
+                case LDIND:
+                {
+                    ++ip;
+                    var typeCode = (VeinTypeCode)(*ip);
+                    ++ip;
+                    --sp;
+                    var rawPtr = (void*)sp->data.p;
+                    FastFail(rawPtr == null, STATE_CORRUPT, "LDIND: null pointer dereference", invocation);
+                    if (HasFaulted()) break;
+                    switch (typeCode)
+                    {
+                        case TYPE_I1: sp->data.b  = *(sbyte*)rawPtr;  sp->type = TYPE_I1; break;
+                        case TYPE_I2: sp->data.s  = *(short*)rawPtr;  sp->type = TYPE_I2; break;
+                        case TYPE_I4: sp->data.i  = *(int*)rawPtr;    sp->type = TYPE_I4; break;
+                        case TYPE_I8: sp->data.l  = *(long*)rawPtr;   sp->type = TYPE_I8; break;
+                        case TYPE_U1: sp->data.ub = *(byte*)rawPtr;   sp->type = TYPE_U1; break;
+                        case TYPE_U2: sp->data.us = *(ushort*)rawPtr; sp->type = TYPE_U2; break;
+                        case TYPE_U4: sp->data.ui = *(uint*)rawPtr;   sp->type = TYPE_U4; break;
+                        case TYPE_U8: sp->data.ul = *(ulong*)rawPtr;  sp->type = TYPE_U8; break;
+                        case TYPE_R4: sp->data.f_r4 = *(float*)rawPtr;  sp->type = TYPE_R4; break;
+                        case TYPE_R8: sp->data.f  = *(double*)rawPtr; sp->type = TYPE_R8; break;
+                        default: FastFail(STATE_CORRUPT, $"LDIND: unsupported type {typeCode}", invocation); break;
+                    }
+                    ++sp;
+                }
+                    break;
+                case STIND:
+                {
+                    ++ip;
+                    var typeCode = (VeinTypeCode)(*ip);
+                    ++ip;
+                    --sp;
+                    var rawPtr = (void*)sp->data.p;
+                    FastFail(rawPtr == null, STATE_CORRUPT, "STIND: null pointer dereference", invocation);
+                    if (HasFaulted()) break;
+                    --sp;
+                    switch (typeCode)
+                    {
+                        case TYPE_I1: *(sbyte*)rawPtr  = sp->data.b;  break;
+                        case TYPE_I2: *(short*)rawPtr  = sp->data.s;  break;
+                        case TYPE_I4: *(int*)rawPtr    = sp->data.i;  break;
+                        case TYPE_I8: *(long*)rawPtr   = sp->data.l;  break;
+                        case TYPE_U1: *(byte*)rawPtr   = sp->data.ub; break;
+                        case TYPE_U2: *(ushort*)rawPtr = sp->data.us; break;
+                        case TYPE_U4: *(uint*)rawPtr   = sp->data.ui; break;
+                        case TYPE_U8: *(ulong*)rawPtr  = sp->data.ul; break;
+                        case TYPE_R4: *(float*)rawPtr  = sp->data.f_r4; break;
+                        case TYPE_R8: *(double*)rawPtr = sp->data.f;  break;
+                        default: FastFail(STATE_CORRUPT, $"STIND: unsupported type {typeCode}", invocation); break;
+                    }
+                }
+                    break;
+                case ADDR_LOC:
+                {
+                    ++ip;
+                    var idx = (int)(*ip);
+                    ++ip;
+                    FastFail(locals.IsNull(), STATE_CORRUPT, "ADDR_LOC: locals not initialized", invocation);
+                    FastFail((uint)idx >= locals.size, OUT_OF_RANGE, $"ADDR_LOC: local index {idx} out of range", invocation);
+                    if (HasFaulted()) break;
+                    sp->data.p = (nint)(&locals.Ref[idx].data);
+                    sp->type = TYPE_RAW;
+                    ++sp;
+                }
+                    break;
+                case ADDR_ARG:
+                {
+                    ++ip;
+                    var idx = (int)(*ip);
+                    ++ip;
+                    FastFail(args == null, STATE_CORRUPT, "ADDR_ARG: args not initialized", invocation);
+                    if (HasFaulted()) break;
+                    sp->data.p = (nint)(&args[idx].data);
+                    sp->type = TYPE_RAW;
+                    ++sp;
+                }
+                    break;
+                case STACKALLOC:
+                {
+                    ++ip;
+                    --sp;
+                    var allocSize = sp->data.i;
+                    FastFail(allocSize <= 0, STATE_CORRUPT, $"STACKALLOC: invalid size {allocSize}", invocation);
+                    if (HasFaulted()) break;
+                    var rawMem = invocation->AllocUnsafeStack(allocSize);
+                    if (HasFaulted()) break;
+                    sp->data.p = (nint)rawMem;
+                    sp->type = TYPE_RAW;
+                    ++sp;
+                }
+                    break;
+
                 default:
                     CallFrame.FillStackTrace(invocation);
 

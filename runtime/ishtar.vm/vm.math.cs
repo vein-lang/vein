@@ -196,6 +196,22 @@ public unsafe partial struct VirtualMachine
 
     private void A_OP(stackval* sp, int a_t, uint* ip, CallFrame* frame)
     {
+        // Pointer arithmetic: RAW + i4/i8 or RAW - i4/i8
+        if (sp[-1].type == TYPE_RAW && (sp[0].type == TYPE_I4 || sp[0].type == TYPE_I8))
+        {
+            var offset = sp[0].type == TYPE_I4 ? (nint)sp[0].data.i : (nint)sp[0].data.l;
+            switch (a_t)
+            {
+                case 0: sp[-1].data.p += offset; break; // ADD
+                case 1: sp[-1].data.p -= offset; break; // SUB
+                default:
+                    FastFail(WNE.TYPE_MISMATCH, $"Pointer arithmetic only supports ADD/SUB, not op={a_t}", frame);
+                    break;
+            }
+            sp[-1].type = TYPE_RAW;
+            return;
+        }
+
         if (sp[-1].type != sp[0].type)
         {
             FastFail(WNE.TYPE_MISMATCH, $"Currently math operation for '{sp[-1].type}' and '{sp[0].type}' not supported.", frame);

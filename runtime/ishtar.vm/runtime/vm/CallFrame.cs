@@ -1,5 +1,6 @@
 namespace ishtar
 {
+    using System.Runtime.InteropServices;
     using System.Text;
     using io;
     using runtime.gc;
@@ -51,6 +52,32 @@ namespace ishtar
         public stackval awaitResult;
 
         public CallFrameException exception;
+
+        public byte* _unsafeStack;
+        public int _unsafeStackUsed;
+        private const int UnsafeStackSize = 65536;
+
+        public void* AllocUnsafeStack(int size)
+        {
+            if (_unsafeStack == null)
+                _unsafeStack = (byte*)NativeMemory.Alloc(UnsafeStackSize);
+            if (_unsafeStackUsed + size > UnsafeStackSize)
+            {
+                vm->FastFail(WNE.OVERFLOW, "unsafe stack overflow: per-frame limit exceeded", Self);
+                return null;
+            }
+            var ptr = _unsafeStack + _unsafeStackUsed;
+            _unsafeStackUsed += size;
+            return ptr;
+        }
+
+        private void FreeUnsafeStack()
+        {
+            if (_unsafeStack != null)
+                NativeMemory.Free(_unsafeStack);
+            _unsafeStack = null;
+            _unsafeStackUsed = 0;
+        }
 
         public CallFrame* CreateChild(RuntimeIshtarMethod* m) => Create(m, Self);
 
@@ -142,6 +169,10 @@ namespace ishtar
                 frame->exception.stack_trace = StringStorage.Intern(str.ToString(), frame);
         }
 
-        public void Dispose() => Free(Self);
+        public void Dispose()
+        {
+            FreeUnsafeStack();
+            Free(Self);
+        }
     }
 }
