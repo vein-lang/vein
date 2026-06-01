@@ -4,7 +4,7 @@ using System.Text;
 using ishtar;
 using ishtar.io;
 using lang.c;
-using LLVMSharp.Interop;
+//using LLVMSharp.Interop;
 using vein;
 using vein.runtime;
 using static ishtar.libuv.LibUV;
@@ -14,9 +14,9 @@ using var writer = new StreamWriter("../../../../../include/ishtar.h");
 var asm = typeof(VirtualMachine).Assembly;
 
 
-CTypes.OverridesTypes.Add(typeof(LLVMModuleRef), "void*");
-CTypes.OverridesTypes.Add(typeof(LLVMValueRef), "void*");
-CTypes.OverridesTypes.Add(typeof(LLVMExecutionEngineRef), "void*");
+//CTypes.OverridesTypes.Add(typeof(LLVMModuleRef), "void*");
+//CTypes.OverridesTypes.Add(typeof(LLVMValueRef), "void*");
+//CTypes.OverridesTypes.Add(typeof(LLVMExecutionEngineRef), "void*");
 CTypes.OverridesTypes.Add(typeof(uv_thread_t), "void*");
 CTypes.OverridesTypes.Add(typeof(uv_sem_t), "void*");
 CTypes.OverridesTypes.Add(typeof(GCHandle), "void*");
