@@ -757,5 +757,25 @@ public enum OpCodeValue : ushort
 	/// Copy struct value (memcpy for bittable types).
 	/// </summary>
 	CPSTRUCT = 0xBB,
+	/// <summary>
+	/// Load value from raw pointer on evaluation stack. arg=VeinTypeCode. (ptr) -> (value)
+	/// </summary>
+	LDIND = 0xBC,
+	/// <summary>
+	/// Store value to raw pointer on evaluation stack. arg=VeinTypeCode. (value, ptr) -> ()
+	/// </summary>
+	STIND = 0xBD,
+	/// <summary>
+	/// Push address of local variable data onto evaluation stack. arg=local_index. () -> (ptr)
+	/// </summary>
+	ADDR_LOC = 0xBE,
+	/// <summary>
+	/// Push address of method argument data onto evaluation stack. arg=arg_index. () -> (ptr)
+	/// </summary>
+	ADDR_ARG = 0xBF,
+	/// <summary>
+	/// Allocate size_bytes bytes on frame unsafe stack. (size_bytes) -> (ptr)
+	/// </summary>
+	STACKALLOC = 0xC0,
 
 }

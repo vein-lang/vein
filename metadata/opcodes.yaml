@@ -341,4 +341,22 @@
 - CPSTRUCT:
     description: Copy struct value (memcpy for bittable types).
     stack-delta: 0
+- LDIND:
+    description: Load value from raw pointer on evaluation stack. arg=VeinTypeCode. (ptr) -> (value)
     override-size: 4
+    stack-delta: 0
+- STIND:
+    description: Store value to raw pointer on evaluation stack. arg=VeinTypeCode. (value, ptr) -> ()
+    override-size: 4
+    stack-delta: -2
+- ADDR_LOC:
+    description: Push address of local variable data onto evaluation stack. arg=local_index. () -> (ptr)
+    override-size: 4
+    stack-delta: 1
+- ADDR_ARG:
+    description: Push address of method argument data onto evaluation stack. arg=arg_index. () -> (ptr)
+    override-size: 4
+    stack-delta: 1
+- STACKALLOC:
+    description: Allocate size_bytes bytes on frame unsafe stack. (size_bytes) -> (ptr)
+    stack-delta: 0

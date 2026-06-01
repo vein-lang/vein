@@ -6,7 +6,7 @@ namespace ishtar
 	using System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 35;
+		internal static int SetVersion = 37;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -1318,11 +1318,46 @@ namespace ishtar
 		public static readonly OpCode INITSTRUCT = new (0xBA, 0x0100001F, 1);
 		/// <summary>
 		/// Copy struct value (memcpy for bittable types).
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode CPSTRUCT = new (0xBB, 0x0000001F, 0);
+		/// <summary>
+		/// Load value from raw pointer on evaluation stack. arg=VeinTypeCode. (ptr) -> (value)
 		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CPSTRUCT = new (0xBB, 0x0100001F, 0);
+		public static readonly OpCode LDIND = new (0xBC, 0x0100001F, 0);
+		/// <summary>
+		/// Store value to raw pointer on evaluation stack. arg=VeinTypeCode. (value, ptr) -> ()
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode STIND = new (0xBD, 0x0100001F, -2);
+		/// <summary>
+		/// Push address of local variable data onto evaluation stack. arg=local_index. () -> (ptr)
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode ADDR_LOC = new (0xBE, 0x0100001F, 1);
+		/// <summary>
+		/// Push address of method argument data onto evaluation stack. arg=arg_index. () -> (ptr)
+		/// size: 4
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode ADDR_ARG = new (0xBF, 0x0100001F, 1);
+		/// <summary>
+		/// Allocate size_bytes bytes on frame unsafe stack. (size_bytes) -> (ptr)
+		/// size: 0
+		/// flow: 0
+		/// chain: 0
+		/// </summary>
+		public static readonly OpCode STACKALLOC = new (0xC0, 0x0000001F, 0);
 
 		public static readonly Dictionary<OpCodeValue, OpCode> all = new ()
 		{
@@ -1514,6 +1549,11 @@ namespace ishtar
 			{OpCodeValue.UNBOX, UNBOX},
 			{OpCodeValue.INITSTRUCT, INITSTRUCT},
 			{OpCodeValue.CPSTRUCT, CPSTRUCT},
+			{OpCodeValue.LDIND, LDIND},
+			{OpCodeValue.STIND, STIND},
+			{OpCodeValue.ADDR_LOC, ADDR_LOC},
+			{OpCodeValue.ADDR_ARG, ADDR_ARG},
+			{OpCodeValue.STACKALLOC, STACKALLOC},
 		};
 	}
 }
