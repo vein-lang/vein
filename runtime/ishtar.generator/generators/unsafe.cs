@@ -108,13 +108,13 @@ public static void EmitUnsafeBlock(this ILGenerator gen, UnsafeBlockSyntax unsaf
             throw new SkipStatementException();
         }
 
-        var ptrType = node.Operand.DetermineType(ctx);
+var ptrType = node.Operand.DetermineType(ctx);
 
-        if (!ptrType.IsGeneric && ptrType.Class.TypeCode != VeinTypeCode.TYPE_RAW)
-        {
-            ctx.LogError($"Cannot dereference non-pointer type '{ptrType}'", node);
-            throw new SkipStatementException();
-        }
+if (ptrType.IsGeneric || ptrType.Class.TypeCode != VeinTypeCode.TYPE_RAW)
+{
+    ctx.LogError($"Cannot dereference non-pointer type '{ptrType}'", node);
+    throw new SkipStatementException();
+}
 
         gen.EmitExpression(node.Operand);
         // For v1: default dereference as i32; typed-pointer support requires a richer type system
