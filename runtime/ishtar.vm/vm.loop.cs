@@ -1687,10 +1687,11 @@ if (HasFaulted()) break;
                     ++ip;
                     var typeCode = (VeinTypeCode)(*ip);
                     ++ip;
-                    --sp;
-                    var rawPtr = (void*)sp->data.p;
-                    FastFail(rawPtr == null, STATE_CORRUPT, "STIND: null pointer dereference", invocation);
-                    if (HasFaulted()) break;
+--sp;
+FastFail(sp->type != TYPE_RAW, TYPE_MISMATCH, $"STIND: expected RAW pointer, got {sp->type}", invocation);
+var rawPtr = (void*)sp->data.p;
+FastFail(rawPtr == null, STATE_CORRUPT, "STIND: null pointer dereference", invocation);
+if (HasFaulted()) break;
                     --sp;
                     switch (typeCode)
                     {
