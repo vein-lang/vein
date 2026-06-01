@@ -1660,10 +1660,11 @@ public unsafe partial struct VirtualMachine : IDisposable
                     ++ip;
                     var typeCode = (VeinTypeCode)(*ip);
                     ++ip;
-                    --sp;
-                    var rawPtr = (void*)sp->data.p;
-                    FastFail(rawPtr == null, STATE_CORRUPT, "LDIND: null pointer dereference", invocation);
-                    if (HasFaulted()) break;
+--sp;
+FastFail(sp->type != TYPE_RAW, TYPE_MISMATCH, $"LDIND: expected RAW pointer, got {sp->type}", invocation);
+var rawPtr = (void*)sp->data.p;
+FastFail(rawPtr == null, STATE_CORRUPT, "LDIND: null pointer dereference", invocation);
+if (HasFaulted()) break;
                     switch (typeCode)
                     {
                         case TYPE_I1: sp->data.b  = *(sbyte*)rawPtr;  sp->type = TYPE_I1; break;
