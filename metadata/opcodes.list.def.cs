@@ -6,7 +6,7 @@ namespace ishtar
 	using System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 34;
+		internal static int SetVersion = 35;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -1108,11 +1108,11 @@ namespace ishtar
 		public static readonly OpCode NEWOBJ = new (0x52, 0x0100001F, 1);
 		/// <summary>
 		/// Cast to T
-		/// size: 4
+		/// size: 0
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CAST = new (0x71, 0x0100001F, 0);
+		public static readonly OpCode CAST = new (0x71, 0x0000001F, 0);
 		/// <summary>
 		/// Cast from T1 to T2
 		/// size: 10
