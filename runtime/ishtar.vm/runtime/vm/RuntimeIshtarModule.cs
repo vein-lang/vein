@@ -386,6 +386,8 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         foreach (var _ in ..reader.ReadInt32())
         {
             var body = reader.ReadBytes(reader.ReadInt32());
+            if (body.Length == 0)
+                continue;
             var metadata = module->DecodeClass(body, module);
             deferClassBodies.Add(metadata);
 

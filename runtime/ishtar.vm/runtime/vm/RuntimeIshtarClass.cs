@@ -394,7 +394,7 @@ namespace ishtar
             {
                 vtable_offset = Parent->computed_size;
                 Unsafe.CopyBlock(vtable, Parent->vtable,
-                    (uint)(sizeof(void*) * (uint)Parent->vtable_size));
+                    (uint)(sizeof(void*) * (uint)Parent->computed_size));
 #if DEBUG_VTABLE
                 for (var i = 0ul; i != vtable_offset; i++)
                 {

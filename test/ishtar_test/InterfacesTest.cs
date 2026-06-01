@@ -857,4 +857,179 @@ public unsafe class InterfacesTest : IshtarTestBase
         var result = scope.Compile().Execute().Validate();
         Equals(33, result->returnValue[0].data.l);
     }
+
+    /// <summary>
+    /// CAST to interface: validates that an object can be cast to an interface it implements.
+    /// Uses LD_TYPE + CAST opcodes.
+    /// </summary>
+    [Test]
+    [Parallelizable(ParallelScope.None)]
+    public void Interface_CastToInterface()
+    {
+        using var scope = CreateScope();
+
+        scope.OnClassBuild((@class, ctx) =>
+        {
+            var i4Type = VeinTypeCode.TYPE_I4.AsClass()(scope.Types);
+
+            // Interface IFoo with getValue() -> i32
+            var ifoo = scope.Module.DefineClass(new QualityTypeName(
+                new NameSymbol("IFoo"), NamespaceSymbol.Internal, scope.Module.Name));
+            ifoo.Flags = ClassFlags.Interface | ClassFlags.Public | ClassFlags.Abstract;
+            var ifooMethod = ifoo.DefineMethod("getValue", MethodFlags.Abstract | MethodFlags.Public, i4Type,
+                new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, ifoo));
+
+            // Class Zoo implements IFoo, getValue() returns 42
+            var zoo = scope.Module.DefineClass(new QualityTypeName(
+                new NameSymbol("Zoo"), NamespaceSymbol.Internal, scope.Module.Name));
+            zoo.Parents.Add(ifoo);
+            zoo.Flags = ClassFlags.Public;
+            var zooMethod = zoo.DefineMethod("getValue", MethodFlags.Override | MethodFlags.Public, i4Type,
+                new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, zoo));
+            zooMethod.GetGenerator().Emit(OpCodes.LDC_I4_S, 42);
+            zooMethod.GetGenerator().Emit(OpCodes.RET);
+
+            ctx.zoo = zoo;
+            ctx.ifoo = ifoo;
+            ctx.ifooMethod = ifooMethod;
+        });
+
+        scope.OnCodeBuild((gen, ctx) =>
+        {
+            VeinClass zoo = ctx.zoo;
+            VeinClass ifoo = ctx.ifoo;
+            VeinMethod ifooMethod = ctx.ifooMethod;
+
+            // new Zoo() -> LD_TYPE IFoo -> CAST -> call getValue()
+            gen.Emit(OpCodes.NEWOBJ, zoo);
+            gen.Emit(OpCodes.LD_TYPE, ifoo);
+            gen.Emit(OpCodes.CAST);
+            gen.Emit(OpCodes.CALL, ifooMethod); // interface dispatch returns 42
+            gen.Emit(OpCodes.RET);
+        });
+
+        var result = scope.Compile().Execute().Validate();
+        Equals(42, result->returnValue[0].data.l);
+    }
+
+    /// <summary>
+    /// Inherited interface implementation: child class inherits interface method from parent
+    /// without overriding. Dispatch should find the parent's implementation.
+    /// </summary>
+    [Test]
+    [Parallelizable(ParallelScope.None)]
+    public void Interface_InheritedImplementation()
+    {
+        using var scope = CreateScope();
+
+        scope.OnClassBuild((@class, ctx) =>
+        {
+            var i4Type = VeinTypeCode.TYPE_I4.AsClass()(scope.Types);
+
+            // Interface IValue with getValue() -> i32
+            var ivalue = scope.Module.DefineClass(new QualityTypeName(
+                new NameSymbol("IValue"), NamespaceSymbol.Internal, scope.Module.Name));
+            ivalue.Flags = ClassFlags.Interface | ClassFlags.Public | ClassFlags.Abstract;
+            var ivalueMethod = ivalue.DefineMethod("getValue", MethodFlags.Abstract | MethodFlags.Public, i4Type,
+                new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, ivalue));
+
+            // BaseImpl implements IValue, getValue() returns 10
+            var baseClass = scope.Module.DefineClass(new QualityTypeName(
+                new NameSymbol("BaseImpl"), NamespaceSymbol.Internal, scope.Module.Name));
+            baseClass.Parents.Add(ivalue);
+            baseClass.Flags = ClassFlags.Public;
+            var baseMethod = baseClass.DefineMethod("getValue", MethodFlags.Override | MethodFlags.Public | MethodFlags.Virtual, i4Type,
+                new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, baseClass));
+            baseMethod.GetGenerator().Emit(OpCodes.LDC_I4_S, 10);
+            baseMethod.GetGenerator().Emit(OpCodes.RET);
+
+            // ChildImpl extends BaseImpl — no override, inherits getValue from parent
+            var child = scope.Module.DefineClass(new QualityTypeName(
+                new NameSymbol("ChildImpl"), NamespaceSymbol.Internal, scope.Module.Name), baseClass);
+            child.Flags = ClassFlags.Public;
+
+            ctx.child = child;
+            ctx.ivalueMethod = ivalueMethod;
+        });
+
+        scope.OnCodeBuild((gen, ctx) =>
+        {
+            VeinClass child = ctx.child;
+            VeinMethod ivalueMethod = ctx.ivalueMethod;
+
+            // new ChildImpl().getValue() should return 10 (inherited from BaseImpl)
+            gen.Emit(OpCodes.NEWOBJ, child);
+            gen.Emit(OpCodes.CALL, ivalueMethod);
+            gen.Emit(OpCodes.RET);
+        });
+
+        var result = scope.Compile().Execute().Validate();
+        Equals(10, result->returnValue[0].data.l);
+    }
+
+    /// <summary>
+    /// Class extends a base class with a virtual method AND implements an interface.
+    /// Verifies both virtual dispatch from parent and interface dispatch coexist.
+    /// </summary>
+    [Test]
+    [Parallelizable(ParallelScope.None)]
+    public void Interface_VirtualParentAndInterface()
+    {
+        using var scope = CreateScope();
+
+        scope.OnClassBuild((@class, ctx) =>
+        {
+            var i4Type = VeinTypeCode.TYPE_I4.AsClass()(scope.Types);
+
+            // BaseClass with virtual getBase() -> 100
+            var baseClass = scope.Module.DefineClass(new QualityTypeName(
+                new NameSymbol("BaseClass"), NamespaceSymbol.Internal, scope.Module.Name));
+            baseClass.Flags = ClassFlags.Public;
+            var getBase = baseClass.DefineMethod("getBase", MethodFlags.Public | MethodFlags.Virtual, i4Type,
+                new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, baseClass));
+            getBase.GetGenerator().Emit(OpCodes.LDC_I4_S, 100);
+            getBase.GetGenerator().Emit(OpCodes.RET);
+
+            // Interface IComputable with compute() -> i32
+            var icomp = scope.Module.DefineClass(new QualityTypeName(
+                new NameSymbol("IComputable"), NamespaceSymbol.Internal, scope.Module.Name));
+            icomp.Flags = ClassFlags.Interface | ClassFlags.Public | ClassFlags.Abstract;
+            var computeMethod = icomp.DefineMethod("compute", MethodFlags.Abstract | MethodFlags.Public, i4Type,
+                new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, icomp));
+
+            // Derived extends BaseClass, implements IComputable
+            var derived = scope.Module.DefineClass(new QualityTypeName(
+                new NameSymbol("Derived"), NamespaceSymbol.Internal, scope.Module.Name), baseClass);
+            derived.Parents.Add(icomp);
+            derived.Flags = ClassFlags.Public;
+            var computeImpl = derived.DefineMethod("compute", MethodFlags.Override | MethodFlags.Public, i4Type,
+                new VeinArgumentRef(VeinArgumentRef.THIS_ARGUMENT, derived));
+            computeImpl.GetGenerator().Emit(OpCodes.LDC_I4_S, 50);
+            computeImpl.GetGenerator().Emit(OpCodes.RET);
+
+            ctx.derived = derived;
+            ctx.getBase = getBase;
+            ctx.computeMethod = computeMethod;
+        });
+
+        scope.OnCodeBuild((gen, ctx) =>
+        {
+            VeinClass derived = ctx.derived;
+            VeinMethod getBase = ctx.getBase;
+            VeinMethod computeMethod = ctx.computeMethod;
+
+            // new Derived().getBase() + new Derived().compute() = 100 + 50 = 150
+            gen.Emit(OpCodes.NEWOBJ, derived);
+            gen.Emit(OpCodes.CALL, getBase); // virtual dispatch to BaseClass.getBase
+
+            gen.Emit(OpCodes.NEWOBJ, derived);
+            gen.Emit(OpCodes.CALL, computeMethod); // interface dispatch to Derived.compute
+
+            gen.Emit(OpCodes.ADD);
+            gen.Emit(OpCodes.RET);
+        });
+
+        var result = scope.Compile().Execute().Validate();
+        Equals(150, result->returnValue[0].data.l);
+    }
 }
