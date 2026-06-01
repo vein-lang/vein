@@ -7,20 +7,19 @@ using static G_Access;
 
 public static class G_Unsafe
 {
-public static void EmitUnsafeBlock(this ILGenerator gen, UnsafeBlockSyntax unsafeBlock)
-{
-    var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
-    var prev = ctx.IsUnsafeContext;
-    ctx.IsUnsafeContext = true;
-    try
+    public static void EmitUnsafeBlock(this ILGenerator gen, UnsafeBlockSyntax unsafeBlock)
     {
-        gen.EmitBlock(unsafeBlock.Body);
-    }
-    finally
-    {
-        ctx.IsUnsafeContext = prev;
-    }
-}
+        var ctx = gen.ConsumeFromMetadata<GeneratorContext>("context");
+        var prev = ctx.IsUnsafeContext;
+        ctx.IsUnsafeContext = true;
+        try
+        {
+            gen.EmitBlock(unsafeBlock.Body);
+        }
+        finally
+        {
+            ctx.IsUnsafeContext = prev;
+        }
     }
 
     public static ILGenerator EmitStackAlloc(this ILGenerator gen, StackAllocExpressionSyntax expr)
