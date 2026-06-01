@@ -212,6 +212,8 @@ public static class G_Types
             return typeAs.Generics.Single().DetermineType(context);
         if (exp is TypeIsFunctionExpression)
             return VeinTypeCode.TYPE_BOOLEAN.AsClass()(Types.Storage);
+        if (exp is StackAllocExpressionSyntax)
+            return VeinTypeCode.TYPE_RAW.AsClass()(Types.Storage);
 
         if (exp is UnaryExpressionSyntax unary)
         {
@@ -245,8 +247,11 @@ public static class G_Types
             if (unary.OperatorType.IsLogic())
                 return VeinTypeCode.TYPE_BOOLEAN.AsClass()(Types.Storage);
 
-            
-            // todo
+            if (unary.OperatorType == System.Linq.Expressions.ExpressionType.And)
+                return VeinTypeCode.TYPE_RAW.AsClass()(Types.Storage); // address-of -> Raw pointer
+
+            if (unary.OperatorType == System.Linq.Expressions.ExpressionType.Multiply)
+                return VeinTypeCode.TYPE_I4.AsClass()(Types.Storage); // pointer dereference -> i32 (v1 default)
         }
 
 

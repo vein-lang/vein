@@ -88,6 +88,8 @@ public static class G_Logic
             generator.EmitFail(fail);
         else if (statement is TryStatementSyntax @try)
             generator.EmitTry(@try);
+        else if (statement is UnsafeBlockSyntax unsafeBlock)
+            generator.EmitUnsafeBlock(unsafeBlock);
         else
             throw new NotImplementedException();
     }
