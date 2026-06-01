@@ -1722,11 +1722,12 @@ public unsafe partial struct VirtualMachine : IDisposable
                     break;
                 case ADDR_ARG:
                 {
-                    ++ip;
-                    var idx = (int)(*ip);
-                    ++ip;
-                    FastFail(args == null, STATE_CORRUPT, "ADDR_ARG: args not initialized", invocation);
-                    if (HasFaulted()) break;
+++ip;
+var idx = (int)(*ip);
+++ip;
+FastFail(args == null, STATE_CORRUPT, "ADDR_ARG: args not initialized", invocation);
+FastFail((uint)idx >= invocation->method->ArgLength, OUT_OF_RANGE, $"ADDR_ARG: arg index {idx} out of range", invocation);
+if (HasFaulted()) break;
                     sp->data.p = (nint)(&args[idx].data);
                     sp->type = TYPE_RAW;
                     ++sp;
