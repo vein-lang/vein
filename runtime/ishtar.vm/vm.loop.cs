@@ -1737,11 +1737,12 @@ if (HasFaulted()) break;
                     break;
                 case STACKALLOC:
                 {
-                    ++ip;
-                    --sp;
-                    var allocSize = sp->data.i;
-                    FastFail(allocSize <= 0, STATE_CORRUPT, $"STACKALLOC: invalid size {allocSize}", invocation);
-                    if (HasFaulted()) break;
+++ip;
+--sp;
+FastFail(sp->type != TYPE_I4, TYPE_MISMATCH, $"STACKALLOC: expected I4 size, got {sp->type}", invocation);
+var allocSize = sp->data.i;
+FastFail(allocSize <= 0, STATE_CORRUPT, $"STACKALLOC: invalid size {allocSize}", invocation);
+if (HasFaulted()) break;
                     var rawMem = invocation->AllocUnsafeStack(allocSize);
                     if (HasFaulted()) break;
                     sp->data.p = (nint)rawMem;
