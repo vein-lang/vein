@@ -178,6 +178,13 @@ namespace ishtar
         {
             if (Interfaces is null)
                 Interfaces = IshtarGC.AllocateList<RuntimeIshtarClass>(_selfReference);
+
+            for (var i = 0; i != Interfaces->Count; i++)
+            {
+                if (RuntimeQualityTypeName.Eq(Interfaces->Get(i)->FullName, iface->FullName))
+                    return;
+            }
+
             Interfaces->Add(iface);
         }
 
