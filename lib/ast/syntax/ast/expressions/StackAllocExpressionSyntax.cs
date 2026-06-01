@@ -8,10 +8,10 @@ public class StackAllocExpressionSyntax(TypeSyntax elementType, ExpressionSyntax
 {
     public override SyntaxType Kind => SyntaxType.StackAllocExpression;
 
-    public TypeSyntax ElementType { get; } = elementType;
-    public ExpressionSyntax Count { get; } = count;
+public TypeSyntax ElementType { get; } = elementType;
+public ExpressionSyntax Count { get; } = count;
 
-    public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(Count);
+public override IEnumerable<BaseSyntax> ChildNodes => GetNodes(ElementType, Count);
 
     public new StackAllocExpressionSyntax SetPos(Position startPos, int length)
     {
