@@ -341,6 +341,7 @@
 - CPSTRUCT:
     description: Copy struct value (memcpy for bittable types).
     stack-delta: 0
+    override-size: 4
 - LDIND:
     description: Load value from raw pointer on evaluation stack. arg=VeinTypeCode. (ptr) -> (value)
     override-size: 4

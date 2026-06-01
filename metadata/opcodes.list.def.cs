@@ -6,7 +6,7 @@ namespace ishtar
 	using System.Collections.Generic;
 	public static class OpCodes 
 	{
-		internal static int SetVersion = 37;
+		internal static int SetVersion = 38;
 		/// <summary>
 		/// Nope operation.
 		/// size: 0
@@ -1318,11 +1318,11 @@ namespace ishtar
 		public static readonly OpCode INITSTRUCT = new (0xBA, 0x0100001F, 1);
 		/// <summary>
 		/// Copy struct value (memcpy for bittable types).
-		/// size: 0
+		/// size: 4
 		/// flow: 0
 		/// chain: 0
 		/// </summary>
-		public static readonly OpCode CPSTRUCT = new (0xBB, 0x0000001F, 0);
+		public static readonly OpCode CPSTRUCT = new (0xBB, 0x0100001F, 0);
 		/// <summary>
 		/// Load value from raw pointer on evaluation stack. arg=VeinTypeCode. (ptr) -> (value)
 		/// size: 4
