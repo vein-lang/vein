@@ -57,19 +57,39 @@ namespace ishtar
         public int _unsafeStackUsed;
         private const int UnsafeStackSize = 65536;
 
-        public void* AllocUnsafeStack(int size)
+public void* AllocUnsafeStack(int size)
+{
+    if (size <= 0)
+    {
+        vm->FastFail(WNE.STATE_CORRUPT, $"unsafe stackalloc invalid size {size}", Self);
+        return null;
+    }
+
+    if (_unsafeStack == null)
+    {
+        _unsafeStack = (byte*)NativeMemory.Alloc(UnsafeStackSize);
+        if (_unsafeStack == null)
         {
-            if (_unsafeStack == null)
-                _unsafeStack = (byte*)NativeMemory.Alloc(UnsafeStackSize);
-            if (_unsafeStackUsed + size > UnsafeStackSize)
-            {
-                vm->FastFail(WNE.OVERFLOW, "unsafe stack overflow: per-frame limit exceeded", Self);
-                return null;
-            }
-            var ptr = _unsafeStack + _unsafeStackUsed;
-            _unsafeStackUsed += size;
-            return ptr;
+            vm->FastFail(WNE.OUT_OF_MEMORY, "unsafe stack allocation failed", Self);
+            return null;
         }
+    }
+
+    // Ensure at least pointer-size alignment for safe typed loads/stores (e.g., on ARM64)
+    const int alignment = sizeof(nint);
+    var alignedUsed = (_unsafeStackUsed + (alignment - 1)) & ~(alignment - 1);
+
+    // Use subtraction to avoid `_unsafeStackUsed + size` overflow
+    if ((uint)size > UnsafeStackSize || (uint)alignedUsed > (uint)(UnsafeStackSize - size))
+    {
+        vm->FastFail(WNE.OVERFLOW, "unsafe stack overflow: per-frame limit exceeded", Self);
+        return null;
+    }
+
+    var ptr = _unsafeStack + alignedUsed;
+    _unsafeStackUsed = alignedUsed + size;
+    return ptr;
+}
 
         private void FreeUnsafeStack()
         {
