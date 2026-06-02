@@ -18,7 +18,8 @@ public enum ModificatorKind
     Virtual,
     Readonly,
     Abstract,
-    Async
+    Async,
+    Unsafe
 }
 
 public class ModificatorSyntax(string mod) : BaseSyntax, IPositionAware<ModificatorSyntax>

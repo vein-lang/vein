@@ -60,6 +60,9 @@ public static class G_Emitters
             return gen;
         }
 
+        if (expr is StackAllocExpressionSyntax stackAlloc)
+            return gen.EmitStackAlloc(stackAlloc);
+
         throw new NotImplementedException();
     }
 

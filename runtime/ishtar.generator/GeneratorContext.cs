@@ -50,6 +50,8 @@ public class GeneratorContext(GeneratorContextConfig config)
 {
     public bool DisableOptimization => config.DisableOptimization;
 
+    public bool IsUnsafeContext { get; set; }
+
     internal VeinModuleBuilder Module { get; set; }
     internal Dictionary<QualityTypeName, ClassBuilder> Classes { get; } = new();
     internal DocumentDeclaration Document { get; set; }

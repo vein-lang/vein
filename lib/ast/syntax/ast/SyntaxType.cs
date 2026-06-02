@@ -67,6 +67,8 @@ namespace vein.syntax
         SyncDeclaration,
         DirectiveDeclaration,
         TypeParameterConstraint,
-        Alias
+        Alias,
+        UnsafeBlock,
+        StackAllocExpression
     }
 }

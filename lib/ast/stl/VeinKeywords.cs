@@ -37,7 +37,9 @@ namespace vein.stl
             "do",
             "for",
             "foreach",
-            "extern"
+            "extern",
+            "unsafe",
+            "stackalloc"
         };
     }
 }

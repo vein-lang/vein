@@ -360,6 +360,7 @@ namespace vein.syntax
                 .Or(ethereal_function_expression("as").Positioned())
                 .Or(element_access_expression.Positioned())
                 .Or(invocation_expression.Positioned())
+                .Or(stackalloc_expression.Positioned())
                 .Or(array_creation_expression.Positioned())
                 .Or(new_expression.Positioned())
                 .Or("true".Literal().Exchange().Return<TrueLiteralExpressionSyntax>().Positioned())
@@ -382,6 +383,14 @@ namespace vein.syntax
             from generics in GenericsDeclarationParser.Optional()
             from exp in QualifiedExpression.Optional().Parenthesis()
             select EtherealFunctionExpression.Select(kv.ExpressionString, generics.GetOrEmpty(), exp);
+
+        protected internal virtual Parser<StackAllocExpressionSyntax> stackalloc_expression =>
+            from _ in KeywordExpression("stackalloc").Token()
+            from type in TypeExpression.Token().Positioned()
+            from ob in Parse.Char('[').Token()
+            from count in QualifiedExpression.Token().Positioned()
+            from cb in Parse.Char(']').Token()
+            select new StackAllocExpressionSyntax(((TypeExpression)type).Typeword, count);
 
         protected internal virtual Parser<ExpressionSyntax> array_creation_expression =>
             from keyword in KeywordExpression("new")

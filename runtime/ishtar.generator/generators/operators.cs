@@ -108,6 +108,12 @@ public static class G_Operators
     {
         var context = gen.ConsumeFromMetadata<GeneratorContext>("context");
 
+        if (bin.Left is UnaryExpressionSyntax { OperatorType: System.Linq.Expressions.ExpressionType.Multiply } ptrDeref)
+        {
+            gen.EmitPointerStore(bin, ptrDeref);
+            return;
+        }
+
         if (bin.Left is IdentifierExpression id)
         {
             var accessTag = gen.GetAccessFlags(id);
@@ -344,7 +350,7 @@ public static class G_Operators
             else
                 throw new NotSupportedException("EmitLoadFunction");
 
-            gen.EmitThis(); // todo, check method ref from another scopes 
+            gen.EmitThis(); // todo, check method ref from another scopes
 
             var ctor = fnType.FindMethod(VeinMethod.METHOD_NAME_CONSTRUCTOR,
             [
@@ -357,7 +363,14 @@ public static class G_Operators
 
             gen.Emit(OpCodes.CALL, ctor);
         }
-
+        else if (node.OperatorType == ExpressionType.And)
+        {
+            gen.EmitAddressOf(node);
+        }
+        else if (node.OperatorType == ExpressionType.Multiply)
+        {
+            gen.EmitPointerDereference(node);
+        }
         else
             throw new NotSupportedException("EmitUnary");
 
