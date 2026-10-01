@@ -78,6 +78,20 @@ public readonly unsafe struct IshtarTypes(
         return result;
     }
 
+    /// <summary>
+    /// Tears down the predefined classes. They are linked into every loaded module's class table, so modules
+    /// deliberately skip them in their own Dispose; the VM owns them and frees them exactly once, here.
+    /// </summary>
+    public void Dispose()
+    {
+        All->ForEach(x => x->Dispose());
+        All->ForEach(IshtarGC.FreeImmortal);
+        All->Clear();
+        Mapping->Clear();
+        IshtarGC.FreeList(All);
+        IshtarGC.FreeDictionary(Mapping);
+    }
+
 
     public static IshtarTypes* Create(AppVault vault)
     {

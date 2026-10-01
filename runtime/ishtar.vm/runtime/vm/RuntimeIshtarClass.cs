@@ -129,6 +129,7 @@ namespace ishtar
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE and not TYPE_STRING;
         public bool IsValueType => IsPrimitive || IsStruct || Walk(x => x->Name == "ValueType");
         public bool IsUnresolved => Flags.HasFlag(ClassFlags.Unresolved);
+        public bool IsPredefined => Flags.HasFlag(ClassFlags.Predefined);
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
         public bool IsStruct => Flags.HasFlag(ClassFlags.Struct);
         public bool IsBittable { get; set; }

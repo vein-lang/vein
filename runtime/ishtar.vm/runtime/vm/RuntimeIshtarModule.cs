@@ -65,8 +65,11 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         var name = Name;
         VirtualMachine.GlobalPrintln($"Disposed module '{name}'");
 
-        class_table->ForEach(x => x->Dispose());
-        class_table->ForEach(IshtarGC.FreeImmortal);
+        // Predefined (VM-owned) classes are linked into EVERY module's class_table by the types-table reader,
+        // so a module must only tear down the classes it defined itself; IshtarTypes frees the predefined ones
+        // exactly once on VM dispose. (Freeing them here too was a double free per extra module.)
+        class_table->ForEach(x => { if (!x->IsPredefined) x->Dispose(); });
+        class_table->ForEach(x => { if (!x->IsPredefined) IshtarGC.FreeImmortal(x); });
 
         aspects_table->ForEach(x => x->Dispose());
         aspects_table->ForEach(IshtarGC.FreeImmortal);
@@ -747,9 +750,6 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         var fieldsData = DecodeField(binary, @class, ishtarModule);
 
-        if (@class->IsStruct)
-        {
-            Debug.Assert(binary.ReadInt32() == 4089);
         @class->GenericArity = binary.ReadInt32(); // number of declared type parameters
         for (var gi = 0; gi < @class->GenericArity; gi++)
         {
@@ -763,6 +763,9 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
             }
         }
 
+        if (@class->IsStruct)
+        {
+            Debug.Assert(binary.ReadInt32() == 4089);
             @class->LayoutKind = (VeinStructLayoutKind)binary.ReadByte();
             @class->PackSize = binary.ReadByte();
             @class->StructSize = binary.ReadInt32();

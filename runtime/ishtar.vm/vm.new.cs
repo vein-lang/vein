@@ -84,7 +84,12 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
 
         gc->Dispose();
         Vault.Dispose();
+        Types->Dispose(); // predefined classes: shared by every module, freed once here
+        IshtarGC.FreeImmortal(Types);
+        @ref->Types = null;
         StringStorage.Dispose();
+        GenericObjectArgs.Clear(); // drop reified type-args keyed by this VM's (now freed) object pointers
+        GenericInstanceCache.Clear(); // drop interned closed-type handles (v1: memory leaked, cleared per-VM)
 #if DEBUG
         IshtarObject.CreationTrace.Clear();
         IshtarObject.debug_names_allocation.Clear();
@@ -92,5 +97,3 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         tag.Complete();
     }
 }
-        GenericObjectArgs.Clear(); // drop reified type-args keyed by this VM's (now freed) object pointers
-        GenericInstanceCache.Clear(); // drop interned closed-type handles (v1: memory leaked, cleared per-VM)
