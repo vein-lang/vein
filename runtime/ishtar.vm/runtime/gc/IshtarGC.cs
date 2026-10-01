@@ -599,11 +599,11 @@ namespace ishtar.runtime.gc
         public static T* AllocateImmortal<T>(void* parent) where T : unmanaged 
         {
             var p = (T*)gcLayout.alloc_immortal((uint)sizeof(T));
-            allocatedImmortals.Add((nint)p);
+            TrackImmortal(p);
             return p;
         }
 
-        public static void* AllocateAtomicImmortal(uint size) 
+        public static void* AllocateAtomicImmortal(uint size)
         {
             var p = gcLayout.alloc_atomic_immortal(size);
             return p;
@@ -618,7 +618,7 @@ namespace ishtar.runtime.gc
         public static void* AllocateImmortal(uint size, void* parent)
         {
             var p = gcLayout.alloc_immortal(size);
-            allocatedImmortals.Add((nint)p);
+            TrackImmortal(p);
             return p;
         }
 
@@ -638,9 +638,7 @@ namespace ishtar.runtime.gc
         public static T* AllocateImmortal<T>(int size, void* parent) where T : unmanaged
         {
             var p = (T*)gcLayout.alloc_immortal((uint)(sizeof(T) * size));
-
-            allocatedImmortals.Add((nint)p);
-
+            TrackImmortal(p);
             return p;
         }
 
@@ -658,8 +656,29 @@ namespace ishtar.runtime.gc
         }
 
 
-        private static readonly List<nint> allocatedImmortals = new();
+        // Immortal bookkeeping: every AllocateImmortal is recorded so FreeImmortal can tell a double free from a
+        // pointer that never was an immortal. Both structures are O(1) per operation on purpose — a loaded std
+        // holds tens of thousands of immortals and VM Dispose frees them all at once, so the previous
+        // List.Remove-per-free made Dispose quadratic (~18s for a std-sized module).
+        private static readonly object immortalsGuard = new();
+        private static readonly HashSet<nint> allocatedImmortals = new();
         private static readonly Dictionary<nint, string> disposedImmortals = new();
+
+        /// <summary>
+        /// When set, every <see cref="FreeImmortal{T}"/> captures the managed stack trace of the free so a later
+        /// double free reports WHERE the first free happened. Off by default: capturing a trace per free costs far
+        /// more than the free itself and only pays off while hunting a specific double free.
+        /// </summary>
+        public static bool TraceImmortalFrees;
+
+        private static void TrackImmortal(void* p)
+        {
+            lock (immortalsGuard)
+            {
+                allocatedImmortals.Add((nint)p);
+                disposedImmortals.Remove((nint)p); // the address is live again after allocator reuse
+            }
+        }
 
         public static void FreeAtomicImmortal(void* t)
         {
@@ -668,7 +687,7 @@ namespace ishtar.runtime.gc
 
         public static void FreeImmortal<T>(T* t) where T : unmanaged
         {
-            lock (typeof(T))
+            lock (immortalsGuard)
             {
                 if (!gcLayout.isOwnerShip((void**)&t))
                 {
@@ -676,17 +695,19 @@ namespace ishtar.runtime.gc
                     return;
                 }
 
-                var stackTrace = Environment.StackTrace;
+                var stackTrace = TraceImmortalFrees ? Environment.StackTrace : null;
                 if (allocatedImmortals.Remove((nint)t))
                 {
                     disposedImmortals[(nint)t] = stackTrace;
                     gcLayout.free((void**)&t);
                 }
-                else if (disposedImmortals.TryGetValue((nint)t, out var result))
+                else if (disposedImmortals.TryGetValue((nint)t, out var firstFree))
                 {
-                    if (stackTrace.Equals(result))
+                    // With tracing on, a repeated free from the exact same call site is tolerated (legacy behaviour).
+                    if (stackTrace != null && stackTrace.Equals(firstFree))
                         return;
-                    throw new TryingFreeAlreadyDisposedImmortalObject(disposedImmortals[(nint)t]);
+                    throw new TryingFreeAlreadyDisposedImmortalObject(firstFree
+                        ?? "<first free site not recorded; set IshtarGC.TraceImmortalFrees = true to capture it>");
                 }
                 else
                     throw new BadMemoryOfImmortalObject();
