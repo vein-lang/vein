@@ -206,6 +206,9 @@ public static unsafe class LibUV
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
     public static extern void uv_cond_signal(uv_cond_t* cond);
 
+    [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]
+    public static extern void uv_cond_broadcast(uv_cond_t* cond);
+
 
 
     [DllImport(LIBNAME, CallingConvention = CallingConvention.Cdecl)]

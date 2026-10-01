@@ -43,9 +43,22 @@ public unsafe class JitStdLibTest
         Assert.That(_std != null, "Failed to load std.wll");
     }
 
+    [OneTimeTearDown]
+    public void FixtureTeardown()
+    {
+        // Release the VM so the next fixture in this process can create its own (undisposed VMs corrupt the next Create).
+        if (!_initialized || _vm == null) return;
+        _vm->Dispose();
+        _vm = null;
+        _std = null;
+        _initialized = false;
+    }
+
     [Test]
     public void FibTest_ExecutesWithoutCrash()
     {
+        if (_vm->Config.DisableJIT)
+            Assert.Ignore("JIT is disabled in the current configuration.");
         // fib_test() calls Fib(15) which uses CALL, LDLOC, STLOC, etc.
         // The JIT must NOT attempt to compile this — it should fall back to interpreter.
         var method = _std->GetSpecialEntryPoint("fib_test() -> [std]::std::Void");
@@ -87,6 +100,8 @@ public unsafe class JitStdLibTest
     [Test]
     public void Fib_IsEligibleForJit()
     {
+        if (_vm->Config.DisableJIT)
+            Assert.Ignore("JIT is disabled in the current configuration.");
         // Fib uses self-recursion — now supported via indirect call pattern
         var method = FindMethod("Fib");
         if (method == null)
@@ -109,6 +124,8 @@ public unsafe class JitStdLibTest
     [Test]
     public void Fib_JitCompileAndExecute()
     {
+        if (_vm->Config.DisableJIT)
+            Assert.Ignore("JIT is disabled in the current configuration.");
         var method = FindMethod("Fib");
         Assert.That(method != null, "Could not find Fib method");
 
@@ -205,6 +222,9 @@ public unsafe class JitStdLibTest
     [Test]
     public void ArithmeticMethods_CheckEligibility()
     {
+        if (_vm->Config.DisableJIT)
+            Assert.Ignore("JIT is disabled in the current configuration.");
+
         // Check all methods in std module for new eligibility with CALL/LDLOC/STLOC support
         var classCount = _std->class_table->Count;
         var eligibleCount = 0;

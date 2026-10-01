@@ -409,6 +409,34 @@ namespace ishtar.emit
 
             DecodeField(binary, @class, module);
 
+            var genericArity = binary.ReadInt32(); // generic arity
+            for (var gi = 0; gi < genericArity; gi++)
+            {
+                var typeArgName = binary.ReadIshtarString();
+                var constraints = new List<VeinBaseConstraint>();
+                var constraintCount = binary.ReadInt32();
+                for (var ci = 0; ci < constraintCount; ci++)
+                {
+                    var kind = (VeinTypeParameterConstraint)binary.ReadInt32();
+                    switch (kind)
+                    {
+                        case VeinTypeParameterConstraint.BITTABLE:
+                            constraints.Add(new VeinBaseConstraintConstBittable());
+                            break;
+                        case VeinTypeParameterConstraint.CLASS:
+                            constraints.Add(new VeinBaseConstraintConstClass());
+                            break;
+                        case VeinTypeParameterConstraint.TYPE:
+                            constraints.Add(new VeinBaseConstraintConstType(module.FindType(binary.ReadTypeName(module), true, false)));
+                            break;
+                        case VeinTypeParameterConstraint.SIGNATURE:
+                            constraints.Add(new VeinBaseConstraintConstSignature(module.FindType(binary.ReadTypeName(module), true, false)));
+                            break;
+                    }
+                }
+                @class.TypeArgs.Add(new VeinTypeArg(typeArgName, constraints));
+            }
+
             if (@class.IsStruct)
             {
                 Debug.Assert(binary.ReadInt32() == 4089);
@@ -460,20 +488,12 @@ namespace ishtar.emit
         private static List<VeinArgumentRef> ReadArguments(BinaryReader binary, ModuleReader module)
         {
             var args = new List<VeinArgumentRef>();
-            foreach (var _ in ..binary.ReadInt32())
+            var count = binary.ReadInt32();
+            for (var i = 0; i < count; i++)
             {
                 var nIdx = binary.ReadInt32();
-                var isGeneric = binary.ReadBoolean();
-                if (isGeneric)
-                {
-                    var generic = binary.ReadGenericTypeName(module);
-                    args.Add(new VeinArgumentRef(module.GetConstStringByIndex(nIdx), generic));
-                }
-                else
-                {
-                    var type = binary.ReadTypeName(module);
-                    args.Add(new VeinArgumentRef(module.GetConstStringByIndex(nIdx), module.FindType(type, true, false)));
-                }
+                var type = binary.ReadComplexType(module, false);
+                args.Add(new VeinArgumentRef(module.GetConstStringByIndex(nIdx), type));
             }
             return args;
         }

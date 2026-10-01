@@ -4,7 +4,7 @@
 public class Array<Any>
 {
     new(size: i32) {
-
+        ArrayEx.arr_alloc(this, size);
     }
 
 
@@ -20,10 +20,10 @@ public class Array<Any>
     //protected extern __indexer_set(index: i64, o: Object): Void;
 
     public Set(index: i32, value: Any): void {
-
+        ArrayEx.arr_set(this, index, value);
     }
     public Get(index: i32): Any {
-        
+        return ArrayEx.arr_get(this, index);
     }
 
     [native("!!value")]
@@ -48,4 +48,13 @@ public static class ArrayEx
 {
     [native("__internal__", "__indexer_getter")]
     static extern arr_indexer_getter(arr: Object, index: i32): Object;
+
+    [native("__internal__", "arr_alloc")]
+    static extern arr_alloc(arr: Object, size: i32): void;
+
+    [native("__internal__", "arr_set")]
+    static extern arr_set(arr: Object, index: i32, value: Object): void;
+
+    [native("__internal__", "arr_get")]
+    static extern arr_get(arr: Object, index: i32): Object;
 }

@@ -406,8 +406,9 @@ namespace vein.syntax
 
         protected internal virtual Parser<InvocationExpression> invocation_expression =>
             from p in Parse.Ref(() => IdentifierExpression)
+            from typeArgs in GenericsDeclarationParser.Optional()
             from exc in argument_list.Positioned().Optional().Contained(OPENING_PARENTHESIS, CLOSING_PARENTHESIS)
-            select new InvocationExpression(p, exc);
+            select new InvocationExpression(p, exc) { TypeArguments = typeArgs.GetOrEmpty().ToList() };
         protected internal virtual Parser<PostDecrementExpression> post_decrement_expression =>
             from p in Parse.Ref(() => IdentifierExpression).Positioned()
             from exc in Parse.String("--").Token()

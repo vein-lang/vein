@@ -67,6 +67,16 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
     public void Dispose()
     {
         using var tag = Profiler.Begin("vm:dispose");
+
+        // Mirror the host shutdown path (vm.entry.cs): flag stop and JOIN the pool threads BEFORE freeing anything,
+        // otherwise a worker can still dequeue a suspended frame and resume it on freed memory. The host sets the
+        // flag and stops the schedulers itself before calling Dispose, so this only runs for embedders (tests).
+        if (!hasStopRequired)
+        {
+            @ref->hasStopRequired = true;
+            job_scheduler->Stop();
+            thread_pool->Stop();
+        }
         job_scheduler->Dispose();
         task_scheduler->Dispose();
         InternalModule->Dispose();
@@ -74,7 +84,12 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
 
         gc->Dispose();
         Vault.Dispose();
+        Types->Dispose(); // predefined classes: shared by every module, freed once here
+        IshtarGC.FreeImmortal(Types);
+        @ref->Types = null;
         StringStorage.Dispose();
+        GenericObjectArgs.Clear(); // drop reified type-args keyed by this VM's (now freed) object pointers
+        GenericInstanceCache.Clear(); // drop interned closed-type handles (v1: memory leaked, cleared per-VM)
 #if DEBUG
         IshtarObject.CreationTrace.Clear();
         IshtarObject.debug_names_allocation.Clear();

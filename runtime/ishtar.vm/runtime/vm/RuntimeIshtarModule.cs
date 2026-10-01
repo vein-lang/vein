@@ -65,8 +65,11 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
         var name = Name;
         VirtualMachine.GlobalPrintln($"Disposed module '{name}'");
 
-        class_table->ForEach(x => x->Dispose());
-        class_table->ForEach(IshtarGC.FreeImmortal);
+        // Predefined (VM-owned) classes are linked into EVERY module's class_table by the types-table reader,
+        // so a module must only tear down the classes it defined itself; IshtarTypes frees the predefined ones
+        // exactly once on VM dispose. (Freeing them here too was a double free per extra module.)
+        class_table->ForEach(x => { if (!x->IsPredefined) x->Dispose(); });
+        class_table->ForEach(x => { if (!x->IsPredefined) IshtarGC.FreeImmortal(x); });
 
         aspects_table->ForEach(x => x->Dispose());
         aspects_table->ForEach(IshtarGC.FreeImmortal);
@@ -747,6 +750,19 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
 
         var fieldsData = DecodeField(binary, @class, ishtarModule);
 
+        @class->GenericArity = binary.ReadInt32(); // number of declared type parameters
+        for (var gi = 0; gi < @class->GenericArity; gi++)
+        {
+            binary.ReadIshtarString(); // type-parameter name (not retained at runtime yet)
+            var constraintCount = binary.ReadInt32();
+            for (var ci = 0; ci < constraintCount; ci++)
+            {
+                var kind = (VeinTypeParameterConstraint)binary.ReadInt32();
+                if (kind is VeinTypeParameterConstraint.TYPE or VeinTypeParameterConstraint.SIGNATURE)
+                    binary.ReadTypeName(ishtarModule); // consume the constraint type name (no runtime use yet)
+            }
+        }
+
         if (@class->IsStruct)
         {
             Debug.Assert(binary.ReadInt32() == 4089);
@@ -1017,15 +1033,10 @@ public unsafe struct RuntimeIshtarModule(AppVault vault, string name, RuntimeIsh
     {
         var args = IshtarGC.AllocateList<RuntimeMethodArgument>(ishtarModule);
         var size = binary.ReadInt32();
-        foreach (var _ in ..size)
+        for (var i = 0; i < size; i++)
         {
             var nIdx = binary.ReadInt32();
-            var isGeneric = binary.ReadBoolean();
-            RuntimeComplexType argType = isGeneric ?
-                binary.ReadGenericTypeName(ishtarModule) :
-                ishtarModule->FindType(binary.ReadTypeName(ishtarModule), true, false);
-
-
+            RuntimeComplexType argType = binary.ReadComplexType(ishtarModule, false);
 
             var a = RuntimeMethodArgument.Create(ishtarModule->vm->Types, ishtarModule->GetConstStringByIndex(nIdx),
                 argType, ishtarModule);
@@ -1054,12 +1065,28 @@ public static unsafe class QualityTypeEx
         return result;
     }
 
-    public static RuntimeComplexType ReadComplexType(this BinaryReader bin, RuntimeIshtarModule* module)
+    // TypeSpec tags (mirror of ishtar.base QualityTypeEx): 0 Concrete, 1 Param, 2 Instance.
+    public static RuntimeComplexType ReadComplexType(this BinaryReader bin, RuntimeIshtarModule* module, bool dropUnresolved = true)
     {
-        var isGeneric = bin.ReadBoolean();
-        if (isGeneric)
+        var tag = bin.ReadByte();
+        if (tag == 1) // Param
             return bin.ReadGenericTypeName(module);
-        return module->FindType(bin.ReadTypeName(module), true, true);
+        if (tag == 2) // Instance: open definition + recursive type arguments (e.g. Span<u8>, List<List<int>>)
+        {
+            var definition = module->FindType(bin.ReadTypeName(module), true, dropUnresolved);
+            var count = bin.ReadInt32();
+            var args = IshtarGC.AllocateList<RuntimeComplexType>(module);
+            for (var i = 0; i < count; i++)
+            {
+                // NativeList stores the pointer (not a copy), so each argument needs immortal backing.
+                var arg = IshtarGC.AllocateImmortal<RuntimeComplexType>(module);
+                *arg = bin.ReadComplexType(module, dropUnresolved);
+                args->Add(arg);
+            }
+            return new RuntimeComplexType(definition, args);
+        }
+        // Concrete
+        return module->FindType(bin.ReadTypeName(module), true, dropUnresolved);
     }
 
     public static RuntimeIshtarTypeArg* ReadGenericTypeName(this BinaryReader bin, RuntimeIshtarModule* module)

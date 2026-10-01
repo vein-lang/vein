@@ -1,0 +1,75 @@
+#space "std"
+
+// Generics runtime acceptance probe (consumed by ishtar_test/GenericRuntimeTest): constructs and
+// uses a closed generic instance (List<i32>, internally Array<T>) end-to-end on the VM — store,
+// typed retrieval, count and capacity growth.
+public static class GenSmoke
+{
+    public static gen_smoke(): i32
+    {
+        auto list = new List<i32>();
+        list.Add(42);
+        list.Add(7);
+        return list.Count();
+    }
+
+    // Stores then retrieves: Array.Set + Array.Get round-trip (boxed i32 -> stored -> unboxed back).
+    // Relies on call-site substitution of Get's open return type T -> i32 (List<i32>).
+    public static gen_smoke_get(): i32
+    {
+        auto list = new List<i32>();
+        list.Add(42);
+        list.Add(7);
+        return list.Get(0) + list.Get(1);
+    }
+
+    // Adds past the initial capacity (4) so List.ensureCapacity copies the backing Array<T> via
+    // Get/Set into a freshly constructed Array<T>; returns the last element to prove it survived.
+    public static gen_smoke_grow(): i32
+    {
+        auto list = new List<i32>();
+        for (auto i = 0; i < 6; i++)
+            list.Add(i);
+        return list.Get(5);
+    }
+
+    // Remove(value) -> indexOf (uses _sys_eql) -> RemoveAt (shifts down). [10,20,30] - 20 = [10,30].
+    public static gen_smoke_remove(): i32
+    {
+        auto list = new List<i32>();
+        list.Add(10);
+        list.Add(20);
+        list.Add(30);
+        list.Remove(20);
+        return list.Get(0) + list.Get(1);
+    }
+
+    // Clear resets the logical count to 0.
+    public static gen_smoke_clear(): i32
+    {
+        auto list = new List<i32>();
+        list.Add(1);
+        list.Add(2);
+        list.Clear();
+        return list.Count();
+    }
+
+    // Generic method: passes its argument through unchanged.
+    public static gen_id<T>(x: T): T
+    {
+        return x;
+    }
+
+    // Calls the generic method with an explicit type argument; the call-site substitutes T -> i32,
+    // so the result is usable as i32 arithmetic. gen_id<i32>(42) + gen_id<i32>(7) = 49.
+    public static gen_smoke_genmethod(): i32
+    {
+        return gen_id<i32>(42) + gen_id<i32>(7);
+    }
+
+    // Same, but T is INFERRED from the argument type (no explicit <i32>). gen_id(42) + gen_id(7) = 49.
+    public static gen_smoke_genmethod_infer(): i32
+    {
+        return gen_id(42) + gen_id(7);
+    }
+}

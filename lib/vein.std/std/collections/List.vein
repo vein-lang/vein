@@ -33,7 +33,9 @@ public class List<T>
             items.Set(i, val);
         }
         count = count - 1;
-        items.Set(count, null);
+        // Note: the vacated slot at [count] keeps a stale reference until overwritten by a future Add.
+        // Storing null here is not possible yet (boxing a null value-type arg fails), and is unneeded
+        // for correctness since reads are bounded by count.
     }
 
     AddRange(values: T[]): void { }
@@ -60,7 +62,7 @@ public class List<T>
     {
         for (auto i = 0; i < count; i++)
         {
-            if (_sys_eql(items[i], value))
+            if (_sys_eql(items.Get(i), value))
                 return i;
         }
         return -1;
@@ -70,7 +72,7 @@ public class List<T>
         |> count;
 
     Clear(): void {
-        
+        count = 0;
     }
 
     [native("__internal__", "@__sys_eql_2T")]

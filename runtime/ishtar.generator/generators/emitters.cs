@@ -48,7 +48,10 @@ public static class G_Emitters
 
         if (expr is InvocationExpression inv)
         {
-            return gen.EmitCall(ctx.CurrentMethod.Owner, inv);
+            // Unqualified call in expression context (e.g. `auto x = indexOf(v)`): emit the implicit
+            // receiver for an instance method. EmitThis is gated on !IsStatic, so static calls are
+            // unaffected. (Statement-level calls already request this via logic.cs.)
+            return gen.EmitCall(ctx.CurrentMethod.Owner, inv, true);
         }
 
         if (expr is UnaryExpressionSyntax unary)
@@ -220,7 +223,26 @@ public static class G_Emitters
         // TODO check constraints
 
         foreach (var type in resolvedTypes)
-            gen.Emit(type.IsGeneric ? OpCodes.LD_TYPE_G : OpCodes.LD_TYPE, type);
+        {
+            if (type.IsGeneric)
+            {
+                // The argument is itself an enclosing type parameter (e.g. `new Array<T>` inside List<T>).
+                // Emit its index in the OWNER's type-param list; the interpreter resolves it at runtime
+                // against the receiver's reified type arguments (LD_TYPE_G).
+                var ownerParams = context.CurrentMethod.Owner.TypeArgs;
+                var index = ownerParams.FindIndex(x => x.Name.Equals(type.TypeArg.Name));
+                if (index < 0)
+                {
+                    context.LogError(
+                        $"Generic parameter '{type.TypeArg.Name}' is not a type parameter of '{context.CurrentMethod.Owner.Name}'.",
+                        declaration);
+                    throw new SkipStatementException();
+                }
+                gen.EmitGenericTypeParameterLoad(index);
+            }
+            else
+                gen.Emit(OpCodes.LD_TYPE, type);
+        }
     }
 
     public static void EmitCreateObject(this ILGenerator gen, NewExpressionSyntax @new)

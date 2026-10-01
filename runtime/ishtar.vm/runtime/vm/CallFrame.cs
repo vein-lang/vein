@@ -76,7 +76,8 @@ public void* AllocUnsafeStack(int size)
     }
 
     // Ensure at least pointer-size alignment for safe typed loads/stores (e.g., on ARM64)
-    const int alignment = sizeof(nint);
+    // (sizeof(nint) is platform-dependent, so this cannot be a compile-time const)
+    int alignment = sizeof(nint);
     var alignedUsed = (_unsafeStackUsed + (alignment - 1)) & ~(alignment - 1);
 
     // Use subtraction to avoid `_unsafeStackUsed + size` overflow

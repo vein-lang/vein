@@ -186,20 +186,70 @@ namespace ishtar
 
 
 
-    public readonly unsafe struct RuntimeComplexType
+    public readonly unsafe struct RuntimeComplexType : IEq<RuntimeComplexType>
     {
         private readonly RuntimeIshtarTypeArg* _typeArg;
         private readonly RuntimeIshtarClass* _class;
+        private readonly RuntimeIshtarClass* _instanceDef;
+        private readonly NativeList<RuntimeComplexType>* _instanceArgs;
 
         public RuntimeComplexType(RuntimeIshtarClass* @class) => _class = @class;
 
         public RuntimeComplexType(RuntimeIshtarTypeArg* typeArg) => _typeArg = typeArg;
 
+        public RuntimeComplexType(RuntimeIshtarClass* definition, NativeList<RuntimeComplexType>* typeArguments)
+        {
+            _instanceDef = definition;
+            _instanceArgs = typeArguments;
+        }
+
         public bool IsGeneric => _typeArg is not null;
+        public bool IsGenericInstance => _instanceDef is not null;
 
         public RuntimeIshtarTypeArg* TypeArg => _typeArg;
-        public RuntimeIshtarClass* Class => _class;
+        // The concrete class, or the open definition for a constructed generic. Null for a bare parameter.
+        public RuntimeIshtarClass* Class => _class != null ? _class : _instanceDef;
+        public RuntimeIshtarClass* Definition => _instanceDef;
+        public NativeList<RuntimeComplexType>* TypeArguments => _instanceArgs;
 
+        // The open definition's name is still mangled with its parameter (e.g. "Span<T>"); strip that
+        // suffix so a constructed instance renders with its real arguments.
+        private static string StripGenericSuffix(string name)
+        {
+            var idx = name.IndexOf('<');
+            return idx < 0 ? name : name.Substring(0, idx);
+        }
+
+        /// <summary>
+        /// Renders the type for a method-signature key. A constructed generic renders with its real
+        /// type arguments (e.g. <c>Span&lt;u8&gt;</c> -> <c>"[std]::std::Span&lt;Byte&gt;"</c>) so signatures —
+        /// including native FFI binding keys — match. Concrete / bare-parameter forms keep the legacy rendering.
+        /// </summary>
+        public string ToTemplateString()
+        {
+            if (IsGeneric)
+                return $"µ{StringStorage.GetStringUnsafe(_typeArg->Name)}";
+            if (IsGenericInstance)
+            {
+                var args = new List<string>();
+                _instanceArgs->ForEach(a => args.Add(a->ToShortTemplateString()));
+                return $"{StripGenericSuffix(_instanceDef->FullName->ToString())}<{string.Join(',', args)}>";
+            }
+            return _class->FullName->ToString();
+        }
+
+        public string ToShortTemplateString()
+        {
+            if (IsGeneric)
+                return $"µ{StringStorage.GetStringUnsafe(_typeArg->Name)}";
+            if (IsGenericInstance)
+            {
+                var args = new List<string>();
+                _instanceArgs->ForEach(a => args.Add(a->ToShortTemplateString()));
+                return $"{StripGenericSuffix(_instanceDef->FullName->Name)}<{string.Join(',', args)}>";
+            }
+            return _class->FullName->Name;
+        }
 
         public static implicit operator RuntimeComplexType(RuntimeIshtarClass* cpx) => new(cpx);
         public static implicit operator RuntimeComplexType(RuntimeIshtarTypeArg* cpx) => new(cpx);
@@ -209,7 +259,7 @@ namespace ishtar
         {
             if (cpx.IsGeneric)
                 throw new NotSupportedException($"Trying summon non generic vein type, but complex type is generic");
-            return cpx._class;
+            return cpx.Class;
         }
 
         public static implicit operator RuntimeIshtarTypeArg*(RuntimeComplexType cpx)
@@ -217,6 +267,30 @@ namespace ishtar
             if (cpx.IsGeneric)
                 throw new NotSupportedException($"Trying summon generic type, but complex type is non generic vein type");
             return cpx._typeArg;
+        }
+
+        public static bool Eq(RuntimeComplexType* a, RuntimeComplexType* b)
+        {
+            if (a == null || b == null) return a == b;
+            if (a->IsGeneric != b->IsGeneric) return false;
+            if (a->IsGenericInstance != b->IsGenericInstance) return false;
+            if (a->IsGeneric) return RuntimeIshtarTypeArg.Eq(a->_typeArg, b->_typeArg);
+            if (a->IsGenericInstance)
+            {
+                // A constructed generic is equal only when BOTH the open definition AND every ordered type
+                // argument match — otherwise List<i32> and List<string> would be indistinguishable.
+                if (!RuntimeIshtarClass.Eq(a->_instanceDef, b->_instanceDef))
+                    return false;
+                var ea = a->_instanceArgs;
+                var eb = b->_instanceArgs;
+                if (ea == null || eb == null) return ea == eb;
+                if (ea->Count != eb->Count) return false;
+                for (var i = 0; i != ea->Count; i++)
+                    if (!Eq(ea->Get(i), eb->Get(i)))
+                        return false;
+                return true;
+            }
+            return RuntimeIshtarClass.Eq(a->_class, b->_class);
         }
     }
 
@@ -281,6 +355,25 @@ namespace ishtar
         public string RawName => StringStorage.GetStringUnsafe(_rawName);
         public MethodFlags Flags { get; private set; }
         public RuntimeIshtarClass* ReturnType => Signature->ReturnType;
+
+        /// <summary>
+        /// Void-ness of the return type that is safe to query for generic returns. The implicit
+        /// <see cref="RuntimeComplexType"/> -&gt; <c>RuntimeIshtarClass*</c> conversion throws for bare
+        /// generic parameters (e.g. <c>Array&lt;Any&gt;.Get</c> returning the type parameter <c>Any</c>),
+        /// so the interpreter must not reach for <see cref="ReturnType"/> just to test for void.
+        /// A generic parameter or a constructed generic instance always yields a value (never void).
+        /// </summary>
+        public bool ReturnsVoid
+        {
+            get
+            {
+                ref var rt = ref Signature->ReturnType;
+                if (rt.IsGeneric || rt.IsGenericInstance)
+                    return false;
+                return rt.Class->TypeCode == VeinTypeCode.TYPE_VOID;
+            }
+        }
+
         public RuntimeIshtarClass* Owner { get; private set; }
         public int ArgLength => Arguments->Count;
 
@@ -341,6 +434,10 @@ namespace ishtar
         public bool IsTypeConstructor => RawName.Equals("type_ctor") || RawName.Equals("#type_ctor");
         public bool IsDeconstructor => RawName.Equals("dtor");
         public bool IsSpecial => Flags.HasFlag(MethodFlags.Special);
+
+        /// <summary>The method declares its own type parameters or uses one in its signature (e.g. <c>id&lt;T&gt;(x:T):T</c>).</summary>
+        public bool IsGeneric => Flags.HasFlag(MethodFlags.Generic);
+
         /// <summary>
         /// True only when the method has BOTH the Jit flag AND a compiled native pointer.
         /// The compiler may set MethodFlags.Jit as a hint, but IsJitted is false until TryJitCompile succeeds.
@@ -460,27 +557,19 @@ namespace ishtar
 
         public static string GetFullName(string name, RuntimeComplexType* returnType, NativeList<RuntimeMethodArgument>* args)
         {
-            static string ToTemplateString(RuntimeComplexType* t) => t->IsGeneric
-                ? $"µ{StringStorage.GetStringUnsafe(t->TypeArg->Name)}"
-                : t->Class->FullName->ToString();
-
             var str = new List<string>();
 
             args->ForEach(x =>
             {
                 var data = x->Type;
-                str.Add(ToTemplateString(&data));
+                str.Add(data.ToTemplateString());
             });
 
-            return $"{name}({string.Join(',', str)}) -> {ToTemplateString(returnType)}";
+            return $"{name}({string.Join(',', str)}) -> {returnType->ToTemplateString()}";
         }
 
         public static string GetFullName(string name, RuntimeIshtarClass* returnType, NativeList<RuntimeMethodArgument>* args)
         {
-            static string ToTemplateString(RuntimeComplexType* t) => t->IsGeneric
-                ? $"µ{StringStorage.GetStringUnsafe(t->TypeArg->Name)}"
-                : t->Class->FullName->ToString();
-
             var str = new List<string>();
 
             args->ForEach(x =>
@@ -489,7 +578,7 @@ namespace ishtar
                     return;
 
                 var data = x->Type;
-                str.Add(ToTemplateString(&data));
+                str.Add(data.ToTemplateString());
             });
 
             return $"{name}({string.Join(',', str)}) -> {returnType->FullName->ToString()}";

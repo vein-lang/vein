@@ -26,7 +26,15 @@ public partial class CompilationTask
         }
 
         if (typename.IsGeneric)
-            return module.FindType(ConvertGenerics(typename), doc.Includes);
+        {
+            // Constructed generic (e.g. Array<T>, List<int>, Span<u8>, List<List<T>>): resolve the open
+            // definition, then resolve each type argument recursively so the instance tree —
+            // including nested / "transit" parameters — is preserved in the type model and metadata.
+            var definition = module.FindType(ConvertGenerics(typename), doc.Includes);
+            var args = typename.TypeParameters.Select(tp => FetchType(builder, tp, doc)).ToList<VeinComplexType>();
+            ValidateConstraints(definition, args, typename, doc);
+            return VeinComplexType.Instance(definition, args);
+        }
 
         return module.FindType(new NameSymbol(typename.Identifier), doc.Includes);
     }

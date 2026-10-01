@@ -107,6 +107,16 @@ public static unsafe class MethodCompiler
             method->Header->exception_handler_list->Count > 0)
             return false;
 
+        // Methods declared on a generic class operate on reified generic objects; the native backend
+        // doesn't yet handle that, so keep them in the interpreter for now.
+        if (method->Owner->IsGenericType)
+            return false;
+
+        // Generic methods (own type parameters or generic signature) resolve type parameters at runtime,
+        // which the native backend doesn't handle — interpret them.
+        if (method->IsGeneric)
+            return false;
+
         // Scan bytecode — reject if any unsupported opcode is found
         if (!AllOpcodesSupported(method->Header->code, method->Header->code_size))
             return false;
@@ -134,6 +144,15 @@ public static unsafe class MethodCompiler
         if (method->Header->exception_handler_list != null &&
             method->Header->exception_handler_list->Count > 0)
             return (JitRejectCode.HasExceptionHandlers, "has exception handlers");
+
+        // Methods declared on a generic class operate on reified generic objects; the native backend
+        // doesn't handle that yet, so keep them in the interpreter for now.
+        if (method->Owner->IsGenericType)
+            return (JitRejectCode.UnsupportedOpcode, "method of generic class");
+
+        // Generic methods resolve type parameters at runtime — interpret them.
+        if (method->IsGeneric)
+            return (JitRejectCode.UnsupportedOpcode, "generic method");
 
         var unsupported = FindFirstUnsupportedOpcode(method->Header->code, method->Header->code_size);
         if (unsupported != null)
@@ -215,7 +234,7 @@ public static unsafe class MethodCompiler
                 case OpCodeValue.LOC_INIT:
                 {
                     var locCount = *ip; ip++;
-                    ip += locCount;
+                    ip += locCount * 2; // 2 words per local (type idx + padding)
                     break;
                 }
                 default:
@@ -311,7 +330,7 @@ public static unsafe class MethodCompiler
                 case OpCodeValue.LOC_INIT:
                 {
                     var locCount = *ip; ip++;
-                    ip += locCount;
+                    ip += locCount * 2; // 2 words per local (type idx + padding)
                     break;
                 }
                 default:
@@ -332,6 +351,11 @@ public static unsafe class MethodCompiler
         if (method->Header->code_size > 4096) return false;
         if (method->Header->exception_handler_list != null &&
             method->Header->exception_handler_list->Count > 0)
+            return false;
+        // Generic classes / generic methods resolve type parameters at runtime — keep them interpreted.
+        if (method->Owner->IsGenericType)
+            return false;
+        if (method->IsGeneric)
             return false;
         if (!AllOpcodesSupported(method->Header->code, method->Header->code_size))
             return false;
@@ -434,7 +458,7 @@ public static unsafe class MethodCompiler
                 case OpCodeValue.LOC_INIT:
                 {
                     var locCount = *ip; ip++;
-                    ip += locCount;
+                    ip += locCount * 2; // 2 words per local (type idx + padding)
                     break;
                 }
                 default:
@@ -554,7 +578,7 @@ public static unsafe class MethodCompiler
                 case OpCodeValue.LOC_INIT:
                 {
                     var locCount = *ip; ip++;
-                    ip += locCount; // skip type indices
+                    ip += locCount * 2; // 2 words per local (type idx + padding)
                     break;
                 }
 
@@ -683,7 +707,7 @@ public static unsafe class MethodCompiler
                 case OpCodeValue.LOC_INIT:
                 {
                     var locCount = *ip; ip++;
-                    ip += locCount;
+                    ip += locCount * 2; // 2 words per local (type idx + padding)
                     break;
                 }
 

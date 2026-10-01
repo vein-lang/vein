@@ -228,6 +228,27 @@ namespace ishtar.emit
                 }
             }
 
+            binary.Write(TypeArgs.Count); // generic arity (number of declared type parameters)
+            foreach (var typeArg in TypeArgs)
+            {
+                binary.WriteIshtarString(typeArg.Name);
+                var constraints = typeArg.Constraints ?? (IReadOnlyList<VeinBaseConstraint>)System.Array.Empty<VeinBaseConstraint>();
+                binary.Write(constraints.Count);
+                foreach (var constraint in constraints)
+                {
+                    binary.Write((int)constraint.Constraint);
+                    switch (constraint)
+                    {
+                        case VeinBaseConstraintConstType t:
+                            binary.WriteTypeName(t.classes.FullName, moduleBuilder);
+                            break;
+                        case VeinBaseConstraintConstSignature s:
+                            binary.WriteTypeName(s.@interface.FullName, moduleBuilder);
+                            break;
+                    }
+                }
+            }
+
             if (IsStruct)
             {
                 binary.Write(4089); // struct layout magic

@@ -56,6 +56,11 @@ namespace ishtar
         public RuntimeToken runtime_token { get; }
         public uint ID { get; }
 
+        /// <summary>Number of type parameters this class declares (0 for non-generic). Serialized from
+        /// the class metadata so the runtime/JIT can test genericity without parsing the mangled name.</summary>
+        public int GenericArity { get; set; }
+        public bool IsGenericType => GenericArity > 0;
+
         [CIfDefined("DEBUG")]
         public ushort Magic1;
         [CIfDefined("DEBUG")]
@@ -124,6 +129,7 @@ namespace ishtar
         public bool IsPrimitive => TypeCode is not TYPE_CLASS and not TYPE_NONE and not TYPE_STRING;
         public bool IsValueType => IsPrimitive || IsStruct || Walk(x => x->Name == "ValueType");
         public bool IsUnresolved => Flags.HasFlag(ClassFlags.Unresolved);
+        public bool IsPredefined => Flags.HasFlag(ClassFlags.Predefined);
         public bool IsInterface => Flags.HasFlag(ClassFlags.Interface);
         public bool IsStruct => Flags.HasFlag(ClassFlags.Struct);
         public bool IsBittable { get; set; }

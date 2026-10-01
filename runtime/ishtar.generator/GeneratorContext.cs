@@ -100,35 +100,32 @@ public class GeneratorContext(GeneratorContextConfig config)
         => ResolveType(targetTypeExpression.Typeword);
     public VeinComplexType ResolveType(TypeSyntax targetTypeTypeword)
     {
+        // Constructed generic at a use site: Def<arg, ...> — e.g. List<int>, Array<T>, List<List<T>>.
         if (targetTypeTypeword.IsGeneric)
         {
-            var targetName = TypeSyntax.ToGlobPattern(targetTypeTypeword);
+            var definition = Module.FindType(TypeSyntax.ToGlobPattern(targetTypeTypeword),
+                Classes[CurrentMethod.Owner.FullName].Includes);
 
-            var generics = targetTypeTypeword.TypeParameters.DetermineTypes(this).ToList();
+            // Resolve each type argument recursively. An argument may be a concrete type,
+            // a bare type parameter (open/"transit" instance, e.g. Array<T> inside List<T>),
+            // or another constructed generic (nested, e.g. List<List<int>>).
+            var typeArguments = targetTypeTypeword.TypeParameters.DetermineTypes(this).ToList();
 
-            if (generics.Any(x => x.IsGeneric))
+            if (definition.TypeArgs.Count != typeArguments.Count)
             {
-                if (!CurrentMethod.Owner.IsGenericType)
-                {
-                    this.LogError($"Unknown used generics types '{generics.Where(x => x.IsGeneric).Select(x => x.TypeArg.ToString()).Join(',')}' is not found in '{this.CurrentMethod.Name}' function.", targetTypeTypeword.Identifier);
-                    throw new SkipStatementException();
-                }
-
-                if (!CurrentMethod.Owner.Flags.HasFlag(ClassFlags.Amorphous))
-                    return Module.FindType(targetName,
-                        Classes[CurrentMethod.Owner.FullName].Includes);
-                var ty2 =this.CurrentMethod.Owner.ResolveGenericType(generics.First());
-
-                throw new NotSupportedException($"Transit generics cannot be resolve by ResolveType(TypeSyntax)");
+                this.LogError(
+                    $"Generic type '{definition.Name}' expects {definition.TypeArgs.Count} type argument(s), but {typeArguments.Count} were provided.",
+                    targetTypeTypeword.Identifier);
+                throw new SkipStatementException();
             }
 
-            var classes = generics.Select(x => x.Class).ToList();
+            foreach (var violation in GenericConstraintChecker.CheckViolations(definition, typeArguments))
+                this.LogError(violation, targetTypeTypeword.Identifier);
 
-            return Module.FindType(targetName,
-                Classes[CurrentMethod.Owner.FullName].Includes).CreateAmorphousVersion(classes);
+            return VeinComplexType.Instance(definition, typeArguments);
         }
 
-        
+        // Bare identifier: a method type-parameter, an owner-class type-parameter, or a concrete type.
         if (this.CurrentMethod.Signature.Generics.Any())
         {
             var generic =
@@ -221,10 +218,10 @@ public class GeneratorContext(GeneratorContextConfig config)
         if (ResolveArgument(id) is not null)
         {
             var (arg, index) = ResolveArgument(id)!.Value;
-
-            if (arg.IsGeneric)
-                return arg.TypeArg;
-            return arg.Type;
+            // Return the full type reference (parameter, concrete, or constructed instance) so
+            // generic instances like Span<u8> are not erased to their open definition (which
+            // previously broke overload resolution against instance-typed parameters).
+            return arg.ComplexType;
         }
         if (CurrentScope.HasVariable(id))
             return CurrentScope.GetVariable(id).@class;
