@@ -3,15 +3,10 @@ namespace ishtar.runtime;
 using io;
 using io.ini;
 
-public readonly unsafe struct AppConfig
+public readonly unsafe struct AppConfig(IniRoot* cfg)
 {
-    public readonly IniRoot* rootCfg;
+    public readonly IniRoot* rootCfg = cfg;
 
-    public AppConfig(IniRoot* cfg)
-    {
-        rootCfg = cfg;
-    }
-    
     public bool UseDebugAllocator => rootCfg->GetGroup("vm").GetFlag("has_debug_allocator");
     public bool DisabledFinalization => rootCfg->GetGroup("vm").GetFlag("has_disabled_finalization");
     public bool CallOpCodeSkipValidateArgs => rootCfg->GetGroup("vm").GetFlag("skip_validate_args");
