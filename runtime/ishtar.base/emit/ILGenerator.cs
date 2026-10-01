@@ -340,6 +340,21 @@ public sealed class ILGenerator
         return this;
     }
 
+    /// <summary>
+    /// Emit <see cref="OpCodes.LD_TYPE_G"/> carrying the index of a type parameter in its owner's
+    /// type-param list. The interpreter resolves it against the receiver's reified type arguments.
+    /// </summary>
+    public ILGenerator EmitGenericTypeParameterLoad(int parameterIndex)
+    {
+        using var _ = ILCapacityValidator.Begin(ref _position, OpCodes.LD_TYPE_G);
+
+        this.EnsureCapacity<OpCode>(sizeof(int));
+        this.InternalEmit(OpCodes.LD_TYPE_G);
+        this.PutInteger4(parameterIndex);
+        DebugAppendLine($"/* ::{_position:0000} */ .{OpCodes.LD_TYPE_G.Name} param[{parameterIndex}]");
+        return this;
+    }
+
     public ILGenerator Emit(OpCode opcode, QualityTypeName type)
     {
         using var _ = ILCapacityValidator.Begin(ref _position, opcode);

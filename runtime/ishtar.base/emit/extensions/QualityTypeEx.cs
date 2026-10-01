@@ -10,12 +10,37 @@ namespace ishtar.emit.extensions
     public delegate nint TypeNameGetter(int typeIndex);
     public static class QualityTypeEx
     {
+        // TypeSpec tags for the recursive complex-type encoding. A type reference is one of:
+        //   0 Concrete  — a closed class (types_table index)
+        //   1 Param     — a bare generic parameter (generics_table index)
+        //   2 Instance  — a constructed generic: open-definition index + arg count + nested TypeSpecs
+        // The Instance case is recursive, so nested / "transit" generics (List<List<T>>, Array<T>
+        // inside List<T>) are preserved on disk instead of being erased to the open definition.
+        internal const byte TS_CONCRETE = 0;
+        internal const byte TS_PARAM = 1;
+        internal const byte TS_INSTANCE = 2;
+
         public static VeinComplexType ReadComplexType(this BinaryReader bin, VeinModule module, bool dropUnresolved = true)
         {
-            var isGeneric = bin.ReadBoolean();
-            if (isGeneric)
-                return bin.ReadGenericTypeName(module);
-            return module.FindType(bin.ReadTypeName(module), true, dropUnresolved);
+            var tag = bin.ReadByte();
+            switch (tag)
+            {
+                case TS_PARAM:
+                    return bin.ReadGenericTypeName(module);
+                case TS_INSTANCE:
+                {
+                    var definition = module.FindType(bin.ReadTypeName(module), true, dropUnresolved);
+                    var count = bin.ReadInt32();
+                    var args = new List<VeinComplexType>(count);
+                    for (var i = 0; i < count; i++)
+                        args.Add(bin.ReadComplexType(module, dropUnresolved));
+                    return VeinComplexType.Instance(definition, args);
+                }
+                case TS_CONCRETE:
+                    return module.FindType(bin.ReadTypeName(module), true, dropUnresolved);
+                default:
+                    throw new InvalidOperationException($"Unknown TypeSpec tag '{tag}' in '{module.Name}' module.");
+            }
         }
 
 
@@ -73,12 +98,24 @@ namespace ishtar.emit.extensions
 
         public static void WriteComplexType(this BinaryWriter bin, VeinComplexType type, VeinModuleBuilder module)
         {
-            bin.Write(type.IsGeneric);
-
-            if (type.IsGeneric)
-                bin.WriteGenericTypeName(type, module);
+            if (type.IsGenericInstance)
+            {
+                bin.Write(TS_INSTANCE);
+                bin.WriteTypeName(type.Definition.FullName, module);
+                bin.Write(type.TypeArguments.Count);
+                foreach (var arg in type.TypeArguments)
+                    bin.WriteComplexType(arg, module);
+            }
+            else if (type.IsGeneric)
+            {
+                bin.Write(TS_PARAM);
+                bin.WriteGenericTypeName(type.TypeArg, module);
+            }
             else
+            {
+                bin.Write(TS_CONCRETE);
                 bin.WriteTypeName(((VeinClass)type).FullName, module);
+            }
         }
 
         public static void WriteGenericsTypeName(this BinaryWriter bin, List<VeinTypeArg> types, VeinModuleBuilder module)
@@ -133,11 +170,7 @@ namespace ishtar.emit.extensions
             foreach (var argument in signature.Arguments)
             {
                 binary.Write(module.InternString(argument.Name));
-                binary.Write(argument.IsGeneric);
-                if (argument.IsGeneric)
-                    binary.WriteGenericTypeName(argument.ComplexType.TypeArg, module);
-                else
-                    binary.WriteTypeName(argument.ComplexType!.Class.FullName, module);
+                binary.WriteComplexType(argument.ComplexType, module);
             }
         }
     }
