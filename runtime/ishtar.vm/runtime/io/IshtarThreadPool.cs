@@ -130,7 +130,7 @@ public readonly unsafe struct IshtarThreadPool(
     public void Stop()
     {
         uv_mutex_lock(_mutex);
-        uv_cond_signal(_cond);
+        uv_cond_broadcast(_cond); // wake EVERY idle worker so they all observe HasStopped and exit (signal wakes one; the rest would sit out the 10s timedwait)
         uv_mutex_unlock(_mutex);
         for (int i = 0; i < _threads->Count; i++)
         {

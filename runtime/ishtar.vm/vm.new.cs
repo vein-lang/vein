@@ -67,6 +67,16 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
     public void Dispose()
     {
         using var tag = Profiler.Begin("vm:dispose");
+
+        // Mirror the host shutdown path (vm.entry.cs): flag stop and JOIN the pool threads BEFORE freeing anything,
+        // otherwise a worker can still dequeue a suspended frame and resume it on freed memory. The host sets the
+        // flag and stops the schedulers itself before calling Dispose, so this only runs for embedders (tests).
+        if (!hasStopRequired)
+        {
+            @ref->hasStopRequired = true;
+            job_scheduler->Stop();
+            thread_pool->Stop();
+        }
         job_scheduler->Dispose();
         task_scheduler->Dispose();
         InternalModule->Dispose();
