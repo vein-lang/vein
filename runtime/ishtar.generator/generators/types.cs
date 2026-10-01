@@ -282,7 +282,101 @@ public static class G_Types
     }
 
     public static VeinComplexType ResolveReturnType(this InvocationExpression inv, GeneratorContext context)
-        => context.ResolveMethod(context.CurrentMethod.Owner, inv)?.ReturnType;
+    {
+        var owner = context.CurrentMethod.Owner;
+        return SubstituteReturn(owner, context.ResolveMethod(owner, inv), inv, context);
+    }
+
+    /// <summary>
+    /// Closes the open type parameters that a method's declared return type may mention, so the call site
+    /// sees a concrete type. Two sources of substitution:
+    ///   • class type-parameters from a constructed receiver instance (<c>List&lt;i32&gt;.Get</c> returns <c>T</c> → <c>i32</c>);
+    ///   • method type-parameters from explicit call-site type-arguments (<c>id&lt;i32&gt;(x)</c> returns <c>T</c> → <c>i32</c>).
+    /// No-op when the return mentions no parameter or nothing maps it.
+    /// </summary>
+    private static VeinComplexType SubstituteReturn(VeinComplexType receiver, VeinMethod method,
+        InvocationExpression inv, GeneratorContext context)
+    {
+        var ret = method?.ReturnType;
+        if (ret is null || (!ret.IsGeneric && !ret.ContainsGenericParameter))
+            return ret;
+
+        var map = new Dictionary<string, VeinComplexType>();
+
+        // class type-parameters: bound from the constructed receiver instance.
+        if (receiver is { IsGenericInstance: true, Definition: { } def })
+        {
+            var n = Math.Min(def.TypeArgs.Count, receiver.TypeArguments.Count);
+            for (var k = 0; k < n; k++)
+                map[def.TypeArgs[k].Name] = receiver.TypeArguments[k];
+        }
+
+        // method type-parameters: explicit call-site type-arguments, else inferred from argument types.
+        if (method.Signature.Generics.Count > 0)
+        {
+            if (inv is { TypeArguments.Count: > 0 })
+            {
+                var n = Math.Min(method.Signature.Generics.Count, inv.TypeArguments.Count);
+                for (var k = 0; k < n; k++)
+                    map[method.Signature.Generics[k].Name] = context.ResolveType(inv.TypeArguments[k]);
+            }
+            else
+            {
+                foreach (var (name, type) in InferMethodTypeArgs(method, inv, context))
+                    map.TryAdd(name, type);
+            }
+        }
+
+        return map.Count == 0 ? ret : ret.Substitute(map);
+    }
+
+    /// <summary>
+    /// Infers method type-parameter bindings for a call with no explicit type-arguments (e.g. <c>id(5)</c>
+    /// where <c>id&lt;T&gt;(x:T)</c>) by unifying each declared parameter type against the corresponding
+    /// argument's type. Only method type-parameters are bound; concrete parameters contribute nothing.
+    /// </summary>
+    private static Dictionary<string, VeinComplexType> InferMethodTypeArgs(VeinMethod method,
+        InvocationExpression inv, GeneratorContext context)
+    {
+        var bindings = new Dictionary<string, VeinComplexType>();
+        var paramNames = new HashSet<string>(method.Signature.Generics.Select(g => g.Name));
+        if (paramNames.Count == 0)
+            return bindings;
+
+        var formals = method.Signature.Arguments.Where(VeinClass.NotThis).ToList();
+        var actuals = inv.Arguments.Arguments.ToList();
+        var n = Math.Min(formals.Count, actuals.Count);
+        for (var i = 0; i < n; i++)
+        {
+            VeinComplexType actualType;
+            try { actualType = actuals[i].DetermineType(context); }
+            catch (SkipStatementException) { continue; } // un-determinable argument → no binding from it
+            UnifyTypeParam(formals[i].ComplexType, actualType, paramNames, bindings);
+        }
+        return bindings;
+    }
+
+    /// <summary>Capture-aware unification: binds method type-parameters appearing in <paramref name="formal"/>
+    /// to the matching parts of <paramref name="actual"/> (direct <c>T</c> and nested <c>List&lt;T&gt;</c>).</summary>
+    private static void UnifyTypeParam(VeinComplexType formal, VeinComplexType actual,
+        HashSet<string> paramNames, Dictionary<string, VeinComplexType> bindings)
+    {
+        if (formal is null || actual is null)
+            return;
+        if (formal.IsGeneric && paramNames.Contains(formal.TypeArg.Name))
+        {
+            bindings.TryAdd(formal.TypeArg.Name, actual);
+            return;
+        }
+        if (formal.IsGenericInstance && actual.IsGenericInstance)
+        {
+            var fa = formal.TypeArguments;
+            var aa = actual.TypeArguments;
+            var m = Math.Min(fa.Count, aa.Count);
+            for (var k = 0; k < m; k++)
+                UnifyTypeParam(fa[k], aa[k], paramNames, bindings);
+        }
+    }
 
 
     public static VeinComplexType ResolveReturnType(this IndexerAccessExpressionSyntax indexerAccess,
@@ -341,8 +435,10 @@ public static class G_Types
                 exp = inv.Name as IdentifierExpression;
 
             if (i + 1 == enumerator.Length)
-                return context.ResolveMethod(t ?? context.CurrentMethod.Owner, prev_id, exp, member)
-                    ?.ReturnType;
+            {
+                var recv = t ?? context.CurrentMethod.Owner;
+                return SubstituteReturn(recv, context.ResolveMethod(recv, prev_id, exp, member), member, context);
+            }
             t = t is null ?
                 context.ResolveScopedIdentifierType(exp) :
                 context.ResolveField(t, prev_id, exp)?.FieldType;
