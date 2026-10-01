@@ -43,6 +43,17 @@ public unsafe class JitStdLibTest
         Assert.That(_std != null, "Failed to load std.wll");
     }
 
+    [OneTimeTearDown]
+    public void FixtureTeardown()
+    {
+        // Release the VM so the next fixture in this process can create its own (undisposed VMs corrupt the next Create).
+        if (!_initialized || _vm == null) return;
+        _vm->Dispose();
+        _vm = null;
+        _std = null;
+        _initialized = false;
+    }
+
     [Test]
     public void FibTest_ExecutesWithoutCrash()
     {

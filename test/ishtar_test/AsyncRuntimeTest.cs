@@ -43,6 +43,17 @@ public unsafe class AsyncRuntimeTest : IshtarTestBase
         _corlibLoaded = true;
     }
 
+    [OneTimeTearDown]
+    public static void FixtureTeardown()
+    {
+        // Release the VM so the next fixture in this process can create its own (undisposed VMs corrupt the next Create).
+        if (!_initialized || _vm == null) return;
+        _vm->Dispose();
+        _vm = null;
+        _corlibLoaded = false;
+        _initialized = false;
+    }
+
     /// <summary>
     /// Build a VeinModuleBuilder, resolve it on the shared _vm, find the entry method, exec, return frame.
     /// No second VM created.
