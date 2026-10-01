@@ -82,3 +82,5 @@ public unsafe partial struct VirtualMachine(VirtualMachine* self)
         tag.Complete();
     }
 }
+        GenericObjectArgs.Clear(); // drop reified type-args keyed by this VM's (now freed) object pointers
+        GenericInstanceCache.Clear(); // drop interned closed-type handles (v1: memory leaked, cleared per-VM)

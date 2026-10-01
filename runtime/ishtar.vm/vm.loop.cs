@@ -443,6 +443,26 @@ public unsafe partial struct VirtualMachine : IDisposable
                     ++sp;
                     ++ip;
                     break;
+                case LD_TYPE_G:
+                {
+                    // Resolve a class type parameter against the receiver's reified type arguments.
+                    // Operand = parameter index in the owner's type-param list (emitted by EmitGenericsLoad).
+                    // Pushes the same kind of token LD_TYPE does (a types_table index), so NEWOBJ/NEWARR/CAST
+                    // consume it uniformly.
+                    ++ip;
+                    var paramIndex = (int)(*ip);
+                    ++ip;
+                    var receiver = (nint)invocation->args[0].data.p;
+                    if (!GenericObjectArgs.TryGetValue(receiver, out var targs) || paramIndex < 0 || paramIndex >= targs.Length)
+                    {
+                        FastFail(STATE_CORRUPT, $"LD_TYPE_G: receiver has no generic argument at index {paramIndex}", invocation);
+                        break;
+                    }
+                    sp->type = TYPE_TOKEN;
+                    sp->data.ui = (uint)targs[paramIndex];
+                    ++sp;
+                }
+                    break;
                 case NEWARR:
                 {
                     ++ip;
@@ -492,7 +512,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                     // Async RET: resolve the ownerJob instead of storing returnValue
                     if (invocation->asyncJob != null)
                     {
-                        if (invocation->method->ReturnType->TypeCode == TYPE_VOID)
+                        if (invocation->method->ReturnsVoid)
                             invocation->asyncJob->SetCompleted();
                         else
                             invocation->asyncJob->SetResult(*sp);
@@ -712,11 +732,28 @@ public unsafe partial struct VirtualMachine : IDisposable
                 case NEWOBJ:
                 {
                     ++ip;
-                    sp->type = TYPE_CLASS;
-                    sp->data.p = (nint)
-                        gc->AllocObject(
-                            _module->FindType(_module->GetTypeNameByIndex((int)*ip, invocation), true), invocation);
+                    var newObjClass = _module->FindType(_module->GetTypeNameByIndex((int)*ip, invocation), true);
                     ++ip;
+                    // For a generic type, pop the type-argument tokens EmitGenericsLoad pushed (LD_TYPE / LD_TYPE_G)
+                    // and record them against the new object (reified instantiation). The count is bounded by the
+                    // class arity (parsed from its still-mangled '<...>' name) so we never read below the stack.
+                    // POP the type-argument tokens EmitGenericsLoad pushed (bounded by the class's generic
+                    // arity) and record them against the new object. Popping (not peeking) leaves the eval
+                    // stack as the compiler expects after NEWOBJ — the type-arg tokens are transient and must
+                    // not remain below the object (they would mis-align STF/STLOC).
+                    var arity = newObjClass->GenericArity;
+                    var nargs = 0;
+                    while (nargs < arity && (sp - 1)->type == TYPE_TOKEN) { --sp; ++nargs; }
+                    var newObj = gc->AllocObject(newObjClass, invocation);
+                    if (nargs > 0)
+                    {
+                        var targs = new int[nargs];
+                        for (var i = 0; i < nargs; i++)
+                            targs[i] = (int)(sp + i)->data.ui;
+                        GenericObjectArgs[(nint)newObj] = targs;
+                    }
+                    sp->type = TYPE_CLASS;
+                    sp->data.p = (nint)newObj;
                     ++sp;
                 }
                     break;
@@ -846,7 +883,13 @@ public unsafe partial struct VirtualMachine : IDisposable
                                 : $"@@@<< {StringStorage.GetString(_a->Name, invocation)}: {_a->Type.Class->FullName->NameWithNS}");
 
                             if (_a->Type.IsGeneric)
+                            {
+                                // Generic-typed argument: pass it through without concrete type validation,
+                                // but still copy it into the child frame (the `continue` would otherwise skip
+                                // the method_args[y] = *sp store below).
+                                method_args[y] = *sp;
                                 continue;
+                            }
                             var arg_class = _a->Type.Class;
 
                             if (arg_class->Name is not "Object" and not "ValueType")
@@ -969,7 +1012,7 @@ public unsafe partial struct VirtualMachine : IDisposable
                             goto exception_handle;
                         }
 
-                        if (method->ReturnType->TypeCode != TYPE_VOID)
+                        if (!method->ReturnsVoid)
                         {
                             invocation->assert(!child_frame->returnValue.IsNull(), STATE_CORRUPT, "Method has return zero memory.");
                             *sp = child_frame->returnValue[0];
@@ -997,10 +1040,12 @@ public unsafe partial struct VirtualMachine : IDisposable
                         var type_name = readTypeName(*++ip, _module, invocation);
                         var type = _module->FindType(type_name, true);
 
-                        Assert(type->TypeCode != TYPE_NONE, TYPE_MISMATCH, "in LOC_INIT not allowed using undefined type", invocation);
                         Assert(type->TypeCode != TYPE_VOID, TYPE_MISMATCH, "in LOC_INIT not allowed using void type", invocation);
 
-                        if (type->IsPrimitive)
+                        // A generic local (a type parameter T, or an open instance like Array<T>) resolves to
+                        // an undefined type here — its concrete type is only known at runtime — so give it a
+                        // reference (object) slot rather than rejecting it.
+                        if (type->TypeCode != TYPE_NONE && type->IsPrimitive)
                             locals[i].type = type->TypeCode;
                         else
                         {
