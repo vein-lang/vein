@@ -56,6 +56,11 @@ namespace ishtar
         public RuntimeToken runtime_token { get; }
         public uint ID { get; }
 
+        /// <summary>Number of type parameters this class declares (0 for non-generic). Serialized from
+        /// the class metadata so the runtime/JIT can test genericity without parsing the mangled name.</summary>
+        public int GenericArity { get; set; }
+        public bool IsGenericType => GenericArity > 0;
+
         [CIfDefined("DEBUG")]
         public ushort Magic1;
         [CIfDefined("DEBUG")]
