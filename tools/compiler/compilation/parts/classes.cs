@@ -366,10 +366,23 @@ public partial class CompilationTask
                 list.Add(new VeinBaseConstraintConstBittable());
             else if (constraint.IsClass)
                 list.Add(new VeinBaseConstraintConstClass());
-            else 
+            else
                 list.Add(new VeinBaseConstraintConstType(module.FindType(new NameSymbol(constraint.Constraint.Typeword.Identifier), doc.Includes)));
         }
 
         return list;
+    }
+
+    /// <summary>
+    /// Enforces the generic type-parameter constraints of <paramref name="definition"/> against the
+    /// concrete type arguments at a construction site (e.g. <c>List&lt;i32&gt;</c>). Open arguments
+    /// (a bare type parameter) are skipped — there is nothing concrete to check yet. Constraints are
+    /// only present on same-module definitions for now (loaded modules carry synthetic, constraint-less
+    /// type parameters), so cross-module enforcement awaits constraint serialization.
+    /// </summary>
+    public void ValidateConstraints(VeinClass definition, List<VeinComplexType> args, TypeSyntax typename, DocumentDeclaration doc)
+    {
+        foreach (var violation in GenericConstraintChecker.CheckViolations(definition, args))
+            Log.Defer.Error(violation.EscapeMarkup(), typename, doc);
     }
 }

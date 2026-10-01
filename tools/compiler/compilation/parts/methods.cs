@@ -155,8 +155,12 @@ public partial class CompilationTask
     public (MethodBuilder method, MethodDeclarationSyntax syntax)
         CompileMethod(MethodDeclarationSyntax member, ClassBuilder clazz, DocumentDeclaration doc)
     {
-        VeinComplexType retType = member.ReturnType.IsSelf ? clazz :
-            FetchType(clazz, member.ReturnType, doc);
+        // A method type-parameter used as the return type (e.g. `id<T>(...): T`) must bind to the method's
+        // own generic parameter — FetchType only knows class parameters, so resolve it here like args.cs does.
+        var returnGeneric = member.GenericTypes.FirstOrDefault(x => x.Typeword.Equals(member.ReturnType));
+        VeinComplexType retType = member.ReturnType.IsSelf ? clazz
+            : returnGeneric is not null ? returnGeneric.Typeword.ToTypeArg([])
+            : FetchType(clazz, member.ReturnType, doc);
         member.OwnerDocument = doc;
 
         if (retType is null)
@@ -178,16 +182,41 @@ public partial class CompilationTask
             return (ctor, member);
         }
 
-        var method = clazz.DefineMethod(member.Identifier.ExpressionString, GenerateMethodFlags(member), retType, args);
-        
+        var methodGenerics = GenerateMethodGenerics(member, doc);
+        var method = clazz.DefineMethod(member.Identifier.ExpressionString, GenerateMethodFlags(member), retType, methodGenerics, args);
+
         if (clazz.IsInterface)
             method.Flags |= MethodFlags.Abstract | MethodFlags.Public;
 
-        if (retType.IsGeneric || args.Any(x => x.IsGeneric))
+        if (retType.IsGeneric || args.Any(x => x.IsGeneric) || methodGenerics.Count > 0)
             method.Flags |= MethodFlags.Generic;
 
         CompileAspectFor(member, doc, method);
 
         return (method, member);
+    }
+
+    /// <summary>
+    /// Converts a method's declared type parameters (<c>foo&lt;T, U&gt;</c>) into ordered
+    /// <see cref="VeinTypeArg"/>s carrying any <c>when T is ...</c> constraints, mirroring the class-level
+    /// <c>GenerateGenerics</c>. The result is stored on the method signature so the body can resolve the
+    /// parameters as types and call sites can substitute them.
+    /// </summary>
+    public List<VeinTypeArg> GenerateMethodGenerics(MethodDeclarationSyntax member, DocumentDeclaration doc)
+    {
+        var list = new List<VeinTypeArg>();
+
+        foreach (var type in member.GenericTypes)
+        {
+            var constraints = member.TypeParameterConstraints
+                .Where(x => x.GenericIndex.Typeword.Identifier == type.Typeword.Identifier)
+                .ToList();
+
+            list.Add(constraints.Count == 0
+                ? new VeinTypeArg(type.Typeword.Identifier, new List<VeinBaseConstraint>())
+                : new VeinTypeArg(type.Typeword.Identifier, ConvertConstraints(constraints, doc)));
+        }
+
+        return list;
     }
 }
